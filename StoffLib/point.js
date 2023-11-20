@@ -1,0 +1,23 @@
+const { Vector } = require("../Geometry/geometry.js");
+
+class Point extends Vector{
+    constructor(x, y){
+        super(x, y);
+        
+        this.adjacent_lines = [];
+    }
+
+    add_adjacent_line(line){
+        this.adjacent_lines.push(line);
+    }
+
+    get_adjacent_lines(){
+        return this.adjacent_lines;
+    }
+
+    moveTo(x, y){
+        this.set(x,y)
+    }
+}
+
+module.exports = { Point };
