@@ -354,6 +354,7 @@ class Sketch{
 
     remove_line(line){
         this._guard_lines_in_sketch(line);
+        this.points.forEach(p => p.remove_line(line));
         this.lines = this.lines.filter(l => l !== line);
     }
 
@@ -386,7 +387,7 @@ class Sketch{
 
     _guard_lines_in_sketch(...ls){
         if (!this._has_lines(...ls)){
-            throw new Error("Points are not part of the sketch.");
+            throw new Error("Lines are not part of the sketch.");
         }
     }
 

@@ -18,7 +18,8 @@ let sketch_functions = [
     "interpolate_lines",
     "intersect_lines",
     "copy_line",
-    "remove_line"
+    "remove_line",
+    "remove_point"
 ];
 
 sketch_functions.forEach(f => {
@@ -36,4 +37,7 @@ module.exports.save = (save_to, dim = 500) => {
     });
 }
 
+module.exports._log_sketch = () => {
+    console.log(s);
+}
 module.exports.Point = Point;

@@ -18,6 +18,10 @@ class Point extends Vector{
     moveTo(x, y){
         this.set(x,y)
     }
+
+    remove_line(l){
+        this.adjacent_lines = this.adjacent_lines.filter(line => line != l);
+    }
 }
 
 module.exports = { Point };
