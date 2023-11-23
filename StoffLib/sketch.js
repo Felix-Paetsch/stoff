@@ -354,7 +354,7 @@ class Sketch{
 
     remove_line(line){
         this._guard_lines_in_sketch(line);
-        this.points.forEach(p => p.remove_line(line));
+        line.get_endpoints.forEach(p => p.remove_line(line));
         this.lines = this.lines.filter(l => l !== line);
     }
 
