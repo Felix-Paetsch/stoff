@@ -1,6 +1,7 @@
-const { Vector, affine_transform_from_input_output, vec_angle_clockwise } = require("../Geometry/geometry.js");
+const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
-const { Point } = require('./point.js');
+
+const _intersect_lines = require("./unicorns/intersect_lines.js");
 
 class Sketch{
     constructor(h = .005){
@@ -55,6 +56,7 @@ class Sketch{
     }
 
     line_between_points(pt1, pt2, file = null){
+        // Makes a straight line between pt1, pt2
         this._guard_points_in_sketch(pt1, pt2);
 
         if (file == null){
@@ -64,6 +66,31 @@ class Sketch{
         } else {
             throw new Error("Unimplemented!");
         }
+    }
+
+    line_from_function_graph(pt1, pt2, f_1, f_2 = null){
+        // if one function is given, draw its graph as if the enpoint vector was the x-axis
+        // if two functiosn are given, treat them as x(t) and y(t) as t goes from 0 to 1 with the enpoint_vetor the x-axis
+
+        let x_t;
+        let y_t;
+
+        if (f_2 == null){
+            x_t = (t) => t;
+            y_t = f_1;
+        } else {
+            x_t = f_1;
+            y_t = f_2;
+        }
+
+        const n = Math.ceil(1 / this.sample_density);
+
+        const sample_points = Array.from(
+            { length: n + 1 }, 
+            (_, i) => new Vector(x_t(i/n), y_t(i/n))
+        );
+
+        return this._line_between_points_from_sample_points(pt1, pt2, sample_points);
     }
 
     _line_between_points_from_sample_points(pt1, pt2, sp){
@@ -176,173 +203,8 @@ class Sketch{
 
             Note, that this function deletes line1 and line 2 and replaces them.
         */
-
-        if (assurances.is_staight !== true){
-            throw new Error("Currently require line1 to be straight");
-        }
-
-        function line_segments_intersect(start1, end1, start2, end2) {
-            const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
-        
-            // Check if the lines are parallel (denominator is zero)
-            if (denominator === 0) {
-                return [false, null];
-            }
-        
-            const ua = ((end2.x - start2.x) * (start1.y - start2.y) - (end2.y - start2.y) * (start1.x - start2.x)) / denominator;
-            const ub = ((end1.x - start1.x) * (start1.y - start2.y) - (end1.y - start1.y) * (start1.x - start2.x)) / denominator;
-        
-            // Check if intersection is within line segments
-            if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
-                return [false, null];
-            }
-        
-            // Intersection point is within both line segments
-            return [true, ua, ub];
-        }
-
-        const intersection_positions = [];
-
-        // Specific for one being a line
-        const l2_abs_sample_points = line2.get_absolute_sample_points();
-        const l1_abs_sample_points = line1.get_absolute_sample_points();
-        
-        const enpoints = line1.get_endpoints();
-        for (let i = 0; i < l2_abs_sample_points.length - 1; i++){
-            const [intersect, ...where] = line_segments_intersect(...enpoints, l2_abs_sample_points[i], l2_abs_sample_points[i+1]);
-            if (!intersect) continue;
-            if (where[1] == 1){
-                i++; // Bcs otherwise would be counted as [_, 0] on the next one
-            }
-
-            intersection_positions.push({
-                line2_left_pt: i, // index
-                line2_left_percent: where[1],
-                line1_left_pt: Math.floor((l1_abs_sample_points.length - 1) * where[0]),
-                line1_left_percent: (l1_abs_sample_points.length - 1) * where[0] - Math.floor(l1_abs_sample_points.length * where[0]),
-            });
-        }
-
-        // Split into sublines
-        intersection_positions.forEach(p => {
-            const point_vec = l2_abs_sample_points[p.line2_left_pt].mult(1 - p.line2_left_percent)
-                                  .add(l2_abs_sample_points[p.line2_left_pt + 1].mult(p.line2_left_percent));
-
-            const intersection_point = new Point(
-                point_vec.x, point_vec.y
-            );
-
-            p.acutal_point = intersection_point;
-            this.add_point(intersection_point);
-        });
-
-        if (intersection_positions.length == 0){
-            return {
-                intersection_points: [],
-                l1_segments: [line1],
-                l2_segments: [line2]
-            }
-        }
-
-        // # Handle Line1
-        intersection_positions.sort((a, b) => {
-            if (a.line1_left_pt !== b.line1_left_pt) {
-                return a.line1_left_pt - b.line1_left_pt;
-            }
-            return a.line1_left_percent - b.line1_left_percent;
-        });
-
-        // ## Add missing endpoints
-        const [l1_start, l1_end] = line1.get_endpoints();
-        intersection_positions.unshift({
-            line1_left_pt: 0,
-            line1_left_percent: 0,
-            acutal_point: l1_start
-        });
-
-        intersection_positions.push({
-            line1_left_pt: l1_abs_sample_points.length,
-            line1_left_percent: 0,
-            acutal_point: l1_end
-        });
-
-        const l1_segments = [];
-
-        for (let i = 0; i < intersection_positions.length - 1; i++){
-            const segment_sample_points = line1.cut_sample_points_at(
-                intersection_positions[i].line1_left_pt,
-                intersection_positions[i].line1_left_percent,
-                intersection_positions[i + 1].line1_left_pt,
-                intersection_positions[i + 1].line1_left_percent
-            );
-
-            l1_segments.push(
-                this._line_between_points_from_sample_points(
-                    intersection_positions[i].acutal_point,
-                    intersection_positions[i + 1].acutal_point,
-                    segment_sample_points
-                )
-            );
-        }
-
-        // ## Remove endpoints 
-        intersection_positions.pop();
-        intersection_positions.shift();
-
-        // # Handle Line2
-        intersection_positions.sort((a, b) => {
-            if (a.line2_left_pt !== b.line2_left_pt) {
-                return a.line2_left_pt - b.line2_left_pt;
-            }
-            return a.line2_left_percent - b.line2_left_percent;
-        });
-
-        // ## Add missing endpoints
-        const [l2_start, l2_end] = line2.get_endpoints();
-        intersection_positions.unshift({
-            line2_left_pt: 0,
-            line2_left_percent: 0,
-            acutal_point: l2_start
-        });
-
-        intersection_positions.push({
-            line2_left_pt: l2_abs_sample_points.length - 1,
-            line2_left_percent: 0,
-            acutal_point: l2_end
-        });
-
-        const l2_segments = [];
-
-        for (let i = 0; i < intersection_positions.length - 1; i++){
-            const segment_sample_points = line2.cut_sample_points_at(
-                intersection_positions[i].line2_left_pt,
-                intersection_positions[i].line2_left_percent,
-                intersection_positions[i + 1].line2_left_pt,
-                intersection_positions[i + 1].line2_left_percent
-            );
-
-            l2_segments.push(
-                this._line_between_points_from_sample_points(
-                    intersection_positions[i].acutal_point,
-                    intersection_positions[i + 1].acutal_point,
-                    segment_sample_points
-                )
-            );
-        }
-
-        // ## Remove endpoints 
-        intersection_positions.pop();
-        intersection_positions.shift();
-
-        // # Continuing
-        this.remove_line(line1);
-        this.remove_line(line2);
-
-        return {
-            intersection_points: intersection_positions.map(p => p.acutal_point),
-            l1_segments,
-            l2_segments
-        }
+    
+        return _intersect_lines(this, line1, line2, assurances)
     }
 
     copy_line(line, from, to){

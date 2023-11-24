@@ -7,13 +7,13 @@ function validate_sketch(s){
         assert(
             approx_eq(l.sample_points[0].x, 0)
             && approx_eq(l.sample_points[0].y, 0),
-            "Line starts with (0,0)"
+            "Test Failed: Line starts with (0,0)"
         );
 
         assert(
             approx_eq(l.sample_points[l.sample_points.length - 1].x, 1)
             && approx_eq(l.sample_points[l.sample_points.length - 1].y, 0),
-            "Line ends with (1,0)"
+            "Test Failed: Line ends with (1,0)"
         );
     });
 }

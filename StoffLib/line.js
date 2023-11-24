@@ -12,7 +12,24 @@ class Line{
 
         this.p1 = endpoint_1;
         this.p2 = endpoint_2;
+
         this.sample_points = sample_points;
+
+        function approx_eq(v1, v2){
+            return v1.subtract(v2).length_squared() < .01
+        }
+
+        if (approx_eq(this.sample_points[0], new Vector(0,0))){
+            this.sample_points[0] = new Vector(0,0);
+        } else {
+            throw new Error("Line sample points dont start with (0,0)");
+        }
+
+        if (approx_eq(this.sample_points[this.sample_points.length - 1], new Vector(1,0))){
+            this.sample_points[this.sample_points.length - 1] = new Vector(1,0);
+        } else {
+            throw new Error("Line sample points dont end with (1,0)");
+        }
 
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);

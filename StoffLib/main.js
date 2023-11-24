@@ -19,7 +19,8 @@ let sketch_functions = [
     "intersect_lines",
     "copy_line",
     "remove_line",
-    "remove_point"
+    "remove_point",
+    "line_from_function_graph"
 ];
 
 sketch_functions.forEach(f => {

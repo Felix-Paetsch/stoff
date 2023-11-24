@@ -62,6 +62,10 @@ class Vector{
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
+    length_squared(){
+        return this.x * this.x + this.y * this.y;
+    }
+
     normalize(){
         return this.scale(this.length());
     }
