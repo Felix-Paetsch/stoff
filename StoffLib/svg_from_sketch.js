@@ -32,7 +32,7 @@ function create_svg_from_sketch(s, svgSize = 500){
 
     const createCircle = (point) => {
         const transformed = transformPoint(point);
-        svgContent += `<circle cx="${transformed.x}" cy="${transformed.y}" r="1" stroke="black" fill="white" />`;
+        svgContent += `<circle cx="${transformed.x}" cy="${transformed.y}" r="4" stroke="black" fill="white" />`;
     };
       
     const createPolyline = (polyline) => {
