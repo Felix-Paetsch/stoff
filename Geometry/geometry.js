@@ -67,7 +67,7 @@ class Vector{
     }
 
     normalize(){
-        return this.scale(this.length());
+        return this.scale(1/this.length());
     }
 
     get_orthogonal(){
@@ -100,7 +100,7 @@ class Matrix{
         if (column_wise){
             this.col1 = vec1;
             this.col2 = vec2;
-    
+
             this.row1 = new Vector(this.col1[0], this.col2[0]);
             this.row2 = new Vector(this.col1[1], this.col2[1]);
         } else {
@@ -110,7 +110,7 @@ class Matrix{
             this.col1 = new Vector(this.row1[0], this.row2[0]);
             this.col2 = new Vector(this.row1[1], this.row2[1]);
         }
-        
+
 
         this[0] = this.row1;
         this[1] = this.row2;
@@ -118,7 +118,7 @@ class Matrix{
 
     transpose(){
         return new Matrix(
-            new Vector(this[0][0], this[1][0]), 
+            new Vector(this[0][0], this[1][0]),
             new Vector(this[0][1], this[1][1])
         )
     }
@@ -141,7 +141,7 @@ class Matrix{
 
     invert(){
         const pre_scaled = new Matrix(
-            new Vector(this[1][1],           this[0][1] * -1), 
+            new Vector(this[1][1],           this[0][1] * -1),
             new Vector(this[1][0] * -1,      this[0][0])
         );
         return pre_scaled.scale(1/this.det());
@@ -208,13 +208,10 @@ function rotation_fun(rotation_point, angle){
 }
 
 function vec_angle_clockwise(vec1, vec2){
-    // Starting from vec1, xrichtung im Uhrzeigersinn
-    const v_reference = new Vector(1,0);
-    const v_target    = vec2.subtract(vec1);
-    const scalar = v_target.y < 0 ? -1 : 1;
-    const r = scalar * Math.acos(v_reference.dot(v_target) / (v_reference.length() * v_target.length()));
-    if (isNaN(r)) return 0;
-    return r;
+    return Math.acos(
+        vec1.dot(vec2) / (
+          vec1.length() * vec2.length()
+        ));
 }
 
 module.exports =  { Vector, affine_transform_from_input_output, orthogonal_transform_from_input_output, vec_angle_clockwise }
