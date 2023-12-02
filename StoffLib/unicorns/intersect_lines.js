@@ -1,3 +1,9 @@
+/*
+
+    This module needs some updates
+
+*/
+
 const { Point } = require('../point.js');
 
 module.exports = function intersect_lines(sketch, line1, line2, assurances = { is_staight: true }){
@@ -64,17 +70,10 @@ module.exports = function intersect_lines(sketch, line1, line2, assurances = { i
             line1_left_percent: (l1_abs_sample_points.length - 1) * where[0] - Math.floor(l1_abs_sample_points.length * where[0]),
         };
 
-        // Math.floor errors
-        if (obj.line1_left_percent < -0.0001){
-            obj.line1_left_percent += 1;
-        }
-
-        if (obj.line2_left_percent < -0.0001){
-            obj.line2_left_percent += 1;
-        }
-
         intersection_positions.push(obj);
     }
+
+    intersection_positions = clean_intersection_positions(intersection_positions);
 
     // If one intersection point might be endpoint: Ignore
     intersection_positions = intersection_positions.filter(p => {
@@ -205,4 +204,22 @@ module.exports = function intersect_lines(sketch, line1, line2, assurances = { i
         l1_segments,
         l2_segments
     }
+}
+
+function clean_intersection_positions(intersection_positions){
+    // Very basic
+    for (let i = intersection_positions.length - 1; i > 0; i--){
+        ip1 = intersection_positions[i];
+        ip0 = intersection_positions[i - 1];
+
+        if (
+            Math.abs(ip0.line2_left_pt + ip0.line2_left_percent - ip1.line2_left_pt - ip1.line2_left_percent) < 0.001
+            || 
+            Math.abs(ip0.line1_left_pt + ip0.line1_left_percent - ip1.line1_left_pt - ip1.line1_left_percent) < 0.001
+        ){
+            intersection_positions.splice(i, 1);
+        }
+    }
+
+    return intersection_positions;
 }
