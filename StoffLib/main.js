@@ -17,10 +17,12 @@ let sketch_functions = [
     "line_between_points",
     "interpolate_lines",
     "intersect_lines",
+    "intersection_points",
     "copy_line",
     "remove_line",
     "remove_point",
-    "line_from_function_graph"
+    "line_from_function_graph",
+    "merge_lines"
 ];
 
 sketch_functions.forEach(f => {

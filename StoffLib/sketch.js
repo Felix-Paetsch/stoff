@@ -7,7 +7,7 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .005){
+    constructor(h = .001){
         this.sample_density = h;
         this.points = [];
         this.lines  = [];
@@ -186,6 +186,44 @@ class Sketch{
         )
     }
 
+    merge_lines(line1, line2){
+        this._guard_lines_in_sketch(line1, line2);
+
+        if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
+            throw new Error("Can't merge lines with both endpoints in common.");
+        } else if (line1.p1 == line2.p1){
+            line1._swap_orientation();
+        } else if (line1.p2 == line2.p2){
+            line2._swap_orientation();
+        } else if (line1.p1 == line2.p2){
+            line1._swap_orientation();
+            line2._swap_orientation();
+        } else if (line1.p2 != line2.p1){
+            throw new Error("Lines have no endpoint in common");
+        }
+
+        const abs1 = line1.get_absolute_sample_points();
+        const abs2 = line2.get_absolute_sample_points();
+        abs1.pop();
+        const abs_total = abs1.concat(abs2);
+
+        const t_fun = affine_transform_from_input_output(
+            [line1.p1,  line2.p2],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        const relative_points = abs_total.map(p => t_fun(p));
+        const new_line = this._line_between_points_from_sample_points(
+            line1.p1, 
+            line2.p2, 
+            relative_points
+        );
+
+        this.remove_line(line1);
+        this.remove_line(line2);
+        return new_line;
+    }
+
     intersect_lines(line1, line2, assurances = { is_staight: true }){
         /*
             params assurances: 
@@ -205,6 +243,7 @@ class Sketch{
             Note, that this function deletes line1 and line 2 and replaces them.
         */
     
+        this._guard_lines_in_sketch(line1, line2);
         return _intersect_lines(this, line1, line2, assurances)
     }
 
