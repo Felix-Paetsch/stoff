@@ -7,7 +7,7 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .003){
+    constructor(h = .001){
         this.sample_density = h;
         this.points = [];
         this.lines  = [];

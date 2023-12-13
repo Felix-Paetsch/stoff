@@ -11,8 +11,8 @@ module.exports = {
     _intersect_lines: function intersect_lines(sketch, line1, line2, assurances = { is_staight: true }){
         /*
             params assurances: 
-                { l2_stepsize_percent: 10, l2_stepsize_percent: 10}
-                -> If you recursivelytest only on x percent of the lines, you will find all points
+                { l2_stepsize_ratio: 10, l2_stepsize_ratio: 10}
+                -> If you recursivelytest only on x ratio of the lines, you will find all points
                 { intersection_count : 5 }
                 -> There are so many intersections exactly
                 { is_straight: true}
@@ -51,20 +51,20 @@ module.exports = {
             if (a.line1_left_pt !== b.line1_left_pt) {
                 return a.line1_left_pt - b.line1_left_pt;
             }
-            return a.line1_left_percent - b.line1_left_percent;
+            return a.line1_left_ratio - b.line1_left_ratio;
         });
 
         // ## Add missing endpoints
         const [l1_start, l1_end] = line1.get_endpoints();
         intersection_positions.unshift({
             line1_left_pt: 0,
-            line1_left_percent: 0,
+            line1_left_ratio: 0,
             acutal_point: l1_start
         });
 
         intersection_positions.push({
             line1_left_pt: l1_abs_sample_points.length,
-            line1_left_percent: 0,
+            line1_left_ratio: 0,
             acutal_point: l1_end
         });
 
@@ -73,9 +73,9 @@ module.exports = {
         for (let i = 0; i < intersection_positions.length - 1; i++){
             const segment_sample_points = line1.cut_sample_points_at(
                 intersection_positions[i].line1_left_pt,
-                intersection_positions[i].line1_left_percent,
+                intersection_positions[i].line1_left_ratio,
                 intersection_positions[i + 1].line1_left_pt,
-                intersection_positions[i + 1].line1_left_percent
+                intersection_positions[i + 1].line1_left_ratio
             );
 
             l1_segments.push(
@@ -96,20 +96,20 @@ module.exports = {
             if (a.line2_left_pt !== b.line2_left_pt) {
                 return a.line2_left_pt - b.line2_left_pt;
             }
-            return a.line2_left_percent - b.line2_left_percent;
+            return a.line2_left_ratio - b.line2_left_ratio;
         });
 
         // ## Add missing endpoints
         const [l2_start, l2_end] = line2.get_endpoints();
         intersection_positions.unshift({
             line2_left_pt: 0,
-            line2_left_percent: 0,
+            line2_left_ratio: 0,
             acutal_point: l2_start
         });
 
         intersection_positions.push({
             line2_left_pt: l2_abs_sample_points.length - 1,
-            line2_left_percent: 0,
+            line2_left_ratio: 0,
             acutal_point: l2_end
         });
 
@@ -118,9 +118,9 @@ module.exports = {
         for (let i = 0; i < intersection_positions.length - 1; i++){
             const segment_sample_points = line2.cut_sample_points_at(
                 intersection_positions[i].line2_left_pt,
-                intersection_positions[i].line2_left_percent,
+                intersection_positions[i].line2_left_ratio,
                 intersection_positions[i + 1].line2_left_pt,
-                intersection_positions[i + 1].line2_left_percent
+                intersection_positions[i + 1].line2_left_ratio
             );
 
             l2_segments.push(
@@ -151,8 +151,8 @@ module.exports = {
 function _intersection_points(line1, line2, assurances = { is_staight: true }, ret_only_points = true){
     /*
         params assurances: 
-            { l2_stepsize_percent: 10, l2_stepsize_percent: 10}
-            -> If you recursivelytest only on x percent of the lines, you will find all points
+            { l2_stepsize_ratio: 10, l2_stepsize_ratio: 10}
+            -> If you recursivelytest only on x ratio of the lines, you will find all points
             { intersection_count : 5 }
             -> There are so many intersections exactly
             { is_straight: true}
@@ -196,18 +196,18 @@ function _intersection_points(line1, line2, assurances = { is_staight: true }, r
     const l1_abs_sample_points = line1.get_absolute_sample_points();
     
     const enpoints = line1.get_endpoints();
-    for (let i = 0; i < l2_abs_sample_points.length - 1; i++){
+    for (let i = 1; i < l2_abs_sample_points.length - 2; i++){
+        // You may want to go from 0 to l2_abs_sample_points.length - 1, however you risk to include edges
         const [intersect, ...where] = line_segments_intersect(...enpoints, l2_abs_sample_points[i], l2_abs_sample_points[i+1]);
         if (!intersect) continue;
-        if (where[1] == 1){
-            i++; // Bcs otherwise would be counted as [_, 0] on the next one
-        }
+        
+        const line1_left_pt = Math.floor((l1_abs_sample_points.length - 1) * where[0]);
 
         const obj = {
             line2_left_pt: i, // index
-            line2_left_percent: where[1],
-            line1_left_pt: Math.floor((l1_abs_sample_points.length - 1) * where[0]),
-            line1_left_percent: (l1_abs_sample_points.length - 1) * where[0] - Math.floor(l1_abs_sample_points.length * where[0]),
+            line2_left_ratio: where[1],
+            line1_left_pt,
+            line1_left_ratio: (l1_abs_sample_points.length - 1) * where[0] - line1_left_pt,
         };
 
         intersection_positions.push(obj);
@@ -217,17 +217,17 @@ function _intersection_points(line1, line2, assurances = { is_staight: true }, r
 
     // If one intersection point might be endpoint: Ignore
     intersection_positions = intersection_positions.filter(p => {
-        const l1_pt0 = p.line1_left_pt + p.line1_left_percent < 0.01;
-        const l2_pt0 = p.line2_left_pt + p.line2_left_percent < 0.01;
-        const l1_pt1 = p.line1_left_pt + p.line1_left_percent > l1_abs_sample_points.length - 0.01;
-        const l2_pt1 = p.line2_left_pt + p.line2_left_percent > l2_abs_sample_points.length - 0.01;
+        const l1_pt0 = p.line1_left_pt + p.line1_left_ratio < 0.01;
+        const l2_pt0 = p.line2_left_pt + p.line2_left_ratio < 0.01;
+        const l1_pt1 = p.line1_left_pt + p.line1_left_ratio > l1_abs_sample_points.length - 0.01;
+        const l2_pt1 = p.line2_left_pt + p.line2_left_ratio > l2_abs_sample_points.length - 0.01;
         return !(l1_pt0 || l1_pt1 || l2_pt0 || l2_pt1);
     });
 
     // Split into sublines
     return intersection_positions.map(p => {
-        const point_vec = l2_abs_sample_points[p.line2_left_pt].mult(1 - p.line2_left_percent)
-                            .add(l2_abs_sample_points[p.line2_left_pt + 1].mult(p.line2_left_percent));
+        const point_vec = l2_abs_sample_points[p.line2_left_pt].mult(1 - p.line2_left_ratio)
+                            .add(l2_abs_sample_points[p.line2_left_pt + 1].mult(p.line2_left_ratio));
 
         if (ret_only_points){
             return point_vec;
@@ -245,9 +245,9 @@ function clean_intersection_positions(intersection_positions){
         ip0 = intersection_positions[i - 1];
 
         if (
-            Math.abs(ip0.line2_left_pt + ip0.line2_left_percent - ip1.line2_left_pt - ip1.line2_left_percent) < 0.001
+            Math.abs(ip0.line2_left_pt + ip0.line2_left_ratio - ip1.line2_left_pt - ip1.line2_left_ratio) < 0.001
             || 
-            Math.abs(ip0.line1_left_pt + ip0.line1_left_percent - ip1.line1_left_pt - ip1.line1_left_percent) < 0.001
+            Math.abs(ip0.line1_left_pt + ip0.line1_left_ratio - ip1.line1_left_pt - ip1.line1_left_ratio) < 0.001
         ){
             intersection_positions.splice(i, 1);
         }
