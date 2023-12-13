@@ -1,7 +1,10 @@
 const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
 
-const _intersect_lines = require("./unicorns/intersect_lines.js");
+const {
+    _intersect_lines,
+    _intersection_points
+} = require("./unicorns/intersect_lines.js");
 
 class Sketch{
     constructor(h = .005){
@@ -101,12 +104,10 @@ class Sketch{
         return l;
     }
 
-    interpolate_lines(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x, auf_bogenlaenge = false){
+    interpolate_lines(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
         // Interpoliert line1 und line2.
         // p1 und p2 geben zu jedem Zeitpunkt t an, wo wir uns auf den jeweiligen Linien befinden
         //      bevorzugt p_i(0) = 0 und p_i(1) = 1
-        //      auf_bogenlaenge = false -> Prozentsatz der SamplePoints
-        //      auf_bogenlaenge = true  -> kurve auf Bogenlänge parametrisiert
         // f gibt an, wie viel von p_1, wie viel von p_2
         //      annahme: f(0) = 0 => wir sind bei Punkt 1 von Linie 1
         //               f(1) = 1 => wir sind bei Punkt 2 von Linie 2
@@ -205,6 +206,11 @@ class Sketch{
         */
     
         return _intersect_lines(this, line1, line2, assurances)
+    }
+
+    intersection_points(line1, line2, assurances = { is_staight: true }){
+        // see intersect_lines, only the points are returned and the sketch is unaltered
+        return _intersection_points(line1, line2, assurances);
     }
 
     copy_line(line, from, to){

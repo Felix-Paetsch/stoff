@@ -38,7 +38,11 @@ module.exports.save = (save_to, dim = 500) => {
     });
 }
 
-module.exports._log_sketch = () => {
-    console.log(s);
-}
 module.exports.Point = Point;
+
+module.exports.debug = {
+    get_sketch: () => { return s; },
+    log_sketch: () => { console.log(s); },
+    sketch_has_pt: (...pt) => { return s._has_points(...pt); },
+    sketch_has_line: (...l) => { return s._has_lines(...l); }
+}
