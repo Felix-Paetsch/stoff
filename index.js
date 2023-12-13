@@ -16,8 +16,13 @@ const l2 = line_from_function_graph(
     x => .3*Math.sin(2*x* Math.PI),
 );
 
+const f = l2.get_to_relative_function();
+l2.sample_points = l2.abs_normalized_sample_points().map(r => f(r));
+
+/*
 const l3 = line_between_points(p1, p2);
 const l4 = line_between_points(p1, p2);
+
 
 const r1 = intersect_lines(l3, l1);
 remove_line(r1.l1_segments[1]);
@@ -29,5 +34,6 @@ remove_line(r2.l1_segments[0]);
 
 line_between_points(r2.intersection_points[0], p1);
 line_between_points(r1.intersection_points[0], p2);
+*/
 
 save(`test.svg`, 500, 500);

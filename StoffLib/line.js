@@ -121,10 +121,10 @@ class Line{
         const endpoint_distance = this.endpoint_distance();
         let sum = 0;
 
-        for (let i = 0; i < this.sample_points.length; i++){
+        for (let i = 0; i < this.sample_points.length - 1; i++){
             sum += Math.sqrt(
-                Math.pow(this.sample_points[i][1] - this.sample_points[i+1][1], 2),
-                Math.pow(this.sample_points[i][2] - this.sample_points[i+1][2], 2)
+                Math.pow(this.sample_points[i][1] - this.sample_points[i+1][1], 2) +
+                Math.pow(this.sample_points[i][0] - this.sample_points[i+1][0], 2)
             );
         }
 
@@ -152,6 +152,46 @@ class Line{
             bottom_left:  new Vector(_min_x, _max_y),
             bottom_right: new Vector(_max_x, _max_y)
         }
+    }
+
+    abs_normalized_sample_points(k = 1000){
+        k = Math.round(k);
+
+        const total_len = this.get_length();
+        const step_size = 1/k;
+        const sample_point_distance = total_len * step_size;
+        
+        const sp = this.get_absolute_sample_points();
+        const res = [sp[0]];
+
+        let current_sp_index = 0;
+        let point_for_distance_from = sp[0]; // Is or is after sp[current_sp_index]
+        let distance_left = sample_point_distance;
+
+        while (current_sp_index < sp.length - 1){
+            let distance_to_next_sp_point = point_for_distance_from.subtract(sp[current_sp_index + 1]).length();
+            if (distance_to_next_sp_point < distance_left){
+                distance_left -= distance_to_next_sp_point;
+                current_sp_index += 1;
+                point_for_distance_from = sp[current_sp_index];
+            } else {
+                const next_sample_point = point_for_distance_from.add(
+                    sp[current_sp_index + 1].subtract(point_for_distance_from).normalize().mult(distance_to_next_sp_point)
+                );
+
+                point_for_distance_from = next_sample_point;
+                res.push(next_sample_point);
+                distance_left = sample_point_distance;
+            }
+        }
+
+        if (sp[sp.length - 1].subtract(res[res.length - 1]).length() < sample_point_distance * .3){
+            res.pop();
+        }
+
+        res.push(sp[sp.length - 1]);
+
+        return res;
     }
 }
 

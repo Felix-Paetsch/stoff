@@ -7,7 +7,7 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .001){
+    constructor(h = .003){
         this.sample_density = h;
         this.points = [];
         this.lines  = [];
@@ -115,9 +115,8 @@ class Sketch{
         
         this._guard_lines_in_sketch(line1, line2);
 
-        function avg_point(line, position){
+        function avg_point(sample_points, position){
             // position is a number between 0 and 1
-            const sample_points = line.get_sample_points();
             const len = sample_points.length;
             const index = position * (len - 1);
 
@@ -159,12 +158,17 @@ class Sketch{
         const line1_to_rel_coords = (x) => abs_to_rel(line1_to_abs_coords(x));
         const line2_to_rel_coords = (x) => abs_to_rel(line2_to_abs_coords(x));
 
-        const n = Math.ceil(1/this.sample_density);
+        const n = Math.ceil(1/this.sample_density); // line segments of new line
+        const k = Math.ceil(1/this.sample_density); // line segments of old lines auf Bogenlänge
+
+        const line1_normalized = line1.abs_normalized_sample_points(k);
+        const line2_normalized = line2.abs_normalized_sample_points(k);
+        
         const sample_points = Array.from({ length: n + 1 }, (v, i) => {
             const t = i/n;
 
-            const avg_1_target_coord = line1_to_rel_coords(avg_point(line1, p1(t)));
-            const avg_2_target_coord = line2_to_rel_coords(avg_point(line2, p2(t)));
+            const avg_1_target_coord = line1_to_rel_coords(avg_point(line1_normalized, p1(t)));
+            const avg_2_target_coord = line2_to_rel_coords(avg_point(line2_normalized, p2(t)));
             const f_t = f(t);
 
             return avg_1_target_coord.mult(1 - f_t)
