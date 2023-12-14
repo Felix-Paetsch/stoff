@@ -26,26 +26,27 @@ function create_svg_from_sketch(s, svgSize = 500){
     const transformPoint = (point) => {
         return {
             x: (point.x - bb.top_left.x) * scaleFactor + offsetX,
-            y: (point.y - bb.top_left.y) * scaleFactor + offsetY
+            y: (point.y - bb.top_left.y) * scaleFactor + offsetY,
+            color: point.color
         };
     };
 
     const createCircle = (point) => {
         const transformed = transformPoint(point);
-        svgContent += `<circle cx="${transformed.x}" cy="${transformed.y}" r="4" stroke="black" fill="white" />`;
+        svgContent += `<circle cx="${ transformed.x }" cy="${ transformed.y }" r="4" stroke="${ transformed.color }" fill="white" />`;
     };
       
-    const createPolyline = (polyline) => {
+    const createPolyline = (polyline, color = "black") => {
         const pointsString = polyline.map(point => {
             const transformed = transformPoint(point);
             return `${transformed.x},${transformed.y}`;
         }).join(' ');
     
-        svgContent += `<polyline points="${pointsString}" style="fill:none;stroke:black;stroke-width:1" />`;
+        svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:${ color };stroke-width:1" />`;
     };
     
     s.lines.forEach(l => {
-        createPolyline(l.get_absolute_sample_points());
+        createPolyline(l.get_absolute_sample_points(), l.color);
     });
     s.points.forEach(p => createCircle(p));
 

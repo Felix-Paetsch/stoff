@@ -1,5 +1,6 @@
 const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
+const { interpolate_colors } = require("./colors.js");
 
 const {
     _intersect_lines,
@@ -7,7 +8,7 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .001){
+    constructor(h = .003){
         this.sample_density = h;
         this.points = [];
         this.lines  = [];
@@ -64,6 +65,7 @@ class Sketch{
 
         if (file == null){
             const l = new StraightLine(pt1, pt2, this.sample_density);
+            l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
             this.lines.push(l);
             return l;
         } else {
@@ -155,20 +157,17 @@ class Sketch{
             [new Vector(0,0), new Vector(1,0)]
         );
 
-        const line1_to_rel_coords = (x) => abs_to_rel(line1_to_abs_coords(x));
-        const line2_to_rel_coords = (x) => abs_to_rel(line2_to_abs_coords(x));
-
         const n = Math.ceil(1/this.sample_density); // line segments of new line
-        const k = Math.ceil(1/this.sample_density); // line segments of old lines auf Bogenlänge
+        const k = 10*n; // line segments of old lines auf Bogenlänge
 
         const line1_normalized = line1.abs_normalized_sample_points(k);
         const line2_normalized = line2.abs_normalized_sample_points(k);
-        
+
         const sample_points = Array.from({ length: n + 1 }, (v, i) => {
             const t = i/n;
 
-            const avg_1_target_coord = line1_to_rel_coords(avg_point(line1_normalized, p1(t)));
-            const avg_2_target_coord = line2_to_rel_coords(avg_point(line2_normalized, p2(t)));
+            const avg_1_target_coord = abs_to_rel(avg_point(line1_normalized, p1(t)));
+            const avg_2_target_coord = abs_to_rel(avg_point(line2_normalized, p2(t)));
             const f_t = f(t);
 
             return avg_1_target_coord.mult(1 - f_t)
@@ -183,11 +182,15 @@ class Sketch{
             line2._swap_orientation();
         }
 
-        return this._line_between_points_from_sample_points(
+        const new_line = this._line_between_points_from_sample_points(
             start, 
             end, 
             sample_points
-        )
+        );
+
+        new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
+
+        return new_line;
     }
 
     merge_lines(line1, line2){
@@ -222,6 +225,8 @@ class Sketch{
             line2.p2, 
             relative_points
         );
+        
+        new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
 
         this.remove_line(line1);
         this.remove_line(line2);
@@ -258,7 +263,7 @@ class Sketch{
 
     copy_line(line, from, to){
         this._guard_points_in_sketch(from, to);
-        const l = new Line(from, to, line.get_sample_points());
+        const l = new Line(from, to, line.get_sample_points(), line.get_color());
         this.lines.push(l);
         return l;
     }

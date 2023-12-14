@@ -1,7 +1,7 @@
 const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
 
 class Line{
-    constructor(endpoint_1, endpoint_2, sample_points){
+    constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
         /*
             Sample points is an array of values [x(t), y(t)] with
             x(t), y(t) relative to the endpoints, t starts at 0 (including it) and goes to 1 (including it)
@@ -9,6 +9,8 @@ class Line{
             I.E. x moves along P1->P2 (with x(0) being P1, x(1) being P2) and y perpendicular in same scale
             There might be exceptions to the above but very hard to deal with!!    
         */
+
+        this.color = color;
 
         this.p1 = endpoint_1;
         this.p2 = endpoint_2;
@@ -33,6 +35,15 @@ class Line{
 
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
+    }
+
+    set_color(color){
+        this.color = color;
+        return this;
+    }
+
+    get_color(){
+        return this.color;
     }
 
     get_sample_points(){

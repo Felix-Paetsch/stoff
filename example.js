@@ -35,10 +35,57 @@ let lines = [
     line_between_points(p12, p1)
 ];
 
-for (let i = 1; i < 6; i++){
+for (let i = 0; i < lines.length; i++) {
+    const fraction = i / lines.length;
+
+    // Determine the RGB components
+    let r, g, b;
+    if (fraction < 1 / 6) {
+        // Red to Yellow (Increase Green)
+        r = 255;
+        g = 255 * fraction * 6;
+        b = 0;
+    } else if (fraction < 2 / 6) {
+        // Yellow to Green (Reduce Red)
+        r = 255 * (1 - (fraction - 1 / 6) * 6);
+        g = 255;
+        b = 0;
+    } else if (fraction < 3 / 6) {
+        // Green to Cyan (Increase Blue)
+        r = 0;
+        g = 255;
+        b = 255 * (fraction - 2 / 6) * 6;
+    } else if (fraction < 4 / 6) {
+        // Cyan to Blue (Reduce Green)
+        r = 0;
+        g = 255 * (1 - (fraction - 3 / 6) * 6);
+        b = 255;
+    } else if (fraction < 5 / 6) {
+        // Blue to Magenta (Increase Red)
+        r = 255 * (fraction - 4 / 6) * 6;
+        g = 0;
+        b = 255;
+    } else {
+        // Magenta to Red (Reduce Blue)
+        r = 255;
+        g = 0;
+        b = 255 * (1 - (fraction - 5 / 6) * 6);
+    }
+
+    const total_sum = r + g + b;
+    const scale_factor = 255/total_sum;
+    r *= scale_factor;
+    g *= scale_factor;
+    b *= scale_factor;
+
+    // Set the color
+    lines[i].set_color(`rgb(${r}, ${g}, ${b})`);
+}
+
+for (let i = 1; i < 8; i++){
     const new_lines = [];
-    for (let i = 0; i < lines.length; i++){
-        new_lines.push(interpolate_lines(lines[i], lines[(i+1) % lines.length]));
+    for (let j = 0; j < lines.length - 1; j++){
+        new_lines.push(interpolate_lines(lines[j], lines[(j+1) % lines.length], 0));
     }
     lines = new_lines;
 }

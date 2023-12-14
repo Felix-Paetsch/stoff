@@ -5,6 +5,7 @@
 */
 
 const { Point } = require('../point.js');
+const { interpolate_colors } = require("../colors.js");
 
 module.exports = {
     _intersection_points, 
@@ -32,9 +33,10 @@ module.exports = {
         const l2_abs_sample_points = line2.get_absolute_sample_points();
         const l1_abs_sample_points = line1.get_absolute_sample_points();
 
+        const int_color = interpolate_colors(line1.get_color(), line2.get_color(), 0.5);
         const intersection_positions = _intersection_points(line1, line2, assurances, false);
         intersection_positions.forEach(p => {
-            p.acutal_point = new Point(p.point_vec.x, p.point_vec.y);
+            p.acutal_point = new Point(p.point_vec.x, p.point_vec.y, int_color);
             sketch.add_point(p.acutal_point);
         })
 
@@ -78,13 +80,14 @@ module.exports = {
                 intersection_positions[i + 1].line1_left_ratio
             );
 
-            l1_segments.push(
-                sketch._line_between_points_from_sample_points(
-                    intersection_positions[i].acutal_point,
-                    intersection_positions[i + 1].acutal_point,
-                    segment_sample_points
-                )
+            const l1_segment = sketch._line_between_points_from_sample_points(
+                intersection_positions[i].acutal_point,
+                intersection_positions[i + 1].acutal_point,
+                segment_sample_points
             );
+
+            l1_segment.set_color(line1.get_color());
+            l1_segments.push(l1_segment);
         }
 
         // ## Remove endpoints 
@@ -123,13 +126,14 @@ module.exports = {
                 intersection_positions[i + 1].line2_left_ratio
             );
 
-            l2_segments.push(
-                sketch._line_between_points_from_sample_points(
-                    intersection_positions[i].acutal_point,
-                    intersection_positions[i + 1].acutal_point,
-                    segment_sample_points
-                )
+            const l2_segment = sketch._line_between_points_from_sample_points(
+                intersection_positions[i].acutal_point,
+                intersection_positions[i + 1].acutal_point,
+                segment_sample_points
             );
+
+            l2_segment.set_color(line2.get_color());
+            l2_segments.push(l2_segment);
         }
 
         // ## Remove endpoints 
