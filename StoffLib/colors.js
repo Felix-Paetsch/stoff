@@ -40,7 +40,7 @@ const interpolateColor_native = (color1, color2, ratio) => {
         // Extract RGB values
         return col.match(/\d+\.?\d*/g).map(Number);
       } else if (col.startsWith('hsl')) {
-        const [h, s, l] = col.match(/\d+/g).map(Number);
+        const [h, s, l] = col.match(/\d+\.?\d*/g).map(Number);
         return hslToRgb(h, s, l);
       }
       // Default to black for unknown formats

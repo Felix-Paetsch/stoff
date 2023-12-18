@@ -26,6 +26,7 @@ function assert(bool, error){
     if (!bool){
         throw new Error(error);
     }
+    return true;
 }
 
 module.exports = { assert, validate_sketch }

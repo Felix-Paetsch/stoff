@@ -3,6 +3,7 @@ const { Vector } = require("../Geometry/geometry.js");
 function create_svg_from_sketch(s, svgSize = 500){
     const bb = s.get_bounding_box();
     
+    const max_pts_per_line = 200;
     const padding = 10;
     const usableSize = svgSize - padding * 2;
 
@@ -46,7 +47,9 @@ function create_svg_from_sketch(s, svgSize = 500){
     };
     
     s.lines.forEach(l => {
-        createPolyline(l.get_absolute_sample_points(), l.color);
+        const polyline = l.get_absolute_sample_points();
+        const red = reduce_polyline_sample_points(polyline, max_pts_per_line);
+        createPolyline(red, l.color);
     });
     s.points.forEach(p => createCircle(p));
 
@@ -57,3 +60,16 @@ function create_svg_from_sketch(s, svgSize = 500){
 }
 
 module.exports = { create_svg_from_sketch }
+
+function reduce_polyline_sample_points(polyline, max_pts_per_line){
+    if (polyline.length <= max_pts_per_line) return polyline;
+
+    let reduced = [];
+    const step = (polyline.length - 1) / (max_pts_per_line - 1);
+
+    for (let i = 0; i < max_pts_per_line; i++) {
+        reduced.push(polyline[Math.round(i * step)]);
+    }
+
+    return reduced;
+}

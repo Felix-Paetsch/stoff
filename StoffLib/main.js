@@ -1,7 +1,7 @@
 const { Sketch } = require("./sketch.js");
 const { Point }  =  require("./point.js");
 const { create_svg_from_sketch }  =  require("./svg_from_sketch.js");
-const { validate_sketch } =  require("./testing.js");
+const { validate_sketch, assert } =  require("./testing.js");
 const { writeFileSync } =  require("fs");
 
 module.exports = {}
@@ -45,6 +45,13 @@ module.exports.Point = Point;
 module.exports.debug = {
     get_sketch: () => { return s; },
     log_sketch: () => { console.log(s); },
+    assert,
     sketch_has_pt: (...pt) => { return s._has_points(...pt); },
-    sketch_has_line: (...l) => { return s._has_lines(...l); }
+    assert_has_pt: (...pt) => { 
+        return assert(s._has_points(...pt)); 
+    },
+    sketch_has_line: (...l) =>  { return s._has_lines(...l); },
+    assert_has_line: (...l) => {
+        return assert(s._has_lines(...l));
+    }
 }
