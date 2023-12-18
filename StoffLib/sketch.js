@@ -136,11 +136,11 @@ class Sketch{
         }
 
         if (direction == 1 || direction == 3){
-            line1._swap_orientation();
+            line1.swap_orientation();
         }
 
         if (direction == 2 || direction == 3){
-            line2._swap_orientation();
+            line2.swap_orientation();
         }
 
         let [endpoint_L11, endpoint_L12] = line1.get_endpoints();
@@ -175,11 +175,11 @@ class Sketch{
         });
 
         if (direction == 1 || direction == 3){
-            line1._swap_orientation();
+            line1.swap_orientation();
         }
 
         if (direction == 2 || direction == 3){
-            line2._swap_orientation();
+            line2.swap_orientation();
         }
 
         const new_line = this._line_between_points_from_sample_points(
@@ -199,12 +199,12 @@ class Sketch{
         if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
             throw new Error("Can't merge lines with both endpoints in common.");
         } else if (line1.p1 == line2.p1){
-            line1._swap_orientation();
+            line1.swap_orientation();
         } else if (line1.p2 == line2.p2){
-            line2._swap_orientation();
+            line2.swap_orientation();
         } else if (line1.p1 == line2.p2){
-            line1._swap_orientation();
-            line2._swap_orientation();
+            line1.swap_orientation();
+            line2.swap_orientation();
         } else if (line1.p2 != line2.p1){
             throw new Error("Lines have no endpoint in common");
         }

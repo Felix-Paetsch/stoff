@@ -23,6 +23,7 @@ class Point extends Vector{
 
     add_adjacent_line(line){
         this.adjacent_lines.push(line);
+        return this;
     }
 
     get_adjacent_lines(){
@@ -30,11 +31,13 @@ class Point extends Vector{
     }
 
     moveTo(x, y){
-        this.set(x,y)
+        this.set(x,y);
+        return this;
     }
 
     remove_line(l){
         this.adjacent_lines = this.adjacent_lines.filter(line => line != l);
+        return this;
     }
 }
 

@@ -46,6 +46,8 @@ class Line{
 
         p1.add_adjacent_line(this);
         p2.add_adjacent_line(this);
+
+        return this;
     }
 
     set_color(color){
@@ -127,16 +129,13 @@ class Line{
     }
 
     swap_orientation(){
-      return this._swap_orientation();
-    }
-
-    _swap_orientation(){
-        // Traverse spline the other way around
         const t = this.p1;
         this.p1 = this.p2;
         this.p2 = t;
         this.sample_points.reverse();
         this.sample_points.forEach(p => p.set(1 - p.x, p.y));
+
+        return this;
     }
 
     endpoint_distance(){
