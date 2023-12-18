@@ -214,4 +214,4 @@ function vec_angle_clockwise(vec1, vec2){
         ));
 }
 
-module.exports =  { Vector, affine_transform_from_input_output, orthogonal_transform_from_input_output, vec_angle_clockwise }
+module.exports =  { Vector, affine_transform_from_input_output, orthogonal_transform_from_input_output, vec_angle_clockwise, rotation_fun }

@@ -36,7 +36,11 @@ let lines = [
 ];
 
 for (let i = 0; i < lines.length; i++) {
-    const fraction = i / lines.length;
+    let fraction = i / lines.length;
+    fraction += 0.5;
+    if (fraction >= 1){
+        fraction -= 1;
+    }
 
     // Determine the RGB components
     let r, g, b;

@@ -7,7 +7,7 @@ class Line{
             x(t), y(t) relative to the endpoints, t starts at 0 (including it) and goes to 1 (including it)
 
             I.E. x moves along P1->P2 (with x(0) being P1, x(1) being P2) and y perpendicular in same scale
-            There might be exceptions to the above but very hard to deal with!!    
+            There might be exceptions to the above but very hard to deal with!!
         */
 
         this.color = color;
@@ -37,6 +37,17 @@ class Line{
         endpoint_2.add_adjacent_line(this);
     }
 
+    set_endpoints(p1, p2){
+        this.p1.remove_line(this);
+        this.p2.remove_line(this);
+
+        this.p1 = p1;
+        this.p2 = p2;
+
+        p1.add_adjacent_line(this);
+        p2.add_adjacent_line(this);
+    }
+
     set_color(color){
         this.color = color;
         return this;
@@ -52,7 +63,7 @@ class Line{
 
     cut_sample_points_at(index_from, from_percentage_after, index_to, to_percentage_after){
         const cut_sample_points = this.sample_points.slice(index_from, index_to + 2); // One after last one included if needed interpolation
-        
+
         if (from_percentage_after > 0){
             cut_sample_points[0] = cut_sample_points[0].mult(1 - from_percentage_after)
                                     .add(cut_sample_points[1].mult(from_percentage_after));
@@ -115,6 +126,10 @@ class Line{
         return this;
     }
 
+    swap_orientation(){
+      return this._swap_orientation();
+    }
+
     _swap_orientation(){
         // Traverse spline the other way around
         const t = this.p1;
@@ -171,7 +186,7 @@ class Line{
         const total_len = this.get_length();
         const step_size = 1/k;
         const sample_point_distance = total_len * step_size;
-        
+
         const sp = this.get_absolute_sample_points();
         const res = [sp[0]];
 
@@ -211,8 +226,8 @@ class StraightLine extends Line{
         const n = Math.ceil(1 / density);
 
         super(
-            endpoint_1, 
-            endpoint_2, 
+            endpoint_1,
+            endpoint_2,
             Array.from({ length: n + 1 }, (v, i) => new Vector(i/n, 0))
         );
     }

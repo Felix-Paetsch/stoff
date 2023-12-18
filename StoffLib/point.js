@@ -3,7 +3,7 @@ const { Vector } = require("../Geometry/geometry.js");
 class Point extends Vector{
     constructor(x, y, color = "black"){
         super(x, y);
-        
+
         this.adjacent_lines = [];
         this.color = color;
     }
@@ -15,6 +15,10 @@ class Point extends Vector{
 
     get_color(){
         return this.color;
+    }
+
+    copy(){
+        return new Point(this.x, this.y);
     }
 
     add_adjacent_line(line){
