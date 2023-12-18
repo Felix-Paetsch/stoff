@@ -21,6 +21,10 @@ class Point extends Vector{
         return new Point(this.x, this.y);
     }
 
+    tangent_vector(line){
+        
+    }
+
     add_adjacent_line(line){
         this.adjacent_lines.push(line);
         return this;

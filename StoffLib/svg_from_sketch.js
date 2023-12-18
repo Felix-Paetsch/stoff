@@ -3,7 +3,7 @@ const { Vector } = require("../Geometry/geometry.js");
 function create_svg_from_sketch(s, svgSize = 500){
     const bb = s.get_bounding_box();
     
-    const max_pts_per_line = 200;
+    const max_pts_per_line = 100;
     const padding = 10;
     const usableSize = svgSize - padding * 2;
 
