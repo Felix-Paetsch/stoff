@@ -1,8 +1,8 @@
-module.exports = (sketch, width, height) => {
+module.exports = (sketch, width, height, use_padding = true) => {
     const sketch_bb = sketch.get_bounding_box();
     
     const max_pts_per_line = 100;
-    const padding = 10;
+    const padding = use_padding ? 10 : 0;
     const usable_width  = width - padding * 2;
     const usable_height = height - padding * 2;
 

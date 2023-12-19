@@ -1,8 +1,10 @@
 const { Sketch } = require("./sketch.js");
 const { Point }  =  require("./point.js");
+const path = require('path');
 
 const { save_as_svg }  =  require("./rendering/to_svg.js");
 const { save_as_png }  =  require("./rendering/to_png.js");
+const { toA4printable } = require("./rendering/to_A4_pages.js")
 
 const { validate_sketch, assert } =  require("./testing.js");
 
@@ -37,7 +39,11 @@ sketch_functions.forEach(f => {
 
 module.exports.save = {
     svg: (save_to, width, height, to_lifesize = false) => save_as_svg(s, save_to, width, height, to_lifesize),
-    png: (save_to, width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize)
+    png: (save_to, width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize),
+    a4: (folder = "renders/rendered_A4") => {
+        toA4printable(s, folder);
+        save_as_png(s, path.join(folder, "img.jpg"), 500, 500); // When global params, this should also be a full page (minus padding)
+    }
 }
 
 module.exports.Point = Point;

@@ -36,4 +36,4 @@ remove_line(r2.l1_segments[0]);
 line_between_points(r2.intersection_points[0], p1);
 line_between_points(r1.intersection_points[0], p2);
 
-save.png(`test.png`, true);
+save.a4();
