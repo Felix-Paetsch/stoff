@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "canvas": "^2.11.2",
     "chroma-js": "^2.4.2"
   }
 }

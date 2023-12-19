@@ -1,8 +1,10 @@
 const { Sketch } = require("./sketch.js");
 const { Point }  =  require("./point.js");
-const { create_svg_from_sketch }  =  require("./svg_from_sketch.js");
+
+const { save_as_svg }  =  require("./rendering/to_svg.js");
+const { save_as_png }  =  require("./rendering/to_png.js");
+
 const { validate_sketch, assert } =  require("./testing.js");
-const { writeFileSync } =  require("fs");
 
 module.exports = {}
 
@@ -33,11 +35,9 @@ sketch_functions.forEach(f => {
     };
 });
 
-module.exports.save = (save_to, dim = 500) => {
-    writeFileSync(save_to, create_svg_from_sketch(s, dim), (err) => {
-        if (err) throw err;
-        console.log('SVG file saved!');
-    });
+module.exports.save = {
+    svg: (save_to, width, height, to_lifesize = false) => save_as_svg(s, save_to, width, height, to_lifesize),
+    png: (save_to, width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize)
 }
 
 module.exports.Point = Point;
