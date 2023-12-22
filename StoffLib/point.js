@@ -60,6 +60,10 @@ class Point extends Vector{
             throw new Error("Point is not connected with the line(s).");
         }
     }
+
+    static from_vector(vec) {
+        return new Point(vec.x, vec.y);
+    }
 }
 
 module.exports = { Point };

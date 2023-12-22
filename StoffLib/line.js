@@ -1,4 +1,5 @@
-const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
+const { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } = require("../Geometry/geometry.js");
+const { Point } = require("./point.js");
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -35,6 +36,98 @@ class Line{
 
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
+    }
+
+    rounded_offset(radius, direction = 0){
+        if (radius < 0){
+            radius += -1;
+            direction = 1 - direction;
+        }
+
+        if (direction == 1){
+            this.swap_orientation();
+        }
+
+        let p1  = this.p1.add(
+            this.get_tangent_vector(this.p1).get_orthogonal().scale(-1 * radius)
+        );
+
+        let p2  = this.p2.add(
+            this.get_tangent_vector(this.p2).get_orthogonal().scale(radius)
+        );
+
+        const this_abs_sample_points = this.get_absolute_sample_points();
+        const abs_sample_points = [p1];
+
+        for (let i = 0; i < this_abs_sample_points.length - 2; i++){
+            const left_sp = this_abs_sample_points[i];
+            const middle_sp = this_abs_sample_points[i + 1];
+            const right_sp = this_abs_sample_points[i + 2];
+            {
+                // Above the center of the line segment [left, middle]
+    
+                const line_center_point = left_sp.add(middle_sp.subtract(left_sp).scale(0.5));
+                const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
+
+                abs_sample_points.push(line_center_point.add(orth));
+            }
+            /*{
+                // At the corner [left, middle, right]
+                const angle_of_new_vec = vec_angle_clockwise(
+                    right_sp.subtract(middle_sp),
+                    left_sp.subtract(middle_sp)
+                )/2;
+                const left_segment = left_sp.subtract(middle_sp);
+                const rot_fun = rotation_fun(new Vector(0,0), angle_of_new_vec);
+                const vec_to_add = rot_fun(left_segment.normalize()).scale(radius);
+                
+                abs_sample_points.push(middle_sp.add(vec_to_add));
+            }*/
+        }
+
+        {   // Add point above last line segment
+            const left_sp = this_abs_sample_points[this_abs_sample_points.length - 2];
+            const middle_sp = this_abs_sample_points[this_abs_sample_points.length - 1];
+            const line_center_point = left_sp.add(middle_sp.subtract(left_sp).scale(0.5));
+            const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
+
+            abs_sample_points.push(line_center_point.add(orth));
+        }
+
+        abs_sample_points.push(p2);
+
+        const to_rel_fun = affine_transform_from_input_output(
+            [p1,  p2],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        p1 = Point.from_vector(p1);
+        p2 = Point.from_vector(p2);
+
+        const relative_points = abs_sample_points.map(to_rel_fun);
+        const line = new Line(p1, p2, relative_points, this.color);
+
+        if (direction == 1){
+            this.swap_orientation();
+            line.swap_orientation();
+        }
+
+        return {
+            p1: line.p1,
+            p2: line.p2,
+            line,
+            add_to_sketch: (s) => {
+                s.add_point(p1);
+                s.add_point(p2);
+                s._add_line(line);
+
+                return {
+                    p1: line.p1,
+                    p2: line.p2,
+                    line
+                }
+            }
+        };
     }
 
     set_endpoints(p1, p2){

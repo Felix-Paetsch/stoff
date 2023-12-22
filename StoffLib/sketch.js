@@ -1,6 +1,7 @@
 const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
 const { interpolate_colors } = require("./colors.js");
+const { Point } = require("./point.js");
 
 const {
     _intersect_lines,
@@ -8,7 +9,7 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .003){
+    constructor(h = .01){
         this.sample_density = h;
         this.points = [];
         this.lines  = [];
@@ -47,8 +48,17 @@ class Sketch{
     }
 
     add_point(pt){
+        if (!(pt instanceof Point)){
+            return this.add_point(Point.from_vector(pt));
+        }
         this.points.push(pt);
         return pt;
+    }
+
+    _add_line(line){ // Do not use, replaced soon!!!!
+        this._guard_points_in_sketch(...line.get_endpoints());
+        this.lines.push(line);
+        return line;
     }
 
     get_points(){

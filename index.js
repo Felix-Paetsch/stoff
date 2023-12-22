@@ -8,6 +8,7 @@ const l1 = line_from_function_graph(
     p2,
     t => .5*Math.sin(2*t* Math.PI),
 );
+
 const l2 = line_from_function_graph(
     p1, 
     p2,

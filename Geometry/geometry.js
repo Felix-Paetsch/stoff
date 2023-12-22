@@ -201,10 +201,10 @@ function orthogonal_transform_from_input_output(v1, v2){
     )
 }
 
-function rotation_fun(rotation_point, angle){
-    // Is this correct direction?
+function rotation_fun(rotation_vec, angle){
+    // Returns function that takes in a vector and rotates it `angle` around rotation_vec
     const rotMatrix = new Matrix(new Vector(Math.cos(angle), Math.sin(angle)), new Vector(-1 * Math.sin(angle), Math.cos(angle)));
-    return (v) => { return rotMatrix.mult(v.subtract(rotation_point)).add(rotation_point); };
+    return (v) => { return rotMatrix.mult(v.subtract(rotation_vec)).add(rotation_vec); };
 }
 
 function vec_angle_clockwise(vec1, vec2){
