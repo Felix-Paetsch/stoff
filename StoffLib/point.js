@@ -21,8 +21,9 @@ class Point extends Vector{
         return new Point(this.x, this.y);
     }
 
-    tangent_vector(line){
-        
+    get_tangent_vector(line){
+        this.guard_has_lines(line);
+        return line.get_tangent_vector(this);
     }
 
     add_adjacent_line(line){
@@ -39,9 +40,25 @@ class Point extends Vector{
         return this;
     }
 
-    remove_line(l){
+    remove_line(l, ignore_not_present = false){
+        if (!ignore_not_present){
+            this.guard_has_lines(l);
+        }
         this.adjacent_lines = this.adjacent_lines.filter(line => line != l);
         return this;
+    }
+
+    has_lines(...ls){
+        for (let i = 0; i < ls.length; i++){
+            if (!this.adjacent_lines.includes(ls[i])) return false;
+        }
+        return true;
+    }
+
+    guard_has_lines(...ls){
+        if (!this.has_lines(...ls)){
+            throw new Error("Point is not connected with the line(s).");
+        }
     }
 }
 

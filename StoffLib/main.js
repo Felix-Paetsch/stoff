@@ -38,11 +38,11 @@ sketch_functions.forEach(f => {
 });
 
 module.exports.save = {
-    svg: (save_to, width, height, to_lifesize = false) => save_as_svg(s, save_to, width, height, to_lifesize),
-    png: (save_to, width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize),
+    svg: (save_to = "renders/out.svg", width, height, to_lifesize = false) => save_as_svg(s, save_to, width, height, to_lifesize),
+    png: (save_to = "renders/out.png", width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize),
     a4: (folder = "renders/rendered_A4") => {
         toA4printable(s, folder);
-        save_as_png(s, path.join(folder, "img.jpg"), 500, 500); // When global params, this should also be a full page (minus padding)
+        save_as_png(s, path.join(folder, "img.png"), 500, 500); // When global params, this should also be a full page (minus padding)
     }
 }
 

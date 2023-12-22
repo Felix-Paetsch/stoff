@@ -8,7 +8,6 @@ const l1 = line_from_function_graph(
     p2,
     t => .5*Math.sin(2*t* Math.PI),
 );
-
 const l2 = line_from_function_graph(
     p1, 
     p2,
@@ -36,4 +35,4 @@ remove_line(r2.l1_segments[0]);
 line_between_points(r2.intersection_points[0], p1);
 line_between_points(r1.intersection_points[0], p2);
 
-save.a4();
+save.svg("renders/out.svg", 500,500);

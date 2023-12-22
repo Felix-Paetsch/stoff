@@ -2,11 +2,11 @@ const { createCanvas } = require('canvas');
 const { writeFileSync } = require("fs");
 const sketch_to_renderable = require("./sketch_to_lines_and_points.js");
 
-let PX_PER_CM = 10; // Set the desired pixels per centimeter
+let PX_PER_CM = 50; // Set the desired pixels per centimeter
 
 function create_png_from_sketch(sketch , width, height, to_lifesize = false){
     if (!to_lifesize && width !== true){
-        PX_PER_CM = 1
+        PX_PER_CM = 1;
     }
 
     if (typeof width == "undefined" || typeof height == "undefined"){

@@ -15,4 +15,4 @@ merge_lines(res.l2_segments[0], res.l2_segments[1]);
 
 remove_point(res.intersection_points[0]);
 
-save(`test.svg`, 500, 500);
+save.svg(`test.svg`, 500, 500);

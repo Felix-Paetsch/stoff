@@ -117,6 +117,20 @@ class Line{
         return [this.p1, this.p2];
     }
 
+    get_tangent_vector(pt){
+        if (!this.get_endpoints().includes(pt)){
+            throw new Error("Point is not endpoint of line.");
+        }
+
+        const to_absolute = this.get_to_absolute_function();
+        if (pt == this.p1){
+            return this.p1.subtract(to_absolute(this.sample_points[1])).normalize();
+        } else {
+            const tangent_point = this.sample_points[this.sample_points.length - 2];
+            return this.p2.subtract(to_absolute(tangent_point)).normalize();
+        }
+    }
+
     mirror(direction = false){
         if (!(direction == false)){
             const t = this.p1;
