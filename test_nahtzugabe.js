@@ -9,7 +9,7 @@ const l1 = line_from_function_graph(
     t => .5*Math.sin(2*t* Math.PI),
 );
 
-const res = l1.rounded_offset(10);
+const res = l1.rounded_offset(3);
 res.add_to_sketch(debug.get_sketch());
 
 l1.set_color("#ff00ff");

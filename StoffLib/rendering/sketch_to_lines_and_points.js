@@ -40,7 +40,7 @@ module.exports = (sketch, width, height, use_padding = true) => {
             const red = reduce_polyline_sample_points(polyline, max_pts_per_line);
             return {
                 color: l.color,
-                sample_points: red.map(point => transformPoint(point))
+                sample_points: red.map(point => transformPoint(point)) // although this rather transforms vectors
             }
         })
     };

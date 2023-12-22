@@ -71,7 +71,7 @@ class Line{
 
                 abs_sample_points.push(line_center_point.add(orth));
             }
-            /*{
+            {
                 // At the corner [left, middle, right]
                 const angle_of_new_vec = vec_angle_clockwise(
                     right_sp.subtract(middle_sp),
@@ -82,7 +82,7 @@ class Line{
                 const vec_to_add = rot_fun(left_segment.normalize()).scale(radius);
                 
                 abs_sample_points.push(middle_sp.add(vec_to_add));
-            }*/
+            }
         }
 
         {   // Add point above last line segment
@@ -93,6 +93,7 @@ class Line{
 
             abs_sample_points.push(line_center_point.add(orth));
         }
+
 
         abs_sample_points.push(p2);
 

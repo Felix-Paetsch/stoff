@@ -208,10 +208,16 @@ function rotation_fun(rotation_vec, angle){
 }
 
 function vec_angle_clockwise(vec1, vec2){
-    return Math.acos(
+    res = Math.acos(
         vec1.dot(vec2) / (
           vec1.length() * vec2.length()
         ));
+
+    if (!isNaN(res)){
+        return res;
+    }
+
+    return Math.PI;
 }
 
 module.exports =  { Vector, affine_transform_from_input_output, orthogonal_transform_from_input_output, vec_angle_clockwise, rotation_fun }
