@@ -6,7 +6,7 @@ const { save_as_svg }  =  require("./rendering/to_svg.js");
 const { save_as_png }  =  require("./rendering/to_png.js");
 const { toA4printable } = require("./rendering/to_A4_pages.js")
 
-const { validate_sketch, assert } =  require("./testing.js");
+const { validate_sketch, assert } =  require("./validation.js");
 
 module.exports = {}
 
@@ -38,9 +38,16 @@ sketch_functions.forEach(f => {
 });
 
 module.exports.save = {
-    svg: (save_to = "renders/out.svg", width, height, to_lifesize = false) => save_as_svg(s, save_to, width, height, to_lifesize),
-    png: (save_to = "renders/out.png", width, height, to_lifesize = false) => save_as_png(s, save_to, width, height, to_lifesize),
+    svg: (save_to = "renders/out.svg", width, height, to_lifesize = false) => {
+        validate_sketch(s);
+        save_as_svg(s, save_to, width, height, to_lifesize);
+    },
+    png: (save_to = "renders/out.png", width, height, to_lifesize = false) => {
+        validate_sketch(s);
+        save_as_png(s, save_to, width, height, to_lifesize)
+    },
     a4: (folder = "renders/rendered_A4") => {
+        validate_sketch(s);
         toA4printable(s, folder);
         save_as_png(s, path.join(folder, "img.png"), 500, 500); // When global params, this should also be a full page (minus padding)
     }

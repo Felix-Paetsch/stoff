@@ -56,6 +56,8 @@ class Line{
             this.get_tangent_vector(this.p2).get_orthogonal().scale(radius)
         );
 
+        const endpoint_distance = p1.subtract(p2).length();
+
         const this_abs_sample_points = this.get_absolute_sample_points();
         const abs_sample_points = [p1];
 
@@ -92,6 +94,14 @@ class Line{
             const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
 
             abs_sample_points.push(line_center_point.add(orth));
+        }
+
+        // Remove sample points if to tightly spaced
+        const min_spacing = 0.0001 * endpoint_distance;
+        for (let i = abs_sample_points.length - 2; i > 0; i--){
+            if (abs_sample_points[i].subtract(abs_sample_points[i - 1]).length() < min_spacing){
+                abs_sample_points.splice(i, 1);
+            }
         }
 
 
@@ -325,6 +335,28 @@ class Line{
         res.push(sp[sp.length - 1]);
 
         return res;
+    }
+
+    self_intersects(){
+        const points = this.sample_points;
+
+        function isIntersecting(line1, line2) {
+            const ccw = (p1, p2, p3) => {
+                return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+            };
+
+            const a = line1[0], b = line1[1], c = line2[0], d = line2[1];
+            return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+        }
+
+        for (let i = 0; i < points.length - 1; i++) {
+            for (let j = i + 2; j < points.length - 1; j++) {
+                if (isIntersecting([points[i], points[i + 1]], [points[j], points[j + 1]])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 
