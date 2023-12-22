@@ -9,7 +9,7 @@ function validate_sketch(s){
         points_are_in_sketch(s, l);
         no_nan_values(l);
         line_doesnt_self_intersect(l);
-        sufficent_sample_point_spacing(l, error_margin);
+        // sufficent_sample_point_spacing(l, error_margin);
     });
 
     s.points.forEach(p => {

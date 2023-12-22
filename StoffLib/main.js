@@ -26,7 +26,8 @@ let sketch_functions = [
     "remove_line",
     "remove_point",
     "line_from_function_graph",
-    "merge_lines"
+    "merge_lines",
+    "point_on_line"
 ];
 
 sketch_functions.forEach(f => {

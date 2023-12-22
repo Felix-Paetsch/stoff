@@ -1,4 +1,4 @@
-const { Vector, affine_transform_from_input_output } = require("../Geometry/geometry.js");
+const { Vector, affine_transform_from_input_output, distance_from_line_segment, vec_angle_clockwise } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
 const { interpolate_colors } = require("./colors.js");
 const { Point } = require("./point.js");
@@ -114,6 +114,17 @@ class Sketch{
         const l = new Line(pt1, pt2, sp);
         this.lines.push(l);
         return l;
+    }
+
+    _line_between_points_from_abs_sample_points(pt1, pt2, sp){
+        this._guard_points_in_sketch(pt1, pt2);
+
+        const to_rel_fun = affine_transform_from_input_output(
+            [p1,  p2],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        return this._line_between_points_from_sample_points(pt1, pt2, sp.map(to_rel_fun));
     }
 
     interpolate_lines(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
@@ -241,6 +252,57 @@ class Sketch{
         this.remove_line(line1);
         this.remove_line(line2);
         return new_line;
+    }
+
+    point_on_line(pt, line){
+        const abs = line.get_absolute_sample_points();
+
+        let closest_line_segment_first_index = 0;
+        let closest_distance                 = Infinity; 
+        for (let i = 0; i < abs.length - 1; i++){
+            const new_dist = distance_from_line_segment([abs[i], abs[i+1]], pt);
+            if (closest_distance > new_dist){
+                closest_distance = new_dist;
+                closest_line_segment_first_index = i;
+            }
+        }
+
+        if (closest_distance > 0.1){
+            throw new Error("Point not actually on line!");
+        }
+
+        const line_vector = abs[closest_line_segment_first_index+1].subtract(abs[closest_line_segment_first_index]);
+        const offset_vector = line_vector.get_orthonormal().scale(-1*closest_distance); // evt. *-1;
+
+        const splitting_pt = pt.subtract(offset_vector);
+
+        const left_part  = abs.slice(0, closest_line_segment_first_index + 1);
+        const right_part = abs.slice(closest_line_segment_first_index + 1);
+        
+        left_part.push(splitting_pt);
+        right_part.unshift(splitting_pt);
+
+        const left_to_rel_fun = affine_transform_from_input_output(
+            [line.p1,  splitting_pt],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        const right_to_rel_fun = affine_transform_from_input_output(
+            [splitting_pt, line.p2],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        const line_segments = [
+            this._line_between_points_from_sample_points(line.p1, pt, left_part.map(left_to_rel_fun)),
+            this._line_between_points_from_sample_points(pt, line.p2, right_part.map(right_to_rel_fun)),
+        ];
+
+        this.remove_line(line);
+        
+        return {
+            line_segments,
+            point: pt
+        }
     }
 
     intersect_lines(line1, line2, assurances = { is_staight: true }){
