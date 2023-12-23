@@ -1,36 +1,37 @@
-const { createCanvas } = require('canvas');
+const { createCanvas, loadImage } = require('canvas');
 const { writeFileSync } = require("fs");
-const { sketch_to_renderable } = require("./sketch_to_renderable.js");
+const sketch_to_renderable = require("./dev_sketch_to_renderable.js");
 const CONF = require("../config.json");
 
-let px_per_unit = CONF.PX_PER_CENTIMETER;
+async function create_dev_png_from_sketch(sketch, width, height, graphics){
+    px_per_unit = CONF.DEFAULT_PX_PER_UNIT;
 
-function create_png_from_sketch(sketch , width, height, to_lifesize = false){
-    if (!to_lifesize && width !== true){
-        px_per_unit = CONF.DEFAULT_PX_PER_UNIT;
-    }
-
-    if (typeof width == "undefined" || typeof height == "undefined"){
-        const { width: bb_width, height: bb_height } = sketch.get_bounding_box(); 
-        const padding = 10 * px_per_unit; // Padding in pixels
-        width  = bb_width  * px_per_unit + 2 * padding;
-        height = bb_height * px_per_unit + 2 * padding;
-    } else {
-        width  *= px_per_unit;
-        height *= px_per_unit;
-    }
+    width  *= px_per_unit;
+    height *= px_per_unit;
 
     const {
         bb,
         points,
-        lines
-    } = sketch_to_renderable(sketch, width, height);
+        lines,
+        img_data
+    } = await sketch_to_renderable(sketch, graphics, width, height);
 
     const canvas = createCanvas(bb.width, bb.height);
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle = 'white'; // Set background color
     ctx.fillRect(0, 0, bb.width, bb.height);
+
+    ctx.globalAlpha = CONF.DEV_REFERENCE_IMG_OPACITY;
+
+    for (const img of img_data) {
+        const image = await loadImage(img.data);
+        ctx.drawImage(image, 
+            img.top_left.x, img.top_left.y, 
+            img.new_dimensions.x, img.new_dimensions.y);
+    }
+
+    ctx.globalAlpha = 1;
 
     const drawCircle = (point) => {
         ctx.beginPath();
@@ -58,10 +59,10 @@ function create_png_from_sketch(sketch , width, height, to_lifesize = false){
     return canvas.toBuffer();
 }
 
-module.exports = { create_png_from_sketch, save_as_png };
+module.exports = { save_as_dev_png, create_dev_png_from_sketch };
 
-function save_as_png(sketch, save_to, width, height, to_lifesize = false) {
-    const pngBuffer = create_png_from_sketch(sketch, width, height, to_lifesize);
+async function save_as_dev_png(sketch, save_to, width, height, graphics) {
+    const pngBuffer = await create_dev_png_from_sketch(sketch, width, height, graphics);
     writeFileSync(save_to, pngBuffer, (err) => {
         if (err) throw err;
         console.log('PNG file saved!');

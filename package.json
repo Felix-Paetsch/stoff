@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "axios": "^1.6.2",
     "canvas": "^2.11.2",
     "chroma-js": "^2.4.2",
+    "image-size": "^1.0.2",
     "pdf-lib": "^1.17.1"
   }
 }

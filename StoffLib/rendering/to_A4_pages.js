@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createCanvas } = require('canvas');
-const sketch_to_renderable = require("./sketch_to_lines_and_points.js");
+const sketch_to_renderable = require("./sketch_to_renderable.js");
 const CONF = require("../config.json");
 
 // Define constants

@@ -1,8 +1,14 @@
-module.exports = (sketch, width, height, use_padding = true) => {
+const CONF = require("../config.json");
+
+module.exports = {
+    sketch_to_renderable,
+    reduce_polyline_sample_points
+}
+
+function sketch_to_renderable(sketch, width, height, use_padding = true){
     const sketch_bb = sketch.get_bounding_box();
     
-    const max_pts_per_line = 100;
-    const padding = use_padding ? 10 : 0;
+    const padding = use_padding ? CONF.DEFAULT_SAVE_PADDING : 0;
     const usable_width  = width - padding * 2;
     const usable_height = height - padding * 2;
 
@@ -37,7 +43,7 @@ module.exports = (sketch, width, height, use_padding = true) => {
         points: sketch.points.map(p => transformPoint(p)),
         lines:  sketch.lines.map(l  => {
             const polyline = l.get_absolute_sample_points();
-            const red = reduce_polyline_sample_points(polyline, max_pts_per_line);
+            const red = reduce_polyline_sample_points(polyline);
             return {
                 color: l.color,
                 sample_points: red.map(point => transformPoint(point)) // although this rather transforms vectors
@@ -46,7 +52,8 @@ module.exports = (sketch, width, height, use_padding = true) => {
     };
 }
 
-function reduce_polyline_sample_points(polyline, max_pts_per_line){
+function reduce_polyline_sample_points(polyline){
+    const max_pts_per_line = CONF.RENDER_MAX_SAMPLE_POINTS_PER_LINE;
     if (polyline.length <= max_pts_per_line) return polyline;
 
     let reduced = [];
