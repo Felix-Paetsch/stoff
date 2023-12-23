@@ -1,6 +1,7 @@
 const { Point } = require("./point.js");
+const CONF = require("./config.json");
 
-const error_margin = .00001
+const error_margin = CONF.VAL_ERROR_MARGIN;
 
 function validate_sketch(s){
     s.lines.forEach(l => {
@@ -8,7 +9,11 @@ function validate_sketch(s){
         points_as_enpoints(l);
         points_are_in_sketch(s, l);
         no_nan_values(l);
-        line_doesnt_self_intersect(l);
+
+        if (CONF.ASSERT_NON_SELFINTERSECTING){
+            line_doesnt_self_intersect(l);
+        }
+
         // sufficent_sample_point_spacing(l, error_margin);
     });
 

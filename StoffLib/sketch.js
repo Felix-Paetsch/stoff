@@ -2,6 +2,7 @@ const { Vector, affine_transform_from_input_output, distance_from_line_segment, 
 const { StraightLine, Line } = require('./line.js');
 const { interpolate_colors } = require("./colors.js");
 const { Point } = require("./point.js");
+const CONF = require("./config.json");
 
 const {
     _intersect_lines,
@@ -9,8 +10,8 @@ const {
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
-    constructor(h = .001){
-        this.sample_density = h;
+    constructor(){
+        this.sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
         this.points = [];
         this.lines  = [];
     }
@@ -173,7 +174,7 @@ class Sketch{
         );
 
         const n = Math.ceil(1/this.sample_density); // line segments of new line
-        const k = 10*n; // line segments of old lines auf Bogenlänge
+        const k = Math.ceil(1/CONF.INTERPOLATION_NORMALIZATION_DENSITY); // line segments of old lines auf Bogenlänge
 
         const line1_normalized = line1.abs_normalized_sample_points(k);
         const line2_normalized = line2.abs_normalized_sample_points(k);

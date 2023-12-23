@@ -1,22 +1,23 @@
 const { createCanvas } = require('canvas');
 const { writeFileSync } = require("fs");
 const sketch_to_renderable = require("./sketch_to_lines_and_points.js");
+const CONF = require("../config.json");
 
-let PX_PER_CM = 50; // Set the desired pixels per centimeter
+let px_per_unit = CONF.PX_PER_CENTIMETER;
 
 function create_png_from_sketch(sketch , width, height, to_lifesize = false){
     if (!to_lifesize && width !== true){
-        PX_PER_CM = 1;
+        px_per_unit = CONF.DEFAULT_PX_PER_UNIT;
     }
 
     if (typeof width == "undefined" || typeof height == "undefined"){
         const { width: bb_width, height: bb_height } = sketch.get_bounding_box(); 
-        const padding = 10 * PX_PER_CM; // Padding in pixels
-        width  = bb_width  * PX_PER_CM + 2 * padding;
-        height = bb_height * PX_PER_CM + 2 * padding;
+        const padding = 10 * px_per_unit; // Padding in pixels
+        width  = bb_width  * px_per_unit + 2 * padding;
+        height = bb_height * px_per_unit + 2 * padding;
     } else {
-        width *= PX_PER_CM;
-        height *= PX_PER_CM;
+        width  *= px_per_unit;
+        height *= px_per_unit;
     }
 
     const {
