@@ -1,4 +1,4 @@
-const { add_point, line_from_function_graph, line_between_points, interpolate_lines, intersect_lines, Point, save, merge_lines, remove_point, remove_line, debug, point_on_line } = require("./StoffLib/main.js");
+const { add_point, line_from_function_graph, line_between_points, line_with_offset, interpolate_lines, intersect_lines, Point, save, merge_lines, remove_point, remove_line, debug, point_on_line } = require("./StoffLib/main.js");
 
 const p1 = add_point(new Point(0,0));
 const p2 = add_point(new Point(0,100));
@@ -10,8 +10,7 @@ let l1 = line_from_function_graph(
 );
 
 
-const res = l1.rounded_offset(3);
-res.add_to_sketch(debug.get_sketch());
+const res = line_with_offset(l1, 3);
 
 const p3 = add_point(new Point(-50, 50));
 const p4 = add_point(new Point(50, 50));

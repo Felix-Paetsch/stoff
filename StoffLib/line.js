@@ -38,7 +38,7 @@ class Line{
         endpoint_2.add_adjacent_line(this);
     }
 
-    rounded_offset(radius, direction = 0){
+    offset_sample_points(radius, direction = 0){
         if (radius < 0){
             radius += -1;
             direction = 1 - direction;
@@ -106,39 +106,12 @@ class Line{
 
 
         abs_sample_points.push(p2);
-
-        const to_rel_fun = affine_transform_from_input_output(
-            [p1,  p2],
-            [new Vector(0,0), new Vector(1,0)]
-        );
-
-        p1 = Point.from_vector(p1);
-        p2 = Point.from_vector(p2);
-
-        const relative_points = abs_sample_points.map(to_rel_fun);
-        const line = new Line(p1, p2, relative_points, this.color);
-
         if (direction == 1){
             this.swap_orientation();
-            line.swap_orientation();
+            abs_sample_points.reverse();
         }
 
-        return {
-            p1: line.p1,
-            p2: line.p2,
-            line,
-            add_to_sketch: (s) => {
-                s.add_point(p1);
-                s.add_point(p2);
-                s._add_line(line);
-
-                return {
-                    p1: line.p1,
-                    p2: line.p2,
-                    line
-                }
-            }
-        };
+        return abs_sample_points;
     }
 
     set_endpoints(p1, p2){
@@ -369,6 +342,28 @@ class StraightLine extends Line{
             endpoint_2,
             Array.from({ length: n + 1 }, (v, i) => new Vector(i/n, 0))
         );
+    }
+
+    get_length(){
+        return this.get_line_vector.length();
+    }
+
+    vec_at_distance(d){
+        // Returns a vector at distance d from this.p1
+        return this.p1.add(this.get_line_vector().normalize().scale(d));
+    }
+
+    pt_at_distance(d){
+        // Returns a vector at distance d from this.p1
+        return Point.from_vector(this.vec_at_distance(d));
+    }
+
+    vec_at_fraction(f){
+        return this.vec_at_distance(f * this.get_length());
+    }
+
+    pt_at_fraction(f){
+        return this.pt_at_distance(f * this.get_length());
     }
 }
 

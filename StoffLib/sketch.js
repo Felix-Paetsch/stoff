@@ -54,13 +54,7 @@ class Sketch{
         this.points.push(pt);
         return pt;
     }
-
-    _add_line(line){ // Do not use, replaced soon!!!!
-        this._guard_points_in_sketch(...line.get_endpoints());
-        this.lines.push(line);
-        return line;
-    }
-
+    
     get_points(){
         return this.points;
     }
@@ -120,7 +114,7 @@ class Sketch{
         this._guard_points_in_sketch(pt1, pt2);
 
         const to_rel_fun = affine_transform_from_input_output(
-            [p1,  p2],
+            [pt1,  pt2],
             [new Vector(0,0), new Vector(1,0)]
         );
 
@@ -326,6 +320,21 @@ class Sketch{
     
         this._guard_lines_in_sketch(line1, line2);
         return _intersect_lines(this, line1, line2, assurances)
+    }
+
+    line_with_offset(line, offset, direction = 0){
+        const abs_sample_points = line.offset_sample_points(offset, direction);
+        const p1 = this.add_point(Point.from_vector(abs_sample_points[0]));
+        const p2 = this.add_point(
+            Point.from_vector(abs_sample_points[abs_sample_points.length - 1])
+        );
+
+        const ret_line = this._line_between_points_from_abs_sample_points(p1, p2, abs_sample_points);
+        return {
+            p1,
+            p2,
+            line: ret_line
+        }
     }
 
     intersection_points(line1, line2, assurances = { is_staight: true }){
