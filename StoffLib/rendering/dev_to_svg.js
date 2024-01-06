@@ -1,5 +1,5 @@
 const { writeFileSync } =  require("fs");
-const sketch_to_renderable = require("./dev_sketch_to_renderable.js");
+const { sketch_to_renderable } = require("./dev_sketch_to_renderable.js");
 const CONF = require("../config.json");
 
 async function create_dev_svg_from_sketch(sketch, width, height, graphics){
