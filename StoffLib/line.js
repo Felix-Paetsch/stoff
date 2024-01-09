@@ -61,7 +61,7 @@ class Line{
         const this_abs_sample_points = this.get_absolute_sample_points();
         const abs_sample_points = [p1];
 
-        for (let i = 0; i < this_abs_sample_points.length - 2; i++){
+        for (let i = 0; i < this_abs_sample_points.length() - 2; i++){
             const left_sp = this_abs_sample_points[i];
             const middle_sp = this_abs_sample_points[i + 1];
             const right_sp = this_abs_sample_points[i + 2];
@@ -344,7 +344,7 @@ class StraightLine extends Line{
         );
     }
 
-    get_length(){
+    length(){
         return this.get_line_vector.length();
     }
 
@@ -359,11 +359,11 @@ class StraightLine extends Line{
     }
 
     vec_at_fraction(f){
-        return this.vec_at_distance(f * this.get_length());
+        return this.vec_at_distance(f * this.length());
     }
 
     pt_at_fraction(f){
-        return this.pt_at_distance(f * this.get_length());
+        return this.pt_at_distance(f * this.length());
     }
 }
 
