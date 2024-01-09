@@ -3,7 +3,7 @@
     "DEFAULT_SAVE_PADDING": 10,
 
     "_descr1": "sizes is for printing of several A4 pages",
-    "PX_PER_CENTIMETER": 50,
+    "PX_PER_CM": 50,
     "PRINTABLE_WIDTH_CM": 20,
     "PRINTABLE_HEIGHT_CM": 20,
     "PRINT_PADDING_CM": 2,

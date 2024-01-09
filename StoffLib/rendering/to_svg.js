@@ -2,7 +2,7 @@ const { writeFileSync } =  require("fs");
 const { sketch_to_renderable } = require("./sketch_to_renderable.js");
 const CONF = require("../config.json");
 
-let px_per_unit = CONF.PX_PER_CENTIMETER;
+let px_per_unit = CONF.PX_PER_CM;
 
 function create_svg_from_sketch(s, width, height, to_lifesize = false){
     if (!to_lifesize && width !== true){
