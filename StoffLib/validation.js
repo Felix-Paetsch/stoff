@@ -55,7 +55,7 @@ function no_nan_values(l){
 
 function points_are_in_sketch(s, l){
     assert(
-        s._has_points(...l.get_endpoints()),
+        s.has_points(...l.get_endpoints()),
         "Test failed: Line endpoints are not in sketch"
     );
 }
@@ -78,7 +78,7 @@ function line_doesnt_self_intersect(l){
 
 function pt_has_lines_only_in_sketch(s, pt){
     assert(
-        s._has_lines(...pt.get_adjacent_lines()),
+        s.has_lines(...pt.get_adjacent_lines()),
         "Test failed: Point has lines not in sketch"
     );
 }

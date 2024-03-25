@@ -1,11 +1,11 @@
 {
     "DEFAULT_PX_PER_UNIT": 1,
-    "DEFAULT_SAVE_PADDING": 10,
+    "DEFAULT_SAVE_PX_PADDING": 10,
 
     "_descr1": "sizes is for printing of several A4 pages",
     "PX_PER_CM": 50,
-    "PRINTABLE_WIDTH_CM": 20,
-    "PRINTABLE_HEIGHT_CM": 20,
+    "PRINTABLE_WIDTH_CM": 21,
+    "PRINTABLE_HEIGHT_CM": 29.7,
     "PRINT_PADDING_CM": 2,
 
     "_descr2": "sample point amt choices",

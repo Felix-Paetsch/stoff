@@ -3,7 +3,7 @@ const { Point }  =  require("./point.js");
 const path = require('path');
 
 const { save_as_svg }  =  require("./rendering/to_svg.js");
-const { save_as_png }  =  require("./rendering/to_png.js");
+const { save_as_png }  =  require("./rendering/to_png.js").default;
 const { toA4printable } = require("./rendering/to_A4_pages.js")
 const { save_as_dev_png }  =  require("./rendering/dev_to_png.js");
 const { save_as_dev_svg }  =  require("./rendering/dev_to_svg.js");
@@ -14,6 +14,7 @@ module.exports = {}
 
 let s = new Sketch();
 module.exports.reset = () => { s = new Sketch(); }
+module.exports.set_sketch = (new_s) => { s = new_s; }
 
 let sketch_functions = [
     "get_bounding_box",
@@ -94,12 +95,12 @@ module.exports.debug = {
     get_sketch: () => { return s; },
     log_sketch: () => { console.log(s); },
     assert,
-    sketch_has_pt: (...pt) => { return s._has_points(...pt); },
+    sketch_has_pt: (...pt) => { return s.has_points(...pt); },
     assert_has_pt: (...pt) => { 
-        return assert(s._has_points(...pt)); 
+        return assert(s.has_points(...pt)); 
     },
-    sketch_has_line: (...l) =>  { return s._has_lines(...l); },
+    sketch_has_line: (...l) =>  { return s.has_lines(...l); },
     assert_has_line: (...l) => {
-        return assert(s._has_lines(...l));
+        return assert(s.has_lines(...l));
     }
 }

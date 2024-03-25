@@ -2,13 +2,14 @@ const CONF = require("../config.json");
 
 module.exports = {
     sketch_to_renderable,
-    reduce_polyline_sample_points
+    reduce_polyline_sample_points,
+    calculate_correct_width_height
 }
 
 function sketch_to_renderable(sketch, width, height, use_padding = true){
     const sketch_bb = sketch.get_bounding_box();
     
-    const padding = use_padding ? CONF.DEFAULT_SAVE_PADDING : 0;
+    const padding = use_padding ? CONF.DEFAULT_SAVE_PX_PADDING : 0;
     const usable_width  = width - padding * 2;
     const usable_height = height - padding * 2;
 
@@ -64,4 +65,32 @@ function reduce_polyline_sample_points(polyline){
     }
 
     return reduced;
+}
+
+function calculate_correct_width_height(s, width = null, height = null){
+    /*
+        If you only give width: Scale Height using aspect ratio
+        If you only give height (width = null): Scale Width using aspect ratio
+    */
+   
+    const sketch_bb = s.get_bounding_box();
+    if (sketch_bb.width == 0 || sketch_bb.height == 0){
+        throw new Error("Sketch has width or height 0.");
+    }
+
+    // Set rendering width and height
+    const aspect_ratio = sketch_bb.width / sketch_bb.height;
+    if (width == null && height !== null){
+        width = aspect_ratio * (height * CONF.DEFAULT_PX_PER_UNIT - 2 * CONF.DEFAULT_SAVE_PX_PADDING) + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+    } else if (width !== null && height == null){
+        height = (width * CONF.DEFAULT_PX_PER_UNIT - 2 * CONF.DEFAULT_SAVE_PX_PADDING) / aspect_ratio + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+    } else if (width == null && height == null){
+        width = sketch_bb.width * CONF.DEFAULT_PX_PER_UNIT + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+        height = sketch_bb.height * CONF.DEFAULT_PX_PER_UNIT + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+    }
+
+    return {
+        width,
+        height
+    }
 }

@@ -1,7 +1,13 @@
-const { Vector, affine_transform_from_input_output, distance_from_line_segment, vec_angle_clockwise } = require("../Geometry/geometry.js");
+const { Vector, affine_transform_from_input_output, distance_from_line_segment } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
 const { interpolate_colors } = require("./colors.js");
-const { Point } = require("./point.js");
+const { validate_sketch } =  require("./validation.js");
+const { create_svg_from_sketch, save_as_svg } = require("./rendering/to_svg.js");
+const { create_png_from_sketch, save_as_png } = require("./rendering/to_png.js");
+const { Point } = require("./point.js"); 
+const { toA4printable } = require("./rendering/to_A4_pages.js");
+const copy_to_sketch = require("./copy_to_sketch.js");
+const path = require('path');
 const CONF = require("./config.json");
 
 const {
@@ -14,6 +20,7 @@ class Sketch{
         this.sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
         this.points = [];
         this.lines  = [];
+        this.data   = {};
     }
 
     get_bounding_box(){
@@ -46,6 +53,19 @@ class Sketch{
             bottom_left:  new Vector(_min_x, _max_y),
             bottom_right: new Vector(_max_x, _max_y)
         }
+    }
+
+    point(x, y){
+        const pt = new Point(x,y);
+        return this.add_point(pt);
+    }
+
+    add(thing){
+        if (thing instanceof Point || thing instanceof Vector){
+            return this.add_point(thing);
+        }
+        
+        throw new Error("Currently cannot add things of this type to the sketch");
     }
 
     add_point(pt){
@@ -159,14 +179,8 @@ class Sketch{
             line2.swap_orientation();
         }
 
-        let [endpoint_L11, endpoint_L12] = line1.get_endpoints();
-        let [endpoint_L21, endpoint_L22] = line2.get_endpoints();
-
         let start = endpoint_L11;
         let end   = endpoint_L22;
-
-        const line1_to_abs_coords = line1.get_to_absolute_function();
-        const line2_to_abs_coords = line2.get_to_absolute_function();
 
         const abs_to_rel = affine_transform_from_input_output(
             [start,  end],
@@ -345,7 +359,7 @@ class Sketch{
 
     copy_line(line, from, to){
         this._guard_points_in_sketch(from, to);
-        const l = new Line(from, to, line.get_sample_points(), line.get_color());
+        const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);
         return l;
     }
@@ -371,12 +385,12 @@ class Sketch{
     }
 
     _guard_points_in_sketch(...pt){
-        if (!this._has_points(...pt)){
+        if (!this.has_points(...pt)){
             throw new Error("Points are not part of the sketch.");
         }
     }
 
-    _has_points(...pt){
+    has_points(...pt){
         for (let i = 0; i < pt.length; i++){
             if (!this.points.includes(pt[i])) return false;
         }
@@ -384,17 +398,80 @@ class Sketch{
     }
 
     _guard_lines_in_sketch(...ls){
-        if (!this._has_lines(...ls)){
+        if (!this.has_lines(...ls)){
             throw new Error("Lines are not part of the sketch.");
         }
     }
 
-    _has_lines(...ls){
+    has_lines(...ls){
         for (let i = 0; i < ls.length; i++){
             if (!this.lines.includes(ls[i])) return false;
         }
         return true;
     }
+
+    paste_sketch(sketch, data_callback = null, position = new Vector(0, 0)){
+        if (data_callback == null){
+            data_callback = (target_sketch_data, src_sketch_data) => {
+                return Object.assign(target_sketch_data, src_sketch_data);
+            }
+        }
+        return copy_to_sketch(this, sketch, data_callback, position);
+    }
+}
+
+
+// Add Validation
+[
+    "get_bounding_box",
+    "get_points",
+    "add_point",
+    "get_lines",
+    "line_between_points",
+    "interpolate_lines",
+    "intersect_lines",
+    "intersection_points",
+    "copy_line",
+    "remove_line",
+    "remove_point",
+    "line_from_function_graph",
+    "merge_lines",
+    "point_on_line",
+    "line_with_offset"
+].forEach(methodName => {
+    const originalMethod = Sketch.prototype[methodName];
+    Sketch.prototype[methodName] = function(...args) {
+        const result = originalMethod.apply(this, args);
+        validate_sketch(this);
+        return result;
+    };
+});
+
+// Add External Methods
+Sketch.prototype.to_svg = function(...args) {
+    return create_svg_from_sketch(this, ...args)
+}
+
+Sketch.prototype.save_as_svg = function(...args) {
+    return save_as_svg(this, ...args)
+}
+
+Sketch.prototype.to_png = function(...args) {
+    return create_png_from_sketch(this, ...args)
+}
+
+Sketch.prototype.save_as_png = function(...args) {
+    return save_as_png(this, ...args)
+}
+
+Sketch.prototype.save_on_A4 = function(folder) {
+    toA4printable(this, folder);
+    save_as_png(
+        this,
+        path.join(folder, "img.png"),
+        CONF.PRINTABLE_WIDTH_CM * CONF.PX_PER_CM,
+        CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
+    ); 
 }
 
 module.exports = { Sketch };

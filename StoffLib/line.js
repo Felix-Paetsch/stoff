@@ -140,6 +140,10 @@ class Line{
         return this.sample_points;
     }
 
+    copy_sample_points(){
+        return Array.from(this.sample_points);
+    }
+
     cut_sample_points_at(index_from, from_percentage_after, index_to, to_percentage_after){
         const cut_sample_points = this.sample_points.slice(index_from, index_to + 2); // One after last one included if needed interpolation
 
