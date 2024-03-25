@@ -178,6 +178,9 @@ class Sketch{
         if (direction == 2 || direction == 3){
             line2.swap_orientation();
         }
+        
+        let [endpoint_L11, endpoint_L12] = line1.get_endpoints();
+        let [endpoint_L21, endpoint_L22] = line2.get_endpoints();
 
         let start = endpoint_L11;
         let end   = endpoint_L22;

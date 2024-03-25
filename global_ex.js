@@ -1,4 +1,4 @@
-const { add_point, dev, line_from_function_graph, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_point, remove_line, _log_sketch } = require("./StoffLib/main.js");
+const { add_point, line_from_function_graph, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_point, remove_line, _log_sketch } = require("./StoffLib/export_global.js");
 
 const p1 = add_point(new Point(0,0));
 const p2 = add_point(new Point(0,100));
@@ -36,9 +36,4 @@ remove_line(r2.l1_segments[0]);
 line_between_points(r2.intersection_points[0], p1);
 line_between_points(r1.intersection_points[0], p2);
 
-dev.add_graphic(
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.rJPOfhEYLy6Yaup8-sbpyQHaE8%26pid%3DApi&f=1&ipt=d770400d4006b93a2039d53d3a5c3071a5055a222ccbfa3ec8964d19f5ee8063&ipo=images",
-    0, 0, null, 10
-);
-
-dev.save_svg("renders/out.svg", 500, 500);
+save.svg("renders/out.svg", 500,500);
