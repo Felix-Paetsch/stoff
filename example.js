@@ -1,4 +1,4 @@
-const { add_point, line_between_points, interpolate_lines, Point, save } = require("./StoffLib/main.js");
+const { add_point, line_between_points, interpolate_lines, Point, save } = require("./StoffLib/export_global.js");
 const { Vector } = require("./Geometry/geometry.js");
 
 const p1 = add_point(new Point(0,0));
@@ -94,4 +94,4 @@ for (let i = 1; i < 8; i++){
     lines = new_lines;
 }
 
-save(`out.svg`, 500, 500);
+save.svg(`renders/out.svg`, 500, 500);
