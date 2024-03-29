@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stoff Dev</title>
+    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+</head>
+<body>
+    <div id="params_selection">
+        <% for (const key of Object.keys(design_config)){ %>
+            <%- include("./index_components/design_config_component.ejs", {
+                config_component_name: key,
+                parameters: design_config[key]
+            }); %>
+        <% } %>
+    </div>
+    <div id="sketch_display"></div>
+    <script src="/request_pattern.js"></script>
+    <script src="/config.js"></script>
+    <script src="/monitor_server_reset.js"></script>
+</body>
+</html>

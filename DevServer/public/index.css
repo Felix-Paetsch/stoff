@@ -1,0 +1,110 @@
+body{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+#params_selection{
+    width: 24rem;
+    height: 100vh;
+    overflow-y: auto;
+    background-color: black;
+    padding: 1em 3em;
+    box-sizing: border-box;
+    color: palevioletred;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#params_selection h3{
+    font-size: 1.6em;
+    text-decoration: underline;
+}
+
+.param_name{
+    font-size: 1.2em;
+    line-height: 1.5em;
+}
+
+.param_boolean{
+    display: flex;
+    flex-direction: row;
+}
+
+.boolean_checkbox{
+    width: 3em;
+    cursor: pointer;
+}
+
+.boolean_checkbox i{
+    transform: translateY(.1em);
+    font-size: 1.2em;
+    line-height: 1.5em;
+}
+
+.hidden{
+    display: none !important;
+}
+
+/* number input */
+
+.number_input_top_row{
+    display: flex;
+    flex-direction: row;
+}
+
+.numper_input_value{
+    font-size: 1em;
+    line-height: 1.9em;
+    text-decoration: underline;
+    min-width: 3em;
+}
+
+input[type=range] {
+    --background: palevioletred;
+    --thumb_color: palevioletred;
+    --width: 1em;
+    --height: 1.5em;
+    --border: .2em solid #000000;
+    -webkit-appearance: none; 
+    appearance: none;
+    width: 100%;
+    cursor: pointer;
+    height: .1em;
+    border-radius: .1em;
+    background: var(--background);
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--width);
+    height: var(--height);
+    background: var(--thumb_color);
+    cursor: pointer;
+    border: var(--border);
+}
+
+input[type=range]::-moz-range-thumb {
+    width: var(--width);
+    height: var(--height);
+    background: var(--thumb_color);
+    cursor: pointer;
+    border: var(--border);
+}
+
+/* display */
+#sketch_display pre{
+    max-width: calc(100vw - 24rem);
+    padding: 1em;
+    overflow-x: auto;
+}
+
+#sketch_display svg{
+    margin: 1em;
+    border: .1em solid black;
+}

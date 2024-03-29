@@ -14,7 +14,7 @@ module.exports = (target_sketch, src_sketch, data_callback, position) => {
 
         const new_pt = target_sketch.add_point(
             pt.add(position) // Vector
-        );
+        ).set_color(pt.get_color());
 
         visited_objects.push([
             pt,
@@ -37,7 +37,7 @@ module.exports = (target_sketch, src_sketch, data_callback, position) => {
             endpoint_1,
             endpoint_2,
             line.copy_sample_points()
-        );
+        ).set_color(line.get_color());
 
         visited_objects.push([
             line,

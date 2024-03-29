@@ -1,0 +1,19 @@
+<div class="design_config_component" x-component-name="<%= config_component_name %>">
+    <h3><%= config_component_name %></h3>
+    <div class="parameter_box">
+        <% for (p of parameters){
+                if (p.type == Boolean){
+        %>
+                    <%- include("./boolean_component.ejs", {p}); %>
+        <%
+                } else if (p.type == Number) {
+        %>
+                    <%- include("./number_component.ejs", {p}); %>
+        <% 
+                } else {
+                    throw new Error(`Type ${ p.type } currently not implemented as parameter in frontend!`);
+                } 
+        %>
+        <% } %>
+    </div>
+</div>
