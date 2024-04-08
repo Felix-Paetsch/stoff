@@ -3,6 +3,7 @@ const path = require('path');
 const { createCanvas } = require('canvas');
 const { sketch_to_renderable } = require("./sketch_to_renderable.js");
 const CONF = require("../config.json");
+const { interpolate_colors } = require("../colors.js");
 
 // Define constants
 const PX_PER_CM =           CONF.PX_PER_CM; // Pixels per centimeter
@@ -61,9 +62,11 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
         const shiftedX = point.x - topLeftX + PRINT_PADDING_PX;
         const shiftedY = point.y - topLeftY + PRINT_PADDING_PX;
         ctx.arc(shiftedX, shiftedY, 4, 0, 2 * Math.PI);
-        ctx.strokeStyle = point.color;
+        // ctx.strokeStyle = point.color;
         ctx.stroke();
-        ctx.fillStyle = 'white';
+        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
+            ? "white" : point.color;
+        ctx.fillStyle = fill;
         ctx.fill();
     };
 

@@ -1,6 +1,7 @@
 const { createCanvas } = require('canvas');
 const { writeFileSync } = require("fs");
 const { sketch_to_renderable, calculate_correct_width_height } = require("./sketch_to_renderable.js");
+const { interpolate_colors } = require("../colors.js");
 
 function create_png_from_sketch(s , width, height){
     const correct_dimensions = calculate_correct_width_height(s, width, height);  
@@ -19,9 +20,11 @@ function create_png_from_sketch(s , width, height){
     const drawCircle = (point) => {
         ctx.beginPath();
         ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-        ctx.strokeStyle = point.color;
+        // ctx.strokeStyle = point.color;
         ctx.stroke();
-        ctx.fillStyle = 'white';
+        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
+            ? "white" : point.color;
+        ctx.fillStyle = fill;
         ctx.fill();
     };
 

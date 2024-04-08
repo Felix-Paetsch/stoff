@@ -12,7 +12,7 @@ const namedColors = {
     // Add more named colors as needed
   };
   
-const interpolateColor_native = (color1, color2, ratio) => {
+const interpolateColor_native = (color1, color2, ratio = 0.5) => {
     const nameToRgb = name => namedColors[name.toLowerCase()] || [0, 0, 0];
   
     const hslToRgb = (h, s, l) => {
@@ -55,7 +55,7 @@ const interpolateColor_native = (color1, color2, ratio) => {
     const g = Math.round(rgb1[1] * (1 - ratio) + rgb2[1] * ratio);
     const b = Math.round(rgb1[2] * (1 - ratio) + rgb2[2] * ratio);
   
-    return `rgb(${r}, ${g}, ${b})`;
+    return `rgb(${r},${g},${b})`;
 };
 
 module.exports = {

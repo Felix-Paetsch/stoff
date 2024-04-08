@@ -1,10 +1,10 @@
-const { Point } = require("../StoffLib/Point.js");
+const { Point } = require("../StoffLib/point.js");
 const { Sketch } = require("../StoffLib/sketch.js");
 
 module.exports = (config_data) => {
     const s = new Sketch();
 
-    const p1 = s.add_point(new Point(0,0));
+    const p1 = s.add_point(new Point(0,0)).set_color("red");
     const p2 = s.add_point(new Point(-10,-10));
     const p3 = s.add_point(new Point(-21,-11));
     const p4 = s.add_point(new Point(-30,-5));

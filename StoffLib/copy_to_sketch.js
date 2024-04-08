@@ -82,16 +82,16 @@ module.exports = (target_sketch, src_sketch, data_callback, position) => {
             return new_data;
         }
 
-        // Vectors
-        if (data instanceof Vector){
-            nesting--;
-            return data;
-        }
-
         // Points
         if (data instanceof Point){
             nesting--;
             return new_sketch_point(data);
+        }
+
+        // Vectors
+        if (data instanceof Vector){
+            nesting--;
+            return data;
         }
 
         // Lines
