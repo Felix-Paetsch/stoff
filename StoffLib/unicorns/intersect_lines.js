@@ -6,6 +6,7 @@
 
 const { Point } = require('../point.js');
 const { interpolate_colors } = require("../colors.js");
+const { copy_sketch_obj_data } = require('../copy.js');
 
 module.exports = {
     _intersection_points, 
@@ -27,7 +28,6 @@ module.exports = {
 
             Note, that this function deletes line1 and line 2 and replaces them.
         */
-
             
         // Specific for one being a line
         const l2_abs_sample_points = line2.get_absolute_sample_points();
@@ -86,7 +86,7 @@ module.exports = {
                 segment_sample_points
             );
 
-            l1_segment.set_color(line1.get_color());
+            copy_sketch_obj_data(line1, l1_segment);
             l1_segments.push(l1_segment);
         }
 
@@ -132,7 +132,7 @@ module.exports = {
                 segment_sample_points
             );
 
-            l2_segment.set_color(line2.get_color());
+            copy_sketch_obj_data(line2, l2_segment);
             l2_segments.push(l2_segment);
         }
 
@@ -165,8 +165,6 @@ function _intersection_points(line1, line2, assurances = { is_staight: true }, r
         returns: [vec]
 
         If ret_only_points is set to false it returns the data needed for intersect_lines
-
-        Note, that this function deletes line1 and line 2 and replaces them.
     */
 
     if (assurances.is_staight !== true){

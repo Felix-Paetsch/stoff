@@ -1,5 +1,5 @@
 class Vector {
-    constructor(x, y, column = true) {
+    constructor(x = 0, y = 0, column = true) {
         this.is_column = column;
         this.is_row = !column;
 
@@ -7,10 +7,15 @@ class Vector {
     }
 
     set(x, y) {
+        if (x instanceof Vector){
+            return this.set(x[0], x[1]);
+        }
+        
         this.x = x;
         this.y = y;
         this[0] = x;
         this[1] = y;
+        return this;
     }
 
     dot(vec) {
@@ -53,6 +58,10 @@ class Vector {
 
     scale(a) {
         return new Vector(this.x * a, this.y * a);
+    }
+
+    to_len(a){
+        return this.normalize().scale(a);
     }
 
     add(vec) {

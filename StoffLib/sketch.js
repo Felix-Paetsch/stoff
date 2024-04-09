@@ -1,12 +1,13 @@
 const { Vector, affine_transform_from_input_output, distance_from_line_segment } = require("../Geometry/geometry.js");
 const { StraightLine, Line } = require('./line.js');
+const { ConnectedComponent } = require("./connected_component.js");
 const { interpolate_colors } = require("./colors.js");
 const { validate_sketch } =  require("./validation.js");
 const { create_svg_from_sketch, save_as_svg } = require("./rendering/to_svg.js");
 const { create_png_from_sketch, save_as_png } = require("./rendering/to_png.js");
 const { Point } = require("./point.js"); 
 const { toA4printable } = require("./rendering/to_A4_pages.js");
-const copy_to_sketch = require("./copy_to_sketch.js");
+const { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } = require("./copy.js");
 const path = require('path');
 const CONF = require("./config.json");
 
@@ -82,6 +83,25 @@ class Sketch{
 
     get_lines(){
         return this.lines;
+    }
+
+    connected_component(sketch_el){
+        this._guard_sketch_elements_in_sketch(sketch_el);
+        return ConnectedComponent(sketch_el);
+    }
+    
+    get_connected_components(){
+        const components = [];
+        const visited_points = [];
+        for (const p of this.points){
+            if (!visited_points.includes(p)){
+                const new_component = ConnectedComponent(p);
+                components.push(new_component);
+                visited_points.push(...new_component.points());
+            }
+        }
+
+        return components;
     }
 
     line_between_points(pt1, pt2, file = null){
@@ -226,7 +246,7 @@ class Sketch{
         return new_line;
     }
 
-    merge_lines(line1, line2){
+    merge_lines(line1, line2, data_callback = default_data_callback){
         this._guard_lines_in_sketch(line1, line2);
 
         if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
@@ -261,12 +281,15 @@ class Sketch{
         
         new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
 
+        copy_sketch_obj_data(line1, new_line, data_callback);
+        copy_sketch_obj_data(line2, new_line, data_callback);
+
         this.remove_line(line1);
         this.remove_line(line2);
         return new_line;
     }
 
-    point_on_line(pt, line){
+    point_on_line(pt, line, data_callback = default_data_callback){
         const abs = line.get_absolute_sample_points();
 
         let closest_line_segment_first_index = 0;
@@ -309,6 +332,7 @@ class Sketch{
             this._line_between_points_from_sample_points(pt, line.p2, right_part.map(right_to_rel_fun)),
         ];
 
+        line_segments.forEach(ls => copy_sketch_obj_data(line, ls, data_callback))
         this.remove_line(line);
         
         return {
@@ -360,31 +384,90 @@ class Sketch{
         return _intersection_points(line1, line2, assurances);
     }
 
-    copy_line(line, from, to){
+    copy_line(line, from, to, data_callback = default_data_callback){
         this._guard_points_in_sketch(from, to);
         const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);
+        copy_sketch_obj_data(line, l, data_callback);
         return l;
     }
 
     remove_line(line){
-        this._guard_lines_in_sketch(line);
-        line.get_endpoints().forEach(p => p.remove_line(line));
-        this.lines = this.lines.filter(l => l !== line);
+        return this.remove_lines(line);
+    }
+
+    remove_lines(...lines){
+        this._guard_lines_in_sketch(...lines);
+        for (const line of lines){
+            line.get_endpoints().forEach(p => p.remove_line(line));
+            this.delete_element_from_data(line);
+        }
+
+        this.lines = this.lines.filter(l => !lines.includes(l));
     }
 
     remove_point(pt){
-        this._guard_points_in_sketch(pt);
-        pt.get_adjacent_lines().forEach(l => {
-            this.remove_line(l);
-        });
+        return this.remove_points(pt);
+    }
 
-        this.points = this.points.filter(p => p !== pt);
+    remove_points(...points){
+        this._guard_points_in_sketch(...points);
+        for (const pt of points){
+            pt.get_adjacent_lines().forEach(l => {
+                this.remove_line(l);
+            });
+
+            this.delete_element_from_data(pt);
+        }
+
+        this.points = this.points.filter(p => !points.includes(p));
+    }
+
+    delete_element_from_data(el){
+        let nesting = 0;
+
+        function delete_el_from_data_obj(data){
+            nesting++;
+            if (nesting > 50){
+                throw new Error("Seems like some object has loop in data structure! (Nesting > " + 50 + ")");
+            }
+        
+            if (data instanceof Array){
+                data.forEach((arr_entry, i) => {
+                    if (arr_entry == el){
+                        return data[i] = null;
+                    }
+
+                    delete_el_from_data_obj(arr_entry);                    
+                });
+                return nesting--;
+            }
+        
+            if (data?.constructor === Object){
+                for (const key in data){
+                    if (data[key] == el){
+                        data[key] = null;
+                        continue;
+                    }
+                    
+                    delete_el_from_data_obj(data[key])
+                }
+                
+                return nesting--;
+            }
+        
+            nesting--;
+        }
+
+        delete_el_from_data_obj(this.data);
+        this.points.forEach(p => delete_el_from_data_obj(p.data));
+        this.lines.forEach(l => delete_el_from_data_obj(l.data));
     }
 
     clear(){
         this.points = [];
         this.lines  = [];
+        this.data = {};
     }
 
     _guard_points_in_sketch(...pt){
@@ -413,34 +496,63 @@ class Sketch{
         return true;
     }
 
+    has_sketch_elements(...se){
+        for (let i = 0; i < se.length; i++){
+            if (!this.has_lines(se[i]) && !this.has_points(se[i])) return false;
+        }
+        return true;
+    }
+
+    _guard_sketch_elements_in_sketch(...ls){
+        if (!this.has_sketch_elements(...ls)){
+            throw new Error("Elements are not part of the sketch.");
+        }
+    }
+
     paste_sketch(sketch, data_callback = null, position = new Vector(0, 0)){
         if (data_callback == null){
             data_callback = (target_sketch_data, src_sketch_data) => {
                 return Object.assign(target_sketch_data, src_sketch_data);
             }
         }
-        return copy_to_sketch(this, sketch, data_callback, position);
+        return copy_sketch(sketch, this, data_callback, position);
+    }
+
+    paste_connected_component(cc, position){
+        return copy_connected_component(cc, this, position);
     }
 }
 
 
 // Add Validation
 [
-    "get_bounding_box",
-    "get_points",
+    // "get_bounding_box",
+    "point",
+    "add",
     "add_point",
+    "get_points",
     "get_lines",
+    // "connected_component",
+    // "get_connected_components",
     "line_between_points",
+    "line_from_function_graph",
     "interpolate_lines",
+    "merge_line",
+    "point_on_line",
     "intersect_lines",
-    "intersection_points",
+    "line_with_offset",
+    // "intersection_points",
     "copy_line",
     "remove_line",
+    "remove_lines",
     "remove_point",
-    "line_from_function_graph",
-    "merge_lines",
-    "point_on_line",
-    "line_with_offset"
+    "remove_points",
+    // "clear",
+    // "has_points",
+    // "has_lines",
+    // "has_sketch_elements",
+    "paste_sketch",
+    "paste_connected_component"
 ].forEach(methodName => {
     const originalMethod = Sketch.prototype[methodName];
     Sketch.prototype[methodName] = function(...args) {
@@ -467,7 +579,7 @@ Sketch.prototype.save_as_png = function(...args) {
     return save_as_png(this, ...args)
 }
 
-Sketch.prototype.save_on_A4 = function(folder) {
+Sketch.prototype.save_on_A4 = function(folder){
     toA4printable(this, folder);
     save_as_png(
         this,
@@ -475,6 +587,13 @@ Sketch.prototype.save_on_A4 = function(folder) {
         CONF.PRINTABLE_WIDTH_CM * CONF.PX_PER_CM,
         CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
     ); 
+}
+
+// Add Methods We cant put elsewhere bcs of circular imports
+ConnectedComponent.prototype.to_sketch = function(){
+    const s = new Sketch();
+    copy_connected_component(this, s);
+    return s;
 }
 
 module.exports = { Sketch };

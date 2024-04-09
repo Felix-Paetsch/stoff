@@ -1,4 +1,6 @@
 const { Point } = require("./point.js");
+const { Line } = require("./line.js");
+const { Vector } = require("../Geometry/geometry.js");
 const CONF = require("./config.json");
 
 const error_margin = CONF.VAL_ERROR_MARGIN;
@@ -9,6 +11,7 @@ function validate_sketch(s){
         points_as_enpoints(l);
         points_are_in_sketch(s, l);
         no_nan_values(l);
+        data_object_valid(l.data, s);
 
         if (CONF.ASSERT_NON_SELFINTERSECTING){
             line_doesnt_self_intersect(l);
@@ -19,7 +22,10 @@ function validate_sketch(s){
 
     s.points.forEach(p => {
         pt_has_lines_only_in_sketch(s, p);
+        data_object_valid(p.data, s);
     });
+
+    data_object_valid(s.data, s);
 }
 
 // TEST CASES LINES
@@ -81,6 +87,69 @@ function pt_has_lines_only_in_sketch(s, pt){
         s.has_lines(...pt.get_adjacent_lines()),
         "Test failed: Point has lines not in sketch"
     );
+}
+
+
+// TEST CASES SKETCH
+function data_object_valid(data, s){
+    let nesting = 0;
+    nesting_buffer(data);
+
+    function nesting_buffer(data){
+        nesting++;
+        if (nesting > 50){
+            throw new Error("Data nesting to deep! Circular data structure?");
+        }
+
+        // Basic Stuff
+        if ([
+            "undefined",
+            "boolean",
+            "number",
+            "bigint",
+            "string",
+            "symbol"
+        ].includes(typeof data)){
+            return nesting--;
+        }
+
+        if (data == null){
+            return nesting--;
+        }
+
+        // Arrays
+        if (data instanceof Array){
+            nesting--;
+            return data.map(nesting_buffer);
+        }
+
+        // Basic dicts
+        if (data.constructor === Object){
+            for (const key in data){
+                nesting_buffer(data[key])
+            }
+            return nesting--;
+        }
+
+        // Points
+        if (data instanceof Point){
+            assert(s.has_points(data), "Object data references point not in sketch");
+            return nesting--;
+        }
+
+        // Vectors
+        if (data instanceof Vector){
+            return nesting--;
+        }
+
+        // Lines
+        if (data instanceof Line){
+            assert(s.has_lines(data), "Object data references line not in sketch");
+            return nesting--;
+        }
+
+        throw new Error("Object data somewhere has object of unhandled datatype (Invalid data type)");
+    }
 }
 
 // UTIL FUNCTIONS

@@ -1,11 +1,21 @@
 const { Vector } = require("../Geometry/geometry.js");
+const { ConnectedComponent } = require("./connected_component.js");
 
 class Point extends Vector{
     constructor(x, y, color = "black"){
         super(x, y);
 
         this.adjacent_lines = [];
+        this.data = {};
         this.color = color;
+    }
+
+    vector(){
+        return new Vector(this);
+    }
+
+    connected_component(){
+        return ConnectedComponent(this);
     }
 
     set_color(color){
@@ -36,8 +46,15 @@ class Point extends Vector{
     }
 
     moveTo(x, y){
-        this.set(x,y);
-        return this;
+        return this.set(x, y);
+    }
+
+    offsetBy(x, y){
+        if (x instanceof Vector) {
+            return this.moveTo(this.add(x));
+        }
+        
+        return this.moveTo(this.x + x, this.y + y);
     }
 
     remove_line(l, ignore_not_present = false){

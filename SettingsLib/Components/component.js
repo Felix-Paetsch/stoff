@@ -17,6 +17,7 @@ export default class SComponent{
         this.is_valid = () => {
             return valid_con_fun() && this.is_valid();
         }
+        return this;
     }
 
     action_is_valid(action){

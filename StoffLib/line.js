@@ -1,5 +1,6 @@
 const { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } = require("../Geometry/geometry.js");
 const { Point } = require("./point.js");
+const { ConnectedComponent } = require("./connected_component.js");
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -12,6 +13,7 @@ class Line{
         */
 
         this.color = color;
+        this.data = {};
 
         this.p1 = endpoint_1;
         this.p2 = endpoint_2;
@@ -138,6 +140,10 @@ class Line{
 
     get_sample_points(){
         return this.sample_points;
+    }
+
+    connected_component(){
+        return ConnectedComponent(this);
     }
 
     copy_sample_points(){
