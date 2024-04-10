@@ -133,7 +133,11 @@
 )
 
 #### Sketch.remove_points(
-    ...pt: Points[], 
+    ...pt: Point[], 
+)
+
+#### Sketch.remove(
+    ...els: (Point | Line)[], 
 )
 
 #### Sketch.clean()

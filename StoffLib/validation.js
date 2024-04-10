@@ -8,7 +8,7 @@ const error_margin = CONF.VAL_ERROR_MARGIN;
 function validate_sketch(s){
     s.lines.forEach(l => {
         relative_endpoints_are_correct(l);
-        points_as_enpoints(l);
+        sketch_points_as_enpoints(s, l);
         points_are_in_sketch(s, l);
         no_nan_values(l);
         data_object_valid(l.data, s);
@@ -46,10 +46,15 @@ function relative_endpoints_are_correct(l){
     );
 }
 
-function points_as_enpoints(l){
+function sketch_points_as_enpoints(l){
     assert(
         l.p1 instanceof Point && l.p2 instanceof Point,
         "Test Failed: Line should have points as endpoints"
+    );
+    
+    assert(
+        s.has_points(...l.get_endpoints()),
+        "Test Failed: Line endpoints should be in same sketch"
     );
 }
 

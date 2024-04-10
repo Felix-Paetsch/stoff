@@ -25,6 +25,17 @@ class ConnectedComponent{
         return this.obj().bounding_box;
     }
 
+    contains(el){
+        const {
+            points, lines
+        } = this.obj();
+        return points.includes(el) && lines.includes(el)
+    }
+
+    equals(component){
+        return this.contains(component.root());
+    }
+
     obj(){
         let currently_visiting_point;
         if (this.root_el instanceof Point){

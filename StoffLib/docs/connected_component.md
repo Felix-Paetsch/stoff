@@ -17,6 +17,14 @@
 #### ConnectedComponent.lines()
     => Line[]
 
+#### ConnectedComponent.contains(el: Point | Line)
+    => Boolean
+
+#### ConnectedComponent.equals(cc: ConnectedComponent)
+    Checks if *currently* the connected components
+    contain the same elements
+    => Boolean    
+
 #### ConnectedComponent.get_bounding_box()
     Bounding Box around points and lines inside connected component
     =>  {

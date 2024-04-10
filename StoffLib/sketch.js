@@ -423,6 +423,17 @@ class Sketch{
         this.points = this.points.filter(p => !points.includes(p));
     }
 
+    remove(...els){
+        for (const el of els){
+            if (el instanceof Point){
+                this.remove_point(el);
+            }
+            else {
+                this.remove_line(el);
+            }
+        }
+    }
+
     delete_element_from_data(el){
         let nesting = 0;
 
