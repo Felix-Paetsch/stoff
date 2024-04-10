@@ -9,7 +9,7 @@ const { interpolate_colors } = require("../colors.js");
 const { copy_sketch_obj_data } = require('../copy.js');
 
 module.exports = {
-    _intersection_points, 
+    _intersection_positions, 
     _intersect_lines: function intersect_lines(sketch, line1, line2, assurances = { is_staight: true }){
         /*
             params assurances: 
@@ -34,7 +34,7 @@ module.exports = {
         const l1_abs_sample_points = line1.get_absolute_sample_points();
 
         const int_color = interpolate_colors(line1.get_color(), line2.get_color(), 0.5);
-        const intersection_positions = _intersection_points(line1, line2, assurances, false);
+        const intersection_positions = _intersection_positions(line1, line2, assurances, false);
         intersection_positions.forEach(p => {
             p.acutal_point = new Point(p.point_vec.x, p.point_vec.y, int_color);
             sketch.add_point(p.acutal_point);
@@ -152,7 +152,7 @@ module.exports = {
     }
 }
 
-function _intersection_points(line1, line2, assurances = { is_staight: true }, ret_only_points = true){
+function _intersection_positions(line1, line2, assurances = { is_staight: true }, ret_only_vecs = true){
     /*
         params assurances: 
             { l2_stepsize_ratio: 10, l2_stepsize_ratio: 10}
@@ -164,7 +164,7 @@ function _intersection_points(line1, line2, assurances = { is_staight: true }, r
 
         returns: [vec]
 
-        If ret_only_points is set to false it returns the data needed for intersect_lines
+        If ret_only_vecs is set to false it returns the data needed for intersect_lines
     */
 
     if (assurances.is_staight !== true){
@@ -231,7 +231,7 @@ function _intersection_points(line1, line2, assurances = { is_staight: true }, r
         const point_vec = l2_abs_sample_points[p.line2_left_pt].mult(1 - p.line2_left_ratio)
                             .add(l2_abs_sample_points[p.line2_left_pt + 1].mult(p.line2_left_ratio));
 
-        if (ret_only_points){
+        if (ret_only_vecs){
             return point_vec;
         } else {
             p.point_vec = point_vec;

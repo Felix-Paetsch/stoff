@@ -13,7 +13,7 @@ const CONF = require("./config.json");
 
 const {
     _intersect_lines,
-    _intersection_points
+    _intersection_positions
 } = require("./unicorns/intersect_lines.js");
 
 class Sketch{
@@ -379,9 +379,9 @@ class Sketch{
         }
     }
 
-    intersection_points(line1, line2, assurances = { is_staight: true }){
+    intersection_positions(line1, line2, assurances = { is_staight: true }){
         // see intersect_lines, only the points are returned and the sketch is unaltered
-        return _intersection_points(line1, line2, assurances);
+        return _intersection_positions(line1, line2, assurances);
     }
 
     copy_line(line, from, to, data_callback = default_data_callback){
@@ -503,6 +503,10 @@ class Sketch{
         return true;
     }
 
+    has(...se){
+        return this.has_sketch_elements(...se);
+    }
+
     _guard_sketch_elements_in_sketch(...ls){
         if (!this.has_sketch_elements(...ls)){
             throw new Error("Elements are not part of the sketch.");
@@ -590,9 +594,9 @@ Sketch.prototype.save_on_A4 = function(folder){
 }
 
 // Add Methods We cant put elsewhere bcs of circular imports
-ConnectedComponent.prototype.to_sketch = function(){
+ConnectedComponent.prototype.to_sketch = function(position = null){
     const s = new Sketch();
-    copy_connected_component(this, s);
+    copy_connected_component(this, s, position);
     return s;
 }
 

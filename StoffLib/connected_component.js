@@ -61,7 +61,7 @@ class ConnectedComponent{
         }
     }
 
-    to_sketch(){
+    to_sketch(position = null){
         throw new Error("Implementation not overwritten!");
     }
 

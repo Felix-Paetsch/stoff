@@ -219,7 +219,7 @@ class Line{
     }
 
     mirror(direction = false){
-        if (!(direction == false)){
+        if (direction){
             const t = this.p1;
             this.p1 = this.p2;
             this.p2 = t;

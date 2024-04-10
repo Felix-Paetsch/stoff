@@ -28,7 +28,7 @@ class Point extends Vector{
     }
 
     copy(){
-        return new Point(this.x, this.y);
+        return new Point(this.x, this.y).set_color(this.get_color());
     }
 
     get_tangent_vector(line){
