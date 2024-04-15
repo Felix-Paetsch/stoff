@@ -53,7 +53,7 @@ class Point extends Vector{
         if (x instanceof Vector) {
             return this.moveTo(this.add(x));
         }
-        
+
         return this.moveTo(this.x + x, this.y + y);
     }
 

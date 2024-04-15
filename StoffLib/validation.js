@@ -1,6 +1,7 @@
 const { Point } = require("./point.js");
 const { Line } = require("./line.js");
 const { Vector } = require("../Geometry/geometry.js");
+const { ConnectedComponent } = require("./connected_component.js");
 const CONF = require("./config.json");
 
 const error_margin = CONF.VAL_ERROR_MARGIN;
@@ -12,6 +13,7 @@ function validate_sketch(s){
         points_are_in_sketch(s, l);
         no_nan_values(l);
         data_object_valid(l.data, s);
+        endpoints_have_line(l);
 
         if (CONF.ASSERT_NON_SELFINTERSECTING){
             line_doesnt_self_intersect(l);
@@ -46,12 +48,12 @@ function relative_endpoints_are_correct(l){
     );
 }
 
-function sketch_points_as_enpoints(l){
+function sketch_points_as_enpoints(s, l){
     assert(
         l.p1 instanceof Point && l.p2 instanceof Point,
         "Test Failed: Line should have points as endpoints"
     );
-    
+
     assert(
         s.has_points(...l.get_endpoints()),
         "Test Failed: Line endpoints should be in same sketch"
@@ -83,6 +85,14 @@ function sufficent_sample_point_spacing(l, min_distance){
 
 function line_doesnt_self_intersect(l){
     assert(!l.self_intersects(), "Test failed: Line self intersects");
+}
+
+function endpoints_have_line(l){
+    assert(
+        l.p1.get_adjacent_lines().includes(l)
+        && l.p2.get_adjacent_lines().includes(l),
+        "Line endpoints adjacent to line"
+    );
 }
 
 // TEST CASES POINTS
@@ -150,6 +160,12 @@ function data_object_valid(data, s){
         // Lines
         if (data instanceof Line){
             assert(s.has_lines(data), "Object data references line not in sketch");
+            return nesting--;
+        }
+
+        if (data instanceof ConnectedComponent){
+            const root = data.root_el;
+            assert(s.has(data.root_el), "Root element of ConnectedCompoonent doesnt belong to sketch");
             return nesting--;
         }
 

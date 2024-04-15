@@ -1,6 +1,7 @@
 const { Vector } = require("../Geometry/geometry.js");
 const { Point } = require("./point.js");
 const { Line } = require("./line.js");
+const { ConnectedComponent } = require("./connected_component.js");
 
 function default_data_callback(d1, d2){
     return Object.assign(d1, d2);
@@ -35,8 +36,8 @@ function copy_sketch(source, target, data_callback = default_data_callback, posi
         corresponding_line
     } = copy_points_lines(
         source.get_points(),
-        source.get_lines(), 
-        target, 
+        source.get_lines(),
+        target,
     );
 
     const data_copy = dublicate_data(
@@ -138,13 +139,14 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
 
     for (const [original, copy] of reference_array){
         const data_copy = dublicate_data(
-            original.data, 
-            get_corresponding_sketch_point, 
+            original.data,
+            get_corresponding_sketch_point,
             get_corresponding_sketch_line
         );
+
         Object.assign(copy.data, data_copy);
     }
-    
+
     return {
         corresponding_point: get_corresponding_sketch_point,
         corresponding_line: get_corresponding_sketch_line
@@ -212,6 +214,19 @@ function dublicate_data(data, get_point_reference = (pt) => pt, get_line_referen
         if (data instanceof Line){
             nesting--;
             return get_line_reference(data);
+        }
+
+        if (data instanceof ConnectedComponent){
+            const root = data.root_el;
+            if (root instanceof Point){
+                return new ConnectedComponent(
+                    get_point_reference(root)
+                );
+            }
+
+            return new ConnectedComponent(
+                get_line_reference(root)
+            );
         }
 
         throw new Error("Can't create deep copy of data for source sketch! (Invalid data type)");

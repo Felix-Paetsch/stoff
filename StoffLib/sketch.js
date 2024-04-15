@@ -5,7 +5,7 @@ const { interpolate_colors } = require("./colors.js");
 const { validate_sketch } =  require("./validation.js");
 const { create_svg_from_sketch, save_as_svg } = require("./rendering/to_svg.js");
 const { create_png_from_sketch, save_as_png } = require("./rendering/to_png.js");
-const { Point } = require("./point.js"); 
+const { Point } = require("./point.js");
 const { toA4printable } = require("./rendering/to_A4_pages.js");
 const { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } = require("./copy.js");
 const path = require('path');
@@ -32,13 +32,13 @@ class Sketch{
 
         this.lines.forEach(l => {
             const { top_left, bottom_right } = l.get_bounding_box();
-            
+
             _min_x = Math.min(top_left.x, _min_x);
             _max_x = Math.max(bottom_right.x, _max_x);
             _min_y = Math.min(top_left.y, _min_y);
             _max_y = Math.max(bottom_right.y, _max_y);
         });
-        
+
         this.points.forEach(p => {
             _min_x = Math.min(p.x, _min_x);
             _max_x = Math.max(p.x, _max_x);
@@ -65,7 +65,7 @@ class Sketch{
         if (thing instanceof Point || thing instanceof Vector){
             return this.add_point(thing);
         }
-        
+
         throw new Error("Currently cannot add things of this type to the sketch");
     }
 
@@ -76,7 +76,7 @@ class Sketch{
         this.points.push(pt);
         return pt;
     }
-    
+
     get_points(){
         return this.points;
     }
@@ -89,7 +89,7 @@ class Sketch{
         this._guard_sketch_elements_in_sketch(sketch_el);
         return ConnectedComponent(sketch_el);
     }
-    
+
     get_connected_components(){
         const components = [];
         const visited_points = [];
@@ -136,7 +136,7 @@ class Sketch{
         const n = Math.ceil(1 / this.sample_density);
 
         const sample_points = Array.from(
-            { length: n + 1 }, 
+            { length: n + 1 },
             (_, i) => new Vector(x_t(i/n), y_t(i/n))
         );
 
@@ -170,7 +170,7 @@ class Sketch{
         //      annahme: f(0) = 0 => wir sind bei Punkt 1 von Linie 1
         //               f(1) = 1 => wir sind bei Punkt 2 von Linie 2
         // direction 0-3: ändert welche Punkte jeweils als Start-/Endpunkte gewählt werden sollen (1 bis 4)
-        
+
         this._guard_lines_in_sketch(line1, line2);
 
         function avg_point(sample_points, position){
@@ -198,7 +198,7 @@ class Sketch{
         if (direction == 2 || direction == 3){
             line2.swap_orientation();
         }
-        
+
         let [endpoint_L11, endpoint_L12] = line1.get_endpoints();
         let [endpoint_L21, endpoint_L22] = line2.get_endpoints();
 
@@ -236,8 +236,8 @@ class Sketch{
         }
 
         const new_line = this._line_between_points_from_sample_points(
-            start, 
-            end, 
+            start,
+            end,
             sample_points
         );
 
@@ -274,11 +274,11 @@ class Sketch{
 
         const relative_points = abs_total.map(p => t_fun(p));
         const new_line = this._line_between_points_from_sample_points(
-            line1.p1, 
-            line2.p2, 
+            line1.p1,
+            line2.p2,
             relative_points
         );
-        
+
         new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
 
         copy_sketch_obj_data(line1, new_line, data_callback);
@@ -293,7 +293,7 @@ class Sketch{
         const abs = line.get_absolute_sample_points();
 
         let closest_line_segment_first_index = 0;
-        let closest_distance                 = Infinity; 
+        let closest_distance                 = Infinity;
         for (let i = 0; i < abs.length - 1; i++){
             const new_dist = distance_from_line_segment([abs[i], abs[i+1]], pt);
             if (closest_distance > new_dist){
@@ -313,7 +313,7 @@ class Sketch{
 
         const left_part  = abs.slice(0, closest_line_segment_first_index + 1);
         const right_part = abs.slice(closest_line_segment_first_index + 1);
-        
+
         left_part.push(splitting_pt);
         right_part.unshift(splitting_pt);
 
@@ -334,7 +334,7 @@ class Sketch{
 
         line_segments.forEach(ls => copy_sketch_obj_data(line, ls, data_callback))
         this.remove_line(line);
-        
+
         return {
             line_segments,
             point: pt
@@ -343,7 +343,7 @@ class Sketch{
 
     intersect_lines(line1, line2, assurances = { is_staight: true }){
         /*
-            params assurances: 
+            params assurances:
                 { l2_stepsize_percent: 10, l2_stepsize_percent: 10}
                 -> If you recursivelytest only on x percent of the lines, you will find all points
                 { intersection_count : 5 }
@@ -359,7 +359,7 @@ class Sketch{
 
             Note, that this function deletes line1 and line 2 and replaces them.
         */
-    
+
         this._guard_lines_in_sketch(line1, line2);
         return _intersect_lines(this, line1, line2, assurances)
     }
@@ -401,6 +401,8 @@ class Sketch{
         for (const line of lines){
             line.get_endpoints().forEach(p => p.remove_line(line));
             this.delete_element_from_data(line);
+            line.p1 = null;
+            line.p2 = null;
         }
 
         this.lines = this.lines.filter(l => !lines.includes(l));
@@ -417,6 +419,7 @@ class Sketch{
                 this.remove_line(l);
             });
 
+            pt.adjacent_lines = null;
             this.delete_element_from_data(pt);
         }
 
@@ -442,31 +445,31 @@ class Sketch{
             if (nesting > 50){
                 throw new Error("Seems like some object has loop in data structure! (Nesting > " + 50 + ")");
             }
-        
+
             if (data instanceof Array){
                 data.forEach((arr_entry, i) => {
                     if (arr_entry == el){
                         return data[i] = null;
                     }
 
-                    delete_el_from_data_obj(arr_entry);                    
+                    delete_el_from_data_obj(arr_entry);
                 });
                 return nesting--;
             }
-        
+
             if (data?.constructor === Object){
                 for (const key in data){
                     if (data[key] == el){
                         data[key] = null;
                         continue;
                     }
-                    
+
                     delete_el_from_data_obj(data[key])
                 }
-                
+
                 return nesting--;
             }
-        
+
             nesting--;
         }
 
@@ -577,6 +580,11 @@ class Sketch{
     };
 });
 
+Sketch.prototype.validate = function(){
+    validate_sketch(this);
+    console.log("Validated");
+};
+
 // Add External Methods
 Sketch.prototype.to_svg = function(...args) {
     return create_svg_from_sketch(this, ...args)
@@ -601,7 +609,7 @@ Sketch.prototype.save_on_A4 = function(folder){
         path.join(folder, "img.png"),
         CONF.PRINTABLE_WIDTH_CM * CONF.PX_PER_CM,
         CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
-    ); 
+    );
 }
 
 // Add Methods We cant put elsewhere bcs of circular imports

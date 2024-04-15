@@ -2,8 +2,8 @@ const dummay_pattern = require("./dummy_pattern.js");
 const { Sketch } = require("../StoffLib/sketch.js");
 const { Vector } = require("../Geometry/geometry.js");
 
-const basic_pattern = require("../clothes2/basicPattern3.js");
-const change = require("../clothes2/change_pattern.js");
+const basic_pattern = require("./basic/basicPattern.js");
+const change = require("./change/remodel.js");
 
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
@@ -480,7 +480,6 @@ module.exports = {
       let back = basic_pattern.back(design_config.measurements);
       let front = basic_pattern.front(design_config.measurements);
       let s = new Sketch();
-
 
       s.paste_sketch(back, null, new Vector(0,0));
       s.paste_sketch(front, null, new Vector(55, 0));
