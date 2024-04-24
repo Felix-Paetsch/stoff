@@ -527,7 +527,7 @@ class Sketch{
         }
     }
 
-    paste_sketch(sketch, data_callback = null, position = new Vector(0, 0)){
+    paste_sketch(sketch, data_callback = null, position = null){
         if (data_callback == null){
             data_callback = (target_sketch_data, src_sketch_data) => {
                 return Object.assign(target_sketch_data, src_sketch_data);

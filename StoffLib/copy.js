@@ -38,6 +38,7 @@ function copy_sketch(source, target, data_callback = default_data_callback, posi
         source.get_points(),
         source.get_lines(),
         target,
+        offset
     );
 
     const data_copy = dublicate_data(
