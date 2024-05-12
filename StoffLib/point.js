@@ -45,16 +45,16 @@ class Point extends Vector{
         return this.adjacent_lines;
     }
 
-    moveTo(x, y){
+    move_to(x, y){
         return this.set(x, y);
     }
 
-    offsetBy(x, y){
+    offset_by(x, y){
         if (x instanceof Vector) {
-            return this.moveTo(this.add(x));
+            return this.move_to(this.add(x));
         }
 
-        return this.moveTo(this.x + x, this.y + y);
+        return this.move_to(this.x + x, this.y + y);
     }
 
     remove_line(l, ignore_not_present = false){

@@ -289,6 +289,26 @@ class Sketch{
         return new_line;
     }
 
+    merge_points(pt1, pt2, data_callback = default_data_callback){
+      if (pt1.subtract(pt2).length() > 0.01){
+        throw new Error("Points are not ontop each other");
+      }
+
+      copy_sketch_obj_data(pt2, pt1, data_callback);
+
+      pt2.get_adjacent_lines().forEach(line => {
+         if (line.p1 !== pt2){
+            line.set_endpoints(line.p1, pt1);
+         } else {
+            line.set_endpoints(pt2, line.p2);
+          }
+      });
+
+
+      this.remove_points(pt2);
+      return pt1;
+    }
+
     point_on_line(pt, line, data_callback = default_data_callback){
         const abs = line.get_absolute_sample_points();
 

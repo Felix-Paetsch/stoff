@@ -69,7 +69,7 @@ class Line{
             const right_sp = this_abs_sample_points[i + 2];
             {
                 // Above the center of the line segment [left, middle]
-    
+
                 const line_center_point = left_sp.add(middle_sp.subtract(left_sp).scale(0.5));
                 const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
 
@@ -84,7 +84,7 @@ class Line{
                 const left_segment = left_sp.subtract(middle_sp);
                 const rot_fun = rotation_fun(new Vector(0,0), angle_of_new_vec);
                 const vec_to_add = rot_fun(left_segment.normalize()).scale(radius);
-                
+
                 abs_sample_points.push(middle_sp.add(vec_to_add));
             }
         }

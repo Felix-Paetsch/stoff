@@ -1,5 +1,5 @@
 #### new Point(
-    x: Vector | Number, 
+    x: Vector | Number,
     y: Number | null,
     color = black: String
 )
@@ -38,7 +38,7 @@
 )
     => Point (this)
 
-#### Point.offsetBy(
+#### Point.offset_by(
     x: Vector | Number,
     y: Vector | null
 )
