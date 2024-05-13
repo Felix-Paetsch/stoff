@@ -300,8 +300,9 @@ class Sketch{
          if (line.p1 !== pt2){
             line.set_endpoints(line.p1, pt1);
          } else {
-            line.set_endpoints(pt2, line.p2);
-          }
+            line.set_endpoints(pt1, line.p2);
+         }
+
       });
 
 
@@ -576,6 +577,7 @@ class Sketch{
     "line_from_function_graph",
     "interpolate_lines",
     "merge_line",
+    "merge_points",
     "point_on_line",
     "intersect_lines",
     "line_with_offset",

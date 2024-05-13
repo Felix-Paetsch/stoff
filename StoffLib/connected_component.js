@@ -30,10 +30,6 @@ class ConnectedComponent{
             points, lines
         } = this.obj();
 
-        console.log(
-            this.root().p1.get_adjacent_lines().includes(this.root())
-        );
-
         return points.includes(el) || lines.includes(el)
     }
 
