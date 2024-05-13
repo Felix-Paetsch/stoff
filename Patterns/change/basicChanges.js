@@ -1,6 +1,7 @@
 const { Vector } = require("../../Geometry/geometry.js");
 const { Sketch } = require("../../StoffLib/sketch.js");
 const { Point } = require("../../StoffLib/point.js");
+const {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} = require("../basic/basicFun.js");
 
 const utils = require("./utils.js");
 
@@ -9,8 +10,8 @@ const utils = require("./utils.js");
 
 
 function armpit_new(s, pattern){
-  let shoulder = utils.get_lines(pattern.comp, "shoulder");
-  let side = utils.get_lines(pattern.comp, "side");
+  let shoulder = utils.get_lines(pattern.comp, "shoulder")[0];
+  let side = utils.get_lines(pattern.comp, "side")[0];
   let c = shoulder.p2;
   let e = side.p1;
   let p5 = pattern.p5;
@@ -24,7 +25,7 @@ function armpit_new(s, pattern){
   let l2 = line_with_length(s, p5, len, 180);
 
   let temp1 = s.interpolate_lines(l1, l2, 2);
-  s.remove_point(h1);
+  s.remove_point(hp1);
   s.remove_point(l2.p2);
 
   len = p5.distance(p6);
@@ -46,6 +47,7 @@ function armpit_new(s, pattern){
   temp4.data.type = "armpit";
   temp4.data.curve = true;
   temp4.data.direction = pattern.direction * -1;
+  temp4.data.direction_split = pattern.direction * -1;
   return s;
 }
 
@@ -66,11 +68,11 @@ function merge_sides(s){
 // "kleben" der beiden seiten
   let back_waist = utils.get_lines(s.data.back.comp, "waistline");
   let waist_outer = back_waist.filter(arr_entry => {
-    return arr_entry.data.part == back_waist.length() +1;
+    return arr_entry.data.part == back_waist.length;
   });
-  waist_outer[0].set_endpoints(front_side.p2, waist_outer[0].p2);
-  s.remove_point(back_side.p1);
-  s.remove_point(back_side.p2);
+  waist_outer[0].set_endpoints(front_side[0].p2, waist_outer[0].p2);
+  s.remove_point(back_side[0].p1);
+  //s.remove_point(back_side[0].p2);
   return s;
 };
 
@@ -78,5 +80,8 @@ function merge_sides(s){
 function extend_shoulder(comp, addition){
   const line = utils.get_lines(comp, "shoulder")[0];
   let vec = line.get_line_vector().normalize().scale(addition).add(line.p2);
-  line.p2.moveTo(vec.x, vec.y);
+  line.p2.move_to(vec.x, vec.y);
 }
+
+
+module.exports = {armpit_new, merge_sides, extend_shoulder};

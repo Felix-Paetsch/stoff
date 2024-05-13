@@ -280,7 +280,7 @@ module.exports = {
             "type": Number,
             "default": 0,
             "min": 0,
-            "max": 10,
+            "max": 8,
             "step_size": 0.1
           }
           /*,{
@@ -297,7 +297,7 @@ module.exports = {
             "type": Number,
             "default": 0,
             "min": 0,
-            "max": 10,
+            "max": 8,
             "step_size": 0.1
           }/*,{
             "name": "",
@@ -441,20 +441,6 @@ module.exports = {
             "min": 0,
             "max": 1,
             "step_size": 0.05
-          },{
-            "name": "split dart in multiple smaller ones on the same side",
-            "type": Number,
-            "default": 1,
-            "min": 1,
-            "max": 5,
-            "step_size": 1
-          }
-        ],
-        "additional splits":[
-          {
-            "name": "bla",
-            "type": Boolean,
-            "default": false
           }
         ]
     },
@@ -482,12 +468,17 @@ module.exports = {
       let s = new Sketch();
 
       s.paste_sketch(back, null, new Vector(0,0));
-      s.paste_sketch(front, null, new Vector(55, 0));
+      s.paste_sketch(front, null, new Vector(30, 0));
+      let reference_points = [s.data.front.pt, s.data.back.pt];
       if (design_config["designs with merge"].merge){
         change.remodel_pattern_merge(s, design_config["designs with merge"]);
       } else {
         change.remodel_pattern(s, design_config["designs without merge"], design_config["front"], design_config["back"]);
       }
+
+      reference_points.forEach( elem => {
+        s.remove_point(elem);
+      });
       //change.remodel_pattern(s, design_config["possible designs"], design_config["front"], design_config["back"]);
 
       return s;

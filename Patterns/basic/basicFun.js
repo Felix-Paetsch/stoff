@@ -73,10 +73,10 @@ function get_point_on_other_line2(s, a, ve, len_b, vec){
 
 
 function neckline(s, ln1, ln2){
-  let len = ln1.p2.distance(ln2.p1);
-  let vec = ln1.get_line_vector().get_orthonormal().scale(-len).add(ln1.p2);
+  let len = ln1.p1.distance(ln2.p1);
+  let vec = ln1.get_line_vector().get_orthonormal().scale(len).add(ln1.p1);
   let p1 = s.add_point(new Point(vec.x, vec.y));
-  let l1 = s.line_between_points(ln1.p2, p1);
+  let l1 = s.line_between_points(ln1.p1, p1);
   let l2 = line_with_length(s, ln2.p1, len, 90);
 
   let temp1 = s.interpolate_lines(l1, l2, 2, (x) => Math.pow(x,1), (x) => Math.pow(x, 1), (x) => Math.pow(x,0.7));
@@ -86,10 +86,10 @@ function neckline(s, ln1, ln2){
 }
 
 function back_neckline(s, ln1, ln2){
-  let len = ln1.p2.distance(ln2.p1);
-  let vec = ln1.get_line_vector().get_orthonormal().scale(len).add(ln1.p2);
+  let len = ln1.p1.distance(ln2.p1);
+  let vec = ln1.get_line_vector().get_orthonormal().scale(-len).add(ln1.p1);
   let p1 = s.add_point(new Point(vec.x, vec.y));
-  let l1 = s.line_between_points(ln1.p2, p1);
+  let l1 = s.line_between_points(ln1.p1, p1);
   let l2 = line_with_length(s, ln2.p1, len, -90);
 
 

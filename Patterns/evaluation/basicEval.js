@@ -5,28 +5,28 @@ const { Vector } = require("../../Geometry/geometry.js");
 
 
 function evaluate_type(design){
-  let options;
-  if(design["shoulder"]){
-    options.push("shoulder");
-  }
+  let options = [];
   if(design["side"]){
     options.push("side");
+  }
+  if(design["shoulder"]){
+    options.push("shoulder");
   }
   if(design["fold"]){
     options.push("fold");
   }
-  if(design["neckline"]){
-    options.push("neckline");
-  }
   if(design["armpit"]){
     options.push("armpit");
+  }
+  if(design["neckline"]){
+    options.push("neckline");
   }
   if(design["waistline"]){
     options.push("waistline");
   }
-  if(design["side hidden dart"]){
+/*  if(design["side hidden dart"]){
     options.push("side hidden dart");
-  }
+  }*/
   return options;
 }
 
@@ -40,24 +40,25 @@ function evaluate_percent(design){
 }
 
 function evaluate_type_merge(design){
-  let options;
-  if(design["shoulder"]){
-    options.push("shoulder");
-  }
+  let options = [];
+  let options_back = [];
   if(design["armpit"]){
     options.push("armpit");
   }
   if(design["neckline"]){
     options.push("neckline");
   }
-  if(design["shoulder back"]){
-    options_back.push("shoulder");
+  if(design["shoulder"]){
+    options.push("shoulder");
   }
   if(design["armpit back"]){
     options_back.push("armpit");
   }
   if(design["neckline back"]){
     options_back.push("neckline");
+  }
+  if(design["shoulder back"]){
+    options_back.push("shoulder");
   }
 
   return {
@@ -66,3 +67,5 @@ function evaluate_type_merge(design){
   };
 
 }
+
+module.exports = {evaluate_type_merge, evaluate_type, evaluate_percent};

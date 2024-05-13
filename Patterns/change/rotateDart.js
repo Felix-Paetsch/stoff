@@ -1,4 +1,13 @@
 
+const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
+const { Sketch } = require("../../StoffLib/sketch.js");
+const { Point } = require("../../StoffLib/point.js");
+const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+
+
+const utils = require("./utils.js");
+const evaluate = require("../evaluation/basicEval.js");
+
 
 
 
@@ -163,16 +172,51 @@ function rotate_dart(s, pattern, design, percent, percent2, r = 1, armpit_true =
 
 function correct_waistline(s, ln, l1, l2){
   let vec = l1.get_line_vector().add(l1.p2);
-  l1.p2.moveTo(vec.x, vec.y);
+  l1.p2.move_to(vec.x, vec.y);
 
   let pt = s.intersection_points(ln, l1);
   //let pt2 = s.intersection_points(ln, l2);
-  l1.p2.moveTo(pt[0].x, pt[0].y);
+  l1.p2.move_to(pt[0].x, pt[0].y);
   let len = l1.get_length();
 
   vec = l2.get_line_vector().normalize().scale(len).add(l2.p1);
 
-  l2.p2.moveTo(vec.x, vec.y);
+  l2.p2.move_to(vec.x, vec.y);
 
   s.remove_line(ln);
 }
+
+
+
+function split_dart_to_side_new(s, pattern, percent){
+  let darts = utils.get_lines(pattern.comp, "dart");
+  let dart = utils.get_nearest_set_of_dart_lines(s, pattern, darts);
+  let side = utils.get_lines(pattern.comp, "side")[0];
+
+
+
+
+  l = s.line_between_points(dart[0].p2, dart[1].p2);
+
+
+  len1 = l.get_length() * percent;
+  len2 = l.get_length() - len1;
+  len3 = dart[0].get_length();
+  len4 = side.get_length();
+
+  vec = l.p1.add(l.get_line_vector().normalize().scale(len1));
+  p = s.add_point(new Point(vec.x, vec.y)).set_color("green");
+  vec = p.subtract(dart[0].p1).normalize().scale(len3).add(dart[0].p1);
+  p2 = s.add_point(new Point(vec.x, vec.y));
+  s.remove_point(p);
+  s.remove_line(l);
+
+  dart[1].p2.move_to(p2.x, p2.y);
+  s.remove_point(p2);
+  vec = dart[1].p2.subtract(side.p2).normalize().scale(len2).add(side.p2);
+  side.p2.move_to(vec.x, vec.y);
+  vec = side.get_line_vector().normalize().scale(len4).add(side.p1);
+  side.p2.move_to(vec.x, vec.y);
+}
+
+module.exports = {split_dart_to_side_new};

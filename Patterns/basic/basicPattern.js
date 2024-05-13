@@ -30,6 +30,7 @@ function front(mea){
   const c_to_d = c_h.l2_segment;
   c_to_d.data.type = "shoulder";
   c_to_d.data.direction = 1;
+  c_to_d.swap_orientation();
   s.remove_point(p5_1);
   s.remove_line(d_h.l2_segment);
 
@@ -59,7 +60,7 @@ function front(mea){
   s.remove_line(p8_help.l2_segment);
   const p8 = p8_help.point;
   l_help = s.line_between_points(h, p8);
-  let g_to_h = s.line_between_points(g, h);
+  let g_to_h = s.line_between_points(h, g);
   g_to_h.data.type = "dart";
   vec_length = g_to_h.get_length();
   let vec_i = l_help.get_line_vector().normalize().scale(vec_length).add(h);
@@ -82,6 +83,8 @@ function front(mea){
   neck.data.type = "neckline";
   neck.data.curve = true;
   neck.data.direction = -1;
+  neck.data.direction_split = -1;
+
 
   a_to_b.set_color("green");
 
@@ -129,6 +132,8 @@ function back(mea){
   const c_to_d = c_h.l2_segment;
   c_to_d.data.type = "shoulder";
   c_to_d.data.direction = 1;
+  c_to_d.swap_orientation();
+
 
   s.remove_point(p5_1);
   s.remove_line(d_h.l2_segment);
@@ -159,7 +164,7 @@ function back(mea){
   s.remove_line(p8_help.l2_segment);
   const p8 = p8_help.point;
   l_help = s.line_between_points(h, p8);
-  let g_to_h = s.line_between_points(g, h);
+  let g_to_h = s.line_between_points(h, g);
   g_to_h.data.type = "dart";
 
   vec_length = g_to_h.get_length();
@@ -182,6 +187,7 @@ function back(mea){
   neck.data.type = "neckline";
   neck.data.curve = true;
   neck.data.direction = 1;
+  neck.data.direction_split = -1;
 
   a_to_b.set_color("green")
 
