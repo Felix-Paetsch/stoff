@@ -1,6 +1,6 @@
-const dummay_pattern = require("./dummy_pattern.js");
 const { Sketch } = require("../StoffLib/sketch.js");
 const { Vector } = require("../Geometry/geometry.js");
+const { add_time_tracker } = require("../Debug/track_fn.js");
 
 const basic_pattern = require("./basic/basicPattern.js");
 const change = require("./change/remodel.js");
@@ -445,6 +445,22 @@ module.exports = {
         ]
     },
     create_design: (design_config) => {
+      const sk = new Sketch();
+
+      const pt1 = sk.add_point(new Vector(0,0));
+      const pt2 = sk.add_point(new Vector(1,1));
+      sk.line_from_function_graph(pt1, pt2, t => {
+          const t3 = t*t*t;
+          const t4 = t3*t;
+          const t5 = t4*t;
+
+          // Integrate x^n(x-1)^n (and scale it nicely; theoretically not even needed thoug);
+          return 10*t3 - 15*t4 + 6*t5;
+      });
+      return sk;
+
+
+
       design_config.measurements.bust_width_front += 3;
       design_config.measurements.bust_width_back += 3;
       design_config.measurements.tai_width_front += 3;
@@ -462,6 +478,10 @@ module.exports = {
            i.e. for formatting the design config, renaming parameters, ...
         */
 
+
+
+      basic_pattern.back = add_time_tracker(basic_pattern.back, "Basic Pattern Back");
+      basic_pattern.front = add_time_tracker(basic_pattern.front, "Basic Pattern Front");
 
       let back = basic_pattern.back(design_config.measurements);
       let front = basic_pattern.front(design_config.measurements);

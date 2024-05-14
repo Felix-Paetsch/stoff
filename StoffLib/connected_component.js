@@ -1,4 +1,5 @@
 const { Vector } = require("../Geometry/geometry.js");
+const { add_tracker } = require("../Debug/track_fn.js");
 
 class ConnectedComponent{
     constructor(element){
@@ -84,6 +85,12 @@ class ConnectedComponent{
         throw new Error("Inimplemented!")
     }
 }
+
+ConnectedComponent.prototype.obj = 
+    add_tracker(ConnectedComponent.prototype.obj, "Compute Connected Component");
+
+ConnectedComponent.prototype.lines = 
+    add_tracker(ConnectedComponent.prototype.lines, "Compute CC Lines");
 
 module.exports = { ConnectedComponent };
 

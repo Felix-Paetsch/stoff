@@ -119,8 +119,10 @@ class Sketch{
     }
 
     line_from_function_graph(pt1, pt2, f_1, f_2 = null){
-        // if one function is given, draw its graph as if the enpoint vector was the x-axis
-        // if two functiosn are given, treat them as x(t) and y(t) as t goes from 0 to 1 with the enpoint_vetor the x-axis
+        // if one function is given, draw its graph
+        // if two functiosn are given, treat them as x(t) and y(t) as t goes from 0 to 1
+
+        // The first fn point (0, f(0)), (x(0), y(0)) will be identified with pt1 and last (1, f(1)),(x(1), y(1)) with pt2
 
         let x_t;
         let y_t;
@@ -140,7 +142,20 @@ class Sketch{
             (_, i) => new Vector(x_t(i/n), y_t(i/n))
         );
 
-        return this._line_between_points_from_sample_points(pt1, pt2, sample_points);
+        const transform_src = [
+            sample_points[0], sample_points[sample_points.length - 1]
+        ];
+
+        const transform_target = [
+            new Vector(0,0), new Vector(1, 0)
+        ];
+
+        const transform = affine_transform_from_input_output(
+            transform_src,
+            transform_target   
+        );
+
+        return this._line_between_points_from_sample_points(pt1, pt2, sample_points.map(transform));
     }
 
     _line_between_points_from_sample_points(pt1, pt2, sp){

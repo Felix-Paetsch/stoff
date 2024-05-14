@@ -4,8 +4,7 @@ const { Sketch } = require("../../StoffLib/sketch.js");
 const { Point } = require("../../StoffLib/point.js");
 const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
 
-
-
+const { add_time_tracker } = require("../../Debug/track_fn.js");
 
 
 function get_lines(component, type){
@@ -193,4 +192,9 @@ function close_component(s, p, pts){
 
 
 
-module.exports = {close_component, get_comp_to_rotate, sort_lines, get_lines, get_outer_line_of_all, get_outer_line, renummerate_lineparts, get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk};
+module.exports = {
+  close_component, 
+  get_comp_to_rotate, 
+  sort_lines, 
+  get_lines: add_time_tracker(get_lines, "Get Lines"), 
+  get_outer_line_of_all, get_outer_line, renummerate_lineparts, get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk};

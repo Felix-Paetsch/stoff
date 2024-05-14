@@ -1,6 +1,5 @@
 const { Sketch } = require("../../StoffLib/sketch.js");
 const { Point } = require("../../StoffLib/point.js");
-const { Vector } = require("../../Geometry/geometry.js");
 const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
 
 const {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} = require("./basicFun.js");
@@ -36,7 +35,7 @@ function front(mea){
 
   let p5_2 = get_point_on_other_line2(s, p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal()).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = s.add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = s.add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(s, e, mea.side_height, 0);
@@ -140,7 +139,7 @@ function back(mea){
 
   let p5_2 = get_point_on_other_line2(s, p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal().scale(-1)).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = s.add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = s.add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(s, e, mea.side_height, 0);
