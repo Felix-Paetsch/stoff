@@ -86,10 +86,10 @@ class ConnectedComponent{
     }
 }
 
-ConnectedComponent.prototype.obj = 
+ConnectedComponent.prototype.obj =
     add_tracker(ConnectedComponent.prototype.obj, "Compute Connected Component");
 
-ConnectedComponent.prototype.lines = 
+ConnectedComponent.prototype.lines =
     add_tracker(ConnectedComponent.prototype.lines, "Compute CC Lines");
 
 module.exports = { ConnectedComponent };

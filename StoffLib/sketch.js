@@ -90,6 +90,28 @@ class Sketch{
         return ConnectedComponent(sketch_el);
     }
 
+    delete_component(sketch_el){
+        if (sketch_el instanceof ConnectedComponent){
+            this.delete_element_from_data(sketch_el);
+            this._guard_sketch_elements_in_sketch(sketch_el.root_el);
+
+            /*sketch_el.transform(p => {
+                this.remove_point(p);
+            });*/
+
+            const pts = sketch_el.points();
+            return this.remove_points(...pts);
+
+            return;
+
+            // const pts = sketch_el.points();
+            //return this.remove_points(...pts);
+        }
+
+        this._guard_sketch_elements_in_sketch(sketch_el);
+        return this.remove_points(...ConnectedComponent(sketch_el).points());
+    }
+
     get_connected_components(){
         const components = [];
         const visited_points = [];
@@ -152,7 +174,7 @@ class Sketch{
 
         const transform = affine_transform_from_input_output(
             transform_src,
-            transform_target   
+            transform_target
         );
 
         return this._line_between_points_from_sample_points(pt1, pt2, sample_points.map(transform));
@@ -435,8 +457,8 @@ class Sketch{
     remove_lines(...lines){
         this._guard_lines_in_sketch(...lines);
         for (const line of lines){
-            line.get_endpoints().forEach(p => p.remove_line(line));
             this.delete_element_from_data(line);
+            line.get_endpoints().forEach(p => p.remove_line(line));
             line.p1 = null;
             line.p2 = null;
         }
@@ -451,12 +473,10 @@ class Sketch{
     remove_points(...points){
         this._guard_points_in_sketch(...points);
         for (const pt of points){
-            pt.get_adjacent_lines().forEach(l => {
-                this.remove_line(l);
-            });
+          this.delete_element_from_data(pt);
+            this.remove_lines(...pt.get_adjacent_lines());
 
-            pt.adjacent_lines = null;
-            this.delete_element_from_data(pt);
+            pt.adjacent_lines = [];
         }
 
         this.points = this.points.filter(p => !points.includes(p));
