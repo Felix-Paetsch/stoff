@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3001;
 const path = require('path');
-const { design_config, create_design } = require("../Patterns/export_pattern.js");
+const { design_config, create_design } = require("../Patterns/export_pattern_new.js");
 
 // Debug
 const { Times, Calls, reset: reset_times } = require("../Debug/track_fn.js");
@@ -56,4 +56,3 @@ app.get('/reset', (req, res) => {
 app.listen(port, () => {
     console.log(`Dev server at http://localhost:${port}`);
 });
-

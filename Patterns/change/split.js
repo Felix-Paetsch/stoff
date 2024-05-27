@@ -121,7 +121,7 @@ function split_merge(s, design){
   // hier noch reposition waistline - das fehlt noch in der Abfrage der Internetseite
 if (options.length > 0){
   let pt = utils.get_point_on_line_percent(s, s.data.front, options[0], design["percent of line"]);
-  line = utils.get_lines(s.data.front.comp, options[0]);
+  line = s.data.front.comp.lines_by_key(options[0]);
   line_new = utils.get_nearest_set_of_dart_lines(s, s.data.front, line);
 
   split_whole_new(s, s.data.front, design["percent of line"], pt, line_new[0]);
@@ -129,7 +129,7 @@ if (options.length > 0){
 }
 if(options_back.length > 0){
   let pt2 = utils.get_point_on_line_percent(s, s.data.back, options_back[0], design["percent of line back"]);
-  line = utils.get_lines(s.data.back.comp, options_back[0]);
+  line = s.data.back.comp.lines_by_key(options_back[0]);
   line_new = utils.get_nearest_set_of_dart_lines(s, s.data.back, line);
   split_whole_new(s, s.data.back, design["percent of line back"], pt2, line_new[0]);
 }
@@ -148,7 +148,7 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
   let options = evaluate.evaluate_type(design);
   let waist_b = false;
   if (options[0] == "fold" || (options[1] == "fold" && design["split percent of dart"] == 0)){
-    let line = utils.get_lines(pattern.comp, "shoulder");
+    let line = pattern.comp.lines_by_key("shoulder");
     pattern.comp = new ConnectedComponent(line[0]);
   }
   if (options.length > 1){
@@ -164,22 +164,23 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
      options = ["side", "waistline"];
     design["split percent of dart"] = 0;
     waist_b = true;
+    design["second split percent of line"] = design["first split percent of line"];
   }
   let pt;
   let line;
   let new_pattern;
   if (waist_b){
     pt = utils.get_point_on_line_percent(s, pattern, options[0], 0.5);
-    line = utils.get_lines(pattern.comp, options[0]);
+    line = pattern.comp.lines_by_key(options[0]);
     new_pattern = split_whole_new(s, pattern, 0.5, pt, line[0]);
   } else {
     pt = utils.get_point_on_line_percent(s, pattern, options[0], design["first split percent of line"]);
-    line = utils.get_lines(pattern.comp, options[0]);
+    line = pattern.comp.lines_by_key(options[0]);
     new_pattern = split_whole_new(s, pattern, design["first split percent of line"], pt, line[0]);
   }
 
-  let l_h1 = utils.get_lines(new_pattern.comp, "dart")[0];
-  let l_h2 = utils.get_lines(new_pattern.comp2, "dart")[0];
+  let l_h1 = new_pattern.comp.lines_by_key("dart")[0];
+  let l_h2 = new_pattern.comp2.lines_by_key("dart")[0];
   let p_h = l_h2.p1;
   let p1 = l_h1.p2;
   let p2 = l_h2.p2;
@@ -188,16 +189,17 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
 
   utils.rotate_outer_zhk(s, new_pattern.comp2, p1, p2, p_h, rotation_direc);
   p_h = s.merge_points(p_h, p_temp);
-  let waist = utils.get_lines(new_pattern.comp, "waistline");
+  let waist = new_pattern.comp.lines_by_key("waistline");
   waist = utils.sort_lines(new_pattern, waist);
 
   line = s.line_between_points(waist[0].p1, waist[1].p1);
+
   line.data.type = "waistline";
   line.data.direction = 1;
   s.remove_point(p1);
   s.remove_point(p2);
 
-  let lines = utils.get_lines(new_pattern.comp, "dart2");
+  let lines = new_pattern.comp.lines_by_key("dart2");
   lines.forEach((elem) => {
     elem.data.type = "dart";
   });
@@ -211,17 +213,17 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
 
     if (waist_b){
       pt = utils.get_point_on_line_percent(s, new_pattern, options[1], design["first split percent of line"]);
-      line = utils.get_lines(new_pattern.comp, options[1]);
+      line = new_pattern.comp.lines_by_key(options[1]);
       new_pattern = split_whole_new(s, new_pattern, design["first split percent of line"], pt, line[0]);
     } else {
       pt = utils.get_point_on_line_percent(s, new_pattern, options[1], design["second split percent of line"]);
-      line = utils.get_lines(new_pattern.comp, options[1]);
+      line = new_pattern.comp.lines_by_key(options[1]);
       new_pattern = split_whole_new(s, new_pattern, design["second split percent of line"], pt, line[0]);
     }
 
 
-    l_h1 = utils.get_lines(new_pattern.comp, "dart")[0];
-    l_h2 = utils.get_lines(new_pattern.comp2, "dart")[0];
+    l_h1 = new_pattern.comp.lines_by_key("dart")[0];
+    l_h2 = new_pattern.comp2.lines_by_key("dart")[0];
     p_h = l_h2.p1;
     p1 = l_h1.p2;
     p2 = l_h2.p2;
@@ -237,6 +239,7 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
       //console.log(lines)
       s.merge_lines(lines[0], lines[1]);
       s.remove_point(p1);
+      correct_waistline(s, pattern, options);
 
     } else if (options[1] == "waistline" || options[0] == "fold"){
       utils.rotate_outer_zhk(s, comp, p1, p2, p_h, (-1 + design["split percent of dart"])* rotation_direc);
@@ -249,6 +252,38 @@ function split_without_merge(s, pattern, design, rotation_direc = 1){
 
 
 }
+
+function correct_waistline(s, pattern, options){
+  if (options[1] == "waistline"){
+    let lines = pattern.comp.lines_by_key("dart2");
+    lines.forEach((elem) => {
+      elem.data.type = "dart";
+    });
+
+    let l1 = lines[1];
+    let l2 = lines[0];
+    let l_waist = utils.get_lines(pattern.comp, "waistline");
+    l_waist = utils.sort_lines(pattern, l_waist);
+    let ln = s.line_between_points(l_waist[1].p1, l_waist[0].p2);
+
+    let vec = l1.get_line_vector().add(l1.p2);
+    l1.p2.move_to(vec.x, vec.y);
+    let pt = s.intersection_positions(ln, l1);
+    //console.log(pt)
+    l1.p2.move_to(pt[0]);
+    //let pt2 = s.intersection_points(ln, l2);
+    let len = l1.get_length();
+
+    vec = l2.get_line_vector().normalize().scale(len).add(l2.p1);
+
+    l2.p2.move_to(vec.x, vec.y);
+
+    s.remove_line(ln);
+
+  }
+}
+
+
 
 function reposition_waistline(s, pattern, percent){
   let pt = get_point_on_line_percent(s, pattern, "shoulder", 0.5);

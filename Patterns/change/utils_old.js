@@ -4,6 +4,9 @@ const { Sketch } = require("../../StoffLib/sketch.js");
 const { Point } = require("../../StoffLib/point.js");
 const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
 
+const { add_time_tracker } = require("../../Debug/track_fn.js");
+
+
 function get_lines(component, type){
   let arr = component.lines(); // Arr of line
   let arr_new = arr.filter(arr_entry => {
@@ -12,6 +15,7 @@ function get_lines(component, type){
   //console.log(arr_new);
   return arr_new;
 }
+
 
 
 
@@ -35,13 +39,14 @@ function get_nearest_set_of_dart_lines(s, pattern, lines){
   return [lines[0], lines[1]];
 }
 
-function get_point_on_line_percent(s, ln, percent){
+function get_point_on_line_percent(s, pattern, ln, percent){
 
   if (percent <= 0.04){
     return ln.p1;
   } else if (percent >= 0.96){
     return ln.p2;
   }
+
   if (ln.data.curve){
     let vec = ln.p2.subtract(ln.p1);
     let len = vec.length();
@@ -62,10 +67,41 @@ function get_point_on_line_percent(s, ln, percent){
   }
 };
 
+function renummerate_lineparts(pattern, type){
+  const pt = pattern.pt;
+  const lines = get_lines(pattern.comp, type);
 
+  lines.forEach(elem => {
+    elem.data.distance = elem.p2.distance(pt);
+  });
+  lines.sort((a, b) => a.data.distance - b.data.distance);
 
-function sort_lines(s, lines){
-  const pt = s.data.pt;
+  lines.forEach((elem, i) => {
+    elem.part = i + 1;
+  });
+  return lines;
+}
+
+function get_outer_line_of_all(pattern, type){
+  const lines = renummerate_lineparts(pattern, type);
+  lines.reverse();
+  return lines[0];
+}
+
+function get_outer_line(pattern, lines){
+  const pt = pattern.pt;
+
+  lines.forEach(elem => {
+    elem.data.distance = elem.p2.distance(pt);
+  });
+  lines.sort((a, b) => a.data.distance - b.data.distance);
+
+  lines.reverse();
+  return lines[0];
+}
+
+function sort_lines(pattern, lines){
+  const pt = pattern.pt;
 
   lines.forEach(elem => {
     elem.data.distance = elem.p2.distance(pt);
@@ -84,6 +120,31 @@ function reposition_zhk(comp, vec){
 };
 
 
+function list_points_zhk(ln){
+  let vorhanden = [ln.p1];
+  let suchend = [ln.p2];
+  let lines;
+
+  while (suchend.length > 0){
+    elem = suchend.pop();
+    lines = elem.get_adjacent_lines();
+    lines.forEach((ln) => {
+      if(!vorhanden.includes(ln.p1)){
+        vorhanden.push(ln.p1);
+        if(!suchend.includes(ln.p1)){
+          suchend.push(ln.p1);
+        }
+      }
+      if(!vorhanden.includes(ln.p2)){
+        vorhanden.push(ln.p2);
+        if(!suchend.includes(ln.p2)){
+          suchend.push(ln.p2);
+        }
+      }
+    });
+  }
+  return vorhanden;
+}
 
 function rotate_outer_zhk(s, comp, pt1, pt2, p, percent = 1){
   const angle = vec_angle_clockwise(pt2.subtract(p), pt1.subtract(p));
@@ -106,9 +167,8 @@ function rotate_outer_zhk_new(s, comp, angle, p, percent = 1){
 
 
 function get_comp_to_rotate(pattern){
-  let lines_comp = s.data.comp.lines_by_key("type");
-  let c1 = lines_comp.fold;
-  let c2 = lines_comp.fold;
+  let c1 = get_lines(pattern.comp, "fold");
+  let c2 = get_lines(pattern.comp2, "fold");
   //console.log(c1, c2)
 
   if (c1.length > 0){
@@ -127,22 +187,22 @@ function get_comp_to_rotate(pattern){
 
 
 
-function sort_comp(s){
-  let c1 = get_lines(s.comp, "fold");
-  let c2 = get_lines(s.comp2, "fold");
+function sort_comp(pattern){
+  let c1 = get_lines(pattern.comp, "fold");
+  let c2 = get_lines(pattern.comp2, "fold");
   //console.log(c1, c2)
 
   if (c1.length > 0){
     if(c2.length > 0){
-      let lines = sort_lines(s, [c1[0],c2[0]]);
+      let lines = sort_lines(pattern, [c1[0],c2[0]]);
       if(lines == [c1[0], c2[0]]){
-        return [s.comp2, s.comp];
+        return [pattern.comp2, pattern.comp];
       }
-      return [s.comp, s.comp2];
+      return [pattern.comp, pattern.comp2];
     }
-    return [s.comp2, s.comp];
+    return [pattern.comp2, pattern.comp];
   }
-  return [s.comp, s.comp2];
+  return [pattern.comp, pattern.comp2];
 
 }
 
@@ -157,30 +217,27 @@ function close_component(s, p, pts){
 
 };
 
-// Das hier ist noch doof ...
-function set_comp_to_new_sketch(s, comp){
+
+function set_comp_to_new_sketch(s, nummer){
   const sk = new Sketch();
-  sk.paste_sketch(s, null, new Vector(0,0));
+  sk.paste_sketch(s, null, new Vektor(0,0));
 
-  if(s.data.comp === comp){
-    sk.delete_component(sk.data.comp2);
+  if (nummer == 1){
+    sk.data.comp.transform(elem =>{
+      sk.remove_point(elem);
+    });
   } else {
-    sk.delete_component(sk.data.comp);
+    sk.data.comp2.transform(elem =>{
+      sk.remove_point(elem);
+    });
   }
-
   return sk;
 };
 
-
-function split_comp_to_new_sketches(s){
-  const sk = new Sketch();
-  const sk_2 = new Sketch();
-
-}
 
 module.exports = {
   close_component,
   get_comp_to_rotate,
   sort_lines,
-  get_lines,
-  get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk, set_comp_to_new_sketch};
+  get_lines: add_time_tracker(get_lines, "Get Lines"),
+  get_outer_line_of_all, get_outer_line, renummerate_lineparts, get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk};

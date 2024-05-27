@@ -95,17 +95,11 @@ class Sketch{
             this.delete_element_from_data(sketch_el);
             this._guard_sketch_elements_in_sketch(sketch_el.root_el);
 
-            /*sketch_el.transform(p => {
-                this.remove_point(p);
-            });*/
 
             const pts = sketch_el.points();
             return this.remove_points(...pts);
 
             return;
-
-            // const pts = sketch_el.points();
-            //return this.remove_points(...pts);
         }
 
         this._guard_sketch_elements_in_sketch(sketch_el);

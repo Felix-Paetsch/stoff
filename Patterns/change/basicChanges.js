@@ -48,6 +48,7 @@ function armpit_new(s, pattern){
   temp4.data.curve = true;
   temp4.data.direction = pattern.direction * -1;
   temp4.data.direction_split = pattern.direction * -1;
+  pattern.length_sleeve = temp4.get_length();
   return s;
 }
 

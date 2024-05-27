@@ -5,7 +5,8 @@ const { Point } = require("../../StoffLib/point.js");
 const utils = require("./utils.js");
 const change_fun = require("./basicChanges.js");
 const split_fun = require("./split.js");
-const dart_fun = require("./rotateDart.js");
+//const dart_fun = require("./rotateDart.js");
+const lengthen = require("./lengthen.js");
 
 function remodel_pattern_merge(s, design){
 
@@ -155,4 +156,16 @@ if (!(front["side hidden dart"] && front["split percent of dart"] == 1)){
 }*/
 
 }
-module.exports = {remodel_pattern_merge, remodel_pattern};
+
+
+function additional_settings(s, design, mea){
+
+  lengthen.length_bottom(s, s.data.front, design, mea["tai_height"], mea["waist_width_front"]);
+  lengthen.length_bottom(s, s.data.back, design, mea["tai_height"], mea["waist_width_back"]);
+
+  if (design["length till bottom"] == 1){
+    lengthen.length_dress(s, s.data.front, design);
+    lengthen.length_dress(s, s.data.back, design);
+  }
+}
+module.exports = {remodel_pattern_merge, remodel_pattern, additional_settings};

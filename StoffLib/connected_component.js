@@ -14,6 +14,40 @@ class ConnectedComponent{
         this.points().forEach(pt_fun);
     }
 
+    group_by_key(key){
+        const { points, lines } = this.obj();
+        const groupedPoints = points.reduce((acc, pt) => {
+            const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(pt);
+            return acc;
+        }, {});
+
+        const groupedLines = lines.reduce((acc, line) => {
+            const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(line);
+            return acc;
+        }, {});
+
+        return {
+            points: groupedPoints,
+            lines: groupedLines
+        };
+    }
+
+    lines_by_key(key){
+        return this.group_by_key(key).lines;
+    }
+
+    points_by_key(key){
+        return this.group_by_key(key).points;
+    }
+
     points(){
         return this.obj().points;
     }

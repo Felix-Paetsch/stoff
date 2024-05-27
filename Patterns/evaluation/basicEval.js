@@ -68,4 +68,27 @@ function evaluate_type_merge(design){
 
 }
 
-module.exports = {evaluate_type_merge, evaluate_type, evaluate_percent};
+function eval_sleeve(type){
+  if (type["eingehalten 5/6"]){
+    return 5/6;
+  } else if (type["eingehalten 4/5"]){
+    return 4/5;
+  } else if (type["eingehalten 3/4"]){
+    return 3/4;
+  } else if (type["hemd 3/4"]){
+    return 3/4;
+  } else if (type["hemd 2/3"]){
+    return 2/3;
+  } else if (type["hemd 1/2"]){
+    return 1/2;
+  }
+}
+
+function eval_sleeve_eingehalten(type){
+  if (type["eingehalten 5/6"] || type["eingehalten 4/5"] || type["eingehalten 3/4"]){
+    return true;
+  }
+  return false;
+}
+
+module.exports = {evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};
