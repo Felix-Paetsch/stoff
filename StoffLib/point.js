@@ -7,6 +7,7 @@ class Point extends Vector{
 
         this.adjacent_lines = [];
         this.data = {};
+        this.sketch = null;
         this.color = color;
     }
 

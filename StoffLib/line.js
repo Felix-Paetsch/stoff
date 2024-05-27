@@ -14,6 +14,7 @@ class Line{
 
         this.color = color;
         this.data = {};
+        this.sketch = null;
 
         this.p1 = endpoint_1;
         this.p2 = endpoint_2;
@@ -147,7 +148,7 @@ class Line{
     }
 
     copy_sample_points(){
-        return Array.from(this.sample_points);
+        return this.sample_points.map(v => new Vector(v));
     }
 
     cut_sample_points_at(index_from, from_percentage_after, index_to, to_percentage_after){

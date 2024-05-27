@@ -4,7 +4,6 @@ const { Vector } = require("../Geometry/geometry.js");
 
 const basic_pattern = require("./basic/basicPattern.js");
 const change = require("./simple/simple_main.js");
-
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
@@ -265,9 +264,26 @@ module.exports = {
             "type": Boolean,
             "default": false
           }
-        ]
+        ],
+        "temp": [{
+          "name": "length",
+          "type": Number,
+          "default": 3,
+          "min": 2.9,
+          "max": 4,
+          "step_size": 0.01
+        }]
     },
     create_design: (design_config) => {
+      const line_with_length = require("../StoffLib/tools/line_with_length.js");
+      const sk = new Sketch();
+
+      const pt1 = sk.add_point(new Vector(0, 2));
+      const pt2 = sk.add_point(new Vector(2, 0));
+
+      sk.line_with_length(pt1, pt2, design_config.temp.length).mirror();
+      return sk;
+
       design_config.measurements.bust_width_front += 3;
       design_config.measurements.bust_width_back += 3;
       design_config.measurements.waist_width_front += 3;

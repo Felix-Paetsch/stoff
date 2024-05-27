@@ -6,6 +6,7 @@ const { validate_sketch } =  require("./validation.js");
 const { create_svg_from_sketch, save_as_svg } = require("./rendering/to_svg.js");
 const { create_png_from_sketch, save_as_png } = require("./rendering/to_png.js");
 const { Point } = require("./point.js");
+const line_with_length = require("./tools/line_with_length.js");
 const { toA4printable } = require("./rendering/to_A4_pages.js");
 const { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } = require("./copy.js");
 const path = require('path');
@@ -73,6 +74,7 @@ class Sketch{
         if (!(pt instanceof Point)){
             return this.add_point(Point.from_vector(pt));
         }
+        pt.sketch = this;
         this.points.push(pt);
         return pt;
     }
@@ -128,6 +130,7 @@ class Sketch{
             const l = new StraightLine(pt1, pt2, this.sample_density);
             l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
             this.lines.push(l);
+            l.sketch = this;
             return l;
         } else {
             throw new Error("Unimplemented!");
@@ -179,6 +182,7 @@ class Sketch{
 
         const l = new Line(pt1, pt2, sp);
         this.lines.push(l);
+        l.sketch = this;
         return l;
     }
 
@@ -440,6 +444,7 @@ class Sketch{
         this._guard_points_in_sketch(from, to);
         const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);
+        l.sketch = this;
         copy_sketch_obj_data(line, l, data_callback);
         return l;
     }
@@ -455,6 +460,7 @@ class Sketch{
             line.get_endpoints().forEach(p => p.remove_line(line));
             line.p1 = null;
             line.p2 = null;
+            line.sketch = null;
         }
 
         this.lines = this.lines.filter(l => !lines.includes(l));
@@ -469,7 +475,7 @@ class Sketch{
         for (const pt of points){
           this.delete_element_from_data(pt);
             this.remove_lines(...pt.get_adjacent_lines());
-
+            pt.sketch = null;
             pt.adjacent_lines = [];
         }
 
@@ -661,6 +667,10 @@ Sketch.prototype.save_on_A4 = function(folder){
         CONF.PRINTABLE_WIDTH_CM * CONF.PX_PER_CM,
         CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
     );
+}
+
+Sketch.prototype.line_with_length = function(...args){
+    return line_with_length(this, ...args);
 }
 
 // Add Methods We cant put elsewhere bcs of circular imports
