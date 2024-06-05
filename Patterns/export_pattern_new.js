@@ -9,8 +9,24 @@ const change = require("./simple/simple_main.js");
 
 
 module.exports = {
+    new_design_config: new Config(
+        new CContainer("measurements", [
+            new CNumber("shoulder_length", {
+                "min": 1,
+                "max": 50,
+                "default": 16,
+                "step_size": 0.1
+            }),
+            new CNumber("shoulder_length", {
+              "min": 1,
+              "max": 50,
+              "default": 16,
+              "step_size": 0.1
+          })
+        ])
+        // Config, CContainer, Number, (String), Boolean, Static, Selection, Option
+    ),
     design_config: {
-
         "measurements": [
           {
             "name": "shoulder_length",

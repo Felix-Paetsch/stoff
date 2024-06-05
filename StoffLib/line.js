@@ -1,6 +1,7 @@
 const { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } = require("../Geometry/geometry.js");
 const { Point } = require("./point.js");
 const { ConnectedComponent } = require("./connected_component.js");
+const { assert } = require("./validation.js");
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -190,6 +191,10 @@ class Line{
         );
     }
 
+    vec_to_abosule(vec){
+        return this.get_to_absolute_function()(vec);
+    }
+
     get_absolute_sample_points(){
         const to_absolute = this.get_to_absolute_function();
         return this.sample_points.map(p => {
@@ -319,6 +324,41 @@ class Line{
         res.push(sp[sp.length - 1]);
 
         return res;
+    }
+
+    position_at_length(length, reversed = false){
+        const l = this.length();
+        
+        if (length > l){
+            throw new Error("Specified length is longer than line.");
+        }
+
+        if (reversed){
+            length = l - length;
+        }
+
+        const endpoint_distance = this.endpoint_distance();
+        const adjusted_length = l/endpoint_distance;
+
+        let sum = 0;
+        for (let i = 0; i < this.sample_points.length - 1; i++){
+            const next_length = Math.sqrt(
+                Math.pow(this.sample_points[i][1] - this.sample_points[i+1][1], 2) +
+                Math.pow(this.sample_points[i][0] - this.sample_points[i+1][0], 2)
+            );
+
+            if (sum <= adjusted_length && sum + next_length >= adjusted_length){
+                const left_to_walk = adjusted_length - sum;
+                const fraction_left = left_to_walk/next_length;
+
+                const relative_vec = this.sample_points[i].mult(fraction_left)
+                        .add(this.sample_points[i+1].mult(1 - fraction_left));
+
+                return this.vec_to_abosule(relative_vec);
+            }
+        }
+
+        assert(false);
     }
 
     self_intersects(){

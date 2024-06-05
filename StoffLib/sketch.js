@@ -397,6 +397,10 @@ class Sketch{
         }
     }
 
+    position_at_length(line, length, reversed = false){
+        return line.position_at_length(length, reversed);
+    }
+
     intersect_lines(line1, line2, assurances = { is_staight: true }){
         /*
             params assurances:
