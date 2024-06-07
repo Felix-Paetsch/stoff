@@ -1,7 +1,7 @@
 import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } from '../Geometry/geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
-import { assert } from './tools/validation_utils.js';
+import { assert } from '../Debug/validation_utils.js';
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){

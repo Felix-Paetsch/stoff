@@ -7,6 +7,10 @@ export default class CStatic extends ConfigElement {
         super(name);
         this.value = value === null ? name : value;
     }
+
+    render(dir, own_path){
+        return this._dev_render("static_component.ejs", dir, own_path);
+    }
 }
 
-ConfigElement.prototype.classDecendents.CStatic = CStatic;
+ConfigElement.classDecendents.CStatic = CStatic;

@@ -42,7 +42,7 @@ function request_img_unthrottled(){
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            config_data,
+            config_data: window.design_config.to_obj(),
             width: 500,
             height: 500
         }),

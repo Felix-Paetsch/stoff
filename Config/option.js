@@ -9,7 +9,7 @@ export default class COption extends ConfigElement{
 
         super(name);
         
-        this.children = this.as_unfolded_components(children);
+        this.children = ConfigElement.as_unfolded_components(children);
         this.selected = 0;
         this.assert(this.children.length > 0, "Option must have at least one child");
     }
@@ -27,4 +27,4 @@ export default class COption extends ConfigElement{
     }
 }
 
-ConfigElement.prototype.classDecendents.COption = COption;
+ConfigElement.classDecendents.COption = COption;

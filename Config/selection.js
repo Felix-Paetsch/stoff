@@ -9,9 +9,9 @@ export default class CSelection extends ConfigElement{
 
         super(name);
         
-        this.children = this.as_unfolded_components(children);
+        this.children = ConfigElement.as_unfolded_components(children);
         this.activated = [];
     }
 }
 
-ConfigElement.prototype.classDecendents.CSelection = CSelection;
+ConfigElement.classDecendents.CSelection = CSelection;

@@ -16,21 +16,59 @@ export default class CNumber extends ConfigElement {
 
         super(name);
 
-        this.set_if_unset(settings, "min", 1);
-        this.set_if_unset(settings, "max", 1);
-        this.set_if_unset(settings, "default", 16);
-        this.set_if_unset(settings, "step_size", 0.1);
+        ConfigElement.set_if_unset(settings, "min", 0);
+        ConfigElement.set_if_unset(settings, "max", 10);
+        ConfigElement.set_if_unset(settings, "default", 5);
+        ConfigElement.set_if_unset(settings, "step_size", 0.1);
 
         this.settings = settings;
-        this.set(settings.value);
+        this.set(settings.default);
     }
 
     set(value){
-        this.assert(value instanceof Number, "Value must be a number");
+        this.assert(typeof value === "number", "Value must be a number");
         this.assert(value >= this.settings.min && value <= this.settings.max, "Value not in range");
 
         this.value = value;
+        return this;
+    }
+
+    serialize(){
+        return {
+            "name": this.name,
+            "type": "CNumber",
+            "settings": this.settings,
+            "value": this.value
+        }
+    }
+
+    static deserialize(data){
+        return new CNumber(
+            data["name"],
+            data["settings"]
+        ).set(data["value"]);
+    }
+
+    to_obj(){
+        return this.value;
+    }
+
+    /* FontEnd stuff  */
+    render(dir, own_path){
+        return this._dev_render("number_component.ejs", dir, own_path);
+    }
+
+    add_interaction_events(own_path){
+        const serialized_path = ConfigElement.serialize_path(own_path);
+        const dom_el = document.querySelector(`[x-component-path="${ serialized_path }"]`);
+        
+        const input = dom_el.querySelector('input[type="range"]');
+        input.addEventListener("input", () => {
+            dom_el.querySelector(".numper_input_value").textContent = input.value;
+            this.set(+input.value);
+            request_img();
+        });
     }
 }
 
-ConfigElement.prototype.classDecendents.CNumber = CNumber;
+ConfigElement.classDecendents.CNumber = CNumber;

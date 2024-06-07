@@ -2,9 +2,12 @@ import { Point } from './point.js';
 import { Line } from './line.js';
 import { Vector } from '../Geometry/geometry.js';
 import { ConnectedComponent } from './connected_component.js';
-import { assert, approx_eq, try_with_error_msg } from './tools/validation_utils.js';
+import { assert, try_with_error_msg } from '../Debug/validation_utils.js';
+
 
 import CONF from './config.json' assert { type: 'json' };
+const error_margin = CONF.VAL_ERROR_MARGIN;
+
 
 function validate_sketch(s){
     s.lines.forEach(l => {
@@ -171,6 +174,10 @@ function data_object_valid(data, s){
 
         throw new Error("Object data somewhere has object of unhandled datatype (Invalid data type)");
     }
+}
+
+function approx_eq(a,b = 0){
+    return Math.abs(a-b) < error_margin
 }
 
 export { assert, try_with_error_msg, validate_sketch };

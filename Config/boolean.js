@@ -18,12 +18,62 @@ export default class CBoolean extends ConfigElement {
 
         this.value = _default;
         this.default = _default;
+        this._default = _default;
     }
 
     set(value = true){
-        this.assert(value instanceof Boolean, "value must be a boolean");
+        this.assert(typeof value === "boolean", "value must be a boolean");
         this.value = value;
+        return this;
+    }
+
+    toggle(){
+        return this.set(!this.value);
+    }
+
+    serialize(){
+        return {
+            "name": this.name,
+            "type": "CBoolean",
+            "default": this.default,
+            "value": this.value
+        }
+    }
+
+    static deserialize(data){
+        return new CBoolean(
+            data["name"],
+            data.default
+        ).set(data.value);
+    }
+
+    to_obj(){
+        return this.value;
+    }
+
+    render(dir, own_path){
+        return this._dev_render("boolean_component.ejs", dir, own_path);
+    }
+
+    add_interaction_events(own_path){
+        const serialized_path = ConfigElement.serialize_path(own_path);
+        const dom_el = document.querySelector(`[x-component-path="${ serialized_path }"]`);
+
+        const checkbox = dom_el.querySelector(".boolean_checkbox");
+        checkbox.addEventListener("click", () => {
+            this.toggle();
+            
+            if (this.value){
+                checkbox.querySelector(".fa-hexagon").classList.add("hidden"); 
+                checkbox.querySelector(".fa-hexagon-check").classList.remove("hidden");
+            } else {
+                checkbox.querySelector(".fa-hexagon").classList.remove("hidden"); 
+                checkbox.querySelector(".fa-hexagon-check").classList.add("hidden");
+            }
+
+            request_img();
+        });
     }
 }
 
-ConfigElement.prototype.classDecendents.CBoolean = CBoolean;
+ConfigElement.classDecendents.CBoolean = CBoolean;

@@ -7,292 +7,221 @@ import change from './simple/simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
+import { Config, cContainer, cBoolean, cNumber } from "../Config/exports.js";
+
 export default {
-    design_config: {
-        "measurements": [
-          {
-            "name": "shoulder_length",
-            "type": Number,
-            "default": 16,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "shoulder_width",
-            "type": Number,
-            "default": 46,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "shoulder_w_point",
-            "type": Number,
-            "default": 50,
-            "min": 1.1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "bust_width_front",
-            "type": Number,
-            "default": 50,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "bust_width_back",
-            "type": Number,
-            "default": 45,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "bust_point_width",
-            "type": Number,
-            "default": 22,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "bust_point_height",
-            "type": Number,
-            "default": 18,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "shoulderblade_width",
-            "type": Number,
-            "default": 17,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "shoulderblade_height",
-            "type": Number,
-            "default": 20,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "tai_width_front",
-            "type": Number,
-            "default": 40,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "tai_width_back",
-            "type": Number,
-            "default": 42,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "tai_height",
-            "type": Number,
-            "default": 26,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "waist_width_front",
-            "type": Number,
-            "default": 40,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "waist_width_back",
-            "type": Number,
-            "default": 42,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "waist_height",
-            "type": Number,
-            "default": 26,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "shoulder_height_front",
-            "type": Number,
-            "default": 44,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "shoulder_height_back",
-            "type": Number,
-            "default": 48.5,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "center_height_front",
-            "type": Number,
-            "default": 31,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "center_height_back",
-            "type": Number,
-            "default": 44,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "across_front",
-            "type": Number,
-            "default": 37,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "across_back",
-            "type": Number,
-            "default": 36.5,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "side_height",
-            "type": Number,
-            "default": 22,
-            "min": 1,
-            "max": 50,
-            "step_size": 0.1
-          },{
-            "name": "bottom_width_front",
-            "type": Number,
-            "default": 48,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "bottom_width_back",
-            "type": Number,
-            "default": 53,
-            "min": 1,
-            "max": 100,
-            "step_size": 0.1
-          },{
-            "name": "arm",
-            "type": Number,
-            "default": 35,
-            "min": 1,
-            "max": 60,
-            "step_size": 0.1
-          },{
-            "name": "arm length",
-            "type": Number,
-            "default": 61,
-            "min": 1,
-            "max": 90,
-            "step_size": 0.1
-          },{
-            "name": "wristwidth",
-            "type": Number,
-            "default": 23.5,
-            "min": 1,
-            "max": 60,
-            "step_size": 0.1
-          },{
-            "name": "ellbow_width",
-            "type": Number,
-            "default": 26,
-            "min": 1,
-            "max": 60,
-            "step_size": 0.1
-          },{
-            "name": "ellbow_length",
-            "type": Number,
-            "default": 35,
-            "min": 1,
-            "max": 60,
-            "step_size": 0.1
-          }
-        ],
-        "top designs": [
-          {
-            "name": "without dart",
-            "type": Boolean,
-            "default": true
-          },{
-            "name": "split",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "simple dart",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "waistline simple dart",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "wiener naht",
-            "type": Boolean,
-            "default": false
-          }
-        ],
-        "sleeveheight":[
-          {
-            "name": "eingehalten 5/6",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "eingehalten 4/5",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "eingehalten 3/4",
-            "type": Boolean,
-            "default": true
-          },{
-            "name": "hemd 3/4",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "hemd 2/3",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "hemd 1/2",
-            "type": Boolean,
-            "default": false
-          }
-        ],
-        "sleevetype":[
-          {
-            "name": "puffy top",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "puffy bottom",
-            "type": Boolean,
-            "default": false
-          },{
-            "name": "puffy",
-            "type": Boolean,
-            "default": true
-          },{
-            "name": "shorten",
-            "type": Boolean,
-            "default": false
-          }
-        ],
-        "temp": [{
-          "name": "length",
-          "type": Number,
-          "default": 3,
-          "min": 2.9,
-          "max": 4,
-          "step_size": 0.01
-        }]
-    },
+    design_config: new Config(
+        cContainer(
+            "measurements",
+            cNumber("shoulder_length", {
+                default: 16,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("shoulder_width", {
+                default: 46,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("shoulder_w_point", {
+                default: 50,
+                min: 1.1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("bust_width_front", {
+                default: 50,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("bust_width_back", {
+                default: 45,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("bust_point_width", {
+                default: 22,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("bust_point_height", {
+                default: 18,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("shoulderblade_width", {
+                default: 17,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("shoulderblade_height", {
+                default: 20,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("tai_width_front", {
+                default: 40,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("tai_width_back", {
+                default: 42,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("tai_height", {
+                default: 26,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("waist_width_front", {
+                default: 40,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("waist_width_back", {
+                default: 42,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("waist_height", {
+                default: 26,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("shoulder_height_front", {
+                default: 44,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("shoulder_height_back", {
+                default: 48.5,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("center_height_front", {
+                default: 31,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("center_height_back", {
+                default: 44,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("across_front", {
+                default: 37,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("across_back", {
+                default: 36.5,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("side_height", {
+                default: 22,
+                min: 1,
+                max: 50,
+                step_size: 0.1
+            }),
+            cNumber("bottom_width_front", {
+                default: 48,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("bottom_width_back", {
+                default: 53,
+                min: 1,
+                max: 100,
+                step_size: 0.1
+            }),
+            cNumber("arm", {
+                default: 35,
+                min: 1,
+                max: 60,
+                step_size: 0.1
+            }),
+            cNumber("arm length", {
+                default: 61,
+                min: 1,
+                max: 90,
+                step_size: 0.1
+            }),
+            cNumber("wristwidth", {
+                default: 23.5,
+                min: 1,
+                max: 60,
+                step_size: 0.1
+            }),
+            cNumber("ellbow_width", {
+                default: 26,
+                min: 1,
+                max: 60,
+                step_size: 0.1
+            }),
+            cNumber("ellbow_length", {
+                default: 35,
+                min: 1,
+                max: 60,
+                step_size: 0.1
+            })
+        ),
+        cContainer(
+            "top designs",
+            cBoolean("without dart", true),
+            cBoolean("split", false),
+            cBoolean("simple dart", false),
+            cBoolean("waistline simple dart", false),
+            cBoolean("wiener naht", false)
+        ),
+        cContainer(
+            "sleeveheight",
+            cBoolean("eingehalten 5/6", false),
+            cBoolean("eingehalten 4/5", false),
+            cBoolean("eingehalten 3/4", true),
+            cBoolean("hemd 3/4", false),
+            cBoolean("hemd 2/3", false),
+            cBoolean("hemd 1/2", false)
+        ),
+        cContainer(
+            "sleevetype",
+            cBoolean("puffy top", false),
+            cBoolean("puffy bottom", false),
+            cBoolean("puffy", true),
+            cBoolean("shorten", false)
+        ),
+        cContainer(
+            "temp",
+            cNumber("length", {
+                default: 3,
+                min: 2.9,
+                max: 4,
+                step_size: 0.01
+            })
+        )
+    ),
     create_design: (design_config) => {
       /*const sk = new Sketch();
       const pt1 = sk.add_point(new Vector(0, 2));

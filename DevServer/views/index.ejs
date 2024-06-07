@@ -9,16 +9,24 @@
 </head>
 <body>
     <div id="params_selection">
-        <% for (const key of Object.keys(design_config)){ %>
-            <%- include("./index_components/design_config_component.ejs", {
-                config_component_name: key,
-                parameters: design_config[key]
-            }); %>
-        <% } %>
+        <%- design_config.render(config_components) %>
     </div>
     <div id="sketch_display"></div>
+    <%- `
+        <script type="module">
+            import { Config } from './conf/exports.js';
+        
+            const design_config_serialized = ${ JSON.stringify(design_config.serialize()) };
+            window.design_config = Config.deserialize(design_config_serialized);
+
+            document.addEventListener("DOMContentLoaded", () => {
+                window.design_config.add_interaction_events();
+                request_img();
+            });
+        </script>
+    ` %>
+
     <script src="/request_pattern.js"></script>
-    <script src="/config.js"></script>
     <script src="/monitor_server_reset.js"></script>
 </body>
 </html>
