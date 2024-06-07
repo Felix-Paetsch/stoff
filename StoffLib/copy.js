@@ -1,7 +1,7 @@
-const { Vector } = require("../Geometry/geometry.js");
-const { Point } = require("./point.js");
-const { Line } = require("./line.js");
-const { ConnectedComponent } = require("./connected_component.js");
+import { Vector } from '../Geometry/geometry.js';
+import { Point } from './point.js';
+import { Line } from './line.js';
+import { ConnectedComponent } from './connected_component.js';
 
 function default_data_callback(d1, d2){
     return Object.assign(d1, d2);
@@ -43,8 +43,8 @@ function copy_sketch(source, target, data_callback = default_data_callback, posi
 
     const data_copy = dublicate_data(
         source.data,
-        get_point_reference = corresponding_point,
-        get_line_reference = corresponding_line
+        corresponding_point,
+        corresponding_line
     );
 
     return  data_callback(target.data, data_copy)
@@ -154,7 +154,7 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
     }
 }
 
-module.exports = {
+export {
     copy_sketch_obj_data,
     copy_connected_component,
     copy_sketch,
@@ -162,8 +162,7 @@ module.exports = {
 }
 
 function dublicate_data(data, get_point_reference = (pt) => pt, get_line_reference = (ln) => ln){
-    let nesting = 0;
-    return nesting_buffer(data);
+    let nesting = 0;    return nesting_buffer(data);
     function nesting_buffer(data){
         nesting++;
         if (nesting > 50){

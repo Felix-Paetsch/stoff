@@ -1,4 +1,4 @@
-/* const chroma = require('chroma-js');
+/* import chroma from 'chroma-js';
 
 const interpolateColor = (color1, color2, ratio) => {
   return chroma.mix(color1, color2, ratio).css();
@@ -58,6 +58,6 @@ const interpolateColor_native = (color1, color2, ratio = 0.5) => {
     return `rgb(${r},${g},${b})`;
 };
 
-module.exports = {
-    interpolate_colors: interpolateColor_native
+export {
+   interpolateColor_native as interpolate_colors
 }

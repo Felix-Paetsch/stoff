@@ -1,16 +1,24 @@
-const express = require('express');
-const app = express();
-const port = 3001;
-const path = require('path');
-const { design_config, create_design } = require("../Patterns/export_pattern_new.js");
+import express from 'express'; // Use ES6 import for express
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+import pattern_data from '../Patterns/export_pattern_new.js';
+const { design_config, create_design } = pattern_data;
 
 // Debug
-const { Times, Calls, reset: reset_times } = require("../Debug/track_fn.js");
+import { Times, Calls, reset as reset_times } from '../Debug/track_fn.js';
 
-app.set('views', path.join(__dirname, 'views'));
+const app = express();
+const port = 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public')));
+
 
 app.get('/', (req, res) => {
     res.render('index', { design_config });

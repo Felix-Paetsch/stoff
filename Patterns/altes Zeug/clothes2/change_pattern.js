@@ -1,9 +1,9 @@
-const { Sketch } = require("../StoffLib/sketch.js");
-const { Point } = require("../StoffLib/point.js");
-const { Vector } = require("../Geometry/geometry.js");
-const { get_orth_line, get_orth_line_length, line_with_length, point_at, lotpunkt, smooth_out} = require("./basicFun_new.js");
-const change_fun = require("./simpleFun.js");
-const basic_pattern = require("../clothes2/basicPattern3.js");
+import { Sketch } from '../StoffLib/sketch.js';
+import { Point } from '../StoffLib/point.js';
+import { Vector } from '../Geometry/geometry.js';
+import { get_orth_line, get_orth_line_length, line_with_length, point_at, lotpunkt, smooth_out} from './basicFun_new.js';
+import change_fun from './simpleFun.js';
+import basic_pattern from '../clothes2/basicPattern3.js';
 
 
 
@@ -125,4 +125,4 @@ if (!(front["side hidden dart"] && front["split percent of dart"] == 1)){
 
 }
 
-module.exports = {remodel_pattern, remodel_pattern_merge};
+export default {remodel_pattern, remodel_pattern_merge};

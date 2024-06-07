@@ -1,6 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const { PDFDocument, rgb } = require('pdf-lib');
+import fs from 'fs';
+import path from 'path';
+import { PDFDocument } from 'pdf-lib';
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const FOLDER_PATH = "./renders/rendered_A4"
 
@@ -38,7 +41,9 @@ async function mergePNGsToPDF(folderPath, outputPDFPath) {
     console.log(`PDF created at: ${outputPDFPath}`);
 }
 
-// Usage
+// Convert import.meta.url to a file path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const folderPath = path.join(__dirname, '..', FOLDER_PATH);
 const outputPDFPath = path.join(__dirname, '..', FOLDER_PATH, 'merged.pdf');
 mergePNGsToPDF(folderPath, outputPDFPath);

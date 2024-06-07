@@ -1,6 +1,6 @@
 
-    const { add_point, line_between_points, interpolate_lines, Point, save } = require("./StoffLib/main.js");
-    const { Vector } = require("./Geometry/geometry.js");
+    import { add_point, line_between_points, interpolate_lines, Point, save } from './StoffLib/main.js';
+    import { Vector } from './Geometry/geometry.js';
 
     const p1 = add_point(new Point(0, 0));
     const p3 = add_point(new Point(40, 0));

@@ -1,9 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const { createCanvas } = require('canvas');
-const { sketch_to_renderable } = require("./sketch_to_renderable.js");
-const CONF = require("../config.json");
-const { interpolate_colors } = require("../colors.js");
+import fs from 'fs';
+import path from 'path';
+import { createCanvas } from 'canvas';
+import { sketch_to_renderable } from './sketch_to_renderable.js';
+import CONF from '../config.json' assert { type: 'json' };
+import { interpolate_colors } from '../colors.js';
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Define constants
 const PX_PER_CM =           CONF.PX_PER_CM; // Pixels per centimeter
@@ -105,8 +110,7 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
     fs.writeFileSync(`${folder}/page_x_${x + 1}__y_${y + 1}.png`, buffer);
 }
 
-module.exports = { toA4printable };
-
+export { toA4printable };
 function createOrEmptyFolderSync(folderPath) {
     try {
         // Check if folder exists

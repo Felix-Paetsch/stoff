@@ -1,7 +1,7 @@
-const { debug, add_point, remove_point, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_line, intersection_points , merge_lines} = require("../StoffLib/main.js");
-const { Vector } = require("../Geometry/geometry.js");
-const { get_orth_line, get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} = require("./basicFun_new.js");
-const { dart_new, rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart} = require("./darts.js");
+import { debug, add_point, remove_point, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_line, intersection_points , merge_lines} from '../StoffLib/main.js';
+import { Vector } from '../Geometry/geometry.js';
+import { get_orth_line, get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} from './basicFun_new.js';
+import { dart_new, rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart} from './darts.js';
 
 // Felix
 const measurements = {
@@ -70,7 +70,7 @@ function front(mea, x, y){
 
   let p5_2 = get_point_on_other_line2(p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal()).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(e, mea.side_height, 0);
@@ -157,7 +157,7 @@ function back(mea, x, y){
 
   let p5_2 = get_point_on_other_line2(p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal().scale(-1)).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(e, mea.side_height, 0);
@@ -344,4 +344,4 @@ function redraw_armpit(pattern, r = -1){
 //save.svg(`out.svg`, 500, 500);
 //save.a4();
 
-module.exports = {front, back, redraw_armpit};
+export default {front, back, redraw_armpit};

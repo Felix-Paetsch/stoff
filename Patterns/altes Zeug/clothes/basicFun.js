@@ -1,5 +1,5 @@
-const { Vector, affine_transform_from_input_output, vec_angle_clockwise } = require("../Geometry/geometry.js");
-const { add_point, line_between_points, Point, intersect_lines, remove_point, remove_line, interpolate_lines } = require('../StoffLib/main.js');
+import { Vector, affine_transform_from_input_output, vec_angle_clockwise } from '../Geometry/geometry.js';
+import { add_point, line_between_points, Point, intersect_lines, remove_point, remove_line, interpolate_lines } from '../StoffLib/main.js';
 
 
 
@@ -129,4 +129,4 @@ function ausschnitt(start, sh_l){
   return ausschnitt;
 }
 
-module.exports = { line_with_length, point_at, armhole, side , shoulder};
+export default { line_with_length, point_at, armhole, side , shoulder};

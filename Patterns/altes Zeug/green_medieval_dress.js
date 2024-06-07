@@ -1,11 +1,11 @@
-const {correct_armmeasurements, sleevetype, cut_sleeve} = require("./arm.js");
-const {front, back, adjust_back_shoulder} = require("./clothes/basicPattern.js");
-const { debug, add_point, Point, save , remove_point, remove_line, line_between_points} = require("./StoffLib/main.js");
-const {point_at, lotpunkt, lotpunkt2} = require("./clothes/basicFun_new.js");
-const {puffy_down, add_wristband} = require("./sleeves/puffy.js");
-const {side_to_tai} = require("./clothes/darts.js");
-const {cut_back, cut_front, connect_sides} = require("./clothes/cuts.js");
-const {lengthen_mid_without_armpit, tai_parts, mid_lengthen} = require("./clothes/lengthen.js");
+import { correct_armmeasurements, sleevetype, cut_sleeve} from './arm.js';
+import { front, back, adjust_back_shoulder} from './clothes/basicPattern.js';
+import { debug, add_point, Point, save , remove_point, remove_line, line_between_points} from './StoffLib/main.js';
+import { point_at, lotpunkt, lotpunkt2} from './clothes/basicFun_new.js';
+import { puffy_down, add_wristband} from './sleeves/puffy.js';
+import { side_to_tai} from './clothes/darts.js';
+import { cut_back, cut_front, connect_sides} from './clothes/cuts.js';
+import { lengthen_mid_without_armpit, tai_parts, mid_lengthen} from './clothes/lengthen.js';
 
 
 const cloth_type = {

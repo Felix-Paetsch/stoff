@@ -1,7 +1,7 @@
-const { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } = require("../Geometry/geometry.js");
-const { Point } = require("./point.js");
-const { ConnectedComponent } = require("./connected_component.js");
-const { assert } = require("./validation.js");
+import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } from '../Geometry/geometry.js';
+import { Point } from './point.js';
+import { ConnectedComponent } from './connected_component.js';
+import { assert } from './tools/validation_utils.js';
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -418,4 +418,4 @@ class StraightLine extends Line{
     }
 }
 
-module.exports = { StraightLine, Line };
+export { StraightLine, Line };

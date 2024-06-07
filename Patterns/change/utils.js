@@ -1,8 +1,8 @@
 
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
 function get_lines(component, type){
   let arr = component.lines(); // Arr of line
@@ -178,7 +178,7 @@ function split_comp_to_new_sketches(s){
 
 }
 
-module.exports = {
+export default {
   close_component,
   get_comp_to_rotate,
   sort_lines,

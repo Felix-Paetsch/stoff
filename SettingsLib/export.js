@@ -9,7 +9,7 @@ import SList from "./Components/list.js";
 import SEmpty from './Components/empty.js';
 import SCollection from './Components/collection.js';
 
-export default {
+export {
     Boolean: SBoolean,
     Static: SStatic,
     Component: SComponent,

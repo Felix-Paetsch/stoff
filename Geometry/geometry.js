@@ -294,7 +294,7 @@ function rad_to_deg(r) {
     return (180 / Math.PI) * r;
 }
 
-module.exports = {
+export {
     Vector,
     affine_transform_from_input_output,
     orthogonal_transform_from_input_output,

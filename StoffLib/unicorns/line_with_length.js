@@ -1,9 +1,8 @@
-const { assert } = require("../validation.js");
-const { Vector } = require("../../Geometry/geometry.js");
+import { assert } from '../validation.js';
+import { Vector } from '../../Geometry/geometry.js';
 
-module.exports = function line_with_length(original_sk, original_p1, original_p2, length, slopeP1 = 0, slopeP2 = 0){
+export default function line_with_length(original_sk, original_p1, original_p2, length, slopeP1 = 0, slopeP2 = 0){
     assert(slopeP1 == 0 && slopeP2 == 0, "Unimplemented for non-zero slopes!");
-
     const sk = new original_sk.constructor();
     const p1 = sk.add_point(new Vector(0,0));
     const p2 = sk.add_point(new Vector(1,0));

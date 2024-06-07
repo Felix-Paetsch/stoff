@@ -1,6 +1,6 @@
-    const { add_point, line_between_points, interpolate_lines, Point, save } = require("./StoffLib/main.js");
-    const { Vector } = require("./Geometry/geometry.js");
-    const { line_with_length, point_at, armhole } = require("./clothes/basicFun.js");
+    import { add_point, line_between_points, interpolate_lines, Point, save } from './StoffLib/main.js';
+    import { Vector } from './Geometry/geometry.js';
+    import { line_with_length, point_at, armhole } from './clothes/basicFun.js';
 
 
 

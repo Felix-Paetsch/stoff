@@ -1,15 +1,15 @@
-const { Sketch } = require("../StoffLib/sketch.js");
-const { Vector } = require("../Geometry/geometry.js");
-const { add_time_tracker } = require("../Debug/track_fn.js");
+import { Sketch } from '../StoffLib/sketch.js';
+import { Vector } from '../Geometry/geometry.js';
+import { add_time_tracker } from '../Debug/track_fn.js';
 
-const basic_pattern = require("./basic/basicPattern.js");
-const change = require("./change/remodel.js");
+import basic_pattern from './basic/basicPattern.js';
+import change from './change/remodel.js';
 
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
 
-module.exports = {
+export {
     design_config: {
       /*  "Example Config": [
             {
@@ -446,7 +446,6 @@ module.exports = {
     },
     create_design: (design_config) => {
       const sk = new Sketch();
-
       const pt1 = sk.add_point(new Vector(0,0));
       const pt2 = sk.add_point(new Vector(1,1));
       sk.line_from_function_graph(pt1, pt2, t => {

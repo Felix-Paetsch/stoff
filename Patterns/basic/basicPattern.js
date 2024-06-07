@@ -1,12 +1,12 @@
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const { Vector } = require("../../Geometry/geometry.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { Vector } from '../../Geometry/geometry.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} = require("./basicFun.js");
-const evaluate = require("../evaluation/basicEval.js");
+import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from './basicFun.js';
+import evaluate from '../evaluation/basicEval.js';
 
-const utils = require("../change/utils.js");
+import utils from '../change/utils.js';
 
 
 function front(mea){
@@ -38,7 +38,7 @@ function front(mea){
 
   let p5_2 = get_point_on_other_line2(s, p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal()).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale((mea.arm - 20) * (2/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = s.add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = s.add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(s, e, mea.side_height, 0);
@@ -56,15 +56,15 @@ function front(mea){
   let h = s.add_point(new Point(vec_h.x, vec_h.y));
 
   let l_help = s.line_between_points(f,g);
-  length_b_g = b_to_g.get_length();
-  supposed_length = mea.waist_width_front /2 - length_b_g;
+  const length_b_g = b_to_g.get_length();
+  const supposed_length = mea.waist_width_front /2 - length_b_g;
   let p8_help =  point_at(s, l_help, supposed_length/l_help.get_length());
   s.remove_line(p8_help.l2_segment);
   const p8 = p8_help.point;
   l_help = s.line_between_points(h, p8);
   let g_to_h = s.line_between_points(h, g);
   g_to_h.data.type = "dart";
-  vec_length = g_to_h.get_length();
+  const vec_length = g_to_h.get_length();
   let vec_i = l_help.get_line_vector().normalize().scale(vec_length).add(h);
   const i = s.add_point(new Point(vec_i.x, vec_i.y));
   let f_to_i = s.line_between_points(f,i);
@@ -138,13 +138,12 @@ function back(mea){
   c_to_d.data.direction = 1;
   c_to_d.swap_orientation();
 
-
   s.remove_point(p5_1);
   s.remove_line(d_h.l2_segment);
 
   let p5_2 = get_point_on_other_line2(s, p2, c.subtract(p2), 10, p1_to_p3.get_line_vector().get_orthonormal().scale(-1)).set_color("blue");
 
-  vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
+  const vec_p6 = p1_to_p2.get_line_vector().get_orthonormal().scale(-(mea.arm - 20) * (3/5)).add(p5_2).subtract(p2).add(p3);
   const p6 = s.add_point(new Point(vec_p6.x, vec_p6.y)).set_color("blue");
   const e = s.add_point(new Point(vec_p6.subtract(p3).add(p4).x, vec_p6.subtract(p3).add(p4).y));
   let e_to_f = line_with_length(s, e, mea.side_height, 0);
@@ -162,8 +161,8 @@ function back(mea){
   let h = s.add_point(new Point(vec_h.x, vec_h.y));
 
   let l_help = s.line_between_points(f,g);
-  length_b_g = b_to_g.get_length();
-  supposed_length = mea.waist_width_back /2 - length_b_g;
+  const length_b_g = b_to_g.get_length();
+  const supposed_length = mea.waist_width_back /2 - length_b_g;
   let p8_help =  point_at(s, l_help, supposed_length/l_help.get_length());
   s.remove_line(p8_help.l2_segment);
   const p8 = p8_help.point;
@@ -171,7 +170,7 @@ function back(mea){
   let g_to_h = s.line_between_points(h, g);
   g_to_h.data.type = "dart";
 
-  vec_length = g_to_h.get_length();
+  const vec_length = g_to_h.get_length();
   let vec_i = l_help.get_line_vector().normalize().scale(vec_length).add(h);
   const i = s.add_point(new Point(vec_i.x, vec_i.y));
   let f_to_i = s.line_between_points(f,i);
@@ -188,6 +187,7 @@ function back(mea){
   s.remove_point(p8);
 
   const neck = back_neckline(s, c_to_d, a_to_b);
+  
   neck.data.type = "neckline";
   neck.data.curve = true;
   neck.data.direction = 1;
@@ -294,4 +294,4 @@ function curve(s, pt1, pt2, r = 1){
 };
 
 
-module.exports = {back, front, sleeve};
+export default {back, front, sleeve};

@@ -1,5 +1,5 @@
-const { Vector } = require("../Geometry/geometry.js");
-const { ConnectedComponent } = require("./connected_component.js");
+import { Vector } from '../Geometry/geometry.js';
+import { ConnectedComponent } from './connected_component.js';
 
 class Point extends Vector{
     constructor(x, y, color = "black"){
@@ -84,4 +84,4 @@ class Point extends Vector{
     }
 }
 
-module.exports = { Point };
+export { Point };

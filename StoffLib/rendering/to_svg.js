@@ -1,6 +1,6 @@
-const { writeFileSync } =  require("fs");
-const { sketch_to_renderable, calculate_correct_width_height } = require("./sketch_to_renderable.js");
-const { interpolate_colors } = require("../colors.js");
+import { writeFileSync } from 'fs';
+import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
+import { interpolate_colors } from '../colors.js';
 
 function create_svg_from_sketch(s, width = null, height = null){
     const correct_dimensions = calculate_correct_width_height(s, width, height);  
@@ -33,11 +33,10 @@ function create_svg_from_sketch(s, width = null, height = null){
     return svgContent;
 }
 
-module.exports = { create_svg_from_sketch, save_as_svg }
+export { create_svg_from_sketch, save_as_svg }
 
 function save_as_svg(sketch, save_to, width, height){
     writeFileSync(save_to, create_svg_from_sketch(sketch, width, height), (err) => {
-        if (err) throw err;
-        console.log('SVG file saved!');
+        if (err) throw err;        console.log('SVG file saved!');
     });
 }

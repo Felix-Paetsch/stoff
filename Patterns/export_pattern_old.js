@@ -1,15 +1,15 @@
-const dummay_pattern = require("./dummy_pattern.js");
-const { Sketch } = require("../StoffLib/sketch.js");
-const { Vector } = require("../Geometry/geometry.js");
+import dummay_pattern from './dummy_pattern.js';
+import { Sketch } from '../StoffLib/sketch.js';
+import { Vector } from '../Geometry/geometry.js';
 
-const basic_pattern = require("./basic/basicPattern.js");
-const change = require("./change/remodel.js");
+import basic_pattern from './basic/basicPattern.js';
+import change from './change/remodel.js';
 
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
 
-module.exports = {
+export {
     design_config: {
       /*  "Example Config": [
             {
@@ -517,8 +517,7 @@ module.exports = {
         ]
     },
     create_design: (design_config) => {
-      design_config.measurements.bust_width_front += 3;
-      design_config.measurements.bust_width_back += 3;
+      design_config.measurements.bust_width_front += 3;      design_config.measurements.bust_width_back += 3;
       design_config.measurements.tai_width_front += 3;
       design_config.measurements.tai_width_back += 3;
       design_config.measurements.tai_height = design_config.measurements.tai_height * (2/3) + 4;

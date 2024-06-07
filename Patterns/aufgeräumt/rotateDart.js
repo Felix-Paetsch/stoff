@@ -1,12 +1,12 @@
 
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
 
-const utils = require("./utils.js");
-const evaluate = require("../evaluation/basicEval.js");
+import utils from './utils.js';
+import evaluate from '../evaluation/basicEval.js';
 
 
 
@@ -219,4 +219,4 @@ function split_dart_to_side_new(s, pattern, percent){
   side.p2.move_to(vec.x, vec.y);
 }
 
-module.exports = {split_dart_to_side_new};
+export default {split_dart_to_side_new};

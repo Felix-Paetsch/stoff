@@ -1,7 +1,7 @@
-const { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } = require("../Geometry/geometry.js");
-//const { debug, add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch } = require('../StoffLib/main.js');
-const { Point } = require("../StoffLib/point.js");
-const { Sketch } = require("../StoffLib/sketch.js");
+import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../Geometry/geometry.js';
+//import { debug, add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch } from '../StoffLib/main.js';
+import { Point } from '../StoffLib/point.js';
+import { Sketch } from '../StoffLib/sketch.js';
 
 //const s = _get_sketch();
 // s._has_lines(...lines)
@@ -134,4 +134,4 @@ function get_orth_line(line, pt, n){
 
 
 
-module.exports = { smooth_out, get_orth_line, get_orth_line_length, line_with_length, point_at, lotpunkt, lotpunkt2};
+export default { smooth_out, get_orth_line, get_orth_line_length, line_with_length, point_at, lotpunkt, lotpunkt2};

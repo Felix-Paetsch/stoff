@@ -1,7 +1,7 @@
-const {correct_armmeasurements} = require("./arm.js");
-const {front, back, adjust_back_shoulder} = require("./clothes/basicPattern.js");
-const { debug, add_point, Point, save , remove_point, remove_line, line_between_points} = require("./StoffLib/main.js");
-const {point_at, lotpunkt, lotpunkt2} = require("./clothes/basicFun_new.js")
+import { correct_armmeasurements} from './arm.js';
+import { front, back, adjust_back_shoulder} from './clothes/basicPattern.js';
+import { debug, add_point, Point, save , remove_point, remove_line, line_between_points} from './StoffLib/main.js';
+import { point_at, lotpunkt, lotpunkt2 } from './clothes/basicFun_new.js';
 
 /* generell Fälle abzudecken:
  Abnäher und dann die gestueckelten Linien als Laengen weitergeben

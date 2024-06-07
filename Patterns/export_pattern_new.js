@@ -1,14 +1,13 @@
-//const dummay_pattern = require("./dummy_pattern.js");
-const { Sketch } = require("../StoffLib/sketch.js");
-const { Vector } = require("../Geometry/geometry.js");
+//import dummay_pattern from './dummy_pattern.js';
+import { Sketch } from '../StoffLib/sketch.js';
+import { Vector } from '../Geometry/geometry.js';
 
-const basic_pattern = require("./basic/basicPattern.js");
-const change = require("./simple/simple_main.js");
+import basic_pattern from './basic/basicPattern.js';
+import change from './simple/simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-
-module.exports = {
+export default {
     design_config: {
         "measurements": [
           {
@@ -71,6 +70,27 @@ module.exports = {
             "name": "shoulderblade_height",
             "type": Number,
             "default": 20,
+            "min": 1,
+            "max": 50,
+            "step_size": 0.1
+          },{
+            "name": "tai_width_front",
+            "type": Number,
+            "default": 40,
+            "min": 1,
+            "max": 100,
+            "step_size": 0.1
+          },{
+            "name": "tai_width_back",
+            "type": Number,
+            "default": 42,
+            "min": 1,
+            "max": 100,
+            "step_size": 0.1
+          },{
+            "name": "tai_height",
+            "type": Number,
+            "default": 26,
             "min": 1,
             "max": 50,
             "step_size": 0.1
@@ -274,14 +294,13 @@ module.exports = {
         }]
     },
     create_design: (design_config) => {
-      const line_with_length = require("../StoffLib/tools/line_with_length.js");
-      const sk = new Sketch();
-
+      /*const sk = new Sketch();
       const pt1 = sk.add_point(new Vector(0, 2));
       const pt2 = sk.add_point(new Vector(2, 0));
 
       sk.line_with_length(pt1, pt2, design_config.temp.length).mirror();
-      return sk;
+      return sk;*/
+
 
       design_config.measurements.bust_width_front += 3;
       design_config.measurements.bust_width_back += 3;

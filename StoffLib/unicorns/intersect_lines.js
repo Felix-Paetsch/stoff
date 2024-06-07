@@ -4,151 +4,152 @@
 
 */
 
-const { Point } = require('../point.js');
-const { interpolate_colors } = require("../colors.js");
-const { copy_sketch_obj_data } = require('../copy.js');
+import { Point } from '../point.js';
+import { interpolate_colors } from '../colors.js';
+import { copy_sketch_obj_data } from '../copy.js';
 
-module.exports = {
+export {
     _intersection_positions, 
-    _intersect_lines: function intersect_lines(sketch, line1, line2, assurances = { is_staight: true }){
-        /*
-            params assurances: 
-                { l2_stepsize_ratio: 10, l2_stepsize_ratio: 10}
-                -> If you recursivelytest only on x ratio of the lines, you will find all points
-                { intersection_count : 5 }
-                -> There are so many intersections exactly
-                { is_straight: true}
-                -> the first line - line1 - is straight (&& evently spaced i.e. not interpolated in strange ways)
+    _intersect_lines
+}
 
-            returns: {
-                intersection_points: [],
-                l1_segments: [],
-                l2_segments: []
-            }
+function _intersect_lines(sketch, line1, line2, assurances = { is_staight: true }){
+    /*
+        params assurances: 
+            { l2_stepsize_ratio: 10, l2_stepsize_ratio: 10}
+            -> If you recursivelytest only on x ratio of the lines, you will find all points
+            { intersection_count : 5 }
+            -> There are so many intersections exactly
+            { is_straight: true}
+            -> the first line - line1 - is straight (&& evently spaced i.e. not interpolated in strange ways)
 
-            Note, that this function deletes line1 and line 2 and replaces them.
-        */
-            
-        // Specific for one being a line
-        const l2_abs_sample_points = line2.get_absolute_sample_points();
-        const l1_abs_sample_points = line1.get_absolute_sample_points();
-
-        const int_color = interpolate_colors(line1.get_color(), line2.get_color(), 0.5);
-        const intersection_positions = _intersection_positions(line1, line2, assurances, false);
-        intersection_positions.forEach(p => {
-            p.acutal_point = new Point(p.point_vec.x, p.point_vec.y, int_color);
-            sketch.add_point(p.acutal_point);
-        })
-
-        if (intersection_positions.length == 0){
-            return {
-                intersection_points: [],
-                l1_segments: [line1],
-                l2_segments: [line2]
-            }
+        returns: {
+            intersection_points: [],
+            l1_segments: [],
+            l2_segments: []
         }
 
-        // # Handle Line1
-        intersection_positions.sort((a, b) => {
-            if (a.line1_left_pt !== b.line1_left_pt) {
-                return a.line1_left_pt - b.line1_left_pt;
-            }
-            return a.line1_left_ratio - b.line1_left_ratio;
-        });
+        Note, that this function deletes line1 and line 2 and replaces them.
+    */
+        
+    // Specific for one being a line
+    const l2_abs_sample_points = line2.get_absolute_sample_points();        const l1_abs_sample_points = line1.get_absolute_sample_points();
 
-        // ## Add missing endpoints
-        const [l1_start, l1_end] = line1.get_endpoints();
-        intersection_positions.unshift({
-            line1_left_pt: 0,
-            line1_left_ratio: 0,
-            acutal_point: l1_start
-        });
+    const int_color = interpolate_colors(line1.get_color(), line2.get_color(), 0.5);
+    const intersection_positions = _intersection_positions(line1, line2, assurances, false);
+    intersection_positions.forEach(p => {
+        p.acutal_point = new Point(p.point_vec.x, p.point_vec.y, int_color);
+        sketch.add_point(p.acutal_point);
+    })
 
-        intersection_positions.push({
-            line1_left_pt: l1_abs_sample_points.length,
-            line1_left_ratio: 0,
-            acutal_point: l1_end
-        });
-
-        const l1_segments = [];
-
-        for (let i = 0; i < intersection_positions.length - 1; i++){
-            const segment_sample_points = line1.cut_sample_points_at(
-                intersection_positions[i].line1_left_pt,
-                intersection_positions[i].line1_left_ratio,
-                intersection_positions[i + 1].line1_left_pt,
-                intersection_positions[i + 1].line1_left_ratio
-            );
-
-            const l1_segment = sketch._line_between_points_from_sample_points(
-                intersection_positions[i].acutal_point,
-                intersection_positions[i + 1].acutal_point,
-                segment_sample_points
-            );
-
-            copy_sketch_obj_data(line1, l1_segment);
-            l1_segments.push(l1_segment);
-        }
-
-        // ## Remove endpoints 
-        intersection_positions.pop();
-        intersection_positions.shift();
-
-        // # Handle Line2
-        intersection_positions.sort((a, b) => {
-            if (a.line2_left_pt !== b.line2_left_pt) {
-                return a.line2_left_pt - b.line2_left_pt;
-            }
-            return a.line2_left_ratio - b.line2_left_ratio;
-        });
-
-        // ## Add missing endpoints
-        const [l2_start, l2_end] = line2.get_endpoints();
-        intersection_positions.unshift({
-            line2_left_pt: 0,
-            line2_left_ratio: 0,
-            acutal_point: l2_start
-        });
-
-        intersection_positions.push({
-            line2_left_pt: l2_abs_sample_points.length - 1,
-            line2_left_ratio: 0,
-            acutal_point: l2_end
-        });
-
-        const l2_segments = [];
-
-        for (let i = 0; i < intersection_positions.length - 1; i++){
-            const segment_sample_points = line2.cut_sample_points_at(
-                intersection_positions[i].line2_left_pt,
-                intersection_positions[i].line2_left_ratio,
-                intersection_positions[i + 1].line2_left_pt,
-                intersection_positions[i + 1].line2_left_ratio
-            );
-
-            const l2_segment = sketch._line_between_points_from_sample_points(
-                intersection_positions[i].acutal_point,
-                intersection_positions[i + 1].acutal_point,
-                segment_sample_points
-            );
-
-            copy_sketch_obj_data(line2, l2_segment);
-            l2_segments.push(l2_segment);
-        }
-
-        // ## Remove endpoints 
-        intersection_positions.pop();
-        intersection_positions.shift();
-
-        // # Continuing
-        sketch.remove_line(line1);
-        sketch.remove_line(line2);
-
+    if (intersection_positions.length == 0){
         return {
-            intersection_points: intersection_positions.map(p => p.acutal_point),
-            l1_segments,
-            l2_segments
+            intersection_points: [],
+            l1_segments: [line1],
+            l2_segments: [line2]
         }
+    }
+
+    // # Handle Line1
+    intersection_positions.sort((a, b) => {
+        if (a.line1_left_pt !== b.line1_left_pt) {
+            return a.line1_left_pt - b.line1_left_pt;
+        }
+        return a.line1_left_ratio - b.line1_left_ratio;
+    });
+
+    // ## Add missing endpoints
+    const [l1_start, l1_end] = line1.get_endpoints();
+    intersection_positions.unshift({
+        line1_left_pt: 0,
+        line1_left_ratio: 0,
+        acutal_point: l1_start
+    });
+
+    intersection_positions.push({
+        line1_left_pt: l1_abs_sample_points.length,
+        line1_left_ratio: 0,
+        acutal_point: l1_end
+    });
+
+    const l1_segments = [];
+
+    for (let i = 0; i < intersection_positions.length - 1; i++){
+        const segment_sample_points = line1.cut_sample_points_at(
+            intersection_positions[i].line1_left_pt,
+            intersection_positions[i].line1_left_ratio,
+            intersection_positions[i + 1].line1_left_pt,
+            intersection_positions[i + 1].line1_left_ratio
+        );
+
+        const l1_segment = sketch._line_between_points_from_sample_points(
+            intersection_positions[i].acutal_point,
+            intersection_positions[i + 1].acutal_point,
+            segment_sample_points
+        );
+
+        copy_sketch_obj_data(line1, l1_segment);
+        l1_segments.push(l1_segment);
+    }
+
+    // ## Remove endpoints 
+    intersection_positions.pop();
+    intersection_positions.shift();
+
+    // # Handle Line2
+    intersection_positions.sort((a, b) => {
+        if (a.line2_left_pt !== b.line2_left_pt) {
+            return a.line2_left_pt - b.line2_left_pt;
+        }
+        return a.line2_left_ratio - b.line2_left_ratio;
+    });
+
+    // ## Add missing endpoints
+    const [l2_start, l2_end] = line2.get_endpoints();
+    intersection_positions.unshift({
+        line2_left_pt: 0,
+        line2_left_ratio: 0,
+        acutal_point: l2_start
+    });
+
+    intersection_positions.push({
+        line2_left_pt: l2_abs_sample_points.length - 1,
+        line2_left_ratio: 0,
+        acutal_point: l2_end
+    });
+
+    const l2_segments = [];
+
+    for (let i = 0; i < intersection_positions.length - 1; i++){
+        const segment_sample_points = line2.cut_sample_points_at(
+            intersection_positions[i].line2_left_pt,
+            intersection_positions[i].line2_left_ratio,
+            intersection_positions[i + 1].line2_left_pt,
+            intersection_positions[i + 1].line2_left_ratio
+        );
+
+        const l2_segment = sketch._line_between_points_from_sample_points(
+            intersection_positions[i].acutal_point,
+            intersection_positions[i + 1].acutal_point,
+            segment_sample_points
+        );
+
+        copy_sketch_obj_data(line2, l2_segment);
+        l2_segments.push(l2_segment);
+    }
+
+    // ## Remove endpoints 
+    intersection_positions.pop();
+    intersection_positions.shift();
+
+    // # Continuing
+    sketch.remove_line(line1);
+    sketch.remove_line(line2);
+
+    return {
+        intersection_points: intersection_positions.map(p => p.acutal_point),
+        l1_segments,
+        l2_segments
     }
 }
 
@@ -243,8 +244,8 @@ function _intersection_positions(line1, line2, assurances = { is_staight: true }
 function clean_intersection_positions(intersection_positions){
     // Very basic
     for (let i = intersection_positions.length - 1; i > 0; i--){
-        ip1 = intersection_positions[i];
-        ip0 = intersection_positions[i - 1];
+        const ip1 = intersection_positions[i];
+        const ip0 = intersection_positions[i - 1];
 
         if (
             Math.abs(ip0.line2_left_pt + ip0.line2_left_ratio - ip1.line2_left_pt - ip1.line2_left_ratio) < 0.001

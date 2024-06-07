@@ -1,9 +1,9 @@
-const { Vector } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} = require("../basic/basicFun.js");
+import { Vector } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../basic/basicFun.js';
 
-const utils = require("./utils.js");
+import utils from './utils.js';
 
 
 // Todo: Remodel all below
@@ -85,4 +85,4 @@ function extend_shoulder(comp, addition){
 }
 
 
-module.exports = {armpit_new, merge_sides, extend_shoulder};
+export default {armpit_new, merge_sides, extend_shoulder};

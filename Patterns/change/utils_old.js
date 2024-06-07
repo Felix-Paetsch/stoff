@@ -1,10 +1,10 @@
 
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const { add_time_tracker } = require("../../Debug/track_fn.js");
+import { add_time_tracker } from '../../Debug/track_fn.js';
 
 
 function get_lines(component, type){
@@ -235,7 +235,7 @@ function set_comp_to_new_sketch(s, nummer){
 };
 
 
-module.exports = {
+export default {
   close_component,
   get_comp_to_rotate,
   sort_lines,

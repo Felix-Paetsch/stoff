@@ -1,17 +1,16 @@
-const { Sketch } = require("./sketch.js");
-const { Point }  =  require("./point.js");
-const path = require('path');
+import { Sketch } from './sketch.js';
+import { Point } from './point.js';
+import path from 'path';
 
-const { save_as_svg }  =  require("./rendering/to_svg.js");
-const { save_as_png }  =  require("./rendering/to_png.js");
-const { toA4printable } = require("./rendering/to_A4_pages.js")
+import { save_as_svg } from './rendering/to_svg.js';
+import { save_as_png } from './rendering/to_png.js';
+import { toA4printable } from './rendering/to_A4_pages.js';
 
-const { validate_sketch, assert, try_with_error_msg } =  require("./validation.js");
+import { validate_sketch, assert, try_with_error_msg } from './validation.js';
 
-module.exports = {}
+export {}
 
-let s = new Sketch();
-module.exports.reset = () => { s = new Sketch(); }
+let s = new Sketch();module.exports.reset = () => { s = new Sketch(); }
 module.exports.set_sketch = (new_s) => { s = new_s; }
 
 let sketch_functions = [

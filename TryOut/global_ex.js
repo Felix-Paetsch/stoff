@@ -1,4 +1,4 @@
-const { add_point, line_from_function_graph, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_line } = require("../StoffLib/export_global.js");
+import { add_point, line_from_function_graph, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_line } from '../StoffLib/export_global.js';
 
 const p1 = add_point(new Point(0,0));
 const p2 = add_point(new Point(0,100));

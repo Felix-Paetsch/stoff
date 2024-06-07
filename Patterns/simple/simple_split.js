@@ -1,9 +1,9 @@
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const utils = require("../change/utils.js");
+import utils from '../change/utils.js';
 
 
 
@@ -35,4 +35,4 @@ function split(s, line, pt){
 
 
 
-module.exports = {split};
+export {split};

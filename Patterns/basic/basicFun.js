@@ -1,21 +1,21 @@
-const { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun, deg_to_rad } = require("../../Geometry/geometry.js");
+import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun, deg_to_rad } from '../../Geometry/geometry.js';
 
-const { Point } = require("../../StoffLib/point.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
+import { Point } from '../../StoffLib/point.js';
+import { Sketch } from '../../StoffLib/sketch.js';
 
 // Gets point, length of the line and the degree of the line,
 // returns endpoint of the line
-function line_with_length(s, pt, len, degree){
-  const vec = new Vector(0,len);
+function line_with_length(s, pt, len, degree) {
+  const vec = new Vector(0, len);
   const newVec = vec.rotate(deg_to_rad(degree));
   const newPt = pt.add(newVec);
 
-  const p = s.add_point(new Point(newPt.x,newPt.y));
-  const line = s.line_between_points(pt,p);
+  const p = s.add_point(new Point(newPt.x, newPt.y));
+  const line = s.line_between_points(pt, p);
   return line;
 };
 
-function point_at(s, ln, part){
+function point_at(s, ln, part) {
   const pt1 = ln.get_endpoints()[0];
   const pt2 = ln.get_endpoints()[1];
   //console.log(pt1,pt2);
@@ -24,10 +24,10 @@ function point_at(s, ln, part){
   const vec2 = vec.get_orthogonal();
   const p1n = vec2.add(pt1).add(vsc);
   const p2n = p1n.add(vec2.scale(-2)); // didn't used substract because the scale of 2
-  const p1nn = s.add_point(new Point(p1n.x,p1n.y));
-  const p2nn = s.add_point(new Point(p2n.x,p2n.y));
+  const p1nn = s.add_point(new Point(p1n.x, p1n.y));
+  const p2nn = s.add_point(new Point(p2n.x, p2n.y));
 
-  const line = s.line_between_points(p1nn,p2nn);
+  const line = s.line_between_points(p1nn, p2nn);
   const bla = s.intersect_lines(line, ln);
 
 
@@ -43,7 +43,7 @@ function point_at(s, ln, part){
 
 
 
-function dublicate_line(s, ln){
+function dublicate_line(s, ln) {
   let p1 = s.add_point(ln.p1.copy());
   let p2 = s.add_point(ln.p2.copy());
   return s.copy_line(ln, p1, p2);
@@ -51,47 +51,45 @@ function dublicate_line(s, ln){
 
 // folgende funktionen noch überarbeiten
 
-function get_point_on_other_line(s, a, len_b, vec){
-  len_a = a.get_length();
-  len_c = Math.sqrt(Math.abs((len_b * len_b) - (len_a * len_a)));
+function get_point_on_other_line(s, a, len_b, vec) {
+  const len_a = a.get_length();
+  const len_c = Math.sqrt(Math.abs((len_b * len_b) - (len_a * len_a)));
   //console.log(len_a);
   //console.log(len_c);
-  vec_p = vec.scale(len_c).add(a.p2);
-  p = s. add_point(new Point(vec_p.x, vec_p.y));
+  const vec_p = vec.scale(len_c).add(a.p2);
+  const p = s.add_point(new Point(vec_p.x, vec_p.y));
   return p;
 }
 
-function get_point_on_other_line2(s, a, ve, len_b, vec){
-
-  len_c = Math.sqrt(Math.abs((len_b * len_b) - (ve.x * ve.x)));
+function get_point_on_other_line2(s, a, ve, len_b, vec) {
+  const len_c = Math.sqrt(Math.abs((len_b * len_b) - (ve.x * ve.x)));
 
   ve.x = 0;
-  vec_p = vec.scale(len_c).add(a).add(ve);
-  p = s.add_point(new Point(vec_p.x, vec_p.y));
+  const vec_p = vec.scale(len_c).add(a).add(ve);
+  const p = s.add_point(new Point(vec_p.x, vec_p.y));
   return p;
 }
 
 
-function neckline(s, ln1, ln2){
+function neckline(s, ln1, ln2) {
   let len = ln1.p1.distance(ln2.p1);
   let vec = ln1.get_line_vector().get_orthonormal().scale(len).add(ln1.p1);
   let p1 = s.add_point(new Point(vec.x, vec.y));
   let l1 = s.line_between_points(ln1.p1, p1);
   let l2 = line_with_length(s, ln2.p1, len, 90);
 
-  let temp1 = s.interpolate_lines(l1, l2, 2, (x) => Math.pow(x,1), (x) => Math.pow(x, 1), (x) => Math.pow(x,0.7));
+  let temp1 = s.interpolate_lines(l1, l2, 2, (x) => Math.pow(x, 1), (x) => Math.pow(x, 1), (x) => Math.pow(x, 0.7));
   s.remove_point(p1);
   s.remove_point(l2.p2);
   return temp1;
 }
 
-function back_neckline(s, ln1, ln2){
+function back_neckline(s, ln1, ln2) {
   let len = ln1.p1.distance(ln2.p1);
   let vec = ln1.get_line_vector().get_orthonormal().scale(-len).add(ln1.p1);
   let p1 = s.add_point(new Point(vec.x, vec.y));
   let l1 = s.line_between_points(ln1.p1, p1);
   let l2 = line_with_length(s, ln2.p1, len, -90);
-
 
   let temp = s.intersect_lines(l1, l2);
   s.remove_point(temp.l1_segments[1].p2);
@@ -103,4 +101,4 @@ function back_neckline(s, ln1, ln2){
 
 
 
-module.exports = {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline};
+export { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline };

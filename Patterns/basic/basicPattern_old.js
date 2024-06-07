@@ -1,8 +1,8 @@
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const {line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} = require("./basicFun.js");
+import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from './basicFun.js';
 
 
 
@@ -209,4 +209,4 @@ function back(mea){
 
 }
 
-module.exports = {back, front};
+export default {back, front};

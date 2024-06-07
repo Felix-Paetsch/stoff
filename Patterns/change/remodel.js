@@ -1,12 +1,12 @@
-const { Vector } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
+import { Vector } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
 
-const utils = require("./utils.js");
-const change_fun = require("./basicChanges.js");
-const split_fun = require("./split.js");
-//const dart_fun = require("./rotateDart.js");
-const lengthen = require("./lengthen.js");
+import utils from './utils.js';
+import change_fun from './basicChanges.js';
+import split_fun from './split.js';
+//import dart_fun from './rotateDart.js';
+import lengthen from './lengthen.js';
 
 function remodel_pattern_merge(s, design){
 
@@ -168,4 +168,4 @@ function additional_settings(s, design, mea){
     lengthen.length_dress(s, s.data.back, design);
   }
 }
-module.exports = {remodel_pattern_merge, remodel_pattern, additional_settings};
+export default {remodel_pattern_merge, remodel_pattern, additional_settings};

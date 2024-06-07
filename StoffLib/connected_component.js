@@ -1,5 +1,5 @@
-const { Vector } = require("../Geometry/geometry.js");
-const { add_tracker } = require("../Debug/track_fn.js");
+import { Vector } from '../Geometry/geometry.js';
+import { add_tracker } from '../Debug/track_fn.js';
 
 class ConnectedComponent{
     constructor(element){
@@ -126,8 +126,7 @@ ConnectedComponent.prototype.obj =
 ConnectedComponent.prototype.lines =
     add_tracker(ConnectedComponent.prototype.lines, "Compute CC Lines");
 
-module.exports = { ConnectedComponent };
-
+export { ConnectedComponent };
 function _calculate_bb_from_points_and_lines(points, lines){
     let _min_x = Infinity;
     let _min_y = Infinity;

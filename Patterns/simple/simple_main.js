@@ -1,12 +1,12 @@
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const top = require("./simple_top.js");
-const sleeve = require("./simple_sleeve.js");
+import top from './simple_top.js';
+import sleeve from './simple_sleeve.js';
 
-const utils = require("../change/utils.js");
+import utils from '../change/utils.js';
 
 
 function main_top(s, design){
@@ -60,4 +60,4 @@ function main_sleeve(s, design){
 
 
 
-module.exports = {main_top, main_sleeve};
+export default {main_top, main_sleeve};

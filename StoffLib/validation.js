@@ -1,10 +1,10 @@
-const { Point } = require("./point.js");
-const { Line } = require("./line.js");
-const { Vector } = require("../Geometry/geometry.js");
-const { ConnectedComponent } = require("./connected_component.js");
-const CONF = require("./config.json");
+import { Point } from './point.js';
+import { Line } from './line.js';
+import { Vector } from '../Geometry/geometry.js';
+import { ConnectedComponent } from './connected_component.js';
+import { assert, approx_eq, try_with_error_msg } from './tools/validation_utils.js';
 
-const error_margin = CONF.VAL_ERROR_MARGIN;
+import CONF from './config.json' assert { type: 'json' };
 
 function validate_sketch(s){
     s.lines.forEach(l => {
@@ -173,27 +173,4 @@ function data_object_valid(data, s){
     }
 }
 
-// UTIL FUNCTIONS
-
-function approx_eq(a,b = 0){
-    return Math.abs(a-b) < error_margin
-}
-
-function assert(bool, error){
-    if (!bool){
-        throw new Error(error);
-    }
-    return true;
-}
-function try_with_error_msg(f, msg) {
-    try {
-        f();
-    } catch (e) {
-        console.log("=== An Error occurred ===");
-        console.log(msg);
-        console.log("=== Original error msg: ===");
-        throw e; // Re-throwing the error is optional, depends on how you want to handle it
-    }
-}
-
-module.exports = { assert, try_with_error_msg, validate_sketch }
+export { assert, try_with_error_msg, validate_sketch };

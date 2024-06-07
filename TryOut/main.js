@@ -1,5 +1,5 @@
-const { Vector } = require("../Geometry/geometry.js");
-const { Sketch } = require("../StoffLib/sketch.js");
+import { Vector } from '../Geometry/geometry.js';
+import { Sketch } from '../StoffLib/sketch.js';
 
 function main(){
     const s = new Sketch();

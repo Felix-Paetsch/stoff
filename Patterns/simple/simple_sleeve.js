@@ -1,12 +1,12 @@
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const {line_with_length} = require("../basic/basicFun.js");
+import { line_with_length} from '../basic/basicFun.js';
 
 
-const utils = require("../change/utils.js");
+import utils from '../change/utils.js';
 
 
 function armpit_new(s){
@@ -97,4 +97,4 @@ function shorten_length(s, percent){
 
 
 
-module.exports = {armpit_new, shorten_length};
+export default {armpit_new, shorten_length};

@@ -46,11 +46,11 @@ function reset(){
     }
 }
 
-module.exports = {
+export {
     Times,
     Calls,
     add_calls_tracker,
     add_time_tracker,
     add_tracker,
     reset
-}
+};

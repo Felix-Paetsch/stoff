@@ -7,7 +7,7 @@ import COption from "./option.js";
 import CSelection from "./selection.js";
 import CStatic from "./static.js";
 
-export default {
+export {
     Config,
     CBoolean,
     CContainer,
@@ -17,7 +17,7 @@ export default {
     CStatic
 }
 
-console.log(new Config([
+/*console.log(new Config([
     new COption(
         "My fance option", ["hey", "yhou", "rd option"]
     ),
@@ -26,4 +26,4 @@ console.log(new Config([
         "you"
     ],
     new CBoolean("my fav bool")
-]));
+]));*/

@@ -1,14 +1,13 @@
-const CONF = require("../config.json");
+import CONF from '../config.json' assert { type: 'json' };
 
-module.exports = {
+export {
     sketch_to_renderable,
     reduce_polyline_sample_points,
     calculate_correct_width_height
 }
 
 function sketch_to_renderable(sketch, width, height, use_padding = true){
-    const sketch_bb = sketch.get_bounding_box();
-    
+    const sketch_bb = sketch.get_bounding_box();    
     const padding = use_padding ? CONF.DEFAULT_SAVE_PX_PADDING : 0;
     const usable_width  = width - padding * 2;
     const usable_height = height - padding * 2;

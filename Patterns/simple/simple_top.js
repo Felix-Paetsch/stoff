@@ -1,11 +1,11 @@
-const { Vector, vec_angle_clockwise, rotation_fun } = require("../../Geometry/geometry.js");
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const {ConnectedComponent} = require("../../StoffLib/connected_component.js");
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../Geometry/geometry.js';
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-const utils = require("../change/utils.js");
+import utils from '../change/utils.js';
 
-const {split} = require("./simple_split.js");
+import { split} from './simple_split.js';
 
 function without_dart(s){
   let lines_comp = s.data.comp.lines_by_key("type");
@@ -249,4 +249,4 @@ function simple_lengthen(s, pattern, mea, percent_length,  percent_side = 0){
 }
 
 
-module.exports = {without_dart, split_pattern, simple_middle_dart, waistline_simple_dart, wiener_naht, merge_lines};
+export default {without_dart, split_pattern, simple_middle_dart, waistline_simple_dart, wiener_naht, merge_lines};

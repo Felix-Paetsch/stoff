@@ -1,7 +1,7 @@
-const { debug, add_point, remove_point, line_between_points, interpolate_lines, Point, save, remove_line, clear } = require("./StoffLib/main.js");
-const { Vector } = require("./Geometry/geometry.js");
-const { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} = require("./clothes/basicFun_new.js");
-const { rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart} = require("./clothes/abnaeher.js");
+import { debug, add_point, remove_point, line_between_points, interpolate_lines, Point, save, remove_line, clear } from './StoffLib/main.js';
+import { Vector } from './Geometry/geometry.js';
+import { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} from './clothes/basicFun_new.js';
+import { rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart} from './clothes/abnaeher.js';
 
 /*
 // --- lokal dann in der eigentlichen Datei, dann hierher übergeben und nicht hier
@@ -176,4 +176,4 @@ function cut_sleeve(sleeve, percent){
 
 //save(`arm_pattern.svg`, 500, 500);
 
-module.exports = {correct_armmeasurements, sleevetype, cut_sleeve};
+export {correct_armmeasurements, sleevetype, cut_sleeve};

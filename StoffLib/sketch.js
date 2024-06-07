@@ -1,21 +1,19 @@
-const { Vector, affine_transform_from_input_output, distance_from_line_segment } = require("../Geometry/geometry.js");
-const { StraightLine, Line } = require('./line.js');
-const { ConnectedComponent } = require("./connected_component.js");
-const { interpolate_colors } = require("./colors.js");
-const { validate_sketch } =  require("./validation.js");
-const { create_svg_from_sketch, save_as_svg } = require("./rendering/to_svg.js");
-const { create_png_from_sketch, save_as_png } = require("./rendering/to_png.js");
-const { Point } = require("./point.js");
-const line_with_length = require("./tools/line_with_length.js");
-const { toA4printable } = require("./rendering/to_A4_pages.js");
-const { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } = require("./copy.js");
-const path = require('path');
-const CONF = require("./config.json");
+import { Vector, affine_transform_from_input_output, distance_from_line_segment } from '../Geometry/geometry.js';
+import { StraightLine, Line } from './line.js';
+import { ConnectedComponent } from './connected_component.js';
+import { interpolate_colors } from './colors.js';
+import { validate_sketch } from './validation.js';
+import { create_svg_from_sketch, save_as_svg } from './rendering/to_svg.js';
+import { create_png_from_sketch, save_as_png } from './rendering/to_png.js';
+import { Point } from './point.js';
+import line_with_length from './unicorns/line_with_length.js';
+import { toA4printable } from './rendering/to_A4_pages.js';
+import { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } from './copy.js';
+import path from 'path';
+import CONF from './config.json' assert { type: 'json' };
 
-const {
-    _intersect_lines,
-    _intersection_positions
-} = require("./unicorns/intersect_lines.js");
+import { _intersect_lines, _intersection_positions } from './unicorns/intersect_lines.js';
+
 
 class Sketch{
     constructor(){
@@ -684,4 +682,4 @@ ConnectedComponent.prototype.to_sketch = function(position = null){
     return s;
 }
 
-module.exports = { Sketch };
+export { Sketch };

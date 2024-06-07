@@ -1,7 +1,7 @@
-const { createCanvas } = require('canvas');
-const { writeFileSync } = require("fs");
-const { sketch_to_renderable, calculate_correct_width_height } = require("./sketch_to_renderable.js");
-const { interpolate_colors } = require("../colors.js");
+import { createCanvas } from 'canvas';
+import { writeFileSync } from 'fs';
+import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
+import { interpolate_colors } from '../colors.js';
 
 function create_png_from_sketch(s , width, height){
     const correct_dimensions = calculate_correct_width_height(s, width, height);  
@@ -45,8 +45,7 @@ function create_png_from_sketch(s , width, height){
     return canvas.toBuffer();
 }
 
-module.exports = { create_png_from_sketch, save_as_png };
-
+export { create_png_from_sketch, save_as_png };
 function save_as_png(sketch, save_to, width, height, to_lifesize = false) {
     const pngBuffer = create_png_from_sketch(sketch, width, height, to_lifesize);
     writeFileSync(save_to, pngBuffer, (err) => {

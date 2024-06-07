@@ -1,8 +1,6 @@
-const { Sketch } = require("../../StoffLib/sketch.js");
-const { Point } = require("../../StoffLib/point.js");
-const { Vector } = require("../../Geometry/geometry.js");
-
-
+import { Sketch } from '../../StoffLib/sketch.js';
+import { Point } from '../../StoffLib/point.js';
+import { Vector } from '../../Geometry/geometry.js';
 
 function evaluate_type(design){
   let options = [];
@@ -91,4 +89,4 @@ function eval_sleeve_eingehalten(type){
   return false;
 }
 
-module.exports = {evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};
+export default {evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};
