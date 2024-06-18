@@ -7,7 +7,7 @@ import change from './simple/simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-import { Config, cContainer, cBoolean, cNumber, cSelection, cOption } from "../Config/exports.js";
+import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../Config/exports.js";
 
 export default {
     design_config: new Config(
@@ -15,7 +15,7 @@ export default {
             "Test Container",
             cSelection(
                 "Test Selection",
-                "Value A",
+                cStatic("Display Name", "Non Display Value"),
                 "Value B",
                 "Value C",
                 [0, 1] // activated by default
@@ -238,7 +238,7 @@ export default {
     ),
     create_design: (design_config) => {
         console.log(design_config["Test Container"]);
-        
+
         const sk = new Sketch();
         const pt1 = sk.add_point(new Vector(0, 2));
         const pt2 = sk.add_point(new Vector(2, 0));

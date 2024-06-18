@@ -25,7 +25,7 @@ export default class CStatic extends ConfigElement {
     }
 
     to_obj(){
-        return this.name;
+        return this.value;
     }
 }
 
