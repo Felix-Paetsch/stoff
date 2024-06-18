@@ -110,6 +110,11 @@ export default class ConfigElement{
         )
     }
 
+    get_by_path(path){
+        const serialized_path = ConfigElement.serialize_path(path);
+        return document.querySelector(`[x-component-path="${ serialized_path }"]`);
+    }
+
     static serialize_path(pArr){
         return pArr.map(String).join("-")
                     .replace(/\\/g, "\\\\")

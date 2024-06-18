@@ -98,6 +98,29 @@ input[type=range]::-moz-range-thumb {
     border: var(--border);
 }
 
+/* Selection Input */
+.selection_component h4{
+    font-size: 1.2em;
+    margin: 1em 0 .4em 0;
+}
+.selection_component_box{
+    padding:  .5em 0em .5em 1em;
+    border-left: .2em solid palevioletred;
+    margin-bottom: .8em;
+}
+
+.selection_component_box .selection_option{
+    margin: .2em 0;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    user-select: none;
+}
+
+.selection_option_icon{
+    margin-right: .5em;
+}
+
 /* display */
 #sketch_display pre{
     max-width: calc(100vw - 24rem);
