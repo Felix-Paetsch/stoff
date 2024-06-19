@@ -58,6 +58,9 @@ function request_img_unthrottled(){
     })
     .then(svgText => {
         document.getElementById('sketch_display').innerHTML = svgText;
+        if (typeof add_svg_hover_events !== 'undefined') {
+            add_svg_hover_events();
+        }
         reset_server_monitor_wait_time(); // Presumably changes after a long time
     })
     .catch(error => {

@@ -243,7 +243,9 @@ export default {
         const pt1 = sk.add_point(new Vector(0, 2));
         const pt2 = sk.add_point(new Vector(2, 0));
   
-        sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
+        const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
+        line.data.name = "Horny..";
+        pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
         return sk;
 
 

@@ -30,7 +30,8 @@ function sketch_to_renderable(sketch, width, height, use_padding = true){
         return {
             x: (point.x - sketch_bb.top_left.x) * scaleFactor + offsetX,
             y: (point.y - sketch_bb.top_left.y) * scaleFactor + offsetY,
-            color: point.color
+            color: point.color,
+            original_point: point
         };
     };
 
@@ -46,7 +47,8 @@ function sketch_to_renderable(sketch, width, height, use_padding = true){
             const red = reduce_polyline_sample_points(polyline);
             return {
                 color: l.color,
-                sample_points: red.map(point => transformPoint(point)) // although this rather transforms vectors
+                sample_points: red.map(point => transformPoint(point)),
+                original_line: l
             }
         })
     };

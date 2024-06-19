@@ -28,7 +28,10 @@ app.get('/', (req, res) => {
     });
 });
 
+let pattern_was_requested = false;
 app.post('/pattern', (req, res) => {
+    pattern_was_requested = true;
+
     try {
         const s = create_design(req.body.config_data);
         
@@ -38,7 +41,7 @@ app.post('/pattern', (req, res) => {
             res.send(png_buffer);
         */
 
-        const svg = s.to_svg(req.body.width, req.body.height);
+        const svg = s.to_dev_svg(req.body.width, req.body.height);
         res.set('Content-Type', 'image/svg+xml');
         res.send(svg);
     } catch (error){
@@ -46,10 +49,8 @@ app.post('/pattern', (req, res) => {
     }
 });
 
-let firstAccess = true;
 app.get('/reset', (req, res) => {
-    if (firstAccess) {
-        firstAccess = false;
+    if (!pattern_was_requested) {
         res.json(true);
     } else {
         res.json(false);

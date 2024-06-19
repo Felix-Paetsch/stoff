@@ -4,6 +4,7 @@ import { ConnectedComponent } from './connected_component.js';
 import { interpolate_colors } from './colors.js';
 import { validate_sketch } from './validation.js';
 import { create_svg_from_sketch, save_as_svg } from './rendering/to_svg.js';
+import { create_dev_svg_from_sketch } from "./rendering/to_dev_svg.js";
 import { create_png_from_sketch, save_as_png } from './rendering/to_png.js';
 import { Point } from './point.js';
 import line_with_length from './unicorns/line_with_length.js';
@@ -647,6 +648,10 @@ Sketch.prototype.validate = function(){
 // Add External Methods
 Sketch.prototype.to_svg = function(...args) {
     return create_svg_from_sketch(this, ...args)
+}
+
+Sketch.prototype.to_dev_svg = function(...args) {
+    return create_dev_svg_from_sketch(this, ...args)
 }
 
 Sketch.prototype.save_as_svg = function(...args) {
