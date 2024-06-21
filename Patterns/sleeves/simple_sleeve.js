@@ -3,10 +3,10 @@ import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-import { line_with_length} from '../basic/basicFun.js';
+import { line_with_length} from '../funs/basicFun.js';
 
 
-import utils from '../change/utils.js';
+import utils from '../funs/utils.js';
 
 
 function armpit_new(s){

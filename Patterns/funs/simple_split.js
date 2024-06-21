@@ -3,7 +3,7 @@ import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-import utils from '../change/utils.js';
+import utils from './utils.js';
 
 
 

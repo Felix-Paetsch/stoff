@@ -3,9 +3,9 @@ import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-import utils from '../change/utils.js';
+import utils from '../funs/utils.js';
 
-import { split} from './simple_split.js';
+import { split} from '../funs/simple_split.js';
 
 function without_dart(s){
   let lines_comp = s.data.comp.lines_by_key("type");
@@ -62,8 +62,8 @@ function split_pattern(s, type, percent){
     comp_sorted.reverse();
   }
 
-  pattern_i = utils.set_comp_to_new_sketch(s, comp_sorted[0]);
-  pattern_o = utils.set_comp_to_new_sketch(s, comp_sorted[1]);
+  const pattern_i = utils.set_comp_to_new_sketch(s, comp_sorted[0]);
+  const pattern_o = utils.set_comp_to_new_sketch(s, comp_sorted[1]);
 
 
   //let test = pattern_o.comp.lines_by_key("type").dart[0];

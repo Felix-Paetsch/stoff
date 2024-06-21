@@ -10,7 +10,7 @@ class Vector {
         if (x instanceof Vector){
             return this.set(x[0], x[1]);
         }
-        
+
         this.x = x;
         this.y = y;
         this[0] = x;
@@ -277,7 +277,7 @@ function rotation_fun(rotation_vec, angle) {
 }
 
 function vec_angle_clockwise(vec1, vec2) {
-    res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
+    const res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
 
     if (!isNaN(res)) {
         return res;

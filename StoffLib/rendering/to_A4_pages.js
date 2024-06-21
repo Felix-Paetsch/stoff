@@ -26,14 +26,14 @@ const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2*PRINT_PADDING_PX;
 function toA4printable(sketch, folder) {
     folder = path.join(__dirname, "../../", folder);
     createOrEmptyFolderSync(folder);
-    
+
     // Get the bounding box of the sketch
     const { width: bb_width, height: bb_height } = sketch.get_bounding_box();
     const width = bb_width * PX_PER_CM;
     const height = bb_height * PX_PER_CM;
 
     // Prepare the sketch for rendering
-    const { points, lines } = sketch_to_renderable(sketch, width, height, use_padding = false);
+    const { points, lines } = sketch_to_renderable(sketch, width, height, false);
 
     // Calculate the number of A4 pages needed
     const pagesX = Math.ceil(width / PRINT_WIDTH_WITH_PADDING);

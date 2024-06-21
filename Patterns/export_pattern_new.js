@@ -2,8 +2,10 @@
 import { Sketch } from '../StoffLib/sketch.js';
 import { Vector } from '../Geometry/geometry.js';
 
-import basic_pattern from './basic/basicPattern.js';
-import change from './simple/simple_main.js';
+import mea from './measurements.js';
+import basic_pattern_top from './top/pattern_top.js';
+import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
+import change from './simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
@@ -34,6 +36,7 @@ export default {
                 step_size: 0.01
             })
         ),
+        /*
         cContainer(
             "measurements",
             cNumber("shoulder_length", {
@@ -211,67 +214,97 @@ export default {
                 step_size: 0.1
             })
         ),
+        */
         cContainer(
-            "top designs",
-            cBoolean("without dart", true),
-            cBoolean("split", false),
-            cBoolean("simple dart", false),
-            cBoolean("waistline simple dart", false),
-            cBoolean("wiener naht", false)
+          "Schnittmuster",
+          cOption(
+            "für",
+            "Felix",
+            "Debby",
+            1
+          )
         ),
         cContainer(
+          "top designs",
+            cOption(
+              "darts",
+              "without dart",
+              "split",
+              "simple dart",
+              "waistline simple dart",
+              "wiener naht",
+              0
+            )
+        ),
+        cContainer(
+          "sleeve",
+          cOption(
             "sleeveheight",
-            cBoolean("eingehalten 5/6", false),
-            cBoolean("eingehalten 4/5", false),
-            cBoolean("eingehalten 3/4", true),
-            cBoolean("hemd 3/4", false),
-            cBoolean("hemd 2/3", false),
-            cBoolean("hemd 1/2", false)
-        ),
-        cContainer(
+            "eingehalten 5/6",
+            "eingehalten 4/5",
+            "eingehalten 3/4",
+            "hemd 3/4",
+            "hemd 2/3",
+            "hemd 1/2",
+            2
+          ),
+          cSelection(
             "sleevetype",
-            cBoolean("puffy top", false),
-            cBoolean("puffy bottom", false),
-            cBoolean("puffy", true),
-            cBoolean("shorten", false)
+            "puffy top",
+            "puffy bottom",
+            "puffy",
+            "shorten",
+            [2]
+
+          )
         )
     ),
     create_design: (design_config) => {
+/*
         console.log(design_config["Test Container"]);
 
         const sk = new Sketch();
         const pt1 = sk.add_point(new Vector(0, 2));
         const pt2 = sk.add_point(new Vector(2, 0));
-  
+
         const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
         line.data.name = "Horny..";
         pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
         return sk;
+        */
+
+        let temp = design_config.Schnittmuster["für"];
+        let measurements;
+        if ( temp === "Debby"){
+          measurements = { ...mea.debby };
+        } else {
+          measurements = { ...mea.felix  };
+        }
+
+        measurements.bust_width_front += 3;
+        measurements.bust_width_back += 3;
+        measurements.waist_width_front += 3;
+        measurements.waist_width_back += 3;
+        measurements.waist_height = measurements.waist_height * (2 / 3) + 4;
+
+        measurements.across_front = measurements.across_front * (15 / 16);
+        measurements.across_back = measurements.across_back * (15 / 16);
+
+        measurements.bottom_width_back += 4;
+        measurements.bottom_width_front += 4;
+
+        measurements["arm"] += 2;
+        measurements["arm length"] += 4;
+        measurements.wristwidth += 2;
+        measurements["ellbow_width"] += 4;
 
 
-        design_config.measurements.bust_width_front += 3;
-        design_config.measurements.bust_width_back += 3;
-        design_config.measurements.waist_width_front += 3;
-        design_config.measurements.waist_width_back += 3;
-        design_config.measurements.waist_height = design_config.measurements.tai_height * (2 / 3) + 4;
-        design_config.measurements.across_front = design_config.measurements.across_front * (15 / 16);
-        design_config.measurements.across_back = design_config.measurements.across_back * (15 / 16);
-
-        design_config.measurements.bottom_width_back += 4;
-        design_config.measurements.bottom_width_front += 4;
-
-        design_config.measurements["arm"] += 2;
-        design_config.measurements["arm length"] += 4;
-        design_config.measurements.wristwidth += 2;
-        design_config.measurements["ellbow_width"] += 4;
+        let back = basic_pattern_top.back(measurements);
+        let front = basic_pattern_top.front(measurements);
 
 
-        let back = basic_pattern.back(design_config.measurements);
-        let front = basic_pattern.front(design_config.measurements);
-
-
-        change.main_top(front, design_config["top designs"]);
-        change.main_top(back, design_config["top designs"]);
+        change.main_top(front, design_config["top designs"], measurements);
+        change.main_top(back, design_config["top designs"], measurements);
 
         front.remove_point(front.data.pt);
         back.remove_point(back.data.pt);
@@ -280,8 +313,8 @@ export default {
 
 
         let height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
-        let sleeve = basic_pattern.sleeve(design_config.measurements, height_sleeve, design_config["sleeveheight"], front.data.length_sleeve, back.data.length_sleeve);
-        change.main_sleeve(sleeve, design_config["sleevetype"]);
+        let sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
+        change.main_sleeve(sleeve, design_config["sleeve"].sleevetype);
 
 
 
