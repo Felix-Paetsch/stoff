@@ -13,8 +13,11 @@ import { copy_sketch, copy_connected_component, default_data_callback, copy_sket
 import path from 'path';
 import CONF from './config.json' assert { type: 'json' };
 
-import { _intersect_lines, _intersection_positions } from './unicorns/intersect_lines.js';
+import { intersect_lines, intersection_positions } from './unicorns/intersect_lines.js';
 
+import { _intersect_lines, _intersection_positions } from './unicorns/intersect_lines_old.js';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 
 class Sketch{
     constructor(){
@@ -400,16 +403,8 @@ class Sketch{
         return line.position_at_length(length, reversed);
     }
 
-    intersect_lines(line1, line2, assurances = { is_staight: true }){
+    intersect_lines(line1, line2){
         /*
-            params assurances:
-                { l2_stepsize_percent: 10, l2_stepsize_percent: 10}
-                -> If you recursivelytest only on x percent of the lines, you will find all points
-                { intersection_count : 5 }
-                -> There are so many intersections exactly
-                { is_straight: true}
-                -> the first line - line1 - is straight (&& evently spaced i.e. not interpolated in strange ways)
-
             returns: {
                 intersection_points: [],
                 l1_segments: [],
@@ -420,7 +415,7 @@ class Sketch{
         */
 
         this._guard_lines_in_sketch(line1, line2);
-        return _intersect_lines(this, line1, line2, assurances)
+        return intersect_lines(this, line1, line2)
     }
 
     line_with_offset(line, offset, direction = 0){
@@ -438,9 +433,9 @@ class Sketch{
         }
     }
 
-    intersection_positions(line1, line2, assurances = { is_staight: true }){
-        // see intersect_lines, only the points are returned and the sketch is unaltered
-        return _intersection_positions(line1, line2, assurances);
+    intersection_positions(line1, line2){
+        this._guard_lines_in_sketch(line1, line2);
+        return intersection_positions(line1, line2);
     }
 
     copy_line(line, from, to, data_callback = default_data_callback){

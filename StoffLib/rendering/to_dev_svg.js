@@ -29,7 +29,9 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
         const pointsString = polyline.sample_points.map(point => `${point.x},${point.y}`).join(' ');
 
         const line_data = data_to_serializable(polyline.original_line.data);
-        line_data._length = polyline.original_line.get_length();
+        if (typeof line_data === 'object') {
+            line_data._length = polyline.original_line.get_length();
+        }
     
         // Hover area
         svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:rgba(0,0,0,0);stroke-width:8" x-data="${

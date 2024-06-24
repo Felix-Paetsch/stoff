@@ -6,6 +6,10 @@ class Vector {
         this.set(x, y);
     }
 
+    to_array(){
+        return [this.x, this.y];
+    }
+
     set(x, y) {
         if (x instanceof Vector){
             return this.set(x[0], x[1]);
@@ -277,7 +281,7 @@ function rotation_fun(rotation_vec, angle) {
 }
 
 function vec_angle_clockwise(vec1, vec2) {
-    res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
+    const res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
 
     if (!isNaN(res)) {
         return res;
@@ -303,5 +307,5 @@ export {
     deg_to_rad,
     rad_to_deg,
     vec_angle_clockwise,
-    rotation_fun,
+    rotation_fun
 };

@@ -327,7 +327,7 @@ class Line{
     }
 
     position_at_length(length, reversed = false){
-        const l = this.length();
+        const l = this.get_length();
         
         if (length > l){
             throw new Error("Specified length is longer than line.");

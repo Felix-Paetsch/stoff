@@ -237,6 +237,41 @@ export default {
         )
     ),
     create_design: (design_config) => {
+        const test_sk = new Sketch();
+        const pt22 = test_sk.point(1, 0);
+        const pt12 = test_sk.point(0.5, -0.5);
+        const pt21 = test_sk.point(0.5, 0.5);
+        const pt11 = test_sk.point(0, 0);
+
+        const l1 = test_sk.line_with_length(pt22, pt11, 4).mirror();
+        test_sk.position_at_length(l1, 2);
+
+        return test_sk;
+        
+        l1.data = "LINE 1";
+        l1.set_color("blue");
+        const l2 = test_sk.line_with_length(pt22, pt11, 4).mirror();
+        l2.data = "LINE 2";
+        l2.set_color("red");
+
+        if (design_config["Test Container"]["Test Option"] == "Value B"){
+            const res = test_sk.intersect_lines(l1, l2);
+            
+            for (let i in res.l1_segments){
+                res.l1_segments[i].data.descr = "LineSegment 1." + i;
+            }
+            for (let i in res.l2_segments){
+                res.l2_segments[i].data.descr = "LineSegment 2." + i;
+            }
+        } else {
+            const pts = test_sk.intersection_positions(l1, l2);
+            for (const pt of pts){
+                test_sk.add_point(pt).set_color("green");
+            }
+        }       
+
+        return test_sk;
+
         console.log(design_config["Test Container"]);
 
         const sk = new Sketch();
