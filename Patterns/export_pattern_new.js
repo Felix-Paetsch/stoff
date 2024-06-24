@@ -237,6 +237,7 @@ export default {
         )
     ),
     create_design: (design_config) => {
+        /*
         const test_sk = new Sketch();
         const pt22 = test_sk.point(1, 0);
         const pt12 = test_sk.point(0.5, -0.5);
@@ -281,7 +282,7 @@ export default {
         const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
         line.data.name = "Horny..";
         pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
-        return sk;
+        return sk;*/
 
 
         design_config.measurements.bust_width_front += 3;

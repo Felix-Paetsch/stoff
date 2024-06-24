@@ -356,9 +356,11 @@ class Line{
 
                 return this.vec_to_abosule(relative_vec);
             }
+
+            sum += next_length;
         }
 
-        assert(false);
+        assert(false, "This should not happen!");
     }
 
     self_intersects(){
