@@ -240,7 +240,7 @@ class Line{
         this.p1 = this.p2;
         this.p2 = t;
         this.sample_points.reverse();
-        this.sample_points.forEach(p => p.set(1 - p.x, p.y));
+        this.sample_points.forEach(p => p.set(1 - p.x, -p.y));
 
         return this;
     }

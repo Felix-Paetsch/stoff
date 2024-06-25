@@ -12,12 +12,8 @@ import { toA4printable } from './rendering/to_A4_pages.js';
 import { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } from './copy.js';
 import path from 'path';
 import CONF from './config.json' assert { type: 'json' };
-
 import { intersect_lines, intersection_positions } from './unicorns/intersect_lines.js';
 
-import { _intersect_lines, _intersection_positions } from './unicorns/intersect_lines_old.js';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
 class Sketch{
     constructor(){
@@ -102,8 +98,6 @@ class Sketch{
 
             const pts = sketch_el.points();
             return this.remove_points(...pts);
-
-            return;
         }
 
         this._guard_sketch_elements_in_sketch(sketch_el);

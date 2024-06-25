@@ -29,7 +29,6 @@ export default function line_with_length(original_sk, original_p1, original_p2, 
         (0,0)-----------(1,0)
     */
 
-    int2.mirror();
     const merged = sk.merge_lines(int1, int2);
 
     return original_sk._line_between_points_from_sample_points(

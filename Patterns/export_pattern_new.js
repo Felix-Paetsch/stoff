@@ -240,21 +240,23 @@ export default {
         const test_sk = new Sketch();
         const pt22 = test_sk.point(1, 0);
         const pt11 = test_sk.point(0, 0);
+        const pt113 = test_sk.point(1, 1);
+        const pt1132 = test_sk.point(1, -1);
 
-        const l1 = test_sk.line_with_length(pt22, pt11, 4);
-        const l2 = test_sk.line_with_length(pt22, pt11, 4);
-        //l2.swap_orientation();
-        // test_sk.position_at_length(l1, 2);
+        const l1 = test_sk.line_with_length(pt22, pt11, 4).set_color("blue");
+        const l2 = test_sk.line_with_length(pt22, pt11, 4).set_color("rgba(255,0,0,.5)");
 
-        const abs_pts = l1.get_absolute_sample_points();
-        for (const p of abs_pts) {
-            test_sk.add_point(p).set_color("red");
-        }
+        l2.p1.data.old_p1 = "wha";
+        l2.p2.data.old_p2 = "wha";
+        l2.swap_orientation();
+        l2.p1.data.new_p1 = "wha";
+        l2.p2.data.new_p2 = "wha";
+        // test_sk.position_at_length(l1, 2)
 
-        const pts = test_sk.intersection_positions(l1, l2);
-        for (const pt of pts){
-            test_sk.add_point(pt).set_color("rgba(0,255,0,0.4)");
-        }
+        /*test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
+        const l1 = test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
+        
+        l1.swap_orientation();*/
 
         return test_sk;
 
