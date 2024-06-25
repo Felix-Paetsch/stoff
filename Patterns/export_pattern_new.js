@@ -237,7 +237,7 @@ export default {
         )
     ),
     create_design: (design_config) => {
-        const test_sk = new Sketch();
+        /*const test_sk = new Sketch();
         const pt22 = test_sk.point(1, 0);
         const pt11 = test_sk.point(0, 0);
         const pt113 = test_sk.point(1, 1);
@@ -253,10 +253,10 @@ export default {
         l2.p2.data.new_p2 = "wha";
         // test_sk.position_at_length(l1, 2)
 
-        /*test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
+        test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
         const l1 = test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
         
-        l1.swap_orientation();*/
+        l1.swap_orientation();
 
         return test_sk;
 
@@ -269,8 +269,7 @@ export default {
         const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
         line.data.name = "Horny..";
         pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
-        return sk;
-
+        return sk;*/
 
         design_config.measurements.bust_width_front += 3;
         design_config.measurements.bust_width_back += 3;

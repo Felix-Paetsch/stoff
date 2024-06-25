@@ -19,7 +19,7 @@ function validate_sketch(s){
         endpoints_have_line(l);
 
         if (CONF.ASSERT_NON_SELFINTERSECTING){
-            // line_doesnt_self_intersect(l);
+            line_doesnt_self_intersect(l);
         }
 
         // sufficent_sample_point_spacing(l, error_margin);

@@ -25,6 +25,7 @@ export default class CSelection extends ConfigElement{
             return this;
         }
         this.activated.push(i);
+        this.activated.sort();
         return this;
     }
 
