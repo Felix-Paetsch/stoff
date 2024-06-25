@@ -63,9 +63,13 @@ function data_to_serializable(data) {
             throw new Error("Can't serialize data! (Nesting > " + 50 + ")");
         }
 
+        if (typeof data == "undefined"){
+            nesting--;
+            return "<undefined>";
+        }
+
         // Basic Stuff
         if ([
-            "undefined",
             "boolean",
             "number",
             "bigint",

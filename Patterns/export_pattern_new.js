@@ -237,39 +237,24 @@ export default {
         )
     ),
     create_design: (design_config) => {
-        /*
         const test_sk = new Sketch();
         const pt22 = test_sk.point(1, 0);
-        const pt12 = test_sk.point(0.5, -0.5);
-        const pt21 = test_sk.point(0.5, 0.5);
         const pt11 = test_sk.point(0, 0);
 
-        const l1 = test_sk.line_with_length(pt22, pt11, 4).mirror();
-        test_sk.position_at_length(l1, 2);
+        const l1 = test_sk.line_with_length(pt22, pt11, 4);
+        const l2 = test_sk.line_with_length(pt22, pt11, 4);
+        //l2.swap_orientation();
+        // test_sk.position_at_length(l1, 2);
 
-        return test_sk;
-        
-        l1.data = "LINE 1";
-        l1.set_color("blue");
-        const l2 = test_sk.line_with_length(pt22, pt11, 4).mirror();
-        l2.data = "LINE 2";
-        l2.set_color("red");
+        const abs_pts = l1.get_absolute_sample_points();
+        for (const p of abs_pts) {
+            test_sk.add_point(p).set_color("red");
+        }
 
-        if (design_config["Test Container"]["Test Option"] == "Value B"){
-            const res = test_sk.intersect_lines(l1, l2);
-            
-            for (let i in res.l1_segments){
-                res.l1_segments[i].data.descr = "LineSegment 1." + i;
-            }
-            for (let i in res.l2_segments){
-                res.l2_segments[i].data.descr = "LineSegment 2." + i;
-            }
-        } else {
-            const pts = test_sk.intersection_positions(l1, l2);
-            for (const pt of pts){
-                test_sk.add_point(pt).set_color("green");
-            }
-        }       
+        const pts = test_sk.intersection_positions(l1, l2);
+        for (const pt of pts){
+            test_sk.add_point(pt).set_color("rgba(0,255,0,0.4)");
+        }
 
         return test_sk;
 
@@ -282,7 +267,7 @@ export default {
         const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
         line.data.name = "Horny..";
         pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
-        return sk;*/
+        return sk;
 
 
         design_config.measurements.bust_width_front += 3;

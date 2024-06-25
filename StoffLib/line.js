@@ -245,6 +245,10 @@ class Line{
         return this;
     }
 
+    reverse(){
+        return this.swap_orientation();
+    }
+
     endpoint_distance(){
         return this.p1.distance(this.p2);
     }
@@ -364,6 +368,8 @@ class Line{
     }
 
     self_intersects(){
+        // TODO!!!!!!!!
+        
         const points = this.sample_points;
 
         function isIntersecting(line1, line2) {

@@ -125,7 +125,7 @@ function intersect_lines(sketch, line1, line2){
 }
 
 function intersection_positions(line1, line2){
-    const intersections = _calculate_intersections(line1, line2);
+    const intersections = _calculate_intersections(line1, line2);    
     return intersections.map(p => p[4]);
 }
 
@@ -222,7 +222,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
     const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
 
     // Check if the lines are parallel (denominator is zero)
-    if (denominator == 0) {
+    if (Math.abs(denominator) < 0.0000001) {
         const normalize = affine_transform_from_input_output(
             [start1, end1],
             [new Vector(0,0), new Vector(1, 0)]
@@ -236,8 +236,8 @@ function _line_segments_intersect(start1, end1, start2, end2) {
 
         const e2_normal = normalize(end2);
         if (
-            (0 < s2_normal.x && 0 < e2_normal.x) || 
-            (1 < s2_normal.x && 1 < e2_normal.x)
+            (-0.0000001 > s2_normal.x && -0.00000001 > e2_normal.x) || 
+            (1.0000001 < s2_normal.x && 1.0000001 < e2_normal.x)
         ){
             return [false, null];
         }
@@ -256,7 +256,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
     const ub = ((end1.x - start1.x) * (start1.y - start2.y) - (end1.y - start1.y) * (start1.x - start2.x)) / denominator;
 
     // Check if intersection is within line segments
-    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
+    if (ua < -0.000001 || ua > 1.0000001 || ub < -0.00001 || ub > 1.00001) {
         return [false, null];
     }
 

@@ -49,6 +49,7 @@ function add_svg_hover_events(){
 }
 
 function calculateTooltipContent(data){
-    console.log(data);
-    return JSON.stringify(data, true, 2);
+    return JSON.stringify(data, true, 2)
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
 }
