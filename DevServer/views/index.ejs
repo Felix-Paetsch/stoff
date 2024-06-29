@@ -20,7 +20,7 @@
             window.design_config = Config.deserialize(design_config_serialized);
 
             document.addEventListener("DOMContentLoaded", () => {
-                window.design_config.add_interaction_events();
+                window.design_config.on_dom_load();
                 request_img();
             });
         </script>

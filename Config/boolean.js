@@ -55,7 +55,7 @@ export default class CBoolean extends ConfigElement {
         return this._dev_render("boolean_component.ejs", dir, own_path);
     }
 
-    add_interaction_events(own_path){
+    on_dom_load(own_path){
         const serialized_path = ConfigElement.serialize_path(own_path);
         const dom_el = document.querySelector(`[x-component-path="${ serialized_path }"]`);
 

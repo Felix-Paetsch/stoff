@@ -134,27 +134,34 @@ class Sketch{
     }
 
     line_from_function_graph(pt1, pt2, f_1, f_2 = null){
-        // if one function is given, draw its graph
+        // if one function is given:
+        //     if it returns float: draw its graph
+        //     if it returns [float, float]: draw parametrized curve
         // if two functiosn are given, treat them as x(t) and y(t) as t goes from 0 to 1
 
         // The first fn point (0, f(0)), (x(0), y(0)) will be identified with pt1 and last (1, f(1)),(x(1), y(1)) with pt2
 
-        let x_t;
-        let y_t;
+        let f = null; // [0,1] -> R x R
 
         if (f_2 == null){
-            x_t = (t) => t;
-            y_t = f_1;
+            if (Array.isArray(f_1(0))){
+                f = f_1;
+            } else {
+                f = (t) => {
+                    return [t, f_1(t)];
+                }
+            }
         } else {
-            x_t = f_1;
-            y_t = f_2;
+            f = (t) => {
+                return [f_1(t), f_2(t)];
+            }
         }
 
         const n = Math.ceil(1 / this.sample_density);
 
         const sample_points = Array.from(
             { length: n + 1 },
-            (_, i) => new Vector(x_t(i/n), y_t(i/n))
+            (_, i) => new Vector(...f(i/n))
         );
 
         const transform_src = [
@@ -171,6 +178,10 @@ class Sketch{
         );
 
         return this._line_between_points_from_sample_points(pt1, pt2, sample_points.map(transform));
+    }
+
+    plot(pt1, pt2, f_1, f_2 = null){
+        return this.line_from_function_graph(pt1, pt2, f_1, f_2);
     }
 
     _line_between_points_from_sample_points(pt1, pt2, sp){

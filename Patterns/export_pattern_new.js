@@ -1,6 +1,7 @@
 //import dummay_pattern from './dummy_pattern.js';
 import { Sketch } from '../StoffLib/sketch.js';
 import { Vector } from '../Geometry/geometry.js';
+import { arc, spline } from "../StoffLib/curves.js";
 
 import basic_pattern from './basic/basicPattern.js';
 import change from './simple/simple_main.js';
@@ -237,39 +238,24 @@ export default {
         )
     ),
     create_design: (design_config) => {
-        /*const test_sk = new Sketch();
-        const pt22 = test_sk.point(1, 0);
-        const pt11 = test_sk.point(0, 0);
-        const pt113 = test_sk.point(1, 1);
-        const pt1132 = test_sk.point(1, -1);
+        const test_sk = new Sketch();
+        const pt00 = test_sk.point(0, 0);
+        const pt10 = test_sk.point(1, 0);
+        const pt20 = test_sk.point(2, 0);
+        const pt30 = test_sk.point(3, 0);
 
-        const l1 = test_sk.line_with_length(pt22, pt11, 4).set_color("blue");
-        const l2 = test_sk.line_with_length(pt22, pt11, 4).set_color("rgba(255,0,0,.5)");
-
-        l2.p1.data.old_p1 = "wha";
-        l2.p2.data.old_p2 = "wha";
-        l2.swap_orientation();
-        l2.p1.data.new_p1 = "wha";
-        l2.p2.data.new_p2 = "wha";
-        // test_sk.position_at_length(l1, 2)
-
-        test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
-        const l1 = test_sk.line_from_function_graph(pt11, pt22, x => x ** 3);
         
-        l1.swap_orientation();
+        const pt01 = test_sk.point(0, 1);
+        const pt12 = test_sk.point(1, 2);
+        const pt23 = test_sk.point(3, 3);
+        const pt31 = test_sk.point(3, 1);
+
+        
+        test_sk.plot(pt00, pt31, spline.catmull_rom_spline(
+            [pt00, pt01, pt12, pt31]
+        ).plot_control_points(test_sk));
 
         return test_sk;
-
-        console.log(design_config["Test Container"]);
-
-        const sk = new Sketch();
-        const pt1 = sk.add_point(new Vector(0, 2));
-        const pt2 = sk.add_point(new Vector(2, 0));
-  
-        const line = sk.line_with_length(pt1, pt2, design_config["Test Container"].length).mirror();
-        line.data.name = "Horny..";
-        pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
-        return sk;*/
 
         design_config.measurements.bust_width_front += 3;
         design_config.measurements.bust_width_back += 3;

@@ -17,6 +17,11 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
         const stroke = "black";
 
         const point_data = data_to_serializable(point.original_point.data);
+        if (typeof point_data === 'object') {
+            point_data._x = Math.round(point.x * 1000)/1000;
+            point_data._y = Math.round(point.y * 1000)/1000;
+        }
+
         svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="4" stroke="${ stroke }" fill="${ fill }" x-data="${
             JSON.stringify(
                 point_data
@@ -30,7 +35,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
 
         const line_data = data_to_serializable(polyline.original_line.data);
         if (typeof line_data === 'object') {
-            line_data._length = polyline.original_line.get_length();
+            line_data._length = Math.round(polyline.original_line.get_length() * 1000)/1000;
         }
     
         // Hover area

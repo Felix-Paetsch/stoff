@@ -48,9 +48,9 @@ export default class CContainer extends ConfigElement {
         return this._dev_render("design_config_component.ejs", dir, own_path);
     }
 
-    add_interaction_events(own_path){
+    on_dom_load(own_path){
         this.children.forEach(
-            (c, i) => c.add_interaction_events([...own_path, i])
+            (c, i) => c.on_dom_load([...own_path, i])
         );
     }
 }
