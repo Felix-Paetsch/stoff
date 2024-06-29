@@ -175,10 +175,13 @@ function hermite_plot_control_points(sketch, pt_callback = (pt) => {}){
 
 // Build Up
 
-function bezier_smooth_cubic(points, tangents){
+function bezier_smooth_cubic(points, tangents, relative = false){
     assert(tangents.length == points.length, "We require same amt of points and tangents");
 
     const new_pts = [];
+    if (relative){
+        tangents = tangents.map((t, i) => points[i].add(t));
+    }
 
     for (let i = 0; i < points.length - 1; i += 1) {
         new_pts.push(
