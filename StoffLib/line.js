@@ -289,6 +289,29 @@ class Line{
             bottom_right: new Vector(_max_x, _max_y)
         }
     }
+    
+    is_adjacent(thing){
+        if (thing instanceof Point){
+            return thing == this.p1 || thing == this.p2
+        }
+
+        if (thing instanceof Line){
+            return this.common_endpoint(thing) !== null;
+        }
+
+        throw new Error("Unexpected thing comparing against.");
+    }
+
+    common_endpoint(line){
+        if (this.p1 == line.p1 || this.p1 == line.p2){
+            return this.p1;
+        }
+        if (this.p2 == line.p1 || this.p2 == line.p2){
+            return this.p2;
+        }
+
+        return null;
+    }
 
     abs_normalized_sample_points(k = 1000){
         k = Math.round(k);
