@@ -4,7 +4,8 @@ import { interpolate_colors } from '../colors.js';
 
 export {
     intersect_lines,
-    intersection_positions
+    intersection_positions,
+    _line_segments_intersect
 }
 
 function intersect_lines(sketch, line1, line2){
@@ -13,8 +14,8 @@ function intersect_lines(sketch, line1, line2){
         a) We currently have one
         b) Two sample points at same position
     */
-    
-    
+
+
     /*
         returns: {
             intersection_points: [],
@@ -88,7 +89,7 @@ function intersect_lines(sketch, line1, line2){
 
         const new_first_pt = rel_subslice[0].mult(1 - intersections[i][3]).add(rel_subslice[1].mult(intersections[i][3]));
         const new_last_pt = rel_subslice[sl_len - 2].mult(1 - intersections[i + 1][3])
-                            .add(rel_subslice[sl_len-1].mult(intersections[i + 1][3]));          
+                            .add(rel_subslice[sl_len-1].mult(intersections[i + 1][3]));
 
         rel_subslice[0] = new_first_pt;
         rel_subslice[sl_len - 1] = new_last_pt;
@@ -125,7 +126,7 @@ function intersect_lines(sketch, line1, line2){
 }
 
 function intersection_positions(line1, line2){
-    const intersections = _calculate_intersections(line1, line2);    
+    const intersections = _calculate_intersections(line1, line2);
     return intersections.map(p => p[4]);
 }
 
@@ -137,7 +138,7 @@ function _calculate_intersections(line1, line2){
             startpoint->endpoint direction of the first line
         and then comparing if they intersect. The interesction points will be in order by how they lie on line1.
     */
-    
+
     const l2_to_abs = affine_transform_from_input_output(
         [new Vector(0,0), new Vector(1,0)],
         [line2.p1,  line2.p2]
@@ -181,19 +182,19 @@ function _clean_intersection_positions(intersection_positions, line1){
 
     const l1_rel_points = line1.get_sample_points();
     const cleaned_ip = [];
-    
+
     intersection_positions.forEach(
         (current_entry) => {
             if (current_entry[1] < current_entry[0]){
                 current_entry[0] = current_entry[1]; // We don't really care abt the bigger entry
                 current_entry[4] = 1 - current_entry[4];
             }
-    
+
             if (current_entry[3] < current_entry[2]){
                 current_entry[2] = current_entry[3]; // We don't really care abt the bigger entry
                 current_entry[5] = 1 - current_entry[5];
             }
-    
+
             const to_push = [current_entry[0], current_entry[2], current_entry[4], current_entry[5]];
             const rel_position = l1_rel_points[to_push[0]].mult(1 - to_push[2]).add(
                 l1_rel_points[to_push[0] + 1].mult(to_push[2])
@@ -214,7 +215,7 @@ function _clean_intersection_positions(intersection_positions, line1){
 
         filtered_ip.push(ip);
     }
-    
+
     return filtered_ip;
 }
 
@@ -236,7 +237,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
 
         const e2_normal = normalize(end2);
         if (
-            (-0.0000001 > s2_normal.x && -0.00000001 > e2_normal.x) || 
+            (-0.0000001 > s2_normal.x && -0.00000001 > e2_normal.x) ||
             (1.0000001 < s2_normal.x && 1.0000001 < e2_normal.x)
         ){
             return [false, null];
@@ -244,7 +245,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
 
         const x_arr = [0, 1, s2_normal.x, e2_normal.x].sort();
         const relX_slice = (x_arr[1] + x_arr[2])/2;
-        
+
         const abs_intersection_pos = start1.mult(1 - relX_slice)
                                 .add(end1.mult(relX_slice));
 
@@ -279,7 +280,7 @@ function _find_monotone_intersection_positions(s1, s2){
             ]
         ]
     */
-   
+
     const ip = [];
 
     let s1_index = 0;
@@ -317,7 +318,7 @@ function _find_monotone_intersection_positions(s1, s2){
                 s2_index++;
                 continue;
             }
-        
+
             s1_index++;
             continue;
         }
@@ -344,7 +345,7 @@ function _get_monotone_segments(coords){
             ]);
             current_direction *= -1;
         }
-    
+
         last_x = el[0].x;
     }
 

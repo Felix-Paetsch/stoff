@@ -23,10 +23,10 @@ export const spline = {
 function bezier_spline(static_points, degree = 2){
     assert((static_points.length - 1) % degree === 0);
     assert(degree >= 1);
-    
+
     const points = [...static_points];
     let segments = [];
-    
+
     while (points.length > 1){
         const to_push = points.splice(0, degree);
         to_push.push(points[0]);
@@ -69,10 +69,10 @@ function bezier(points, t){
 function hermite_spline(points, velocities, relative = false){
     // Returns a fn creating the hermite spline through the given poitns with the right velocity
     // relative means whether the velocity is given as a vector from (0, 0) or from the current control pt
-    
+
 
     assert(points.length == velocities.length, "Number of points and velocities must be equal");
-    
+
     let new_velocities = velocities;
     if (!relative){
         new_velocities = [];
@@ -80,7 +80,7 @@ function hermite_spline(points, velocities, relative = false){
             new_velocities.push(velocities[i].subtract(points[i]));
         }
     }
-    
+
     const hermite_control_points = [];
     const control_points = [];
     for (let i = 0; i < points.length - 1; i++){
@@ -122,7 +122,7 @@ function catmull_rom_spline(points, start_velocity = null, end_velocity = null, 
     const velocities = [start_velocity];
     for (let i = 1; i < points.length- 1; i++){
         velocities.push(
-            (points[i-1].add(points[i+1])).mult(1/2)
+            (points[i+1].subtract(points[i-1])).mult(1/2)
         );
     }
 

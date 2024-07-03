@@ -2,6 +2,7 @@ import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clo
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
+import { _line_segments_intersect } from "./unicorns/intersect_lines.js";
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -418,20 +419,11 @@ class Line{
 
         const points = this.sample_points;
 
-        function isIntersecting(line1, line2) {
-            const ccw = (p1, p2, p3) => {
-                return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
-            };
-
-            const a = line1[0], b = line1[1], c = line2[0], d = line2[1];
-            return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
-        }
-
         for (let i = 0; i < points.length - 1; i++) {
             for (let j = i + 2; j < points.length - 1; j++) {
-                if (isIntersecting([points[i], points[i + 1]], [points[j], points[j + 1]])) {
-                    return true;
-                }
+                if (
+                  points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.00001
+                ) return true;
             }
         }
         return false;

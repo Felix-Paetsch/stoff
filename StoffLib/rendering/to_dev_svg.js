@@ -22,7 +22,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
             point_data._y = Math.round(point.y * 1000)/1000;
         }
 
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="4" stroke="${ stroke }" fill="${ fill }" x-data="${
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="3" stroke="${ stroke }" fill="${ fill }" x-data="${
             JSON.stringify(
                 point_data
             ).replace(/\\/g, '\\\\').replace(/"/g, '&quot;')

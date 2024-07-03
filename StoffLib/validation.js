@@ -2,6 +2,7 @@ import { Point } from './point.js';
 import { Line } from './line.js';
 import { Vector } from '../Geometry/geometry.js';
 import { ConnectedComponent } from './connected_component.js';
+import { Sketch } from "./sketch.js";
 import { assert, try_with_error_msg } from '../Debug/validation_utils.js';
 
 
@@ -87,8 +88,26 @@ function sufficent_sample_point_spacing(l, min_distance){
 }
 
 function line_doesnt_self_intersect(l){
-    assert(!l.self_intersects(), "Test failed: Line self intersects");
+    assert(!l.self_intersects(), "Test failed: Line heuristically self intersects");
 }
+
+/*
+let once_self_intersected = false;
+function line_doesnt_self_intersect(l){
+    if (l.self_intersects() && !once_self_intersected) {
+      once_self_intersected = true;
+        const s = new Sketch();
+        const p1 = s.point(0,0);
+        const p2 = s.point(0,1);
+        s.point(1,2);
+        s.copy_line(l, p1, p2);
+        s.save_as_png("Debug.png", 500, 500);
+        throw new Error("Intersections Found");
+    }
+
+    // assert(!l.self_intersects(), "Test failed: Line self intersects");
+}
+*/
 
 function endpoints_have_line(l){
     assert(
