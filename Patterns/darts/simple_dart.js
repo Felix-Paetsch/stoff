@@ -17,11 +17,11 @@ function dart(s){
   let lines = s.data.comp.lines_by_key("type").dart;
   let i = lines.length / 2;
   if (i === 1){
-    single_dart(s, lines);
+    s.remove_point(single_dart(s, lines));
   } else if (i === 2){
     let [pair1, pair2] = split_dart(lines);
-    single_dart(s, pair1);
-    single_dart(s, pair2);
+    s.remove_point(single_dart(s, pair1));
+    s.remove_point(single_dart(s, pair2));
   }
 };
 
@@ -56,12 +56,15 @@ function split_dart(lines){
 }
 
 function tuck_dart(s){
+  s.data.tuck = true;
   let lines = s.data.comp.lines_by_key("type").dart;
   let i = lines.length / 2;
   if (i === 1){
     let p = single_dart(s, lines);
-    //simple_tuck(s, lines);
-    dart_trim(s, lines, p);
+    simple_tuck(s, lines);
+    s.remove_point(p);
+
+  //  dart_trim(s, lines, p);
 
   } else if (i === 2){
     let [pair1, pair2] = split_dart(lines);
@@ -69,8 +72,10 @@ function tuck_dart(s){
     let p2 = single_dart(s, pair2);
     simple_tuck(s, pair1);
     simple_tuck(s, pair2);
-    dart_trim(s, pair1, p1);
-    dart_trim(s, pair2, p2);
+    s.remove_point(p1);
+    s.remove_point(p2);
+    //dart_trim(s, pair1, p1);
+    //dart_trim(s, pair2, p2);
   }
 }
 

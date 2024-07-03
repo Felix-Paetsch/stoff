@@ -3,7 +3,7 @@ import { Point } from '../../StoffLib/point.js';
 import { Vector } from '../../Geometry/geometry.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
-import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
+import {new_neckline, line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
 import evaluate from '../funs/basicEval.js';
 
 import utils from '../funs/utils.js';
@@ -11,6 +11,7 @@ import utils from '../funs/utils.js';
 
 function front(mea){
   const s = new Sketch();
+  s.data.front = true;
 
   const p1 = s.add_point(new Point(0,0));
   const b = s.add_point(new Point(0, mea.shoulder_height_front));
@@ -81,7 +82,9 @@ function front(mea){
   s.remove_point(p7);
   s.remove_point(p8);
 
-  const neck = neckline(s, c_to_d, a_to_b);
+  //const neck = neckline(s, c_to_d, a_to_b);
+  l_help = s.line_between_points(d, a);
+  const neck = new_neckline(s, l_help);
   neck.data.type = "neckline";
   neck.data.curve = true;
   neck.data.direction = -1;
@@ -102,7 +105,7 @@ function front(mea){
      "direction": -1,
      "pt": pt,
      "height_sleeve": e.y - c.y,
-     "front":true
+     "front": true
    }
 
   return s;
@@ -112,6 +115,7 @@ function front(mea){
 
 function back(mea){
   const s = new Sketch();
+  s.data.front = false;
 
   const p1 = s.add_point(new Point(0,0));
   const b = s.add_point(new Point(0, mea.shoulder_height_back));
@@ -184,7 +188,9 @@ function back(mea){
   s.remove_point(p7);
   s.remove_point(p8);
 
-  const neck = back_neckline(s, c_to_d, a_to_b);
+  l_help = s.line_between_points(d, a);
+  const neck = new_neckline(s, l_help);
+  //const neck = back_neckline(s, c_to_d, a_to_b);
 
   neck.data.type = "neckline";
   neck.data.curve = true;

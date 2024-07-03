@@ -1,4 +1,5 @@
 import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun, deg_to_rad } from '../../Geometry/geometry.js';
+import { spline } from "../../StoffLib/curves.js";
 
 import { Point } from '../../StoffLib/point.js';
 import { Sketch } from '../../StoffLib/sketch.js';
@@ -100,5 +101,27 @@ function back_neckline(s, ln1, ln2) {
 }
 
 
+function new_neckline(s, neckline){
+  let p = s.point(neckline.p1.x, neckline.p2.y);
+  let p2 = s.point(neckline.p1.x, neckline.p2.y);
+  let vec = p.subtract(neckline.p1).scale(0.5);
+  p.move_to(vec.add(neckline.p1));
+  if(s.data.front){
+    vec = p2.subtract(neckline.p2).scale(0.6);
+  } else {
+    vec = p2.subtract(neckline.p2).scale(0.4);
+  }
+  p2.move_to(vec.add(neckline.p2));
 
-export { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline };
+  let l = s.line_from_function_graph(neckline.p1, neckline.p2, spline.bezier(
+      [neckline.p1, p, p2, neckline.p2]
+  )); //.plot_control_points(s));
+  l.data.type = "neckline";
+  s.remove_line(neckline);
+  s.remove_point(p);
+  s.remove_point(p2);
+  return l;
+}
+
+
+export { new_neckline, line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline };

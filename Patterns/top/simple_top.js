@@ -287,6 +287,8 @@ function simple_dart_web(s, pos, mea){
     simple_middle_dart(s, "side", 0.9);
   } else if(pos === "shoulder"){
     simple_middle_dart(s, "shoulder", 0.5);
+    s.data.shoulder_dart = true;
+
   }
 };
 
@@ -300,7 +302,7 @@ function simple_waistline_web(s, mea){
     val = mea.bust_point_width - dist;
     percent = val/mea.waist_width_front
   } else {
-    val = mea.shoulderblade_width- dist;
+    val = mea.shoulderblade_width - dist;
     percent = val/mea.waist_width_back;
   }
 
@@ -338,17 +340,21 @@ function double_dart_web(s, pos, mea){
     } else {
       line = lines.shoulder[0];
       percent = 0.5;
+      s.data.shoulder_dart = true;
     }
   } else if (pos === "side middle and shoulder"){
     simple_middle_dart(s, "side", 0.3);
     lines = s.data.comp.lines_by_key("type");
     line = lines.shoulder[0];
     percent = 0.5;
+    s.data.shoulder_dart = true;
   } else {
     simple_middle_dart(s, "side", 0.9);
     lines = s.data.comp.lines_by_key("type");
     line = lines.shoulder[0];
     percent = 0.5;
+    s.data.shoulder_dart = true;
+
   }
 
 

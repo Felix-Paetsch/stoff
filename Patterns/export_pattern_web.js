@@ -68,7 +68,14 @@ export default {
               "panel shoulder",
               1
             ),
-            cBoolean("closed", false)
+            cBoolean("closed", false),
+            cOption(
+              "dartstyle",
+              "normal",
+              "tuck",
+              "gathering",
+              0
+            )
         ),
         cContainer(
           "neckline",
@@ -81,7 +88,7 @@ export default {
             "V-Line wide",
             "square",
             "boat",
-            "straps",
+            //"straps",
             0
           )
         ),
@@ -158,8 +165,8 @@ export default {
       let front = basic_pattern_top.front(measurements);
 
 
-      front = change.main_top(front, design_config["top designs"], measurements);
-      back = change.main_top(back, design_config["top designs"], measurements);
+      front = change.main_top(front, design_config["top designs"], measurements, design_config["neckline"]);
+      back = change.main_top(back, design_config["top designs"], measurements, design_config["neckline"]);
       /*
 
       front.remove_point(front.data.pt);
