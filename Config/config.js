@@ -43,9 +43,9 @@ export default class Config extends ConfigElement{
         return this.children.map((c, i) => c.render(dir, ["BASE", i])).join("\n");
     }
 
-    add_interaction_events(){
+    on_dom_load(){
         this.children.forEach(
-            (c, i) => c.add_interaction_events(["BASE", i])
+            (c, i) => c.on_dom_load(["BASE", i])
         );
     }
 }

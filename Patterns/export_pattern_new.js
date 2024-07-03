@@ -1,6 +1,7 @@
 //import dummay_pattern from './dummy_pattern.js';
 import { Sketch } from '../StoffLib/sketch.js';
 import { Vector } from '../Geometry/geometry.js';
+import { arc, spline } from "../StoffLib/curves.js";
 
 import mea from './measurements.js';
 import basic_pattern_top from './top/pattern_top.js';
@@ -265,6 +266,7 @@ export default {
         )
     ),
     create_design: (design_config) => {
+
 /*
         console.log(design_config["Test Container"]);
 
@@ -277,7 +279,7 @@ export default {
         pt1.data.descr = "Currently the data attribute is shown - and for lines additionally the length. If you want a more refined selection or have other ideas, tell me and we can figure things out.";
         return sk;
         */
-
+/*
         let temp = design_config.Schnittmuster["für"];
         let measurements;
         if ( temp === "Debby"){
@@ -291,6 +293,7 @@ export default {
         measurements.waist_width_front += 3;
         measurements.waist_width_back += 3;
         measurements.waist_height = measurements.waist_height * (2 / 3) + 4;
+*/
 
         measurements.across_front = measurements.across_front * (15 / 16);
         measurements.across_back = measurements.across_back * (15 / 16);

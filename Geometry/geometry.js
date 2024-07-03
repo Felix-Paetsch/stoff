@@ -6,6 +6,10 @@ class Vector {
         this.set(x, y);
     }
 
+    to_array(){
+        return [this.x, this.y];
+    }
+
     set(x, y) {
         if (x instanceof Vector){
             return this.set(x[0], x[1]);
@@ -303,5 +307,5 @@ export {
     deg_to_rad,
     rad_to_deg,
     vec_angle_clockwise,
-    rotation_fun,
+    rotation_fun
 };

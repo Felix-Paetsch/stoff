@@ -12,8 +12,7 @@ import { toA4printable } from './rendering/to_A4_pages.js';
 import { copy_sketch, copy_connected_component, default_data_callback, copy_sketch_obj_data } from './copy.js';
 import path from 'path';
 import CONF from './config.json' assert { type: 'json' };
-
-import { _intersect_lines, _intersection_positions } from './unicorns/intersect_lines.js';
+import { intersect_lines, intersection_positions } from './unicorns/intersect_lines.js';
 
 
 class Sketch{
@@ -67,6 +66,7 @@ class Sketch{
         }
     }
 
+
     point(x, y){
         const pt = new Point(x,y);
         return this.add_point(pt);
@@ -110,8 +110,6 @@ class Sketch{
 
             const pts = sketch_el.points();
             return this.remove_points(...pts);
-
-            return;
         }
 
         this._guard_sketch_elements_in_sketch(sketch_el);
@@ -148,27 +146,34 @@ class Sketch{
     }
 
     line_from_function_graph(pt1, pt2, f_1, f_2 = null){
-        // if one function is given, draw its graph
+        // if one function is given:
+        //     if it returns float: draw its graph
+        //     if it returns [float, float]: draw parametrized curve
         // if two functiosn are given, treat them as x(t) and y(t) as t goes from 0 to 1
 
         // The first fn point (0, f(0)), (x(0), y(0)) will be identified with pt1 and last (1, f(1)),(x(1), y(1)) with pt2
 
-        let x_t;
-        let y_t;
+        let f = null; // [0,1] -> R x R
 
         if (f_2 == null){
-            x_t = (t) => t;
-            y_t = f_1;
+            if (Array.isArray(f_1(0))){
+                f = f_1;
+            } else {
+                f = (t) => {
+                    return [t, f_1(t)];
+                }
+            }
         } else {
-            x_t = f_1;
-            y_t = f_2;
+            f = (t) => {
+                return [f_1(t), f_2(t)];
+            }
         }
 
         const n = Math.ceil(1 / this.sample_density);
 
         const sample_points = Array.from(
             { length: n + 1 },
-            (_, i) => new Vector(x_t(i/n), y_t(i/n))
+            (_, i) => new Vector(...f(i/n))
         );
 
         const transform_src = [
@@ -185,6 +190,10 @@ class Sketch{
         );
 
         return this._line_between_points_from_sample_points(pt1, pt2, sample_points.map(transform));
+    }
+
+    plot(pt1, pt2, f_1, f_2 = null){
+        return this.line_from_function_graph(pt1, pt2, f_1, f_2);
     }
 
     _line_between_points_from_sample_points(pt1, pt2, sp){
@@ -411,16 +420,8 @@ class Sketch{
         return line.position_at_length(length, reversed);
     }
 
-    intersect_lines(line1, line2, assurances = { is_staight: true }){
+    intersect_lines(line1, line2){
         /*
-            params assurances:
-                { l2_stepsize_percent: 10, l2_stepsize_percent: 10}
-                -> If you recursivelytest only on x percent of the lines, you will find all points
-                { intersection_count : 5 }
-                -> There are so many intersections exactly
-                { is_straight: true}
-                -> the first line - line1 - is straight (&& evently spaced i.e. not interpolated in strange ways)
-
             returns: {
                 intersection_points: [],
                 l1_segments: [],
@@ -431,7 +432,7 @@ class Sketch{
         */
 
         this._guard_lines_in_sketch(line1, line2);
-        return _intersect_lines(this, line1, line2, assurances)
+        return intersect_lines(this, line1, line2)
     }
 
     line_with_offset(line, offset, direction = 0){
@@ -449,9 +450,9 @@ class Sketch{
         }
     }
 
-    intersection_positions(line1, line2, assurances = { is_staight: true }){
-        // see intersect_lines, only the points are returned and the sketch is unaltered
-        return _intersection_positions(line1, line2, assurances);
+    intersection_positions(line1, line2){
+        this._guard_lines_in_sketch(line1, line2);
+        return intersection_positions(line1, line2);
     }
 
     copy_line(line, from, to, data_callback = default_data_callback){

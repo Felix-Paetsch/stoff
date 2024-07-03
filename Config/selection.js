@@ -25,6 +25,7 @@ export default class CSelection extends ConfigElement{
             return this;
         }
         this.activated.push(i);
+        this.activated.sort();
         return this;
     }
 
@@ -75,7 +76,7 @@ export default class CSelection extends ConfigElement{
         return this._dev_render("selection_component.ejs", dir, own_path);
     }
 
-    add_interaction_events(own_path){
+    on_dom_load(own_path){
         this.children.forEach(
             (c, i) => {
                 const child = this.get_by_path([...own_path, i]);

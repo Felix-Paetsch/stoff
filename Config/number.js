@@ -58,11 +58,13 @@ export default class CNumber extends ConfigElement {
         return this._dev_render("number_component.ejs", dir, own_path);
     }
 
-    add_interaction_events(own_path){
+    on_dom_load(own_path){
         const serialized_path = ConfigElement.serialize_path(own_path);
         const dom_el = document.querySelector(`[x-component-path="${ serialized_path }"]`);
         
         const input = dom_el.querySelector('input[type="range"]');
+        input.value = input.getAttribute('x-default');
+
         input.addEventListener("input", () => {
             dom_el.querySelector(".numper_input_value").textContent = input.value;
             this.set(+input.value);

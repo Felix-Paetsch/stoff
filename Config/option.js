@@ -62,7 +62,7 @@ export default class COption extends ConfigElement{
         return this._dev_render("option_component.ejs", dir, own_path);
     }
 
-    add_interaction_events(own_path){
+    on_dom_load(own_path){
         const option_element = this.get_by_path(own_path);
 
         this.children.forEach(

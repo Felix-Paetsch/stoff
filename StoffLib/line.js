@@ -263,9 +263,13 @@ class Line{
         this.p1 = this.p2;
         this.p2 = t;
         this.sample_points.reverse();
-        this.sample_points.forEach(p => p.set(1 - p.x, p.y));
+        this.sample_points.forEach(p => p.set(1 - p.x, -p.y));
 
         return this;
+    }
+
+    reverse(){
+        return this.swap_orientation();
     }
 
     endpoint_distance(){
@@ -309,6 +313,29 @@ class Line{
         }
     }
 
+    is_adjacent(thing){
+        if (thing instanceof Point){
+            return thing == this.p1 || thing == this.p2
+        }
+
+        if (thing instanceof Line){
+            return this.common_endpoint(thing) !== null;
+        }
+
+        throw new Error("Unexpected thing comparing against.");
+    }
+
+    common_endpoint(line){
+        if (this.p1 == line.p1 || this.p1 == line.p2){
+            return this.p1;
+        }
+        if (this.p2 == line.p1 || this.p2 == line.p2){
+            return this.p2;
+        }
+
+        return null;
+    }
+
     abs_normalized_sample_points(k = 1000){
         k = Math.round(k);
 
@@ -350,7 +377,7 @@ class Line{
     }
 
     position_at_length(length, reversed = false){
-        const l = this.length();
+        const l = this.get_length();
 
         if (length > l){
             throw new Error("Specified length is longer than line.");
@@ -379,12 +406,16 @@ class Line{
 
                 return this.vec_to_abosule(relative_vec);
             }
+
+            sum += next_length;
         }
 
-        assert(false);
+        assert(false, "This should not happen!");
     }
 
     self_intersects(){
+        // TODO!!!!!!!!
+
         const points = this.sample_points;
 
         function isIntersecting(line1, line2) {
