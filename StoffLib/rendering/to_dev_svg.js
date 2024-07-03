@@ -2,7 +2,7 @@ import { sketch_to_renderable, calculate_correct_width_height } from './sketch_t
 import { interpolate_colors } from '../colors.js';
 
 function create_dev_svg_from_sketch(s, width = null, height = null){
-    const correct_dimensions = calculate_correct_width_height(s, width, height);  
+    const correct_dimensions = calculate_correct_width_height(s, width, height);
     const {
         bb,
         points,
@@ -17,20 +17,20 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
         const stroke = "black";
 
         const point_data = data_to_serializable(point.original_point.data);
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="4" stroke="${ stroke }" fill="${ fill }" x-data="${
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="3" stroke="${ stroke }" fill="${ fill }" x-data="${
             JSON.stringify(
                 point_data
             ).replace(/\\/g, '\\\\').replace(/"/g, '&quot;')
         }" hover_area/>`;
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="4" stroke="${ stroke }" fill="${ fill }"/>`;
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="3" stroke="${ stroke }" fill="${ fill }"/>`;
     };
-      
+
     const createPolyline = (polyline) => {
         const pointsString = polyline.sample_points.map(point => `${point.x},${point.y}`).join(' ');
 
         const line_data = data_to_serializable(polyline.original_line.data);
         line_data._length = polyline.original_line.get_length();
-    
+
         // Hover area
         svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:rgba(0,0,0,0);stroke-width:8" x-data="${
             JSON.stringify(
@@ -40,7 +40,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
 
         svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:${ polyline.color };stroke-width:1"/>`;
     };
-    
+
     lines.forEach(createPolyline);
     points.forEach(createCircle);
 

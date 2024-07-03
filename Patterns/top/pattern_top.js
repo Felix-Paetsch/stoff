@@ -67,7 +67,7 @@ function front(mea){
   const vec_length = g_to_h.get_length();
   let vec_i = l_help.get_line_vector().normalize().scale(vec_length).add(h);
   const i = s.add_point(new Point(vec_i.x, vec_i.y));
-  let f_to_i = s.line_between_points(f,i);
+  let f_to_i = s.line_between_points(i,f);
   f_to_i.data.type = "waistline";
   f_to_i.data.part = 2;
   let h_to_i = s.line_between_points(h,i);
@@ -97,8 +97,6 @@ function front(mea){
 
   s.data = {
      "comp": new ConnectedComponent(a_to_b),
-     "loose_end1": b,
-     "loose_end2":f,
      "p5": p5_2,
      "p6": p6,
      "direction": -1,
@@ -173,7 +171,7 @@ function back(mea){
   const vec_length = g_to_h.get_length();
   let vec_i = l_help.get_line_vector().normalize().scale(vec_length).add(h);
   const i = s.add_point(new Point(vec_i.x, vec_i.y));
-  let f_to_i = s.line_between_points(f,i);
+  let f_to_i = s.line_between_points(i,f);
   f_to_i.data.type = "waistline";
   f_to_i.data.part = 2;
   let h_to_i = s.line_between_points(h,i);
@@ -200,8 +198,6 @@ function back(mea){
 
   s.data = {
         "comp": new ConnectedComponent(a_to_b),
-        "loose_end1": b,
-        "loose_end2":f,
         "p5": p5_2,
         "p6": p6,
         "direction": 1,

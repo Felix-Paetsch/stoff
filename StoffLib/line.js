@@ -118,6 +118,29 @@ class Line{
         return abs_sample_points;
     }
 
+    is_adjacent(thing){
+        if (thing instanceof Point){
+            return thing == this.p1 || thing == this.p2
+        }
+
+        if (thing instanceof Line){
+            return this.common_endpoint(thing) !== null;
+        }
+
+        throw new Error("Unexpected thing comparing against.");
+    }
+
+    common_endpoint(line){
+        if (this.p1 == line.p1 || this.p1 == line.p2){
+            return this.p1;
+        }
+        if (this.p2 == line.p1 || this.p2 == line.p2){
+            return this.p2;
+        }
+
+        return null;
+    }
+
     set_endpoints(p1, p2){
         this.p1.remove_line(this);
         this.p2.remove_line(this);
@@ -328,7 +351,7 @@ class Line{
 
     position_at_length(length, reversed = false){
         const l = this.length();
-        
+
         if (length > l){
             throw new Error("Specified length is longer than line.");
         }

@@ -2,7 +2,7 @@ import express from 'express'; // Use ES6 import for express
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-import pattern_data from '../Patterns/export_pattern_new.js';
+import pattern_data from '../Patterns/export_pattern_web.js';
 import { Config } from"../Config/exports.js";
 
 const { design_config, create_design } = pattern_data;
@@ -22,7 +22,7 @@ app.use("/conf", express.static(join(__dirname, '../Config')));
 app.use("/Debug", express.static(join(__dirname, '../Debug')));
 
 app.get('/', (req, res) => {
-    res.render('index', { 
+    res.render('index', {
         design_config: new Config(design_config),
         config_components: join(__dirname, "views", "config_components")
     });
@@ -34,7 +34,7 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
-        
+
         /*
             const png_buffer = s.to_png(req.body.width, req.body.height);
             res.set('Content-Type', 'image/png');

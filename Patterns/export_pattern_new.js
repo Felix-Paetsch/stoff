@@ -234,7 +234,8 @@ export default {
               "waistline simple dart",
               "wiener naht",
               0
-            )
+            ),
+            cBoolean("lengthen", true)
         ),
         cContainer(
           "sleeve",
@@ -248,14 +249,18 @@ export default {
             "hemd 1/2",
             2
           ),
-          cSelection(
-            "sleevetype",
+          cOption(
+            "type",
             "puffy top",
             "puffy bottom",
             "puffy",
+            "straight",
+            2
+          ),
+          cSelection(
+            "attributes",
             "shorten",
-            [2]
-
+            [0]
           )
         )
     ),
@@ -314,7 +319,7 @@ export default {
 
         let height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
         let sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
-        change.main_sleeve(sleeve, design_config["sleeve"].sleevetype);
+        change.main_sleeve(sleeve, design_config["sleeve"]);
 
 
 

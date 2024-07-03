@@ -30,6 +30,17 @@ class Sketch{
         let _max_x = - Infinity;
         let _max_y = - Infinity;
 
+        if (this.points.length == 0){
+            return {
+                width:  0,
+                height: 0,
+                top_left:  new Vector(0,0),
+                top_right: new Vector(0,0),
+                bottom_left:  new Vector(0,0),
+                bottom_right: new Vector(0,0)
+            }
+        }
+
         this.lines.forEach(l => {
             const { top_left, bottom_right } = l.get_bounding_box();
 
@@ -112,7 +123,7 @@ class Sketch{
         const visited_points = [];
         for (const p of this.points){
             if (!visited_points.includes(p)){
-                const new_component = ConnectedComponent(p);
+                const new_component = new ConnectedComponent(p);
                 components.push(new_component);
                 visited_points.push(...new_component.points());
             }

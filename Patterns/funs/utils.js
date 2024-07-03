@@ -79,7 +79,9 @@ function sort_lines(s, lines){
 
 function reposition_zhk(comp, vec){
   comp.transform((p) => {
-    p.move_to(p.add(vec))
+    p.move_to(p.add(vec));
+    ////p.set_color("green");
+    //  console.log(p)
   });
 };
 
@@ -128,21 +130,21 @@ function get_comp_to_rotate(pattern){
 
 
 function sort_comp(s){
-  let c1 = get_lines(s.comp, "fold");
-  let c2 = get_lines(s.comp2, "fold");
+  let c1 = get_lines(s.data.comp, "fold");
+  let c2 = get_lines(s.data.comp2, "fold");
   //console.log(c1, c2)
 
   if (c1.length > 0){
     if(c2.length > 0){
       let lines = sort_lines(s, [c1[0],c2[0]]);
       if(lines == [c1[0], c2[0]]){
-        return [s.comp2, s.comp];
+        return [s.data.comp2, s.data.comp];
       }
-      return [s.comp, s.comp2];
+      return [s.data.comp, s.data.comp2];
     }
-    return [s.comp2, s.comp];
+    return [s.data.comp2, s.data.comp];
   }
-  return [s.comp, s.comp2];
+  return [s.data.comp, s.data.comp2];
 
 }
 
@@ -164,12 +166,43 @@ function set_comp_to_new_sketch(s, comp){
 
   if(s.data.comp === comp){
     sk.delete_component(sk.data.comp2);
+    delete sk.data.comp2;
+
   } else {
     sk.delete_component(sk.data.comp);
+    sk.data.comp = sk.data.comp2;
+    delete sk.data.comp2;
   }
 
   return sk;
 };
+
+function split_at_points(s, p1, line1, p2, line2, type){
+  let parts = s.point_on_line(p1, line1);
+  let pt1 = s.add_point(p1.copy());
+  parts.line_segments[0].set_endpoints(parts.line_segments[0].p1, pt1);
+
+  parts = s.point_on_line(p2, line2);
+  let pt2 = s.add_point(p2.copy());
+  parts.line_segments[0].set_endpoints(parts.line_segments[0].p1, pt2);
+
+  let line = close_component(s, p1, [p2, pt2]);
+  line.data.type = type;
+  line = close_component(s, pt1, [p2, pt2]);
+  line.data.type = type;
+
+  s.data.comp = new ConnectedComponent(parts.line_segments[0]);
+  s.data.comp2 = new ConnectedComponent(parts.line_segments[1]);
+
+  let comp_sorted = sort_comp(s);
+
+  const pattern_i = set_comp_to_new_sketch(s, comp_sorted[0]);
+  const pattern_o = set_comp_to_new_sketch(s, comp_sorted[1]);
+
+  return [pattern_o, pattern_i];
+
+};
+
 
 
 function split_comp_to_new_sketches(s){
@@ -178,9 +211,16 @@ function split_comp_to_new_sketches(s){
 
 }
 
+function position_sketch(s_new, s_old){
+  let vec = s_new.get_bounding_box().top_right.add(new Vector (3,0));
+  s_new.paste_sketch(s_old, null, vec);
+}
+
 export default {
   close_component,
   get_comp_to_rotate,
   sort_lines,
   get_lines,
+  split_at_points,
+  position_sketch,
   get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk, set_comp_to_new_sketch};
