@@ -1,4 +1,4 @@
-import CONF from '../config.json' assert { type: 'json' };
+import CONF from '../../config.json' assert { type: 'json' };
 
 export {
     sketch_to_renderable,

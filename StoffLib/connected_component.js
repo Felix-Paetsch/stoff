@@ -1,5 +1,6 @@
 import { Vector } from '../Geometry/geometry.js';
-import { add_tracker } from '../Debug/track_fn.js';
+import { copy_connected_component } from './copy.js';
+import { Sketch } from "./sketch.js";
 
 class ConnectedComponent{
     constructor(element){
@@ -118,15 +119,16 @@ class ConnectedComponent{
         // Returns true if two lines intersect with not marked point
         throw new Error("Inimplemented!")
     }
+
+    to_sketch = function(position = null){
+        const s = new Sketch();
+        copy_connected_component(this, s, position);
+        return s;
+    };
 }
 
-ConnectedComponent.prototype.obj =
-    add_tracker(ConnectedComponent.prototype.obj, "Compute Connected Component");
-
-ConnectedComponent.prototype.lines =
-    add_tracker(ConnectedComponent.prototype.lines, "Compute CC Lines");
-
 export { ConnectedComponent };
+
 function _calculate_bb_from_points_and_lines(points, lines){
     let _min_x = Infinity;
     let _min_y = Infinity;

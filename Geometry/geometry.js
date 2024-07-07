@@ -1,5 +1,17 @@
 class Vector {
     constructor(x = 0, y = 0, column = true) {
+        if (x instanceof Vector){
+            y = x.y;
+            x = x.x;
+        }
+
+        if (
+            !(typeof x === 'number' && isFinite(x))
+         || !(typeof y === 'number' && isFinite(y))
+        ){
+            throw new Error("Vector entries are not proper numbers!");
+        }
+
         this.is_column = column;
         this.is_row = !column;
 

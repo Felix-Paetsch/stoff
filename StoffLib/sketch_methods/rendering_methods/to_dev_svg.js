@@ -1,5 +1,5 @@
 import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
-import { interpolate_colors } from '../colors.js';
+import { interpolate_colors } from '../../colors.js';
 
 function create_dev_svg_from_sketch(s, width = null, height = null){
     const correct_dimensions = calculate_correct_width_height(s, width, height);

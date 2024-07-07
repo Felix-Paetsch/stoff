@@ -79,6 +79,15 @@ class Point extends Vector{
         }
     }
 
+    set_sketch(s, overwrite = false){
+        if (this.sketch == null || overwrite || s == null){
+            this.sketch = s;
+            return this;
+        }
+
+        throw new Error("Point already belongs to a sketch!");
+    }
+
     static from_vector(vec) {
         return new Point(vec.x, vec.y);
     }

@@ -1,12 +1,12 @@
-import { Point } from './point.js';
-import { Line } from './line.js';
-import { Vector } from '../Geometry/geometry.js';
-import { ConnectedComponent } from './connected_component.js';
-import { Sketch } from "./sketch.js";
-import { assert, try_with_error_msg } from '../Debug/validation_utils.js';
+import { Point } from '../point.js';
+import { Line } from '../line.js';
+import { Vector } from '../../Geometry/geometry.js';
+import { ConnectedComponent } from '../connected_component.js';
+import { Sketch } from "../sketch.js";
+import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
 
 
-import CONF from './config.json' assert { type: 'json' };
+import CONF from '../config.json' assert { type: 'json' };
 const error_margin = CONF.VAL_ERROR_MARGIN;
 
 

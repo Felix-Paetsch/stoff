@@ -1,4 +1,4 @@
-import { assert } from '../validation.js';
+import { assert } from '../dev/validation.js';
 import { Vector } from '../../Geometry/geometry.js';
 
 export default function line_with_length(original_sk, original_p1, original_p2, length, slopeP1 = 0, slopeP2 = 0){

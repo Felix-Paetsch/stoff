@@ -414,6 +414,15 @@ class Line{
         assert(false, "This should not happen!");
     }
 
+    set_sketch(s, overwrite = false){
+        if (this.sketch == null || overwrite || s == null){
+            this.sketch = s;
+            return this;
+        }
+
+        throw new Error("Line already belongs to a sketch!");
+    }
+
     self_intersects(){
         // TODO!!!!!!!!
 
