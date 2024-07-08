@@ -158,6 +158,9 @@ function puffy_short(s, mea, length){
   let wrist = s.data.comp.lines_by_key("type")["wrist"][0];
   let p = s.point(points["mid"][0].add(new Vector(4.5,0)));
   puffy(s);
+  if (length < 0.08){
+    length = 0.08;
+  }
   sleeve.shorten_length(s, length);
 
 
@@ -231,6 +234,27 @@ function cap(s){
   s.remove_point(points["bottom side front"][0]);
   /*
 */
+function hasMethod (obj, name) {
+  const desc = Object.getOwnPropertyDescriptor (obj, name);
+  return !!desc && typeof desc.value === 'function';
+}
+  function getInstanceMethodNames (obj, stop) {
+    let array = [];
+    let proto = Object.getPrototypeOf (obj);
+    while (proto && proto !== stop) {
+      Object.getOwnPropertyNames (proto)
+        .forEach (name => {
+          if (name !== 'constructor') {
+            if (hasMethod (proto, name)) {
+              array.push (name);
+            }
+          }
+        });
+      proto = Object.getPrototypeOf (proto);
+    }
+    return array;
+  }
+
   return s;
 };
 

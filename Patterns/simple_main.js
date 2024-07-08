@@ -29,9 +29,9 @@ function main_top(s, design, mea, design_neckline){
       top.simple_waistline_web(s, mea);
       //top.simple_middle_dart(s, "fold", 0.5);
       patterns = top.split_pattern(s, "shoulder", 0.6);
-
     } else {
       patterns =  top.styleline_panel(s, design["styleline"], mea);
+      main_dart(patterns[0], design["dartstyle"]);
     }
     main_neckline(patterns[0], design_neckline);
 
@@ -144,7 +144,9 @@ function main_sleeve(s, design, mea){
   } else if (type === "casual"){
     s = sleeve_type.casual(s);
   }
-
+  if (design["length"] < 0.04){
+    design["length"] = 0.04;
+  }
   sleeve.shorten_length(s, design["length"]);
 
   if (s.data.cuff){

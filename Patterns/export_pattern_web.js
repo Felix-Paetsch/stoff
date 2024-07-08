@@ -73,7 +73,7 @@ export default {
               "dartstyle",
               "normal",
               "tuck",
-              "gathering",
+        //      "gathering",
               0
             )
         ),
@@ -179,8 +179,16 @@ export default {
       back.data.pt = false;
 
       */
-      let height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
-      let sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
+      let height_sleeve;
+      let sleeve;
+      if (design_config["top designs"].type === "styleline"){
+        height_sleeve = back[0].data.height_sleeve + front[0].data.height_sleeve;
+        sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front[0].data.length_sleeve, back[0].data.length_sleeve);
+      } else {
+        height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
+        sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
+      }
+
       sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
       /*
       */
