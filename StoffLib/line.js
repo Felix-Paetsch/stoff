@@ -389,7 +389,7 @@ class Line{
         }
 
         const endpoint_distance = this.endpoint_distance();
-        const adjusted_length = l/endpoint_distance;
+        const adjusted_length = length/endpoint_distance;
 
         let sum = 0;
         for (let i = 0; i < this.sample_points.length - 1; i++){
@@ -402,8 +402,8 @@ class Line{
                 const left_to_walk = adjusted_length - sum;
                 const fraction_left = left_to_walk/next_length;
 
-                const relative_vec = this.sample_points[i].mult(fraction_left)
-                        .add(this.sample_points[i+1].mult(1 - fraction_left));
+                const relative_vec = this.sample_points[i].mult(1-fraction_left)
+                        .add(this.sample_points[i+1].mult(fraction_left));
 
                 return this.vec_to_abosule(relative_vec);
             }
