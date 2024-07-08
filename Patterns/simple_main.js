@@ -5,6 +5,7 @@ import { ConnectedComponent} from '../StoffLib/connected_component.js';
 
 import top from './top/simple_top.js';
 import sleeve from './sleeves/simple_sleeve.js';
+import sleeve_type from './sleeves/sleeve_types.js';
 import lengthen from './lengthen/top.js';
 import dart from './darts/simple_dart.js';
 import utils from './funs/utils.js';
@@ -104,19 +105,52 @@ function main_merge(front, back, design){
   return [back, front];
 }
 
-function main_sleeve(s, design){
-  if (design["type"] === "puffy top"){
-  } else if (design["type"] === "puffy bottom"){
+function main_sleeve(s, design, mea){
+  const type = design["type"];
 
-  } else if (design["type"] === "puffy"){
+  if (type === "straight"){
+    sleeve_type.straight(s);
+  } else if (type === "slim"){
+    sleeve_type.straight(s);
+    sleeve_type.reduce_at_wrist(s, 2, 2);
+  } else if (type === "extra slim"){
+    //standard ist aktuell extra slim
+  } else if (type === "puffy"){
+    sleeve_type.straight(s);
+    if (design["length"] < 0.7){
+      return sleeve_type.puffy_short(s, mea, design["length"]);
+    }
 
-  } else if (design["type"] === "straight") {
+    sleeve_type.puffy(s);
+    s.data.cuff = true;
+  } else if (type === "puffy top") {
+    sleeve_type.straight(s);
 
+    sleeve_type.puffy_top(s);
+  } else if (type === "puffy bottom"){
+    sleeve_type.straight(s);
+
+    s.data.cuff = true;
+    sleeve_type.flared(s);
+
+  } else if (type === "flared"){
+    sleeve_type.straight(s);
+    sleeve_type.flared(s);
+  } else if (type === "cap"){
+    sleeve_type.cap(s);
+    return s;
+  } else if (type === "ruffles"){
+    return sleeve_type.ruffles(s, 4);
+  } else if (type === "casual"){
+    s = sleeve_type.casual(s);
   }
 
-  if (design["attributes"].includes("shorten")){
-    sleeve.shorten_length(s, 0.6);
+  sleeve.shorten_length(s, design["length"]);
+
+  if (s.data.cuff){
+     return sleeve_type.add_cuff(s, mea, design["length"]);
   }
+  return s;
 }
 
 
@@ -124,7 +158,6 @@ function paste_sketches(s, arr){
   let [sk] = arr.splice(0,1);
 
   s.paste_sketch(sk, null, new Vector(0,0));
-
   arr.forEach((i) => {
     utils.position_sketch(s, i);
   });

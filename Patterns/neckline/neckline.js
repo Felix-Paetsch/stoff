@@ -46,9 +46,7 @@ function new_curve_v_line(s){
   }
   let l = s.line_from_function_graph(pt1, pt2, spline.bezier([
       pt1, vec2.add(pt1), pt2
-  ], [
-      new Vector(0,vec2.y), vec, new Vector(vec3.x,0)
-  ], true)); //.plot_control_points(s));
+  ])); //.plot_control_points(s));
 
     l.data.type = "neckline";
     s.remove_line(line);

@@ -21,7 +21,7 @@ export default {
             "für",
             "Felix",
             "Debby",
-            1
+            0
           )
         ),
         cContainer(
@@ -118,11 +118,15 @@ export default {
             "cap",
             "ruffles",
             "casual",
+            /*
             "kimono short straight",
             "kimono short curve",
             "sleeveless snug",
             "sleeveless loose",
             "sleeveless american",
+            // vorerst abgewählt, da kein Ärmel, sondern das Vorder- und Rückenteil
+            // verändert wird.
+            */
             0
           ),
           cNumber(
@@ -158,7 +162,7 @@ export default {
 
       measurements["arm"] += 2;
       measurements["arm length"] += 4;
-      measurements.wristwidth += 2;
+      measurements.wristwidth += 3;
       measurements["ellbow_width"] += 4;
 
       let back = basic_pattern_top.back(measurements);
@@ -174,15 +178,16 @@ export default {
       front.data.pt = false;
       back.data.pt = false;
 
-
+      */
       let height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
       let sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
-      change.main_sleeve(sleeve, design_config["sleeve"]);
-
-*/
+      sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
+      /*
+      */
 
       let s = new Sketch();
       let sketches = change.main_merge(front, back, design_config["top designs"]);
+      sketches.push(sleeve);
 
       s = change.paste_sketches(s, sketches);
 

@@ -18,7 +18,6 @@ function armpit_new(s){
   let e = side.p1;
   let p5 = s.data.p5;
   let p6 = s.data.p6;
-
   let len = c.distance(p5);
   let vec = shoulder.get_line_vector().get_orthonormal().scale(len * s.data.direction).add(c);
 
@@ -51,6 +50,8 @@ function armpit_new(s){
   temp4.data.direction = s.data.direction * -1;
   temp4.data.direction_split = s.data.direction * -1;
   s.data.length_sleeve = temp4.get_length();
+  /*
+  */
   return s;
 }
 
