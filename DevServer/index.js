@@ -29,13 +29,11 @@ app.get('/', (req, res) => {
 let pattern_was_requested = false;
 app.post('/pattern', (req, res) => {
     pattern_was_requested = true;
-    
     SketchRouteRenderer.reset();
 
     try {
         const s = create_design(req.body.config_data);
-        s.dev.at_url("/test2");
-
+        
         /*
             const png_buffer = s.to_png(req.body.width, req.body.height);
             res.set('Content-Type', 'image/png');

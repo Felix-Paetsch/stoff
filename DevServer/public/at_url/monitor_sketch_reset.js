@@ -35,11 +35,17 @@ async function monitor_sketch_reset() {
             document.getElementById("doesnt_exist").style.display="none";
         }
 
-        const result = await response.text();
-
-        if (result !== 'true') {
-            dataContainer.innerHTML = result;
+        const result = await response.json();
+        if (!result.live) {
+            dataContainer.innerHTML = result.svg;
             add_svg_hover_events();
+
+            const pre = document.getElementById("data_pre");
+            if (result.data){
+                pre.innerHTML = JSON.stringify(result.data, true, 2);
+            } else {
+                pre.innerHTML = "";
+            }
         }
     } catch (error) {
         document.getElementById("doesnt_exist").style.display="block";

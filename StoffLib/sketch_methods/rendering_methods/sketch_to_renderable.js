@@ -7,7 +7,7 @@ export {
 }
 
 function sketch_to_renderable(sketch, width, height, use_padding = true){
-    const sketch_bb = sketch.get_bounding_box();    
+    const sketch_bb = sketch.get_bounding_box([1,1]);    
     const padding = use_padding ? CONF.DEFAULT_SAVE_PX_PADDING : 0;
     const usable_width  = width - padding * 2;
     const usable_height = height - padding * 2;
@@ -74,7 +74,7 @@ function calculate_correct_width_height(s, width = null, height = null){
         If you only give height (width = null): Scale Width using aspect ratio
     */
    
-    const sketch_bb = s.get_bounding_box();
+    const sketch_bb = s.get_bounding_box([1,1]);
     if (sketch_bb.width == 0 || sketch_bb.height == 0){
         throw new Error("Sketch has width or height 0.");
     }

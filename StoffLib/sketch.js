@@ -116,8 +116,11 @@ class Sketch{
             if (el instanceof Point){
                 this.remove_point(el);
             }
-            else {
+            else if (el instanceof Line){
                 this.remove_line(el);
+            }
+            else {
+                this.delete_component(el);
             }
         }
     }
@@ -212,7 +215,10 @@ class Sketch{
         }
     }
 
-    get_bounding_box(){
+    get_bounding_box(min_bb = [0,0]){
+        // min_bb sets minimal required width and height for a bb
+        // the bb will be made bigger to hit these limits if needed
+
         let _min_x = Infinity;
         let _min_y = Infinity;
         let _max_x = - Infinity;
@@ -220,8 +226,8 @@ class Sketch{
 
         if (this.points.length == 0){
             return {
-                width:  0,
-                height: 0,
+                width:  min_bb[0],
+                height: min_bb[1],
                 top_left:  new Vector(0,0),
                 top_right: new Vector(0,0),
                 bottom_left:  new Vector(0,0),
@@ -244,6 +250,14 @@ class Sketch{
             _min_y = Math.min(p.y, _min_y);
             _max_y = Math.max(p.y, _max_y);
         });
+
+        const width_to_needed_diff  = Math.max(0, min_bb[0] - (_max_x - _min_x));
+        const height_to_needed_diff = Math.max(0, min_bb[1] - (_max_y - _min_y));
+
+        _min_x = _min_x - width_to_needed_diff/2;
+        _max_x = _max_x + width_to_needed_diff/2;
+        _min_y = _min_y - height_to_needed_diff/2;
+        _max_y = _max_y + height_to_needed_diff/2;
 
         return {
             width:  _max_x - _min_x,
