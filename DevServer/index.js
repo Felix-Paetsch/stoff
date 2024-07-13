@@ -1,3 +1,9 @@
+
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 import { Config } from "../Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
@@ -28,7 +34,7 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
-        s.dev.at_url("/test");
+        s.dev.at_url("/test2");
 
         /*
             const png_buffer = s.to_png(req.body.width, req.body.height);

@@ -5,13 +5,16 @@ class SketchRouteRenderer{
     }
 
     reset(){
+        this.routes = {};
+        const app = this.app;
+
         Object.keys(this.routes).forEach(function(key){
-            this.app.get(key, (req, res) => {
+            app.get(key, (req, res) => {
                 // TODO: Send a list of registered sketches;
                 res.send("There is no sketch at this route.");
             });
 
-            this.app.post(key, (req, res) => {
+            app.post(key, (req, res) => {
                 // TODO: Send message Sketch is no longer active
             });
         });
@@ -27,19 +30,24 @@ class SketchRouteRenderer{
         }
 
         this.routes[route] = {
-            svg: svg,
-            live: false
+            svg,
+            data,
+            live: false,
+            route
         }
 
         this.app.get(route, (req, res) => {
-            // TODO: Send correct ejs
-            res.send("Route registerd");
+            this.routes[route].live = true;
+            res.render("at_url/sketch.ejs", this.routes[route]);
         });
         
         this.app.post(route, (req, res) => {
+            if (this.routes[route].live){
+                return res.send("true");
+            }
+
             this.routes[route].live = true;
-            // TODO: Send correct data
-            res.send("Route registerd");
+            res.send(this.routes[route].svg);
         });
     }
 }
@@ -47,12 +55,17 @@ class SketchRouteRenderer{
 export default (Sketch_dev, app) => {
     const SRR = new SketchRouteRenderer(app);
     Sketch_dev.at_url = function(url, data = null){
-        SSR.add_route(url, this.to_dev_svg(500, 500), data);
+        SRR.add_route(url, this.to_dev_svg(500, 500), data);
     }
 
     app.get("/at_url", (req, res) => {
-        // TODO.
-        res.send("Wha");
+        res.render("at_url/at_url.ejs", {
+            routes: SRR.get_routes()
+        });
+    });
+
+    app.post("/at_url", (req, res) => {
+        res.render('at_url/list.ejs', { routes: SRR.get_routes() });
     });
 
     return SRR;
