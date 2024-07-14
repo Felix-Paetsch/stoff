@@ -229,7 +229,7 @@ class Line{
         );
     }
 
-    vec_to_abosule(vec){
+    vec_to_absolue(vec){
         return this.get_to_absolute_function()(vec);
     }
 
@@ -289,6 +289,10 @@ class Line{
 
     endpoint_distance(){
         return this.p1.distance(this.p2);
+    }
+
+    length(){
+        return this.get_length();
     }
 
     get_length(){
@@ -419,13 +423,25 @@ class Line{
                 const relative_vec = this.sample_points[i].mult(fraction_left)
                         .add(this.sample_points[i+1].mult(1 - fraction_left));
 
-                return this.vec_to_abosule(relative_vec);
+                return this.vec_to_absolue(relative_vec);
             }
 
             sum += next_length;
         }
 
         assert(false, "This should not happen!");
+    }
+
+    vec_at_length(d){
+        return this.p1.add(this.get_line_vector().normalize().scale(d));
+    }
+
+    vec_at_fraction(f){
+        return this.vec_at_length(f * this.length());
+    }
+
+    point_at_fraction(f){
+        return this.point_at_distance(f * this.length());
     }
 
     set_sketch(s, overwrite = false){
@@ -451,6 +467,10 @@ class Line{
         }
         return false;
     }
+
+    toString(){
+        return "[Line]"
+    }
 }
 
 class StraightLine extends Line{
@@ -464,26 +484,12 @@ class StraightLine extends Line{
         );
     }
 
-    length(){
-        return this.get_line_vector.length();
+    get_length(){
+        return this.get_line_vector().length();
     }
 
-    vec_at_distance(d){
-        // Returns a vector at distance d from this.p1
-        return this.p1.add(this.get_line_vector().normalize().scale(d));
-    }
-
-    pt_at_distance(d){
-        // Returns a vector at distance d from this.p1
-        return Point.from_vector(this.vec_at_distance(d));
-    }
-
-    vec_at_fraction(f){
-        return this.vec_at_distance(f * this.length());
-    }
-
-    pt_at_fraction(f){
-        return this.pt_at_distance(f * this.length());
+    point_at_length(d){
+        return Point.from_vector(this.vec_at_length(d));
     }
 }
 

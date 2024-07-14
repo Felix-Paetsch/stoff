@@ -40,6 +40,7 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
+        console.log(String(s.points[0]));
     
         const svg = s.to_dev_svg(req.body.width, req.body.height);
         res.set('Content-Type', 'image/svg+xml');

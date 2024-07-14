@@ -15,7 +15,7 @@ export default function(){
     );
 
     EX.object(new ExpositionInstance("Point", getInstanceMethodNames(p1)));
-    EX.object(new ExpositionInstance("Line", getInstanceMethodNames(s.line_between_points(p1, p2))));
+    EX.object(new ExpositionInstance("Line", getInstanceMethodNames(s.plot(p1, p2, (x) => x*x))));
     EX.object(new ExpositionInstance("ConnectedComponent", getInstanceMethodNames(s.connected_component(p1))));
     
     const curves = EX.object(new ExpositionInstance("[Curves]"));

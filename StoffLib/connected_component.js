@@ -125,6 +125,10 @@ class ConnectedComponent{
         copy_connected_component(this, s, position);
         return s;
     };
+
+    toString(){
+        return "[ConnectedComponent]"
+    }
 }
 
 export { ConnectedComponent };

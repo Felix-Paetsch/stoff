@@ -108,6 +108,18 @@ class Vector {
         return new Vector(this.y, -1 * this.x).normalize();
     }
 
+    toString(){
+        return `[${
+            this.x.toString().slice(
+                0, this.x.toString().split('.')[0].length + 4
+            )
+        }, ${
+            this.y.toString().slice(
+                0, this.y.toString().split('.')[0].length + 4
+            )
+        }]`
+    }
+
     print() {
         function fmt(n) {
             return (n.toString() + "     ").slice(0, 5);
@@ -192,6 +204,10 @@ class Matrix {
         } else if (el instanceof Matrix) {
             return new Matrix(this.mult(el.col1), this.mult(el.col2));
         } else return this.scale(el);
+    }
+
+    toString(){
+        return `[${ this.col1.toString() }, ${ this.col2.toString() }]]`
     }
 }
 

@@ -300,6 +300,10 @@ class Sketch{
         }
         return copy_sketch(sketch, this, data_callback, position);
     }
+
+    toString(){
+        return "[Sketch]"
+    }
 }
 
 
