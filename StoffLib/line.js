@@ -183,7 +183,7 @@ class Line{
     }
 
     connected_component(){
-        return ConnectedComponent(this);
+        return new ConnectedComponent(this);
     }
 
     copy_sample_points(){

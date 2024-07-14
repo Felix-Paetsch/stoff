@@ -4,7 +4,7 @@ import { copy_connected_component } from '../copy.js';
 export default (Sketch) => {
     Sketch.prototype.connected_component = function (sketch_el){
         this._guard_sketch_elements_in_sketch(sketch_el);
-        return ConnectedComponent(sketch_el);
+        return new ConnectedComponent(sketch_el);
     }
 
     Sketch.prototype.delete_component = function (sketch_el){
@@ -18,7 +18,7 @@ export default (Sketch) => {
         }
 
         this._guard_sketch_elements_in_sketch(sketch_el);
-        return this.remove_points(...ConnectedComponent(sketch_el).points());
+        return this.remove_points(...(new ConnectedComponent(sketch_el)).points());
     }
 
     Sketch.prototype.get_connected_components = function(){

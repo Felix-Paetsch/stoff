@@ -22,7 +22,7 @@ class Point extends Vector{
     }
 
     connected_component(){
-        return ConnectedComponent(this);
+        return new ConnectedComponent(this);
     }
 
     set_color(color){

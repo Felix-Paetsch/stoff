@@ -15,6 +15,7 @@ import { Sketch } from "../StoffLib/sketch.js";
 import register_sketch_mods from "./sketch_mods/register.js";
 import register_render_to_url from "./sketch_mods/render_to_url.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
+import exposition from "./exposition.js";
 
 const Sketch_dev = register_sketch_mods(Sketch);
 const SketchRouteRenderer = register_render_to_url(Sketch_dev, app);
@@ -26,6 +27,12 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get("/exposition", (req, res) => {
+    res.render("exposition", {
+        EX: exposition()
+    });
+})
+
 let pattern_was_requested = false;
 app.post('/pattern', (req, res) => {
     pattern_was_requested = true;
@@ -33,7 +40,6 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
-        s.dev.at_url("/wha");
     
         const svg = s.to_dev_svg(req.body.width, req.body.height);
         res.set('Content-Type', 'image/svg+xml');

@@ -58,7 +58,7 @@ function request_img_unthrottled(){
     })
     .then(r => {
         document.getElementById('sketch_display').innerHTML = r.svg;
-        document.getElementById("sketch_data").textContent = JSON.stringify(r.rendering_data, true, 2);
+        document.getElementById("sketch_data").textContent = "SKETCH_DATA: " + JSON.stringify(r.rendering_data, true, 2);
         if (typeof add_svg_hover_events !== 'undefined') {
             add_svg_hover_events();
         }
