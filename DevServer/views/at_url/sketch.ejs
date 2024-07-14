@@ -14,7 +14,7 @@
         <div id="sketch_display">
             <%- svg %>
         </div>
-        <pre id="data_pre"><%= data ? JSON.stringify(data, true, 2) : "" %></pre>
+        <pre id="data_pre"><%= data ? JSON.stringify(data, true, 2) : "SKETCH_DATA: " + JSON.stringify(sketch_data, true, 2); %></pre>
 
         <script>
             add_svg_hover_events();

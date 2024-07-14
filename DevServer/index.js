@@ -14,7 +14,7 @@ const { design_config, create_design } = pattern_data;
 import { Sketch } from "../StoffLib/sketch.js";
 import register_sketch_mods from "./sketch_mods/register.js";
 import register_render_to_url from "./sketch_mods/render_to_url.js";
-
+import clean_rendering_data from "./utils/clean_rendering_data.js";
 
 const Sketch_dev = register_sketch_mods(Sketch);
 const SketchRouteRenderer = register_render_to_url(Sketch_dev, app);
@@ -33,13 +33,21 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
-        s.save_as_png("out.png");
+        s.dev.at_url("/wha");
     
         const svg = s.to_dev_svg(req.body.width, req.body.height);
         res.set('Content-Type', 'image/svg+xml');
-        res.send(svg);
+        res.json({
+            svg,
+            rendering_data: clean_rendering_data(s.data),
+            error: false
+        });
+
     } catch (error){
-        res.status(422).send(error.stack);
+        res.status(422).json({
+            error: true,
+            stack: error.stack
+        });
     }
 });
 

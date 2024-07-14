@@ -42,9 +42,9 @@ async function monitor_sketch_reset() {
 
             const pre = document.getElementById("data_pre");
             if (result.data){
-                pre.innerHTML = JSON.stringify(result.data, true, 2);
+                pre.textContent = JSON.stringify(result.data, true, 2);
             } else {
-                pre.innerHTML = "";
+                pre.textContent = "SKETCH_DATA: " + JSON.stringify(result.sketch_data, true, 2);
             }
         }
     } catch (error) {

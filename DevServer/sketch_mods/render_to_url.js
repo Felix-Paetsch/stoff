@@ -1,4 +1,4 @@
-import { Vector } from "../../Geometry/geometry.js";
+import clean_rendering_data from "../utils/clean_rendering_data.js";
 
 class SketchRouteRenderer{
     constructor(app){
@@ -26,22 +26,19 @@ class SketchRouteRenderer{
         return Object.keys(this.routes);
     }
 
-    add_route(route, svg, data){
+    add_route(route, svg, data, sketch_data){
         if (["/", "/pattern", "/reset", "/at_url"].concat(Object.keys(this.routes)).includes(route)){
             throw new Error(`Route ${route} is already taken!`);
         }
 
-        let d = "<Data unserializable>";
-        this.clean_rendering_data(data);
-        try {
-            d = this.clean_rendering_data(data);
-        } catch {}
+        const d = clean_rendering_data(data);
 
         this.routes[route] = {
             svg,
             data: d,
             live: false,
-            route
+            route,
+            sketch_data
         }
 
         this.app.get(route, (req, res) => {
@@ -59,68 +56,16 @@ class SketchRouteRenderer{
                 live: false, 
                 svg: this.routes[route].svg, 
                 data: this.routes[route].data, 
+                sketch_data: this.routes[route].sketch_data, 
             });
         });
-    }
-
-    clean_rendering_data(data){
-        let nesting = 0;
-        return nesting_buffer(data);
-
-        function nesting_buffer(data){
-            nesting++;
-            if (nesting > 50){
-                throw new Error("Can't create deep copy of data! (Nesting > " + 50 + ")");
-            }
-
-            // Basic Stuff
-            if ([
-                "undefined",
-                "boolean",
-                "number",
-                "bigint",
-                "string",
-                "symbol"
-            ].includes(typeof data)){
-                nesting--;
-                return data;
-            }
-
-            // Arrays
-            if (data instanceof Array){
-                nesting--;
-                return data.map(nesting_buffer);
-            }
-
-            if (!data){
-                return data;
-            }
-
-            // Basic dicts
-            if (data.constructor === Object){
-                const new_data = {};
-                for (const key in data){
-                    new_data[key] = nesting_buffer(data[key])
-                }
-                nesting--;
-                return new_data;
-            }
-
-            // Vectors
-            if (data instanceof Vector){
-                nesting--;
-                return `Vec: ${[data.x, data.y]}`;
-            }
-
-            return "[Object]"
-        }
     }
 }
 
 export default (Sketch_dev, app) => {
     const SRR = new SketchRouteRenderer(app);
     Sketch_dev.at_url = function(url, data = null){
-        SRR.add_route(url, this.to_dev_svg(500, 500), data);
+        SRR.add_route(url, this.to_dev_svg(500, 500), data, clean_rendering_data(this.data));
     }
 
     app.get("/at_url", (req, res) => {

@@ -60,3 +60,13 @@ body{
     overflow-wrap: break-word;
     font-size: 1em;
 }
+
+/* Extra Data */
+
+#sketch_data{
+    margin: 1em;
+    margin-left: 3em;
+    max-width: 60vw;
+    overflow: auto;
+    font-size: 1.1em;
+}
