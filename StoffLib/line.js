@@ -14,7 +14,12 @@ class Line{
             There might be exceptions to the above but very hard to deal with!!
         */
 
-        this.color = color;
+        this.attributes = {
+            stroke: color,
+            strokeWidth: 1,
+            strokeDasharray: null,
+            opacity: 1
+        };
         this.data = {};
         this.sketch = null;
 
@@ -156,12 +161,21 @@ class Line{
     }
 
     set_color(color){
-        this.color = color;
+        this.attributes.stroke = color;
         return this;
     }
 
     get_color(){
-        return this.color;
+        return this.attributes.stroke;
+    }
+
+    set_attribute(attr, value){
+        this.attributes[attr] = value;
+        return this;
+    }
+
+    get_attribute(attr){
+        return this.attributes[attr];
     }
 
     get_sample_points(){

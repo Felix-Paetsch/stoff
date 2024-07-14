@@ -67,10 +67,9 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
         const shiftedX = point.x - topLeftX + PRINT_PADDING_PX;
         const shiftedY = point.y - topLeftY + PRINT_PADDING_PX;
         ctx.arc(shiftedX, shiftedY, 4, 0, 2 * Math.PI);
-        // ctx.strokeStyle = point.color;
         ctx.stroke();
-        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
-            ? "white" : point.color;
+        const fill = interpolate_colors(point.attributes.color, point.attributes.color) == "rgb(0,0,0)"
+            ? "white" : point.attributes.color;
         ctx.fillStyle = fill;
         ctx.fill();
     };
@@ -84,7 +83,7 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
             if (index === 0) ctx.moveTo(shiftedX, shiftedY);
             else ctx.lineTo(shiftedX, shiftedY);
         });
-        ctx.strokeStyle = polyline.color;
+        ctx.strokeStyle = polyline.attributes.color;
         ctx.strokeWidth = 1;
         ctx.stroke();
     };

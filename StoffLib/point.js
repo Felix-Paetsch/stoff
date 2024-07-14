@@ -8,7 +8,13 @@ class Point extends Vector{
         this.adjacent_lines = [];
         this.data = {};
         this.sketch = null;
-        this.color = color;
+        this.attributes = {
+            fill: color,
+            radius: 3,
+            stroke: "black",
+            strokeWidth: 1,
+            opacity: 1
+        };
     }
 
     vector(){
@@ -20,12 +26,21 @@ class Point extends Vector{
     }
 
     set_color(color){
-        this.color = color;
+        this.attributes.fill = color;
         return this;
     }
 
     get_color(){
-        return this.color;
+        return this.attributes.fill;
+    }
+
+    set_attribute(attr, value){
+        this.attributes[attr] = value;
+        return this;
+    }
+
+    get_attribute(attr){
+        return this.attributes[attr];
     }
 
     copy(){

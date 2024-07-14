@@ -33,12 +33,8 @@ app.post('/pattern', (req, res) => {
 
     try {
         const s = create_design(req.body.config_data);
-        
-        /*
-            const png_buffer = s.to_png(req.body.width, req.body.height);
-            res.set('Content-Type', 'image/png');
-            res.send(png_buffer);
-        */
+        s.save_as_png("out.png");
+    
         const svg = s.to_dev_svg(req.body.width, req.body.height);
         res.set('Content-Type', 'image/svg+xml');
         res.send(svg);
