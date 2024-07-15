@@ -120,6 +120,10 @@ class Vector {
         }]`
     }
 
+    toJSON(){
+        return this.to_array();
+    }
+
     print() {
         function fmt(n) {
             return (n.toString() + "     ").slice(0, 5);
@@ -204,6 +208,10 @@ class Matrix {
         } else if (el instanceof Matrix) {
             return new Matrix(this.mult(el.col1), this.mult(el.col2));
         } else return this.scale(el);
+    }
+
+    toJSON(){
+        return [this.col1.toJSON(), this.col2.toJSON()];
     }
 
     toString(){

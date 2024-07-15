@@ -22,8 +22,12 @@
                 </div>
             </div>
         </div>
+        <div id="resizer"></div>
+        <div id="toggle_button"><i class="fas fa-arrow-left"></i></div>
+        <script src="/main/resizable.js"></script>
     <% } %>
-    <div <% if (!is_debug) { %> style="margin-left: 24rem;" <% } %>>
+
+    <div <% if (!is_debug) { %> style="margin-left: var(--left-bar-width);" <% } %>>
         <div id="sketch_display"></div>
         <pre id="sketch_data">Hello!!</pre>
     </div>

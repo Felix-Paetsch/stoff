@@ -4,10 +4,12 @@ body{
     display: flex;
     flex-direction: row;
     overflow-x: hidden;
+    --left-bar-width: 24rem;
+    --theme_color: palevioletred;
 }
 
 #left_bar{
-    width: 24rem;
+    width: var(--left-bar-width);
     position: fixed;
     left: 0;
     top: 0;
@@ -15,8 +17,43 @@ body{
     overflow-y: auto;
     background-color: black;
     box-sizing: border-box;
-    color: palevioletred;
+    color: var(--theme_color);
     font-family: 'Courier New', Courier, monospace;
+}
+
+#left_bar.hidden {
+    transform: translateX(-100%);
+}
+
+#resizer {
+    width: 10px;
+    height: 100vh;
+    position: fixed;
+    left: calc(var(--left-bar-width, 24rem) - 5px);
+    top: 0;
+    cursor: ew-resize;
+    z-index: 999;
+}
+
+#toggle_button {
+    width: 2em;
+    height: 2em;
+    background-color: black;
+    position: fixed;
+    left: calc(var(--left-bar-width, 24rem) + 5px);
+    bottom: 5px;
+    border-radius: .3em;
+    line-height: 2em;
+    text-align: center;
+    color: var(--theme_color);
+    cursor: pointer;
+    z-index: 1000;
+    transition-duration: .3s;
+}
+
+#toggle_button:hover{
+    color: black;
+    background-color: var(--theme_color);
 }
 
 #params_selection, #left_bar_addition_info{
@@ -46,7 +83,7 @@ body{
 
 /* display */
 #sketch_display pre{
-    max-width: calc(100vw - 24rem);
+    max-width: calc(100vw - var(--left-bar-width));
     padding: 1em;
     overflow-x: auto;
 }
@@ -79,7 +116,7 @@ body{
 
 #sketch_data{
     margin: 1em;
-    margin-left: 3em;
+    margin-left: 4em;
     max-width: 60vw;
     overflow: auto;
     font-size: 1.1em;

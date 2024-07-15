@@ -7,7 +7,8 @@ const EPSILON = 0.000001;
 export {
     intersect_lines,
     intersection_positions,
-    _line_segments_intersect
+    _line_segments_intersect,
+    _calculate_intersections
 }
 
 function intersect_lines(sketch, line1, line2){
@@ -155,8 +156,9 @@ function _calculate_intersections(line1, line2){
         return abs_to_l1(l2_to_abs(v));
     };
 
+    
     // In line1 coordinates
-    const cordsL1 = line1.get_sample_points().map((v, i) => [v, i]);
+    const cordsL1 = line1.copy_sample_points().map((v, i) => [v, i]);
     const cordsL2 = line2.get_sample_points().map((v, i) => [l2_to_l1(v), i]);
 
     const L1_monotone_segments = _get_monotone_segments(cordsL1);
@@ -171,7 +173,7 @@ function _calculate_intersections(line1, line2){
             ));
         }
     }
-
+    
     const cleaned = _clean_intersection_positions(intersection_positions, line1, line2);
     return cleaned;
 }
@@ -224,9 +226,6 @@ function _clean_intersection_positions(intersection_positions, line1, line2){
         filtered_ip0.push(ip);
     }
 
-    filtered_ip0.shift();
-    filtered_ip0.pop();
-
     // Filter #2
     filtered_ip0[0] =                       [0,        null, 0, null, line1.p1];
     filtered_ip0[filtered_ip0.length - 1] = [Infinity, null, 0, null, line1.p2];
@@ -245,7 +244,6 @@ function _clean_intersection_positions(intersection_positions, line1, line2){
 
     filtered_ip.shift();
     filtered_ip.pop();
-    
     // Sorted after line 1
 
     return filtered_ip;
@@ -360,7 +358,86 @@ function _find_monotone_intersection_positions(s1, s2){
     return ip;
 }
 
-function _get_monotone_segments(coords){
+function _get_monotone_segments(coords) { // By GPT, some care
+    if (coords.length === 0) return [];
+
+    let monotone_segments = [];
+    let last_x = coords[0][0].x;
+    let current_direction = 1;
+
+    while (coords.length > 1) {
+        let segment_end = 1;
+
+        while (segment_end < coords.length && (coords[segment_end][0].x - last_x) * current_direction > 0) {
+            last_x = coords[segment_end][0].x;
+            segment_end++;
+        }
+
+        let new_segment = coords.splice(0, segment_end);
+        if (monotone_segments.length > 0) {
+            new_segment.unshift(monotone_segments[monotone_segments.length - 1].slice(-1)[0]);
+        }
+        monotone_segments.push(new_segment);
+
+        if (coords.length > 0) {
+            current_direction *= -1;
+            last_x = coords[0][0].x;
+        }
+    }
+
+    if (coords.length > 0) {
+        monotone_segments.push(coords);
+    }
+
+    for (let i = 1; i < monotone_segments.length; i += 2) {
+        monotone_segments[i].reverse();
+    }
+
+    return monotone_segments;
+}
+
+
+function _get_monotone_segments_new_broken(coords){
+    if (coords.length === 0) return [];
+    
+    let monotone_segments = [];
+    let last_x = coords[0][0].x;
+
+    let last_index = 0;         // Inside the coords array, corresponds to last_x
+    let current_direction = 1;  // In positiv (1) or negative (-1) x direction
+
+    while (coords.length > last_index + 1){
+        const new_x = coords[last_index + 1][0].x;
+        
+        if ((new_x - last_x) * current_direction > 0){
+            last_index++;
+            last_x = new_x;
+            continue;
+        }
+
+        if (coords.length == last_index - 1) break;
+        const new_segment = coords.splice(0, last_index);
+        new_segment.push(coords[0]);
+        monotone_segments.push(new_segment);
+
+
+        last_index = 0;
+        current_direction *= -1;
+        last_x = coords[0][0].x;
+    }
+
+    monotone_segments.push(coords);
+
+    for (let i = 0; i < monotone_segments.length; i++) {
+        if (i % 2 == 1){
+            monotone_segments[i].reverse();
+        }
+    }
+
+    return monotone_segments;
+}
+
+function _old_get_monotone_segments(coords){
     const first_el = coords.shift();
     let monotone_segments = [[first_el]];
     let last_x = first_el[0].x;

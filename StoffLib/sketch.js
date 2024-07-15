@@ -272,24 +272,24 @@ class Sketch{
     // ===============
 
     merge_points(pt1, pt2, data_callback = default_data_callback){
-      if (pt1.subtract(pt2).length() > 0.01){
-        throw new Error("Points are not ontop each other");
-      }
+        if (pt1.subtract(pt2).length() > 0.01){
+            throw new Error("Points are not ontop each other");
+        }
 
-      copy_sketch_obj_data(pt2, pt1, data_callback);
+        copy_sketch_obj_data(pt2, pt1, data_callback);
 
-      pt2.get_adjacent_lines().forEach(line => {
-         if (line.p1 !== pt2){
-            line.set_endpoints(line.p1, pt1);
-         } else {
-            line.set_endpoints(pt1, line.p2);
-         }
+        pt2.get_adjacent_lines().forEach(line => {
+            if (line.p1 !== pt2){
+                line.set_endpoints(line.p1, pt1);
+            } else {
+                line.set_endpoints(pt1, line.p2);
+            }
 
-      });
+        });
 
 
-      this.remove_points(pt2);
-      return pt1;
+        this.remove_points(pt2);
+        return pt1;
     }
 
     paste_sketch(sketch, data_callback = null, position = null){
@@ -310,7 +310,7 @@ class Sketch{
 
 Sketch.prototype.validate = function(){
     validate_sketch(this);
-    console.log("Validated");
+    return true;
 };
 
 register_rendering_functions(Sketch);
@@ -323,7 +323,7 @@ Sketch.prototype.line_with_length = function(...args){
 
 // Add Methods We cant put elsewhere bcs of circular imports
 
-
+/*
 // Add Validation
 [
     // "get_bounding_box",
@@ -361,7 +361,7 @@ Sketch.prototype.line_with_length = function(...args){
         validate_sketch(this);
         return result;
     };
-});
+});*/
 
 export { Sketch };
 export default Sketch;

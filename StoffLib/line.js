@@ -2,7 +2,7 @@ import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clo
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
-import { _line_segments_intersect } from "./unicorns/intersect_lines.js";
+import { _line_segments_intersect, _calculate_intersections } from "./unicorns/intersect_lines.js";
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -454,22 +454,38 @@ class Line{
     }
 
     self_intersects(){
-        // TODO!!!!!!!!
-
-        const points = this.sample_points;
-
-        for (let i = 0; i < points.length - 1; i++) {
-            for (let j = i + 2; j < points.length - 1; j++) {
-                if (
-                  points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.00001
-                ) return true;
+        console.time('> Calculate Intersections');
+        const sample_index = _calculate_intersections(this, this).map(a => a[1] + a[3]);
+        console.timeEnd('> Calculate Intersections');
+        
+        for (let i = 0; i < sample_index.length - 1; i++) {
+            if (sample_index[i] > sample_index[i + 1]) {
+                return true;
             }
         }
+
         return false;
+        
+        /*
+            const points = this.sample_points;
+
+            for (let i = 0; i < points.length - 1; i++) {
+                for (let j = i + 2; j < points.length - 1; j++) {
+                    if (
+                    points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.1
+                    ) return true;
+                }
+            }
+            return false;
+        */
     }
 
     toString(){
         return "[Line]"
+    }
+
+    toJSON(){
+        return this.sample_points;
     }
 }
 
