@@ -51,7 +51,7 @@ export default function clean_rendering_data(data, failure_obj = "<Data unserial
         // Vectors
         if (data instanceof Vector){
             nesting--;
-            return `Vec: ${[data.x, data.y]}`;
+            return data.to_array();
         }
 
         return "[Object]"

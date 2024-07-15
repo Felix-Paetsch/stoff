@@ -10,6 +10,7 @@ const app = create_app();
 
 import pattern_data from '../Patterns/export_pattern_web.js';
 const { design_config, create_design } = pattern_data;
+import debug_create_design from "../Debug/_debug_create_design.js";
 
 import { Sketch } from "../StoffLib/sketch.js";
 import register_sketch_mods from "./sketch_mods/register.js";
@@ -23,7 +24,8 @@ const SketchRouteRenderer = register_render_to_url(Sketch_dev, app);
 app.get('/', (req, res) => {
     res.render('index', {
         design_config: new Config(design_config),
-        config_components: join(__dirname, "views", "config_components")
+        config_components: join(__dirname, "views", "config_components"),
+        is_debug: req.query.debug !== undefined
     });
 });
 
@@ -38,11 +40,12 @@ app.post('/pattern', (req, res) => {
     pattern_was_requested = true;
     SketchRouteRenderer.reset();
 
+    const isDebug = req.query.debug !== undefined;
+
     try {
-        const s = create_design(req.body.config_data);
-        console.log(String(s.points[0]));
-    
+        const s = !isDebug ? create_design(req.body.config_data) : debug_create_design();
         const svg = s.to_dev_svg(req.body.width, req.body.height);
+        
         res.set('Content-Type', 'image/svg+xml');
         res.json({
             svg,

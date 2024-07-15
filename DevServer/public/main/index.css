@@ -3,11 +3,14 @@ body{
     padding: 0;
     display: flex;
     flex-direction: row;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #left_bar{
     width: 24rem;
+    position: fixed;
+    left: 0;
+    top: 0;
     height: 100vh;
     overflow-y: auto;
     background-color: black;
