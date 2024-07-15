@@ -42,11 +42,19 @@ class SketchRouteRenderer{
         }
 
         this.app.get(route, (req, res) => {
+            if (!this.routes[route]){
+                return res.sendStatus(404);
+            }
+
             this.routes[route].live = true;
             res.render("at_url/sketch.ejs", this.routes[route]);
         });
         
         this.app.post(route, (req, res) => {
+            if (!this.routes[route]){
+                return res.sendStatus(404);
+            }
+
             if (this.routes[route].live) {
                 return res.json({ live: true });
             }

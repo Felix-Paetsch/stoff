@@ -474,30 +474,52 @@ class Line{
         throw new Error("Line already belongs to a sketch!");
     }
 
-    self_intersects(){
-        /*return false;
-        const sample_index = _calculate_intersections(this, this).map(a => a[1] + a[3]);
-        
-        for (let i = 0; i < sample_index.length - 1; i++) {
-            if (sample_index[i] > sample_index[i + 1]) {
+    self_intersects(thorough = false) {
+        // The current functions should be seen as temporary till we find smth better
+        // Since it either doesn't give garantes or is slow.
+
+        const points = this.sample_points;
+        let potentialIntersection = thorough;
+    
+        // Quick and easy approximation
+        for (let i = 0; i < points.length - 1; i++) {
+            for (let j = i + 2; j < points.length - 1; j++) {
+                if (points[i].distance(points[i+1]) > points[i].distance(points[j])*0.9) {
+                    potentialIntersection = true;
+                    break;
+                }
+            }
+            if (potentialIntersection) break;
+        }
+    
+        if (!potentialIntersection) return false;
+    
+        // Slow and thorough
+        const intersections = _calculate_intersections(this, this, false);
+    
+        for (let i = 0; i < intersections.length; i++) {
+            const [i1, i2, p1, p2, _] = intersections[i];
+            if (Math.abs(i1 + p1 - i2 - p2) < 1.0001) {
+                continue;
+            }
+    
+            let total_len = 0;
+            for (
+                let j = Math.min(intersections[i][0], intersections[i][1]);
+                j < Math.max(intersections[i][0], intersections[i][1]) - 1;
+                j++
+            ) {
+                total_len += this.sample_points[j].distance(this.sample_points[j + 1]);
+            }
+    
+            if (total_len > 0.001) {
                 return true;
             }
         }
-
-        return false;*/
-        
-        
-        const points = this.sample_points;
-
-        for (let i = 0; i < points.length - 1; i++) {
-            for (let j = i + 2; j < points.length - 1; j++) {
-                if (
-                points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.1
-                ) return true;
-            }
-        }
+    
         return false;
     }
+    
 
     toString(){
         return "[Line]"

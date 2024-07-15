@@ -1,8 +1,9 @@
-import { affine_transform_from_input_output, Vector } from "../../Geometry/geometry.js";
+import { affine_transform_from_input_output, Vector, closest_vec_on_line_segment } from "../../Geometry/geometry.js";
 import { copy_sketch_obj_data } from '../copy.js';
 import { interpolate_colors } from '../colors.js';
 
 const EPSILON = 0.000001;
+const EPSILON2 = EPSILON * EPSILON;
 
 export {
     intersect_lines,
@@ -135,7 +136,7 @@ function intersection_positions(line1, line2){
     return intersections.map(p => p[4]);
 }
 
-function _calculate_intersections(line1, line2){
+function _calculate_intersections(line1, line2, filter = true){
     /*
         returns: [vec]
 
@@ -174,13 +175,14 @@ function _calculate_intersections(line1, line2){
         }
     }
     
-    const cleaned = _clean_intersection_positions(intersection_positions, line1, line2);
-    return cleaned;
+    const cleaned_ip = _clean_intersection_positions(intersection_positions, line1);
+    if (!filter) return cleaned_ip;
+    const filtered = _filter_intersection_positions(cleaned_ip, line1, line2);
+    return filtered;
 }
 
-function _clean_intersection_positions(intersection_positions, line1, line2){
+function _clean_intersection_positions(intersection_positions, line1){
     // [from1, to1, from2, to2, distance1, distance2, abs_position]
-
     const l1_to_abs = affine_transform_from_input_output(
         [new Vector(0,0), new Vector(1,0)],
         [line1.p1,  line1.p2]
@@ -210,6 +212,10 @@ function _clean_intersection_positions(intersection_positions, line1, line2){
             cleaned_ip.push(to_push);
         }
     );
+    return cleaned_ip;
+}
+
+function _filter_intersection_positions(cleaned_ip, line1, line2){
 
     // Filter #1
     cleaned_ip.sort((a,b) => a[1] + a[3] - b[1] - b[3]);
@@ -250,7 +256,63 @@ function _clean_intersection_positions(intersection_positions, line1, line2){
 }
 
 function _line_segments_intersect(start1, end1, start2, end2) {
+    // We are a bit generous for this fn, we don't want to miss any!
     const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
+
+    // If start and end are to close to each other, just consider the points
+    if (start1.distance(end1) < EPSILON){
+        if (start2.distance(end2) < EPSILON){
+            if (start1.distance(start2) < EPSILON){
+                return [true, 0, 0];
+            }
+            if (start1.distance(end2) < EPSILON){
+                return [true, 0, 1];
+            }
+            if (end1.distance(start2) < EPSILON){
+                return [true, 1, 0];
+            }
+            if (end1.distance(end2) < EPSILON){
+                return [true, 1, 1];
+            }
+            return [false];
+        }
+
+        const closest_start = closest_vec_on_line_segment(
+            [start2, end2], start1
+        );
+        
+        const closest_end = closest_vec_on_line_segment(
+            [start2, end2], end1
+        );
+
+        if (start1.distance(closest_start) < EPSILON){
+            return [true, 0, start2.distance(closest_start)/start2.distance(end2)]
+        }
+
+        if (end1.distance(closest_end) < EPSILON){
+            return [true, 1, start2.distance(closest_end)/start2.distance(end2)]
+        }
+
+        return [false]
+    } else if (start2.distance(end2) < EPSILON){
+        const closest_start = closest_vec_on_line_segment(
+            [start1, end1], start2
+        );
+        
+        const closest_end = closest_vec_on_line_segment(
+            [start1, end1], end2
+        );
+
+        if (start2.distance(closest_start) < EPSILON){
+            return [true, start1.distance(closest_start)/start1.distance(end1), 0]
+        }
+
+        if (end2.distance(closest_end) < EPSILON){
+            return [true, start1.distance(closest_end)/start1.distance(end1), 0]
+        }
+
+        return [false]
+    }
 
     // Check if the lines are parallel (denominator is zero)
     if (Math.abs(denominator) < EPSILON) {
@@ -262,7 +324,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
         const s2_normal = normalize(start2);
         // Check if on the same line (i.e. x-axis)
         if (Math.abs(s2_normal.y, 0) > EPSILON){
-            return [false, null];
+            return [false];
         }
 
         const e2_normal = normalize(end2);
@@ -270,7 +332,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
             (-EPSILON > s2_normal.x && -EPSILON > e2_normal.x) ||
             (1 + EPSILON < s2_normal.x && 1 + EPSILON < e2_normal.x)
         ){
-            return [false, null];
+            return [false];
         }
 
         const x_arr = [0, 1, s2_normal.x, e2_normal.x].sort();
@@ -283,12 +345,13 @@ function _line_segments_intersect(start1, end1, start2, end2) {
         return [true, relX_slice, relY_slice];
     }
 
+    // Find intersection rel amt
     const ua = ((end2.x - start2.x) * (start1.y - start2.y) - (end2.y - start2.y) * (start1.x - start2.x)) / denominator;
     const ub = ((end1.x - start1.x) * (start1.y - start2.y) - (end1.y - start1.y) * (start1.x - start2.x)) / denominator;
 
     // Check if intersection is within line segments
     if (ua < -EPSILON || ua > 1 + EPSILON || ub < -EPSILON || ub > 1 + EPSILON) {
-        return [false, null];
+        return [false];
     }
 
     // Intersection point is within both line segments
@@ -338,7 +401,12 @@ function _find_monotone_intersection_positions(s1, s2){
                 ip.push([
                     s1[s1_index][1], s1[s1_index + 1][1],
                     s2[s2_index][1], s2[s2_index + 1][1],
-                    intersection_res[1], intersection_res[2]
+                    Math.min(
+                        1 - EPSILON2, Math.max(intersection_res[1], EPSILON2)
+                    ),
+                    Math.min(
+                        1 - EPSILON2, Math.max(intersection_res[2], EPSILON2)
+                    )
                 ]);
             }
 
