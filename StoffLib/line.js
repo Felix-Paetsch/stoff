@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } from '../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise, closest_vec_on_line_segment } from '../Geometry/geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
@@ -440,8 +440,29 @@ class Line{
         return this.vec_at_length(f * this.length());
     }
 
-    point_at_fraction(f){
-        return this.point_at_distance(f * this.length());
+    position_at_fraction(f){
+        return this.position_at_length(f * this.length());
+    }
+
+    closest_position(vec){
+        const vec_rel = this.get_to_relative_function()(vec);
+        
+        let min = Infinity;
+        let best = null;
+
+        for (let i = 0; i < this.sample_points.length - 1; i++){
+            const closest_on_line = closest_vec_on_line_segment([
+                this.sample_points[i], this.sample_points[i + 1]
+            ], vec_rel);
+            const dist = closest_on_line.distance(vec_rel);
+
+            if (dist < min){
+                min = dist;
+                best = closest_on_line;
+            }
+        }
+
+        return this.get_to_absolute_function()(best);
     }
 
     set_sketch(s, overwrite = false){
@@ -454,9 +475,8 @@ class Line{
     }
 
     self_intersects(){
-        console.time('> Calculate Intersections');
+        /*return false;
         const sample_index = _calculate_intersections(this, this).map(a => a[1] + a[3]);
-        console.timeEnd('> Calculate Intersections');
         
         for (let i = 0; i < sample_index.length - 1; i++) {
             if (sample_index[i] > sample_index[i + 1]) {
@@ -464,20 +484,19 @@ class Line{
             }
         }
 
-        return false;
+        return false;*/
         
-        /*
-            const points = this.sample_points;
+        
+        const points = this.sample_points;
 
-            for (let i = 0; i < points.length - 1; i++) {
-                for (let j = i + 2; j < points.length - 1; j++) {
-                    if (
-                    points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.1
-                    ) return true;
-                }
+        for (let i = 0; i < points.length - 1; i++) {
+            for (let j = i + 2; j < points.length - 1; j++) {
+                if (
+                points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.1
+                ) return true;
             }
-            return false;
-        */
+        }
+        return false;
     }
 
     toString(){
@@ -504,8 +523,13 @@ class StraightLine extends Line{
         return this.get_line_vector().length();
     }
 
-    point_at_length(d){
+    position_at_length(d){
         return Point.from_vector(this.vec_at_length(d));
+    }
+    
+    closest_position(vec){
+        const rel = this.get_to_relative_function()(vec);
+        return this.get_to_absolute_function()(new Vector(rel.x, 0));
     }
 }
 

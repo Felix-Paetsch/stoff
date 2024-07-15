@@ -323,7 +323,7 @@ Sketch.prototype.line_with_length = function(...args){
 
 // Add Methods We cant put elsewhere bcs of circular imports
 
-/*
+
 // Add Validation
 [
     // "get_bounding_box",
@@ -361,7 +361,7 @@ Sketch.prototype.line_with_length = function(...args){
         validate_sketch(this);
         return result;
     };
-});*/
+});
 
 export { Sketch };
 export default Sketch;
