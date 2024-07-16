@@ -8,7 +8,7 @@ import { Config } from "../Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
 
-import pattern_data from '../Patterns/export_pattern_web.js';
+import pattern_data from '../Patterns/export_pattern_dev.js';
 const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/_debug_create_design.js";
 

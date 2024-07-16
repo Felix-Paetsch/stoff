@@ -8,6 +8,9 @@ export default class ConfigElement{
     constructor(name = null){
         this.assert(name == null || typeof name == "string", "Name must be a string or null.");
         this.name = name;
+        this.id = ConfigElement.uid();
+
+        this.on_change_fun = [];
     }
 
     static classDecendents = { ConfigElement };
@@ -19,6 +22,18 @@ export default class ConfigElement{
 
         return thing[key];
     }
+
+    set_name(name){
+        this.name = name;
+        return this;
+    }
+
+    set_id(id){
+        this.id = id;
+        return this;
+    }
+
+    init(conf){}
 
     throw(text){
         throw new Error("There was a configuration error: \n" + text);
@@ -90,6 +105,36 @@ export default class ConfigElement{
         throw new Error("`to_obj` for component uninplemented");
     }
 
+    get_by_id(id){
+        if (this.id == id){
+            return this;
+        }
+
+        return undefined;
+    }
+
+    get_by_name(name){
+        if (this.name == name){
+            return [name];
+        }
+
+        return [];
+    }
+
+    on_change(fun){
+        this.on_change_fun.push(fun);
+    }
+
+    changed(){
+        for (const fun of this.on_change_fun){
+            fun();
+        }
+
+        if (this.parent){
+            this.parent.changed();
+        }
+    }
+
     /* Only for rendering */
 
     render(){
@@ -122,3 +167,10 @@ export default class ConfigElement{
                     .replace(/"/g, "\\\"");
     }
 }
+
+ConfigElement.uid = (function* uidGenerator() {
+    let id = 0;
+    while (true) {
+      yield `_uid_${id++}`;
+    }
+})
