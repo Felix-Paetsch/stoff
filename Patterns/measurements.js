@@ -15,6 +15,8 @@ const debby = {
   "shoulder_height_back": 43,
   "center_height_front": 31,
   "center_height_back": 35.5,
+  "diagonal_front": 48, // muss noch gemessen werden, nur spekuliert
+  "diagonal_back": 45, // muss noch gemessen werden, nur spekuliert
   "across_front": 34,
   "across_back": 33.5,
   "side_height": 17.5,
@@ -47,6 +49,8 @@ const felix = {
   "center_height_back": 44,
   "across_front": 37,
   "across_back": 36.5,
+  "diagonal_front": 46,
+  "diagonal_back": 50, // muss noch gemessen werden, nur spekuliert
   "side_height": 22,
   "bottom_width_front": 48,
   "bottom_width_back": 53,

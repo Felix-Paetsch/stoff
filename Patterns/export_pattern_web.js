@@ -4,6 +4,7 @@ import { Vector } from '../Geometry/geometry.js';
 
 import mea from './measurements.js';
 import basic_pattern_top from './top/pattern_top.js';
+import pattern_top_new from './top/pattern_top_new.js';
 import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
 import change from './simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
@@ -165,8 +166,10 @@ export default {
       measurements.wristwidth += 3;
       measurements["ellbow_width"] += 4;
 
-      let back = basic_pattern_top.back(measurements);
-      let front = basic_pattern_top.front(measurements);
+  //    return pattern_top_new.back(measurements);
+
+      let back = pattern_top_new.back(measurements);
+      let front = pattern_top_new.front(measurements);
 
 
       front = change.main_top(front, design_config["top designs"], measurements, design_config["neckline"]);
@@ -195,10 +198,10 @@ export default {
 
       let s = new Sketch();
       let sketches = change.main_merge(front, back, design_config["top designs"]);
-      sketches.push(sleeve);
+    //  sketches.push(sleeve);
 
       s = change.paste_sketches(s, sketches);
-
+      front.save_on_A4("renders");
       return s;
     }
 }

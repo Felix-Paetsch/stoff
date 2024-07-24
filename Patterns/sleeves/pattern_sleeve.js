@@ -87,7 +87,13 @@ function sleeve(mea, height, sleeve_type = "eingehalten 3/4", len_front, len_bac
 }
 
 function curve(s, pt1, pt2, len){
-    const l = s.line_with_length(pt1, pt2, len);
+  let len2 = pt1.subtract(pt2).length() + 0.5;
+  let l;
+    if (len2 < len){
+      l = s.line_with_length(pt1, pt2, len);
+    } else {
+      l = s.line_with_length(pt1, pt2, len2);
+    }
     /*
     const pt = s.position_at_length(l, l.get_length()*0.1);
 
