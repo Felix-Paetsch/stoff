@@ -1,6 +1,5 @@
 import { writeFileSync } from 'fs';
 import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
-import { interpolate_colors } from '../colors.js';
 
 function create_svg_from_sketch(s, width = null, height = null){
     const correct_dimensions = calculate_correct_width_height(s, width, height);  
@@ -12,17 +11,26 @@ function create_svg_from_sketch(s, width = null, height = null){
 
     let svgContent = `<svg width="${ bb.width }" height="${ bb.height }" xmlns="http://www.w3.org/2000/svg">`;
 
-    const createCircle = (point) => { 
-        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
-            ? "white" : point.color;
-        const stroke = "black";
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="4" stroke="${ stroke }" fill="${ fill }" />`;
+    const createCircle = (point) => {
+        const stroke = point.attributes.stroke;
+        const radius = point.attributes.radius;
+        const fill = point.attributes.fill;
+        const strokeWidth = point.attributes.strokeWidth;
+        const opacity = point.attributes.opacity;
+
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="${ radius }" stroke="${ stroke }" fill="${ fill }" opacity="${ opacity }" stroke-width="${ strokeWidth }"/>`;
     };
-      
+
     const createPolyline = (polyline) => {
+        const stroke = polyline.attributes.stroke;
+        const strokeWidth = polyline.attributes.strokeWidth;
+        const strokeDasharray = polyline.attributes.strokeDasharray;
+        const opacity = polyline.attributes.opacity;
+
         const pointsString = polyline.sample_points.map(point => `${point.x},${point.y}`).join(' ');
-    
-        svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:${ polyline.color };stroke-width:1" />`;
+
+
+        svgContent += `<polyline points="${ pointsString }" style="fill:none; stroke: ${ stroke }; stroke-width: ${ strokeWidth }" opacity="${ opacity }" stroke-dasharray="${ strokeDasharray }"/>`;
     };
     
     lines.forEach(createPolyline);

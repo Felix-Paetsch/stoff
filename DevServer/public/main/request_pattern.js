@@ -36,7 +36,11 @@ function throttle_func(func, interval_in_s) {
 }
 
 function request_img_unthrottled(){
-    fetch('/pattern', {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const debugParam = params.has('debug') ? '?debug' : '';
+
+    fetch('/pattern' + debugParam, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -49,21 +53,23 @@ function request_img_unthrottled(){
     })
     .then(response => {
         if (response.ok) {
-            return response.text();
+            return response.json();
         } else if (response.status === 422) {
-            return response.text().then(text => { throw new Error(`Rendering error: ${text}`); });
+            return response.json().then(r => { throw new Error(`Rendering error: ${ r.stack }`); });
         } else {
-            return response.text().then(text => { throw new Error(`Server error: ${text}`); });
+            return response.text().then(text => { throw new Error(`Server error: ${ text }`); });
         }
     })
-    .then(svgText => {
-        document.getElementById('sketch_display').innerHTML = svgText;
+    .then(r => {
+        document.getElementById('sketch_display').innerHTML = r.svg;
+        document.getElementById("sketch_data").textContent = "SKETCH_DATA: " + JSON.stringify(r.rendering_data, true, 2);
         if (typeof add_svg_hover_events !== 'undefined') {
             add_svg_hover_events();
         }
         reset_server_monitor_wait_time(); // Presumably changes after a long time
     })
     .catch(error => {
+        document.getElementById("sketch_data").textContent = "";
         if (error.message.startsWith("Rendering error:")) {
             console.error(error.message);
             document.getElementById('sketch_display').innerHTML = `<pre>${ error.message }</pre>`;

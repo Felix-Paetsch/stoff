@@ -22,8 +22,11 @@ export default class CBoolean extends ConfigElement {
     }
 
     set(value = true){
+        if (this.value == value) return this;
+        
         this.assert(typeof value === "boolean", "value must be a boolean");
         this.value = value;
+        this.changed();
         return this;
     }
 
@@ -36,7 +39,8 @@ export default class CBoolean extends ConfigElement {
             "name": this.name,
             "type": "CBoolean",
             "default": this.default,
-            "value": this.value
+            "value": this.value,
+            id: this.id
         }
     }
 
@@ -44,7 +48,7 @@ export default class CBoolean extends ConfigElement {
         return new CBoolean(
             data["name"],
             data.default
-        ).set(data.value);
+        ).set(data.value).set_id(data.id);
     }
 
     to_obj(){

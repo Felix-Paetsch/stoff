@@ -1,5 +1,4 @@
 import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
-import { interpolate_colors } from '../colors.js';
 
 function create_dev_svg_from_sketch(s, width = null, height = null){
     const correct_dimensions = calculate_correct_width_height(s, width, height);
@@ -12,9 +11,11 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
     let svgContent = `<svg width="${ bb.width }" height="${ bb.height }" xmlns="http://www.w3.org/2000/svg">`;
 
     const createCircle = (point) => {
-        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
-            ? "white" : point.color;
-        const stroke = "black";
+        const stroke = point.attributes.stroke;
+        const radius = point.attributes.radius;
+        const fill = point.attributes.fill;
+        const strokeWidth = point.attributes.strokeWidth;
+        const opacity = point.attributes.opacity;
 
         const point_data = data_to_serializable(point.original_point.data);
         if (typeof point_data === 'object') {
@@ -22,15 +23,20 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
             point_data._y = Math.round(point.y * 1000)/1000;
         }
 
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="3" stroke="${ stroke }" fill="${ fill }" x-data="${
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="${ radius }" stroke="${ stroke }" fill="${ fill }" opacity="${ opacity }" stroke-width="${ strokeWidth }" x-data="${
             JSON.stringify(
                 point_data
             ).replace(/\\/g, '\\\\').replace(/"/g, '&quot;')
         }" hover_area/>`;
-        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="3" stroke="${ stroke }" fill="${ fill }"/>`;
+        svgContent += `<circle cx="${ point.x }" cy="${ point.y }" r="${ radius }" stroke="${ stroke }" fill="${ fill }" opacity="${ opacity }" stroke-width="${ strokeWidth }"/>`;
     };
 
     const createPolyline = (polyline) => {
+        const stroke = polyline.attributes.stroke;
+        const strokeWidth = polyline.attributes.strokeWidth;
+        const strokeDasharray = polyline.attributes.strokeDasharray;
+        const opacity = polyline.attributes.opacity;
+
         const pointsString = polyline.sample_points.map(point => `${point.x},${point.y}`).join(' ');
 
         const line_data = data_to_serializable(polyline.original_line.data);
@@ -39,13 +45,13 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
         }
 
         // Hover area
-        svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:rgba(0,0,0,0);stroke-width:8" x-data="${
+        svgContent += `<polyline points="${ pointsString }" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${ Math.max(strokeWidth, 8) }" x-data="${
             JSON.stringify(
                 line_data
             ).replace(/\\/g, '\\\\').replace(/"/g, '&quot;')
         }" hover_area/>`;
 
-        svgContent += `<polyline points="${ pointsString }" style="fill:none;stroke:${ polyline.color };stroke-width:1"/>`;
+        svgContent += `<polyline points="${ pointsString }" style="fill:none; stroke: ${ stroke }; stroke-width: ${ strokeWidth }" opacity="${ opacity }" stroke-dasharray="${ strokeDasharray }"/>`;
     };
 
     lines.forEach(createPolyline);

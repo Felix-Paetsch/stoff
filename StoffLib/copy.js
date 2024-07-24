@@ -188,6 +188,10 @@ function dublicate_data(data, get_point_reference = (pt) => pt, get_line_referen
             return data.map(nesting_buffer);
         }
 
+        if (!data){
+            return data;
+        }
+
         // Basic dicts
         if (data.constructor === Object){
             const new_data = {};

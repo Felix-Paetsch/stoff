@@ -1,23 +1,24 @@
+import ChildrenHaving from "./_chilren_having.js";
 import ConfigElement from "./_config_element.js";
 
 // Holds an array of choices from which arbitrarily many can be selected
 
-export default class CSelection extends ConfigElement{
+export default class CSelection extends ChildrenHaving{
     constructor(name, ...children){
         // You can either put the children as seperate argument to the constructor
         // or give them in one single array. (Composition of the two also works.)
-
-        super(name);
         
         const last_el = children[children.length - 1];
+        let activated = false;
         if (Array.isArray(last_el) && children.length > 1){
             children.pop();
-            this.activated = last_el;
+            activated = last_el;
         } else {
-            this.activated = [];
+            activated = [];
         }
 
-        this.children = ConfigElement.as_unfolded_components(children);
+        super(name, children);
+        this.activated = activated;
     }
 
     activate(i){
@@ -26,11 +27,17 @@ export default class CSelection extends ConfigElement{
         }
         this.activated.push(i);
         this.activated.sort();
+        this.changed();
         return this;
     }
 
     deactivate(i){
+        if (!this.activated.includes(i)){
+            return this;
+        }
+
         this.activated = this.activated.filter(x => x !== i);
+        this.changed();
         return this;
     }
 
@@ -46,16 +53,17 @@ export default class CSelection extends ConfigElement{
         return {
             "name": this.name,
             "type": "CSelection",
-            "children": this.children.map((c) => c.serialize()),
-            "active_children": this.activated
+            "children": this.serialize_children(),
+            "active_children": this.activated,
+            id: this.id
         }
     }
 
     static deserialize(data){
         const cs = new CSelection(
             data["name"],
-            data["children"].map(c => ConfigElement.deserialize_component(c))
-        );
+            ChildrenHaving.serialize_children(data["children"])
+        ).set_id(data.id);
 
         data["active_children"].forEach(i => {
             cs.activate(i);

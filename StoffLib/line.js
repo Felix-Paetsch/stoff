@@ -1,8 +1,8 @@
-import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise } from '../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise, closest_vec_on_line_segment } from '../Geometry/geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
-import { _line_segments_intersect } from "./unicorns/intersect_lines.js";
+import { _line_segments_intersect, _calculate_intersections } from "./unicorns/intersect_lines.js";
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -14,7 +14,12 @@ class Line{
             There might be exceptions to the above but very hard to deal with!!
         */
 
-        this.color = color;
+        this.attributes = {
+            stroke: color,
+            strokeWidth: 1,
+            strokeDasharray: null,
+            opacity: 1
+        };
         this.data = {};
         this.sketch = null;
 
@@ -156,12 +161,21 @@ class Line{
     }
 
     set_color(color){
-        this.color = color;
+        this.attributes.stroke = color;
         return this;
     }
 
     get_color(){
-        return this.color;
+        return this.attributes.stroke;
+    }
+
+    set_attribute(attr, value){
+        this.attributes[attr] = value;
+        return this;
+    }
+
+    get_attribute(attr){
+        return this.attributes[attr];
     }
 
     get_sample_points(){
@@ -169,7 +183,7 @@ class Line{
     }
 
     connected_component(){
-        return ConnectedComponent(this);
+        return new ConnectedComponent(this);
     }
 
     copy_sample_points(){
@@ -215,7 +229,7 @@ class Line{
         );
     }
 
-    vec_to_abosule(vec){
+    vec_to_absolue(vec){
         return this.get_to_absolute_function()(vec);
     }
 
@@ -275,6 +289,10 @@ class Line{
 
     endpoint_distance(){
         return this.p1.distance(this.p2);
+    }
+
+    length(){
+        return this.get_length();
     }
 
     get_length(){
@@ -405,7 +423,7 @@ class Line{
                 const relative_vec = this.sample_points[i].mult(1-fraction_left)
                         .add(this.sample_points[i+1].mult(fraction_left));
 
-                return this.vec_to_abosule(relative_vec);
+                return this.vec_to_absolue(relative_vec);
             }
 
             sum += next_length;
@@ -414,19 +432,101 @@ class Line{
         assert(false, "This should not happen!");
     }
 
-    self_intersects(){
-        // TODO!!!!!!!!
+    vec_at_length(d){
+        return this.p1.add(this.get_line_vector().normalize().scale(d));
+    }
 
-        const points = this.sample_points;
+    vec_at_fraction(f){
+        return this.vec_at_length(f * this.length());
+    }
 
-        for (let i = 0; i < points.length - 1; i++) {
-            for (let j = i + 2; j < points.length - 1; j++) {
-                if (
-                  points[i].distance(points[i+1]) > points[i].distance(points[j]) + 0.00001
-                ) return true;
+    position_at_fraction(f){
+        return this.position_at_length(f * this.length());
+    }
+
+    closest_position(vec){
+        const vec_rel = this.get_to_relative_function()(vec);
+        
+        let min = Infinity;
+        let best = null;
+
+        for (let i = 0; i < this.sample_points.length - 1; i++){
+            const closest_on_line = closest_vec_on_line_segment([
+                this.sample_points[i], this.sample_points[i + 1]
+            ], vec_rel);
+            const dist = closest_on_line.distance(vec_rel);
+
+            if (dist < min){
+                min = dist;
+                best = closest_on_line;
             }
         }
+
+        return this.get_to_absolute_function()(best);
+    }
+
+    set_sketch(s, overwrite = false){
+        if (this.sketch == null || overwrite || s == null){
+            this.sketch = s;
+            return this;
+        }
+
+        throw new Error("Line already belongs to a sketch!");
+    }
+
+    self_intersects(thorough = false) {
+        // The current functions should be seen as temporary till we find smth better
+        // Since it either doesn't give garantes or is slow.
+
+        const points = this.sample_points;
+        let potentialIntersection = thorough;
+    
+        // Quick and easy approximation
+        for (let i = 0; i < points.length - 1; i++) {
+            for (let j = i + 2; j < points.length - 1; j++) {
+                if (points[i].distance(points[i+1]) > points[i].distance(points[j])*0.9) {
+                    potentialIntersection = true;
+                    break;
+                }
+            }
+            if (potentialIntersection) break;
+        }
+    
+        if (!potentialIntersection) return false;
+    
+        // Slow and thorough
+        const intersections = _calculate_intersections(this, this, false);
+    
+        for (let i = 0; i < intersections.length; i++) {
+            const [i1, i2, p1, p2, _] = intersections[i];
+            if (Math.abs(i1 + p1 - i2 - p2) < 1.0001) {
+                continue;
+            }
+    
+            let total_len = 0;
+            for (
+                let j = Math.min(intersections[i][0], intersections[i][1]);
+                j < Math.max(intersections[i][0], intersections[i][1]) - 1;
+                j++
+            ) {
+                total_len += this.sample_points[j].distance(this.sample_points[j + 1]);
+            }
+    
+            if (total_len > 0.001) {
+                return true;
+            }
+        }
+    
         return false;
+    }
+    
+
+    toString(){
+        return "[Line]"
+    }
+
+    toJSON(){
+        return this.sample_points;
     }
 }
 
@@ -441,26 +541,17 @@ class StraightLine extends Line{
         );
     }
 
-    length(){
-        return this.get_line_vector.length();
+    get_length(){
+        return this.get_line_vector().length();
     }
 
-    vec_at_distance(d){
-        // Returns a vector at distance d from this.p1
-        return this.p1.add(this.get_line_vector().normalize().scale(d));
+    position_at_length(d){
+        return Point.from_vector(this.vec_at_length(d));
     }
-
-    pt_at_distance(d){
-        // Returns a vector at distance d from this.p1
-        return Point.from_vector(this.vec_at_distance(d));
-    }
-
-    vec_at_fraction(f){
-        return this.vec_at_distance(f * this.length());
-    }
-
-    pt_at_fraction(f){
-        return this.pt_at_distance(f * this.length());
+    
+    closest_position(vec){
+        const rel = this.get_to_relative_function()(vec);
+        return this.get_to_absolute_function()(new Vector(rel.x, 0));
     }
 }
 

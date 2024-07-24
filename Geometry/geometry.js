@@ -1,5 +1,17 @@
 class Vector {
     constructor(x = 0, y = 0, column = true) {
+        if (x instanceof Vector){
+            y = x.y;
+            x = x.x;
+        }
+
+        if (
+            !(typeof x === 'number' && isFinite(x))
+         || !(typeof y === 'number' && isFinite(y))
+        ){
+            throw new Error("Vector entries are not proper numbers!");
+        }
+
         this.is_column = column;
         this.is_row = !column;
 
@@ -96,6 +108,22 @@ class Vector {
         return new Vector(this.y, -1 * this.x).normalize();
     }
 
+    toString(){
+        return `[${
+            this.x.toString().slice(
+                0, this.x.toString().split('.')[0].length + 4
+            )
+        }, ${
+            this.y.toString().slice(
+                0, this.y.toString().split('.')[0].length + 4
+            )
+        }]`
+    }
+
+    toJSON(){
+        return this.to_array();
+    }
+
     print() {
         function fmt(n) {
             return (n.toString() + "     ").slice(0, 5);
@@ -181,6 +209,14 @@ class Matrix {
             return new Matrix(this.mult(el.col1), this.mult(el.col2));
         } else return this.scale(el);
     }
+
+    toJSON(){
+        return [this.col1.toJSON(), this.col2.toJSON()];
+    }
+
+    toString(){
+        return `[${ this.col1.toString() }, ${ this.col2.toString() }]]`
+    }
 }
 
 function distance_from_line(line_points, vec) {
@@ -203,6 +239,10 @@ function distance_from_line(line_points, vec) {
 }
 
 function distance_from_line_segment(endpoints, vec) {
+    return closest_vec_on_line_segment(endpoints, vec).distance(vec);
+}
+
+function closest_vec_on_line_segment(endpoints, vec) {
     const [vec1, vec2] = endpoints;
 
     const vec1ToVec = vec.subtract(vec1);
@@ -215,16 +255,16 @@ function distance_from_line_segment(endpoints, vec) {
 
     if (projection < 0) {
         // Closest to vec1
-        return vec1ToVec.length();
+        return vec1;
     } else if (projection > 1) {
-        return vec.subtract(vec2).length();
+        return vec2;
     } else {
         // Perpendicular distance to the line segment
         const closestPoint = new Vector(
             vec1.x + projection * vec1ToVec2.x,
             vec1.y + projection * vec1ToVec2.y
         );
-        return vec.subtract(closestPoint).length();
+        return closestPoint;
     }
 }
 
@@ -302,6 +342,7 @@ export {
     Vector,
     affine_transform_from_input_output,
     orthogonal_transform_from_input_output,
+    closest_vec_on_line_segment,
     distance_from_line_segment,
     distance_from_line,
     deg_to_rad,

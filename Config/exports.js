@@ -6,6 +6,7 @@ import CNumber from "./number.js";
 import COption from "./option.js";
 import CSelection from "./selection.js";
 import CStatic from "./static.js";
+import CCondition from "./condition.js";
 
 function config(...children){
     return new Config(...children);
@@ -35,6 +36,10 @@ function cStatic(name, value = null){
     return new CStatic(name, value);
 }
 
+function cCondition(depends_on, validation_fun, ...children){
+    return new CCondition(depends_on, validation_fun, ...children);
+}
+
 export {
     Config,
     CBoolean,
@@ -43,6 +48,7 @@ export {
     COption,
     CSelection,
     CStatic,
+    CCondition,
 
     config,
     cBoolean,
@@ -50,7 +56,8 @@ export {
     cNumber,
     cOption,
     cSelection,
-    cStatic
+    cStatic,
+    cCondition
 }
 
 /*console.log(new Config([

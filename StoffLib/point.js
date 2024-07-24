@@ -8,7 +8,13 @@ class Point extends Vector{
         this.adjacent_lines = [];
         this.data = {};
         this.sketch = null;
-        this.color = color;
+        this.attributes = {
+            fill: color,
+            radius: 3,
+            stroke: "black",
+            strokeWidth: 1,
+            opacity: 1
+        };
     }
 
     vector(){
@@ -16,16 +22,25 @@ class Point extends Vector{
     }
 
     connected_component(){
-        return ConnectedComponent(this);
+        return new ConnectedComponent(this);
     }
 
     set_color(color){
-        this.color = color;
+        this.attributes.fill = color;
         return this;
     }
 
     get_color(){
-        return this.color;
+        return this.attributes.fill;
+    }
+
+    set_attribute(attr, value){
+        this.attributes[attr] = value;
+        return this;
+    }
+
+    get_attribute(attr){
+        return this.attributes[attr];
     }
 
     copy(){
@@ -77,6 +92,15 @@ class Point extends Vector{
         if (!this.has_lines(...ls)){
             throw new Error("Point is not connected with the line(s).");
         }
+    }
+
+    set_sketch(s, overwrite = false){
+        if (this.sketch == null || overwrite || s == null){
+            this.sketch = s;
+            return this;
+        }
+
+        throw new Error("Point already belongs to a sketch!");
     }
 
     static from_vector(vec) {

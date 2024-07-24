@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= route %></title>
+    <link rel="stylesheet" href="/at_url/sketch.css">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+    <script src="/main/add_svg_hover_events.js"></script>
+</head>
+<body>
+    <h2><a href="/at_url" style="text-decoration: none">$</a><%= route %></h2>
+    <main id="data-container">
+        <div id="sketch_display">
+            <%- svg %>
+        </div>
+        <pre id="data_pre"><%= data ? JSON.stringify(data, true, 2) : "SKETCH_DATA: " + JSON.stringify(sketch_data, true, 2); %></pre>
+
+        <script>
+            add_svg_hover_events();
+        </script>
+    </main>
+    <div id="doesnt_exist">The route doesn't exist anymore. <br><br><small>Perhaps there was an error before getting to this point.</small></div>
+    <script>const route = '<%= route %>';</script>
+    <script src="/at_url/monitor_sketch_reset.js"></script>
+</body>
+</html>

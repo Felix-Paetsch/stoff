@@ -1,12 +1,12 @@
-import { Point } from './point.js';
-import { Line } from './line.js';
-import { Vector } from '../Geometry/geometry.js';
-import { ConnectedComponent } from './connected_component.js';
-import { Sketch } from "./sketch.js";
-import { assert, try_with_error_msg } from '../Debug/validation_utils.js';
+import { Point } from '../point.js';
+import { Line } from '../line.js';
+import { Vector } from '../../Geometry/geometry.js';
+import { ConnectedComponent } from '../connected_component.js';
+import { Sketch } from "../sketch.js";
+import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
 
 
-import CONF from './config.json' assert { type: 'json' };
+import CONF from '../config.json' assert { type: 'json' };
 const error_margin = CONF.VAL_ERROR_MARGIN;
 
 
@@ -20,7 +20,18 @@ function validate_sketch(s){
         endpoints_have_line(l);
 
         if (CONF.ASSERT_NON_SELFINTERSECTING){
-            line_doesnt_self_intersect(l);
+            line_doesnt_self_intersect(
+                l,
+                () => {
+                    l.attributes.stroke = "red";
+                    l.attributes.opacity = 0.9;
+                    if (l.data){
+                        l.data.SELF_INTERSECTS = true;
+                    }
+                    s.dev.at_url("/self_intersects");
+                    throw new Error("A line self intersected! \nYou may visit /self_intersects to see the problem.\n");
+                } // Callback before the assert
+            );
         }
 
         // sufficent_sample_point_spacing(l, error_margin);
@@ -87,8 +98,11 @@ function sufficent_sample_point_spacing(l, min_distance){
     }
 }
 
-function line_doesnt_self_intersect(l){
-    assert(!l.self_intersects(), "Test failed: Line heuristically self intersects");
+function line_doesnt_self_intersect(l, callback = () => {}){
+    if (l.self_intersects()){
+        callback();
+        throw new Error("Test failed: Line heuristically self intersects");
+    }
 }
 
 /*

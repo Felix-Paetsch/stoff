@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { createCanvas } from 'canvas';
 import { sketch_to_renderable } from './sketch_to_renderable.js';
-import CONF from '../config.json' assert { type: 'json' };
-import { interpolate_colors } from '../colors.js';
+import CONF from '../../config.json' assert { type: 'json' };
+import { interpolate_colors } from '../../colors.js';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -24,7 +24,7 @@ const PRINT_WIDTH_WITH_PADDING = PRINT_WIDTH_PX - 2*PRINT_PADDING_PX;
 const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2*PRINT_PADDING_PX;
 
 function toA4printable(sketch, folder) {
-    folder = path.join(__dirname, "../../", folder);
+    folder = path.join(__dirname, ".../.../", folder);
     createOrEmptyFolderSync(folder);
 
     // Get the bounding box of the sketch
@@ -67,10 +67,9 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
         const shiftedX = point.x - topLeftX + PRINT_PADDING_PX;
         const shiftedY = point.y - topLeftY + PRINT_PADDING_PX;
         ctx.arc(shiftedX, shiftedY, 4, 0, 2 * Math.PI);
-        // ctx.strokeStyle = point.color;
         ctx.stroke();
-        const fill = interpolate_colors(point.color, point.color) == "rgb(0,0,0)"
-            ? "white" : point.color;
+        const fill = interpolate_colors(point.attributes.color, point.attributes.color) == "rgb(0,0,0)"
+            ? "white" : point.attributes.color;
         ctx.fillStyle = fill;
         ctx.fill();
     };
@@ -84,7 +83,7 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
             if (index === 0) ctx.moveTo(shiftedX, shiftedY);
             else ctx.lineTo(shiftedX, shiftedY);
         });
-        ctx.strokeStyle = polyline.color;
+        ctx.strokeStyle = polyline.attributes.color;
         ctx.strokeWidth = 1;
         ctx.stroke();
     };

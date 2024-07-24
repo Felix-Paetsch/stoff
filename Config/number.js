@@ -26,10 +26,12 @@ export default class CNumber extends ConfigElement {
     }
 
     set(value){
+        if (value == this.value) return this;
         this.assert(typeof value === "number", "Value must be a number");
         this.assert(value >= this.settings.min && value <= this.settings.max, "Value not in range");
 
         this.value = value;
+        this.changed();
         return this;
     }
 
@@ -38,7 +40,8 @@ export default class CNumber extends ConfigElement {
             "name": this.name,
             "type": "CNumber",
             "settings": this.settings,
-            "value": this.value
+            "value": this.value,
+            id: this.id
         }
     }
 
@@ -46,7 +49,7 @@ export default class CNumber extends ConfigElement {
         return new CNumber(
             data["name"],
             data["settings"]
-        ).set(data["value"]);
+        ).set(data["value"]).set_id(data.id);
     }
 
     to_obj(){

@@ -16,12 +16,13 @@ export default class CStatic extends ConfigElement {
         return {
             "type": "CStatic",
             "name": this.name,
-            "value": this.value
+            "value": this.value,
+            id: this.id
         }
     }
 
     static deserialize(data){
-        return new CStatic(data["name"], data["value"]);
+        return new CStatic(data["name"], data["value"]).set_id(data.id);
     }
 
     to_obj(){

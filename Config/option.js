@@ -1,27 +1,27 @@
+import ChildrenHaving from "./_chilren_having.js";
 import ConfigElement from "./_config_element.js";
 
 // Holds an array of choices from which at most one can be selected
 
-export default class COption extends ConfigElement{
+export default class COption extends ChildrenHaving{
     constructor(name, ...children){
         // You can either put the children as seperate argument to the constructor
         // or give them in one single array. (Composition of the two also works.)
 
-        super(name);
-        
-        this.selected = 0;
-
+        let selected = 0;
         const last_el = children[children.length - 1];
         if (Number.isInteger(last_el) && children.length > 1){
             children.pop();
-            this.selected = last_el;
+            selected = last_el;
         }
 
-        this.children = ConfigElement.as_unfolded_components(children);
+        super(name, children);
+        this.selected = selected;
         this.assert(this.children.length > 0, "Option must have at least one child");
     }
 
     select(i){
+        if (i == this.selected) return this;
         this.selected = Math.max(
             0,
             Math.min(
@@ -30,6 +30,7 @@ export default class COption extends ConfigElement{
             )
         );
 
+        this.changed();
         return this;
     }
 
@@ -37,17 +38,18 @@ export default class COption extends ConfigElement{
         return {
             "name": this.name,
             "type": "COption",
-            "children": this.children.map((c) => c.serialize()),
-            "selected": this.selected
+            "children": this.serialize_children(),
+            "selected": this.selected,
+            id: this.id
         }
     }
 
     static deserialize(data){
         const co = new COption(
             data["name"],
-            data["children"].map(c => ConfigElement.deserialize_component(c)),
+            ChildrenHaving.deserialize_children(data["children"]),
             data["selected"]
-        );
+        ).set_id(data.id);
 
         return co;
     }
