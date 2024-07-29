@@ -1,5 +1,6 @@
 *.svg
 node_modules
+**node_modules
 renders
 _todo.md
 **Leonie

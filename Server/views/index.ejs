@@ -23,24 +23,37 @@
       top: 50%;
       transform: translateY(-50%);
     }
+    .filter-gray-gold {
+      filter: grayscale(50%) sepia(30%);
+    }
   </style>
 </head>
-<body class="bg-zinc-800">
-    <nav class="bg-zinc-900 p-4 w-full">
+<body>
+    <nav class="bg-zinc-900 p-4 w-full fixed top-0 left-0 z-20">
         <div class="container mx-auto flex justify-end">
             <a href="#" class="text-white ml-4">Home</a>
             <a href="#" class="text-gray-400 ml-4">About</a>
         </div>
     </nav>
 
-    <div class="flex items-center justify-center min-h-screen bg-cover" style="background-image: url('your-video-thumbnail.jpg')">
+    <div class="relative items-center justify-center min-h-screen">
+        <div class="min-h-screen w-full opacity-30 filter-gray-gold absolute top-0 left-0" style="background-image: url('/media/images/index_video_thumbnail.png')"></div>
+
         <video autoplay muted loop class="video-background">
             <source src="your-video-file.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-            <div class="relative z-10 text-white text-center">
-            <h1 class="text-4xl font-bold">Your Text Here</h1>
+        
+        <div class="w-full min-h-screen flex justify-center">
+          <div class="z-10 text-black text-center flex flex-col justify-center">
+            <h1 class="text-4xl font-bold pt-8">Your Text Here</h1>
             <p class="mt-4">Some additional text can go here.</p>
+          </div>
+        </div>
+
+        <div class="absolute bottom-0 right-0 text-white text-left pt-2 pl-5 pb-1 pr-2 opacity-50 bg-zinc-900">
+          <p>First Line of Text</p>
+          <p>Second Line of Text</p>
         </div>
     </div>
 </body>
