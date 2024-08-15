@@ -16,16 +16,9 @@ import (
 
 var (
 	winWidth, winHeight = 800, 600
-	sizeEvent           size.Event
 	screenBuffer        screen.Buffer
 	pixBuffer           *image.RGBA
-	// Key state tracking
-	keyPressed = make(map[key.Code]bool)
-)
-
-const (
-	targetFPS  = 120
-	frameDelay = time.Second / targetFPS // 1/60th of a second per frame (~16.67ms)
+	keyPressed          = make(map[key.Code]bool)
 )
 
 func main() {
@@ -55,8 +48,6 @@ func main() {
 		}
 
 		scene.Point(Vec{0, 0, .1})
-		//scene.Point(Vec{-.5, -.5, .1})
-		//scene.Point(Vec{0, .5, .1})
 
 		var previousTime = time.Now()
 		var delta float64 = 0
@@ -65,32 +56,50 @@ func main() {
 			startTime := time.Now()
 
 			// Handle window events:
-			switch e := w.NextEvent().(type) {
+			for {
+				e := w.NextEvent()
+				switch e := e.(type) {
 
-			case key.Event:
-				switch e.Direction {
-				case key.DirPress:
-					keyPressed[e.Code] = true
-					if e.Code == key.CodeQ || e.Code == key.CodeEscape {
-						return // quit app when "q" or "Escape" is pressed
+				case key.Event:
+					switch e.Direction {
+					case key.DirPress:
+						keyPressed[e.Code] = true
+						if e.Code == key.CodeQ || e.Code == key.CodeEscape {
+							return // quit app when "q" or "Escape" is pressed
+						}
+					case key.DirRelease:
+						keyPressed[e.Code] = false
 					}
-				case key.DirRelease:
-					keyPressed[e.Code] = false
+
+				case lifecycle.Event:
+					if e.To == lifecycle.StageDead {
+						return // quit the application when the window is closed.
+					}
+
+				case size.Event:
+					winWidth = e.WidthPx
+					winHeight = e.HeightPx
+					screenBuffer, err = s.NewBuffer(image.Point{winWidth, winHeight})
+					if err != nil {
+						log.Fatalf("%v - failed to create screen buffer", err)
+					}
+					defer screenBuffer.Release()
+					pixBuffer = screenBuffer.RGBA()
+
+				case paint.Event:
+					// Handle paint events
 				}
 
-			case lifecycle.Event:
-				if e.To == lifecycle.StageDead {
-					return // quit the application when the window is closed.
+				// Stop processing events after each iteration of main loop
+				if time.Since(startTime) > 100 {
+					break
 				}
-
-			case paint.Event:
-				// Ignore paint events; we're managing rendering in the loop
 			}
 
 			// Update the scene with delta_time and key states
 			scene.Update(delta, keyPressed)
 
-			// Render the scene to the buffer
+			// Render the scene to the buffer with updated window dimensions
 			scene.Render(pixBuffer, winWidth, winHeight)
 
 			w.Upload(image.Point{0, 0}, screenBuffer, screenBuffer.Bounds())
@@ -99,16 +108,6 @@ func main() {
 			currTime := time.Now()
 			delta = float64(currTime.Sub(previousTime).Nanoseconds()) / 1000000000.0
 			previousTime = currTime
-
-			// Calculate how long the frame took to render
-			elapsed := time.Since(startTime)
-
-			// If the frame took less time than the target, sleep for the remaining time
-			if elapsed < frameDelay {
-				time.Sleep(frameDelay - elapsed)
-			}
-
-			// fmt.Printf("\rRendering at %.5f ms/frame", delta*1000)
 		}
 	})
 }
@@ -127,13 +126,5 @@ func (s *Scene) Update(delta_time float64, keys map[key.Code]bool) {
 	// Only call ReactToKeypresses if there are keys being pressed
 	if hasKeyPressed {
 		s.camera = s.camera.ReactToKeypresses(keys, delta_time)
-
-		normalize := NormalizeVec(s.camera.screen)
-		fmt.Println("TL:", normalize(s.camera.screen.TL))
-		fmt.Println("BL:", normalize(s.camera.screen.BL))
-		fmt.Println("TR:", normalize(s.camera.screen.TR))
-		fmt.Println("BR:", normalize(s.camera.screen.BR))
-		fmt.Println("F:", normalize(s.camera.focus))
-
 	}
 }

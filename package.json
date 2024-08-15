@@ -28,6 +28,7 @@
     "web_css": "concurrently \"npm run watch:css\" \"nodemon Website/index.js\"",
     "hot": "concurrently \"npm run watch:css\" \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3002 --files 'Website/public/*.css,Website/views/**/*.ejs,Website/**/*.js' --no-notify --no-open --port 3003\"",
 
-    "measure": "node Measurements/index.js"
+    "measure": "node Tools/Measurements/index.js",
+    "go": "(cd ./Tools/StoffGo && go run .)"
   }
 }
