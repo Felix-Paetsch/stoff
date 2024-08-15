@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math"
+
+	"golang.org/x/mobile/event/key"
 )
 
 type Screen struct {
@@ -34,7 +37,7 @@ func NormalizeVec(screen Screen) func(Vec) Vec {
 	mat_input := Mat{
 		source_TL,
 		source_BL,
-		screen.TL.Cross(screen.BL),
+		source_TL.Cross(source_BL),
 	}
 
 	target_TL := Vec{-1, 1, 0}
@@ -109,19 +112,19 @@ func (c Camera) Rotate(angles Vec) Camera {
 	// Get rotation matrices for X, Y, Z
 	rotationX := Mat{
 		Vec{1, 0, 0},
-		Vec{0, float32(math.Cos(float64(angles[0]))), -float32(math.Sin(float64(angles[0])))},
-		Vec{0, float32(math.Sin(float64(angles[0]))), float32(math.Cos(float64(angles[0])))},
+		Vec{0, float64(math.Cos(float64(angles[0]))), -float64(math.Sin(float64(angles[0])))},
+		Vec{0, float64(math.Sin(float64(angles[0]))), float64(math.Cos(float64(angles[0])))},
 	}
 
 	rotationY := Mat{
-		Vec{float32(math.Cos(float64(angles[1]))), 0, float32(math.Sin(float64(angles[1])))},
+		Vec{float64(math.Cos(float64(angles[1]))), 0, float64(math.Sin(float64(angles[1])))},
 		Vec{0, 1, 0},
-		Vec{-float32(math.Sin(float64(angles[1]))), 0, float32(math.Cos(float64(angles[1])))},
+		Vec{-float64(math.Sin(float64(angles[1]))), 0, float64(math.Cos(float64(angles[1])))},
 	}
 
 	rotationZ := Mat{
-		Vec{float32(math.Cos(float64(angles[2]))), -float32(math.Sin(float64(angles[2]))), 0},
-		Vec{float32(math.Sin(float64(angles[2]))), float32(math.Cos(float64(angles[2]))), 0},
+		Vec{float64(math.Cos(float64(angles[2]))), -float64(math.Sin(float64(angles[2]))), 0},
+		Vec{float64(math.Sin(float64(angles[2]))), float64(math.Cos(float64(angles[2]))), 0},
 		Vec{0, 0, 1},
 	}
 
@@ -143,7 +146,7 @@ func (c Camera) Rotate(angles Vec) Camera {
 	return c
 }
 
-func (c Camera) Zoom(percentage float32) Camera {
+func (c Camera) Zoom(percentage float64) Camera {
 	// Calculate the center of the screen
 	center := c.screen.TL.Add(c.screen.BR).Scale(0.5)
 
@@ -188,7 +191,7 @@ func (c Camera) Normalize() Camera {
 	originalDiagonal := c.screen.TL.Sub(c.screen.BR).Length()
 
 	// Calculate the diagonal length of the new screen (which is sqrt(8) due to points at (-1,1) etc.)
-	newDiagonal := float32(math.Sqrt(8))
+	newDiagonal := float64(math.Sqrt(8))
 
 	// Scale factor to maintain the same relative distance
 	scaleFactor := originalDiagonal / newDiagonal
@@ -227,13 +230,13 @@ func (c Camera) Project(v Vec) (Vec, ProjectionPosition) {
 	// Determine the ProjectionPosition
 	var position ProjectionPosition
 	if inScreen {
-		if t >= 0 {
+		if t >= 0 && t <= 1 {
 			position = InsideFront
 		} else {
 			position = InsideBehind
 		}
 	} else {
-		if t >= 0 {
+		if t >= 0 && t <= 1 {
 			position = OutsideFront
 		} else {
 			position = OutsideBehind
@@ -260,4 +263,85 @@ func DefaultCamera() Camera {
 		screen: defaultScreen,
 		focus:  defaultFocus,
 	}
+}
+
+func (s Screen) String() string {
+	return fmt.Sprintf("Screen{\n  TL: %v,\n  BL: %v,\n  BR: %v,\n  TR: %v\n}", s.TL, s.BL, s.BR, s.TR)
+}
+
+// String method for the Camera struct
+func (c Camera) String() string {
+	return fmt.Sprintf("Camera{\n  Screen: %v,\n  Focus: %v\n}", c.screen, c.focus)
+}
+
+func (c Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) Camera {
+	// Define constants for movement, rotation, and zoom speeds
+	const (
+		MoveSpeed   = 1.0  // Units per second
+		RotateSpeed = 0.05 // Radians per second
+		ZoomSpeed   = 5.0  // Zoom percentage per second
+	)
+
+	dt = min(dt, float64(.2))
+
+	// Initialize movement and rotation vectors
+	moveVec := Vec{0, 0, 0}
+	rotateVec := Vec{0, 0, 0}
+
+	// Movement controls (Left/Right, Up/Down, Forward/Backward)
+	if keys[key.CodeA] {
+		moveVec = moveVec.Add(Vec{-MoveSpeed * dt, 0, 0}) // Move left
+	}
+	if keys[key.CodeD] {
+		moveVec = moveVec.Add(Vec{MoveSpeed * dt, 0, 0}) // Move right
+	}
+	if keys[key.CodeS] {
+		moveVec = moveVec.Add(Vec{0, MoveSpeed * dt, 0}) // Move up
+	}
+	if keys[key.CodeW] {
+		moveVec = moveVec.Add(Vec{0, -MoveSpeed * dt, 0}) // Move down
+	}
+	if keys[key.CodeY] {
+		moveVec = moveVec.Add(Vec{0, 0, MoveSpeed * dt}) // Move forward
+	}
+	if keys[key.CodeX] {
+		moveVec = moveVec.Add(Vec{0, 0, -MoveSpeed * dt}) // Move backward
+	}
+
+	// Rotation controls (Left/Right, Up/Down, Around the third axis)
+	if keys[key.CodeJ] {
+		rotateVec = rotateVec.Add(Vec{0, RotateSpeed * dt, 0}) // Rotate left (around Y axis)
+	}
+	if keys[key.CodeL] {
+		rotateVec = rotateVec.Add(Vec{0, -RotateSpeed * dt, 0}) // Rotate right (around Y axis)
+	}
+	if keys[key.CodeK] {
+		rotateVec = rotateVec.Add(Vec{RotateSpeed * dt, 0, 0}) // Rotate up (around X axis)
+	}
+	if keys[key.CodeI] {
+		rotateVec = rotateVec.Add(Vec{-RotateSpeed * dt, 0, 0}) // Rotate down (around X axis)
+	}
+	if keys[key.CodeN] {
+		rotateVec = rotateVec.Add(Vec{0, 0, RotateSpeed * dt}) // Rotate around the Z axis clockwise
+	}
+	if keys[key.CodeM] {
+		rotateVec = rotateVec.Add(Vec{0, 0, -RotateSpeed * dt}) // Rotate around the Z axis counterclockwise
+	}
+
+	// Apply movement and rotation to the camera
+	c = c.Move(moveVec)
+	c = c.Rotate(rotateVec)
+
+	// Zoom controls (+/-)
+	if keys[key.CodeC] {
+		c = c.Zoom(ZoomSpeed * dt) // Zoom in
+	} else if keys[key.CodeV] {
+		c = c.Zoom(-ZoomSpeed * dt) // Zoom out
+	}
+
+	if keys[key.CodeR] {
+		c = DefaultCamera()
+	}
+
+	return c
 }

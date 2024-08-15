@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-type Vec [3]float32 // Column
+type Vec [3]float64 // Column
 type Mat [3]Vec     // Column, Column, Column
 
 func (v Vec) Add(u Vec) Vec {
@@ -16,7 +16,7 @@ func (v Vec) Sub(u Vec) Vec {
 	return Vec{v[0] - u[0], v[1] - u[1], v[2] - u[2]}
 }
 
-func (v Vec) Dot(u Vec) float32 {
+func (v Vec) Dot(u Vec) float64 {
 	return v[0]*u[0] + v[1]*u[1] + v[2]*u[2]
 }
 
@@ -28,12 +28,12 @@ func (v Vec) Cross(u Vec) Vec {
 	}
 }
 
-func (v Vec) Scale(f float32) Vec {
+func (v Vec) Scale(f float64) Vec {
 	return Vec{v[0] * f, v[1] * f, v[2] * f}
 }
 
-func (v Vec) Length() float32 {
-	return float32(math.Sqrt(float64(v.Dot(v))))
+func (v Vec) Length() float64 {
+	return float64(math.Sqrt(float64(v.Dot(v))))
 }
 
 func (v Vec) String() string {
@@ -66,7 +66,7 @@ func (m Mat) MulVec(v Vec) Vec {
 	}
 }
 
-func (m Mat) Det() float32 {
+func (m Mat) Det() float64 {
 	return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1]) -
 		m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) +
 		m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0])
