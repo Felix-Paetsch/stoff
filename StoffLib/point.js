@@ -1,4 +1,4 @@
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from './geometry.js';
 import { ConnectedComponent } from './connected_component.js';
 
 class Point extends Vector{

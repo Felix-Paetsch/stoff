@@ -1,5 +1,5 @@
 import { assert } from '../dev/validation.js';
-import { Vector } from '../../Geometry/geometry.js';
+import { Vector } from '../geometry.js';
 
 export default function line_with_length(original_sk, original_p1, original_p2, length, slopeP1 = 0, slopeP2 = 0){
     assert(slopeP1 == 0 && slopeP2 == 0, "Unimplemented for non-zero slopes!");

@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../StoffLib/geometry.js';
 import { add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch, debug, copy_line } from '../StoffLib/main.js';
 import { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, lotpunkt2, armpit, round_neckline} from './basicFun_new.js';
 

@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise, closest_vec_on_line_segment } from '../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise, closest_vec_on_line_segment } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';

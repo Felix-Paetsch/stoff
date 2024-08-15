@@ -1,4 +1,4 @@
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
 import { Point } from './point.js';
 import line_with_length from './unicorns/line_with_length.js';
