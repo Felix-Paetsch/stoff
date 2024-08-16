@@ -162,11 +162,11 @@ func (c Camera) Zoom(percentage float64) Camera {
 	// Calculate the new distance after applying the zoom percentage
 	newDistance := currentDistance * (1 + percentage/100)
 
-	// Clamp the new distance between 0.5 and 10 times the screen diagonal
+	// Clamp the new distance between 0.5 and 30 times the screen diagonal
 	if newDistance < 0.5*screenDiagonal {
 		newDistance = 0.5 * screenDiagonal
-	} else if newDistance > 10*screenDiagonal {
-		newDistance = 10 * screenDiagonal
+	} else if newDistance > 30*screenDiagonal {
+		newDistance = 30 * screenDiagonal
 	}
 
 	// Calculate the new focus point
@@ -187,25 +187,11 @@ func (c Camera) Normalize() Camera {
 		TR: Vec{1, 1, 0},
 	}
 
-	// Calculate the diagonal length of the original screen
-	originalDiagonal := c.screen.TL.Sub(c.screen.BR).Length()
-
-	// Calculate the diagonal length of the new screen (which is sqrt(8) due to points at (-1,1) etc.)
-	newDiagonal := float64(math.Sqrt(8))
-
-	// Scale factor to maintain the same relative distance
-	scaleFactor := originalDiagonal / newDiagonal
-
-	// Calculate the new focus point along the z-axis to maintain the scale
-	newFocusZ := -scaleFactor * (c.focus.Sub(c.screen.TL).Length() / originalDiagonal)
-
 	// Create the new normalized camera
-	newCamera := Camera{
+	return Camera{
 		screen: newScreen,
-		focus:  Vec{0, 0, newFocusZ},
+		focus:  NormalizeVec(c.screen)(c.focus),
 	}
-
-	return newCamera
 }
 
 func (c Camera) Project(v Vec) (Vec, ProjectionPosition) {
@@ -277,9 +263,9 @@ func (c Camera) String() string {
 func (c Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) Camera {
 	// Define constants for movement, rotation, and zoom speeds
 	const (
-		MoveSpeed   = 1.0  // Units per second
-		RotateSpeed = 0.05 // Radians per second
-		ZoomSpeed   = 5.0  // Zoom percentage per second
+		MoveSpeed   = 2.0  // Units per second
+		RotateSpeed = 0.3  // Radians per second
+		ZoomSpeed   = 10.0 // Zoom percentage per second
 	)
 
 	dt = min(dt, float64(.2))
@@ -332,7 +318,7 @@ func (c Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) Camera {
 	c = c.Move(moveVec)
 	c = c.Rotate(rotateVec)
 
-	// Zoom controls (+/-)
+	// Zoom controls (C/V)
 	if keys[key.CodeC] {
 		c = c.Zoom(ZoomSpeed * dt) // Zoom in
 	} else if keys[key.CodeV] {

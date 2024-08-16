@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"math/rand/v2"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -47,7 +48,12 @@ func main() {
 			points: []Vec{},
 		}
 
-		scene.Point(Vec{0, 0, .1})
+		for i := 0; i < 100_000; i++ {
+			x := rand.Float64()*100 - 50 // Random x between -5 and 5
+			y := rand.Float64()*100 - 50 // Random y between -5 and 5
+			z := rand.Float64()*100 - 50 // Random z between -5 and 5
+			scene.Point(Vec{x, y, z})
+		}
 
 		var previousTime = time.Now()
 		var delta float64 = 0
