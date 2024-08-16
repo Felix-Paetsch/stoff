@@ -1,6 +1,6 @@
 import dummay_pattern from './dummy_pattern.js';
 import { Sketch } from '../StoffLib/sketch.js';
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from '../StoffLib/geometry.js';
 
 import basic_pattern from './basic/basicPattern.js';
 import change from './change/remodel.js';

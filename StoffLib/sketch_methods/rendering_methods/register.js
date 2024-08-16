@@ -1,7 +1,7 @@
 
 import { create_svg_from_sketch, save_as_svg } from './to_svg.js';
 import { create_dev_svg_from_sketch } from "./to_dev_svg.js";
-import { create_png_from_sketch, save_as_png } from './to_png.js';
+import { create_png_from_sketch, save_as_png, create_jpg_from_sketch, save_as_jpg } from './to_png_jpg.js';
 
 import { toA4printable } from './to_A4_pages.js';
 import path from 'path';
@@ -25,6 +25,14 @@ export default (Sketch) => {
     
     Sketch.prototype.save_as_png = function(...args) {
         return save_as_png(this, ...args)
+    }
+    
+    Sketch.prototype.to_jpg = function(...args) {
+        return create_jpg_from_sketch(this, ...args)
+    }
+    
+    Sketch.prototype.save_as_jpg = function(...args) {
+        return save_as_jpg(this, ...args)
     }
     
     Sketch.prototype.save_on_A4 = function(folder){

@@ -1,4 +1,4 @@
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from './geometry.js';
 import { copy_connected_component } from './copy.js';
 import { Sketch } from "./sketch.js";
 

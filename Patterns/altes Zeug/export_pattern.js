@@ -1,5 +1,5 @@
 import { Sketch } from '../StoffLib/sketch.js';
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from '../StoffLib/geometry.js';
 import { add_time_tracker } from '../Debug/track_fn.js';
 
 import basic_pattern from './basic/basicPattern.js';

@@ -1,6 +1,6 @@
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
-import { Vector } from '../../Geometry/geometry.js';
+import { Vector } from '../../StoffLib/geometry.js';
 
 function evaluate_type(design){
   let options = [];

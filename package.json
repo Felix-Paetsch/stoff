@@ -1,13 +1,34 @@
 {
   "dependencies": {
+    "autoprefixer": "^10.4.19",
     "axios": "^1.6.2",
+    "browser-sync": "^3.0.2",
     "canvas": "^2.11.2",
     "chroma-js": "^2.4.2",
+    "concurrently": "^8.2.2",
     "ejs": "^3.1.10",
     "epxress": "^0.0.1-security",
     "express": "^4.19.2",
+    "fluent-ffmpeg": "^2.1.3",
     "image-size": "^1.0.2",
-    "pdf-lib": "^1.17.1"
+    "nodemon": "^3.1.4",
+    "pdf-lib": "^1.17.1",
+    "postcss": "^8.4.40",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.4.7"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -c ./Website/tailwind.config.js -i ./Website/public/_styles.css -o ./Website/public/tailwind.css",
+    "watch:css": "tailwindcss -c ./Website/tailwind.config.js -i ./Website/public/_styles.css -o ./Website/public/tailwind.css --watch",
+    
+    "dev": "nodemon DevWebsite/index.js",
+    
+    "web": "nodemon Website/index.js",
+    "web_css": "concurrently \"npm run watch:css\" \"nodemon Website/index.js\"",
+    "hot": "concurrently \"npm run watch:css\" \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3002 --files 'Website/public/*.css,Website/views/**/*.ejs,Website/**/*.js' --no-notify --no-open --port 3003\"",
+
+    "measure": "node Tools/Measurements/index.js",
+    "go": "(cd ./Tools/StoffGo && go run .)"
+  }
 }

@@ -1,6 +1,6 @@
 import Sketch from "../StoffLib/sketch.js";
 import { _calculate_intersections } from "../StoffLib/unicorns/intersect_lines.js"
-import { Vector } from "../Geometry/geometry.js";
+import { Vector } from "../StoffLib/geometry.js";
 
 export default function(){
     const s = new Sketch();

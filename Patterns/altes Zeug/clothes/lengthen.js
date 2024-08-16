@@ -1,5 +1,5 @@
 import { debug, add_point, remove_point, line_between_points, interpolate_lines, Point, save, remove_line, clear, merge_lines } from '../StoffLib/main.js';
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from '../StoffLib/geometry.js';
 import { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} from '../clothes/basicFun_new.js';
 import { rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart, side_to_top} from '../clothes/darts.js';
 

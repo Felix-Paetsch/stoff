@@ -1,6 +1,6 @@
 //const dummay_pattern = require("./dummy_pattern.js");
 import { Sketch } from '../StoffLib/sketch.js';
-import { Vector } from '../Geometry/geometry.js';
+import { Vector } from '../StoffLib/geometry.js';
 
 import mea from './measurements.js';
 import basic_pattern_top from './top/pattern_top.js';

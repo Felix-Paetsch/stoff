@@ -1,5 +1,6 @@
 *.svg
 node_modules
+**node_modules
 renders
 _todo.md
 **Leonie
@@ -7,3 +8,5 @@ Patterns/_example
 day_documentation.md
 _TryOut
 StoffLib/_export_global.js
+Server/public/tailwind.css
+Measurements/data/measurement**

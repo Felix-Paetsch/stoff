@@ -27,7 +27,7 @@ class SketchRouteRenderer{
     }
 
     add_route(route, svg, data, sketch_data){
-        if (["/", "/pattern", "/reset", "/at_url"].concat(Object.keys(this.routes)).includes(route)){
+        if (["/", "/pattern", "/reset", "/at_url", "/self_intersects"].concat(Object.keys(this.routes)).includes(route)){
             throw new Error(`Route ${route} is already taken!`);
         }
 

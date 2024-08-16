@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../StoffLib/geometry.js';
 //import { debug, add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch } from '../StoffLib/main.js';
 import { Point } from '../StoffLib/point.js';
 import { Sketch } from '../StoffLib/sketch.js';

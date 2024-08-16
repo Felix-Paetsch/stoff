@@ -1,4 +1,4 @@
-import { affine_transform_from_input_output, Vector, closest_vec_on_line_segment } from "../../Geometry/geometry.js";
+import { affine_transform_from_input_output, Vector, closest_vec_on_line_segment } from "../geometry.js";
 import { copy_sketch_obj_data } from '../copy.js';
 import { interpolate_colors } from '../colors.js';
 

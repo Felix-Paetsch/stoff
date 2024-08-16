@@ -1,6 +1,6 @@
 import { Point } from '../point.js';
 import { Line } from '../line.js';
-import { Vector } from '../../Geometry/geometry.js';
+import { Vector } from '../geometry.js';
 import { ConnectedComponent } from '../connected_component.js';
 import { Sketch } from "../sketch.js";
 import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
