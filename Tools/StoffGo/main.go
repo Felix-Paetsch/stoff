@@ -42,7 +42,8 @@ func main() {
 		defer screenBuffer.Release()
 		pixBuffer = screenBuffer.RGBA()
 
-		scene := DefaultScene().Camera(DefaultCamera())
+		aspectRatio := float64(winWidth) / float64(winHeight)
+		scene := DefaultScene().Camera(DefaultCamera(aspectRatio))
 
 		for i := 0; i < 100_000; i++ {
 			x := rand.Float64()*100 - 50
@@ -86,6 +87,9 @@ func main() {
 					}
 					defer screenBuffer.Release()
 					pixBuffer = screenBuffer.RGBA()
+
+					// Update camera with new aspect ratio
+					scene.camera.Update(winWidth, winHeight)
 
 				case paint.Event:
 				}

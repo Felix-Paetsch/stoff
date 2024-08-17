@@ -190,15 +190,26 @@ func (c *Camera) Project(v Vec) (Vec, ProjectionPosition) {
 	return projection, position
 }
 
-func DefaultCamera() *Camera {
+func (camera *Camera) Update(width, height int) {
+	aspectRatio := float64(width) / float64(height)
+	heightScale := 2.0 / aspectRatio
+
+	camera.screen.TL = Vec{-1, heightScale / 2, 0}
+	camera.screen.BL = Vec{-1, -heightScale / 2, 0}
+	camera.screen.BR = Vec{1, -heightScale / 2, 0}
+	camera.screen.TR = Vec{1, heightScale / 2, 0}
+}
+
+func DefaultCamera(aspectRatio float64) *Camera {
+	height := 2.0 / aspectRatio // Calculate height based on the aspect ratio, keeping width -1 to 1
 	defaultScreen := Screen{
-		TL: Vec{-1, 1, 0},
-		BL: Vec{-1, -1, 0},
-		BR: Vec{1, -1, 0},
-		TR: Vec{1, 1, 0},
+		TL: Vec{-1, 1 * height / 2, 0},
+		BL: Vec{-1, -1 * height / 2, 0},
+		BR: Vec{1, -1 * height / 2, 0},
+		TR: Vec{1, 1 * height / 2, 0},
 	}
 
-	defaultFocus := Vec{0, 0, -5}
+	defaultFocus := Vec{0, 0, -10}
 
 	return &Camera{
 		screen: defaultScreen,
@@ -274,7 +285,9 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 	}
 
 	if keys[key.CodeR] {
-		c = DefaultCamera()
+		w := c.screen.TL.Sub(c.screen.TR).Length()
+		h := c.screen.TL.Sub(c.screen.BL).Length()
+		c = DefaultCamera(w / h)
 	}
 
 	return c
