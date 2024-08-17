@@ -32,6 +32,10 @@ func (v Vec) Scale(f float64) Vec {
 	return Vec{v[0] * f, v[1] * f, v[2] * f}
 }
 
+func (v Vec) Normalize() Vec {
+	return v.Scale(1 / v.Length())
+}
+
 func (v Vec) Length() float64 {
 	return float64(math.Sqrt(float64(v.Dot(v))))
 }
@@ -116,4 +120,26 @@ func solveLGS(A, B Mat) (Mat, error) {
 
 	C := B.MulMat(A_inv)
 	return C, nil
+}
+
+func LinePlaneIntersection(P1, P2, Q1, Q2, Q3 Vec) (Vec, bool) {
+	// Direction vector of the line
+	lineDir := P2.Sub(P1)
+
+	// Normal vector of the plane
+	planeNormal := Q2.Sub(Q1).Cross(Q3.Sub(Q1))
+
+	// Check if the line is parallel to the plane
+	denominator := planeNormal.Dot(lineDir)
+	if denominator == 0 {
+		// The line is parallel to the plane, no intersection
+		return Vec{}, false
+	}
+
+	// Calculate t for the line equation
+	t := planeNormal.Dot(Q1.Sub(P1)) / denominator
+
+	// Calculate the intersection point
+	intersection := P1.Add(lineDir.Scale(t))
+	return intersection, true
 }

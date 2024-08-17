@@ -49,22 +49,47 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	normalize := NormalizeVec(s.camera.screen)
 	normCamera := s.camera.Normalize()
 
+	// Array to store indicator points where lines intersect the screen
+	var lineThroughScreenIndicators []Vec
+
 	// First, render lines
 	for _, line := range *s.lines {
-		projectedPt1, projectionPos1 := normCamera.Project(normalize(line[0]))
-		projectedPt2, projectionPos2 := normCamera.Project(normalize(line[1]))
+		norm0 := normalize(line[0])
+		norm1 := normalize(line[1])
+		projectedPt1, projectionPos1 := normCamera.Project(norm0)
+		projectedPt2, projectionPos2 := normCamera.Project(norm1)
 
-		if projectionPos1 == InsideFront || projectionPos2 == InsideFront {
-			// If either of the points is inside the front view, draw the line
-			imgW1 := float64(projectedPt1[0]+1) * float64(w) / 2
-			imgH1 := float64(projectedPt1[1]+1) * float64(h) / 2
-			imgW2 := float64(projectedPt2[0]+1) * float64(w) / 2
-			imgH2 := float64(projectedPt2[1]+1) * float64(h) / 2
-
-			dc.SetRGB(1, 1, 1) // Set line color to white
-			dc.DrawLine(imgW1, imgH1, imgW2, imgH2)
-			dc.Stroke()
+		if projectionPos1 != InsideFront && projectionPos2 != InsideFront {
+			continue
 		}
+
+		if projectionPos2 == InsideFront && projectionPos1 != InsideFront {
+			t := projectedPt1
+			projectedPt1 = projectedPt2
+			projectedPt2 = t
+
+			projectionPos2 = projectionPos1
+		}
+
+		// First point is inside front
+		if projectionPos2 == OutsideBehind || projectionPos2 == InsideBehind {
+			// Find intersection with screen plane and set projectionPos2 to be that value
+			intersection, _ := LinePlaneIntersection(norm0, norm1, normCamera.screen.BL, normCamera.screen.TL, normCamera.screen.BR)
+			projectedPt2 = intersection
+
+			// Add the intersection point to the array of indicators
+			lineThroughScreenIndicators = append(lineThroughScreenIndicators, intersection)
+		}
+
+		// Draw the line
+		imgW1 := float64(projectedPt1[0]+1) * float64(w) / 2
+		imgH1 := (projectedPt1[1] + float64(w)/float64(h)) * float64(h) / 2
+		imgW2 := float64(projectedPt2[0]+1) * float64(w) / 2
+		imgH2 := (projectedPt2[1] + float64(w)/float64(h)) * float64(h) / 2
+
+		dc.SetRGB(1, 1, 1) // Set line color to white
+		dc.DrawLine(imgW1, imgH1, imgW2, imgH2)
+		dc.Stroke()
 	}
 
 	// Then, render points
@@ -74,7 +99,7 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	}
 
 	var pointsData []pointData
-	for _, pt := range *s.points { // Dereference the pointer to access the points
+	for _, pt := range *s.points {
 		normalizedPt := normalize(pt)
 		distance := normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length()
 
@@ -93,7 +118,7 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 
 		if projectionPos == InsideFront {
 			imgW := float64(projectedPt[0]+1) * float64(w) / 2
-			imgH := float64(projectedPt[1]+1) * float64(h) / 2
+			imgH := (projectedPt[1] + float64(w)/float64(h)) * float64(h) / 2
 
 			normalizedDistance := 1.0 / math.Pow((pd.distance+1.0), .3)
 			red := normalizedDistance
@@ -109,7 +134,17 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 		}
 	}
 
-	// Finally, render additional information (text overlay)
+	// Finally, render the indicator points where lines pass through the screen
+	dc.SetRGB(0.3, 0.3, 0.3) // Set indicator points color to gray
+	for _, indicator := range lineThroughScreenIndicators {
+		imgW := float64(indicator[0]+1) * float64(w) / 2
+		imgH := (indicator[1] + float64(w)/float64(h)) * float64(h) / 2
+
+		dc.DrawCircle(imgW, imgH, 4) // Draw small circles as indicators
+		dc.Fill()
+	}
+
+	// Render additional information (text overlay)
 	midpoint := s.camera.screen.TL.Add(s.camera.screen.BR).Scale(0.5)
 	rotationAngles := s.camera.screen.TL.Sub(s.camera.screen.TR)
 	angleX := (int(math.Atan2(rotationAngles[1], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180

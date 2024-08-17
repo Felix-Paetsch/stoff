@@ -184,26 +184,34 @@ func (c *Camera) Project(v Vec) (Vec, ProjectionPosition) {
 	return projection, position
 }
 
-func (camera *Camera) Update(width, height int) {
+func (c *Camera) Update(width, height int) {
 	aspectRatio := float64(width) / float64(height)
-	heightScale := 2.0 / aspectRatio
 
-	camera.screen.TL = Vec{-1, heightScale / 2, 0}
-	camera.screen.BL = Vec{-1, -heightScale / 2, 0}
-	camera.screen.BR = Vec{1, -heightScale / 2, 0}
-	camera.screen.TR = Vec{1, heightScale / 2, 0}
+	LRVec := c.screen.TR.Sub(c.screen.TL)
+	TBVec := c.screen.BL.Sub(c.screen.TL).Normalize().Scale(LRVec.Length() / aspectRatio)
+
+	oldCenter := c.screen.TR.Add(c.screen.BL).Scale(.5)
+	oldDiag := c.screen.TR.Sub(c.screen.BL).Length()
+	focusVec := c.focus.Sub(oldCenter)
+
+	c.screen.TR = c.screen.TL.Add(LRVec)
+	c.screen.BL = c.screen.TL.Add(TBVec)
+	c.screen.BR = c.screen.TL.Add(TBVec).Add(LRVec)
+
+	newCenter := c.screen.TR.Add(c.screen.BL).Scale(.5)
+	newDiag := c.screen.TR.Sub(c.screen.BL).Length()
+	c.focus = newCenter.Add(focusVec.Scale(newDiag / oldDiag))
 }
 
 func DefaultCamera(aspectRatio float64) *Camera {
-	height := 2.0 / aspectRatio // Calculate height based on the aspect ratio, keeping width -1 to 1
 	defaultScreen := Screen{
-		TL: Vec{-1, 1 * height / 2, 0},
-		BL: Vec{-1, -1 * height / 2, 0},
-		BR: Vec{1, -1 * height / 2, 0},
-		TR: Vec{1, 1 * height / 2, 0},
+		TL: Vec{-1, -aspectRatio, 0},
+		BL: Vec{-1, aspectRatio, 0},
+		BR: Vec{1, aspectRatio, 0},
+		TR: Vec{1, -aspectRatio, 0},
 	}
 
-	defaultFocus := Vec{0, 0, -10}
+	defaultFocus := Vec{0, 0, -100}
 
 	return &Camera{
 		screen: defaultScreen,
@@ -221,9 +229,9 @@ func (c *Camera) String() string {
 
 func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 	const (
-		MoveSpeed   = 2.0
-		RotateSpeed = 0.3
-		ZoomSpeed   = 10.0
+		MoveSpeed   = 3.0
+		RotateSpeed = 0.2
+		ZoomSpeed   = 20.0
 	)
 
 	dt = min(dt, float64(.2))

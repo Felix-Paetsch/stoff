@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	winWidth, winHeight = 800, 600
+	winWidth, winHeight = 600, 600
 	screenBuffer        screen.Buffer
 	pixBuffer           *image.RGBA
 	keyPressed          = make(map[key.Code]bool)
@@ -52,9 +52,9 @@ func main() {
 		} */
 
 		// Add three points in a triangle
-		pt1 := Vec{-1, -1, 5}
-		pt2 := Vec{1, -1, 5}
-		pt3 := Vec{0, 0, -2}
+		pt1 := Vec{-.8, -.2, 5}
+		pt2 := Vec{.8, -.2, 5}
+		pt3 := Vec{0, .5, -2}
 
 		scene.Point(pt1)
 		scene.Point(pt2)
@@ -101,7 +101,6 @@ func main() {
 					defer screenBuffer.Release()
 					pixBuffer = screenBuffer.RGBA()
 
-					// Update camera with new aspect ratio
 					scene.camera.Update(winWidth, winHeight)
 
 				case paint.Event:
