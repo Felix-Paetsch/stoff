@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"math/rand/v2"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -44,26 +45,39 @@ func main() {
 		aspectRatio := float64(winWidth) / float64(winHeight)
 		scene := DefaultScene().Camera(DefaultCamera(aspectRatio))
 
-		/* for i := 0; i < 100_000; i++ {
+		numPoints := 100_000
+		points := make([]Vec, numPoints)
+		for i := 0; i < numPoints; i++ {
 			x := rand.Float64()*100 - 50
 			y := rand.Float64()*100 - 50
 			z := rand.Float64()*100 - 50
-			scene.Point(Vec{x, y, z})
-		} */
+			points[i] = Vec{x, y, z}
+		}
 
-		// Add three points in a triangle
-		pt1 := Vec{-.8, -.2, 5}
-		pt2 := Vec{.8, -.2, 5}
-		pt3 := Vec{0, .5, -2}
+		scene.points = &points
 
-		scene.Point(pt1)
-		scene.Point(pt2)
-		scene.Point(pt3)
+		// Create random lines between points
+		for i := 0; i < 100_000; i++ {
+			index1 := rand.IntN(numPoints)
+			index2 := rand.IntN(numPoints)
+			scene.Line(points[index1], points[index2])
+		}
 
-		// Add lines between the points to form a triangle
-		scene.Line(pt1, pt2)
-		scene.Line(pt2, pt3)
-		scene.Line(pt3, pt1)
+		/*
+			// Add three points in a triangle
+			pt1 := Vec{-.8, -.2, 5}
+			pt2 := Vec{.8, -.2, 5}
+			pt3 := Vec{0, .5, -2}
+
+			scene.Point(pt1)
+			scene.Point(pt2)
+			scene.Point(pt3)
+
+			// Add lines between the points to form a triangle
+			scene.Line(pt1, pt2)
+			scene.Line(pt2, pt3)
+			scene.Line(pt3, pt1)
+		*/
 
 		var previousTime = time.Now()
 		var delta float64 = 0
