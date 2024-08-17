@@ -101,7 +101,13 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	var pointsData []pointData
 	for _, pt := range *s.points {
 		normalizedPt := normalize(pt)
-		distance := normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length()
+
+		var distance float64
+		if s.camera.orth {
+			distance = normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length()
+		} else {
+			distance = math.Abs(normalizedPt[2])
+		}
 
 		pointsData = append(pointsData, pointData{
 			normalizedPoint: normalizedPt,
@@ -121,6 +127,10 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 			imgH := (projectedPt[1] + float64(w)/float64(h)) * float64(h) / 2
 
 			normalizedDistance := 1.0 / math.Pow((pd.distance+1.0), .3)
+			if math.IsNaN(normalizedDistance) {
+				normalizedDistance = .01
+			}
+
 			red := normalizedDistance
 			blue := 1.0 - normalizedDistance
 			green := 0.0
@@ -149,15 +159,15 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	rotationAngles := s.camera.screen.TL.Sub(s.camera.screen.TR)
 	angleX := (int(math.Atan2(rotationAngles[1], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
 	angleY := (int(math.Atan2(rotationAngles[2], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
-	currentZoom := midpoint.Sub(s.camera.focus).Length()
 
 	textPadding := 10.0
 	textHeight := 20.0
 
 	dc.SetRGB(1, 1, 1)
-	dc.DrawStringAnchored(fmt.Sprintf("Zoom: %.2f", currentZoom), textPadding, float64(h)-textPadding-20, 0, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Midpoint: %v", midpoint), textPadding, float64(h)-textPadding-textHeight-20, 0, 1)
+	dc.DrawStringAnchored(fmt.Sprintf("Focus: %v", s.camera.focus), textPadding, float64(h)-textPadding-20, 0, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Angle X: %d°, Angle Y: %d°", angleX, angleY), textPadding, float64(h)-textPadding-2*textHeight-20, 0, 1)
+	dc.DrawStringAnchored(fmt.Sprintf("Orth: %t", s.camera.orth), textPadding, float64(h)-textPadding-3*textHeight-20, 0, 1)
 
 	dc.Fill()
 }

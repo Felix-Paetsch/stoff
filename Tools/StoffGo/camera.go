@@ -18,6 +18,7 @@ type Screen struct {
 type Camera struct {
 	screen Screen
 	focus  Vec
+	orth   bool
 }
 
 type ProjectionPosition int
@@ -120,7 +121,7 @@ func (c *Camera) Rotate(angles Vec) *Camera {
 	return c
 }
 
-func (c *Camera) Zoom(percentage float64) *Camera {
+func (c *Camera) MoveFocus(percentage float64) *Camera {
 	center := c.screen.TL.Add(c.screen.BR).Scale(0.5)
 	direction := center.Sub(c.focus)
 	currentDistance := direction.Length()
@@ -129,12 +130,31 @@ func (c *Camera) Zoom(percentage float64) *Camera {
 
 	if newDistance < 0.5*screenDiagonal {
 		newDistance = 0.5 * screenDiagonal
-	} else if newDistance > 30*screenDiagonal {
-		newDistance = 30 * screenDiagonal
 	}
 
 	newFocus := center.Sub(direction.Scale(newDistance / currentDistance))
 	c.focus = newFocus
+
+	return c
+}
+
+func (c *Camera) Zoom(percentage float64) *Camera {
+	LRVec := c.screen.TR.Sub(c.screen.TL)
+	TDVec := c.screen.BR.Sub(c.screen.TR)
+	center := c.screen.TR.Add(c.screen.BL).Scale(.5)
+
+	aspectRatio := LRVec.Length() / TDVec.Length()
+	new_width := (1 - percentage) * LRVec.Length()
+
+	new_width = max(new_width, .2)
+	newLRVec := LRVec.Normalize().Scale(new_width)
+	newTDVec := TDVec.Normalize().Scale(new_width / aspectRatio)
+
+	c.screen.TL = center.Sub(newLRVec.Add(newTDVec).Scale(.5))
+	c.screen.BL = center.Sub(newLRVec.Sub(newTDVec).Scale(.5))
+	c.screen.BR = center.Add(newLRVec.Add(newTDVec).Scale(.5))
+	c.screen.TR = center.Add(newLRVec.Sub(newTDVec).Scale(.5))
+	c.MoveFocus(0) // Clip Focus
 
 	return c
 }
@@ -150,31 +170,63 @@ func (c *Camera) Normalize() *Camera {
 	return &Camera{
 		screen: newScreen,
 		focus:  NormalizeVec(c.screen)(c.focus),
+		orth:   c.orth,
 	}
 }
 
 func (c *Camera) Project(v Vec) (Vec, ProjectionPosition) {
-	normal := c.screen.TR.Sub(c.screen.TL).Cross(c.screen.BL.Sub(c.screen.TL))
-	focusToV := v.Sub(c.focus)
-	denominator := normal.Dot(focusToV)
+	normal := c.screen.TR.Sub(c.screen.TL).Cross(c.screen.BL.Sub(c.screen.TL)).Normalize()
 
-	if denominator == 0 {
-		return c.focus, OutsideFront
+	if !c.orth {
+		// Perspective projection
+		focusToV := v.Sub(c.focus)
+		denominator := normal.Dot(focusToV)
+
+		if denominator == 0 {
+			return c.focus, OutsideFront
+		}
+
+		t := normal.Dot(c.screen.TL.Sub(c.focus)) / denominator
+		projection := c.focus.Add(focusToV.Scale(t))
+		inScreen := c.screen.isPointInScreen(projection)
+
+		var position ProjectionPosition
+		if inScreen {
+			if t >= 0 && t <= 1 {
+				position = InsideFront
+			} else {
+				position = InsideBehind
+			}
+		} else {
+			if t >= 0 && t <= 1 {
+				position = OutsideFront
+			} else {
+				position = OutsideBehind
+			}
+		}
+
+		return projection, position
 	}
 
-	t := normal.Dot(c.screen.TL.Sub(c.focus)) / denominator
-	projection := c.focus.Add(focusToV.Scale(t))
+	// Orthogonal projection
+	// Calculate distance from the point to the screen plane
+	d := normal.Dot(c.screen.TL) // Distance from origin to screen plane
+	distanceToPlane := normal.Dot(v) - d
+	projection := v.Sub(normal.Scale(distanceToPlane / normal.Dot(normal)))
+
+	// Determine if the projection point is inside the screen bounds
 	inScreen := c.screen.isPointInScreen(projection)
 
+	// Determine the position
 	var position ProjectionPosition
 	if inScreen {
-		if t >= 0 && t <= 1 {
+		if distanceToPlane > 0 {
 			position = InsideFront
 		} else {
 			position = InsideBehind
 		}
 	} else {
-		if t >= 0 && t <= 1 {
+		if distanceToPlane > 0 {
 			position = OutsideFront
 		} else {
 			position = OutsideBehind
@@ -216,6 +268,7 @@ func DefaultCamera(aspectRatio float64) *Camera {
 	return &Camera{
 		screen: defaultScreen,
 		focus:  defaultFocus,
+		orth:   true,
 	}
 }
 
@@ -224,17 +277,24 @@ func (s Screen) String() string {
 }
 
 func (c *Camera) String() string {
-	return fmt.Sprintf("Camera{\n  Screen: %v,\n  Focus: %v\n}", c.screen, c.focus)
+	return fmt.Sprintf("Camera{\n  Screen: %v,\n  Focus: %v\n, Orth: %t\n}", c.screen, c.focus, c.orth)
 }
 
 func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 	const (
 		MoveSpeed   = 3.0
-		RotateSpeed = 0.2
-		ZoomSpeed   = 20.0
+		RotateSpeed = 0.1
+		ZoomSpeed   = 0.1
+		FocusSpeec  = 20.0
 	)
 
 	dt = min(dt, float64(.2))
+
+	if keys[key.CodeR] {
+		w := c.screen.TL.Sub(c.screen.TR).Length()
+		h := c.screen.TL.Sub(c.screen.BL).Length()
+		return DefaultCamera(w / h)
+	}
 
 	moveVec := Vec{0, 0, 0}
 	rotateVec := Vec{0, 0, 0}
@@ -271,19 +331,23 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 		rotateVec = rotateVec.Add(Vec{-RotateSpeed * dt, 0, 0})
 	}
 
+	if keys[key.CodeO] {
+		c.orth = !c.orth
+	}
+
 	c = c.Move(moveVec)
 	c = c.Rotate(rotateVec)
+
+	if keys[key.CodeT] {
+		c = c.MoveFocus(FocusSpeec * dt)
+	} else if keys[key.CodeZ] {
+		c = c.MoveFocus(-FocusSpeec * dt)
+	}
 
 	if keys[key.CodeC] {
 		c = c.Zoom(ZoomSpeed * dt)
 	} else if keys[key.CodeV] {
 		c = c.Zoom(-ZoomSpeed * dt)
-	}
-
-	if keys[key.CodeR] {
-		w := c.screen.TL.Sub(c.screen.TR).Length()
-		h := c.screen.TL.Sub(c.screen.BL).Length()
-		c = DefaultCamera(w / h)
 	}
 
 	return c

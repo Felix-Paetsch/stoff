@@ -63,21 +63,19 @@ func main() {
 			scene.Line(points[index1], points[index2])
 		}
 
-		/*
-			// Add three points in a triangle
-			pt1 := Vec{-.8, -.2, 5}
-			pt2 := Vec{.8, -.2, 5}
-			pt3 := Vec{0, .5, -2}
+		/*// Add three points in a triangle
+		pt1 := Vec{-.8, -.2, 5}
+		pt2 := Vec{.8, -.2, 5}
+		pt3 := Vec{0, .5, -2}
 
-			scene.Point(pt1)
-			scene.Point(pt2)
-			scene.Point(pt3)
+		scene.Point(pt1)
+		scene.Point(pt2)
+		scene.Point(pt3)
 
-			// Add lines between the points to form a triangle
-			scene.Line(pt1, pt2)
-			scene.Line(pt2, pt3)
-			scene.Line(pt3, pt1)
-		*/
+		// Add lines between the points to form a triangle
+		scene.Line(pt1, pt2)
+		scene.Line(pt2, pt3)
+		scene.Line(pt3, pt1)*/
 
 		var previousTime = time.Now()
 		var delta float64 = 0
