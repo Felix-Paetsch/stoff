@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"log"
-	"math/rand"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -45,12 +44,26 @@ func main() {
 		aspectRatio := float64(winWidth) / float64(winHeight)
 		scene := DefaultScene().Camera(DefaultCamera(aspectRatio))
 
-		for i := 0; i < 100_000; i++ {
+		/* for i := 0; i < 100_000; i++ {
 			x := rand.Float64()*100 - 50
 			y := rand.Float64()*100 - 50
 			z := rand.Float64()*100 - 50
 			scene.Point(Vec{x, y, z})
-		}
+		} */
+
+		// Add three points in a triangle
+		pt1 := Vec{-1, -1, 5}
+		pt2 := Vec{1, -1, 5}
+		pt3 := Vec{0, 0, -2}
+
+		scene.Point(pt1)
+		scene.Point(pt2)
+		scene.Point(pt3)
+
+		// Add lines between the points to form a triangle
+		scene.Line(pt1, pt2)
+		scene.Line(pt2, pt3)
+		scene.Line(pt3, pt1)
 
 		var previousTime = time.Now()
 		var delta float64 = 0

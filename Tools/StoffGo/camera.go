@@ -104,13 +104,7 @@ func (c *Camera) Rotate(angles Vec) *Camera {
 		Vec{-float64(math.Sin(float64(angles[1]))), 0, float64(math.Cos(float64(angles[1])))},
 	}
 
-	rotationZ := Mat{
-		Vec{float64(math.Cos(float64(angles[2]))), -float64(math.Sin(float64(angles[2]))), 0},
-		Vec{float64(math.Sin(float64(angles[2]))), float64(math.Cos(float64(angles[2]))), 0},
-		Vec{0, 0, 1},
-	}
-
-	rotationMatrix := rotationX.MulMat(rotationY).MulMat(rotationZ)
+	rotationMatrix := rotationX.MulMat(rotationY)
 
 	rotatePoint := func(p Vec) Vec {
 		relative := p.Sub(c.focus)
@@ -267,12 +261,6 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 	}
 	if keys[key.CodeI] {
 		rotateVec = rotateVec.Add(Vec{-RotateSpeed * dt, 0, 0})
-	}
-	if keys[key.CodeN] {
-		rotateVec = rotateVec.Add(Vec{0, 0, RotateSpeed * dt})
-	}
-	if keys[key.CodeM] {
-		rotateVec = rotateVec.Add(Vec{0, 0, -RotateSpeed * dt})
 	}
 
 	c = c.Move(moveVec)
