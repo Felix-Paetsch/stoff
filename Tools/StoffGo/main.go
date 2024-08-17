@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
-	"math/rand/v2"
+	"math/rand"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -42,16 +42,12 @@ func main() {
 		defer screenBuffer.Release()
 		pixBuffer = screenBuffer.RGBA()
 
-		// Create a scene with the default camera
-		scene := Scene{
-			camera: DefaultCamera(),
-			points: []Vec{},
-		}
+		scene := DefaultScene().Camera(DefaultCamera())
 
 		for i := 0; i < 100_000; i++ {
-			x := rand.Float64()*100 - 50 // Random x between -5 and 5
-			y := rand.Float64()*100 - 50 // Random y between -5 and 5
-			z := rand.Float64()*100 - 50 // Random z between -5 and 5
+			x := rand.Float64()*100 - 50
+			y := rand.Float64()*100 - 50
+			z := rand.Float64()*100 - 50
 			scene.Point(Vec{x, y, z})
 		}
 
@@ -61,7 +57,6 @@ func main() {
 		for {
 			startTime := time.Now()
 
-			// Handle window events:
 			for {
 				e := w.NextEvent()
 				switch e := e.(type) {
@@ -71,7 +66,7 @@ func main() {
 					case key.DirPress:
 						keyPressed[e.Code] = true
 						if e.Code == key.CodeQ || e.Code == key.CodeEscape {
-							return // quit app when "q" or "Escape" is pressed
+							return
 						}
 					case key.DirRelease:
 						keyPressed[e.Code] = false
@@ -79,7 +74,7 @@ func main() {
 
 				case lifecycle.Event:
 					if e.To == lifecycle.StageDead {
-						return // quit the application when the window is closed.
+						return
 					}
 
 				case size.Event:
@@ -93,19 +88,14 @@ func main() {
 					pixBuffer = screenBuffer.RGBA()
 
 				case paint.Event:
-					// Handle paint events
 				}
 
-				// Stop processing events after each iteration of main loop
 				if time.Since(startTime) > 100 {
 					break
 				}
 			}
 
-			// Update the scene with delta_time and key states
 			scene.Update(delta, keyPressed)
-
-			// Render the scene to the buffer with updated window dimensions
 			scene.Render(pixBuffer, winWidth, winHeight)
 
 			w.Upload(image.Point{0, 0}, screenBuffer, screenBuffer.Bounds())
@@ -118,9 +108,7 @@ func main() {
 	})
 }
 
-// Update function for Scene with delta_time and key state parameters
 func (s *Scene) Update(delta_time float64, keys map[key.Code]bool) {
-	// Check if any keys are pressed
 	hasKeyPressed := false
 	for _, pressed := range keys {
 		if pressed {
@@ -129,7 +117,6 @@ func (s *Scene) Update(delta_time float64, keys map[key.Code]bool) {
 		}
 	}
 
-	// Only call ReactToKeypresses if there are keys being pressed
 	if hasKeyPressed {
 		s.camera = s.camera.ReactToKeypresses(keys, delta_time)
 	}
