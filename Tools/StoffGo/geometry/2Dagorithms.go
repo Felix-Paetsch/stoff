@@ -104,3 +104,36 @@ func DegToRad(d float64) float64 {
 func RadToDeg(r float64) float64 {
 	return 180 * r / math.Pi
 }
+
+func IsPointInPolygon(point Vec2, polygon []Vec2) bool {
+	intersections := 0
+	n := len(polygon)
+
+	for i := 0; i < n; i++ {
+		v1 := polygon[i]
+		v2 := polygon[(i+1)%n]
+
+		if isRayIntersectingEdge(point, v1, v2) {
+			intersections++
+		}
+	}
+
+	return intersections%2 != 0
+}
+
+func isRayIntersectingEdge(point, v1, v2 Vec2) bool {
+	if v1[1] > v2[1] {
+		v1, v2 = v2, v1
+	}
+
+	if point[1] == v1[1] || point[1] == v2[1] {
+		point[1] += 1e-9
+	}
+
+	if point[1] < v1[1] || point[1] > v2[1] {
+		return false
+	}
+
+	intersectionX := v1[0] + (point[1]-v1[1])*(v2[0]-v1[0])/(v2[1]-v1[1])
+	return point[0] < intersectionX
+}

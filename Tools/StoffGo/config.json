@@ -8,12 +8,12 @@
 	},
 	"camera_defaults": {
 		"orth": true,
-		"width": 2.0,
-		"midpoint": [0.0, 0, -1.0],
+		"width": 3.0,
+		"midpoint": [0.0, -1, -50.0],
         "rot": [0.0, 0.0, 0.0],
         "focus": 5
 	},
 	"simulation": {
-		"triangle_size": 0.1
+		"triangle_size": 0.2
 	}
 }
