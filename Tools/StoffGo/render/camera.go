@@ -1,23 +1,25 @@
-package main
+package render
 
 import (
 	"fmt"
 	"log"
 	"math"
+	"stoffgo/config"
+	G "stoffgo/geometry"
 
 	"golang.org/x/mobile/event/key"
 )
 
 type Screen struct {
-	TL Vec
-	BL Vec
-	BR Vec
-	TR Vec
+	TL G.Vec
+	BL G.Vec
+	BR G.Vec
+	TR G.Vec
 }
 
 type Camera struct {
 	screen Screen
-	focus  Vec
+	focus  G.Vec
 	orth   bool
 }
 
@@ -30,34 +32,34 @@ const (
 	OutsideBehind
 )
 
-func NormalizeVec(screen Screen) func(Vec) Vec {
+func NormalizeVec(screen Screen) func(G.Vec) G.Vec {
 	center := screen.TL.Add(screen.BR).Scale(.5)
 
 	source_TL := screen.TL.Sub(center)
 	source_BL := screen.BL.Sub(center)
-	mat_input := Mat{
+	mat_input := G.Mat{
 		source_TL,
 		source_BL,
 		source_TL.Cross(source_BL),
 	}
 
-	target_TL := Vec{-1, 1, 0}
-	target_BL := Vec{-1, -1, 0}
+	target_TL := G.Vec{-1, 1, 0}
+	target_BL := G.Vec{-1, -1, 0}
 
-	mat_output := Mat{
+	mat_output := G.Mat{
 		target_TL,
 		target_BL,
 		target_TL.Cross(target_BL),
 	}
 
-	inv, err := solveLGS(mat_input, mat_output)
+	inv, err := G.SolveLGS(mat_input, mat_output)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return func(v Vec) Vec {
-		translated_vec := v.Sub(center)
-		return inv.MulVec(translated_vec)
+	return func(v G.Vec) G.Vec {
+		translated_Vec := v.Sub(center)
+		return inv.MulVec(translated_Vec)
 	}
 }
 
@@ -65,7 +67,7 @@ func (p ProjectionPosition) String() string {
 	return [...]string{"InsideFront", "InsideBehind", "OutsideFront", "OutsideBehind"}[p]
 }
 
-func (s Screen) isPointInScreen(p Vec) bool {
+func (s Screen) isPointInScreen(p G.Vec) bool {
 	v0 := s.TR.Sub(s.TL)
 	v1 := s.BL.Sub(s.TL)
 	v2 := p.Sub(s.TL)
@@ -83,7 +85,7 @@ func (s Screen) isPointInScreen(p Vec) bool {
 	return (u >= 0) && (v >= 0) && (u <= 1) && (v <= 1)
 }
 
-func (c *Camera) Move(delta Vec) *Camera {
+func (c *Camera) Move(delta G.Vec) *Camera {
 	c.focus = c.focus.Add(delta)
 	c.screen.TL = c.screen.TL.Add(delta)
 	c.screen.BL = c.screen.BL.Add(delta)
@@ -92,22 +94,22 @@ func (c *Camera) Move(delta Vec) *Camera {
 	return c
 }
 
-func (c *Camera) Rotate(angles Vec) *Camera {
-	rotationX := Mat{
-		Vec{1, 0, 0},
-		Vec{0, float64(math.Cos(float64(angles[0]))), -float64(math.Sin(float64(angles[0])))},
-		Vec{0, float64(math.Sin(float64(angles[0]))), float64(math.Cos(float64(angles[0])))},
+func (c *Camera) Rotate(angles G.Vec) *Camera {
+	rotationX := G.Mat{
+		G.Vec{1, 0, 0},
+		G.Vec{0, float64(math.Cos(float64(angles[0]))), -float64(math.Sin(float64(angles[0])))},
+		G.Vec{0, float64(math.Sin(float64(angles[0]))), float64(math.Cos(float64(angles[0])))},
 	}
 
-	rotationY := Mat{
-		Vec{float64(math.Cos(float64(angles[1]))), 0, float64(math.Sin(float64(angles[1])))},
-		Vec{0, 1, 0},
-		Vec{-float64(math.Sin(float64(angles[1]))), 0, float64(math.Cos(float64(angles[1])))},
+	rotationY := G.Mat{
+		G.Vec{float64(math.Cos(float64(angles[1]))), 0, float64(math.Sin(float64(angles[1])))},
+		G.Vec{0, 1, 0},
+		G.Vec{-float64(math.Sin(float64(angles[1]))), 0, float64(math.Cos(float64(angles[1])))},
 	}
 
 	rotationMatrix := rotationX.MulMat(rotationY)
 
-	rotatePoint := func(p Vec) Vec {
+	rotatePoint := func(p G.Vec) G.Vec {
 		relative := p.Sub(c.focus)
 		rotated := rotationMatrix.MulVec(relative)
 		return rotated.Add(c.focus)
@@ -139,21 +141,21 @@ func (c *Camera) MoveFocus(percentage float64) *Camera {
 }
 
 func (c *Camera) Zoom(percentage float64) *Camera {
-	LRVec := c.screen.TR.Sub(c.screen.TL)
-	TDVec := c.screen.BR.Sub(c.screen.TR)
+	LRGVec := c.screen.TR.Sub(c.screen.TL)
+	TDGVec := c.screen.BR.Sub(c.screen.TR)
 	center := c.screen.TR.Add(c.screen.BL).Scale(.5)
 
-	aspectRatio := LRVec.Length() / TDVec.Length()
-	new_width := (1 - percentage) * LRVec.Length()
+	aspectRatio := LRGVec.Length() / TDGVec.Length()
+	new_width := (1 - percentage) * LRGVec.Length()
 
 	new_width = max(new_width, .2)
-	newLRVec := LRVec.Normalize().Scale(new_width)
-	newTDVec := TDVec.Normalize().Scale(new_width / aspectRatio)
+	newLRGVec := LRGVec.Normalize().Scale(new_width)
+	newTDGVec := TDGVec.Normalize().Scale(new_width / aspectRatio)
 
-	c.screen.TL = center.Sub(newLRVec.Add(newTDVec).Scale(.5))
-	c.screen.BL = center.Sub(newLRVec.Sub(newTDVec).Scale(.5))
-	c.screen.BR = center.Add(newLRVec.Add(newTDVec).Scale(.5))
-	c.screen.TR = center.Add(newLRVec.Sub(newTDVec).Scale(.5))
+	c.screen.TL = center.Sub(newLRGVec.Add(newTDGVec).Scale(.5))
+	c.screen.BL = center.Sub(newLRGVec.Sub(newTDGVec).Scale(.5))
+	c.screen.BR = center.Add(newLRGVec.Add(newTDGVec).Scale(.5))
+	c.screen.TR = center.Add(newLRGVec.Sub(newTDGVec).Scale(.5))
 	c.MoveFocus(0) // Clip Focus
 
 	return c
@@ -161,10 +163,10 @@ func (c *Camera) Zoom(percentage float64) *Camera {
 
 func (c *Camera) Normalize() *Camera {
 	newScreen := Screen{
-		TL: Vec{-1, 1, 0},
-		BL: Vec{-1, -1, 0},
-		BR: Vec{1, -1, 0},
-		TR: Vec{1, 1, 0},
+		TL: G.Vec{-1, 1, 0},
+		BL: G.Vec{-1, -1, 0},
+		BR: G.Vec{1, -1, 0},
+		TR: G.Vec{1, 1, 0},
 	}
 
 	return &Camera{
@@ -174,7 +176,7 @@ func (c *Camera) Normalize() *Camera {
 	}
 }
 
-func (c *Camera) Project(v Vec) (Vec, ProjectionPosition) {
+func (c *Camera) Project(v G.Vec) (G.Vec, ProjectionPosition) {
 	normal := c.screen.TR.Sub(c.screen.TL).Cross(c.screen.BL.Sub(c.screen.TL)).Normalize()
 
 	if !c.orth {
@@ -239,16 +241,16 @@ func (c *Camera) Project(v Vec) (Vec, ProjectionPosition) {
 func (c *Camera) Update(width, height int) {
 	aspectRatio := float64(width) / float64(height)
 
-	LRVec := c.screen.TR.Sub(c.screen.TL)
-	TBVec := c.screen.BL.Sub(c.screen.TL).Normalize().Scale(LRVec.Length() / aspectRatio)
+	LRGVec := c.screen.TR.Sub(c.screen.TL)
+	TBGVec := c.screen.BL.Sub(c.screen.TL).Normalize().Scale(LRGVec.Length() / aspectRatio)
 
 	oldCenter := c.screen.TR.Add(c.screen.BL).Scale(.5)
 	oldDiag := c.screen.TR.Sub(c.screen.BL).Length()
 	focusVec := c.focus.Sub(oldCenter)
 
-	c.screen.TR = c.screen.TL.Add(LRVec)
-	c.screen.BL = c.screen.TL.Add(TBVec)
-	c.screen.BR = c.screen.TL.Add(TBVec).Add(LRVec)
+	c.screen.TR = c.screen.TL.Add(LRGVec)
+	c.screen.BL = c.screen.TL.Add(TBGVec)
+	c.screen.BR = c.screen.TL.Add(TBGVec).Add(LRGVec)
 
 	newCenter := c.screen.TR.Add(c.screen.BL).Scale(.5)
 	newDiag := c.screen.TR.Sub(c.screen.BL).Length()
@@ -256,20 +258,25 @@ func (c *Camera) Update(width, height int) {
 }
 
 func DefaultCamera(aspectRatio float64) *Camera {
+	w2 := config.C.CameraDefaults.Width / 2
+	mp := config.C.CameraDefaults.Midpoint
+	f := config.C.CameraDefaults.Focus
+	r := config.C.CameraDefaults.Rotation
+
 	defaultScreen := Screen{
-		TL: Vec{-1, -aspectRatio, 0},
-		BL: Vec{-1, aspectRatio, 0},
-		BR: Vec{1, aspectRatio, 0},
-		TR: Vec{1, -aspectRatio, 0},
+		TL: G.Vec{-w2, -aspectRatio * w2, 0}.Add(mp),
+		BL: G.Vec{-w2, aspectRatio * w2, 0}.Add(mp),
+		BR: G.Vec{w2, aspectRatio * w2, 0}.Add(mp),
+		TR: G.Vec{w2, -aspectRatio * w2, 0}.Add(mp),
 	}
 
-	defaultFocus := Vec{0, 0, -100}
-
-	return &Camera{
+	tempCam := &Camera{
 		screen: defaultScreen,
-		focus:  defaultFocus,
-		orth:   true,
+		focus:  G.Vec{0, 0, -f}.Add(mp),
+		orth:   config.C.CameraDefaults.Orth,
 	}
+
+	return tempCam.Rotate(r)
 }
 
 func (s Screen) String() string {
@@ -281,11 +288,11 @@ func (c *Camera) String() string {
 }
 
 func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
-	const (
-		MoveSpeed   = 3.0
-		RotateSpeed = 0.1
-		ZoomSpeed   = 0.1
-		FocusSpeec  = 20.0
+	var (
+		MoveSpeed   = config.C.CameraMovement.MoveSpeed
+		RotateSpeed = config.C.CameraMovement.RotateSpeed
+		ZoomSpeed   = config.C.CameraMovement.ZoomSpeed
+		FocusSpeec  = config.C.CameraMovement.FocusSpeed
 	)
 
 	dt = min(dt, float64(.2))
@@ -296,39 +303,39 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 		return DefaultCamera(w / h)
 	}
 
-	moveVec := Vec{0, 0, 0}
-	rotateVec := Vec{0, 0, 0}
+	moveVec := G.Vec{0, 0, 0}
+	rotateVec := G.Vec{0, 0, 0}
 
 	if keys[key.CodeA] {
-		moveVec = moveVec.Add(Vec{-MoveSpeed * dt, 0, 0})
+		moveVec = moveVec.Add(G.Vec{-MoveSpeed * dt, 0, 0})
 	}
 	if keys[key.CodeD] {
-		moveVec = moveVec.Add(Vec{MoveSpeed * dt, 0, 0})
+		moveVec = moveVec.Add(G.Vec{MoveSpeed * dt, 0, 0})
 	}
 	if keys[key.CodeS] {
-		moveVec = moveVec.Add(Vec{0, MoveSpeed * dt, 0})
+		moveVec = moveVec.Add(G.Vec{0, -MoveSpeed * dt, 0})
 	}
 	if keys[key.CodeW] {
-		moveVec = moveVec.Add(Vec{0, -MoveSpeed * dt, 0})
+		moveVec = moveVec.Add(G.Vec{0, MoveSpeed * dt, 0})
 	}
 	if keys[key.CodeY] {
-		moveVec = moveVec.Add(Vec{0, 0, MoveSpeed * dt})
+		moveVec = moveVec.Add(G.Vec{0, 0, MoveSpeed * dt})
 	}
 	if keys[key.CodeX] {
-		moveVec = moveVec.Add(Vec{0, 0, -MoveSpeed * dt})
+		moveVec = moveVec.Add(G.Vec{0, 0, -MoveSpeed * dt})
 	}
 
 	if keys[key.CodeJ] {
-		rotateVec = rotateVec.Add(Vec{0, RotateSpeed * dt, 0})
+		rotateVec = rotateVec.Add(G.Vec{0, RotateSpeed * dt, 0})
 	}
 	if keys[key.CodeL] {
-		rotateVec = rotateVec.Add(Vec{0, -RotateSpeed * dt, 0})
+		rotateVec = rotateVec.Add(G.Vec{0, -RotateSpeed * dt, 0})
 	}
 	if keys[key.CodeK] {
-		rotateVec = rotateVec.Add(Vec{RotateSpeed * dt, 0, 0})
+		rotateVec = rotateVec.Add(G.Vec{RotateSpeed * dt, 0, 0})
 	}
 	if keys[key.CodeI] {
-		rotateVec = rotateVec.Add(Vec{-RotateSpeed * dt, 0, 0})
+		rotateVec = rotateVec.Add(G.Vec{-RotateSpeed * dt, 0, 0})
 	}
 
 	if keys[key.CodeO] {

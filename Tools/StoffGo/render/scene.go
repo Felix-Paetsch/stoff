@@ -1,42 +1,44 @@
-package main
+package render
 
 import (
 	"fmt"
 	"image"
 	"math"
 	"sort"
+	G "stoffgo/geometry"
 
 	"github.com/fogleman/gg"
+	"golang.org/x/mobile/event/key"
 )
 
 type Scene struct {
-	camera *Camera
-	points *[]Vec
-	lines  *[][2]Vec
+	Camera *Camera
+	Points *[]G.Vec
+	Lines  *[][2]G.Vec
 }
 
-func (s *Scene) Point(p Vec) {
+func (s *Scene) Point(p G.Vec) {
 	// Append the new point to the slice via the pointer
-	*s.points = append(*s.points, p)
+	*s.Points = append(*s.Points, p)
 }
 
-func (s *Scene) Line(p1, p2 Vec) {
-	*s.lines = append(*s.lines, [2]Vec{p1, p2})
+func (s *Scene) Line(p1, p2 G.Vec) {
+	*s.Lines = append(*s.Lines, [2]G.Vec{p1, p2})
 }
 
-func (s *Scene) Camera(cam *Camera) *Scene {
-	s.camera = cam
+func (s *Scene) SetCamera(cam *Camera) *Scene {
+	s.Camera = cam
 	return s
 }
 
 func DefaultScene() *Scene {
 	// Initialize the points slice and lines slice
-	points := make([]Vec, 0)
-	lines := make([][2]Vec, 0)
+	points := make([]G.Vec, 0)
+	lines := make([][2]G.Vec, 0)
 	return &Scene{
-		camera: nil,
-		points: &points,
-		lines:  &lines,
+		Camera: nil,
+		Points: &points,
+		Lines:  &lines,
 	}
 }
 
@@ -46,14 +48,14 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	dc.SetRGB(0, 0, 0)
 	dc.Clear()
 
-	normalize := NormalizeVec(s.camera.screen)
-	normCamera := s.camera.Normalize()
+	normalize := NormalizeVec(s.Camera.screen)
+	normCamera := s.Camera.Normalize()
 
 	// Array to store indicator points where lines intersect the screen
-	var lineThroughScreenIndicators []Vec
+	var lineThroughScreenIndicators []G.Vec
 
 	// First, render lines
-	for _, line := range *s.lines {
+	for _, line := range *s.Lines {
 		norm0 := normalize(line[0])
 		norm1 := normalize(line[1])
 		projectedPt1, projectionPos1 := normCamera.Project(norm0)
@@ -74,7 +76,7 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 		// First point is inside front
 		if projectionPos2 == OutsideBehind || projectionPos2 == InsideBehind {
 			// Find intersection with screen plane and set projectionPos2 to be that value
-			intersection, _ := LinePlaneIntersection(norm0, norm1, normCamera.screen.BL, normCamera.screen.TL, normCamera.screen.BR)
+			intersection, _ := G.LinePlaneIntersection(norm0, norm1, normCamera.screen.BL, normCamera.screen.TL, normCamera.screen.BR)
 			projectedPt2 = intersection
 
 			// Add the intersection point to the array of indicators
@@ -94,16 +96,16 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 
 	// Then, render points
 	type pointData struct {
-		normalizedPoint Vec
+		normalizedPoint G.Vec
 		distance        float64
 	}
 
 	var pointsData []pointData
-	for _, pt := range *s.points {
+	for _, pt := range *s.Points {
 		normalizedPt := normalize(pt)
 
 		var distance float64
-		if s.camera.orth {
+		if s.Camera.orth {
 			distance = normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length()
 		} else {
 			distance = math.Abs(normalizedPt[2])
@@ -155,8 +157,8 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	}
 
 	// Render additional information (text overlay)
-	midpoint := s.camera.screen.TL.Add(s.camera.screen.BR).Scale(0.5)
-	rotationAngles := s.camera.screen.TL.Sub(s.camera.screen.TR)
+	midpoint := s.Camera.screen.TL.Add(s.Camera.screen.BR).Scale(0.5)
+	rotationAngles := s.Camera.screen.TL.Sub(s.Camera.screen.TR)
 	angleX := (int(math.Atan2(rotationAngles[1], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
 	angleY := (int(math.Atan2(rotationAngles[2], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
 
@@ -165,9 +167,23 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 
 	dc.SetRGB(1, 1, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Midpoint: %v", midpoint), textPadding, float64(h)-textPadding-textHeight-20, 0, 1)
-	dc.DrawStringAnchored(fmt.Sprintf("Focus: %v", s.camera.focus), textPadding, float64(h)-textPadding-20, 0, 1)
+	dc.DrawStringAnchored(fmt.Sprintf("Focus: %v", s.Camera.focus), textPadding, float64(h)-textPadding-20, 0, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Angle X: %d°, Angle Y: %d°", angleX, angleY), textPadding, float64(h)-textPadding-2*textHeight-20, 0, 1)
-	dc.DrawStringAnchored(fmt.Sprintf("Orth: %t", s.camera.orth), textPadding, float64(h)-textPadding-3*textHeight-20, 0, 1)
+	dc.DrawStringAnchored(fmt.Sprintf("Orth: %t", s.Camera.orth), textPadding, float64(h)-textPadding-3*textHeight-20, 0, 1)
 
 	dc.Fill()
+}
+
+func (s *Scene) Update(delta_time float64, keys map[key.Code]bool) {
+	hasKeyPressed := false
+	for _, pressed := range keys {
+		if pressed {
+			hasKeyPressed = true
+			break
+		}
+	}
+
+	if hasKeyPressed {
+		s.Camera = s.Camera.ReactToKeypresses(keys, delta_time)
+	}
 }

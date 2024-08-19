@@ -1,4 +1,4 @@
-package main
+package geometry
 
 import (
 	"fmt"
@@ -112,7 +112,7 @@ func (m Mat) Inverse() (Mat, error) {
 	return inv, nil
 }
 
-func solveLGS(A, B Mat) (Mat, error) {
+func SolveLGS(A, B Mat) (Mat, error) {
 	A_inv, err := A.Inverse()
 	if err != nil {
 		return Mat{}, err
@@ -123,10 +123,10 @@ func solveLGS(A, B Mat) (Mat, error) {
 }
 
 func LinePlaneIntersection(P1, P2, Q1, Q2, Q3 Vec) (Vec, bool) {
-	// Direction vector of the line
+	// Direction Vector of the line
 	lineDir := P2.Sub(P1)
 
-	// Normal vector of the plane
+	// Normal Vector of the plane
 	planeNormal := Q2.Sub(Q1).Cross(Q3.Sub(Q1))
 
 	// Check if the line is parallel to the plane
