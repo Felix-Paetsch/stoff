@@ -36,6 +36,6 @@ func InitManyPoints(scene *R.Scene, boxSize float64) {
 	for i := 0; i < 100_000; i++ {
 		index1 := rand.IntN(numPoints)
 		index2 := rand.IntN(numPoints)
-		scene.Line(points[index1], points[index2])
+		scene.LineFromInt(index1, index2)
 	}
 }

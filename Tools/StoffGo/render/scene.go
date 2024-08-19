@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"image"
+	"log"
 	"math"
 	"sort"
 	G "stoffgo/geometry"
@@ -14,16 +15,38 @@ import (
 type Scene struct {
 	Camera *Camera
 	Points *[]G.Vec
-	Lines  *[][2]G.Vec
+	Lines  *[][2]int
 }
 
 func (s *Scene) Point(p G.Vec) {
-	// Append the new point to the slice via the pointer
 	*s.Points = append(*s.Points, p)
 }
 
+func (s *Scene) LineFromInt(p1Index, p2Index int) {
+	*s.Lines = append(*s.Lines, [2]int{p1Index, p2Index})
+}
+
+func (s *Scene) findPointIndex(p G.Vec) (int, bool) {
+	for i, point := range *s.Points {
+		if point == p {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func (s *Scene) Line(p1, p2 G.Vec) {
-	*s.Lines = append(*s.Lines, [2]G.Vec{p1, p2})
+	idx1, found1 := s.findPointIndex(p1)
+	if !found1 {
+		log.Fatalf("Critical error: Point %v not found and cannot be added.", p1)
+	}
+
+	idx2, found2 := s.findPointIndex(p2)
+	if !found2 {
+		log.Fatalf("Critical error: Point %v not found and cannot be added.", p2)
+	}
+
+	*s.Lines = append(*s.Lines, [2]int{idx1, idx2})
 }
 
 func (s *Scene) SetCamera(cam *Camera) *Scene {
@@ -32,9 +55,8 @@ func (s *Scene) SetCamera(cam *Camera) *Scene {
 }
 
 func DefaultScene() *Scene {
-	// Initialize the points slice and lines slice
 	points := make([]G.Vec, 0)
-	lines := make([][2]G.Vec, 0)
+	lines := make([][2]int, 0)
 	return &Scene{
 		Camera: nil,
 		Points: &points,
@@ -51,13 +73,14 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	normalize := NormalizeVec(s.Camera.screen)
 	normCamera := s.Camera.Normalize()
 
-	// Array to store indicator points where lines intersect the screen
 	var lineThroughScreenIndicators []G.Vec
 
-	// First, render lines
 	for _, line := range *s.Lines {
-		norm0 := normalize(line[0])
-		norm1 := normalize(line[1])
+		p1 := (*s.Points)[line[0]]
+		p2 := (*s.Points)[line[1]]
+
+		norm0 := normalize(p1)
+		norm1 := normalize(p2)
 		projectedPt1, projectionPos1 := normCamera.Project(norm0)
 		projectedPt2, projectionPos2 := normCamera.Project(norm1)
 
@@ -73,28 +96,22 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 			projectionPos2 = projectionPos1
 		}
 
-		// First point is inside front
 		if projectionPos2 == OutsideBehind || projectionPos2 == InsideBehind {
-			// Find intersection with screen plane and set projectionPos2 to be that value
 			intersection, _ := G.LinePlaneIntersection(norm0, norm1, normCamera.screen.BL, normCamera.screen.TL, normCamera.screen.BR)
 			projectedPt2 = intersection
-
-			// Add the intersection point to the array of indicators
 			lineThroughScreenIndicators = append(lineThroughScreenIndicators, intersection)
 		}
 
-		// Draw the line
 		imgW1 := float64(projectedPt1[0]+1) * float64(w) / 2
 		imgH1 := (projectedPt1[1] + float64(w)/float64(h)) * float64(h) / 2
 		imgW2 := float64(projectedPt2[0]+1) * float64(w) / 2
 		imgH2 := (projectedPt2[1] + float64(w)/float64(h)) * float64(h) / 2
 
-		dc.SetRGB(1, 1, 1) // Set line color to white
+		dc.SetRGB(1, 1, 1)
 		dc.DrawLine(imgW1, imgH1, imgW2, imgH2)
 		dc.Stroke()
 	}
 
-	// Then, render points
 	type pointData struct {
 		normalizedPoint G.Vec
 		distance        float64
@@ -146,17 +163,15 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 		}
 	}
 
-	// Finally, render the indicator points where lines pass through the screen
-	dc.SetRGB(0.3, 0.3, 0.3) // Set indicator points color to gray
+	dc.SetRGB(0.3, 0.3, 0.3)
 	for _, indicator := range lineThroughScreenIndicators {
 		imgW := float64(indicator[0]+1) * float64(w) / 2
 		imgH := (indicator[1] + float64(w)/float64(h)) * float64(h) / 2
 
-		dc.DrawCircle(imgW, imgH, 4) // Draw small circles as indicators
+		dc.DrawCircle(imgW, imgH, 4)
 		dc.Fill()
 	}
 
-	// Render additional information (text overlay)
 	midpoint := s.Camera.screen.TL.Add(s.Camera.screen.BR).Scale(0.5)
 	rotationAngles := s.Camera.screen.TL.Sub(s.Camera.screen.TR)
 	angleX := (int(math.Atan2(rotationAngles[1], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180

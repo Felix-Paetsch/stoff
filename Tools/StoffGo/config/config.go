@@ -21,10 +21,15 @@ type CameraDefaults struct {
 	Focus    float64    `json:"focus"`
 }
 
+type Simulation struct {
+	TriangleSize float64 `json:"triangle_size"`
+}
+
 type Config struct {
 	WinSize        [2]int         `json:"win_size"`
 	CameraMovement CameraMovement `json:"camera_movement"`
 	CameraDefaults CameraDefaults `json:"camera_defaults"`
+	Simulation     Simulation     `json:"simulation"`
 }
 
 var C Config
