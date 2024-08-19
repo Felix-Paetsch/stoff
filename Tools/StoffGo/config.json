@@ -4,7 +4,7 @@
 		"move_speed": 10,
 		"rotate_speed": 0.8,
 		"zoom_speed": 0.5,
-		"focus_speed": 0.3
+		"focus_speed": 2
 	},
 	"camera_defaults": {
 		"orth": true,
