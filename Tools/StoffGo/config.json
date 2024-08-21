@@ -14,6 +14,17 @@
         "focus": 5
 	},
 	"simulation2D": {
-		"area_per_pt": 0.1
+		"area_per_pt": 0.1,
+		
+		"simulation_steps": 2000,
+		"gravity_exp": 3.0,
+		"point_force_mult": 0.00001,
+		"point_force_influence_radius": 2,
+
+		"boundary_force_mult": 0.00001,
+		"boundary_force_influence_distance": 0.2,
+		
+		"velocity_step_scale": 0.9,
+		"velocity_max": 0.02
 	}
 }

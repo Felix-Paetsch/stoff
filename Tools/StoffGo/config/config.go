@@ -22,7 +22,15 @@ type CameraDefaults struct {
 }
 
 type Simulation2D struct {
-	AreaPerPoint float64 `json:"area_per_pt"`
+	AreaPerPoint                   float64 `json:"area_per_pt"`
+	SimulationSteps                int     `json:"simulation_steps"`
+	GravityExp                     float64 `json:"gravity_exp"`
+	PointForceMult                 float64 `json:"point_force_mult"`
+	PointForceInfluenceRadius      float64 `json:"point_force_influence_radius"`
+	BoundaryForceMult              float64 `json:"boundary_force_mult"`
+	BoundaryForceInfluenceDistance float64 `json:"boundary_force_influence_distance"`
+	VelocityStepScale              float64 `json:"velocity_step_scale"`
+	VelocityMax                    float64 `json:"velocity_max"`
 }
 
 type Config struct {

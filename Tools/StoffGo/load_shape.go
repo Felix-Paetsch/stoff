@@ -65,6 +65,17 @@ func computeBB(vertices []G.Vec2) [2]G.Vec2 {
 	return [2]G.Vec2{min, max}
 }
 
+func loadShape(file string) *Plane {
+	b := loadShapeIntoBox(file)
+	for i := 0; i < config.C.Simulation2D.SimulationSteps; i++ {
+		b.simulationStep()
+	}
+	b.filterExpulsedPoints()
+	p := b.toPlane()
+	p.triangulate()
+	return p
+}
+
 func loadShapeIntoBox(file string) *PhysicsBox {
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -90,7 +101,7 @@ func loadShapeIntoBox(file string) *PhysicsBox {
 
 func (b *PhysicsBox) simulationStep() {
 	EPS := 1e-10
-	exp := 3.0
+	exp := config.C.Simulation2D.GravityExp
 	R := math.Pow(b.targetPtDistance, exp) // reference distance
 
 	BoundaryPoints := b.Points[b.Boundaries[0].start:b.Boundaries[0].end]
@@ -101,11 +112,11 @@ func (b *PhysicsBox) simulationStep() {
 			vec := b.Points[j].pos.Sub(b.Points[i].pos)
 			d := vec.Length()
 
-			if d > 2*b.targetPtDistance {
+			if d > config.C.Simulation2D.PointForceInfluenceRadius*b.targetPtDistance {
 				continue
 			}
 
-			accAmt := R * 0.00001 / math.Pow(d+EPS, exp)
+			accAmt := R * config.C.Simulation2D.PointForceMult / math.Pow(d+EPS, exp)
 			acc := vec.ToLen(accAmt)
 
 			if math.IsNaN(acc[0]) {
@@ -116,7 +127,7 @@ func (b *PhysicsBox) simulationStep() {
 			b.Points[j].acc = b.Points[j].acc.Add(acc)
 		}
 
-		tools.Assert(!math.IsNaN(b.Points[i].acc[0]), "hwa")
+		tools.Assert(!math.IsNaN(b.Points[i].acc[0]), "IsNaN")
 
 		// Force from boundary (only apply if close enough)
 		if b.Points[i].fixed {
@@ -128,11 +139,11 @@ func (b *PhysicsBox) simulationStep() {
 
 			c := G.ClosestVecOnLineSegment([2]G.Vec2{e0, e1}, b.Points[i].pos)
 			d := b.Points[i].pos.Distance(c)
-			if d > b.targetPtDistance/5 {
+			if d > b.targetPtDistance*config.C.Simulation2D.BoundaryForceInfluenceDistance {
 				continue
 			}
 
-			accAmt := R * 0.00001 / math.Pow(d, exp)
+			accAmt := R * config.C.Simulation2D.BoundaryForceMult / math.Pow(d, exp)
 			if math.IsNaN(accAmt) || math.IsInf(accAmt, 1) {
 				accAmt = R * 1000
 			}
@@ -142,7 +153,7 @@ func (b *PhysicsBox) simulationStep() {
 				dir = dir.Scale(-1)
 			}
 
-			acc := dir.Scale(accAmt + 0.000001)
+			acc := dir.Scale(accAmt + EPS)
 
 			b.Points[i].acc = b.Points[i].acc.Add(acc)
 		}
@@ -152,11 +163,11 @@ func (b *PhysicsBox) simulationStep() {
 
 	for i := range b.Points {
 		if !b.Points[i].fixed {
-			b.Points[i].vel = b.Points[i].vel.Scale(0.9)
+			b.Points[i].vel = b.Points[i].vel.Scale(config.C.Simulation2D.VelocityStepScale)
 			b.Points[i].vel = b.Points[i].vel.Add(b.Points[i].acc)
 
-			if b.Points[i].vel.Length() > 0.02 {
-				b.Points[i].vel.ToLen(0.02)
+			if b.Points[i].vel.Length() > b.targetPtDistance*config.C.Simulation2D.VelocityMax {
+				b.Points[i].vel.ToLen(b.targetPtDistance * config.C.Simulation2D.VelocityMax)
 			}
 
 			b.Points[i].pos = b.Points[i].pos.Add(b.Points[i].vel)
@@ -165,25 +176,15 @@ func (b *PhysicsBox) simulationStep() {
 	}
 }
 
-func (b *PhysicsBox) toPlane() Plane {
-	var p Plane
-	p.BB = b.BB
-	p.Vertices = make([]G.Vec2, len(b.Points))
-
-	for i, point := range b.Points {
-		p.Vertices[i] = point.pos
-	}
-
-	p.Boundaries = b.Boundaries
-	for _, boundary := range b.Boundaries {
-		a, b := boundary.start, boundary.end
-		for i := a; i < b-1; i++ {
-			p.Joints = append(p.Joints, [2]int{i, i + 1})
+func (b *PhysicsBox) filterExpulsedPoints() {
+	var filteredPoints []SimulationPoint
+	for _, pt := range b.Points {
+		if b.pointInBoundary(pt.pos) {
+			filteredPoints = append(filteredPoints, pt)
 		}
-		p.Joints = append(p.Joints, [2]int{b - 1, a})
 	}
 
-	return p
+	b.Points = filteredPoints
 }
 
 func (b *PhysicsBox) pointInBoundary(pt G.Vec2) bool {
@@ -258,6 +259,23 @@ func (b *PhysicsBox) hex() *PhysicsBox {
 	}
 
 	return b
+}
+
+func (b *PhysicsBox) toPlane() *Plane {
+	var p Plane
+	p.BB = b.BB
+	p.Vertices = make([]G.Vec2, len(b.Points))
+
+	for i, point := range b.Points {
+		p.Vertices[i] = point.pos
+	}
+
+	p.Boundaries = b.Boundaries
+	return &p
+}
+
+func (p *Plane) triangulate() {
+
 }
 
 func normalizeCurve(v []G.Vec2, target_pt_distance float64) []G.Vec2 {

@@ -122,8 +122,8 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 		normalizedPt := normalize(pt)
 
 		var distance float64
-		if s.Camera.orth {
-			distance = normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length()
+		if !s.Camera.orth {
+			distance = (normalizedPt.Sub(normCamera.focus).Length() - normCamera.focus.Length())
 		} else {
 			distance = math.Abs(normalizedPt[2])
 		}
