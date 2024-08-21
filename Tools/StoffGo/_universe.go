@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"encoding/json"
 	"log"
@@ -25,17 +26,17 @@ type Glue struct {
 }
 
 type Universe struct {
-	verticies []Vertex
+	vertices []Vertex
 	joints    []Join
 	glues     []Glue
 }
 
 type ShapeFile struct {
-	Verticies []G.Vec2 `json:"verticies"`
+	Vertices []G.Vec2 `json:"vertices"`
 }
 
 type Plane struct {
-	Verticies []G.Vec2
+	Vertices []G.Vec2
 	Joints    [][2]int
 	bb        [2]G.Vec2
 }
@@ -85,19 +86,20 @@ func loadShape(file string) *Plane {
 	}
 
 	var plane Plane
-	shapeFile.Verticies = normalizeCurve(shapeFile.Verticies)
-	plane.bb = computeBB(shapeFile.Verticies)
-	hexGrid := hex(plane.bb, config.C.Simulation.TriangleSize)
-	hexGrid.applyCurve(shapeFile.Verticies)
+	target_pt_distance := math.Sqrt(config.C.Simulation.AreaPerPoint/math.Pi) * 2
+	shapeFile.Vertices = normalizeCurve(shapeFile.Vertices, target_pt_distance)
+	plane.bb = computeBB(shapeFile.Vertices)
+
+	hexGrid := hex(plane.bb, target_pt_distance)
+	hexGrid.applyCurve(shapeFile.Vertices)
 	hexGrid.insertIntoPlane(&plane)
-	plane.patchBoundaryIn(shapeFile.Verticies)
+	plane.patchBoundaryIn(shapeFile.Vertices)
 
 	return &plane
 }
 
-func normalizeCurve(v []G.Vec2) []G.Vec2 {
+func normalizeCurve(v []G.Vec2, target_pt_distance float64) []G.Vec2 {
 	var newVertices []G.Vec2
-	triangleSize := config.C.Simulation.TriangleSize
 
 	v = append(v, v[0])
 	newVertices = append(newVertices, v[0])
@@ -107,7 +109,7 @@ func normalizeCurve(v []G.Vec2) []G.Vec2 {
 
 	for i := 0; i < n; i++ {
 		nextDistance := v[(i+1)%n].Distance(v[i])
-		if currentDistance+nextDistance < triangleSize {
+		if currentDistance+nextDistance < target_pt_distance {
 			continue
 		}
 
@@ -119,7 +121,7 @@ func normalizeCurve(v []G.Vec2) []G.Vec2 {
 
 		dirVec := v[(i+1)%n].Sub(v[i])
 		dir := dirVec.Normalize()
-		amt := int(math.Ceil(nextDistance / triangleSize))
+		amt := int(math.Ceil(nextDistance / target_pt_distance))
 
 		partition_len := dirVec.Length() / float64(amt)
 
@@ -137,14 +139,14 @@ func normalizeCurve(v []G.Vec2) []G.Vec2 {
 func (p *Plane) patchBoundaryIn(v []G.Vec2) {
 	// We assume boundary is normalized
 
-	currentVertexCount := len(p.Verticies)
-	p.Verticies = append(p.Verticies, v...)
+	currentVertexCount := len(p.Vertices)
+	p.Vertices = append(p.Vertices, v...)
 
-	for i := currentVertexCount; i < len(p.Verticies)-1; i++ {
+	for i := currentVertexCount; i < len(p.Vertices)-1; i++ {
 		p.JoinFromInt(i, i+1)
 	}
 
-	p.JoinFromInt(len(p.Verticies)-1, currentVertexCount)
+	p.JoinFromInt(len(p.Vertices)-1, currentVertexCount)
 }
 
 func (p *Plane) Join(v1, v2 G.Vec2) {
@@ -160,7 +162,7 @@ func (p *Plane) JoinFromInt(v1Index, v2Index int) {
 }
 
 func (p *Plane) findVertex(v G.Vec2) (int, bool) {
-	for i, point := range p.Verticies {
+	for i, point := range p.Vertices {
 		if point == v {
 			return i, true
 		}
@@ -169,23 +171,23 @@ func (p *Plane) findVertex(v G.Vec2) (int, bool) {
 }
 
 func (h *HexGrid) insertIntoPlane(p *Plane) {
-	hex_start_count := len(p.Verticies)
+	hex_start_count := len(p.Vertices)
 	h.insertHexIntoPlane(p)
 
-	vertex_start_count := len(p.Verticies)
-	p.Verticies = append(p.Verticies, h.curve...)
+	vertex_start_count := len(p.Vertices)
+	p.Vertices = append(p.Vertices, h.curve...)
 
 	var lastAdjacent []HexVertex
 
-	for i := vertex_start_count; i < len(p.Verticies); i++ {
+	for i := vertex_start_count; i < len(p.Vertices); i++ {
 		// Join between consecutive vertices
 		to := i + 1
-		if i+1 == len(p.Verticies) {
+		if i+1 == len(p.Vertices) {
 			to = vertex_start_count
 		}
 		p.JoinFromInt(i, to)
 
-		adjacent := h.closestVerticies(p.Verticies[i])
+		adjacent := h.closestVertices(p.Vertices[i])
 
 		for _, adj := range adjacent {
 			p.JoinFromInt(i, hex_start_count+adj.inShapeIndex)
@@ -193,11 +195,11 @@ func (h *HexGrid) insertIntoPlane(p *Plane) {
 
 		// If there's no common point between lastAdjacent and adjacent
 		if i > vertex_start_count && !haveCommonVertex(lastAdjacent, adjacent) {
-			// Find closest vertex in lastAdjacent to p.Verticies[i]
-			closestInLastAdjacent, minDistLast := closestVertex(p.Verticies[i], lastAdjacent)
+			// Find closest vertex in lastAdjacent to p.Vertices[i]
+			closestInLastAdjacent, minDistLast := closestVertex(p.Vertices[i], lastAdjacent)
 
-			// Find closest vertex in adjacent to p.Verticies[i-1]
-			closestInAdjacent, minDistAdj := closestVertex(p.Verticies[i-1], adjacent)
+			// Find closest vertex in adjacent to p.Vertices[i-1]
+			closestInAdjacent, minDistAdj := closestVertex(p.Vertices[i-1], adjacent)
 
 			// Join the closest pair
 			if minDistLast <= minDistAdj {
@@ -212,17 +214,17 @@ func (h *HexGrid) insertIntoPlane(p *Plane) {
 	}
 
 	// Handle the case between the last vertex and the first vertex
-	firstVertex := p.Verticies[vertex_start_count]
-	firstAdjacent := h.closestVerticies(firstVertex)
+	firstVertex := p.Vertices[vertex_start_count]
+	firstAdjacent := h.closestVertices(firstVertex)
 
 	if !haveCommonVertex(lastAdjacent, firstAdjacent) {
 		closestInLastAdjacent, minDistLast := closestVertex(firstVertex, lastAdjacent)
-		closestInFirstAdjacent, minDistFirst := closestVertex(p.Verticies[len(p.Verticies)-1], firstAdjacent)
+		closestInFirstAdjacent, minDistFirst := closestVertex(p.Vertices[len(p.Vertices)-1], firstAdjacent)
 
 		if minDistLast <= minDistFirst {
 			p.JoinFromInt(vertex_start_count, hex_start_count+closestInLastAdjacent.inShapeIndex)
 		} else {
-			p.JoinFromInt(len(p.Verticies)-1, hex_start_count+closestInFirstAdjacent.inShapeIndex)
+			p.JoinFromInt(len(p.Vertices)-1, hex_start_count+closestInFirstAdjacent.inShapeIndex)
 		}
 	}
 
@@ -256,7 +258,7 @@ func closestVertex(v G.Vec2, vertices []HexVertex) (HexVertex, float64) {
 	return closest, minDist
 }
 
-func (h *HexGrid) closestVerticies(v G.Vec2) []HexVertex {
+func (h *HexGrid) closestVertices(v G.Vec2) []HexVertex {
 	// Try Hex Cells we are contained in
 	triangleSize := h.lines[0][0].vec.Distance(h.lines[0][1].vec)
 	triangleHeight := math.Sqrt(3) / 2 * triangleSize
@@ -329,8 +331,8 @@ func (h *HexGrid) insertHexIntoPlane(p *Plane) {
 		for j := range h.lines[i] {
 			if h.lines[i][j].inShapeIndex >= 0 {
 				// Add the vertex to the Plane and store its index
-				p.Verticies = append(p.Verticies, h.lines[i][j].vec)
-				currentIndex := len(p.Verticies) - 1
+				p.Vertices = append(p.Vertices, h.lines[i][j].vec)
+				currentIndex := len(p.Vertices) - 1
 
 				if j > 0 && h.lines[i][j-1].inShapeIndex >= 0 {
 					leftIndex := currentIndex - 1
@@ -409,3 +411,4 @@ func hex(bb [2]G.Vec2, size float64) *HexGrid {
 
 	return grid
 }
+*/
