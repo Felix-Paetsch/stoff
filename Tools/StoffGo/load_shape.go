@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"math/rand/v2"
@@ -10,7 +11,7 @@ import (
 	G "stoffgo/geometry"
 	"stoffgo/tools"
 
-	"github.com/fogleman/delaunay"
+	"github.com/netgusto/poly2tri-go"
 )
 
 type ShapeFile struct {
@@ -299,35 +300,67 @@ func (b *PhysicsBox) toPlane() *Plane {
 }
 
 func (p *Plane) triangulate() {
-	// Convert Plane vertices to delaunay.Points
-	points := make([]delaunay.Point, len(p.Vertices))
-	for i, vertex := range p.Vertices {
-		points[i] = delaunay.Point{X: vertex[0], Y: vertex[1]}
+	// Step 1: Initialize the contour with the first boundary
+	contour := make([]*poly2tri.Point, p.Boundaries[0].end-p.Boundaries[0].start)
+	pointToIndexMap := make(map[*poly2tri.Point]int)
+
+	for i := p.Boundaries[0].start; i < p.Boundaries[0].end; i++ {
+		pt := poly2tri.NewPoint(p.Vertices[i][0], p.Vertices[i][1])
+		contour[i-p.Boundaries[0].start] = pt
+		pointToIndexMap[pt] = i
 	}
 
-	triangulation, err := delaunay.Triangulate(points)
-	tools.Assert(err == nil, "isNil")
+	// Step 2: Initialize the SweepContext with the outer contour
+	swctx := poly2tri.NewSweepContext(contour, false)
 
-	ts := triangulation.Triangles
-	_ = ts
-	hs := triangulation.Halfedges
-	for i, h := range hs {
-		if i > h {
-			p1_i := ts[i]
-			p2_i := ts[nextHalfEdge(i)]
-			center := p.Vertices[p1_i].Add(p.Vertices[p2_i]).Scale(0.5)
-			if p.pointInBoundary(center) {
-				p.Joints = append(p.Joints, [2]int{p1_i, p2_i})
+	// Add points that are not part of the outer boundary
+	for i := 0; i < len(p.Vertices); i++ {
+		if i < p.Boundaries[0].start || p.Boundaries[0].end <= i {
+			pt := poly2tri.NewPoint(p.Vertices[i][0], p.Vertices[i][1])
+			swctx.AddPoint(pt)
+			pointToIndexMap[pt] = i
+		}
+	}
+
+	// Perform the triangulation
+	swctx.Triangulate()
+
+	// Retrieve the resulting triangles
+	triangles := swctx.GetTriangles()
+
+	// Step 3: Loop over all triangles and edges, avoiding duplicates
+	edgeSet := make(map[[2]int]bool)
+
+	for _, t := range triangles {
+		for i := 0; i < 3; i++ {
+			p1 := t.Points[i]
+			p2 := t.Points[(i+1)%3]
+
+			// Get the indices of these points in the Plane.Vertices array
+			p1_i := pointToIndexMap[p1]
+			p2_i := pointToIndexMap[p2]
+
+			// Normalize the edge as (minIndex, maxIndex) to avoid duplicates
+			edge := [2]int{p1_i, p2_i}
+			if p1_i > p2_i {
+				edge = [2]int{p2_i, p1_i}
+			}
+
+			// Check if the edge has already been added
+			if _, exists := edgeSet[edge]; !exists {
+				edgeSet[edge] = true
+
+				// Print the indices and corresponding edge (optional)
+				fmt.Printf("Edge: (%d, %d) -> Points: (%v, %v)\n", p1_i, p2_i, p.Vertices[p1_i], p.Vertices[p2_i])
+
+				// Add to p.Joints or other processing
+				center := p.Vertices[p1_i].Add(p.Vertices[p2_i]).Scale(0.5)
+				if p.pointInBoundary(center) {
+					p.Joints = append(p.Joints, [2]int{p1_i, p2_i})
+				}
 			}
 		}
 	}
-}
-
-func nextHalfEdge(e int) int {
-	if e%3 == 2 {
-		return e - 2
-	}
-	return e + 1
 }
 
 func normalizeCurve(v []G.Vec2, target_pt_distance float64) []G.Vec2 {
