@@ -1,10 +1,17 @@
-package main
+package _testing
 
 import (
 	"math/rand/v2"
 	G "stoffgo/geometry"
 	R "stoffgo/render"
 )
+
+func RenderDefaultScene() {
+	scene := R.DefaultScene()
+	InitManyPoints(scene, 100)
+
+	R.RenderLoop(scene)
+}
 
 func InitThreePoints(scene *R.Scene) {
 	pt1 := G.Vec{-.8, -.2, 5}

@@ -9,12 +9,12 @@
 	"camera_defaults": {
 		"orth": true,
 		"width": 15.0,
-		"midpoint": [2, -5, -500.0],
+		"midpoint": [2, -5, -1500.0],
         "rot": [0.0, 0.0, 0.0],
         "focus": 50
 	},
 	"simulation2D": {
-		"area_per_pt": 2,
+		"area_per_pt": 0.3,
 		
 		"simulation_steps": 200,
 		"gravity_exp": 3.0,

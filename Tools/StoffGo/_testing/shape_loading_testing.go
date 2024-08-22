@@ -1,30 +1,31 @@
-package main
+package _testing
 
 import (
 	G "stoffgo/geometry"
 	R "stoffgo/render"
+	shapes2d "stoffgo/shapes2D"
 	"time"
 )
 
-func test() {
+func TestShapeLoading(file string) {
 	scene := R.DefaultScene()
-	// InitManyPoints(scene, 100)
-
 	scene.SetCamera(R.DefaultCamera(1))
 	go R.RenderLoop(scene)
 
-	b := loadShapeIntoBox("test.json")
+	b := shapes2d.LoadShapeIntoBox(file)
 	for {
+		b.SimulationStep()
 		UpdateScene(scene, b)
-		b.simulationStep()
 		time.Sleep(10 * time.Millisecond)
 	}
 }
 
-func UpdateScene(scene *R.Scene, b *PhysicsBox) {
+func UpdateScene(scene *R.Scene, b *shapes2d.PhysicsBox) {
 	var newPoints []G.Vec
 
-	plane := b.toPlane()
+	b.FilterExpulsedPoints()
+	plane := b.ToPlane()
+	plane.Triangulate()
 	for _, vertex := range plane.Vertices {
 		vec3D := G.Vec{vertex[0], -vertex[1], 0}
 		newPoints = append(newPoints, vec3D)
