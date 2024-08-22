@@ -121,6 +121,21 @@ func IsPointInPolygon(point Vec2, polygon []Vec2) bool {
 	return intersections%2 != 0
 }
 
+func IsPointOnPolygon(point Vec2, polygon []Vec2, tolerance float64) bool {
+	n := len(polygon)
+
+	for i := 0; i < n; i++ {
+		v1 := polygon[i]
+		v2 := polygon[(i+1)%n]
+
+		if DistanceFromLineSegment([2]Vec2{v1, v2}, point) < tolerance {
+			return true
+		}
+	}
+
+	return false
+}
+
 func isRayIntersectingEdge(point, v1, v2 Vec2) bool {
 	if v1[1] > v2[1] {
 		v1, v2 = v2, v1

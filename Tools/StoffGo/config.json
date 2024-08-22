@@ -8,15 +8,15 @@
 	},
 	"camera_defaults": {
 		"orth": true,
-		"width": 3.0,
-		"midpoint": [0.0, -1, -50.0],
+		"width": 15.0,
+		"midpoint": [2, -5, -500.0],
         "rot": [0.0, 0.0, 0.0],
-        "focus": 5
+        "focus": 50
 	},
 	"simulation2D": {
-		"area_per_pt": 0.1,
+		"area_per_pt": 2,
 		
-		"simulation_steps": 2000,
+		"simulation_steps": 200,
 		"gravity_exp": 3.0,
 		"point_force_mult": 0.00001,
 		"point_force_influence_radius": 2,

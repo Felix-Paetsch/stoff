@@ -9,6 +9,8 @@ import (
 	"stoffgo/config"
 	G "stoffgo/geometry"
 	"stoffgo/tools"
+
+	"github.com/fogleman/delaunay"
 )
 
 type ShapeFile struct {
@@ -178,18 +180,34 @@ func (b *PhysicsBox) simulationStep() {
 
 func (b *PhysicsBox) filterExpulsedPoints() {
 	var filteredPoints []SimulationPoint
+	var newBoundaries []Boundary
+
+	currentlyInBoundary := false
+	boundaryStart := 0
+	currentIndex := 0
+	boundaryCount := 0
 	for _, pt := range b.Points {
-		if b.pointInBoundary(pt.pos) {
+		if currentlyInBoundary && !pt.fixed {
+			currentlyInBoundary = false
+			newBoundaries = append(newBoundaries, Boundary{boundaryStart, currentIndex, b.Boundaries[boundaryCount].orientation})
+			boundaryCount++
+		} else if !currentlyInBoundary && pt.fixed {
+			currentlyInBoundary = true
+			boundaryStart = currentIndex
+		}
+
+		if pt.fixed || b.pointInBoundary(pt.pos) {
 			filteredPoints = append(filteredPoints, pt)
+			currentIndex++
 		}
 	}
 
 	b.Points = filteredPoints
+	b.Boundaries = newBoundaries
 }
 
 func (b *PhysicsBox) pointInBoundary(pt G.Vec2) bool {
 	tools.Assert(len(b.Boundaries) > 0, "We need a boundary before calling Hex")
-
 	BoundarySimPoints := b.Points[b.Boundaries[0].start:b.Boundaries[0].end]
 	Boundary := make([]G.Vec2, len(BoundarySimPoints))
 	for i, v := range BoundarySimPoints {
@@ -197,6 +215,12 @@ func (b *PhysicsBox) pointInBoundary(pt G.Vec2) bool {
 	}
 
 	return G.IsPointInPolygon(pt, Boundary)
+}
+
+func (p *Plane) pointInBoundary(pt G.Vec2) bool {
+	tools.Assert(len(p.Boundaries) > 0, "We need a boundary before calling Hex")
+	return G.IsPointInPolygon(pt, p.Vertices[p.Boundaries[0].start:p.Boundaries[0].end]) ||
+		G.IsPointOnPolygon(pt, p.Vertices[p.Boundaries[0].start:p.Boundaries[0].end], 0.0000000001)
 }
 
 func (b *PhysicsBox) boundary(vb []G.Vec2) *PhysicsBox {
@@ -275,7 +299,35 @@ func (b *PhysicsBox) toPlane() *Plane {
 }
 
 func (p *Plane) triangulate() {
+	// Convert Plane vertices to delaunay.Points
+	points := make([]delaunay.Point, len(p.Vertices))
+	for i, vertex := range p.Vertices {
+		points[i] = delaunay.Point{X: vertex[0], Y: vertex[1]}
+	}
 
+	triangulation, err := delaunay.Triangulate(points)
+	tools.Assert(err == nil, "isNil")
+
+	ts := triangulation.Triangles
+	_ = ts
+	hs := triangulation.Halfedges
+	for i, h := range hs {
+		if i > h {
+			p1_i := ts[i]
+			p2_i := ts[nextHalfEdge(i)]
+			center := p.Vertices[p1_i].Add(p.Vertices[p2_i]).Scale(0.5)
+			if p.pointInBoundary(center) {
+				p.Joints = append(p.Joints, [2]int{p1_i, p2_i})
+			}
+		}
+	}
+}
+
+func nextHalfEdge(e int) int {
+	if e%3 == 2 {
+		return e - 2
+	}
+	return e + 1
 }
 
 func normalizeCurve(v []G.Vec2, target_pt_distance float64) []G.Vec2 {
