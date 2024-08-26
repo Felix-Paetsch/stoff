@@ -48,6 +48,10 @@ func (v Vec) Cross(u Vec) Vec {
 	}
 }
 
+func Interpolate(u, v Vec, t float64) Vec {
+	return u.Scale(1 - t).Add(v.Scale(t))
+}
+
 func (v Vec) String() string {
 	return fmt.Sprintf("Vec{%f, %f, %f}", v[0], v[1], v[2])
 }
@@ -99,7 +103,7 @@ func (m Mat) MulMat(n Mat) Mat {
 	var res Mat
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			res[i][j] = m.Row(i).Dot(n[j])
+			res[j][i] = m.Row(i).Dot(n[j])
 		}
 	}
 	return res
@@ -164,5 +168,5 @@ func (m Mat) Row(i int) Vec {
 }
 
 func (m Mat) String() string {
-	return fmt.Sprintf("Mat3{%s, %s, %s}", m[0].String(), m[1].String(), m[1].String())
+	return fmt.Sprintf("Mat3{%s, %s, %s}", m[0].String(), m[1].String(), m[2].String())
 }

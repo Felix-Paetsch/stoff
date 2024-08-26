@@ -120,6 +120,7 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	var pointsData []pointData
 	for _, pt := range *s.Points {
 		normalizedPt := normalize(pt)
+		// relative to screen
 
 		var distance float64
 		if !s.Camera.orth {

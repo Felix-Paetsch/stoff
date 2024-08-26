@@ -40,6 +40,10 @@ func (v Vec2) Distance(vec Vec2) float64 {
 	return math.Sqrt(math.Pow(v[0]-vec[0], 2) + math.Pow(v[1]-vec[1], 2))
 }
 
+func Interpolate2D(u, v Vec, t float64) Vec {
+	return u.Scale(1 - t).Add(v.Scale(t))
+}
+
 func (v Vec2) GetOrthogonal() Vec2 {
 	return Vec2{v[1], -v[0]}
 }

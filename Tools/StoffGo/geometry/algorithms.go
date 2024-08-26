@@ -1,13 +1,13 @@
 package geometry
 
-func SolveLGS(A, B Mat) (Mat, error) {
-	A_inv, err := A.Inverse()
+func MatFromInputOutput(In, Out Mat) (Mat, error) {
+	In_inv, err := In.Inverse()
 	if err != nil {
 		return Mat{}, err
 	}
 
-	C := B.MulMat(A_inv)
-	return C, nil
+	A := Out.MulMat(In_inv)
+	return A, nil
 }
 
 func LinePlaneIntersection(P1, P2, Q1, Q2, Q3 Vec) (Vec, bool) {

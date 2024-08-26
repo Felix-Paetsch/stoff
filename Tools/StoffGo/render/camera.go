@@ -33,33 +33,44 @@ const (
 )
 
 func NormalizeVec(screen Screen) func(G.Vec) G.Vec {
-	center := screen.TL.Add(screen.BR).Scale(.5)
+	// Transforms the points to a coodinate system where
+	// the corners of the screen are mapped to
+	// TL ->   (x,y) = (-1, height/2)
+	// TR ->   (x,y) = (1, height/2)
+	// ... with height = width / aspect_ratio of screen = aspect ratio of camera
+	// Coordinaten system wird nach rechts & oben größer
 
-	source_TL := screen.TL.Sub(center)
-	source_BL := screen.BL.Sub(center)
-	mat_input := G.Mat{
-		source_TL,
-		source_BL,
-		source_TL.Cross(source_BL),
+	center := screen.TL.Add(screen.BR).Scale(.5)
+	translate := func(v G.Vec) G.Vec {
+		return v.Sub(center)
 	}
 
-	target_TL := G.Vec{-1, 1, 0}
-	target_BL := G.Vec{-1, -1, 0}
+	mat_input := G.Mat{
+		translate(screen.TL),
+		translate(screen.BL),
+		translate(screen.TL).Cross(translate(screen.BL)),
+	}
+
+	aspect_ratio := screen.TL.Distance(screen.TR) / screen.TL.Distance(screen.BL)
+	width := 2.0
+	height := width / aspect_ratio
+	target_TL := G.Vec{-width / 2, height / 2, 0}
+	target_BL := G.Vec{-width / 2, -height / 2, 0}
+	cross := target_TL.Cross(target_BL)
 
 	mat_output := G.Mat{
 		target_TL,
 		target_BL,
-		target_TL.Cross(target_BL),
+		cross,
 	}
 
-	inv, err := G.SolveLGS(mat_input, mat_output)
+	CoeffMat, err := G.MatFromInputOutput(mat_input, mat_output)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return func(v G.Vec) G.Vec {
-		translated_Vec := v.Sub(center)
-		return inv.MulVec(translated_Vec)
+		return CoeffMat.MulVec(translate(v))
 	}
 }
 
@@ -87,38 +98,93 @@ func (s Screen) isPointInScreen(p G.Vec) bool {
 
 func (c *Camera) Move(delta G.Vec) *Camera {
 	c.focus = c.focus.Add(delta)
-	c.screen.TL = c.screen.TL.Add(delta)
-	c.screen.BL = c.screen.BL.Add(delta)
-	c.screen.TR = c.screen.TR.Add(delta)
-	c.screen.BR = c.screen.BR.Add(delta)
+
+	m := c.screen.TL.Distance(c.screen.TR)
+
+	xVec := c.screen.TR.Sub(c.screen.TL)
+	yVec := c.screen.TL.Sub(c.screen.BL)
+	zVec := xVec.Cross(yVec)
+
+	xVec = xVec.ToLen(m * delta[0])
+	yVec = yVec.ToLen(m * delta[1])
+	zVec = zVec.ToLen(m * delta[2])
+
+	relativeDelta := xVec.Add(yVec).Add(zVec)
+
+	c.screen.TL = c.screen.TL.Add(relativeDelta)
+	c.screen.BL = c.screen.BL.Add(relativeDelta)
+	c.screen.TR = c.screen.TR.Add(relativeDelta)
+	c.screen.BR = c.screen.BR.Add(relativeDelta)
 	return c
 }
 
 func (c *Camera) Rotate(angles G.Vec) *Camera {
-	rotationX := G.Mat{
-		G.Vec{1, 0, 0},
-		G.Vec{0, float64(math.Cos(float64(angles[0]))), -float64(math.Sin(float64(angles[0])))},
-		G.Vec{0, float64(math.Sin(float64(angles[0]))), float64(math.Cos(float64(angles[0])))},
-	}
+	// 1. Screen to canonical:
+	//       i.e. BL is 0,0,0 and TL is at x,0,0 and BR and (0,0,y)
 
-	rotationY := G.Mat{
-		G.Vec{float64(math.Cos(float64(angles[1]))), 0, float64(math.Sin(float64(angles[1])))},
-		G.Vec{0, 1, 0},
-		G.Vec{-float64(math.Sin(float64(angles[1]))), 0, float64(math.Cos(float64(angles[1])))},
-	}
+	toCanonical, fromCanonical := canonicalTransformations(c.screen)
 
-	rotationMatrix := rotationX.MulMat(rotationY)
+	center := c.screen.TL.Add(c.screen.BR).Scale(0.5)
+	rotCenter := center.Scale(2).Sub(c.focus)
+	canonicalRotation := canonicalRotation(angles, toCanonical(rotCenter))
 
-	rotatePoint := func(p G.Vec) G.Vec {
-		relative := p.Sub(c.focus)
-		rotated := rotationMatrix.MulVec(relative)
-		return rotated.Add(c.focus)
+	rotatePoint := func(v G.Vec) G.Vec {
+		t := toCanonical(v)
+		r := canonicalRotation(t)
+		return fromCanonical(r)
 	}
 
 	c.screen.TL = rotatePoint(c.screen.TL)
 	c.screen.BL = rotatePoint(c.screen.BL)
 	c.screen.TR = rotatePoint(c.screen.TR)
 	c.screen.BR = rotatePoint(c.screen.BR)
+
+	c.focus = rotatePoint(c.focus)
+
+	return c
+}
+
+func (c *Camera) RRotate(angles G.Vec) *Camera {
+	// Rotation around the X-axis
+	rotationX := G.Mat{
+		G.Vec{1, 0, 0},
+		G.Vec{0, math.Cos(angles[0]), -math.Sin(angles[0])},
+		G.Vec{0, math.Sin(angles[0]), math.Cos(angles[0])},
+	}
+
+	// Rotation around the Y-axis
+	rotationY := G.Mat{
+		G.Vec{math.Cos(angles[1]), 0, math.Sin(angles[1])},
+		G.Vec{0, 1, 0},
+		G.Vec{-math.Sin(angles[1]), 0, math.Cos(angles[1])},
+	}
+
+	// Rotation around the Z-axis
+	rotationZ := G.Mat{
+		G.Vec{math.Cos(angles[2]), -math.Sin(angles[2]), 0},
+		G.Vec{math.Sin(angles[2]), math.Cos(angles[2]), 0},
+		G.Vec{0, 0, 1},
+	}
+
+	// Combine the rotation matrices
+	rotationMatrix := rotationZ.MulMat(rotationY).MulMat(rotationX)
+
+	center := c.screen.TL.Add(c.screen.BR).Scale(0.5)
+	rotCenter := center.Scale(2).Sub(c.focus)
+
+	rotatePoint := func(p G.Vec) G.Vec {
+		relative := p.Sub(rotCenter)
+		rotated := rotationMatrix.MulVec(relative)
+		return rotated.Add(rotCenter)
+	}
+
+	// Rotate each corner of the screen and the focus point
+	c.screen.TL = rotatePoint(c.screen.TL)
+	c.screen.BL = rotatePoint(c.screen.BL)
+	c.screen.TR = rotatePoint(c.screen.TR)
+	c.screen.BR = rotatePoint(c.screen.BR)
+
+	c.focus = rotatePoint(c.focus)
 
 	return c
 }
@@ -279,6 +345,14 @@ func DefaultCamera(aspectRatio float64) *Camera {
 	return tempCam.Rotate(r)
 }
 
+func (s Screen) Center() G.Vec {
+	return s.TL.Add(s.TR).Scale(0.5)
+}
+
+func (s Screen) AspectRatio() float64 {
+	return s.TL.Distance(s.TR) / s.TL.Distance(s.BL)
+}
+
 func (s Screen) String() string {
 	return fmt.Sprintf("Screen{\n  TL: %v,\n  BL: %v,\n  BR: %v,\n  TR: %v\n}", s.TL, s.BL, s.BR, s.TR)
 }
@@ -313,10 +387,10 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 		moveVec = moveVec.Add(G.Vec{MoveSpeed * dt, 0, 0})
 	}
 	if keys[key.CodeS] {
-		moveVec = moveVec.Add(G.Vec{0, -MoveSpeed * dt, 0})
+		moveVec = moveVec.Add(G.Vec{0, MoveSpeed * dt, 0})
 	}
 	if keys[key.CodeW] {
-		moveVec = moveVec.Add(G.Vec{0, MoveSpeed * dt, 0})
+		moveVec = moveVec.Add(G.Vec{0, -MoveSpeed * dt, 0})
 	}
 	if keys[key.CodeY] {
 		moveVec = moveVec.Add(G.Vec{0, 0, MoveSpeed * dt})
@@ -326,16 +400,22 @@ func (c *Camera) ReactToKeypresses(keys map[key.Code]bool, dt float64) *Camera {
 	}
 
 	if keys[key.CodeJ] {
-		rotateVec = rotateVec.Add(G.Vec{0, RotateSpeed * dt, 0})
-	}
-	if keys[key.CodeL] {
-		rotateVec = rotateVec.Add(G.Vec{0, -RotateSpeed * dt, 0})
-	}
-	if keys[key.CodeK] {
 		rotateVec = rotateVec.Add(G.Vec{RotateSpeed * dt, 0, 0})
 	}
-	if keys[key.CodeI] {
+	if keys[key.CodeL] {
 		rotateVec = rotateVec.Add(G.Vec{-RotateSpeed * dt, 0, 0})
+	}
+	if keys[key.CodeK] {
+		rotateVec = rotateVec.Add(G.Vec{0, RotateSpeed * dt, 0})
+	}
+	if keys[key.CodeI] {
+		rotateVec = rotateVec.Add(G.Vec{0, -RotateSpeed * dt, 0})
+	}
+	if keys[key.CodeN] {
+		rotateVec = rotateVec.Add(G.Vec{0, 0, RotateSpeed * dt})
+	}
+	if keys[key.CodeM] {
+		rotateVec = rotateVec.Add(G.Vec{0, 0, -RotateSpeed * dt})
 	}
 
 	if keys[key.CodeO] {
