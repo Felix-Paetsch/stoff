@@ -97,8 +97,6 @@ func (s Screen) isPointInScreen(p G.Vec) bool {
 }
 
 func (c *Camera) Move(delta G.Vec) *Camera {
-	c.focus = c.focus.Add(delta)
-
 	m := c.screen.TL.Distance(c.screen.TR)
 
 	xVec := c.screen.TR.Sub(c.screen.TL)
@@ -115,6 +113,7 @@ func (c *Camera) Move(delta G.Vec) *Camera {
 	c.screen.BL = c.screen.BL.Add(relativeDelta)
 	c.screen.TR = c.screen.TR.Add(relativeDelta)
 	c.screen.BR = c.screen.BR.Add(relativeDelta)
+	c.focus = c.focus.Add(relativeDelta)
 	return c
 }
 

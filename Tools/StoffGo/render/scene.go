@@ -146,7 +146,7 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 			imgW := float64(projectedPt[0]+1) * float64(w) / 2
 			imgH := (projectedPt[1] + float64(w)/float64(h)) * float64(h) / 2
 
-			normalizedDistance := 1.0 / math.Pow((pd.distance+1.0), .3)
+			normalizedDistance := 1.0 / math.Pow((pd.distance+1.0), 1)
 			if math.IsNaN(normalizedDistance) {
 				normalizedDistance = .01
 			}
@@ -174,18 +174,13 @@ func (s *Scene) Render(img *image.RGBA, w, h int) {
 	}
 
 	midpoint := s.Camera.screen.TL.Add(s.Camera.screen.BR).Scale(0.5)
-	rotationAngles := s.Camera.screen.TL.Sub(s.Camera.screen.TR)
-	angleX := (int(math.Atan2(rotationAngles[1], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
-	angleY := (int(math.Atan2(rotationAngles[2], rotationAngles[0])*(180/math.Pi)+360) % 360) - 180
-
 	textPadding := 10.0
 	textHeight := 20.0
 
 	dc.SetRGB(1, 1, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Midpoint: %v", midpoint), textPadding, float64(h)-textPadding-textHeight-20, 0, 1)
 	dc.DrawStringAnchored(fmt.Sprintf("Focus: %v", s.Camera.focus), textPadding, float64(h)-textPadding-20, 0, 1)
-	dc.DrawStringAnchored(fmt.Sprintf("Angle X: %d°, Angle Y: %d°", angleX, angleY), textPadding, float64(h)-textPadding-2*textHeight-20, 0, 1)
-	dc.DrawStringAnchored(fmt.Sprintf("Orth: %t", s.Camera.orth), textPadding, float64(h)-textPadding-3*textHeight-20, 0, 1)
+	dc.DrawStringAnchored(fmt.Sprintf("Orth: %t", s.Camera.orth), textPadding, float64(h)-textPadding-2*textHeight-20, 0, 1)
 
 	dc.Fill()
 }
