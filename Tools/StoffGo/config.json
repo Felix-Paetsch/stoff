@@ -1,14 +1,14 @@
 {
 	"win_size": [600, 600],
 	"camera_movement": {
-		"move_speed": 1,
-		"rotate_speed": 2,
+		"move_speed": 3,
+		"rotate_speed": 1,
 		"zoom_speed": 0.5,
 		"focus_speed": 20
 	},
 	"camera_defaults": {
 		"orth": true,
-		"width": 15.0,
+		"width": 3.0,
 		"midpoint": [0,0,-50],
         "rot": [0,0,0],
         "focus": 50
