@@ -4,38 +4,40 @@ import (
 	"stoffgo/config"
 	G "stoffgo/geometry"
 	R "stoffgo/render"
+	"stoffgo/three"
 )
+
+func AddToScene(scene *R.Scene, s three.Shape) {
+	// Add vertices to the scene
+	for _, vertex := range s.Vertices {
+		scene.Point(vertex)
+	}
+
+	// Add edges to the scene
+	for _, edge := range s.Edges {
+		scene.LineFromInt(edge[0], edge[1])
+	}
+}
 
 func main() {
 	config.LoadConfig("config.json")
 	scene := R.DefaultScene()
-	cubeVertices := []G.Vec{
-		{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}, // Bottom face
-		{-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}, // Top face
+
+	// Define a cube shape
+	cube := three.Shape{
+		Vertices: []G.Vec{
+			{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}, // Bottom face
+			{-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}, // Top face
+		},
+		Edges: [][2]int{
+			{0, 1}, {1, 2}, {2, 3}, {3, 0}, // Bottom face edges
+			{4, 5}, {5, 6}, {6, 7}, {7, 4}, // Top face edges
+			{0, 4}, {1, 5}, {2, 6}, {3, 7}, // Side edges
+		},
 	}
 
-	// Add vertices to the scene
-	for i := 0; i < len(cubeVertices); i++ {
-		scene.Point(cubeVertices[i])
-	}
-
-	// Add lines for the bottom face
-	scene.LineFromInt(0, 1) // Bottom face edge 1
-	scene.LineFromInt(1, 2) // Bottom face edge 2
-	scene.LineFromInt(2, 3) // Bottom face edge 3
-	scene.LineFromInt(3, 0) // Bottom face edge 4
-
-	// Add lines for the top face
-	scene.LineFromInt(4, 5) // Top face edge 1
-	scene.LineFromInt(5, 6) // Top face edge 2
-	scene.LineFromInt(6, 7) // Top face edge 3
-	scene.LineFromInt(7, 4) // Top face edge 4
-
-	// Add lines connecting the top and bottom faces
-	scene.LineFromInt(0, 4) // Side edge 1
-	scene.LineFromInt(1, 5) // Side edge 2
-	scene.LineFromInt(2, 6) // Side edge 3
-	scene.LineFromInt(3, 7) // Side edge 4
+	// Add the cube shape to the scene
+	AddToScene(scene, cube)
 
 	scene.SetCamera(R.DefaultCamera(1))
 	R.RenderLoop(scene)
