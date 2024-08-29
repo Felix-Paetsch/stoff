@@ -11,3 +11,5 @@ StoffLib/_export_global.js
 Server/public/tailwind.css
 Measurements/data/measurement**
 **.blend**
+**__pycache__/
+**.py[cod]
