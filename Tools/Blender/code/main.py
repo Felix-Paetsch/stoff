@@ -1,12 +1,39 @@
 import bpy  # type: ignore
+import mathutils  # type: ignore
 import json
 import os
 
-from tools import clear, absolute_filepath
+from tools import clear, load, absolute_filepath
 
+# Clear the scene
 clear()
 
-# Load the JSON file
+# Dynamically load the 'load_body' module
+load_body = load("load_body")
+
+# Load the human body object
+human_obj = load_body.load_body()
+
+# Calculate the bounding box of the human object
+if human_obj:
+    bounding_box = human_obj.bound_box
+    bb_world_coords = [human_obj.matrix_world @ mathutils.Vector(corner) for corner in bounding_box]
+    
+    min_z = min([v[2] for v in bb_world_coords])
+    max_z = max([v[2] for v in bb_world_coords])
+    
+    # Calculate the center above the human's bounding box
+    human_center_x = (min([v[0] for v in bb_world_coords]) + max([v[0] for v in bb_world_coords])) / 2
+    human_center_y = (min([v[1] for v in bb_world_coords]) + max([v[1] for v in bb_world_coords])) / 2
+
+    print(f"Bounding Box Min: ({min_z})")
+    print(f"Bounding Box Max: ({max_z})")
+    print(f"Dimensions: (Height: {max_z - min_z})")
+
+else:
+    print("Failed to load the human body object.")
+
+# Load the JSON file for the cloth
 with open(absolute_filepath("./assets/test.json"), "r") as f:
     data = json.load(f)
 
@@ -36,21 +63,8 @@ bpy.ops.object.mode_set(mode='OBJECT')
 cloth_width = max(v[0] for v in vertices) - min(v[0] for v in vertices)
 cloth_height = max(v[1] for v in vertices) - min(v[1] for v in vertices)
 
-# Position the cloth object above the sphere
-cloth_obj.location = (-2.0, -2.0, 4.0)  # Move cloth 2 units above the origin
-
-# Create a UV Sphere below the cloth
-bpy.ops.mesh.primitive_uv_sphere_add(radius=cloth_width / 2, location=(0, 0, 1.0))
-sphere_obj = bpy.context.active_object
-sphere_obj.name = "ClothCollisionSphere"
-
-# Create a plane to act as the ground
-bpy.ops.mesh.primitive_plane_add(size=10, location=(0, 0, 0))
-ground_obj = bpy.context.active_object
-ground_obj.name = "GroundPlane"
-
-# Apply collision physics to the ground
-bpy.ops.object.modifier_add(type='COLLISION')
+# Position the cloth object above the human model
+cloth_obj.location = (human_center_x - 200, human_center_y - 200, max_z + 10)  # 0.5 units above the human's highest point
 
 # Apply cloth physics to the cloth object
 bpy.ops.object.select_all(action='DESELECT')
@@ -61,25 +75,16 @@ bpy.ops.object.modifier_add(type='CLOTH')
 # Set up cloth physics properties (adjust as needed)
 cloth_modifier = cloth_obj.modifiers["Cloth"]
 cloth_modifier.settings.quality = 5  # Set simulation quality
-cloth_modifier.settings.mass = 0.3  # Adjust mass
+cloth_modifier.settings.mass = 5  # Adjust mass
 cloth_modifier.settings.air_damping = 5  # Adjust air damping
 
-# Set up collision for the sphere
-sphere_obj.select_set(True)
-bpy.context.view_layer.objects.active = sphere_obj
+# Apply collision physics to the human object
+human_obj.select_set(True)
+bpy.context.view_layer.objects.active = human_obj
 bpy.ops.object.modifier_add(type='COLLISION')
-
-# Apply collision physics to the ground
-ground_obj.select_set(True)
-bpy.context.view_layer.objects.active = ground_obj
-bpy.ops.object.modifier_add(type='COLLISION')
-
-# Set up the cloth object to be active
-bpy.context.view_layer.objects.active = cloth_obj
-cloth_obj.select_set(True)
 
 # Set up the frame range and run the simulation
 bpy.context.scene.frame_start = 1
-bpy.context.scene.frame_end = 250
+bpy.context.scene.frame_end = 2500
 
-print("Cloth, sphere, and ground set up successfully with subdivided cloth.")
+print("Human body and cloth set up successfully with cloth simulation ready to run.")
