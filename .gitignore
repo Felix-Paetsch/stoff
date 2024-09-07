@@ -13,3 +13,5 @@ Measurements/data/measurement**
 **.blend**
 **__pycache__/
 **.py[cod]
+**.fbx
+Tools/Blender/assets

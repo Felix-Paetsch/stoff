@@ -5,12 +5,6 @@ import (
 	G "stoffgo/geometry"
 )
 
-type Shape struct {
-	Vertices  []G.Vec
-	Edges     [][2]int
-	Triangles [][3]int
-}
-
 // Helper function to add a vertex to the shape, returning the index of the vertex
 func addVertex(vertices *[]G.Vec, vertex G.Vec) int {
 	*vertices = append(*vertices, vertex)

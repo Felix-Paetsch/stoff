@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import { Config } from "../Config/exports.js";
+import { Config } from "../StoffLib/Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
 
@@ -60,6 +60,35 @@ app.post('/pattern', (req, res) => {
         });
     }
 });
+
+app.post('/design_config', (req, res) => {
+    res.json((new Config(design_config)).serialize());
+});
+
+// create_design((new Config(design_config)).to_obj()).sewing_data();
+
+app.get("/pattern_json", (req, res) => {
+    // SketchRouteRenderer.reset();
+
+    const isDebug = req.query.debug !== undefined;
+
+    try {
+        const conf_obj = (new Config(design_config)).to_obj();
+        const s = !isDebug ? create_design(conf_obj) : debug_create_design();
+        
+        res.set('Content-Type', 'image/svg+xml');
+        res.json({
+            data: s.sewing_data(),
+            design_config: design_config,
+            error: false
+        });
+    } catch (error){
+        res.status(422).json({
+            error: true,
+            stack: error.stack
+        });
+    }
+})
 
 app.get('/reset', (req, res) => {
     if (!pattern_was_requested) {

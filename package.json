@@ -22,7 +22,7 @@
     "build:css": "tailwindcss -c ./Website/tailwind.config.js -i ./Website/public/_styles.css -o ./Website/public/tailwind.css",
     "watch:css": "tailwindcss -c ./Website/tailwind.config.js -i ./Website/public/_styles.css -o ./Website/public/tailwind.css --watch",
     
-    "dev": "nodemon DevWebsite/index.js",
+    "dev": "nodemon DevServer/index.js",
     
     "web": "nodemon Website/index.js",
     "web_css": "concurrently \"npm run watch:css\" \"nodemon Website/index.js\"",

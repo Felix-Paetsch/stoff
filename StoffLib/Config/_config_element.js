@@ -1,7 +1,7 @@
 import render_file_sync from "./utils/rendering.js";
 import load_lib from "./utils/load_lib.js";
 
-import { assert } from "../Debug/validation_utils.js";
+import { assert } from "../../Debug/validation_utils.js";
 const path = await load_lib("path");
 
 export default class ConfigElement{
@@ -168,9 +168,16 @@ export default class ConfigElement{
     }
 }
 
-ConfigElement.uid = (function* uidGenerator() {
-    let id = 0;
-    while (true) {
-      yield `_uid_${id++}`;
+ConfigElement.uid = (() => {
+    function* uidGenerator() {
+        let id = 0;
+        while (true) {
+        yield `_uid_${id++}`;
+        }
     }
-})
+
+    const gen = uidGenerator();
+    return () => {
+        return gen.next().value
+    }
+})()

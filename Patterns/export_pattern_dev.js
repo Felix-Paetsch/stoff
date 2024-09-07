@@ -9,7 +9,7 @@ import change from './simple_main.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../Config/exports.js";
+import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
 
 
 export default {
