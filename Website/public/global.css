@@ -1,0 +1,8 @@
+body{
+    font-family: "SUSE", sans-serif;
+    font-optical-sizing: auto;
+}
+
+*{
+    --theme_color1: #4dee8b;
+}

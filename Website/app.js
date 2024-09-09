@@ -10,7 +10,8 @@ export default () => {
 
     app.set('views', join(__dirname, 'views'));
     app.set('view engine', 'ejs');
-    app.use(express.json());
     app.use(express.static(join(__dirname, 'public')));
+    app.use(express.static(join(__dirname, 'views')));
+
     return app;
 }
