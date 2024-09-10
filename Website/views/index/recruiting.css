@@ -1,0 +1,23 @@
+#recruiting_box{
+    padding: 3rem var(--common_padding_right) 0 var(--common_padding_left);
+    display: flex;
+    flex-direction: row;
+    height: 30rem;
+    justify-content:space-between;
+}
+
+.recruiting_text h6{
+    font-size: 1.5rem;
+}
+
+#stoffLibArt{
+    width: 50vw;
+    height: 100%;
+    overflow: hidden;
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--theme_color1);
+    padding: .5em;
+    background-color: var(--dark_theme1);
+    cursor: pointer;
+}

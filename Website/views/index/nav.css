@@ -1,0 +1,45 @@
+.nav{
+    padding: .5em var(--common_padding_right) .5em 0;
+    font-size: 1.2em;
+    height: 3em;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.nav_item{
+    margin-left: 1.5em;
+    line-height: 1.2em;
+    cursor: pointer;
+}
+
+.nav_item:not(.login){
+    margin-top: .4em;
+}
+
+.nav_item:not(.login)::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: .2em;
+    background-color: var(--theme_color1);
+    transition: width 0.1s;
+    margin-top: .12em;
+    border-radius: 2em;
+}
+
+.nav_item:not(.login):hover::after {
+    width: 100%;
+}
+
+.nav_item.login{
+    border: .2em solid var(--theme_color1);
+    border-radius: 2em;
+    padding: .2em .8em;
+    height: 2em;
+}
+
+.nav_item.login:hover{
+    color: black;
+    background-color: var(--theme_color1);
+    transition: background-color .3s, color .3s;
+}

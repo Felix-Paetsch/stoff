@@ -1,0 +1,90 @@
+.banner{
+    height: min(calc(100vh - 3em), 40em);
+    position: relative;
+}
+
+
+/* ---------- Banner BG ------------------- */
+.banner_background{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 40;
+
+    overflow: hidden;
+}
+
+.abs_wrapper{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#background_img_1{
+    width: 40em;
+    height: 30em;
+    background-image: url('/assets/p1.PNG');
+    left: 1em;
+    top: 0em;
+    transform: scale(.8);
+}
+
+#background_img_2{
+    width: 15em;
+    height: 25em;
+    background-image: url('/assets/p2.PNG');
+    
+    right: calc(var(--common_padding_right) + 5em);
+    top: 0em;
+    transform: rotate(-10deg);
+}
+
+#background_img_3{
+    width: 30em;
+    height: 25em;
+    background-image: url('/assets/p3.PNG');
+    left: 25vw;
+    bottom: 1em;
+}
+
+.banner_img {
+    position: absolute;
+    filter: grayscale(100%);
+    opacity: .8;
+    background-size: cover; /* Ensures the image covers the entire div */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents repeating of the image */
+}
+
+.current_mea{
+    border-left: .2em solid var(--theme_color1);
+    top: 25em;
+    right: var(--common_padding_right);
+    position: absolute;
+    padding: .5em 0 .5em  1em;
+}
+
+/* ---------- Banner FG ---------------*/
+
+.banner_foreground{
+    position: relative;
+    z-index: 60;
+
+    margin-left: var(--common_padding_left);
+    padding-top: 3em;
+}
+
+.banner_foreground h1{
+    font-size: 5em;
+}
+
+.banner_foreground p{
+    margin-top: 2em;
+    font-size: 1.2em;
+}
+
+.banner_foreground b{
+    font-size: 1.5em;
+}

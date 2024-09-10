@@ -1,0 +1,40 @@
+#learn_sewing{
+    padding: 6rem var(--common_padding_right) 6rem var(--common_padding_left);
+    margin-top: 5rem;
+    background-color: var(--dark_theme1);
+    justify-content: center;
+    text-align: center;
+    color: white;
+    border-top: .1em solid black;
+    position: relative;
+}
+
+#learn_sewing #perculation1{
+    position: absolute;
+    left: var(--common_padding_left);
+    top: 0;
+    height: 100%;
+}
+
+#learn_sewing #perculation2{
+    position: absolute;
+    right: var(--common_padding_right);
+    top: 0;
+    height: 100%;
+    transform: rotate(180deg);
+}
+
+#learn_sewing h4{
+    font-size: 2em;
+    margin-bottom: 2rem;
+    color: var(--theme_color1);
+}
+
+#learn_sewing p{
+    line-height: 2rem;
+    cursor: pointer;
+}
+
+#learn_sewing p a{
+    color: var(--theme_color1);
+}
