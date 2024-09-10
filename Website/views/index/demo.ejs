@@ -1,0 +1,55 @@
+<div class="demo_wrapper content_width">
+    <h3>Try it!</h3>
+    <div id="demo_box">
+        <div id="demo_settings">
+            <div class="setting_section">
+                <div class="settings_big_box">
+                    <h5>Measurements</h5>
+                    <% for ([name, id] of [
+                        ["Bust Circumference", "bust_circ"],
+                        ["Waist Circumference", "waist_circ"],
+                        ["Back Length", "back_len"],
+                        ["Arm Length", "arm_len"]
+                    ]){ %>
+                        <%- include("./demo/measurement_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#">-> Input Your measurements</a>
+                </div>
+                <div id="demo_sep_bar"></div>
+                <div class="settings_big_box">
+                    <h5>Neckline</h5>
+                    <% for ([name, id] of [
+                        ["Round", "round"],
+                        ["Round Wide", "round_wide"],
+                        ["Square", "square"]
+                    ]){ %>
+                        <%- include("./demo/radio_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#">-> More settings for this pattern</a>
+                </div>
+                <div class="settings_big_box"></div>
+                    <h5>Dartstyle</h5>
+                    <% for ([name, id] of [
+                        ["None", "none"],
+                        ["Single Dart", "single_dart"],
+                        ["Double Dart", "double_dart"]
+                    ]){ %>
+                        <%- include("./demo/radio_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#">-> More settings for this pattern</a>
+                </div>
+            </div>
+        </div>
+        <div id="demo_div"></div>
+        <div id="demo_result"></div>
+    </div>
+</div>
