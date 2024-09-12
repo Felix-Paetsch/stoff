@@ -111,7 +111,7 @@
 /* ------------ MEA --------- */
 
 #start_by_measurements{
-    background-color: var(--dark_theme1);
+    background-color: var(--theme_color1_50_white);
     margin-left: -.1em;
     cursor: pointer;
     
@@ -124,4 +124,5 @@
 #start_by_measurements h3{
     margin-top: 2rem;
     margin-right: var(--common_padding_right);
+    color: white;
 }

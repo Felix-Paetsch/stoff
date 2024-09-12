@@ -28,6 +28,10 @@
     margin-bottom: 1.2rem;
 }
 
+.settings_big_box a:hover i{
+    color: var(--theme_color1);
+}
+
 #demo_box a{
     color: rgba(0,0,0,.8);
     display: block;
@@ -146,8 +150,8 @@ input[type=range]::-moz-range-thumb {
 }
 
 #result_wrapper{
-    width:  calc(30rem * 1.2);
-    height: calc(25rem * 1.1);
+    width:  calc(30rem * 1);
+    height: calc(25rem * 1);
     background-image: url('/assets/p3.PNG');
     background-size: cover;
     background-position: center;

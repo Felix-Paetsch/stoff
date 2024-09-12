@@ -1,0 +1,23 @@
+$theme_color1: #dd8448; // Main theme color
+
+// Derived values
+$theme_color1_50: rgba($theme_color1, 0.5); // Opacity 50%
+$theme_color1_50_white: mix(white, $theme_color1, 50%); // Mixed 50% with white
+
+body {
+    font-family: "SUSE", sans-serif;
+    font-optical-sizing: auto;
+}
+
+* {
+    --theme_color1: #{$theme_color1}; // Main color
+    --theme_color1_50: #{$theme_color1_50}; // 50% opacity
+    --theme_color1_50_white: #{$theme_color1_50_white}; // Mixed with white
+
+    --dark_theme1: #555;
+
+    --content_width: 100%;
+    --content_margin: 0rem;
+    --common_padding_left: 10vw;
+    --common_padding_right: 10vw;
+}
