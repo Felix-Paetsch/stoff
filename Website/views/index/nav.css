@@ -4,6 +4,8 @@
     height: 3em;
     display: flex;
     justify-content: flex-end;
+    background-color: var(--theme_color1);
+    color: white;
 }
 
 .nav_item{
@@ -21,7 +23,7 @@
     display: block;
     width: 0;
     height: .2em;
-    background-color: var(--theme_color1);
+    background-color: white;
     transition: width 0.1s;
     margin-top: .12em;
     border-radius: 2em;
@@ -32,14 +34,14 @@
 }
 
 .nav_item.login{
-    border: .2em solid var(--theme_color1);
+    border: .2em solid white;
     border-radius: 2em;
     padding: .2em .8em;
     height: 2em;
 }
 
 .nav_item.login:hover{
-    color: black;
-    background-color: var(--theme_color1);
+    color: var(--theme_color1);
+    background-color: white;
     transition: background-color .3s, color .3s;
 }

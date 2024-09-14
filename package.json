@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "nodemon DevServer/index.js",
     "web": "nodemon Website/index.js",
-    "web_hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files 'Website/public/*.css,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
+    "web_hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files ',Website/public/**,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
     "measure": "node Tools/Measurements/index.js",
     "go": "(cd ./Tools/StoffGo && go run .)"
   },

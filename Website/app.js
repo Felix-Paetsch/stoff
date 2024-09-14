@@ -2,7 +2,7 @@ import express from 'express'; // Use ES6 import for express
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import sass from 'sass';
+import * as sass from 'sass'
 
 export default () => {
     const app = express();

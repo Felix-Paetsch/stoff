@@ -3,7 +3,7 @@
     padding: 5rem var(--common_padding_right) 0 var(--common_padding_left);
     display: grid;
     grid-template-columns: auto 50vw;
-    border-top: .1em solid black;
+    border-top: 2em solid var(--theme_color1_50);
 }
 
 #mission_statement .title{

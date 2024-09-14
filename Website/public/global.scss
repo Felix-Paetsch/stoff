@@ -1,8 +1,7 @@
-$theme_color1: #dd8448; // Main theme color
+$theme_color1:  #dd8448; // #b6438a; #dd8448
 
-// Derived values
-$theme_color1_50: rgba($theme_color1, 0.5); // Opacity 50%
-$theme_color1_50_white: mix(white, $theme_color1, 50%); // Mixed 50% with white
+$theme_color1_50: rgba($theme_color1, 0.5); 
+$theme_color1_50_white: mix(white, $theme_color1, 50%); 
 
 body {
     font-family: "SUSE", sans-serif;
@@ -10,9 +9,9 @@ body {
 }
 
 * {
-    --theme_color1: #{$theme_color1}; // Main color
-    --theme_color1_50: #{$theme_color1_50}; // 50% opacity
-    --theme_color1_50_white: #{$theme_color1_50_white}; // Mixed with white
+    --theme_color1: #{$theme_color1}; 
+    --theme_color1_50: #{$theme_color1_50}; 
+    --theme_color1_50_white: #{$theme_color1_50_white}; 
 
     --dark_theme1: #555;
 
