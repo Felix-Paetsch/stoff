@@ -37,7 +37,6 @@ function create_canvas_from_sketch(s , width, height){
     const drawPolyline = (polyline) => {
         const stroke = polyline.attributes.stroke;
         const strokeWidth = polyline.attributes.strokeWidth;
-        const strokeDasharray = polyline.attributes.strokeDasharray.split(',').map(Number);
         const opacity = polyline.attributes.opacity;
 
         ctx.beginPath();
@@ -48,9 +47,7 @@ function create_canvas_from_sketch(s , width, height){
         ctx.globalAlpha = opacity;
         ctx.strokeStyle = stroke;
         ctx.lineWidth = strokeWidth;
-        ctx.setLineDash(strokeDasharray);
         ctx.stroke();
-        ctx.setLineDash([]); // Reset dash array
         ctx.globalAlpha = 1.0; // Reset alpha to default
     };
 

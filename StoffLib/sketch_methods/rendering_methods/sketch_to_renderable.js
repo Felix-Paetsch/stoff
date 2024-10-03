@@ -138,12 +138,5 @@ function clean_line_attributes(attributes){
         attributes.opacity = 1;
     }
 
-    if (!(typeof attributes.strokeDasharray == "string") || attributes.strokeDasharray == "none" || attributes.strokeDasharray == null){
-        attributes.strokeDasharray = "none";
-    } else {
-        const sanitized = attributes.strokeDasharray.replace(/[^0-9, ]/g, '');
-        attributes.strokeDasharray = sanitized.split(/[, ]+/).filter(Boolean).join(',');
-    }
-
     return attributes;
 }

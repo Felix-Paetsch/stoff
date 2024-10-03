@@ -13,10 +13,12 @@ const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/debug_create_design.js";
 
 import { Sketch } from "../StoffLib/sketch.js";
+import register_dev_serve_html from "./sketch_mods/dev_serve_html.js";
 import register_render_to_url from "./sketch_mods/render_to_url.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
 import exposition from "./exposition.js";
 
+register_dev_serve_html(Sketch, app);
 const SketchRouteRenderer = register_render_to_url(Sketch, app);
 
 app.get('/', (req, res) => {

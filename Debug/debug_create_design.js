@@ -88,9 +88,9 @@ export default function(){
         b *= scale_factor;
 
         // Set the color
-        console.log(r,g,b);
-        lines[i].set_color(`rgb(${r}, ${g}, ${b})`);
+        lines[i].set_color(`rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`);
     }
+
 
     for (let i = 1; i < 8; i++){
         const new_lines = [];
@@ -100,7 +100,7 @@ export default function(){
         lines = new_lines;
     }
 
-    s.dev.stop_recording().to_mp4("test2.mp4", 6);
+    s.dev.stop_recording().at_url("/wha");
 
     return s;
 }

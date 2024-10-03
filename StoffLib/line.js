@@ -17,7 +17,6 @@ class Line{
         this.attributes = {
             stroke: color,
             strokeWidth: 1,
-            strokeDasharray: null,
             opacity: 1
         };
         this.data = {};

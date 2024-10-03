@@ -34,7 +34,6 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
     const createPolyline = (polyline) => {
         const stroke = polyline.attributes.stroke;
         const strokeWidth = polyline.attributes.strokeWidth;
-        const strokeDasharray = polyline.attributes.strokeDasharray;
         const opacity = polyline.attributes.opacity;
 
         const pointsString = polyline.sample_points.map(point => `${point.x},${point.y}`).join(' ');
@@ -51,7 +50,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null){
             ).replace(/\\/g, '\\\\').replace(/"/g, '&quot;')
         }" hover_area/>`;
 
-        svgContent += `<polyline points="${ pointsString }" style="fill:none; stroke: ${ stroke }; stroke-width: ${ strokeWidth }" opacity="${ opacity }" stroke-dasharray="${ strokeDasharray }"/>`;
+        svgContent += `<polyline points="${ pointsString }" style="fill:none; stroke: ${ stroke }; stroke-width: ${ strokeWidth }" opacity="${ opacity }" />`;
     };
 
     lines.forEach(createPolyline);

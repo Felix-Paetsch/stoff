@@ -75,18 +75,9 @@ export default (Sketch, app) => {
 
     const SRR = new SketchRouteRenderer(app);
     Sketch.dev.at_url = function(url, data = null, overwrite = false){
+        Sketch.dev._depricated_html_served_at(url);
         SRR.add_route(url, this.to_dev_svg(500, 500), data, clean_rendering_data(this.data), overwrite);
     }
-
-    app.get("/at_url", (req, res) => {
-        res.render("at_url/at_url.ejs", {
-            routes: SRR.get_routes()
-        });
-    });
-
-    app.post("/at_url", (req, res) => {
-        res.render('at_url/list.ejs', { routes: SRR.get_routes() });
-    });
 
     return SRR;
 }
