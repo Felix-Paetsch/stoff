@@ -7,6 +7,7 @@ import basic_pattern_top from './top/pattern_top.js';
 import pattern_top_new from './top/pattern_top_new.js';
 import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
 import change from './simple_main.js';
+import lengthen from './lengthen/top.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
@@ -22,6 +23,8 @@ export default {
             "für",
             "Felix",
             "Debby",
+            "Leonie",
+            "Isa",
             0
           )
         ),
@@ -144,15 +147,28 @@ export default {
       let temp = design_config.Schnittmuster["für"];
       let measurements;
       if ( temp === "Debby"){
+        console.log("Debby");
         measurements = { ...mea.debby };
-      } else {
+      } else if (temp === "Felix"){
+        console.log("Felix");
         measurements = { ...mea.felix  };
+      } else if (temp === "Leonie") {
+        console.log("Leonie");
+        measurements = { ...mea.leonie};
+        measurements = mea.calculate_measurements(measurements);
+    //    console.log(measurements)
+      } else {
+        console.log("Isa");
+        measurements = { ...mea.isa};
+        //console.log(measurements)
+        measurements = mea.calculate_measurements(measurements);
+    //    console.log(measurements)
       }
-
-      measurements.bust_width_front += 3;
-      measurements.bust_width_back += 3;
-      measurements.waist_width_front += 3;
-      measurements.waist_width_back += 3;
+/*
+      measurements.bust_width_front += 6;
+      measurements.bust_width_back += 6;
+      measurements.waist_width_front += 5;
+      measurements.waist_width_back += 5;
       measurements.waist_height = measurements.waist_height * (2 / 3) + 4;
 
       measurements.across_front = measurements.across_front * (15 / 16);
@@ -160,6 +176,11 @@ export default {
 
       measurements.bottom_width_back += 4;
       measurements.bottom_width_front += 4;
+
+      measurements["center_height_front"] += 3;
+      //measurements["center_height_back"] += 3;
+      measurements["shoulder_height_back"] -= 1;
+      */
 
       measurements["arm"] += 2;
       measurements["arm length"] += 4;
@@ -200,8 +221,12 @@ export default {
       let sketches = change.main_merge(front, back, design_config["top designs"]);
     //  sketches.push(sleeve);
 
+      if(design_config["top designs"].type === "styleline"){
+        lengthen.lengthen_styleline(sketches, design_config["top designs"].closed);
+      }
+
       s = change.paste_sketches(s, sketches);
-      front.save_on_A4("renders");
+      s.save_on_A4("renders");
       return s;
     }
 }

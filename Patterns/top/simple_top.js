@@ -95,6 +95,8 @@ function styleline_merge(s1, s2){
   })
 */
   utils.reposition_zhk(sketches[0], vec);
+  let angle = vec_angle_clockwise(side2.p2.subtract(side1.p1), side1.p2.subtract(side1.p1));
+  console.log(angle)
 
   let waist1 = lines1.waistline[0];
   //console.log(waist1)
@@ -235,6 +237,7 @@ function simple_middle_dart(s, type, percent){
   s.remove_point(dart_o.p2);
   /*
 */
+
   return s;
 };
 
