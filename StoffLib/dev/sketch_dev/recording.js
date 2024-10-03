@@ -1,5 +1,5 @@
 import { create_canvas_from_sketch } from '../../sketch_methods/rendering_methods/to_png_jpg.js';
-import { writeFileSync, existsSync, mkdirSync, rmdirSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync, rmSync, readdirSync, statSync } from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import { createCanvas } from 'canvas';
@@ -66,6 +66,18 @@ class Recorder {
     }
 }
 
+
+// Clear frames files for mp4 Video Creation
+const currentDir = process.cwd();
+const files = readdirSync(currentDir);
+files.forEach(file => {
+    const filePath = path.join(currentDir, file);
+    if (file.startsWith('___frames') && statSync(filePath).isDirectory()) {
+        console.log(`Deleting folder: ${filePath}`);
+        rmSync(filePath, { recursive: true });
+    }
+});
+
 class Recording {
     constructor(sketch, snapshots) {
         this.sketch = sketch;
@@ -82,53 +94,90 @@ class Recording {
         const outputPath = path.isAbsolute(save_to) ? save_to : path.join('./renders', save_to);
         
         const timestamp = new Date().toISOString().replace(/:/g, '-');
-        const frameDir = `./frames_${timestamp}`;
+        const frameDir = `./___frames_${timestamp}`;
     
         if (!existsSync(frameDir)) {
             mkdirSync(frameDir);
         }
     
-        /*this.snapshots.forEach((snapshot, index) => {
-            const pngBuffer = create_png_from_sketch(snapshot, width, height);
-            const framePath = `${frameDir}/frame_${String(index).padStart(5, '0')}.png`;
-            writeFileSync(framePath, pngBuffer);
-        });*/
+        // Calculate Dimensions for final Video to have frames take on same size
+        width = width - 2*extra_padding;
+        if (height == null){
+            height = 9 * width / 16;
+        } else {
+            height = height - 2*extra_padding;
+        }
+
+        const max_bb = {
+            width: 1,
+            height: 1
+        }
+
+        this.snapshots.forEach(snapshot => {
+            const bb = snapshot.get_bounding_box();
+            if (bb.width > max_bb.width){
+                max_bb.width = bb.width;
+            }
+
+            if (bb.height > max_bb.height){
+                max_bb.height = bb.height;
+            }
+        });
+
+        const target_aspect_ratio = max_bb.width/max_bb.height;
+        const target_width =  Math.round(Math.min(width, target_aspect_ratio*height));
+        const target_height = Math.round(Math.min(height, width/target_aspect_ratio));
+
+        let target_padded_width  = Math.round(target_width + 2 * extra_padding);
+        if (target_padded_width%2 == 1) target_padded_width++;
+        let target_padded_height = Math.round(target_height + 2 * extra_padding);
+        if (target_padded_height%2 == 1) target_padded_height++;
 
         this.snapshots.forEach((snapshot, index) => {
-            const originalCanvas = create_canvas_from_sketch(snapshot, width, height);
+            const originalCanvas = create_canvas_from_sketch(snapshot, target_width, target_height);
             
-            const originalWidth = originalCanvas.width;
-            const originalHeight = originalCanvas.height;
-            
-            const enlargedCanvas = createCanvas(originalWidth + 2 * extra_padding, originalHeight + 2 * extra_padding);
+            const enlargedCanvas = createCanvas(target_padded_width, target_padded_height);
             const ctx = enlargedCanvas.getContext('2d');
             
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, enlargedCanvas.width, enlargedCanvas.height);
-            ctx.drawImage(originalCanvas, extra_padding, extra_padding);
+            
+            const originalWidth = originalCanvas.width;
+            const originalHeight = originalCanvas.height;
+
+            ctx.drawImage(originalCanvas, Math.ceil((target_padded_width - originalWidth)/2), Math.ceil((target_padded_height - originalHeight)/2));
             
             const enlargedBuffer = enlargedCanvas.toBuffer();
             const framePath = `${frameDir}/frame_${String(index).padStart(5, '0')}.png`;
+
             writeFileSync(framePath, enlargedBuffer);
         });
         
-    
+        console.log("Start FFMpeg");
+        const frameDirAbs = path.resolve(frameDir);  // Convert the frame directory to an absolute path
+        const outputPathAbs = path.resolve(outputPath);  // Convert the output path to an absolute path
+
         ffmpeg()
-            .addInput(`${frameDir}/frame_%05d.png`)
-            .inputFPS(fps)
-            .outputOptions([
-                '-pix_fmt yuv420p',                 // Pixel format for wide compatibility
-                '-c:v libx264',                     // Codec
+            .addInput(`${frameDirAbs}/frame_%05d.png`)  // Use the absolute path for frames
+            .inputOptions([
+                `-framerate ${fps}`  // Use fps as a variable
             ])
+            .outputOptions([
+                '-c:v libx264',       // Specify codec
+                '-pix_fmt yuv420p'    // Ensure pixel format compatibility for broader support
+            ])
+            .on('start', (commandLine) => {
+                console.log('Spawned ffmpeg with command: ' + commandLine);
+            })
             .on('end', () => {
-                console.log(`Video saved to ${outputPath}`);
-                rmdirSync(frameDir, { recursive: true });
+                console.log(`Video saved to ${outputPathAbs}`);
+                rmSync(frameDirAbs, { recursive: true });  // Clean up the frames using the absolute path
             })
             .on('error', (err) => {
                 console.error(`Error occurred: ${err.message}`);
             })
-            .save(outputPath);
-    }
+            .save(outputPathAbs);
+        }
     
     at_url(url) {
         return this.sketch.dev._serve_html(url, this.to_html());
