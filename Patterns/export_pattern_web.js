@@ -11,7 +11,7 @@ import lengthen from './lengthen/top.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../Config/exports.js";
+import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
 
 
 export default {
@@ -205,6 +205,7 @@ export default {
       */
       let height_sleeve;
       let sleeve;
+      /*
       if (design_config["top designs"].type === "styleline"){
         height_sleeve = back[0].data.height_sleeve + front[0].data.height_sleeve;
         sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front[0].data.length_sleeve, back[0].data.length_sleeve);
@@ -214,7 +215,6 @@ export default {
       }
 
       sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
-      /*
       */
 
       let s = new Sketch();
@@ -226,7 +226,7 @@ export default {
       }
 
       s = change.paste_sketches(s, sketches);
-      s.save_on_A4("renders");
+      //s.save_on_A4("renders");
       return s;
     }
 }

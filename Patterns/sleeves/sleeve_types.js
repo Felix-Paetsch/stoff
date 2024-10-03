@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -79,7 +79,7 @@ function flared(s){
   const pt = s.point(top.x, back.y);
   const p_h = s.point(front.subtract(back).normalize().scale(10).add(front));
 
-  let angle = vec_angle_clockwise(p_h.subtract(top_front), front.subtract(top_front));
+  let angle = vec_angle(p_h.subtract(top_front), front.subtract(top_front));
   let fun1 = rotation_fun(top_front, angle);
   let fun2 = rotation_fun(top_back, -angle);
 
@@ -170,7 +170,7 @@ function puffy_short(s, mea, length){
   const pt = s.point(p.x, back.y);
 
   let p_h = s.point(front.add(new Vector(-6, 0)));
-  let angle = vec_angle_clockwise(p_h.subtract(p), front.subtract(p));
+  let angle = vec_angle(p_h.subtract(p), front.subtract(p));
   let fun_f = rotation_fun(p, angle);
   let fun_b = rotation_fun(p, -angle);
 

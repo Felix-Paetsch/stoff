@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle_clockwise, closest_vec_on_line_segment } from './geometry.js';
+import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle, closest_vec_on_line_segment } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
@@ -85,7 +85,7 @@ class Line{
             }
             {
                 // At the corner [left, middle, right]
-                const angle_of_new_vec = vec_angle_clockwise(
+                const angle_of_new_vec = vec_angle(
                     right_sp.subtract(middle_sp),
                     left_sp.subtract(middle_sp)
                 )/2;
@@ -446,7 +446,7 @@ class Line{
 
     closest_position(vec){
         const vec_rel = this.get_to_relative_function()(vec);
-        
+
         let min = Infinity;
         let best = null;
 
@@ -480,7 +480,7 @@ class Line{
 
         const points = this.sample_points;
         let potentialIntersection = thorough;
-    
+
         // Quick and easy approximation
         for (let i = 0; i < points.length - 1; i++) {
             for (let j = i + 2; j < points.length - 1; j++) {
@@ -491,18 +491,18 @@ class Line{
             }
             if (potentialIntersection) break;
         }
-    
+
         if (!potentialIntersection) return false;
-    
+
         // Slow and thorough
         const intersections = _calculate_intersections(this, this, false);
-    
+
         for (let i = 0; i < intersections.length; i++) {
             const [i1, i2, p1, p2, _] = intersections[i];
             if (Math.abs(i1 + p1 - i2 - p2) < 1.0001) {
                 continue;
             }
-    
+
             let total_len = 0;
             for (
                 let j = Math.min(intersections[i][0], intersections[i][1]);
@@ -511,15 +511,15 @@ class Line{
             ) {
                 total_len += this.sample_points[j].distance(this.sample_points[j + 1]);
             }
-    
+
             if (total_len > 0.001) {
                 return true;
             }
         }
-    
+
         return false;
     }
-    
+
 
     toString(){
         return "[Line]"
@@ -548,7 +548,7 @@ class StraightLine extends Line{
     position_at_length(d){
         return Point.from_vector(this.vec_at_length(d));
     }
-    
+
     closest_position(vec){
         const rel = this.get_to_relative_function()(vec);
         return this.get_to_absolute_function()(new Vector(rel.x, 0));
