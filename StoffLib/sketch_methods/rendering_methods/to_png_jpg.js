@@ -1,7 +1,6 @@
 import { createCanvas } from 'canvas';
 import { writeFileSync } from 'fs';
 import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
-import { interpolate_colors } from '../../colors.js';
 
 function create_canvas_from_sketch(s , width, height){
     const correct_dimensions = calculate_correct_width_height(s, width, height);  
@@ -69,7 +68,7 @@ function create_jpg_from_sketch(s , width, height){
     return create_canvas_from_sketch(s, width, height).toBuffer('image/jpeg');
 }
 
-export { create_png_from_sketch, save_as_png, create_jpg_from_sketch, save_as_jpg  };
+export { create_png_from_sketch, save_as_png, create_jpg_from_sketch, save_as_jpg, create_canvas_from_sketch  };
 
 function save_as_png(sketch, save_to, width, height) {
     const pngBuffer = create_png_from_sketch(sketch, width, height);

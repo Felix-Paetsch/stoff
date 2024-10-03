@@ -269,6 +269,35 @@ class Sketch{
         }
     }
 
+    group_by_key(key){
+        return {
+            points: this.points_by_key(key),
+            lines: this.lines_by_key(key)
+        };
+    }
+
+    lines_by_key(key){
+        return this.lines.reduce((acc, line) => {
+            const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(line);
+            return acc;
+        }, {});
+    }
+
+    points_by_key(key){
+        return this.points.reduce((acc, pt) => {
+            const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(pt);
+            return acc;
+        }, {});
+    }
+
     // ===============
 
     merge_points(pt1, pt2, data_callback = default_data_callback){
@@ -290,6 +319,12 @@ class Sketch{
 
         this.remove_points(pt2);
         return pt1;
+    }
+
+    copy(){
+        const s = new Sketch();
+        s.paste_sketch(this, null, new Vector(0,0));
+        return s;
     }
 
     paste_sketch(sketch, data_callback = null, position = null){
@@ -321,40 +356,36 @@ Sketch.prototype.line_with_length = function(...args){
     return line_with_length(this, ...args);
 };
 
-// Add Methods We cant put elsewhere bcs of circular imports
-
-
-// Add Validation
-[
-    // "get_bounding_box",
-    "point",
+Sketch.graphical_non_pure_methods = [
     "add",
     "add_point",
-    "get_points",
+    "clear",
+    "copy_line",
+    "delete_component",
     "get_lines",
-    // "connected_component",
-    // "get_connected_components",
+    "get_points",
+    "intersect_lines",
+    "interpolate_lines",
     "line_between_points",
     "line_from_function_graph",
-    "interpolate_lines",
-    "merge_line",
-    "merge_points",
-    "point_on_line",
-    "intersect_lines",
+    "line_with_length",
     "line_with_offset",
-    // "intersection_points",
-    "copy_line",
+    "merge_lines",
+    "merge_points",
+    "paste_connected_component",
+    "paste_sketch",
+    "plot",
+    "point",
+    "point_on_line",
+    "remove",
     "remove_line",
     "remove_lines",
     "remove_point",
-    "remove_points",
-    // "clear",
-    // "has_points",
-    // "has_lines",
-    // "has_sketch_elements",
-    "paste_sketch",
-    "paste_connected_component"
-].forEach(methodName => {
+    "remove_points"
+]
+
+// Validation
+Sketch.graphical_non_pure_methods.forEach(methodName => {
     const originalMethod = Sketch.prototype[methodName];
     Sketch.prototype[methodName] = function(...args) {
         const result = originalMethod.apply(this, args);
@@ -362,6 +393,18 @@ Sketch.prototype.line_with_length = function(...args){
         return result;
     };
 });
+
+// Add Dev Obj
+import fs from 'fs';
+if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
+    try {
+        const sketch_dev = await import("./dev/sketch_dev/index.js");
+        sketch_dev.default(Sketch);
+    } catch (err) {
+        throw err;
+    }
+}
+
 
 export { Sketch };
 export default Sketch;

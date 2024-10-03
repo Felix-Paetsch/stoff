@@ -69,8 +69,8 @@ function getInstanceMethodNames(obj, stop) {
 class ExpositionInstance{
     constructor(name, methods = [], objects = []){
         this.name = name;
-        this._methods = methods;
-        this._objects = objects;
+        this._methods = methods.sort();
+        this._objects = objects.sort();
     }
 
     method(...m){

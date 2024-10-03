@@ -10,16 +10,14 @@ const app = create_app();
 
 import pattern_data from '../Patterns/export_pattern_web.js';
 const { design_config, create_design } = pattern_data;
-import debug_create_design from "../Debug/_debug_create_design.js";
+import debug_create_design from "../Debug/debug_create_design.js";
 
 import { Sketch } from "../StoffLib/sketch.js";
-import register_sketch_mods from "./sketch_mods/register.js";
 import register_render_to_url from "./sketch_mods/render_to_url.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
 import exposition from "./exposition.js";
 
-const Sketch_dev = register_sketch_mods(Sketch);
-const SketchRouteRenderer = register_render_to_url(Sketch_dev, app);
+const SketchRouteRenderer = register_render_to_url(Sketch, app);
 
 app.get('/', (req, res) => {
     res.render('index', {

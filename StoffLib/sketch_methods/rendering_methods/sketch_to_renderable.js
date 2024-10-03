@@ -72,7 +72,7 @@ function reduce_polyline_sample_points(polyline){
     return reduced;
 }
 
-function calculate_correct_width_height(s, width = null, height = null){
+function calculate_correct_width_height(s, width = null, height = null) {
     /*
         If you only give width: Scale Height using aspect ratio
         If you only give height (width = null): Scale Width using aspect ratio

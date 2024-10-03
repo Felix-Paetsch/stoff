@@ -28,7 +28,7 @@ function validate_sketch(s){
                     if (l.data){
                         l.data.SELF_INTERSECTS = true;
                     }
-                    s.dev.at_url("/self_intersects");
+                    s.dev.at_url("/self_intersects", null, true);
                     throw new Error("A line self intersected! \nYou may visit /self_intersects to see the problem.\n");
                 } // Callback before the assert
             );
@@ -200,7 +200,6 @@ function data_object_valid(data, s){
         }
 
         if (data instanceof ConnectedComponent){
-            const root = data.root_el;
             assert(s.has(data.root_el), "Root element of ConnectedCompoonent doesnt belong to sketch");
             return nesting--;
         }

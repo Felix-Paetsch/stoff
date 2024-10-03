@@ -1,13 +1,10 @@
-*.svg
+**.jpg
+**.png
+**.svg
+**.mp4
 node_modules
 **node_modules
 renders
-_todo.md
-**Leonie
-Patterns/_example
-day_documentation.md
-_TryOut
-StoffLib/_export_global.js
 Server/public/tailwind.css
 Measurements/data/measurement**
 **.blend**
@@ -15,3 +12,13 @@ Measurements/data/measurement**
 **.py[cod]
 **.fbx
 Tools/Blender/assets
+frames_**
+
+// Needed by Felix
+_todo.md
+
+// Needed by ??
+**Leonie
+Patterns/_example
+day_documentation.md
+_TryOut

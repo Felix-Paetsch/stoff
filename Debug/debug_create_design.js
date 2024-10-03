@@ -4,10 +4,14 @@ import { Vector } from "../StoffLib/geometry.js";
 
 export default function(){
     const s = new Sketch();
-    const p1 = s.add(0,0);
-    const p2 = s.add(1,0);
-    
-    s.plot(p1, p2, (t) => Math.sin(5*t), t => Math.sin(5*t));
-    
+
+    s.dev.start_recording();
+
+    const p1 = s.point(2,2);
+    const p2 = s.point(1,1);
+    s.line_between_points(p1, p2);
+
+    s.dev.stop_recording().to_mp4("test.mp4");
+
     return s;
 }

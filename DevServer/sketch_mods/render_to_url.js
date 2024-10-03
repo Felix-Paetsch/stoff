@@ -26,8 +26,8 @@ class SketchRouteRenderer{
         return Object.keys(this.routes);
     }
 
-    add_route(route, svg, data, sketch_data){
-        if (["/", "/pattern", "/reset", "/at_url", "/self_intersects"].concat(Object.keys(this.routes)).includes(route)){
+    add_route(route, svg, data, sketch_data, overwrite){
+        if (!overwrite && ["/", "/pattern", "/reset", "/at_url", "/self_intersects"].concat(Object.keys(this.routes)).includes(route)){
             throw new Error(`Route ${route} is already taken!`);
         }
 
@@ -70,10 +70,12 @@ class SketchRouteRenderer{
     }
 }
 
-export default (Sketch_dev, app) => {
+export default (Sketch, app) => {
+    if (!Sketch.dev) throw new Error("Sketch Dev was not initialized");
+
     const SRR = new SketchRouteRenderer(app);
-    Sketch_dev.at_url = function(url, data = null){
-        SRR.add_route(url, this.to_dev_svg(500, 500), data, clean_rendering_data(this.data));
+    Sketch.dev.at_url = function(url, data = null, overwrite = false){
+        SRR.add_route(url, this.to_dev_svg(500, 500), data, clean_rendering_data(this.data), overwrite);
     }
 
     app.get("/at_url", (req, res) => {

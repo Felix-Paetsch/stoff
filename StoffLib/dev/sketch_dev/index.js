@@ -1,5 +1,11 @@
+import register_recording_methods from "./recording.js";
+
 export default (Sketch) => {
-    const Sketch_dev = {}
+    const Sketch_dev = {
+        _serve_html: (...args) => {
+            throw new Error("Not connected to a webserver!");
+        }
+    }
     
     const old_init = Sketch.prototype._init ? Sketch.prototype._init : () => {};
     Sketch.prototype._init = function (){
@@ -10,5 +16,6 @@ export default (Sketch) => {
         });
     };
     
-    return Sketch_dev;
+    Sketch.dev = Sketch_dev;
+    register_recording_methods(Sketch);
 }
