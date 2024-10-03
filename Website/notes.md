@@ -1,8 +1,9 @@
 Todo:
 ----------
 
-Fix alignment with nav bar to the rest.
 Make (simple) responsive for >= 60rem
+(padding, width)
+
 When scrolling:
     Move Images a bit to the top (maybe place them lower for now) - At least test it
 

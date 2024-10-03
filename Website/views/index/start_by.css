@@ -26,14 +26,6 @@
     color: var(--theme_color1);
 }
 
-.start_by_box.expanded{
-    width: calc(70vw - 4em);
-}
-
-.start_by_box.retracted{
-    width: calc(30vw - 4em);
-}
-
 .extra_stuff_collection{
     width: 100%;
     position: relative
@@ -44,6 +36,7 @@
 #start_by_style{
     position: relative;
     padding-left: var(--common_padding_left);
+    width: calc(70vw - 4em + var(--common_padding_right));
     
     display: flex;
     flex-direction: column;
@@ -89,7 +82,7 @@
 }
 
 .style_bar{
-    width: calc(70vw - 9em - 20em);
+    width: calc(70vw - 2em - 20em - var(--common_padding_right));
     height: 0.5em;
     background-color: var(--theme_color1);
     position: absolute;
@@ -119,10 +112,18 @@
     flex-direction: column;
     justify-content: center;
     height: 15rem;
+    width: calc(30vw - 4em + var(--common_padding_right));
+    padding-right: var(--common_padding_right);
+}
+
+#start_by_inner{
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 
 #start_by_measurements h3{
-    margin-top: 2rem;
-    margin-right: var(--common_padding_right);
     color: white;
+    width: min-content;
 }
