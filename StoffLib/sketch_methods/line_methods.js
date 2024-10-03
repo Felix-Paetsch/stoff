@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, distance_from_line_segment } from '../../Geometry/geometry.js';
+import { Vector, affine_transform_from_input_output, distance_from_line_segment } from '../geometry.js';
 import { intersect_lines, intersection_positions } from '../unicorns/intersect_lines.js';
 import { default_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';

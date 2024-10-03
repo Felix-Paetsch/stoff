@@ -1,0 +1,8 @@
+.window_width{
+    width: 100%;
+}
+
+.content_width{
+    width: var(--content_width);
+    margin-left: var(--content_margin);
+}

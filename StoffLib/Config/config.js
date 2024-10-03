@@ -1,6 +1,6 @@
 import ConfigElement from "./_config_element.js";
 import ChildrenHaving from "./_chilren_having.js";
-import { assert } from "../Debug/validation_utils.js";
+import { assert } from "../../Debug/validation_utils.js";
 
 // Initial Config object
 
@@ -21,7 +21,6 @@ export default class Config extends ChildrenHaving{
     serialize(){
         return {
             "type": "Config",
-            "path": ["BASE"],
             "children": this.children.map((c) => c.serialize()),
             id: this.id
         }

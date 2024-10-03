@@ -1,0 +1,59 @@
+<div class="demo_wrapper content_width">
+    <h3 class="white_background">Try it!</h3>
+    <div id="demo_box">
+        <div id="demo_settings">
+            <div class="setting_section">
+                <div class="settings_big_box white_background">
+                    <h5>Measurements</h5>
+                    <% for ([name, id] of [
+                        ["Bust Circumference", "bust_circ"],
+                        ["Waist Circumference", "waist_circ"],
+                        ["Back Length", "back_len"],
+                        ["Arm Length", "arm_len"]
+                    ]){ %>
+                        <%- include("./demo/measurement_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#"><i class="fa-solid fa-chevrons-right"></i> <span>Input Your measurements</span></a>
+                </div>
+                <div class="settings_big_box">
+                    <h5>Neckline</h5>
+                    <% for ([name, id] of [
+                        ["Round", "round"],
+                        ["Round Wide", "round_wide"],
+                        ["Square", "square"]
+                    ]){ %>
+                        <%- include("./demo/radio_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#"><i class="fa-solid fa-chevrons-right"></i> <span>More neckline options</span></a>
+                </div>
+                <div class="settings_big_box">
+                    <h5>Dartstyle</h5>
+                    <% for ([name, id] of [
+                        ["None", "none"],
+                        ["Single Dart", "single_dart"],
+                        ["Double Dart", "double_dart"]
+                    ]){ %>
+                        <%- include("./demo/radio_setting", {
+                            setting_name: name,
+                            setting_id: id
+                        }) %>
+                    <% } %>
+                    <a href="#"><i class="fa-solid fa-chevrons-right"></i> <span>More settings for this pattern</span></a>
+                </div>
+            </div>
+        </div>
+        <div id="demo_div"><div></div></div>
+        <div id="demo_result">
+            <div id="result_outer_wrapper">
+                <div id="result_wrapper"></div>
+            </div>
+            <div id="result_draft_img"></div>
+        </div>
+    </div>
+</div>

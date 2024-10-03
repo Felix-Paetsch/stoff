@@ -12,7 +12,7 @@ export default () => {
     app.set('view engine', 'ejs');
     app.use(express.json());
     app.use(express.static(join(__dirname, 'public')));
-    app.use("/conf", express.static(join(__dirname, '../Config')));
+    app.use("/conf", express.static(join(__dirname, '../StoffLib/Config')));
     app.use("/Debug", express.static(join(__dirname, '../Debug')));
 
     return app;

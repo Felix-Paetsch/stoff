@@ -1,0 +1,128 @@
+.start_by{
+    min-height: 20em;
+    border-top: .1rem solid black;
+    margin-top: 1em;
+}
+
+.start_by_options{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 25em;
+}
+
+.svg_wrapper{
+    height: 15rem;
+    width: 8.1em;
+}
+
+.svg_wrapper svg{
+    width:  100%;
+    height: 100%;
+}
+
+.start_by_box h3{
+    font-size: 2em;
+    color: var(--theme_color1);
+}
+
+.start_by_box.expanded{
+    width: calc(70vw - 4em);
+}
+
+.start_by_box.retracted{
+    width: calc(30vw - 4em);
+}
+
+.extra_stuff_collection{
+    width: 100%;
+    position: relative
+}
+
+/* ---------- Style -------- */
+
+#start_by_style{
+    position: relative;
+    padding-left: var(--common_padding_left);
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.white_background{
+    background-color: rgba(255,255,255,0.7);
+    width: fit-content;
+    position: relative;
+    z-index: 35;
+    padding-right: 1rem;
+}
+
+#start_by_style h3{
+    padding-right: 1rem;
+}
+
+#model3d{
+    width: 20em;
+    height: 25em;
+    background-color: rgb(180,180,180);
+    position: absolute;
+    right: 2em;
+    top: 4em;
+    z-index: 30;
+    border: .2em solid var(--dark_theme1);
+}
+
+#start_by_style p{
+    font-size: 1em;
+    padding: .5em .8em .5em 0;
+    margin: 1em 0 0 0;
+}
+
+.show_me{
+    text-decoration: underline solid var(--theme_color1) .2em;
+    text-underline-offset: .2em;
+    margin-top: 1em;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0 .5rem .5rem 0;
+}
+
+.style_bar{
+    width: calc(70vw - 9em - 20em);
+    height: 0.5em;
+    background-color: var(--theme_color1);
+    position: absolute;
+    left: 0em;
+    bottom: 0em;
+}
+
+.imgRHS{
+    width: 20em;
+    height: 23em;
+    overflow: hidden;
+    position: absolute;
+    border: .2em solid var(--dark_theme1);
+    right: calc(var(--common_padding_right) - 5rem);
+    top: -12em;
+    z-index: 30;
+}
+
+/* ------------ MEA --------- */
+
+#start_by_measurements{
+    background-color: var(--theme_color1_50_white);
+    margin-left: -.1em;
+    cursor: pointer;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 15rem;
+}
+
+#start_by_measurements h3{
+    margin-top: 2rem;
+    margin-right: var(--common_padding_right);
+    color: white;
+}

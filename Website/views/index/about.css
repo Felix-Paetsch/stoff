@@ -1,0 +1,26 @@
+#mission_statement{
+    margin: 6rem 0 0 0;
+    padding: 5rem var(--common_padding_right) 0 var(--common_padding_left);
+    display: grid;
+    grid-template-columns: auto 50vw;
+    border-top: 2em solid var(--theme_color1_50);
+}
+
+#mission_statement .title{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#mission_statement h3{
+    text-align: center;
+    font-size: 2rem;
+    border: .2rem solid var(--dark_theme1);
+    width: fit-content;
+    padding: .5rem 2rem;
+}
+
+#mission_statement p{
+    line-height: 2rem;
+    text-align: center;
+}

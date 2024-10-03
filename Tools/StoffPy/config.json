@@ -1,0 +1,14 @@
+{
+	"area_per_pt": 0.4,
+	
+	"simulation_steps": 200,
+	"gravity_exp": 4.0,
+	"point_force_mult": 0.001,
+	"point_force_influence_radius": 2,
+
+	"boundary_force_mult": 0.001,
+	"boundary_force_influence_distance": 0.2,
+	
+	"velocity_step_scale": 0.9,
+	"velocity_max": 0.02
+}

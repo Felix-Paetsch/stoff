@@ -1,0 +1,49 @@
+#recruiting_box{
+    padding: 6rem var(--common_padding_right) 0 var(--common_padding_left);
+    display: flex;
+    flex-direction: row;
+    height: 30rem;
+    justify-content:space-between;
+}
+
+.recruiting_text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 1em;
+}
+
+.recruiting_text p{
+    margin: 2em 2em 2em 0;
+}
+
+.recruiting_text h6{
+    font-size: 2rem;
+}
+
+.recruiting_text a{
+    color: black;
+}
+
+.recruiting_text a i{
+    display: inline-block;
+    margin-right: .3rem;
+}
+
+.recruiting_text a:hover i{
+    color: var(--theme_color1);
+}
+
+#stoffLibArt {
+    width: 50vw;
+    height: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    color: white;
+    padding: 1.4rem;
+    background: linear-gradient(to bottom right, var(--theme_color1), var(--dark_theme1));
+    cursor: pointer;
+    position: relative;
+    margin-left: 2em;
+    font-family: "Inconsolata", monospace;
+}
