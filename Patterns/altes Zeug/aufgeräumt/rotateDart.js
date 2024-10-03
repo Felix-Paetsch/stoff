@@ -1,5 +1,5 @@
 
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -117,7 +117,7 @@ function rotate_dart(s, pattern, design, percent, percent2, r = 1, armpit_true =
   const loose_end2 = option.line.p2;
   let split_obj = split(s, option, pattern);
   //reposition_zhk(pattern.dart_outer, new Vector(5, 25));
-  let angle = vec_angle_clockwise(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
+  let angle = vec_angle(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
   //console.log(-angle);
   let fun;
   let fun_reverse;

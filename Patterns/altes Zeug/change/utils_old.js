@@ -1,5 +1,5 @@
 
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -147,7 +147,7 @@ function list_points_zhk(ln){
 }
 
 function rotate_outer_zhk(s, comp, pt1, pt2, p, percent = 1){
-  const angle = vec_angle_clockwise(pt2.subtract(p), pt1.subtract(p));
+  const angle = vec_angle(pt2.subtract(p), pt1.subtract(p));
   //pt1.set_color("blue")
   //console.log(angle)
   const rotate = rotation_fun(p, -angle*percent);

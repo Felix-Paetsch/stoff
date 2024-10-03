@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../StoffLib/geometry.js';
+import { Vector, affine_transform_from_input_output, vec_angle, rotation_fun } from '../StoffLib/geometry.js';
 import { add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch, debug, copy_line , point_on_line, merge_lines} from '../StoffLib/main.js';
 import { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, lotpunkt2, armpit, round_neckline} from './basicFun_new.js';
 
@@ -97,7 +97,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher, ct){
 
     //Irgendwelche lustige Rechnungen, durch die ich einen ersten Winkel bekomme
     const l_H = line_with_length(shoulder.p1, shoulder.get_length(), 68);
-    degree = rad_to_deg(vec_angle_clockwise(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
+    degree = rad_to_deg(vec_angle(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
     remove_point(l_H.p2);
 
     // rotieren der Brustlinie
@@ -111,7 +111,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher, ct){
 
     // den Winkel ganz neu berechnen -
     l_h = get_orth_line_length(dart_l2, p, -1, abnaeher);
-    let nDeg = rad_to_deg(vec_angle_clockwise(l_h.p2.subtract(p2), p.subtract(p2)));
+    let nDeg = rad_to_deg(vec_angle(l_h.p2.subtract(p2), p.subtract(p2)));
     let p_h = rotate_point(p, p2, nDeg);
     let li = line_between_points(p, p_h);
     let p_h3;
@@ -135,12 +135,12 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher, ct){
     // schulter linie generell nach oben drehen kann
 
     // Brustlinie verschieben
-    degree = rad_to_deg(vec_angle_clockwise(dart_l2.p2.subtract(ln1.p1), p.subtract(ln1.p1)));
+    degree = rad_to_deg(vec_angle(dart_l2.p2.subtract(ln1.p1), p.subtract(ln1.p1)));
     p_h = rotate_point(ln1.p2, ln1.p1, degree);
     ln1.p2.moveTo(p_h.x, p_h.y);
     remove_point(p_h);
 
-    degree = rad_to_deg(vec_angle_clockwise(dart_l2.p2.subtract(ln1.p1), p.subtract(ln1.p1)));
+    degree = rad_to_deg(vec_angle(dart_l2.p2.subtract(ln1.p1), p.subtract(ln1.p1)));
     degr = Math.max(degree, 15);
     p_h = rotate_point(shoulder.p2, shoulder.p1, degr);
     l_h = line_between_points(shoulder.p1, p_h);
@@ -162,7 +162,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher, ct){
     // Bewege die Abnaeherspitze um den Brustpunkt nach oben und verlaengere damit
     // ebenfalls die Seiten des Abnaehers um etwas Gleichgewicht herzusttellen
     if (ct.front_dart_rotation){
-      const n2Deg = rad_to_deg(vec_angle_clockwise(inter.intersection_points[0].subtract(l_h2.l1_segment.p1), p.subtract(l_h2.l1_segment.p1)));
+      const n2Deg = rad_to_deg(vec_angle(inter.intersection_points[0].subtract(l_h2.l1_segment.p1), p.subtract(l_h2.l1_segment.p1)));
       p_h = rotate_point(p2, l_h2.l1_segment.p1, n2Deg);
       p2.moveTo(p_h.x, p_h.y);
       remove_point(p_h)
@@ -199,7 +199,7 @@ function side_to_top(front_part, dart){
   rot_p = dart[0].p1;
   p = dart[0].p2;
   let p_h = dart[1].p2;
-  degree = rad_to_deg(vec_angle_clockwise(p.subtract(rot_p), p_h.subtract(rot_p)));
+  degree = rad_to_deg(vec_angle(p.subtract(rot_p), p_h.subtract(rot_p)));
 
   p.moveTo(p_h.x, p_h.y);
   remove_point(p_h);

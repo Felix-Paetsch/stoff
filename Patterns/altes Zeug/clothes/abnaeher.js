@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, vec_angle_clockwise, rotation_fun } from '../StoffLib/geometry.js';
+import { Vector, affine_transform_from_input_output, vec_angle, rotation_fun } from '../StoffLib/geometry.js';
 import { add_point, line_between_points, Point, intersection_points, intersect_lines, remove_point, remove_line, interpolate_lines, _get_sketch, debug, copy_line } from '../StoffLib/main.js';
 import { get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, lotpunkt2, armpit, round_neckline} from './basicFun_new.js';
 
@@ -324,7 +324,7 @@ function rotate_dart(abnaeher, l_height, lines_between = [], richtung_linie = 1,
 
   const a = abnaeher.dart_lines[0].get_line_vector();
   const b = abnaeher.dart_lines[1].get_line_vector();
-  const alpha = vec_angle_clockwise(a, b);
+  const alpha = vec_angle(a, b);
 
   let fun;
   if(richtung_rotierend > 0){
@@ -435,7 +435,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher){
 
 
     // drehen um p1 von der Brustlinie
-  /*  degree = rad_to_deg(vec_angle_clockwise(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
+  /*  degree = rad_to_deg(vec_angle(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
     console.log(degree);
 
     let p_h = rotate_point(shoulder.p2, l_H.p1, degree);
@@ -452,12 +452,12 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher){
     remove_point(l_H.p2); */
 
     // drehen um p1 von der Brustlinie V2
-    degree = rad_to_deg(vec_angle_clockwise(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
+    degree = rad_to_deg(vec_angle(l_H.p2.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
 
     let p_h = rotate_point(shoulder.p2, ln1.p1, degree/2);
     lpv = lotpunkt2(shoulder.p2, ln1, l_H, -1);
   //  lp = add_point(new Point(lpv.x, lpv.y));
-    const newDegree = rad_to_deg(vec_angle_clockwise(lpv.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
+    const newDegree = rad_to_deg(vec_angle(lpv.subtract(l_H.p1), shoulder.p2.subtract(l_H.p1)));
 
     console.log(degree, newDegree, "degree");
   //  shoulder.p2.moveTo(lpv.x,lpv.y);
@@ -479,7 +479,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher){
 
     // den Winkel ganz neu berechnen -
     l_h = get_orth_line_length(inter.l1_segments[0], p, -1, abnaeher);
-    const nDeg = rad_to_deg(vec_angle_clockwise(l_h.p2.subtract(inter.l1_segments[0].p1), p.subtract(inter.l1_segments[0].p1)));
+    const nDeg = rad_to_deg(vec_angle(l_h.p2.subtract(inter.l1_segments[0].p1), p.subtract(inter.l1_segments[0].p1)));
     //remove_point(inter.l1_segments[0].p1)
     console.log(nDeg, "neue Gradzahl");
     p_h = rotate_point(p, inter.l1_segments[0].p1, nDeg);
@@ -491,13 +491,13 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher){
     p_h = ln1.p2.subtract(movVec);
     p_h3 = add_point(new Point(p_h.x, p_h.y));
 
-    degree = rad_to_deg(vec_angle_clockwise(p_h3.subtract(ln1.p1), ln1.p2.subtract(ln1.p1)));
+    degree = rad_to_deg(vec_angle(p_h3.subtract(ln1.p1), ln1.p2.subtract(ln1.p1)));
   //  remove_line(inter.l1_segments[0])
     console.log(degree, "die ganz neue Art, Winkel zu messen!");
   line_between_points(ln1.p1, p_h3).set_color("blue")
     p_h4 = rotate_point(ln1.p2, ln1.p1, degree);
     line_between_points(ln1.p1, p_h4).set_color("red")
-    degree = rad_to_deg(vec_angle_clockwise(p_h4.subtract(ln1.p1), inter.l1_segments[0].p2.subtract(ln1.p1)));
+    degree = rad_to_deg(vec_angle(p_h4.subtract(ln1.p1), inter.l1_segments[0].p2.subtract(ln1.p1)));
     console.log(degree, "die ganz neue Art, Winkel zu messen!");
     ln1.p2.moveTo(p_h4.x, p_h4.y);
 
@@ -515,7 +515,7 @@ function dart_new(pt, ln1, ln2, shoulder, abnaeher){
 
     shoulder.p2.moveTo(lpv.x,lpv.y);
 
-   const n2Deg = rad_to_deg(vec_angle_clockwise(inter.intersection_points[0].subtract(l_h2.l1_segment.p1), p.subtract(l_h2.l1_segment.p1)));
+   const n2Deg = rad_to_deg(vec_angle(inter.intersection_points[0].subtract(l_h2.l1_segment.p1), p.subtract(l_h2.l1_segment.p1)));
 
 
     p_h = rotate_point(inter.l1_segments[0].p1, l_h2.l1_segment.p1, n2Deg);

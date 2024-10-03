@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -293,7 +293,7 @@ function reposition_waistline(s, pattern, percent){
   pattern = split_line(s, pattern, line_segments);
 
   let dart_lines = renummerate_lineparts(pattern, "dart");
-  const angle = vec_angle_clockwise(dart_lines[0].p2, dart_lines[1].p2);
+  const angle = vec_angle(dart_lines[0].p2, dart_lines[1].p2);
   const fun = rotation_fun(dart_lines[0].p1, -angle);
   pattern.comp2.transform(fun);
 

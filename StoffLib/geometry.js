@@ -363,7 +363,7 @@ export {
     distance_from_line,
     deg_to_rad,
     rad_to_deg,
-    vec_angle_clockwise,
     vec_angle,
+    vec_angle_clockwise,
     rotation_fun
 };

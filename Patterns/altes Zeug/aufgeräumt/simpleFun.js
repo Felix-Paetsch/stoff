@@ -1,5 +1,5 @@
 //import { debug, add_point, remove_point, line_between_points, interpolate_lines, intersect_lines, Point, save, remove_line, intersection_points , merge_lines, point_on_line} from '../StoffLib/main.js';
-import { Vector , vec_angle_clockwise, rotation_fun} from '../StoffLib/geometry.js';
+import { Vector , vec_angle, rotation_fun} from '../StoffLib/geometry.js';
 import { get_orth_line, get_orth_line_length, deepen_neckline, line_with_length, point_at, side , shoulder, lotpunkt, armpit, round_neckline, smooth_out} from './basicFun_new.js';
 //import { dart_new, rotate_dart, tai_sho_dart, cut_line, rotate_point, scale_line, rotate_abnaeher, add_abnaeher_side, scale_dart, bust_dart} from './darts.js';
 import { front, back, redraw_armpit} from './basicPattern3.js';
@@ -69,7 +69,7 @@ function close_first_split(obj){
   outer.first = false;
   inner.first = false;
 
-  let angle = vec_angle_clockwise(inner.dart_inner.get_line_vector(), outer.dart_outer.get_line_vector());
+  let angle = vec_angle(inner.dart_inner.get_line_vector(), outer.dart_outer.get_line_vector());
   let fun = rotation_fun(outer.dart_outer.p1, -angle);
   rotate_zsk(outer.dart_outer, fun);
   remove_point(outer.dart_outer.p2);
@@ -367,7 +367,7 @@ function rotate_dart(s, pattern, design, percent, percent2, r = 1, armpit_true =
   const loose_end2 = option.line.p2;
   let split_obj = split(s, option, pattern);
   //reposition_zhk(pattern.dart_outer, new Vector(5, 25));
-  let angle = vec_angle_clockwise(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
+  let angle = vec_angle(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
   //console.log(-angle);
   let fun;
   let fun_reverse;
@@ -436,7 +436,7 @@ function rotate_waistline(s, pattern, design, percent, percent2){
   pattern.dart_outer.swap_orientation();
 
   split_obj = split(s, option, pattern);
-  let angle = vec_angle_clockwise(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
+  let angle = vec_angle(pattern.dart_inner.get_line_vector(), pattern.dart_outer.get_line_vector());
 
   let fun;
   if(design["side hidden dart"]){

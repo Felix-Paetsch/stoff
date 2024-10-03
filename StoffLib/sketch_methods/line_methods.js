@@ -91,13 +91,37 @@ export default (Sketch) => {
     Sketch.prototype.interpolate_lines = function(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
         // Interpoliert line1 und line2.
         // p1 und p2 geben zu jedem Zeitpunkt t an, wo wir uns auf den jeweiligen Linien befinden
-        //      bevorzugt p_i(0) = 0 und p_i(1) = 1
+        //      annahme: p_i(0) = 0 und p_i(1) = 1
+        //      wir skalieren p_i linear, so dass das zutrifft
         // f gibt an, wie viel von p_1, wie viel von p_2
-        //      annahme: f(0) = 0 => wir sind bei Punkt 1 von Linie 1
-        //               f(1) = 1 => wir sind bei Punkt 2 von Linie 2
+        //      annahme: f(0) = 0 => wir sind beim Punkt von Linie 1
+        //               f(1) = 1 => wir sind bei Punkt von Linie 2
+        //      wir transformieren f(x) linear, so dass dies zutrifft!
+
         // direction 0-3: ändert welche Punkte jeweils als Start-/Endpunkte gewählt werden sollen (1 bis 4)
 
         this._guard_lines_in_sketch(line1, line2);
+
+        function normalize_fun(f){
+            // returns a linear transformated version of f with f(0) = 0, f(1) = 1
+            const f0 = f(0);
+            const f1 = f(1);
+
+            if (f0 == f1){
+                throw new Error("Interpolation Function has equal endpoints");
+            }
+
+            const a = 1/(f(1) - f(0));
+            const b = - a * f(0)
+
+            return (x) => {
+                return a*f(x) + b;
+            }
+        }
+
+        f =  normalize_fun(f);
+        p1 = normalize_fun(p1);
+        p2 = normalize_fun(p2);
 
         function avg_point(sample_points, position){
             // position is a number between 0 and 1

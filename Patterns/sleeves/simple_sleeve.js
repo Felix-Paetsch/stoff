@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -27,7 +27,7 @@ function armpit_new(s){
 
   let temp1 = s.interpolate_lines(l1, l2, 2);
   s.remove_point(hp1);
-s.remove_point(l2.p2);
+  s.remove_point(l2.p2);
 
   len = p5.distance(p6);
 
