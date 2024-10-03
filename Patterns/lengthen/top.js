@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun , rad_to_deg} from '../../Geometry/geometry.js';
+import { Vector, vec_angle, rotation_fun , rad_to_deg} from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -396,7 +396,7 @@ function get_vec(p1, p2, len1, len2){
 // entweder [back inner, middle, front inner]
 // oder [back inner, back outer, front outer, front inner]
 function lengthen_styleline(arr, closed = false){
-  
+
 }
 
 export default {lengthen_styleline, lengthen_top_with_dart, lengthen_top_without_dart_new};

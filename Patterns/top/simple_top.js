@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -95,7 +95,7 @@ function styleline_merge(s1, s2){
   })
 */
   utils.reposition_zhk(sketches[0], vec);
-  let angle = vec_angle_clockwise(side2.p2.subtract(side1.p1), side1.p2.subtract(side1.p1));
+  let angle = vec_angle(side2.p2.subtract(side1.p1), side1.p2.subtract(side1.p1));
   console.log(angle)
 
   let waist1 = lines1.waistline[0];
@@ -134,7 +134,7 @@ function a_line(s){
   let side = lines.side[0];
 
 
-  let angle = vec_angle_clockwise(darts[0].p2.subtract(darts[0].p1), darts[1].p2.subtract(darts[0].p1));
+  let angle = vec_angle(darts[0].p2.subtract(darts[0].p1), darts[1].p2.subtract(darts[0].p1));
   let fun;
   if (s.data.front){
     fun = rotation_fun(side.p1, angle * 0.5);
@@ -485,7 +485,7 @@ function merge_lines(s, pattern_left, pattern_right, line_type){
 
    utils.reposition_zhk(pattern_right.comp, vec);
 
-   let angle = vec_angle_clockwise(line_left.p2.subtract(line_left.p1), line_right.p2.subtract(line_left.p1));
+   let angle = vec_angle(line_left.p2.subtract(line_left.p1), line_right.p2.subtract(line_left.p1));
    utils.rotate_outer_zhk_new(s, pattern_left.comp, angle, line_left.p1, 0.5);
    utils.rotate_outer_zhk_new(s, pattern_right.comp, angle, line_left.p1, -0.5);
 

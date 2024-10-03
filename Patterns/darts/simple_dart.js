@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -131,7 +131,7 @@ let p1 = lines[0].p1;
 let p2 = lines[0].p2;
 
 
-let angle = vec_angle_clockwise(lines[0].get_line_vector(), lines[1].get_line_vector());
+let angle = vec_angle(lines[0].get_line_vector(), lines[1].get_line_vector());
 angle = angle/2;
 let fun;
 /*

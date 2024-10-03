@@ -320,7 +320,7 @@ function rotation_fun(rotation_vec, angle) {
     };
 }
 
-function angle(vec1, vec2) {
+function vec_angle(vec1, vec2) {
     const res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
 
     if (!isNaN(res)) {
@@ -330,7 +330,7 @@ function angle(vec1, vec2) {
     return Math.PI;
 }
 
-function angle_clockwise(vec1, vec2) {
+function vec_angle_clockwise(vec1, vec2) {
     const dot = vec1.dot(vec2);
     const cross = vec1.x * vec2.y - vec1.y * vec2.x; // 2D cross product
     const angle = Math.acos(dot / (vec1.length() * vec2.length()));
@@ -364,5 +364,6 @@ export {
     deg_to_rad,
     rad_to_deg,
     vec_angle_clockwise,
+    vec_angle,
     rotation_fun
 };
