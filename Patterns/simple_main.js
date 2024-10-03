@@ -10,12 +10,13 @@ import lengthen from './lengthen/top.js';
 import dart from './darts/simple_dart.js';
 import utils from './funs/utils.js';
 import neck from './neckline/neckline.js';
-
+import eva from './funs/basicEval.js';
 
 function main_top(s, design, mea, design_neckline){
   sleeve.armpit_new(s);
   if (design["type"] === "without dart"){
     top.without_dart(s);
+    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
     //let lines = s.data.comp.lines_by_key("type");
     //lines.waistline[0].swap_orientation();
     //lengthen.lengthen_top_without_dart(s, mea, 0.5);
@@ -67,10 +68,18 @@ function main_top(s, design, mea, design_neckline){
     */
   } else if (design["type"] === "single dart"){
     top.simple_dart_web(s, design["position"], mea);
-    main_dart(s, design["dartstyle"]);
+    if (eva.eval_waistline_dart(design["position"])){
+      lengthen.lengthen_top_with_dart(s, mea, 0.95);
+      if (design["dartstyle"] === "tuck"){
+        dart.simple_tuck(s, s.data.comp.lines_by_key("type").dart);
+      }
+    } else {
+      lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+      main_dart(s, design["dartstyle"], design["position"]);
+    }
   } else if (design["type"] === "double dart"){
     top.double_dart_web(s, design["position"], mea);
-    main_dart(s, design["dartstyle"]);
+    double_main_dart(s, design["dartstyle"], design["position"], mea);
   } else if (design["type"] === "added fullness"){
     top.a_line(s);
   }
@@ -81,11 +90,23 @@ function main_top(s, design, mea, design_neckline){
 };
 
 
-function main_dart(s, design){
+function double_main_dart(s, design, position, mea){
+  if (eva.eval_waistline_dart(position)){
+    let dart = utils.get_waistline_dart(s);
+    lengthen.lengthen_top_with_dart(s, mea, 0.95, dart);
+  } else {
+    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+  }
+
+  main_dart(s, design, position);
+}
+
+
+function main_dart(s, design, position){
   if(design === "normal"){
-    dart.dart(s);
+    dart.dart(s, position);
   } else if (design === "tuck"){
-    dart.tuck_dart(s);
+    dart.tuck_dart(s, position);
   }
   return s;
 }

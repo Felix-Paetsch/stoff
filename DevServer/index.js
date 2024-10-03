@@ -8,7 +8,7 @@ import { Config } from "../StoffLib/Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
 
-import pattern_data from '../Patterns/export_pattern_dev.js';
+import pattern_data from '../Patterns/export_pattern_web.js';
 const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/_debug_create_design.js";
 
@@ -45,7 +45,7 @@ app.post('/pattern', (req, res) => {
     try {
         const s = !isDebug ? create_design(req.body.config_data) : debug_create_design();
         const svg = s.to_dev_svg(req.body.width, req.body.height);
-        
+
         res.set('Content-Type', 'image/svg+xml');
         res.json({
             svg,
@@ -75,7 +75,7 @@ app.get("/pattern_json", (req, res) => {
     try {
         const conf_obj = (new Config(design_config)).to_obj();
         const s = !isDebug ? create_design(conf_obj) : debug_create_design();
-        
+
         res.set('Content-Type', 'image/svg+xml');
         res.json({
             data: s.sewing_data(),

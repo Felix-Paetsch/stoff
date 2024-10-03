@@ -6,7 +6,7 @@
     "PX_PER_CM": 50,
     "PRINTABLE_WIDTH_CM": 21,
     "PRINTABLE_HEIGHT_CM": 29.7,
-    "PRINT_PADDING_CM": 2,
+    "PRINT_PADDING_CM": 0.8,
 
     "_descr2": "sample point amt choices",
     "DEFAULT_SAMPLE_POINT_DENSITY": 0.01,

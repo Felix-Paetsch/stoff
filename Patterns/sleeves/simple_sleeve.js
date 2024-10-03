@@ -19,7 +19,7 @@ function armpit_new(s){
   let p5 = s.data.p5;
   let p6 = s.data.p6;
   let len = c.distance(p5);
-  let vec = shoulder.get_line_vector().get_orthonormal().scale(len * s.data.direction).add(c);
+  let vec = shoulder.get_line_vector().get_orthonormal().scale(-len * s.data.direction).add(c);
 
   let hp1 = s.add_point(new Point(vec.x, vec.y));
   let l1 = s.line_between_points(c, hp1);
@@ -27,7 +27,7 @@ function armpit_new(s){
 
   let temp1 = s.interpolate_lines(l1, l2, 2);
   s.remove_point(hp1);
-  s.remove_point(l2.p2);
+s.remove_point(l2.p2);
 
   len = p5.distance(p6);
 
@@ -38,8 +38,11 @@ function armpit_new(s){
   s.remove_point(l1.p2);
   s.remove_point(l2.p2);
 
-  let temp3 = s.interpolate_lines(temp1, temp2, 0, (x) => Math.sqrt(x, 2));
+  let temp3 = s.interpolate_lines(temp1, temp2, 0, (x) => 1/(x+0.3));
   s.remove_point(p5);
+  temp1.set_color("green")
+  temp3.set_color("red")
+  //s.at_url("miau");
   l1 = s.line_between_points(p6, e);
   let temp4 = s.merge_lines(temp3, l1);
   s.remove_point(p6);

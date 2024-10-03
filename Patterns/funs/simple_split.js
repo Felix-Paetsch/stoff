@@ -1,4 +1,4 @@
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -28,7 +28,7 @@ function split(s, line, pt){
   s.data.comp = new ConnectedComponent(dart1);
   s.data.comp2 = new ConnectedComponent(dart2);
 
-  return vec_angle_clockwise(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
+  return vec_angle(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
 
 };
 
@@ -60,7 +60,7 @@ function split_tip(s, lines){
   s.comp = new ConnectedComponent(dart1);
   s.comp2 = new ConnectedComponent(dart2);
 
-  return vec_angle_clockwise(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
+  return vec_angle(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
 
 };
 

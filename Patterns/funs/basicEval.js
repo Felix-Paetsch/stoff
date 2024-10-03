@@ -89,4 +89,13 @@ function eval_sleeve_eingehalten(type){
   return false;
 }
 
-export default {evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};
+function eval_waistline_dart(type){
+  const waistline = ["waistline", "waistline and side middle", "waistline and french",
+      "waistline and shoulder"];
+  if (waistline.includes(type)){
+    return true;
+  }
+  return false;
+}
+
+export default {eval_waistline_dart, evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};

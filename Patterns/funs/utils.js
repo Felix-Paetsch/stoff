@@ -1,8 +1,10 @@
 
-import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
+
+import dart from '../darts/simple_dart.js';
 
 function get_lines(component, type){
   let arr = component.lines(); // Arr of line
@@ -77,6 +79,23 @@ function sort_lines(s, lines){
 }
 
 
+function get_waistline_dart(s){
+  const lines = s.data.comp.lines_by_key("type").dart;
+  if (lines.length <= 2){
+    return lines;
+  }
+  let [pair1, pair2] = dart.split_dart(lines);
+  let adjacent = pair1[0].p2.get_adjacent_lines();
+  let line = adjacent.filter(elem =>{
+    return elem.data.type != "dart";
+  })[0];
+
+  if (line.data.type === "waistline"){
+    return pair1;
+  }
+  return pair2;
+}
+
 function reposition_zhk(comp, vec){
   comp.transform((p) => {
     p.move_to(p.add(vec));
@@ -88,7 +107,7 @@ function reposition_zhk(comp, vec){
 
 
 function rotate_outer_zhk(s, comp, pt1, pt2, p, percent = 1){
-  const angle = vec_angle_clockwise(pt2.subtract(p), pt1.subtract(p));
+  const angle = vec_angle(pt2.subtract(p), pt1.subtract(p));
   //pt1.set_color("blue")
   //console.log(angle)
   const rotate = rotation_fun(p, -angle*percent);
@@ -223,4 +242,5 @@ export default {
   get_lines,
   split_at_points,
   position_sketch,
+  get_waistline_dart,
   get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk, set_comp_to_new_sketch};

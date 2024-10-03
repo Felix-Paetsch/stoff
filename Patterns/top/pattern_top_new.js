@@ -1,6 +1,6 @@
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
-import { Vector } from '../../Geometry/geometry.js';
+import { Vector, vec_angle_clockwise, rotation_fun , rad_to_deg} from '../../StoffLib/geometry.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
 import {new_neckline, line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
@@ -43,16 +43,40 @@ function front(mea){
   const p6 = s.add_point(vec_p6).set_color("blue");
   const e = s.add_point(p6.add(new Vector(-2.5, 0)));
 
+// alter code
+  let b_to_g = line_with_length(s, b, mea.bust_point_width/2, 90);
+  b_to_g.data.type = "waistline";
+  b_to_g.data.part = 1;
+  const g = b_to_g.p2;
+
+  // alter code ende
+
+  let diff = mea.bust_width_back + mea.bust_width_front - mea.under_bust;
+  let a1 = e.subtract(g).length();
+  let c1 = (mea.waist_width_front/2) - b_to_g.get_length() + (diff/4);
+  let b1 = mea.side_height;
+  let angle = get_angle_cos(a1, c1, b1);
+
+
+  let fun = rotation_fun(e, angle);
+  let f = s.add_point(g.copy());
+  f.data.type = "f"
+  f.move_to(fun(g));
+
+  f.move_to(e.subtract(f).normalize().scale(-mea.side_height).add(e));
+  /*
+  */
+  let e_to_f = s.line_between_points(e, f);
+
+
+
+
+
 // ------------ ab hier alter code
 
-let e_to_f = line_with_length(s, e, mea.side_height, 5);
-let f = e_to_f.p2;
+//let f = e_to_f.p2;
 e_to_f.data.type = "side";
 
-let b_to_g = line_with_length(s, b, mea.bust_point_width/2, 90);
-b_to_g.data.type = "waistline";
-b_to_g.data.part = 1;
-const g = b_to_g.p2;
 let vec_p7 = a.subtract(b).normalize().scale(mea.bust_point_height).add(b);
 const p7 = s.add_point(new Point(vec_p7.x, vec_p7.y));
 p7.set_color("blue");
@@ -65,6 +89,7 @@ const supposed_length = mea.waist_width_front /2 - length_b_g;
 let p8_help =  point_at(s, l_help, supposed_length/l_help.get_length());
 s.remove_line(p8_help.l2_segment);
 const p8 = p8_help.point;
+  //let l_new_2 = s.line_between_points(p8, g)
 l_help = s.line_between_points(h, p8);
 let g_to_h = s.line_between_points(h, g);
 g_to_h.data.type = "dart";
@@ -133,7 +158,11 @@ function back(mea){
   const c = s.point(b.add(new Vector(p3.x, -len)));
   //console.log(mea.diagonal_front);
 
-  len = Math.sqrt(Math.pow(mea.shoulder_length, 2) - Math.pow(c.y - p1.y, 2));
+  len = Math.sqrt(Math.abs(Math.pow(mea.shoulder_length, 2) - Math.pow(c.y - p1.y, 2)));
+  //console.log(c.y)
+  //console.log(p1.y)
+  //console.log(Math.pow(c.y - p1.y, 2))
+
   const d = s.point(c.add(new Vector(-len, p1.y - c.y)));
   let c_to_d = s.line_between_points(d, c);
   c_to_d.data.type = "shoulder";
@@ -148,17 +177,39 @@ function back(mea){
   const p6 = s.add_point(vec_p6).set_color("blue");
   const e = s.add_point(p6.add(new Vector(2.5, 0)));
 
-  // ------------ ab hier alter code
+// alter code
+let b_to_g = line_with_length(s, b, mea.shoulderblade_width/2, -90);
+b_to_g.data.type = "waistline";
+b_to_g.data.part = 1;
+const g = b_to_g.p2;
+// ende alter code
+
+    let diff = mea.bust_width_back + mea.bust_width_front - mea.under_bust;
+
+    let a1 = e.subtract(g).length();
+    let c1 = (mea.waist_width_back/2) - b_to_g.get_length() + (diff/4);
+    let b1 = mea.side_height;
+    let angle = get_angle_cos(a1, c1, b1);
 
 
-  let e_to_f = line_with_length(s, e, mea.side_height, 0);
-  let f = e_to_f.p2;
+    let fun = rotation_fun(e, -angle);
+    let f = s.add_point(g.copy());
+    f.data.type = "f"
+    f.move_to(fun(g));
+
+    f.move_to(e.subtract(f).normalize().scale(-mea.side_height).add(e));
+    /*
+    */
+    let e_to_f = s.line_between_points(e, f);
+
+
+    // ------------ ab hier alter code
+
+  //let e_to_f = line_with_length(s, e, mea.side_height, 0);
+  //let f = e_to_f.p2;
   e_to_f.data.type = "side";
 
-  let b_to_g = line_with_length(s, b, mea.shoulderblade_width/2, -90);
-  b_to_g.data.type = "waistline";
-  b_to_g.data.part = 1;
-  const g = b_to_g.p2;
+
   let vec_p7 = a.subtract(b).normalize().scale(mea.shoulderblade_height).add(b);
   const p7 = s.add_point(new Point(vec_p7.x, vec_p7.y));
   p7.set_color("blue");
@@ -221,7 +272,13 @@ function back(mea){
 };
 
 
-
+function get_angle_cos(a, b, c){
+  let sum = Math.pow(a, 2) + Math.pow(c, 2) - Math.pow(b, 2);
+  let mult = 2 * a * c;
+  let div = sum / mult;
+  let cos = Math.acos(div);
+  return cos;
+}
 
 
 export default {back, front};
