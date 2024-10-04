@@ -342,7 +342,6 @@ class Sketch{
 }
 
 
-
 Sketch.prototype.validate = function(){
     validate_sketch(this);
     return true;

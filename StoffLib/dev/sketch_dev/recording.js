@@ -3,6 +3,12 @@ import { writeFileSync, existsSync, mkdirSync, rmSync, readdirSync, statSync } f
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import { createCanvas } from 'canvas';
+import { dirname } from "path";
+import ejs from 'ejs';
+
+import Route from "./request_routing.js";
+import clean_rendering_data from "./tools/clean_rendering_data.js";
+import load_assets from './tools/load_assets.js';
 
 export default (Sketch) => {
     Sketch.dev.start_recording = function(debug = false){
@@ -82,10 +88,76 @@ class Recording {
     constructor(sketch, snapshots) {
         this.sketch = sketch;
         this.snapshots = snapshots;
+        
+        this.render_processed_snapshots = null;
     }
 
-    to_html() {
-        // Implement this method as needed
+    process_snapshots(){
+        if (this.render_processed_snapshots !== null) return;
+
+        this.render_processed_snapshots = this.snapshots.map(s => { return {
+            svg: s.to_dev_svg(500, 500),
+            sketch_data: clean_rendering_data(s.data)
+        }})
+    }
+
+    to_html(url) {
+        console.log("Started  Processing Snapshorts for:", url);
+        this.process_snapshots();
+        console.log("Finished Processing Snapshorts for:", url);
+
+        const assets = load_assets(
+            "./DevServer",
+            [
+                "public/at_url/sketch.css",
+                "public/at_url/snapshot.css",
+                "views/at_url/snapshot.ejs",
+                "public/at_url/snapshot.js",
+                "public/main/add_svg_hover_events.js"
+            ]
+        );
+
+        const htmlOutput = ejs.render(assets["snapshot.ejs"], {
+            render_data: this.render_processed_snapshots,
+            route: url,
+            assets
+        }, {
+            root: dirname("../../../DevServer/at_url")
+        });
+
+        return htmlOutput;
+    }
+
+    save_as_html = function(path, title = "/StoffLib", data = null){
+        writeFileSync(path, this.to_html(title), 'utf-8');
+    }
+    
+    at_url(url, overwrite = false) {
+        console.log("Started  Processing Snapshorts for:", url);
+        this.process_snapshots();
+        console.log("Finished Processing Snapshorts for:", url);
+
+        const get  = new Route(url, "get",  overwrite);
+        const post = new Route(url, "post", overwrite);
+
+        let currently_live = false;
+
+        get.request = (function(){
+            currently_live = true;
+            return this.to_html(url);
+        }).bind(this);
+
+        post.request = (function(){
+            if (currently_live) {
+                return { live: true };
+            }
+
+            currently_live = true;
+            return {
+                live: false,
+                render_data: this.render_processed_snapshots
+            };
+        }).bind(this);
     }
 
     to_mp4(save_to, fps = 2, width = 700, height = null, extra_padding = 50) {
@@ -177,9 +249,5 @@ class Recording {
                 console.error(`Error occurred: ${err.message}`);
             })
             .save(outputPathAbs);
-        }
-    
-    at_url(url) {
-        return this.sketch.dev._serve_html(url, this.to_html());
     }
 }

@@ -47,8 +47,9 @@ function copy_sketch(source, target, data_callback = default_data_callback, posi
         corresponding_line
     );
 
-    return  data_callback(target.data, data_copy)
+    target.data = data_callback(target.data, data_copy)
             || target.data;
+    return target.data;
 }
 
 function copy_connected_component(source, target, position = null){

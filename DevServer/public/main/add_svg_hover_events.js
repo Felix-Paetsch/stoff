@@ -4,9 +4,9 @@ function add_svg_hover_events(){
         e.remove();
     });
 
-    const svg = document.querySelector("#sketch_display svg");
-    const children = svg.children;
-    for (const c of children) {
+    const svg_children = document.querySelectorAll("#sketch_display svg > *");
+
+    for (const c of svg_children) {
         if (!c.hasAttribute("hover_area")){
             c.style.pointerEvents = "none";
             continue;

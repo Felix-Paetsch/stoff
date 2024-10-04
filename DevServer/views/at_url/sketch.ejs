@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= route %></title>
-    <link rel="stylesheet" href="/at_url/sketch.css">
-    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
-    <script src="/main/add_svg_hover_events.js"></script>
+    <%- assets["sketch.css"] %>
+    <%- assets["add_svg_hover_events.js"] %>
 </head>
 <body>
     <h2><a href="/at_url" style="text-decoration: none">$</a><%= route %></h2>
@@ -18,6 +17,19 @@
 
         <script>
             add_svg_hover_events();
+
+            // For monitor sketch request
+            function update_display(request_result){
+                dataContainer.innerHTML = request_result.svg;
+                add_svg_hover_events();
+
+                const pre = document.getElementById("data_pre");
+                if (request_result.data){
+                    pre.textContent = JSON.stringify(request_result.data, true, 2);
+                } else {
+                    pre.textContent = "SKETCH_DATA: " + JSON.stringify(request_result.sketch_data, true, 2);
+                }
+            }
         </script>
     </main>
     <div id="doesnt_exist">The route doesn't exist anymore. <br><br><small>Perhaps there was an error before getting to this point.</small></div>
