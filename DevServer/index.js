@@ -10,16 +10,14 @@ const app = create_app();
 
 import pattern_data from '../Patterns/export_pattern_web.js';
 const { design_config, create_design } = pattern_data;
-import debug_create_design from "../Debug/_debug_create_design.js";
+import debug_create_design from "../Debug/debug_create_design.js";
 
 import { Sketch } from "../StoffLib/sketch.js";
-import register_sketch_mods from "./sketch_mods/register.js";
-import register_render_to_url from "./sketch_mods/render_to_url.js";
+import register_dev_serve from "./dev_serve.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
 import exposition from "./exposition.js";
 
-const Sketch_dev = register_sketch_mods(Sketch);
-const SketchRouteRenderer = register_render_to_url(Sketch_dev, app);
+register_dev_serve(Sketch, app);
 
 app.get('/', (req, res) => {
     res.render('index', {
@@ -38,7 +36,7 @@ app.get("/exposition", (req, res) => {
 let pattern_was_requested = false;
 app.post('/pattern', (req, res) => {
     pattern_was_requested = true;
-    SketchRouteRenderer.reset();
+    Sketch.dev._reset_routes();
 
     const isDebug = req.query.debug !== undefined;
 
@@ -68,8 +66,6 @@ app.post('/design_config', (req, res) => {
 // create_design((new Config(design_config)).to_obj()).sewing_data();
 
 app.get("/pattern_json", (req, res) => {
-    // SketchRouteRenderer.reset();
-
     const isDebug = req.query.debug !== undefined;
 
     try {

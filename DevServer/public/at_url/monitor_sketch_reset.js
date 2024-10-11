@@ -37,15 +37,7 @@ async function monitor_sketch_reset() {
 
         const result = await response.json();
         if (!result.live) {
-            dataContainer.innerHTML = result.svg;
-            add_svg_hover_events();
-
-            const pre = document.getElementById("data_pre");
-            if (result.data){
-                pre.textContent = JSON.stringify(result.data, true, 2);
-            } else {
-                pre.textContent = "SKETCH_DATA: " + JSON.stringify(result.sketch_data, true, 2);
-            }
+            update_display(result)
         }
     } catch (error) {
         document.getElementById("doesnt_exist").style.display="block";

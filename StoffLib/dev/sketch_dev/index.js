@@ -1,3 +1,7 @@
+import register_recording_methods from "./recording.js";
+import register_render_at from "./render_at.js";
+import Route from "./request_routing.js";
+
 export default (Sketch) => {
     const Sketch_dev = {}
     
@@ -10,5 +14,8 @@ export default (Sketch) => {
         });
     };
     
-    return Sketch_dev;
+    Sketch.dev = Sketch_dev;
+    Route.Sketch = Sketch;
+    register_render_at(Sketch);
+    register_recording_methods(Sketch);
 }

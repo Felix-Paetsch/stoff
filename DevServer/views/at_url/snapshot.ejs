@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= route %></title>
+    <%- assets["sketch.css"] %>
+    <%- assets["snapshot.css"] %>
+    <%- assets["add_svg_hover_events.js"] %>
+</head>
+<body>
+    <h2><a href="/at_url" style="text-decoration: none">$</a><%= route %></h2>
+    <div id="frame_bar">
+        <div>Frame <span id="current_frame_num">1</span>/<span id="total_frame_num"><%= render_data.length %></span></div>
+        <input type="range" name="frame" id="frame_slider" min="1" value="1" max="<%= render_data.length %>" step="1">
+    </div>
+    <main id="data-container">
+        <% for (const frame of render_data) { %>
+            <div class="frame_container">
+                <div id="sketch_display">
+                    <%- frame.svg %>
+                </div>
+                <pre id="data_pre"><%= "SKETCH_DATA: " + JSON.stringify(frame.sketch_data, true, 2); %></pre>
+            </div>
+        <% } %>
+    </main>
+    <script>
+        add_svg_hover_events();
+
+        // For monitor sketch request
+        function update_display(request_result){
+            new_html = "";
+            for (const rd of request_result.render_data){
+                new_html += `
+                <div class="frame_container">
+                    <div id="sketch_display">
+                        ${ rd.svg }
+                    </div>
+                    <pre id="data_pre">SKETCH_DATA: ${ JSON.stringify(rd.sketch_data, true, 2).replace(/&/g, "&amp;")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/"/g, "&quot;")
+                            .replace(/'/g, "&#39;")
+                    }</pre>
+                </div>
+            `
+            }
+            const dc = document.getElementById("data-container");
+            dc.innerHTML = new_html;
+
+            add_svg_hover_events();
+            document.getElementById("total_frame_num").innerHTML = request_result.render_data.length;
+            document.getElementById("frame_slider").max = request_result.render_data.length;
+            activate_frame(document.getElementById("frame_slider").value - 1);
+        }
+    </script>
+    <div id="doesnt_exist">The route doesn't exist anymore. <br><br><small>Perhaps there was an error before getting to this point.</small></div>
+    <script>const route = '<%= route %>';</script>
+    <%- assets["snapshot.js"] %>
+    <script src="/at_url/monitor_sketch_reset.js"></script>
+</body>
+</html>

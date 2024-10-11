@@ -1,33 +1,15 @@
-import { Sketch } from '../../StoffLib/sketch.js';
-import { Point } from '../../StoffLib/point.js';
-import { Vector } from '../../StoffLib/geometry.js';
-
-function evaluate_type(design){
+function evaluate_type(design) {
+  const possibleOptions = ["side", "shoulder", "fold", "armpit", "neckline", "waistline"];
   let options = [];
-  if(design["side"]){
-    options.push("side");
-  }
-  if(design["shoulder"]){
-    options.push("shoulder");
-  }
-  if(design["fold"]){
-    options.push("fold");
-  }
-  if(design["armpit"]){
-    options.push("armpit");
-  }
-  if(design["neckline"]){
-    options.push("neckline");
-  }
-  if(design["waistline"]){
-    options.push("waistline");
-  }
-/*  if(design["side hidden dart"]){
-    options.push("side hidden dart");
-  }*/
+
+  possibleOptions.forEach(option => {
+    if (design[option]) {
+      options.push(option);
+    }
+  });
+
   return options;
 }
-
 
 function evaluate_percent(design){
   return {
@@ -90,12 +72,14 @@ function eval_sleeve_eingehalten(type){
 }
 
 function eval_waistline_dart(type){
-  const waistline = ["waistline", "waistline and side middle", "waistline and french",
+  return type.toLowerCase().includes("waistline");
+
+  /*const waistline = ["waistline", "waistline and side middle", "waistline and french",
       "waistline and shoulder"];
   if (waistline.includes(type)){
     return true;
   }
-  return false;
+  return false;*/
 }
 
 export default {eval_waistline_dart, evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};

@@ -72,7 +72,7 @@ function reduce_polyline_sample_points(polyline){
     return reduced;
 }
 
-function calculate_correct_width_height(s, width = null, height = null){
+function calculate_correct_width_height(s, width = null, height = null) {
     /*
         If you only give width: Scale Height using aspect ratio
         If you only give height (width = null): Scale Width using aspect ratio
@@ -136,13 +136,6 @@ function clean_line_attributes(attributes){
     const o = Number(attributes.opacity);
     if (isNaN(o) || o < 0 || o > 1) {
         attributes.opacity = 1;
-    }
-
-    if (!(typeof attributes.strokeDasharray == "string") || attributes.strokeDasharray == "none" || attributes.strokeDasharray == null){
-        attributes.strokeDasharray = "none";
-    } else {
-        const sanitized = attributes.strokeDasharray.replace(/[^0-9, ]/g, '');
-        attributes.strokeDasharray = sanitized.split(/[, ]+/).filter(Boolean).join(',');
     }
 
     return attributes;
