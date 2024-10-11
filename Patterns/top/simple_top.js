@@ -78,6 +78,8 @@ function styleline_panel(s, design, mea){
 function styleline_merge(s1, s2){
   const s = new Sketch();
   utils.position_sketch(s, s1);
+  s.remove_point(s.data.pt);
+  delete s.data.pt;
   utils.position_sketch(s, s2);
 
   // console.log(s.points);
@@ -85,18 +87,18 @@ function styleline_merge(s1, s2){
 
   let lines1 = sketches[0].lines_by_key("type");
   let lines2 = sketches[1].lines_by_key("type");
+
   let side1 = lines1.side[0];
   let side2 = lines2.side[0];
 
   let vec = side2.p1.subtract(side1.p1);
-/*
+  /*
   sketches[0].transform((i) => {
     i.move_to(i.subtract(vec));
   })
 */
   utils.reposition_zhk(sketches[0], vec);
-  let angle = vec_angle(side2.p2.subtract(side1.p1), side1.p2.subtract(side1.p1));
-  console.log(angle)
+  utils.rotate_zshk_to_point(sketches[0], side1.p2, side2.p2, side1.p1);
 
   let waist1 = lines1.waistline[0];
   //console.log(waist1)
@@ -118,11 +120,14 @@ function styleline_merge(s1, s2){
   s.remove_point(temp);
 
   s.data.comp = new ConnectedComponent(temp2);
-  /*
+
+  // TODO:  ggf. hier noch abändern, falls es zu lang wurde
   temp = s.merge_points(waist1.p2, waist2.p2);
   s.merge_lines(waist1, waist2);
   s.remove_point(temp);
+  /*
 */
+
 
   return s;
 };
@@ -144,6 +149,7 @@ function a_line(s){
   side.p2.move_to(fun(side.p2));
 
   let line = s.line_between_points(lines.fold[0].p2, side.p2);
+  line.data.type = "waistline";
 
   let p = darts[0].p1;
 
