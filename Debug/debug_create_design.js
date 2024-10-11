@@ -2,6 +2,8 @@ import Sketch from "../StoffLib/sketch.js";
 import { Point } from "../StoffLib/point.js";
 
 export default function(){
+    const r =  Sketch.dev.global_recording();
+
     const s = new Sketch();
 
     const p1 = s.add_point(new Point(0,0));
@@ -20,8 +22,6 @@ export default function(){
     const p10 = s.add_point(new Point(30,-5));
     const p11 = s.add_point(new Point(21,-11));
     const p12 = s.add_point(new Point(10,-10));
-
-    s.dev.start_recording();
 
     let lines = [
         s.line_between_points(p1, p2),
@@ -97,9 +97,9 @@ export default function(){
             new_lines.push(s.interpolate_lines(lines[j], lines[(j+1) % lines.length], 0));
         }
         lines = new_lines;
-        s.data = {i:10*i};
     }
+    
+    r.at_url("/wha");
 
-    s.dev.stop_recording().at_url("/out");
     return s;
 }

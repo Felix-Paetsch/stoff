@@ -18,6 +18,38 @@ export default (Sketch) => {
     Sketch.dev.stop_recording = function(){
         return this.dev.recorder.stop_recording();
     }
+
+    Sketch.dev.Recording = Recording;
+
+    Sketch.dev.global_recording = function(){
+        const global_recording = (new Recording()).unlock();
+
+        const old_methods = {};
+        let global_taking_snapshot = false;
+
+        for (const method_name of Sketch.graphical_non_pure_methods) {
+            const old_method = Sketch.prototype[method_name];
+            old_methods[method_name] = old_method;
+
+            Sketch.prototype[method_name] = function (...args) {
+                const taking_snapshot = global_taking_snapshot;
+                if (!taking_snapshot) global_taking_snapshot = true;
+                if (!taking_snapshot && this.points.length == 0){
+                    global_recording.snapshot(this);
+                }
+
+                const result = old_method.apply(this, args);
+
+                if (!taking_snapshot){
+                    global_recording.snapshot(this);
+                    global_taking_snapshot = false;
+                }
+                return result;
+            };
+        }
+
+        return global_recording;
+    }
 }
 
 class Recorder {
@@ -68,7 +100,7 @@ class Recorder {
 
     stop_recording() {
         this.sketch.dev.recorder = null;
-        return new Recording(this.sketch, this.snapshots);
+        return new Recording(this.snapshots);
     }
 }
 
@@ -85,26 +117,27 @@ files.forEach(file => {
 });
 
 class Recording {
-    constructor(sketch, snapshots) {
-        this.sketch = sketch;
+    constructor(snapshots = []) {
         this.snapshots = snapshots;
         
         this.render_processed_snapshots = null;
+        this.locked = true;
     }
 
-    process_snapshots(){
+    process_snapshots(url = "StoffLib"){
+        this.lock();
         if (this.render_processed_snapshots !== null) return;
 
+        console.log("Started  Processing Snapshorts for:", url);
         this.render_processed_snapshots = this.snapshots.map(s => { return {
             svg: s.to_dev_svg(500, 500),
             sketch_data: clean_rendering_data(s.data)
-        }})
+        }});
+        console.log("Finished Processing Snapshorts for:", url);
     }
 
     to_html(url) {
-        console.log("Started  Processing Snapshorts for:", url);
-        this.process_snapshots();
-        console.log("Finished Processing Snapshorts for:", url);
+        this.process_snapshots(url);
 
         const assets = load_assets(
             "./DevServer",
@@ -133,9 +166,7 @@ class Recording {
     }
     
     at_url(url, overwrite = false) {
-        console.log("Started  Processing Snapshorts for:", url);
-        this.process_snapshots();
-        console.log("Finished Processing Snapshorts for:", url);
+        this.process_snapshots(url);
 
         const get  = new Route(url, "get",  overwrite);
         const post = new Route(url, "post", overwrite);
@@ -249,5 +280,35 @@ class Recording {
                 console.error(`Error occurred: ${err.message}`);
             })
             .save(outputPathAbs);
+    }
+
+    // Custrom Recording
+    snapshot(...s){
+        if (this.locked) return;
+        return this.append(...s)
+    }
+
+    append(...s){
+        if (this.locked) return;
+        for (const el of s){
+            if (el instanceof Recording){
+                this.snapshots.push(...el.snapshots);
+            } else {
+                this.snapshots.push(el.copy());
+            }
+        }
+
+        return this;
+    }
+    
+    unlock(){
+        this.locked = false;
+        this.render_processed_snapshots = null;
+        return this;
+    }
+    
+    lock(){
+        this.locked = true;
+        return this;
     }
 }
