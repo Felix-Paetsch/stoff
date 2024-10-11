@@ -1,5 +1,5 @@
 
-import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle, rotation_fun , vec_angle_clockwise} from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -69,6 +69,7 @@ function get_point_on_line_percent(s, ln, percent){
 function sort_lines(s, lines){
   const pt = s.data.pt;
 
+
   lines.forEach(elem => {
     elem.data.distance = elem.p2.distance(pt);
   });
@@ -115,6 +116,14 @@ function rotate_outer_zhk(s, comp, pt1, pt2, p, percent = 1){
     (pt) => pt.move_to(rotate(pt))
   );
 }
+
+function rotate_zshk_to_point(comp, pt1, pt2, p){
+  const angle = vec_angle_clockwise(pt1.subtract(p), pt2.subtract(p));
+  const rotate = rotation_fun(p, angle);
+  comp.transform(
+    (pt) => pt.move_to(rotate(pt))
+  );
+};
 
 function rotate_outer_zhk_new(s, comp, angle, p, percent = 1){
   //pt1.set_color("blue")
@@ -243,4 +252,5 @@ export default {
   split_at_points,
   position_sketch,
   get_waistline_dart,
+  rotate_zshk_to_point,
   get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk, set_comp_to_new_sketch};

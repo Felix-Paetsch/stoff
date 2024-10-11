@@ -40,12 +40,12 @@ function main_top(s, design, mea, design_neckline){
       patterns.reverse();
     }
     //main_neckline(patterns[0], design_neckline);
-
+/*
     patterns[0].remove_point(patterns[0].data.pt);
     delete patterns[0].data.pt;
     patterns[1].remove_point(patterns[1].data.pt);
     delete patterns[1].data.pt;
-
+*/
     /*
     sk.paste_sketch(patterns[0], null, new Vector(0, 0));
     sk.paste_sketch(patterns[1], null, new Vector(25, 0));
@@ -82,10 +82,11 @@ function main_top(s, design, mea, design_neckline){
     double_main_dart(s, design["dartstyle"], design["position"], mea);
   } else if (design["type"] === "added fullness"){
     top.a_line(s);
+    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
   }
   main_neckline(s, design_neckline);
-  s.remove_point(s.data.pt);
-  delete s.data.pt;
+/*  s.remove_point(s.data.pt);
+  delete s.data.pt;*/
   return s;
 };
 
