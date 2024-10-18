@@ -20,6 +20,14 @@ nav:
   - Patterns: 
     - Test: Patterns/index.md
   - Tools: Tools/index.md
-theme: readthedocs
+
+theme: 
+  name: material
+  features:
+    - navigation.sections   # Enable sections in navigation
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 # theme: readthedocs
 # theme: windmill-dark
