@@ -22,7 +22,9 @@
     "web": "nodemon Website/index.js",
     "web_hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files ',Website/public/**,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
 
-    "go": "(cd ./Tools/StoffGo && go run .)"
+    "go": "(cd ./Tools/StoffGo && go run .)",
+
+    "docs_dev": "cd Docs && mkdocs serve"
   },
   "devDependencies": {
     "sass": "^1.78.0"

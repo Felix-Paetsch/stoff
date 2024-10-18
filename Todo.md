@@ -1,0 +1,1 @@
+Create an NPM package with StoffLib (and potentially dev server)

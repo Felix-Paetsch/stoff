@@ -1,0 +1,25 @@
+site_name: Stoff
+nav:
+  - StoffLib:
+    - "StoffLib/intro.md"
+    - Geometry: StoffLib/geometry.md
+    - Sketch:
+      - Introduction: StoffLib/sketch/introduction.md
+      - Line Methods: StoffLib/sketch/line_methods.md
+      - Component Methods: StoffLib/sketch/component_methods.md
+      - Data and copying: StoffLib/sketch/data_copying.md
+      - Rendering: StoffLib/sketch/rendering.md
+      - Dev Object: StoffLib/sketch/dev_object.md
+    - Basic Objects:
+      - Points: StoffLib/basic_objects/points.md
+      - Lines: StoffLib/basic_objects/lines.md
+      - Curves: StoffLib/basic_objects/curves.md
+      - Connected Components: StoffLib/basic_objects/connected_components.md
+    - Config: StoffLib/config.md
+    - Project Configuration: StoffLib/configuration.md
+  - Patterns: 
+    - Test: Patterns/index.md
+  - Tools: Tools/index.md
+theme: readthedocs
+# theme: readthedocs
+# theme: windmill-dark

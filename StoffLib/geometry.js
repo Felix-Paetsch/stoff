@@ -133,6 +133,7 @@ class Vector {
             return console.log(`| ${fmt(this[0])} |\n| ${fmt(this[1])} |`);
         }
         console.log(`| ${fmt(this[0])} ${fmt(this[1])} |`);
+        return this;
     }
 
     rotate(angle) {
@@ -178,6 +179,8 @@ class Matrix {
                 this.row2[0]
             )} ${fmt(this.row2[1])} |`
         );
+
+        return this;
     }
 
     scale(a) {
@@ -356,6 +359,7 @@ function rad_to_deg(r) {
 
 export {
     Vector,
+    Matrix,
     affine_transform_from_input_output,
     orthogonal_transform_from_input_output,
     closest_vec_on_line_segment,
