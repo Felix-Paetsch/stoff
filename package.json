@@ -24,7 +24,8 @@
 
     "go": "(cd ./Tools/StoffGo && go run .)",
 
-    "docs_dev": "cd Docs && mkdocs serve"
+    "docs_dev": "cd Docs && mkdocs serve",
+    "docs_build": "cd Docs && mkdocs build"
   },
   "devDependencies": {
     "sass": "^1.78.0"

@@ -29,5 +29,6 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
-# theme: readthedocs
-# theme: windmill-dark
+plugins:
+  - offline
+  - search
