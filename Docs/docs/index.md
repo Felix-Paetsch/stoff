@@ -20,7 +20,7 @@ The only necessary requirement are [Node.js and npm](https://docs.npmjs.com/down
 
 For certain functionalities you also need the following:
 
-* [MkDocs](https://www.mkdocs.org/getting-started/) - For rendering the documentation (Python based)
+* [MkDocs-Material](https://squidfunk.github.io/mkdocs-material/getting-started/) - For rendering the documentation (Python based)
 * [FFmpeg](https://www.ffmpeg.org/download.html) - For video and animation creationg
 
 ## Commands
@@ -29,3 +29,4 @@ From the root directory of this project you can run the following commands to st
 
 * `npm run dev` - Start the [pattern development enviroment](/StoffLib/introduction)
 * `npm run measure` - Run the [measurement tool](/Tools/measurements) to collect body measurements of different people
+* `npm run docs_build` - Compile the documentation

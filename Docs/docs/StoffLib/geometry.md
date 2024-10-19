@@ -30,6 +30,10 @@ class Vector {
     to_array(): [number, number] { ... }
     toString(): string { ... }
     print(): this { ... }
+    x: number
+    y: number
+    is_row: boolean
+    is_column: boolean
 }
 ```
 
@@ -103,9 +107,6 @@ console.log(v1.subtract(v2)); // Vector {x: 3, y: 3}
 const v = new Vector(1, 0);
 console.log(v.rotate(Math.PI / 2)); // Rotated Vector {x: 0, y: 1}
 ```
-
-!!! todo
-    Verify `.rotate` works well with `vec_angle_clockwise`
 
 - `.transpose() : Vector`: Returns the transposed vector.
 ```javascript
