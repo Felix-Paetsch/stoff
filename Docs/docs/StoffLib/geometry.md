@@ -10,6 +10,8 @@ You can export the following classes from the file:
 A vector represents a point or direction with magnitude in 2D-space.
 
 ```javascript
+import { Vector } from './Stofflib/geometry.js';
+
 class Vector {
     constructor(x: number = 0, y: number = 0, column: boolean = true) { ... }
     set(x: number, y: number): this { ... }

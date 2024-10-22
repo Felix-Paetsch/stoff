@@ -1,5 +1,3 @@
-import clean_rendering_data from "./utils/clean_rendering_data.js";
-
 export default (Sketch, app) => {
     if (!Sketch.dev) throw new Error("Sketch Dev was not initialized");
 

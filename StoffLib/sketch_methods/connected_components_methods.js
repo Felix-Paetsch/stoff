@@ -4,12 +4,13 @@ import { copy_connected_component } from '../copy.js';
 export default (Sketch) => {
     Sketch.prototype.connected_component = function (sketch_el){
         this._guard_sketch_elements_in_sketch(sketch_el);
+        if (sketch_el instanceof ConnectedComponent) return sketch_el;
         return new ConnectedComponent(sketch_el);
     }
 
     Sketch.prototype.delete_component = function (sketch_el){
         if (sketch_el instanceof ConnectedComponent){
-            this.delete_element_from_data(sketch_el);
+            this._delete_element_from_data(sketch_el);
             this._guard_sketch_elements_in_sketch(sketch_el.root_el);
 
 

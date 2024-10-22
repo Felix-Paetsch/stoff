@@ -1,7 +1,6 @@
 import { Vector } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
 import { Point } from './point.js';
-import line_with_length from './unicorns/line_with_length.js';
 import { copy_sketch, default_data_callback, copy_sketch_obj_data } from './copy.js';
 import CONF from './config.json' assert { type: 'json' };
 
@@ -85,7 +84,7 @@ class Sketch{
     remove_lines(...lines){
         this._guard_lines_in_sketch(...lines);
         for (const line of lines){
-            this.delete_element_from_data(line);
+            this._delete_element_from_data(line);
             line.get_endpoints().forEach(p => p.remove_line(line));
             line.p1 = null;
             line.p2 = null;
@@ -102,7 +101,7 @@ class Sketch{
     remove_points(...points){
         this._guard_points_in_sketch(...points);
         for (const pt of points){
-          this.delete_element_from_data(pt);
+          this._delete_element_from_data(pt);
             this.remove_lines(...pt.get_adjacent_lines());
             pt.sketch = null;
             pt.adjacent_lines = [];
@@ -125,7 +124,7 @@ class Sketch{
         }
     }
 
-    delete_element_from_data(el){
+    _delete_element_from_data(el){
         let nesting = 0;
 
         function delete_el_from_data_obj(data){
@@ -350,10 +349,6 @@ Sketch.prototype.validate = function(){
 register_rendering_functions(Sketch);
 register_CC_functions(Sketch);
 register_line_functions(Sketch);
-
-Sketch.prototype.line_with_length = function(...args){
-    return line_with_length(this, ...args);
-};
 
 Sketch.graphical_non_pure_methods = [
     "add",

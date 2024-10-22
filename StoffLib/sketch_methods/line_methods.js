@@ -3,6 +3,7 @@ import { intersect_lines, intersection_positions } from '../unicorns/intersect_l
 import { default_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
 import { interpolate_colors } from '../colors.js';
+import line_with_length from '../unicorns/line_with_length.js';
 import CONF from '../config.json' assert { type: 'json' };
 
 export default (Sketch) => {
@@ -16,6 +17,10 @@ export default (Sketch) => {
         l.set_sketch(this);
         return l;
     }
+
+    Sketch.prototype.line_with_length = function(...args){
+        return line_with_length(this, ...args);
+    };
 
     Sketch.prototype.line_from_function_graph = function(pt1, pt2, f_1, f_2 = null){
         // if one function is given:
