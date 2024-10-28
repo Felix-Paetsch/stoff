@@ -2,7 +2,7 @@
 
 StoffLib is a project to create sewing patterns procedually programatically. To learn more visit our [git repository.](#)
 
-See a [demo.](#)
+You can see a [demo here.](#)
 
 ## Project structure
 

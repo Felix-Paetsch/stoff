@@ -42,7 +42,7 @@ class Line{
         } else {
             throw new Error("Line sample points dont end with (1,0)");
         }
-
+    
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
     }

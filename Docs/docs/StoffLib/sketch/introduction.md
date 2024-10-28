@@ -1,3 +1,5 @@
+# Sketch
+
 The `Sketch` is the main object you will be working with. It acts a bit like a canvas where you can draw on, but also allows explicitly for constructions using already drawn lines and manipulating them. For this documentation I grouped the methods into different sections, each outlined below with a dedicated page.
 
 ```js
@@ -7,15 +9,14 @@ import { Line } from './Stofflib/line.js';
 import { Vector } from './Stofflib/geometry.js';
 import { ConnectedComponent } from './Stofflib/connected_component.js';
 import { default_data_callback } from './Stofflib/copy.js';
-import { ConnectedComponent } from '../connected_component.js';
 type DataCallback : (Object, Object) -> Object;
 
 class Sketch{
     constructor(){
-        this.lines  : Line[] = [];
         this.data   : Any = {};
     }
     
+    // General Functionality
     get_points(){} : Point[]
     get_lines(){}  : Line[]
     remove_line(line : Line){}
@@ -134,3 +135,30 @@ class Sketch{
 ```
 
 Note that some of these methods are added onto the class via prototype magic, and your linter may find this very unwielding.
+
+To see what these methods actually do, visit the corresponding sections:
+
+## General Functionality
+A `Sketch` has associated to it points, lines and an abstract `data` object. You can directly manipulate the data object (I even encurrage you to do that) and when copying the sketch this data is also copied. It can even refer to points or lines and the references will be updated accordingly. Visit [here](#) for more on copying and data.
+
+The method names should be self explaining, but they are also documented on a seperated page for completness.
+
+## Point Methods
+A `Point` belongs to a fixed sketch and has coordinates associated to it. Furthermore it may be the endpoint of some lines. To view more on themselves points - e.g. about different display styles - see [here.](#)
+
+The methods here are about managing points inside a given sketch.
+
+## Line Methods
+A `Line` also belongs to a fixed sketch with endpoints also required to be inside that sketch. You should check out the [documentation on lines](#) if you haven't done so already to learn how they work and how to deal with them.
+
+The methods here are again about managing them inside the context of a given sketch, e.g. relating lines to another or any line functionality which would modify something intrinsic to the sketch and hence can not be just a method on the class `Line`.
+
+## Connected Component Methods
+Connected components are maximal collections of points and lines between them. To learn more about them, see [here.](#)
+
+## Rendering Methods
+When you are done with creating your pattern you probably want save or display it somehow. Either as proper image, vectorgraphic, or for printing.
+
+## Dev
+During development there as another object on every `Sketch` instance one can access, namely `dev` which can really awesome to debug or just see what you are doing.
+Which functionality is available depends on the enviroment you are currently using. Look at the corresponding page for more detail.

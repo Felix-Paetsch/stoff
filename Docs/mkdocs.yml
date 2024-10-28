@@ -5,6 +5,8 @@ nav:
     - Geometry: StoffLib/geometry.md
     - Sketch:
       - Introduction: StoffLib/sketch/introduction.md
+      - General Functionality: StoffLib/sketch/general.md
+      - Point Methods: StoffLib/sketch/point_methods.md
       - Line Methods: StoffLib/sketch/line_methods.md
       - Component Methods: StoffLib/sketch/component_methods.md
       - Data and copying: StoffLib/sketch/data_copying.md

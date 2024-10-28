@@ -312,7 +312,6 @@ class Sketch{
             } else {
                 line.set_endpoints(pt1, line.p2);
             }
-
         });
 
 

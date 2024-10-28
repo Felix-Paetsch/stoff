@@ -13,29 +13,29 @@ A vector represents a point or direction with magnitude in 2D-space.
 import { Vector } from './Stofflib/geometry.js';
 
 class Vector {
-    constructor(x: number = 0, y: number = 0, column: boolean = true) { ... }
-    set(x: number, y: number): this { ... }
-    dot(vec: Vector): number { ... }
-    distance(vec: Vector): number { ... }
-    scale(a: number): Vector { ... }
-    mult(el: number | Vector | Matrix): Vector | number | Vector { ... }
+    constructor(x: Number = 0, y: Number = 0, column: Boolean = true) { ... }
+    set(x: Number, y: Number): this { ... }
+    dot(vec: Vector): Number { ... }
+    distance(vec: Vector): Number { ... }
+    scale(a: Number): Vector { ... }
+    mult(el: Number | Vector | Matrix): Vector | number | Vector { ... }
     add(vec: Vector): Vector { ... }
     subtract(vec: Vector): Vector { ... }
-    rotate(angle: number): Vector { ... }
+    rotate(angle: Number): Vector { ... }
     transpose(): Vector { ... }
     normalize(): Vector { ... }
     get_orthogonal(): Vector { ... }
     get_orthonormal(): Vector { ... }
-    to_len(a: number): Vector { ... }
-    length(): number { ... }
-    length_squared(): number { ... }
+    to_len(a: Number): Vector { ... }
+    length(): Number { ... }
+    length_squared(): Number { ... }
     to_array(): [number, number] { ... }
     toString(): string { ... }
     print(): this { ... }
-    x: number
-    y: number
-    is_row: boolean
-    is_column: boolean
+    x: Number
+    y: Number
+    is_row: Boolean
+    is_column: Boolean
 }
 ```
 
@@ -43,7 +43,7 @@ class Vector {
 
 ```javascript
 import { Vector } from './StoffLib/geometry.js'
-new Vector(x: number = 0, y: number = 0, column: boolean = true)
+new Vector(x: Number = 0, y: Number = 0, column: Boolean = true)
 ```
 
 - `x`: The x-coordinate of the vector. Defaults to 0.
@@ -52,40 +52,40 @@ new Vector(x: number = 0, y: number = 0, column: boolean = true)
 
 ##### Methods
 
-- `.set(x : number, y : number) : this`: Sets the vector coordinates.
+- `.set(x : Number, y : Number) : this`: Sets the vector coordinates.
 ```javascript
 const v = new Vector();
 v.set(5, 6);
 console.log(v.to_array()); // [5, 6]
 ```
 
-- `.dot(vec : Vector) : number`: Computes the dot product with another vector.
+- `.dot(vec : Vector) : Number`: Computes the dot product with another vector.
 ```javascript
 const v1 = new Vector(1, 2);
 const v2 = new Vector(3, 4);
 console.log(v1.dot(v2)); // 11
 ```
 
-- `.distance(vec : Vector) : number`: Computes the distance between this vector and another.
+- `.distance(vec : Vector) : Number`: Computes the distance between this vector and another.
 ```javascript
 const v1 = new Vector(1, 2);
 const v2 = new Vector(4, 6);
 console.log(v1.distance(v2)); // 5
 ```
 
-- `.scale(a : number) : Vector`: Scales the vector by a scalar `a`.
+- `.scale(a : Number) : Vector`: Scales the vector by a scalar `a`.
 ```javascript
 const v = new Vector(2, 3);
 console.log(v.scale(2)); // Vector {x: 4, y: 6}
 ```
 
-- `.mult(el : number | Vector | Matrix) : Vector | (number | Matrix) | Vector`: Multiplies the vector by a scalar, vector, or matrix.
+- `.mult(el : Number | Vector | Matrix) : Vector | (number | Matrix) | Vector`: Multiplies the vector by a scalar, vector, or matrix.
 ```javascript
 const v = new Vector(2, 3);
 console.log(v.mult(2)); // Vector {x: 4, y: 6}
 ```
     Depending on the type of `el`, we either 
-    - scale (`el: number`)
+    - scale (`el: Number`)
     - compute the dot product (`el: Vector`) and `el, v1` are both column or row vectors
     - compute the outer product (`el: Vector`) and one of `el, v1` is a row, the other a column vector
     - multiply on the right by the matrix, viewing `v` as a row vector. (`el: Matrix`)
@@ -104,7 +104,7 @@ const v2 = new Vector(2, 3);
 console.log(v1.subtract(v2)); // Vector {x: 3, y: 3}
 ```
 
-- `.rotate(angle : number) : Vector`: Rotates the vector clockwise by a given angle. The angle is given in radiants.
+- `.rotate(angle : Number) : Vector`: Rotates the vector clockwise by a given angle. The angle is given in radiants.
 ```javascript
 const v = new Vector(1, 0);
 console.log(v.rotate(Math.PI / 2)); // Rotated Vector {x: 0, y: 1}
@@ -137,25 +137,25 @@ const v = new Vector(3, 4);
 console.log(v.get_orthonormal()); // Normalized orthogonal vector
 ```
 
-- `.to_len(a : number) : Vector`: Scales the vector to have length `a`
+- `.to_len(a : Number) : Vector`: Scales the vector to have length `a`
 ```javascript
 const v = new Vector(0,1);
 console.log(v.to_len(5)); // Vector {x: 0, y: 5}
 ```
 
-- `.length() : number`: Returns the magnitude of the vector.
+- `.length() : Number`: Returns the magnitude of the vector.
 ```javascript
 const v = new Vector(3, 4);
 console.log(v.length()); // 5
 ```
 
-- `.length_squared() : number`: Returns the squared magnitude of the vector.
+- `.length_squared() : Number`: Returns the squared magnitude of the vector.
 ```javascript
 const v = new Vector(3, 4);
 console.log(v.length_squared()); // 25
 ```
 
-- `.to_array() : number[2]`: Returns the vector as an array `[x, y]`.
+- `.to_array() : Number[2]`: Returns the vector as an array `[x, y]`.
 ```javascript
 const v = new Vector(3, 4);
 console.log(v.to_array()); // [3, 4]
@@ -183,12 +183,12 @@ The Matrix class represents a 2x2 matrix and supports various matrix operations 
 import { Matrix } from './StoffLib/geometry.js'
 
 class Matrix {
-    constructor(vec1: Vector, vec2: Vector, column_wise: boolean = true) { ... }
+    constructor(vec1: Vector, vec2: Vector, column_wise: Boolean = true) { ... }
     transpose(): Matrix { ... }
     add(m: Matrix): Matrix { ... }
-    scale(a: number): Matrix { ... }
-    mult(el: number | Vector | Matrix): Vector | Matrix { ... }
-    det(): number { ... }
+    scale(a: Number): Matrix { ... }
+    mult(el: Number | Vector | Matrix): Vector | Matrix { ... }
+    det(): Number { ... }
     invert(): Matrix { ... }
     toString(): string { ... }
     print() : this { ... }
@@ -199,7 +199,8 @@ class Matrix {
 ##### Constructor
 
 ```javascript
-new Matrix(vec1: Vector, vec2: Vector, column_wise: boolean = true)
+import { Matrix } from './StoffLib/geometry.js'
+new Matrix(vec1: Vector, vec2: Vector, column_wise: Boolean = true)
 ```
 
 - `vec1`: First (column) vector
@@ -215,19 +216,19 @@ const m2 = new Matrix(new Vector(2, 1), new Vector(4, 3));
 console.log(m1.add(m2)); // Resulting Matrix after addition
 ```
 
-- `.mult(el : number | Vector | Matrix) : Vector | Matrix`: Multiplies the matrix by a scalar, vector, or matrix.
+- `.mult(el : Number | Vector | Matrix) : Vector | Matrix`: Multiplies the matrix by a scalar, vector, or matrix.
 ```javascript
 const m = new Matrix(new Vector(1, 2), new Vector(3, 4));
 console.log(m.mult(2)); // Matrix scaled by 2
 ```
 
-- `.scale(a : number) : Matrix`: Scales the matrix by a scalar `a`.
+- `.scale(a : Number) : Matrix`: Scales the matrix by a scalar `a`.
 ```javascript
 const m = new Matrix(new Vector(1, 2), new Vector(3, 4));
 console.log(m.scale(2)); // Scaled Matrix
 ```
 
-- `.det() : number`: Returns the determinant of the matrix.
+- `.det() : Number`: Returns the determinant of the matrix.
 ```javascript
 const m = new Matrix(new Vector(1, 2), new Vector(3, 4));
 console.log(m.det()); // Determinant of the matrix
@@ -252,7 +253,7 @@ console.log(m.toString()); // "[[1, 3], [2, 4]]"
 ```.print(); // Prints formatted matrix
 ```
 
-- `.to_array() : number[2][2]`: Returns the matrix as an array.
+- `.to_array() : Number[2][2]`: Returns the matrix as an array.
 ```javascript
 const m = new Matrix(new Vector(1, 2), new Vector(3, 4));
 console.log(m.toJSON()); // [[1, 2], [3, 4]]
@@ -269,7 +270,7 @@ The following functions are also exported from `StoffLib/geometry.js` and provid
 
 ### Distance from line
 
-`distance_from_line(line_points : [Vector, Vector], vec : Vector) : number`
+`distance_from_line(line_points : [Vector, Vector], vec : Vector) : Number`
 
 Calculates the shortest distance from a point `vec` to a line defined by two points.
 
@@ -283,7 +284,7 @@ console.log(distance_from_line([vec1, vec2], point)); // Distance from point to 
 ```
 
 ### Distance from line segment
-`distance_from_line_segment(endpoints : [Vector, Vector], vec : Vector) : number`
+`distance_from_line_segment(endpoints : [Vector, Vector], vec : Vector) : Number`
 
 Calculates the distance from a point to the closest point on a line segment.
 
@@ -366,7 +367,7 @@ console.log(transform(new Vector(1, 0))); // Rotated and stretched vector
 ```
 
 ### Rotation function
-`rotation_fun(rotation_vec : Vector, angle : number) : (Vector) : Vector`
+`rotation_fun(rotation_vec : Vector, angle : Number) : (Vector) : Vector`
 
 Returns a function that takes in a vector and rotates it by `angle` radians around the `rotation_vec`.
 
@@ -380,7 +381,7 @@ console.log(rotate(new Vector(2, 2))); // Rotated vector
 ```
 
 ### Vector angle
-`vec_angle(vec1 : Vector, vec2 : Vector) : number`
+`vec_angle(vec1 : Vector, vec2 : Vector) : Number`
 
 Calculates the angle between two vectors in radians. It returns the smaller of the two angles.
 
@@ -396,7 +397,7 @@ console.log(vec_angle(v1, v2)); // Angle in radians
     If one vector is trivial, then the result is `Math.PI`
 
 ### Vector angle clockwise
-`vec_angle_clockwise(vec1 : Vector, vec2 : Vector) : number`
+`vec_angle_clockwise(vec1 : Vector, vec2 : Vector) : Number`
 
 Calculates the clockwise angle between two vectors in radians.
 
@@ -412,7 +413,7 @@ console.log(vec_angle_clockwise(v1, v2)); // math.PI/2 (may need double checking
     If one vector is trivial, then the result is `Math.PI`
 
 ### Degree to radians
-`deg_to_rad(d : number) : number`
+`deg_to_rad(d : Number) : Number`
 
 Converts degrees to radians.
 
@@ -423,7 +424,7 @@ console.log(deg_to_rad(180)); // math.PI
 ```
 
 ### Radians to degree
-`rad_to_deg(r : number) : number`
+`rad_to_deg(r : Number) : Number`
 
 Converts radians to degrees.
 
