@@ -141,6 +141,8 @@ function correct_belly(s, mea, percent = 1){
 
     //s.remove_point(p2);
   } else {
+    s.point_on_line(p1, side_bottom);
+    
     console.log("Das ist noch nicht implementiert, das braucht eine deutlichere Veränderung im Schnittmuster!");
   }
 
@@ -359,6 +361,7 @@ function correct_belly_middle(s, mea, percent = 0.35){
 
         //s.remove_point(p2);
       } else {
+        s.point_on_line(p1, side_bottom);
         console.log("Das ist noch nicht implementiert, das braucht eine deutlichere Veränderung im Schnittmuster!");
       }
 

@@ -233,11 +233,7 @@ function split_at_points(s, p1, line1, p2, line2, type){
 
 
 
-function split_comp_to_new_sketches(s){
-  const sk = new Sketch();
-  const sk_2 = new Sketch();
 
-}
 
 function position_sketch(s_new, s_old){
   let vec = s_new.get_bounding_box().top_right.add(new Vector (3,0));

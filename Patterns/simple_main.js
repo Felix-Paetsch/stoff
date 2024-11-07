@@ -11,6 +11,7 @@ import dart from './darts/simple_dart.js';
 import utils from './funs/utils.js';
 import neck from './neckline/neckline.js';
 import eva from './funs/basicEval.js';
+import seam from './seam_allowance/simple_seam.js';
 
 function main_top(s, design, mea, design_neckline){
   sleeve.armpit_new(s);
@@ -32,7 +33,11 @@ function main_top(s, design, mea, design_neckline){
       patterns = top.split_pattern(s, "shoulder", 0.6);
     } else {
       patterns =  top.styleline_panel(s, design["styleline"], mea);
-      main_dart(patterns[0], design["dartstyle"]);
+      if (design["styleline"] === "panel side"){
+        main_dart(patterns[0], design["dartstyle"], "side middle");
+      } else {
+        main_dart(patterns[0], design["dartstyle"], "shoulder");
+      }
     }
     main_neckline(patterns[0], design_neckline);
 
@@ -70,6 +75,7 @@ function main_top(s, design, mea, design_neckline){
     top.simple_dart_web(s, design["position"], mea);
     if (eva.eval_waistline_dart(design["position"])){
       lengthen.lengthen_top_with_dart(s, mea, 0.95);
+      seam.seam_allowance(s);
       if (design["dartstyle"] === "tuck"){
         dart.simple_tuck(s, s.data.comp.lines_by_key("type").dart);
       }
@@ -222,6 +228,83 @@ function main_neckline(s, design){
 }
 
 
+function annotate(s){
+  let lines = s.data.comp.lines_by_key("type");
+  let ln = lines.waistline;
+  let ln2;
+  let ln3;
 
 
-export default {main_top, main_sleeve, main_merge, paste_sketches};
+  ln.forEach((elem) => {
+    s.remove_line(elem);
+  });
+
+
+  if (s.data.type !== "middle"){
+    s.data.comp = 0;
+    ln2 = lines.fold[0];
+    ln3 = lines.fold_bottom[0]
+    ln2 = s.merge_lines(ln2, ln3, true);
+    s.data.comp = new ConnectedComponent(ln2);
+    ln2.data.type = "fold";
+  }
+
+
+  s = mirror(s);
+
+
+
+  return s;
+}
+
+function mirror(s){
+  const sk = new Sketch();
+  sk.paste_sketch(s);
+  let p = sk.data.comp.lines_by_key("type").fold[0].p1;
+
+  if(s.data.type === "sleeve"){
+
+  } else {
+    let vec;
+    let vec2;
+    sk.data.comp.transform((pt) => {
+      vec = pt.subtract(p);
+      vec2 = new Vector(vec.x, 0);
+      vec = vec.add(vec2.scale(-2)).add(p);
+      pt.move_to(vec);
+    });
+    let lines = sk.data.comp.lines();
+    lines.forEach((ln) => {
+      ln.mirror();
+    });
+
+  utils.position_sketch(s, sk);
+
+  let comps = s.get_connected_components();
+  let ln1 = comps[0].lines_by_key("type").fold[0];
+  let ln2 = comps[1].lines_by_key("type").fold[0];
+  let shoulder = comps[0].lines_by_key("type").shoulder[0];
+
+  vec = ln1.p1.subtract(ln2.p1);
+
+  comps[1].transform((pt) => {
+    pt.move_to(pt.add(vec));
+  });
+
+  s.merge_points(ln1.p1, ln2.p1);
+  s.merge_points(ln1.p2, ln2.p2);
+
+  s.data.comp = new ConnectedComponent(shoulder);
+  s.remove_line(ln1);
+  s.remove_line(ln2);
+}
+
+
+  return s;
+};
+
+function annotate_dart(s){
+
+}
+
+export default {main_top, main_sleeve, main_merge, paste_sketches, annotate};

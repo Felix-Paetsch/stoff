@@ -520,4 +520,7 @@ function simple_lengthen(s, pattern, mea, percent_length,  percent_side = 0){
 }
 
 
+
+
+
 export default {a_line, simple_dart_web, styleline_panel, styleline_merge, simple_waistline_web, double_dart_web, without_dart, split_pattern, simple_middle_dart, waistline_simple_dart, wiener_naht, merge_lines};

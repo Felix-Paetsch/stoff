@@ -212,31 +212,38 @@ export default {
         sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front[0].data.length_sleeve, back[0].data.length_sleeve);
       } else {
         height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
-        sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
+        sleeve = basic_pattern_sleeve.new_sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
       }
 
-      sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
+    //  sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
       /*
       */
 
       let s = new Sketch();
       let sketches = change.main_merge(front, back, design_config["top designs"]);
-    //  sketches.push(sleeve);
 
       if(design_config["top designs"].type === "styleline"){
         lengthen.lengthen_styleline(sketches, measurements, design_config["top designs"].closed);
       }
 
+      let sketches2 = [];
       sketches.forEach(s => {
         s.remove_point(s.data.pt);
         delete s.data.pt;
+        sketches2.push(change.annotate(s));
       });
+    //  return(change.annotate(sketches[0]))
+      //  sketches.push(sleeve);
 
-      s = change.paste_sketches(s, sketches);
+
+
+      s = change.paste_sketches(s, sketches2);
       //s.save_on_A4("renders");
 
-      let pic = pictures.main(design_config);
+      //let pic = pictures.main(design_config);
 
-      return pic;
+      return s;
+
+
     }
 }
