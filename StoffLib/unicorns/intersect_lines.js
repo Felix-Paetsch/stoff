@@ -257,6 +257,8 @@ function _filter_intersection_positions(cleaned_ip, line1, line2){
 
 function _line_segments_intersect(start1, end1, start2, end2) {
     // We are a bit generous for this fn, we don't want to miss any!
+    // Compared to geometry this has some padding
+    
     const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
 
     // If start and end are to close to each other, just consider the points

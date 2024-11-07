@@ -38,6 +38,10 @@ class Vector {
         return this[0] * vec[0] + this[1] * vec[1];
     }
 
+    cross(vec){
+        return this.x * vec.y - this.y * vec.x;
+    }
+
     distance(vec) {
         return Math.sqrt(
             Math.pow(this.x - vec.x, 2) + Math.pow(this.y - vec.y, 2)
@@ -271,6 +275,27 @@ function closest_vec_on_line_segment(endpoints, vec) {
     }
 }
 
+function line_segments_intersect(l1, l2) {
+    const [p, r] = [l1[0], l1[1].subtract(l1[0])];
+    const [q, s] = [l2[0], l2[1].subtract(l2[0])];
+    
+    const rxs = r.cross(s);
+    const qmp = q.subtract(p);
+    const t = qmp.cross(s) / rxs;
+    const u = qmp.cross(r) / rxs;
+    
+    if (rxs === 0) {
+        return [false, null];
+    }
+    
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        const intersection = p.add(r.scale(t));
+        return [true, intersection];
+    }
+    
+    return [false, null];
+}
+
 function matrix_from_input_output(f_in, f_out) {
     // Expect Col Vectors
     // f_in  = [vec1, vec2]
@@ -369,5 +394,6 @@ export {
     rad_to_deg,
     vec_angle,
     vec_angle_clockwise,
-    rotation_fun
+    rotation_fun,
+    line_segments_intersect
 };

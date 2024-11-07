@@ -2,6 +2,7 @@ import { Vector, affine_transform_from_input_output, distance_from_line_segment 
 import { intersect_lines, intersection_positions } from '../unicorns/intersect_lines.js';
 import { default_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
+import { Point } from '../point.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
 import CONF from '../config.json' assert { type: 'json' };
@@ -76,7 +77,12 @@ export default (Sketch) => {
     Sketch.prototype._line_between_points_from_sample_points = function(pt1, pt2, sp){
         this._guard_points_in_sketch(pt1, pt2);
 
-        const l = new Line(pt1, pt2, sp);
+        const to_rel_fun = affine_transform_from_input_output(
+            [sp[0],  sp[sp.length - 1]],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+
+        const l = new Line(pt1, pt2, sp.map(to_rel_fun));
         this.lines.push(l);
         l.set_sketch(this);
         return l;
@@ -84,13 +90,7 @@ export default (Sketch) => {
 
     Sketch.prototype._line_between_points_from_abs_sample_points = function(pt1, pt2, sp){
         this._guard_points_in_sketch(pt1, pt2);
-
-        const to_rel_fun = affine_transform_from_input_output(
-            [pt1,  pt2],
-            [new Vector(0,0), new Vector(1,0)]
-        );
-
-        return this._line_between_points_from_sample_points(pt1, pt2, sp.map(to_rel_fun));
+        return this._line_between_points_from_sample_points(pt1, pt2, sp);
     }
 
     Sketch.prototype.interpolate_lines = function(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
@@ -201,7 +201,7 @@ export default (Sketch) => {
         return new_line;
     }
 
-    Sketch.prototype.merge_lines = function(line1, line2, data_callback = default_data_callback){
+    Sketch.prototype.merge_lines = function(line1, line2, delete_join = false, data_callback = default_data_callback){
         this._guard_lines_in_sketch(line1, line2);
 
         if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
@@ -239,8 +239,13 @@ export default (Sketch) => {
         copy_sketch_obj_data(line1, new_line, data_callback);
         copy_sketch_obj_data(line2, new_line, data_callback);
 
-        this.remove_line(line1);
-        this.remove_line(line2);
+        if (delete_join){
+            this.remove_point(line1.p2);
+        } else {
+            this.remove_line(line1);
+            this.remove_line(line2);
+        }
+
         return new_line;
     }
 

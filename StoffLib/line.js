@@ -1,8 +1,11 @@
-import { Vector, affine_transform_from_input_output, rotation_fun, vec_angle, closest_vec_on_line_segment } from './geometry.js';
+import { Vector, line_segments_intersect, affine_transform_from_input_output, closest_vec_on_line_segment, distance_from_line_segment } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
-import { _line_segments_intersect, _calculate_intersections } from "./unicorns/intersect_lines.js";
+import { _calculate_intersections } from "./unicorns/intersect_lines.js";
+import offset_sample_points from './unicorns/offset_sample_points.js';
+
+const EPSILON = 0.000001;
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -48,79 +51,7 @@ class Line{
     }
 
     offset_sample_points(radius, direction = 0){
-        if (radius < 0){
-            radius += -1;
-            direction = 1 - direction;
-        }
-
-        if (direction == 1){
-            this.swap_orientation();
-        }
-
-        let p1  = this.p1.add(
-            this.get_tangent_vector(this.p1).get_orthogonal().scale(-1 * radius)
-        );
-
-        let p2  = this.p2.add(
-            this.get_tangent_vector(this.p2).get_orthogonal().scale(radius)
-        );
-
-        const endpoint_distance = p1.subtract(p2).length();
-
-        const this_abs_sample_points = this.get_absolute_sample_points();
-        const abs_sample_points = [p1];
-
-        for (let i = 0; i < this_abs_sample_points.length() - 2; i++){
-            const left_sp = this_abs_sample_points[i];
-            const middle_sp = this_abs_sample_points[i + 1];
-            const right_sp = this_abs_sample_points[i + 2];
-            {
-                // Above the center of the line segment [left, middle]
-
-                const line_center_point = left_sp.add(middle_sp.subtract(left_sp).scale(0.5));
-                const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
-
-                abs_sample_points.push(line_center_point.add(orth));
-            }
-            {
-                // At the corner [left, middle, right]
-                const angle_of_new_vec = vec_angle(
-                    right_sp.subtract(middle_sp),
-                    left_sp.subtract(middle_sp)
-                )/2;
-                const left_segment = left_sp.subtract(middle_sp);
-                const rot_fun = rotation_fun(new Vector(0,0), angle_of_new_vec);
-                const vec_to_add = rot_fun(left_segment.normalize()).scale(radius);
-
-                abs_sample_points.push(middle_sp.add(vec_to_add));
-            }
-        }
-
-        {   // Add point above last line segment
-            const left_sp = this_abs_sample_points[this_abs_sample_points.length - 2];
-            const middle_sp = this_abs_sample_points[this_abs_sample_points.length - 1];
-            const line_center_point = left_sp.add(middle_sp.subtract(left_sp).scale(0.5));
-            const orth = middle_sp.subtract(left_sp).get_orthonormal().scale(radius);
-
-            abs_sample_points.push(line_center_point.add(orth));
-        }
-
-        // Remove sample points if to tightly spaced
-        const min_spacing = 0.0001 * endpoint_distance;
-        for (let i = abs_sample_points.length - 2; i > 0; i--){
-            if (abs_sample_points[i].subtract(abs_sample_points[i - 1]).length() < min_spacing){
-                abs_sample_points.splice(i, 1);
-            }
-        }
-
-
-        abs_sample_points.push(p2);
-        if (direction == 1){
-            this.swap_orientation();
-            abs_sample_points.reverse();
-        }
-
-        return abs_sample_points;
+        return offset_sample_points(this, radius, direction);
     }
 
     is_adjacent(thing){
@@ -473,49 +404,91 @@ class Line{
         throw new Error("Line already belongs to a sketch!");
     }
 
-    self_intersects(thorough = false) {
-        // The current functions should be seen as temporary till we find smth better
-        // Since it either doesn't give garantes or is slow.
+    _remove_duplicate_points() {
+        if (this.sample_points.length <= 1) return;
+    
+        this.sample_points = this.sample_points.filter((point, index) => {
+            // Skip the first point, compare each with the previous
+            if (index === 0) return true;
+            const prevPoint = this.sample_points[index - 1];
+            return !(point.x === prevPoint.x && point.y === prevPoint.y);
+        });
+    }    
 
-        const points = this.sample_points;
-        let potentialIntersection = thorough;
-
-        // Quick and easy approximation
-        for (let i = 0; i < points.length - 1; i++) {
-            for (let j = i + 2; j < points.length - 1; j++) {
-                if (points[i].distance(points[i+1]) > points[i].distance(points[j])*0.9) {
-                    potentialIntersection = true;
-                    break;
+    self_intersects() {
+        const monotone_segments = [];
+        let start = 0;
+    
+        // Step 1: Split into monotone segments
+        for (let i = 1; i < this.sample_points.length; i++) {
+            const prev = this.sample_points[i - 1];
+            const curr = this.sample_points[i];
+    
+            const x_increasing = curr.x > prev.x;
+            const x_decreasing = curr.x < prev.x;
+            const y_increasing = curr.y > prev.y;
+            const y_decreasing = curr.y < prev.y;
+    
+            if (!(x_increasing || x_decreasing || y_increasing || y_decreasing)) {
+                this._remove_duplicate_points();
+                return this.self_intersects();
+            }
+    
+            const is_monotone = 
+                (x_increasing && (i === start || curr.y >= prev.y)) ||
+                (x_decreasing && (i === start || curr.y <= prev.y)) ||
+                (y_increasing && (i === start || curr.x >= prev.x)) ||
+                (y_decreasing && (i === start || curr.x <= prev.x));
+    
+            if (!is_monotone) {
+                monotone_segments.push([start, i - 1]);
+                start = i - 1;
+            }
+        }
+    
+        monotone_segments.push([start, this.sample_points.length - 1]);
+    
+        // Step 2: Check for intersections between monotone segments
+        for (let i = 0; i < monotone_segments.length - 1; i++) {
+            const [start1, end1] = monotone_segments[i];
+            const range1 = {
+                minX: Math.min(this.sample_points[start1].x, this.sample_points[end1].x),
+                maxX: Math.max(this.sample_points[start1].x, this.sample_points[end1].x),
+            };
+    
+            for (let j = i + 1; j < monotone_segments.length; j++) {
+                const [start2, end2] = monotone_segments[j];
+                const range2 = {
+                    minX: Math.min(this.sample_points[start2].x, this.sample_points[end2].x),
+                    maxX: Math.max(this.sample_points[start2].x, this.sample_points[end2].x),
+                };
+    
+                // Skip if x-ranges don't overlap
+                if (range1.maxX < range2.minX || range2.maxX < range1.minX) {
+                    continue;
+                }
+    
+                // Check each segment in the two monotone ranges
+                for (let k = start1; k < end1; k++) {
+                    const seg1 = [this.sample_points[k], this.sample_points[k + 1]];
+    
+                    for (let l = start2; l < end2; l++) {
+                        const seg2 = [this.sample_points[l], this.sample_points[l + 1]];
+    
+                        // Skip the shared endpoint segment comparison for consecutive monotone segments
+                        if (i + 1 === j && k === end1 - 1 && l === start2) {
+                            continue;
+                        }
+    
+                        const [intersects, _] = line_segments_intersect(seg1, seg2);
+                        if (intersects) {
+                            return true;
+                        }
+                    }
                 }
             }
-            if (potentialIntersection) break;
         }
-
-        if (!potentialIntersection) return false;
-
-        // Slow and thorough
-        const intersections = _calculate_intersections(this, this, false);
-
-        for (let i = 0; i < intersections.length; i++) {
-            const [i1, i2, p1, p2, _] = intersections[i];
-            if (Math.abs(i1 + p1 - i2 - p2) < 1.0001) {
-                continue;
-            }
-
-            let total_len = 0;
-            for (
-                let j = Math.min(intersections[i][0], intersections[i][1]);
-                j < Math.max(intersections[i][0], intersections[i][1]) - 1;
-                j++
-            ) {
-                total_len += this.sample_points[j].distance(this.sample_points[j + 1]);
-            }
-
-            if (total_len > 0.001) {
-                return true;
-            }
-        }
-
+    
         return false;
     }
 

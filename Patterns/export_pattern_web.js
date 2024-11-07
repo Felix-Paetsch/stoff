@@ -11,7 +11,7 @@ import lengthen from './lengthen/top.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-import pictures from '../Pictures/main_pictures.js';
+//import pictures from '../Pictures/main_pictures.js';
 
 import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
 
@@ -240,10 +240,9 @@ export default {
       s = change.paste_sketches(s, sketches2);
       //s.save_on_A4("renders");
 
+      return s
       //let pic = pictures.main(design_config);
 
-      return s;
-
-
+      //return pic;
     }
 }
