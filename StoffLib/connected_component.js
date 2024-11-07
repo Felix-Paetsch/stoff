@@ -111,10 +111,6 @@ class ConnectedComponent{
         }
     }
 
-    to_sketch(position = null){
-        throw new Error("Implementation not overwritten!");
-    }
-
     self_intersecting(){
         // Returns true if two lines intersect with not marked point
         throw new Error("Inimplemented!")

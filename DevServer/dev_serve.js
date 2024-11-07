@@ -4,7 +4,7 @@ export default (Sketch, app) => {
     const routes = [];
     Sketch.dev._register_route = function (route) {
 
-        if (["/", "/pattern", "/reset", "/at_url", "/self_intersects"].includes(route.url)){
+        if (["/", "/pattern", "/reset", "/at_url", "/self_intersects"].includes(route.url) && !route.overwrite){
             throw new Error("Route '" + route.url + "' already exists!");
         }
 
