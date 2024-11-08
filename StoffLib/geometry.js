@@ -374,6 +374,37 @@ function vec_angle_clockwise(vec1, vec2) {
     return angle;
 }
 
+function convex_hull(points) {
+    if (points.length <= 1) return points;
+
+    // Sort points lexicographically by x, then by y
+    points.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+
+    const lower = [];
+    for (const p of points) {
+        while (lower.length >= 2 && lower[lower.length - 2].subtract(lower[lower.length - 1]).cross(p.subtract(lower[lower.length - 1])) <= 0) {
+            lower.pop();
+        }
+        lower.push(p);
+    }
+
+    const upper = [];
+    for (let i = points.length - 1; i >= 0; i--) {
+        const p = points[i];
+        while (upper.length >= 2 && upper[upper.length - 2].subtract(upper[upper.length - 1]).cross(p.subtract(upper[upper.length - 1])) <= 0) {
+            upper.pop();
+        }
+        upper.push(p);
+    }
+
+    // Remove the last point of each half because it's repeated at the beginning of the other half
+    upper.pop();
+    lower.pop();
+
+    // Concatenate lower and upper hulls
+    return lower.concat(upper);
+}
+
 function deg_to_rad(d) {
     return (Math.PI * d) / 180;
 }
@@ -390,6 +421,7 @@ export {
     closest_vec_on_line_segment,
     distance_from_line_segment,
     distance_from_line,
+    convex_hull,
     deg_to_rad,
     rad_to_deg,
     vec_angle,

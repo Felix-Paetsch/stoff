@@ -1,11 +1,9 @@
-import { Vector, line_segments_intersect, affine_transform_from_input_output, closest_vec_on_line_segment, distance_from_line_segment } from './geometry.js';
+import { Vector, line_segments_intersect, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
-
-const EPSILON = 0.000001;
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -262,6 +260,10 @@ class Line{
         }
     }
 
+    convex_hull(){
+        return convex_hull(this.get_absolute_sample_points());
+    }
+
     is_adjacent(thing){
         if (thing instanceof Point){
             return thing == this.p1 || thing == this.p2
@@ -415,86 +417,6 @@ class Line{
         });
     }    
 
-    /*
-    __self_intersects() {
-        const monotone_segments = [];
-        let start = 0;
-    
-        // Step 1: Split into monotone segments
-        for (let i = 1; i < this.sample_points.length; i++) {
-            const prev = this.sample_points[i - 1];
-            const curr = this.sample_points[i];
-    
-            const x_increasing = curr.x > prev.x;
-            const x_decreasing = curr.x < prev.x;
-            const y_increasing = curr.y > prev.y;
-            const y_decreasing = curr.y < prev.y;
-    
-            if (!(x_increasing || x_decreasing || y_increasing || y_decreasing)) {
-                this._remove_duplicate_points();
-                return this.self_intersects();
-            }
-    
-            const is_monotone = 
-                (x_increasing && (i === start || curr.y >= prev.y)) ||
-                (x_decreasing && (i === start || curr.y <= prev.y)) ||
-                (y_increasing && (i === start || curr.x >= prev.x)) ||
-                (y_decreasing && (i === start || curr.x <= prev.x));
-    
-            if (!is_monotone) {
-                monotone_segments.push([start, i - 1]);
-                start = i - 1;
-            }
-        }
-    
-        monotone_segments.push([start, this.sample_points.length - 1]);
-    
-        // Step 2: Check for intersections between monotone segments
-        for (let i = 0; i < monotone_segments.length - 1; i++) {
-            const [start1, end1] = monotone_segments[i];
-            const range1 = {
-                minX: Math.min(this.sample_points[start1].x, this.sample_points[end1].x),
-                maxX: Math.max(this.sample_points[start1].x, this.sample_points[end1].x),
-            };
-    
-            for (let j = i + 1; j < monotone_segments.length; j++) {
-                const [start2, end2] = monotone_segments[j];
-                const range2 = {
-                    minX: Math.min(this.sample_points[start2].x, this.sample_points[end2].x),
-                    maxX: Math.max(this.sample_points[start2].x, this.sample_points[end2].x),
-                };
-    
-                // Skip if x-ranges don't overlap
-                if (range1.maxX < range2.minX || range2.maxX < range1.minX) {
-                    continue;
-                }
-    
-                // Check each segment in the two monotone ranges
-                for (let k = start1; k < end1; k++) {
-                    const seg1 = [this.sample_points[k], this.sample_points[k + 1]];
-    
-                    for (let l = start2; l < end2; l++) {
-                        const seg2 = [this.sample_points[l], this.sample_points[l + 1]];
-    
-                        // Skip the shared endpoint segment comparison for consecutive monotone segments
-                        if (i + 1 === j && k === end1 - 1 && l === start2) {
-                            continue;
-                        }
-    
-                        const [intersects, _] = line_segments_intersect(seg1, seg2);
-                        if (intersects) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    
-        return false;
-    }
-
-    */
-   
     self_intersects() {
         const monotone_segments = [];
         let start = 0;
