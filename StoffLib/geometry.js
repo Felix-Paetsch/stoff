@@ -413,6 +413,12 @@ function rad_to_deg(r) {
     return (180 / Math.PI) * r;
 }
 
+const ZERO = new Vector(0,0);
+const UP = new Vector(0,-1);
+const LEFT = new Vector(-1,0);
+const RIGHT = new Vector(1,0);
+const DOWN = new Vector(0,1);
+
 export {
     Vector,
     Matrix,
@@ -427,5 +433,10 @@ export {
     vec_angle,
     vec_angle_clockwise,
     rotation_fun,
-    line_segments_intersect
+    line_segments_intersect,
+    ZERO,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 };

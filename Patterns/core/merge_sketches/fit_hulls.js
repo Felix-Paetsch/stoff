@@ -1,195 +1,107 @@
+// Import the Vector class
 import { Vector } from "../../../StoffLib/geometry.js";
 
-export default function fit_hulls(hulls, gridWidth = 10) {
-    // Compute bounding boxes for each hull
-    const hullsWithBounds = hulls.map((hull, index) => {
-        const bounds = computeBoundingBox(hull);
-        return { index, hull, bounds };
+export default function fit_hulls(hulls, grid_size = 10, direction = false) {
+    // Direction false (default): Fixed width (grid_size), minimize height (n)
+    // Direction true: Fixed height (grid_size), minimize width (n)
+
+    // Compute the bounding box for each hull
+    const hullsData = hulls.map((hull, index) => {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (let vertex of hull) {
+            if (vertex.x < minX) minX = vertex.x;
+            if (vertex.x > maxX) maxX = vertex.x;
+            if (vertex.y < minY) minY = vertex.y;
+            if (vertex.y > maxY) maxY = vertex.y;
+        }
+        const width = maxX - minX;
+        const height = maxY - minY;
+        return {
+            index,
+            hull,
+            minX,
+            minY,
+            maxX,
+            maxY,
+            width,
+            height
+        };
     });
 
-    // Sort hulls by height in descending order (tallest first)
-    hullsWithBounds.sort((a, b) => b.bounds.height - a.bounds.height);
-
-    // Initial placement using a simple bin-packing algorithm
-    const rows = [];
-    let currentRow = [];
-    let currentRowWidth = 0;
-
-    for (const item of hullsWithBounds) {
-        if (currentRowWidth + item.bounds.width > gridWidth) {
-            // Start a new row
-            rows.push(currentRow);
-            currentRow = [];
-            currentRowWidth = 0;
-        }
-        currentRow.push(item);
-        currentRowWidth += item.bounds.width;
-    }
-    // Add the last row
-    if (currentRow.length > 0) {
-        rows.push(currentRow);
-    }
-
-    // Position hulls based on their assigned rows and columns
-    let yOffset = 0;
-    const positionedHulls = [];
-    for (const row of rows) {
-        let xOffset = 0;
-        let rowHeight = 0;
-        for (const item of row) {
-            // Translate hull to its position in the grid
-            const translatedHull = translateHull(item.hull, xOffset - item.bounds.minX, yOffset - item.bounds.minY);
-            positionedHulls[item.index] = translatedHull;
-
-            xOffset += item.bounds.width;
-            rowHeight = Math.max(rowHeight, item.bounds.height);
-        }
-        yOffset += rowHeight;
-    }
-
-    // Optimization: Nudge hulls to minimize gaps
-    const optimizedHulls = optimizePositions(positionedHulls);
-
-    return optimizedHulls;
-}
-
-/**
- * Compute the axis-aligned bounding box of a hull.
- */
-function computeBoundingBox(hull) {
-    let minX = Infinity, minY = Infinity;
-    let maxX = -Infinity, maxY = -Infinity;
-
-    for (const point of hull) {
-        if (point.x < minX) minX = point.x;
-        if (point.y < minY) minY = point.y;
-        if (point.x > maxX) maxX = point.x;
-        if (point.y > maxY) maxY = point.y;
-    }
-
-    return {
-        minX,
-        minY,
-        maxX,
-        maxY,
-        width: maxX - minX,
-        height: maxY - minY
-    };
-}
-
-/**
- * Translate a hull by (dx, dy).
- */
-function translateHull(hull, dx, dy) {
-    return hull.map(point => new Vector(point.x + dx, point.y + dy));
-}
-
-/**
- * Optimize positions by nudging hulls closer together.
- */
-function optimizePositions(hulls) {
-    const maxIterations = 1000;
-    const movementStep = 1;
-
-    for (let iter = 0; iter < maxIterations; iter++) {
-        let moved = false;
-        for (let i = 0; i < hulls.length; i++) {
-            for (let j = 0; j < hulls.length; j++) {
-                if (i !== j && detectCollision(hulls[i], hulls[j])) {
-                    // Nudge hull i away from hull j
-                    const direction = computeSeparationVector(hulls[i], hulls[j]);
-                    hulls[i] = translateHull(hulls[i], direction.x * movementStep, direction.y * movementStep);
-                    moved = true;
-                }
+    // Check that each hull can fit within the fixed dimension
+    for (let data of hullsData) {
+        if (!direction) {
+            // Fixed width
+            if (data.width > grid_size) {
+                throw new Error(`Hull at index ${data.index} cannot fit within the fixed width ${grid_size}. Hull width: ${data.width.toFixed(2)}, height: ${data.height.toFixed(2)}`);
+            }
+        } else {
+            // Fixed height
+            if (data.height > grid_size) {
+                throw new Error(`Hull at index ${data.index} cannot fit within the fixed height ${grid_size}. Hull width: ${data.width.toFixed(2)}, height: ${data.height.toFixed(2)}`);
             }
         }
-        if (!moved) break; // Exit if no hulls were moved
     }
 
-    return hulls;
-}
+    const adjustedHulls = [];
 
-/**
- * Detect if two hulls are colliding.
- */
-function detectCollision(hullA, hullB) {
-    // Use the Separating Axis Theorem (SAT) for collision detection
-    return polygonsIntersect(hullA, hullB);
-}
+    if (!direction) {
+        // Fixed width, minimize height
+        let currentX = 0;
+        let currentY = 0;
+        let currentShelfHeight = 0;
 
-/**
- * Compute a vector to separate two colliding hulls.
- */
-function computeSeparationVector(hullA, hullB) {
-    // Simple approach: Compute vector from hullB's center to hullA's center
-    const centerA = computeCentroid(hullA);
-    const centerB = computeCentroid(hullB);
-    const direction = centerA.subtract(centerB).normalize();
-    return direction;
-}
+        for (let data of hullsData) {
+            // Check if the hull fits in the current shelf
+            if (currentX + data.width <= grid_size) {
+                // Place the hull at currentX, currentY
+                data.position = new Vector(currentX - data.minX, currentY - data.minY);
+                currentX += data.width;
+                if (data.height > currentShelfHeight) {
+                    currentShelfHeight = data.height;
+                }
+            } else {
+                // Start new shelf
+                currentX = 0;
+                currentY += currentShelfHeight;
+                currentShelfHeight = data.height;
+                data.position = new Vector(currentX - data.minX, currentY - data.minY);
+                currentX += data.width;
+            }
 
-/**
- * Compute the centroid of a hull.
- */
-function computeCentroid(hull) {
-    let x = 0, y = 0;
-    for (const point of hull) {
-        x += point.x;
-        y += point.y;
-    }
-    return new Vector(x / hull.length, y / hull.length);
-}
+            // Adjust the hull's vertices
+            const adjustedHull = data.hull.map(vertex => vertex.add(data.position));
+            adjustedHulls.push(adjustedHull);
+        }
+    } else {
+        // Fixed height, minimize width
+        let currentX = 0;
+        let currentY = 0;
+        let currentColumnWidth = 0;
 
-/**
- * Check if two convex polygons intersect using SAT.
- */
-function polygonsIntersect(hullA, hullB) {
-    const axes = [...getAxes(hullA), ...getAxes(hullB)];
+        for (let data of hullsData) {
+            // Check if the hull fits in the current column
+            if (currentY + data.height <= grid_size) {
+                // Place the hull at currentX, currentY
+                data.position = new Vector(currentX - data.minX, currentY - data.minY);
+                currentY += data.height;
+                if (data.width > currentColumnWidth) {
+                    currentColumnWidth = data.width;
+                }
+            } else {
+                // Start new column
+                currentX += currentColumnWidth;
+                currentY = 0;
+                currentColumnWidth = data.width;
+                data.position = new Vector(currentX - data.minX, currentY - data.minY);
+                currentY += data.height;
+            }
 
-    for (const axis of axes) {
-        const projectionA = projectHull(hullA, axis);
-        const projectionB = projectHull(hullB, axis);
-        if (!overlap(projectionA, projectionB)) {
-            // Separating axis found, no collision
-            return false;
+            // Adjust the hull's vertices
+            const adjustedHull = data.hull.map(vertex => vertex.add(data.position));
+            adjustedHulls.push(adjustedHull);
         }
     }
-    // No separating axis found, hulls are colliding
-    return true;
-}
 
-/**
- * Get the axes (normals) of the edges of a hull.
- */
-function getAxes(hull) {
-    const axes = [];
-    for (let i = 0; i < hull.length; i++) {
-        const p1 = hull[i];
-        const p2 = hull[(i + 1) % hull.length];
-        const edge = p2.subtract(p1);
-        const normal = new Vector(-edge.y, edge.x).normalize();
-        axes.push(normal);
-    }
-    return axes;
-}
-
-/**
- * Project a hull onto an axis.
- */
-function projectHull(hull, axis) {
-    let min = Infinity;
-    let max = -Infinity;
-    for (const point of hull) {
-        const projection = point.dot(axis);
-        if (projection < min) min = projection;
-        if (projection > max) max = projection;
-    }
-    return { min, max };
-}
-
-/**
- * Check if two projections on an axis overlap.
- */
-function overlap(projA, projB) {
-    return projA.max > projB.min && projB.max > projA.min;
+    return adjustedHulls;
 }

@@ -167,6 +167,7 @@ class Sketch{
 
     transform(pt_fun = (pt) => {}){
         this.points.forEach(pt_fun);
+        return this;
     }
 
     clear(){
