@@ -54,7 +54,7 @@ export default function merge_sketches(sketches, min_padding = 0.5, type = "A4",
         for (let i of [1,2,3,4,5]){
             try{
                 hull_options.push(
-                    fit_hulls(hulls.map(h => h.hull), i * 5)
+                    fit_hulls(hulls.map(h => h.hull), i * 5, min_padding)
                 );
             } catch {}
         }
@@ -62,7 +62,7 @@ export default function merge_sketches(sketches, min_padding = 0.5, type = "A4",
         for (let i of [1,2,3,4,5]){
             try{
                 hull_options.push(
-                    fit_hulls(hulls.map(h => h.hull), i*5, true)
+                    fit_hulls(hulls.map(h => h.hull), i*5, min_padding, true)
                 );
             } catch{}
         }
@@ -80,8 +80,8 @@ export default function merge_sketches(sketches, min_padding = 0.5, type = "A4",
         new_hulls = hull_options[best[0]];
     } else if (type?.width || type?.height){
         new_hulls = type.width ?
-            fit_hulls(hulls.map(h => h.hull), type.width)
-        :   fit_hulls(hulls.map(h => h.hull), type.height, true);
+            fit_hulls(hulls.map(h => h.hull), type.width, min_padding)
+        :   fit_hulls(hulls.map(h => h.hull), type.height, min_padding, true);
     }
 
     for (let i = 0; i < hulls.length; i++){

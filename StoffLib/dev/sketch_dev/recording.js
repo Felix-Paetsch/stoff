@@ -22,7 +22,7 @@ export default (Sketch) => {
     Sketch.dev.Recording = Recording;
 
     Sketch.dev.global_recording = function(){
-        const global_recording = (new Recording()).unlock();
+        const global_recording = new Recording();
 
         const old_methods = {};
         let global_taking_snapshot = false;
@@ -100,7 +100,7 @@ class Recorder {
 
     stop_recording() {
         this.sketch.dev.recorder = null;
-        return new Recording(this.snapshots);
+        return new Recording(this.snapshots).lock();
     }
 }
 
@@ -121,7 +121,7 @@ class Recording {
         this.snapshots = snapshots;
         
         this.render_processed_snapshots = null;
-        this.locked = true;
+        this.locked = false;
     }
 
     process_snapshots(url = "StoffLib"){

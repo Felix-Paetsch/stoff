@@ -374,6 +374,33 @@ function vec_angle_clockwise(vec1, vec2) {
     return angle;
 }
 
+function bounding_box(points){
+    let _min_x = Infinity;
+    let _min_y = Infinity;
+    let _max_x = - Infinity;
+    let _max_y = - Infinity;
+
+    points.forEach(p => {
+        _min_x = Math.min(p.x, _min_x);
+        _max_x = Math.max(p.x, _max_x);
+        _min_y = Math.min(p.y, _min_y);
+        _max_y = Math.max(p.y, _max_y);
+    });
+
+    return {
+        width:  points.length == 0 ? 0 : _max_x - _min_x,
+        height: points.length == 0 ? 0 : _max_y - _min_y,
+        top_left: points.length == 0 ? ZERO : new Vector(_min_x, _min_y),
+        top_right: points.length == 0 ? ZERO : new Vector(_max_x, _min_y),
+        bottom_left:  points.length == 0 ? ZERO : new Vector(_min_x, _max_y),
+        bottom_right: points.length == 0 ? ZERO : new Vector(_max_x, _max_y),
+        left: _min_x,
+        right: _max_x,
+        top: _min_y,
+        bottom: _max_y
+    }
+}
+
 function convex_hull(points) {
     if (points.length <= 1) return points;
 
@@ -428,6 +455,7 @@ export {
     distance_from_line_segment,
     distance_from_line,
     convex_hull,
+    bounding_box,
     deg_to_rad,
     rad_to_deg,
     vec_angle,

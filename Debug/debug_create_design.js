@@ -3,8 +3,8 @@ import { UP, LEFT, DOWN, RIGHT, Vector } from "../StoffLib/geometry.js";
 import Sketch from "../StoffLib/sketch.js";
 
 export default function(){
-    const hull_amt = 30;
-    const vectors_per_hull = 20;
+    const hull_amt = 10;
+    const vectors_per_hull = 10;
     const max_x = 10;
     const max_y = 10;
 
@@ -31,9 +31,12 @@ export default function(){
     s.point(DOWN.mult(2)).set_color("purple");
     hulls.push(s);
 
-    return merge_sketches(hulls, 2, {
-        "width": 50
-    });
+    const r = merge_sketches(hulls, 0.5, {
+        "width": 30
+    }, true);
+
+    r.data.height = r.get_bounding_box().height;
+    return r;
 
     function generateRandomVectors() {
         const vectors = [];

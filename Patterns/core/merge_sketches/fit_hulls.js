@@ -1,107 +1,111 @@
 // Import the Vector class
-import { Vector } from "../../../StoffLib/geometry.js";
+import { Vector, UP, LEFT, ZERO, bounding_box } from "../../../StoffLib/geometry.js";
+import Sketch from "../../../StoffLib/sketch.js";
+import Hull from "./hull.js";
 
-export default function fit_hulls(hulls, grid_size = 10, direction = false) {
-    // Direction false (default): Fixed width (grid_size), minimize height (n)
-    // Direction true: Fixed height (grid_size), minimize width (n)
+export default function fit_hulls(hulls, grid_size = 10, min_padding, direction = false) {
+    // Direction false (default): Fixed width (grid_size), minimize height
+    // Direction true: Fixed height (grid_size), minimize width
 
-    // Compute the bounding box for each hull
-    const hullsData = hulls.map((hull, index) => {
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        for (let vertex of hull) {
-            if (vertex.x < minX) minX = vertex.x;
-            if (vertex.x > maxX) maxX = vertex.x;
-            if (vertex.y < minY) minY = vertex.y;
-            if (vertex.y > maxY) maxY = vertex.y;
-        }
-        const width = maxX - minX;
-        const height = maxY - minY;
-        return {
-            index,
-            hull,
-            minX,
-            minY,
-            maxX,
-            maxY,
-            width,
-            height
-        };
-    });
+    // Convert hulls to Hull instances
+    hulls = hulls.map(hull => new Hull(hull));
 
     // Check that each hull can fit within the fixed dimension
-    for (let data of hullsData) {
-        if (!direction) {
-            // Fixed width
-            if (data.width > grid_size) {
-                throw new Error(`Hull at index ${data.index} cannot fit within the fixed width ${grid_size}. Hull width: ${data.width.toFixed(2)}, height: ${data.height.toFixed(2)}`);
+    for (let i in hulls) {
+        const fixedSize = direction ? hulls[i].bb.height : hulls[i].bb.width;
+        const fixedDimension = direction ? 'height' : 'width';
+        if (fixedSize > grid_size) {
+            throw new Error(`Hull at index ${i} cannot fit within the fixed ${fixedDimension} ${grid_size}. Hull width: ${hulls[i].bb.width.toFixed(2)}, height: ${hulls[i].bb.height.toFixed(2)}`);
+        }
+    }
+
+    // Unified placement variables
+    let primaryPosition = 0;
+    let secondaryPosition = 0;
+    let maxSecondarySizeInLine = 0;
+
+    // Determine the primary and secondary dimensions based on direction
+    const primarySizeProp = direction ? 'height' : 'width'; // Fixed dimension
+    const secondarySizeProp = direction ? 'width' : 'height'; // Variable dimension
+    const primaryMinProp = direction ? 'y' : 'x';
+    const secondaryMinProp = direction ? 'x' : 'y';
+    const primaryPosProp = direction ? 'y' : 'x';
+    const secondaryPosProp = direction ? 'x' : 'y';
+
+    for (let h of hulls) {
+        const hullPrimarySize = h.bb[primarySizeProp];
+        const hullSecondarySize = h.bb[secondarySizeProp];
+
+        // Check if the hull fits in the current line
+        if (primaryPosition + hullPrimarySize <= grid_size) {
+            // Place the hull at the current position
+            const position = {};
+            position[primaryPosProp] = primaryPosition - h.bb.top_left[primaryMinProp];
+            position[secondaryPosProp] = secondaryPosition - h.bb.top_left[secondaryMinProp];
+            h.set_offset(new Vector(position.x, position.y));
+
+            primaryPosition += hullPrimarySize;
+            if (hullSecondarySize > maxSecondarySizeInLine) {
+                maxSecondarySizeInLine = hullSecondarySize;
             }
         } else {
-            // Fixed height
-            if (data.height > grid_size) {
-                throw new Error(`Hull at index ${data.index} cannot fit within the fixed height ${grid_size}. Hull width: ${data.width.toFixed(2)}, height: ${data.height.toFixed(2)}`);
-            }
+            // Start a new line
+            primaryPosition = 0;
+            secondaryPosition += maxSecondarySizeInLine;
+            maxSecondarySizeInLine = hullSecondarySize;
+
+            const position = {};
+            position[primaryPosProp] = primaryPosition - h.bb.top_left[primaryMinProp];
+            position[secondaryPosProp] = secondaryPosition - h.bb.top_left[secondaryMinProp];
+            h.set_offset(new Vector(position.x, position.y));
+
+            primaryPosition += hullPrimarySize;
         }
     }
 
-    const adjustedHulls = [];
-
-    if (!direction) {
-        // Fixed width, minimize height
-        let currentX = 0;
-        let currentY = 0;
-        let currentShelfHeight = 0;
-
-        for (let data of hullsData) {
-            // Check if the hull fits in the current shelf
-            if (currentX + data.width <= grid_size) {
-                // Place the hull at currentX, currentY
-                data.position = new Vector(currentX - data.minX, currentY - data.minY);
-                currentX += data.width;
-                if (data.height > currentShelfHeight) {
-                    currentShelfHeight = data.height;
-                }
-            } else {
-                // Start new shelf
-                currentX = 0;
-                currentY += currentShelfHeight;
-                currentShelfHeight = data.height;
-                data.position = new Vector(currentX - data.minX, currentY - data.minY);
-                currentX += data.width;
-            }
-
-            // Adjust the hull's vertices
-            const adjustedHull = data.hull.map(vertex => vertex.add(data.position));
-            adjustedHulls.push(adjustedHull);
-        }
-    } else {
-        // Fixed height, minimize width
-        let currentX = 0;
-        let currentY = 0;
-        let currentColumnWidth = 0;
-
-        for (let data of hullsData) {
-            // Check if the hull fits in the current column
-            if (currentY + data.height <= grid_size) {
-                // Place the hull at currentX, currentY
-                data.position = new Vector(currentX - data.minX, currentY - data.minY);
-                currentY += data.height;
-                if (data.width > currentColumnWidth) {
-                    currentColumnWidth = data.width;
-                }
-            } else {
-                // Start new column
-                currentX += currentColumnWidth;
-                currentY = 0;
-                currentColumnWidth = data.width;
-                data.position = new Vector(currentX - data.minX, currentY - data.minY);
-                currentY += data.height;
-            }
-
-            // Adjust the hull's vertices
-            const adjustedHull = data.hull.map(vertex => vertex.add(data.position));
-            adjustedHulls.push(adjustedHull);
-        }
+    const environment_data = {
+        gravity_direction: direction ? LEFT : UP,
+        gravity_strength: 0.001 * min_padding,
+        bb: bounding_box(hulls.map(h => h.get_adjusted_hull()).flat()),
+        hulls: hulls
     }
 
-    return adjustedHulls;
+    //const r = new Sketch.dev.Recording();
+
+    for (let i = 0; i < 500; i++){
+        //const s = new Sketch();
+
+        for (const i in hulls) {
+            /*{
+                const pts = [];
+                const ah = hulls[i].get_adjusted_hull();
+                for (let i = 0; i < ah.length; i++){
+                    pts.push(
+                        s.point(
+                            ah[i]
+                        ).set_color("red"));
+                }
+                for (let i = 0; i < pts.length; i++){
+                    s.line_between_points(pts[i], pts[(i + 1) % pts.length]).set_color("red");
+                }
+            }*/
+
+            hulls[i].apply_force(
+                environment_data.gravity_direction.scale(environment_data.gravity_strength)
+            );
+
+            for (let j = +i+1; j < hulls.length; j++) {
+                hulls[i].check_hull_collision(hulls[j]);
+            }
+
+            hulls[i].check_bb_collision(environment_data.bb);
+            hulls[i].step();
+        }
+
+        //r.snapshot(s);
+    }
+
+    //r.at_url("/wha");
+
+    return hulls.map(h => h.get_adjusted_hull());
 }
