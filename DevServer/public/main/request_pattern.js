@@ -37,10 +37,9 @@ function throttle_func(func, interval_in_s) {
 
 function request_img_unthrottled(){
     const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-    const debugParam = params.has('debug') ? '?debug' : '';
+    const params = url.search;
 
-    fetch('/pattern' + debugParam, {
+    fetch(`/pattern${params}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

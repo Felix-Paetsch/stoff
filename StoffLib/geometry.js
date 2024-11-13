@@ -1,3 +1,5 @@
+import triangle_data from "./unicorns/triangle_data.js";
+
 class Vector {
     constructor(x = 0, y = 0, column = true) {
         if (x instanceof Vector){
@@ -349,14 +351,15 @@ function rotation_fun(rotation_vec, angle) {
 }
 
 function vec_angle(vec1, vec2) {
-    const res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
+    const dotProduct = vec1.dot(vec2);
+    const lengthsProduct = vec1.length() * vec2.length();
+    
+    const cosineTheta = Math.max(-1, Math.min(1, dotProduct / lengthsProduct));
+    const angle = Math.acos(cosineTheta);
 
-    if (!isNaN(res)) {
-        return res;
-    }
-
-    return Math.PI;
+    return angle || 0;
 }
+
 
 function vec_angle_clockwise(vec1, vec2) {
     const dot = vec1.dot(vec2);
@@ -461,6 +464,7 @@ export {
     vec_angle,
     vec_angle_clockwise,
     rotation_fun,
+    triangle_data,
     line_segments_intersect,
     ZERO,
     UP,
