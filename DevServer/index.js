@@ -34,14 +34,14 @@ app.get("/exposition", (req, res) => {
 })
 
 let pattern_was_requested = false;
-app.post('/pattern', (req, res) => {
+app.post('/pattern', async (req, res) => {
     pattern_was_requested = true;
     Sketch.dev._reset_routes();
 
     const isDebug = req.query.debug !== undefined;
 
     try {
-        const s = !isDebug ? create_design(req.body.config_data) : debug_create_design();
+        const s = !isDebug ? create_design(req.body.config_data) : await debug_create_design(req.query.debug);
         const svg = s.to_dev_svg(req.body.width, req.body.height);
 
         res.set('Content-Type', 'image/svg+xml');

@@ -1,4 +1,4 @@
-import { Vector } from './geometry.js';
+import { Vector, convex_hull } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
 import { Point } from './point.js';
 import { copy_sketch, default_data_callback, copy_sketch_obj_data } from './copy.js';
@@ -165,6 +165,11 @@ class Sketch{
         this.lines.forEach(l => delete_el_from_data_obj(l.data));
     }
 
+    transform(pt_fun = (pt) => {}){
+        this.points.forEach(pt_fun);
+        return this;
+    }
+
     clear(){
         this.points = [];
         this.lines  = [];
@@ -266,6 +271,12 @@ class Sketch{
             bottom_left:  new Vector(_min_x, _max_y),
             bottom_right: new Vector(_max_x, _max_y)
         }
+    }
+
+    convex_hull(){
+        return convex_hull(
+            this.points.concat(this.lines.map(l => l.get_absolute_sample_points()).flat())
+        );
     }
 
     group_by_key(key){

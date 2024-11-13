@@ -1,14 +1,8 @@
-import Sketch from "../StoffLib/sketch.js";
-import { Point } from "../StoffLib/point.js";
+export default async function(debug_scene) {
+    debug_scene = debug_scene || "index";
 
-export default function(){
-    const s = new Sketch();
+    const modulePath = `./scenes/${debug_scene}.js`;
+    const sceneModule = await import(modulePath);
 
-    const p1 = s.add_point(new Point(0,0));
-    const p2 = s.add_point(new Point(5,0));
-    const l =  s.plot(p1,p2,(t) => Math.sin(5*t));
-    s.line_with_offset(l, .7, false);
-    s.validate();
-
-    return s;
+    return sceneModule.default();
 }

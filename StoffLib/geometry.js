@@ -1,3 +1,5 @@
+import triangle_data from "./unicorns/triangle_data.js";
+
 class Vector {
     constructor(x = 0, y = 0, column = true) {
         if (x instanceof Vector){
@@ -349,14 +351,15 @@ function rotation_fun(rotation_vec, angle) {
 }
 
 function vec_angle(vec1, vec2) {
-    const res = Math.acos(vec1.dot(vec2) / (vec1.length() * vec2.length()));
+    const dotProduct = vec1.dot(vec2);
+    const lengthsProduct = vec1.length() * vec2.length();
+    
+    const cosineTheta = Math.max(-1, Math.min(1, dotProduct / lengthsProduct));
+    const angle = Math.acos(cosineTheta);
 
-    if (!isNaN(res)) {
-        return res;
-    }
-
-    return Math.PI;
+    return angle || 0;
 }
+
 
 function vec_angle_clockwise(vec1, vec2) {
     const dot = vec1.dot(vec2);
@@ -374,6 +377,64 @@ function vec_angle_clockwise(vec1, vec2) {
     return angle;
 }
 
+function bounding_box(points){
+    let _min_x = Infinity;
+    let _min_y = Infinity;
+    let _max_x = - Infinity;
+    let _max_y = - Infinity;
+
+    points.forEach(p => {
+        _min_x = Math.min(p.x, _min_x);
+        _max_x = Math.max(p.x, _max_x);
+        _min_y = Math.min(p.y, _min_y);
+        _max_y = Math.max(p.y, _max_y);
+    });
+
+    return {
+        width:  points.length == 0 ? 0 : _max_x - _min_x,
+        height: points.length == 0 ? 0 : _max_y - _min_y,
+        top_left: points.length == 0 ? ZERO : new Vector(_min_x, _min_y),
+        top_right: points.length == 0 ? ZERO : new Vector(_max_x, _min_y),
+        bottom_left:  points.length == 0 ? ZERO : new Vector(_min_x, _max_y),
+        bottom_right: points.length == 0 ? ZERO : new Vector(_max_x, _max_y),
+        left: _min_x,
+        right: _max_x,
+        top: _min_y,
+        bottom: _max_y
+    }
+}
+
+function convex_hull(points) {
+    if (points.length <= 1) return points;
+
+    // Sort points lexicographically by x, then by y
+    points.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+
+    const lower = [];
+    for (const p of points) {
+        while (lower.length >= 2 && lower[lower.length - 2].subtract(lower[lower.length - 1]).cross(p.subtract(lower[lower.length - 1])) <= 0) {
+            lower.pop();
+        }
+        lower.push(p);
+    }
+
+    const upper = [];
+    for (let i = points.length - 1; i >= 0; i--) {
+        const p = points[i];
+        while (upper.length >= 2 && upper[upper.length - 2].subtract(upper[upper.length - 1]).cross(p.subtract(upper[upper.length - 1])) <= 0) {
+            upper.pop();
+        }
+        upper.push(p);
+    }
+
+    // Remove the last point of each half because it's repeated at the beginning of the other half
+    upper.pop();
+    lower.pop();
+
+    // Concatenate lower and upper hulls
+    return lower.concat(upper);
+}
+
 function deg_to_rad(d) {
     return (Math.PI * d) / 180;
 }
@@ -381,6 +442,12 @@ function deg_to_rad(d) {
 function rad_to_deg(r) {
     return (180 / Math.PI) * r;
 }
+
+const ZERO = new Vector(0,0);
+const UP = new Vector(0,-1);
+const LEFT = new Vector(-1,0);
+const RIGHT = new Vector(1,0);
+const DOWN = new Vector(0,1);
 
 export {
     Vector,
@@ -390,10 +457,18 @@ export {
     closest_vec_on_line_segment,
     distance_from_line_segment,
     distance_from_line,
+    convex_hull,
+    bounding_box,
     deg_to_rad,
     rad_to_deg,
     vec_angle,
     vec_angle_clockwise,
     rotation_fun,
-    line_segments_intersect
+    triangle_data,
+    line_segments_intersect,
+    ZERO,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 };

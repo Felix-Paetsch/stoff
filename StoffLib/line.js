@@ -1,11 +1,9 @@
-import { Vector, line_segments_intersect, affine_transform_from_input_output, closest_vec_on_line_segment, distance_from_line_segment } from './geometry.js';
+import { Vector, line_segments_intersect, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
-
-const EPSILON = 0.000001;
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
@@ -262,6 +260,10 @@ class Line{
         }
     }
 
+    convex_hull(){
+        return convex_hull(this.get_absolute_sample_points());
+    }
+
     is_adjacent(thing){
         if (thing instanceof Point){
             return thing == this.p1 || thing == this.p2
@@ -418,69 +420,135 @@ class Line{
     self_intersects() {
         const monotone_segments = [];
         let start = 0;
+        let i = 1;
     
-        // Step 1: Split into monotone segments
-        for (let i = 1; i < this.sample_points.length; i++) {
-            const prev = this.sample_points[i - 1];
-            const curr = this.sample_points[i];
+        // Step 1: Split into monotone segments while skipping duplicate points
+        while (i < this.sample_points.length) {
+            let prev = this.sample_points[start];
+            let curr = this.sample_points[i];
     
-            const x_increasing = curr.x > prev.x;
-            const x_decreasing = curr.x < prev.x;
-            const y_increasing = curr.y > prev.y;
-            const y_decreasing = curr.y < prev.y;
-    
-            if (!(x_increasing || x_decreasing || y_increasing || y_decreasing)) {
-                this._remove_duplicate_points();
-                return this.self_intersects();
+            // Skip duplicates
+            while (i < this.sample_points.length && curr.x === prev.x && curr.y === prev.y) {
+                i++;
+                curr = this.sample_points[i];
             }
     
-            const is_monotone = 
-                (x_increasing && (i === start || curr.y >= prev.y)) ||
-                (x_decreasing && (i === start || curr.y <= prev.y)) ||
-                (y_increasing && (i === start || curr.x >= prev.x)) ||
-                (y_decreasing && (i === start || curr.x <= prev.x));
-    
-            if (!is_monotone) {
-                monotone_segments.push([start, i - 1]);
-                start = i - 1;
+            if (i === this.sample_points.length) {
+                break;
             }
+    
+            const x_diff = curr.x - prev.x;
+            const y_diff = curr.y - prev.y;
+    
+            const x_increasing = x_diff > 0;
+            const x_decreasing = x_diff < 0;
+            const y_increasing = y_diff > 0;
+            const y_decreasing = y_diff < 0;
+    
+            while (i + 1 < this.sample_points.length) {
+                let next = this.sample_points[i + 1];
+    
+                // Skip duplicates
+                while (i + 1 < this.sample_points.length && next.x === curr.x && next.y === curr.y) {
+                    i++;
+                    next = this.sample_points[i + 1];
+                }
+    
+                if (i + 1 === this.sample_points.length) {
+                    break;
+                }
+    
+                const next_x_diff = next.x - curr.x;
+                const next_y_diff = next.y - curr.y;
+    
+                if ((x_increasing && next_x_diff <= 0) ||
+                    (x_decreasing && next_x_diff >= 0) ||
+                    (x_diff === 0 && ((y_increasing && next_y_diff <= 0) || (y_decreasing && next_y_diff >= 0)))) {
+                    // Monotonicity breaks
+                    break;
+                }
+    
+                i++;
+                prev = curr;
+                curr = next;
+            }
+    
+            monotone_segments.push([start, i]);
+            start = i;
+            i = i + 1;
         }
     
-        monotone_segments.push([start, this.sample_points.length - 1]);
+        // Step 2: Build line segments excluding zero-length segments
+        const segment_lines = monotone_segments.map(([start, end]) => {
+            const lines = [];
+            let prevIndex = start;
     
-        // Step 2: Check for intersections between monotone segments
-        for (let i = 0; i < monotone_segments.length - 1; i++) {
-            const [start1, end1] = monotone_segments[i];
-            const range1 = {
-                minX: Math.min(this.sample_points[start1].x, this.sample_points[end1].x),
-                maxX: Math.max(this.sample_points[start1].x, this.sample_points[end1].x),
-            };
+            // Find the first non-duplicate point
+            while (prevIndex < end && this.sample_points[prevIndex].x === this.sample_points[prevIndex + 1]?.x &&
+                   this.sample_points[prevIndex].y === this.sample_points[prevIndex + 1]?.y) {
+                prevIndex++;
+            }
     
-            for (let j = i + 1; j < monotone_segments.length; j++) {
-                const [start2, end2] = monotone_segments[j];
-                const range2 = {
-                    minX: Math.min(this.sample_points[start2].x, this.sample_points[end2].x),
-                    maxX: Math.max(this.sample_points[start2].x, this.sample_points[end2].x),
-                };
+            for (let j = prevIndex + 1; j <= end; j++) {
+                const currIndex = j;
     
-                // Skip if x-ranges don't overlap
-                if (range1.maxX < range2.minX || range2.maxX < range1.minX) {
+                // Skip duplicates
+                while (currIndex <= end && this.sample_points[prevIndex].x === this.sample_points[currIndex].x &&
+                       this.sample_points[prevIndex].y === this.sample_points[currIndex].y) {
+                    j++;
+                }
+    
+                if (j > end) {
+                    break;
+                }
+    
+                const p1 = this.sample_points[prevIndex];
+                const p2 = this.sample_points[currIndex];
+    
+                // Skip zero-length segments
+                if (p1.x === p2.x && p1.y === p2.y) {
+                    prevIndex = currIndex;
                     continue;
                 }
     
-                // Check each segment in the two monotone ranges
-                for (let k = start1; k < end1; k++) {
-                    const seg1 = [this.sample_points[k], this.sample_points[k + 1]];
+                lines.push([p1, p2]);
+                prevIndex = currIndex;
+            }
     
-                    for (let l = start2; l < end2; l++) {
-                        const seg2 = [this.sample_points[l], this.sample_points[l + 1]];
+            return lines;
+        });
     
-                        // Skip the shared endpoint segment comparison for consecutive monotone segments
-                        if (i + 1 === j && k === end1 - 1 && l === start2) {
+        // Step 3: Check for intersections between monotone segments
+        for (let i = 0; i < segment_lines.length - 1; i++) {
+            const lines1 = segment_lines[i];
+    
+            // Get x-range for lines1
+            const x_values1 = lines1.flatMap(([p1, p2]) => [p1.x, p2.x]);
+            const minX1 = Math.min(...x_values1);
+            const maxX1 = Math.max(...x_values1);
+    
+            for (let j = i + 1; j < segment_lines.length; j++) {
+                const lines2 = segment_lines[j];
+    
+                // Get x-range for lines2
+                const x_values2 = lines2.flatMap(([p1, p2]) => [p1.x, p2.x]);
+                const minX2 = Math.min(...x_values2);
+                const maxX2 = Math.max(...x_values2);
+    
+                // Skip if x-ranges don't overlap
+                if (maxX1 < minX2 || maxX2 < minX1) {
+                    continue;
+                }
+    
+                // Compare line segments between lines1 and lines2
+                for (const [p1, p2] of lines1) {
+                    for (const [q1, q2] of lines2) {
+                        // Skip shared endpoints for consecutive segments
+                        if ((p2.x === q1.x && p2.y === q1.y) || (p1.x === q2.x && p1.y === q2.y)) {
                             continue;
                         }
     
-                        const [intersects, _] = line_segments_intersect(seg1, seg2);
+                        const [intersects, _] = line_segments_intersect([p1, p2], [q1, q2]);
                         if (intersects) {
                             return true;
                         }
@@ -490,8 +558,7 @@ class Line{
         }
     
         return false;
-    }
-
+    } 
 
     toString(){
         return "[Line]"

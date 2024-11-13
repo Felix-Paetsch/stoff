@@ -13,6 +13,7 @@ class ConnectedComponent{
 
     transform(pt_fun = (pt) => {}){
         this.points().forEach(pt_fun);
+        return this;
     }
 
     group_by_key(key){
