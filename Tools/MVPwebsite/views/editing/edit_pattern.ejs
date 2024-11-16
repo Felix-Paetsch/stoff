@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<%= CONF.website_path %>/fonts/fontawesome/main.css">
+    <title>Pattern::T-shirt</title>
+
+    <link rel="stylesheet" href="<%= CONF.website_path %>/css/dev_area/linktree.css">
+</head>
+<body>
+    <h2 id="linktree_title"><i class="fa-regular fa-bezier-curve"></i> Editing</h2>
+    <div id="linktree">
+        <div class="linktree_card">
+            <a class="card_title" href="<%= CONF.website_path %>/<%= CONF.editing_key %>/edit_pattern?pattern=t-shirt">T-shirt</a>
+            <div class="linktree_toolbar">
+                <i class="fa-regular fa-pen-to-square edit_icon" onclick="edit_icon_clicked(event)"></i>
+                <i class="fa-regular fa-trash delete_icon" onclick="delete_icon_clicked(event)"></i>
+            </div>
+        </div>
+        <div id="tree_add_item"><i class="fa-solid fa-plus"></i> Add Pattern</div>
+    </div>
+    <div class="page_descr">
+        <p>
+            Create an item for each new pattern. E.g. T-shirt, trousers, ...
+            Versions will be handled inside each pattern.
+            (This includes different collars and sleeves.)
+        </p>
+        <div class="descr_sep"></div>
+        <p>
+            In the future we can either rework the whole thing or maybe try to create an import/export system.
+            E.g. when two dresses have some similar parts. 
+            Also measurements for different patters which are the same and hence need the same explanation are things to think about.
+            Not now though.
+        </p>
+    </div>
+</body>
+</html>

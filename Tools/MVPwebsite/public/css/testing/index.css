@@ -1,0 +1,56 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    background-color: black;
+    font-family: "Open Sans", sans-serif;
+
+    --c: #5ADBFF;
+    --w: 35rem;
+    padding: 0;
+    margin: 0;
+}
+
+main{
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 8fr 3fr;
+}
+
+#folder_area{
+    border-left: .2rem solid var(--c);
+    color: white;
+}
+
+#patterns{
+    width: 100%;
+    border-bottom: .2rem solid var(--c);
+    min-height: 10rem;
+}
+
+.sub_folder_area{
+    padding: 1rem;
+}
+
+
+.folder{
+    background-color: rgba(100,100,100,.5);
+    padding: .6rem .6rem;
+    margin: 0 0 1rem 0;
+    cursor: pointer;
+}
+
+.folder .folder{
+    padding: .4rem;
+    margin: .3rem 0 .3rem .2rem
+}
+
+.spline{
+    background-color: rgba(100,100,200,.5);
+    padding: .4rem;
+    margin: .3rem 0 .3rem .2rem;
+    cursor: pointer;
+}

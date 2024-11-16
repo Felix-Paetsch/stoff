@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fancytree with Drag and Drop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.fancytree/2.42.0/skin-lion/ui.fancytree.min.css">
+</head>
+<body>
+  <div id="tree"></div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.fancytree/2.42.0/jquery.fancytree-all.min.js"></script>
+  <script>
+    $(function() {
+      // Define the tree data
+      const treeData = [
+        {
+          title: "Node 1",
+          key: "1",
+          children: [
+            { title: "Node 1.1", key: "1.1" },
+            { title: "Node 1.2", key: "1.2" }
+          ]
+        },
+        {
+          title: "Node 2",
+          key: "2",
+          children: [
+            { title: "Node 2.1", key: "2.1" },
+            { title: "Node 2.2", key: "2.2" }
+          ]
+        }
+      ];
+
+      // Initialize the tree with drag-and-drop functionality
+      $("#tree").fancytree({
+        source: treeData,
+        extensions: ["dnd"],
+        dnd: {
+          autoExpandMS: 400,
+          preventVoidMoves: true,
+          dragStart: function(node, data) {
+            return true;
+          },
+          dragEnter: function(node, data) {
+            return true;
+          },
+          dragDrop: function(node, data) {
+            data.otherNode.moveTo(node, data.hitMode);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
