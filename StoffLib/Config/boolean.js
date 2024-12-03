@@ -23,7 +23,7 @@ export default class CBoolean extends ConfigElement {
 
     set(value = true){
         if (this.value == value) return this;
-        
+
         this.assert(typeof value === "boolean", "value must be a boolean");
         this.value = value;
         this.changed();
@@ -36,7 +36,7 @@ export default class CBoolean extends ConfigElement {
 
     serialize(){
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "CBoolean",
             "default": this.default,
             "value": this.value,
@@ -46,7 +46,7 @@ export default class CBoolean extends ConfigElement {
 
     static deserialize(data){
         return new CBoolean(
-            data["name"],
+            ConfigElement.deserialize_component(data["name"]),
             data.default
         ).set(data.value).set_id(data.id);
     }
@@ -66,12 +66,12 @@ export default class CBoolean extends ConfigElement {
         const checkbox = dom_el.querySelector(".boolean_checkbox");
         checkbox.addEventListener("click", () => {
             this.toggle();
-            
+
             if (this.value){
-                checkbox.querySelector(".fa-hexagon").classList.add("hidden"); 
+                checkbox.querySelector(".fa-hexagon").classList.add("hidden");
                 checkbox.querySelector(".fa-hexagon-check").classList.remove("hidden");
             } else {
-                checkbox.querySelector(".fa-hexagon").classList.remove("hidden"); 
+                checkbox.querySelector(".fa-hexagon").classList.remove("hidden");
                 checkbox.querySelector(".fa-hexagon-check").classList.add("hidden");
             }
 

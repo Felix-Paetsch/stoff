@@ -145,6 +145,10 @@ class Vector {
     rotate(angle) {
         return rotation_fun(new Vector(0, 0), angle)(this);
     }
+
+    copy(){
+      return new Vector(this.x, this.y);
+    }
 }
 
 class Matrix {
@@ -258,6 +262,10 @@ function closest_vec_on_line_segment(endpoints, vec) {
     const vec1ToVec2 = vec2.subtract(vec1);
     const lineSegmentLength = vec1ToVec2.length();
 
+    if (lineSegmentLength < 0.000001){
+      return vec1.add(vec2).scale(0.5);
+    }
+
     // Calculate the projection of vec1ToVec onto vec1ToVec2
     const projection =
         vec1ToVec.dot(vec1ToVec2) / (lineSegmentLength * lineSegmentLength);
@@ -280,21 +288,21 @@ function closest_vec_on_line_segment(endpoints, vec) {
 function line_segments_intersect(l1, l2) {
     const [p, r] = [l1[0], l1[1].subtract(l1[0])];
     const [q, s] = [l2[0], l2[1].subtract(l2[0])];
-    
+
     const rxs = r.cross(s);
     const qmp = q.subtract(p);
     const t = qmp.cross(s) / rxs;
     const u = qmp.cross(r) / rxs;
-    
+
     if (rxs === 0) {
         return [false, null];
     }
-    
+
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
         const intersection = p.add(r.scale(t));
         return [true, intersection];
     }
-    
+
     return [false, null];
 }
 
@@ -353,7 +361,7 @@ function rotation_fun(rotation_vec, angle) {
 function vec_angle(vec1, vec2) {
     const dotProduct = vec1.dot(vec2);
     const lengthsProduct = vec1.length() * vec2.length();
-    
+
     const cosineTheta = Math.max(-1, Math.min(1, dotProduct / lengthsProduct));
     const angle = Math.acos(cosineTheta);
 
