@@ -62,14 +62,13 @@ function styleline_panel(s, design, mea){
 
   let parts;
   parts = utils.split_at_points(s, p1, line1, p2, line2, "side");
-
-  if (design === "panel side"){
+  if (design === "panel shoulder"){
+    simple_dart_web(parts[0], "shoulder", mea);
+  } else {
     //parts = utils.split_at_points(s, p1, line1, p2, line2, "side");
     simple_middle_dart(parts[0], "side", 0.3);
-  } else if (design === "panel shoulder"){
-
-    simple_dart_web(parts[0], "shoulder", mea);
   }
+
 
   return parts;
 }

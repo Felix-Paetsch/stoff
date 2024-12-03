@@ -72,7 +72,7 @@ function eval_sleeve_eingehalten(type){
 }
 
 function eval_waistline_dart(type){
-  return type.toLowerCase().includes("waistline");
+return type.toLowerCase().includes("waistline");
 
   /*const waistline = ["waistline", "waistline and side middle", "waistline and french",
       "waistline and shoulder"];
@@ -82,4 +82,10 @@ function eval_waistline_dart(type){
   return false;*/
 }
 
-export default {eval_waistline_dart, evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};
+
+function eval_side_dart(type){
+  let temp1 = type.toLowerCase().includes("side");
+  let temp2 = type.toLowerCase().includes("french");
+  return temp1 || temp2;
+}
+export default {eval_side_dart, eval_waistline_dart, evaluate_type_merge, evaluate_type, evaluate_percent, eval_sleeve, eval_sleeve_eingehalten};

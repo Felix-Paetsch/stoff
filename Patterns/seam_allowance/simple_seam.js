@@ -9,35 +9,136 @@ import evaluate from '../funs/basicEval.js';
 import utils from '../funs/utils.js';
 
 
+function merge_all_lines(s){
+/*
+Fehler:
+- double dart mit waistline - vermutlich im zsh. mit shortening
+-> Linienzuordnungsprobleme, wird später durch merge_all_lines gelöst (ggf. mirror Funktion anpassen)
+- panel shoulder - keine ahnung
+-> Vermutlich so ähnlicher Fehler wie bei dem davor. Erstmal merge_all_lines funktion bauen, dann weiter schauen
+- single dart mit shoulder - vielleicht ähnlich zu erstem Fehler
+- Fehler beim Bilden vom trim
 
-function seam_allowance(s){
-  let lines = s.data.comp.lines_by_key("type");
-  let p = s.data.comp.points_by_key("type").middle_bottom_side[0];
-
-  let bottom = lines.bottom[0];
-  let bottom_sides = lines.side_bottom;
-  let side = lines.side[0];
+neue fehler
+- styleline - schauen was los ist
+- tuck mit doubledart und waistline
+- length = 0
 
 
-  if (bottom_sides.length > 1){ // ist dann automatisch 2
-    bottom_sides = s.merge_lines(bottom_sides[0], bottom_sides[1]);
-    s.remove(p);
-  } else {
-    bottom_sides = bottom_sides[0];
+
+*/
+  if(s.data.comp){
+    delete s.data.comp;
+  }
+  if(s.data.comp2){
+    delete s.data.comp2;
   }
 
-//  side = s.merge_lines(bottom_sides, side);
+  let lines = s.lines_by_key("type");
 
-  let ln1 = s.line_with_offset(bottom_sides, 2, s.data.front);
-  let ln2 = s.line_with_offset(bottom, 2, !s.data.front);
-  let ln3 = s.line_with_offset(side, 2, s.data.front);
+  let bottom = lines.bottom;
+  let bottom_side = lines.side_bottom[0];
+  let side = lines.side;
+  let shoulder = lines.shoulder;
+  let side_dart = ["french", "side middle", "side middle and shoulder", "waistline and side middle", "waistline and french", "french and shoulder"];
+  let trim = lines.trim;
+  //s.dev.at_new_url("/bla")
+
+  if (trim){
+    trim = merge_pair_of_lines(s, trim, true);
+  }
+
+  side = merge_side_lines(s, trim, side);
+  bottom = merge_side_lines(s, trim, bottom);
+  shoulder = merge_side_lines(s, trim, shoulder);
+
+  if (bottom_side){
+    side = s.merge_lines(side, bottom_side);
+    side.data.type = "side";
+  }
+  s.dev.at_new_url("/bla")
+
+
+
+  /*
+  if(s.data.dart && side_dart.includes(s.data.dart)){
+
+    trim = s.merge_lines(trim, side[0]);
+    trim = s.merge_lines(trim, side[1]);
+    side = s.merge_lines(trim, bottom_side);
+  }
+
+  */
+}
+
+
+
+function merge_side_lines(s, trim, side){
+  let temp;
+
+    if (side.length > 1){
+      if (trim[0].common_endpoint(side[0])){
+        temp = s.merge_lines(trim[0], side[0], true);
+      } else {
+        temp = s.merge_lines(trim[1], side[0], true);
+      }
+      return s.merge_lines(temp, side[1], true);
+    }
+    return side[0];
+}
+
+function merge_pair_of_lines(s, lines, delete_point = false){
+  let new_lines = [];
+
+  while(lines.length > 0){
+    //console.log(lines[1].data)
+
+    for (let i = lines.length-1; i > 0; i--){
+      if (lines[0].common_endpoint(lines[i])){
+        lines[0].set_color("red");
+        lines[i].set_color("blue")
+        new_lines.push(s.merge_lines(lines[0], lines[i], delete_point));
+        lines.splice(i, 1);
+        lines.shift();
+        // remove lines index [i], splice?? slice??
+        break;
+      }
+    }
+  }
+  return new_lines;
+}
+
+function seam_allowance_first(s, width){
+  /*
+  let lines = s.lines_by_key("type");
+
+  let bottom = lines.bottom[0];
+  let sides = lines.side[0];
+  let armpits = lines.armpit[0];
+  let shoulders = lines.shoulder[0];
+  let neckline = lines.neckline[0];
+
+  let ln_side = s.line_with_offset(side, width, s.data.front);
+  let ln2 = s.line_with_offset(bottom, width, !s.data.front);
+  let ln3 = s.line_with_offset(side, width, !s.data.front);
 
 //  [ln1, ln2] = close_lines(s, ln1.p2, ln2.p2, 2);
 
-  close_lines(s, ln1.p1, ln3.p2, 2);
-
+  close_lines(s, ln2.p2, ln3.p1, 2);
+*/
 
 };
+
+
+function seam_allowance_neck(s, width){
+
+};
+
+
+function seam_allowance_bottom(s, width){
+
+};
+
 
 function close_lines(s, ln1_p, ln2_p, distance){
 
@@ -72,4 +173,4 @@ function lengthen_line(s, p, distance){
 };
 
 
-export default {seam_allowance};
+export default {seam_allowance_first, seam_allowance_neck, seam_allowance_bottom, merge_all_lines};
