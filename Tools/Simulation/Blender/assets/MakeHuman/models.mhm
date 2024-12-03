@@ -1,0 +1,25 @@
+# Written by MakeHuman 1.2.1 alpha
+version v1.2.1
+uuid a36b9da0-bac3-49f4-a6ae-9cc75fdfd2fa
+name TestSubject
+camera 1.0 9.0 0.0 0.0 0.0 0.9
+modifier torso/torso-scale-depth-decr|incr -0.152000
+modifier torso/torso-scale-horiz-decr|incr -0.236000
+modifier breast/BreastSize 1.000000
+modifier breast/BreastFirmness 0.500000
+modifier macrodetails/Gender 0.500000
+modifier macrodetails/Age 0.500000
+modifier macrodetails/African 0.333333
+modifier macrodetails/Asian 0.333333
+modifier macrodetails/Caucasian 0.333333
+modifier macrodetails-universal/Muscle 0.500000
+modifier macrodetails-universal/Weight 0.500000
+modifier macrodetails-height/Height 0.500000
+modifier macrodetails-proportions/BodyProportions 0.500000
+skeleton default.mhskel
+eyes HighPolyEyes 2c12f43b-1303-432c-b7ce-d78346baf2e6
+pose tpose.bvh
+clothesHideFaces True
+skinMaterial skins/default.mhmat
+material HighPolyEyes 2c12f43b-1303-432c-b7ce-d78346baf2e6 eyes/materials/brown.mhmat
+subdivide False
