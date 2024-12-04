@@ -9,7 +9,7 @@ import evaluate from '../funs/basicEval.js';
 import utils from '../funs/utils.js';
 
 
-function front(mea){
+function front(mea, ease){
   const s = new Sketch();
 
   const a = s.point(0,0);
@@ -134,13 +134,14 @@ const pt = s.add_point(new Point(pt_vec.x, pt_vec.y));
      "front": true
    }
 
+  add_ease(s, ease);
   return s;
 }
 
 
 
 
-function back(mea){
+function back(mea, ease){
   const s = new Sketch();
 
   const a = s.point(0,0);
@@ -256,6 +257,7 @@ const g = b_to_g.p2;
   const pt_vec = a_to_b.get_line_vector().scale(0.2).add(a);
   const pt = s.add_point(new Point(pt_vec.x, pt_vec.y));
 
+
   s.data = {
         "comp": new ConnectedComponent(a_to_b),
         "p5": p5,
@@ -266,6 +268,7 @@ const g = b_to_g.p2;
         "front": false
     }
 
+    add_ease(s, ease);
 
   return s;
 
@@ -280,5 +283,19 @@ function get_angle_cos(a, b, c){
   return cos;
 }
 
+
+function add_ease(s, extra_width){
+  let lines = s.lines_by_key("type");
+  let side = lines.side[0];
+  let extra = extra_width / 4;
+
+  let ln = s.line_with_offset(side, extra, s.data.front);
+
+  side.p1.move_to(ln.p1);
+  side.p2.move_to(ln.p2);
+
+  s.remove_points(ln.p1, ln.p2);
+  return s;
+};
 
 export default {back, front};

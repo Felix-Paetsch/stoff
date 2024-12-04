@@ -6,8 +6,7 @@ const path = await load_lib("path");
 
 export default class ConfigElement{
     constructor(name = null){
-        this.assert(name == null || typeof name == "string", "Name must be a string or null.");
-        this.name = name;
+        this.set_name(name);
         this.id = ConfigElement.uid();
 
         this.on_change_fun = [];
@@ -24,7 +23,21 @@ export default class ConfigElement{
     }
 
     set_name(name){
+        this.assert(
+            name == null
+            || typeof name == "string"
+            || name instanceof ConfigElement.classDecendents.CStatic
+            , "Name must be a string, cStatic or null."
+        );
+
         this.name = name;
+
+        if (
+            !(this instanceof ConfigElement.classDecendents.CStatic)
+            && !(this.name instanceof ConfigElement.classDecendents.CStatic)
+        ) {
+            this.name = new ConfigElement.classDecendents.CStatic(this.name);
+        }
         return this;
     }
 
@@ -114,8 +127,8 @@ export default class ConfigElement{
     }
 
     get_by_name(name){
-        if (this.name == name){
-            return [name];
+        if (this.name == name || this.name?.value == name){
+            return [this];
         }
 
         return [];

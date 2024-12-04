@@ -1,4 +1,4 @@
-<div class="param_box param_boolean" x-name="<%= name %>" x-value="<%= _default %>" x-component-path="<%- serialized_path %>">
+<div class="param_box param_boolean" x-name="<%= name.value %>" x-value="<%= _default %>" x-component-path="<%- serialized_path %>">
     <div class="boolean_checkbox">
         <% if (_default) { %>
             <i class="fa-regular fa-hexagon-check"></i>
@@ -7,5 +7,5 @@
             <i class="fa-regular fa-hexagon-check hidden"></i>
             <i class="fa-regular fa-hexagon"></i>
         <% }%>
-    </div><div class="param_name"><%= name %></div>
+    </div><div class="param_name"><%= name.name %></div>
 </div>

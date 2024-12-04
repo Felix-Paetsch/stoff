@@ -52,17 +52,18 @@ export default (Sketch) => {
         const get  = new Route(url, "get",  overwrite);
         const post = new Route(url, "post", overwrite);
 
+        const state = this.copy();
         const route_data = {
             svg: this.to_dev_svg(500, 500),
             data: clean_rendering_data(data),
             live: false,
             route: url,
-            sketch_data: clean_rendering_data(this.data)
+            sketch_data: clean_rendering_data(state.data)
         };
 
         get.request = (function(){
             route_data.live = true;
-            return this.dev.to_html(url, data);
+            return state.dev.to_html(url, data);
         }).bind(this);
 
         post.request = function(){

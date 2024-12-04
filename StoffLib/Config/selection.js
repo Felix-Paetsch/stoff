@@ -7,7 +7,7 @@ export default class CSelection extends ChildrenHaving{
     constructor(name, ...children){
         // You can either put the children as seperate argument to the constructor
         // or give them in one single array. (Composition of the two also works.)
-        
+
         const last_el = children[children.length - 1];
         let activated = false;
         if (Array.isArray(last_el) && children.length > 1){
@@ -51,7 +51,7 @@ export default class CSelection extends ChildrenHaving{
 
     serialize(){
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "CSelection",
             "children": this.serialize_children(),
             "active_children": this.activated,
@@ -61,7 +61,7 @@ export default class CSelection extends ChildrenHaving{
 
     static deserialize(data){
         const cs = new CSelection(
-            data["name"],
+            ConfigElement.deserialize_component(data["name"]),
             ChildrenHaving.serialize_children(data["children"])
         ).set_id(data.id);
 
@@ -97,7 +97,7 @@ export default class CSelection extends ChildrenHaving{
 
                         clickable.querySelector(".fa-square-check").classList.toggle("hidden");
                         clickable.querySelector(".fa-square").classList.toggle("hidden");
-                        
+
                     }
                 )
             }

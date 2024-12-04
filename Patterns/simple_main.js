@@ -11,12 +11,14 @@ import dart from './darts/simple_dart.js';
 import utils from './funs/utils.js';
 import neck from './neckline/neckline.js';
 import eva from './funs/basicEval.js';
+import seam from './seam_allowance/simple_seam.js';
 
 function main_top(s, design, mea, design_neckline){
   sleeve.armpit_new(s);
+
   if (design["type"] === "without dart"){
     top.without_dart(s);
-    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+    lengthen.lengthen_top_without_dart_new(s, mea, design.length);
     //let lines = s.data.comp.lines_by_key("type");
     //lines.waistline[0].swap_orientation();
     //lengthen.lengthen_top_without_dart(s, mea, 0.5);
@@ -25,20 +27,42 @@ function main_top(s, design, mea, design_neckline){
     let sk = new Sketch();
     let patterns;
     if (design["styleline"] === "classic princess"){
-
+      if (design_neckline.type !== "square"){
+        main_neckline(s, design_neckline);
+      }
       s.data.shoulder_dart = true;
+
+
       top.simple_waistline_web(s, mea);
       //top.simple_middle_dart(s, "fold", 0.5);
       patterns = top.split_pattern(s, "shoulder", 0.6);
+      if (design_neckline.type === "square"){
+        main_neckline(patterns[0], design_neckline);
+      }
     } else {
+      main_neckline(s, design_neckline);
       patterns =  top.styleline_panel(s, design["styleline"], mea);
-      main_dart(patterns[0], design["dartstyle"]);
+
+      if (design["styleline"] === "panel side"){
+        main_dart(patterns[0], design["dartstyle"], "side middle");
+      } else if (design["styleline"] == "panel shoulder"){
+        main_dart(patterns[0], design["dartstyle"], "shoulder");
+      } else {
+
+        dart.close_styleline_side(patterns[0]);
+      }
     }
-    main_neckline(patterns[0], design_neckline);
+
 
     if (s.data.front){
       patterns.reverse();
     }
+    patterns.forEach((elem) => {
+      elem.data.styleline = true;
+    });
+    /*
+    */
+
     //main_neckline(patterns[0], design_neckline);
 /*
     patterns[0].remove_point(patterns[0].data.pt);
@@ -67,40 +91,51 @@ function main_top(s, design, mea, design_neckline){
     });
     */
   } else if (design["type"] === "single dart"){
+    main_neckline(s, design_neckline);
     top.simple_dart_web(s, design["position"], mea);
     if (eva.eval_waistline_dart(design["position"])){
-      lengthen.lengthen_top_with_dart(s, mea, 0.95);
+      lengthen.lengthen_top_with_dart(s, mea, design.length);
+      //seam.seam_allowance(s);
       if (design["dartstyle"] === "tuck"){
-        dart.simple_tuck(s, s.data.comp.lines_by_key("type").dart);
+      //  dart.simple_tuck(s, s.data.comp.lines_by_key("type").dart);
+      dart.tuck_dart(s, design["position"]);
+
+      } else {
+        dart.dart(s, design["position"]);
       }
     } else {
-      lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+      lengthen.lengthen_top_without_dart_new(s, mea, design.length);
       main_dart(s, design["dartstyle"], design["position"]);
     }
+    return s;
   } else if (design["type"] === "double dart"){
+    main_neckline(s, design_neckline);
     top.double_dart_web(s, design["position"], mea);
-    double_main_dart(s, design["dartstyle"], design["position"], mea);
+    double_main_dart(s, design["dartstyle"], design["position"], mea, design.length);
+    return s;
   } else if (design["type"] === "added fullness"){
     top.a_line(s);
-    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+    lengthen.lengthen_top_without_dart_new(s, mea, design.length);
   }
-  main_neckline(s, design_neckline);
+  if (design_neckline.type === "square"){
+    main_neckline(s, design_neckline);
+  }
 /*  s.remove_point(s.data.pt);
   delete s.data.pt;*/
   return s;
 };
 
 
-function double_main_dart(s, design, position, mea){
+function double_main_dart(s, design, position, mea, length){
   if (eva.eval_waistline_dart(position)){
     let dart = utils.get_waistline_dart(s);
-    lengthen.lengthen_top_with_dart(s, mea, 0.95, dart);
+    lengthen.lengthen_top_with_dart(s, mea, length, dart);
   } else {
-    lengthen.lengthen_top_without_dart_new(s, mea, 0.95);
+    lengthen.lengthen_top_without_dart_new(s, mea, length);
   }
 
   main_dart(s, design, position);
-}
+};
 
 
 function main_dart(s, design, position){
@@ -118,6 +153,7 @@ function main_merge(front, back, design){
   if(design["type"] === "styleline"){
     if (design["closed"]){
       s = top.styleline_merge(back[1], front[0]);
+      s.data.closed = true;
 
       return [back[0], s, front[1]];
       //return [s];
@@ -193,12 +229,12 @@ return s;
 function main_neckline(s, design){
   design = design["type"];
   let without_changeing_shoulder = ["round", "staps"];
-  let not_possible_with_shoulder_dart = ["V-Line wide", "round wide", "boat", "square"];
+//  let not_possible_with_shoulder_dart = ["V-Line wide", "round wide", "boat", "square"];
 
-  if (not_possible_with_shoulder_dart.includes(design) && s.data.shoulder_dart){
-    if (design === "square" && !s.data.tuck){
+// Bedingungen hier gerne uberarbeiten!!!!!
+    if (design === "square" && s.data.shoulder_dart){
       neck.square_shoulder_dart(s);
-    }
+
   } else {
     if (without_changeing_shoulder.includes(design)){
     } else {
@@ -219,8 +255,7 @@ function main_neckline(s, design){
       }
     }
   }
-}
-
+};
 
 
 

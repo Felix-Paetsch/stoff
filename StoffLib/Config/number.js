@@ -37,7 +37,7 @@ export default class CNumber extends ConfigElement {
 
     serialize(){
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "CNumber",
             "settings": this.settings,
             "value": this.value,
@@ -47,7 +47,7 @@ export default class CNumber extends ConfigElement {
 
     static deserialize(data){
         return new CNumber(
-            data["name"],
+            ConfigElement.deserialize_component(data["name"]),
             data["settings"]
         ).set(data["value"]).set_id(data.id);
     }
@@ -64,7 +64,7 @@ export default class CNumber extends ConfigElement {
     on_dom_load(own_path){
         const serialized_path = ConfigElement.serialize_path(own_path);
         const dom_el = document.querySelector(`[x-component-path="${ serialized_path }"]`);
-        
+
         const input = dom_el.querySelector('input[type="range"]');
         input.value = input.getAttribute('x-default');
 

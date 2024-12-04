@@ -5,22 +5,12 @@ import ConfigElement from "./_config_element.js";
 
 export default class CContainer extends ChildrenHaving {
     constructor(name, ...children){
-        // Call as (name, ...children) or call directly as (...children)
-        // You can either put the children as seperate argument to the constructor
-        // or give them in one single array. (Composition of the two also works.)
-
-        if (typeof name !== "string"){
-            
-            children.unshift(name);
-            name = null;
-        }
-
         super(name, children);
     }
 
     serialize(){
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "CContainer",
             "children": this.serialize_children(),
             id: this.id
@@ -29,7 +19,7 @@ export default class CContainer extends ChildrenHaving {
 
     static deserialize(data){
         return new CContainer(
-            data["name"],
+            ConfigElement.deserialize_component(data["name"]),
             ChildrenHaving.deserialize_children(data["children"])
         ).set_id(data.id);
     }

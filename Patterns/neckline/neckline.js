@@ -137,20 +137,25 @@ function square(s){
 
   vec = fold.get_line_vector();
   fold.p1.move_to(vec.scale(-percent_f).add(fold.p2));
-
   let p = s.point(neckline.p1.x, neckline.p2.y);
   let ln1 = s.line_between_points(neckline.p1, p);
   let ln2 = s.line_between_points(p, neckline.p2);
+  ln1.data.type = "neckline";
+  ln2.data.type = "neckline";
   let percent;
   if(s.data.front){
-    percent = 1 - 1/ln2.get_length();
+    percent = 1 - 2.5/ln2.get_length();
   } else {
     percent = 1 - 1.5/ln2.get_length();
   }
   vec = ln2.get_line_vector().scale(-percent);
   p.move_to(vec.add(neckline.p2));
 
+  s.merge_lines(ln1, ln2, true);
+
   s.remove_line(neckline);
+  /*
+  */
 }
 
 function square_shoulder_dart(s){
@@ -181,7 +186,8 @@ function square_shoulder_dart(s){
   vec = line.get_line_vector().scale(-percent).add(line.p2);
   line.p2.move_to(vec);
 
-  s.line_between_points(line.p2, neckline.p2);
+  line = s.line_between_points(line.p2, neckline.p2);
+  line.data.type = "neckline";
   s.remove_point(neckline.p1);
 
   //let p = s.point(neckline.p1.x, neckline.p2.y);
@@ -200,11 +206,11 @@ function boat(s){
   let percent_f;
   let vec;
   if (s.data.front){
-    percent_s = 0.6;
-    percent_f = 1 - 0.5/fold.get_length();
+    percent_s = 0.4;
+    percent_f = 1 + 3.5/fold.get_length();
   } else {
-    percent_s = 0.6;
-    percent_f = 1 - 2.5/fold.get_length();
+    percent_s = 0.4;
+    percent_f = 1 - 1.5/fold.get_length();
   }
 
   vec = shoulder.get_line_vector();
@@ -217,15 +223,17 @@ function boat(s){
   let p2 = s.point(neckline.p1.x, neckline.p2.y);
   vec = p.subtract(neckline.p1).scale(0.7);
   p.move_to(vec.add(neckline.p1));
-  vec = p2.subtract(neckline.p2).scale(0.5);
+  vec = p2.subtract(neckline.p2).scale(0.5).add(p2.subtract(p).scale(-0.1));
   p2.move_to(vec.add(neckline.p2));
-
   let l = s.line_from_function_graph(neckline.p1, neckline.p2, spline.bezier(
       [neckline.p1, p, p2, neckline.p2]
   )); //.plot_control_points(s));
+  l.data.type = "neckline";
   s.remove_line(neckline);
   s.remove_point(p);
   s.remove_point(p2);
+  /*
+  */
   return s;
 };
 

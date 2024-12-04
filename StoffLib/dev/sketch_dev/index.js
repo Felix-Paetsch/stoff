@@ -3,8 +3,14 @@ import register_render_at from "./render_at.js";
 import Route from "./request_routing.js";
 
 export default (Sketch) => {
-    const Sketch_dev = {}
-    
+    let count = 0;
+
+    const Sketch_dev = {
+      at_new_url: function(url) {
+          return this.dev.at_url(url + (count++))
+      }
+    }
+
     const old_init = Sketch.prototype._init ? Sketch.prototype._init : () => {};
     Sketch.prototype._init = function (){
         old_init.bind(this)();
@@ -13,7 +19,7 @@ export default (Sketch) => {
             this.dev[key] = Sketch_dev[key].bind(this);
         });
     };
-    
+
     Sketch.dev = Sketch_dev;
     Route.Sketch = Sketch;
     register_render_at(Sketch);

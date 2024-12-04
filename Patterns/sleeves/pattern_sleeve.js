@@ -80,6 +80,7 @@ function sleeve(mea, height, sleeve_type = "eingehalten 3/4", len_front, len_bac
   s.remove_point(a);
   s.remove_point(b);
   s.data.comp = new ConnectedComponent(p1);
+      console.log(pt1.y - p1.y)
   /*
 
 */
@@ -114,4 +115,70 @@ function curve(s, pt1, pt2, len){
 };
 
 
-export default {sleeve, curve};
+
+function new_sleeve(mea, height, sleeve_type = "eingehalten 3/4", len_front, len_back){
+  let type = evaluate.eval_sleeve(sleeve_type);
+  const s = new Sketch();
+  s.data.height = height/2;
+  const p1 = s.add_point(new Point(0,0));
+  p1.data.type = "mid";
+  const a = s.add(new Point(0, (height/2)*type));
+  const b = s.add_point(new Point(a.add(new Vector(0, mea["arm length"]))));
+  s.data.length = mea["arm length"];
+  if (evaluate.eval_sleeve_eingehalten(sleeve_type)){
+    len_front = len_front + 1;
+    len_back = len_back + 1;
+  }
+
+
+    // Kurve einzeichnen
+
+    //let len = get_pt_distance(p1, a, len_front - 0.6);
+    let len = Math.sqrt(Math.pow(len_front - 0.6, 2) - Math.pow(p1.subtract(a).length(), 2));
+    let pt1 = s.add_point(a.add(new Vector(len, 0)));
+    len = Math.sqrt(Math.pow(len_back + 0.4, 2) - Math.pow(p1.subtract(a).length(), 2));
+    let pt2 = s.add_point(a.add(new Vector(-len, 0)));
+    s.line_between_points(p1, pt2)
+    s.line_between_points(pt1, pt2)
+    console.log(mea.arm)
+    /*
+    let p_h = s.add_point(a.add(new Vector(mea.arm, 0)));
+    let line_h = s.line_between_points(a, p_h);
+    let pt1 = get_point_on_other_line2(s, a, new Vector(0,0), len_front - 0.6, line_h.get_line_vector().normalize());
+    //let pt1 = s.add_point(a.add(new Vector(len, 0)));
+    console.log(len_front - 0.6)
+    let pt1 = s.add_point(new Point(a.add(new Vector(-(mea.arm)*0.475, 0))));
+    let pt2 = s.add_point(new Point(a.add(new Vector((mea.arm)*0.525, 0)))); // back
+    pt2.data.type = "top side back";
+    pt1.data.type = "top side front";
+    pt2.data.front = false;
+    pt1.data.front = true;
+
+  //  console.log(mea.arm, pt1.subtract(pt2).length())
+
+    let c1 = curve(s, pt1, p1, len_front);
+    c1.data.curve = true;
+    c1.data.front = true;
+    c1.data.type = "armpit";
+    c1.mirror();
+    let c2 = curve(s, p1, pt2, len_back); // back
+    c2.data.curve = true;
+    c2.data.type = "armpit";
+*/
+return s;
+};
+
+// nicht sehr schön benannt, ich weiß
+function get_pt_distance(p1, p2, len){
+  let diff = p1.subtract(p2).length();
+
+  let w = 2 * diff * len * Math.cos(90);
+
+  console.log(2 * diff * len * Math.cos(90))
+
+  return Math.sqrt(Math.pow(diff,2) + Math.pow(len, 2));
+
+};
+
+
+export default {sleeve, curve, new_sleeve};

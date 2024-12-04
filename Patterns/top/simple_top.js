@@ -62,14 +62,13 @@ function styleline_panel(s, design, mea){
 
   let parts;
   parts = utils.split_at_points(s, p1, line1, p2, line2, "side");
-
-  if (design === "panel side"){
+  if (design === "panel shoulder"){
+    simple_dart_web(parts[0], "shoulder", mea);
+  } else {
     //parts = utils.split_at_points(s, p1, line1, p2, line2, "side");
     simple_middle_dart(parts[0], "side", 0.3);
-  } else if (design === "panel shoulder"){
-
-    simple_dart_web(parts[0], "shoulder", mea);
   }
+
 
   return parts;
 }
@@ -518,6 +517,9 @@ function simple_lengthen(s, pattern, mea, percent_length,  percent_side = 0){
   let vec = waist.p1.add(new Vector(mea.waist_height, 0));
   //vec = vec.
 }
+
+
+
 
 
 export default {a_line, simple_dart_web, styleline_panel, styleline_merge, simple_waistline_web, double_dart_web, without_dart, split_pattern, simple_middle_dart, waistline_simple_dart, wiener_naht, merge_lines};

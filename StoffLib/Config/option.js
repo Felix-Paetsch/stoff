@@ -25,7 +25,7 @@ export default class COption extends ChildrenHaving{
         this.selected = Math.max(
             0,
             Math.min(
-                i, 
+                i,
                 this.children.length
             )
         );
@@ -36,7 +36,7 @@ export default class COption extends ChildrenHaving{
 
     serialize(){
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "COption",
             "children": this.serialize_children(),
             "selected": this.selected,
@@ -46,7 +46,7 @@ export default class COption extends ChildrenHaving{
 
     static deserialize(data){
         const co = new COption(
-            data["name"],
+            ConfigElement.deserialize_component(data["name"]),
             ChildrenHaving.deserialize_children(data["children"]),
             data["selected"]
         ).set_id(data.id);
@@ -81,7 +81,7 @@ export default class COption extends ChildrenHaving{
                         for (const ce of circle_elements){
                             ce.classList.remove("hidden");
                         }
-                        
+
                         const circle_check_elements = option_element.querySelectorAll(".fa-circle-check");
                         for (const cce of circle_check_elements){
                             cce.classList.add("hidden");

@@ -48,7 +48,7 @@ class Line{
         } else {
             throw new Error("Line sample points dont end with (1,0)");
         }
-    
+
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
     }
@@ -413,7 +413,7 @@ class Line{
 
     _remove_duplicate_points() {
         if (this.sample_points.length <= 1) return;
-    
+
         this.sample_points = this.sample_points.filter((point, index) => {
             // Skip the first point, compare each with the previous
             if (index === 0) return true;

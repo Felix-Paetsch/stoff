@@ -16,6 +16,24 @@ function get_lines(component, type){
 }
 
 
+function lotpunkt(s, pt, ln){
+  //const ln_p = ln.endpoints();
+  let direction = 1;
+  if(s.data.front){
+    direction = -1;
+  }
+
+  const a = pt.subtract(ln.p1);
+  const c = ln.get_line_vector();
+
+  const alpha = vec_angle(a, c);
+
+  const b_scalar = Math.sin(alpha)*a.length();
+
+  const norm = c.get_orthonormal().mult(b_scalar).scale(direction);
+
+    return s.add_point(pt.subtract(norm));
+}
 
 function rotate_zsk(ln, fun){
   let list = list_points_zhk(ln);
@@ -233,11 +251,7 @@ function split_at_points(s, p1, line1, p2, line2, type){
 
 
 
-function split_comp_to_new_sketches(s){
-  const sk = new Sketch();
-  const sk_2 = new Sketch();
 
-}
 
 function position_sketch(s_new, s_old){
   let vec = s_new.get_bounding_box().top_right.add(new Vector (3,0));
@@ -253,4 +267,5 @@ export default {
   position_sketch,
   get_waistline_dart,
   rotate_zshk_to_point,
+  lotpunkt,
   get_point_on_line_percent, get_nearest_set_of_dart_lines, rotate_outer_zhk, rotate_outer_zhk_new, sort_comp, reposition_zhk, set_comp_to_new_sketch};

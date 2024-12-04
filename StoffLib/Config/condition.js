@@ -6,12 +6,12 @@ import ConfigElement from "./_config_element.js";
 export default class CCondition extends ChildrenHaving {
     constructor(depends_on, validation_fun, ...children){
         super(null, children);
-        
+
         this.initialized = false;
         this._is_valid = false;
         this.validation_live = false;
         this.currently_validating = false;
-        
+
         this.depends_on = depends_on;
         this.validation_fun = validation_fun;
     }
@@ -50,7 +50,7 @@ export default class CCondition extends ChildrenHaving {
         }
 
         return {
-            "name": this.name,
+            "name": this.name.serialize(),
             "type": "CCondition",
             "depends_on": this.depends_on.map(d => d.id),
             "validation_fun": this.validation_fun.toString(),
@@ -106,10 +106,10 @@ export default class CCondition extends ChildrenHaving {
         this.children.forEach(c => {
             const o = c.to_obj();
             if (typeof o !== "undefined"){
-                res[c.name] = o;
+                res[c.name.value] = o;
             }
         });
-        
+
         return res;
     }
 

@@ -8,10 +8,12 @@ import pattern_top_new from './top/pattern_top_new.js';
 import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
 import change from './simple_main.js';
 import lengthen from './lengthen/top.js';
+import seam from './seam_allowance/simple_seam.js';
+import annotate from './annotate/annotate.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-//import pictures from '../Pictures/main_pictures.js';
+import pictures from '../Pictures/main_pictures.js';
 
 import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
 
@@ -72,6 +74,7 @@ export default {
               "classic princess",
               "panel side",
               "panel shoulder",
+              "panel",
               1
             ),
             cBoolean("closed", false),
@@ -81,6 +84,22 @@ export default {
               "tuck",
         //      "gathering",
               0
+            ),
+            cNumber(
+              "length",{
+                default: 0.9,
+                min: 0,
+                max: 1,
+                step_size: 0.05
+              }
+            ),
+            cNumber(
+              "ease", {
+                default: 8,
+                min: 0,
+                max: 20,
+                step_size: 0.25
+              }
             )
         ),
         cContainer(
@@ -117,13 +136,13 @@ export default {
             "straight",
             "slim",
             "extra slim",
+            "casual",
             "puffy",
             "puffy top",
             "puffy bottom",
             "flared",
             "cap",
             "ruffles",
-            "casual",
             /*
             "kimono short straight",
             "kimono short curve",
@@ -176,29 +195,36 @@ export default {
       measurements.across_front = measurements.across_front * (15 / 16);
       measurements.across_back = measurements.across_back * (15 / 16);
 
-      measurements.bottom_width_back += 4;
-      measurements.bottom_width_front += 4;
 
       measurements["center_height_front"] += 3;
       //measurements["center_height_back"] += 3;
       measurements["shoulder_height_back"] -= 1;
       */
+      measurements.belly += design_config["top designs"].ease;
+      measurements.bottom_width_back += design_config["top designs"].ease / 2;
+      measurements.bottom_width_front += design_config["top designs"].ease / 2;
 
       measurements["arm"] += 2;
       measurements["arm length"] += 4;
       measurements.wristwidth += 3;
       measurements["ellbow_width"] += 4;
 
+
+      let pic = pictures.main(design_config);
+
+      return pic;
+
+
   //    return pattern_top_new.back(measurements);
 
-      let back = pattern_top_new.back(measurements);
-      let front = pattern_top_new.front(measurements);
+      let back = pattern_top_new.back(measurements, design_config["top designs"].ease);
+      let front = pattern_top_new.front(measurements, design_config["top designs"].ease);
 
 
       front = change.main_top(front, design_config["top designs"], measurements, design_config["neckline"]);
       back = change.main_top(back, design_config["top designs"], measurements, design_config["neckline"]);
-      /*
 
+      /*
       front.remove_point(front.data.pt);
       back.remove_point(back.data.pt);
       front.data.pt = false;
@@ -212,32 +238,48 @@ export default {
         sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front[0].data.length_sleeve, back[0].data.length_sleeve);
       } else {
         height_sleeve = back.data.height_sleeve + front.data.height_sleeve;
-        sleeve = basic_pattern_sleeve.sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
+        sleeve = basic_pattern_sleeve.new_sleeve(measurements, height_sleeve, design_config["sleeve"].sleeveheight, front.data.length_sleeve, back.data.length_sleeve);
       }
 
-      sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
+    //  sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
       /*
       */
 
       let s = new Sketch();
       let sketches = change.main_merge(front, back, design_config["top designs"]);
-    //  sketches.push(sleeve);
+
 
       if(design_config["top designs"].type === "styleline"){
-        lengthen.lengthen_styleline(sketches, measurements, design_config["top designs"].closed);
+        lengthen.lengthen_styleline(sketches, measurements, design_config["top designs"].length,design_config["top designs"].closed);
       }
 
+
+      let sketches2 = [];
       sketches.forEach(s => {
         s.remove_point(s.data.pt);
-        delete s.data.pt;
-      });
 
-      s = change.paste_sketches(s, sketches);
+        delete s.data.pt;
+
+        if (s.data.type === "middle" || s.data.type === "sleeve"){
+          sketches2 = (annotate.annotate(s, sketches2));
+        } else {
+          sketches2.push(annotate.annotate(s));
+        }
+        /*
+        */
+      });
+      //let elem = sketches2.shift();
+      //sketches2.push(elem);
+    //  return(annotate.annotate(sketches[0]))
+      //  sketches.push(sleeve);
+
+
+
+
+      s = change.paste_sketches(s, sketches2);
+    //  s = change.paste_sketches(s, sketches2);
       //s.save_on_A4("renders");
 
-      return s
-      //let pic = pictures.main(design_config);
-
-      //return pic;
+      return s;
     }
 }

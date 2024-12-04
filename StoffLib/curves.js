@@ -146,14 +146,14 @@ function points_forEach(vec_callback = (pt) => {}){
 function bezier_plot_control_points(sketch, pt_callback = (pt) => {}){
     const pts = [];
     this.points.forEach((vec, i) => {
-        const pt = sketch.add(vec);
+        const pt = sketch.add(vec.copy());
         pt.set_color("rgba(219, 165, 255,.5)");
         pts.push(pt);
         pt_callback(pt, i);
     });
 
     for (let i = 0; i < pts.length - 1; i ++){
-        sketch.line_between_points(pts[i], pts[i+1]).set_color("rgba(0,0,0,.3)");
+        sketch.line_between_points(pts[i], pts[i+1]).set_color("rgba(0,100,0,.3)");
     }
     return this;
 }
@@ -161,14 +161,14 @@ function bezier_plot_control_points(sketch, pt_callback = (pt) => {}){
 function hermite_plot_control_points(sketch, pt_callback = (pt) => {}){
     const pts = [];
     this.points.forEach((vec, i) => {
-        const pt = sketch.add(vec);
+        const pt = sketch.add(vec.copy());
         pt.set_color("rgba(219, 165, 255,.5)");
         pts.push(pt);
         pt_callback(pt, i);
     });
 
     for (let i = 0; i < pts.length/2; i ++){
-        sketch.line_between_points(pts[2*i], pts[2*i+1]).set_color("rgba(0,0,0,.3)");
+        sketch.line_between_points(pts[2*i], pts[2*i+1]).set_color("rgba(0,100,0,.3)");
     }
     return this;
 }

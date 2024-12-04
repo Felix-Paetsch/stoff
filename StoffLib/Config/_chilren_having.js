@@ -33,13 +33,13 @@ export default class ChildrenHaving extends ConfigElement {
         const res = {};
         this.children.forEach(c => {
             const o = c.to_obj();
-            if (c.name === null){
+            if (c.name.value === null){
                 Object.assign(res, o);
             } else {
-                res[c.name] = o;
+                res[c.name.value] = o;
             }
         });
-        
+
         return res;
     }
 
@@ -58,12 +58,12 @@ export default class ChildrenHaving extends ConfigElement {
 
     get_by_name(name){
         const r = []
-        if (this.name == name){
-            return r.push(name);
+        if (this.name?.value == name){
+            return r.push(this);
         }
 
         for (const c of this.children){
-            r.push(c.get_by_name(name));
+            r.push(...c.get_by_name(name));
         }
 
         return r;
