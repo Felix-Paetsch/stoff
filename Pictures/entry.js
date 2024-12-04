@@ -5,7 +5,6 @@ import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } f
 
 export default {
   design_config: new Config(
-
       cContainer(
         "top designs",
           cOption(

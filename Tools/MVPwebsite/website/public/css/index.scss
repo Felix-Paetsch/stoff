@@ -71,7 +71,7 @@ main {
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); // Optional: glow effect
     }
 
-    button[type="submit"]{
+    button{
         font-size: 1rem;
         background-color: $dark_theme;
         color: white;
@@ -133,7 +133,7 @@ main {
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); // Optional: glow effect
     }
 
-    button[type="submit"]{
+    button{
         font-size: 1rem;
         background-color: $dark_theme;
         color: white;
@@ -155,5 +155,47 @@ main {
         width: 100%;
         height: auto;
         display: block;
+    }
+}
+
+.thank_you_panel{
+    h3 {
+        width: 100%;
+        margin-left: 1rem;
+        font-size: 4rem;
+    }
+
+    span{
+        font-size: 1.2em;
+        border-left: .2rem $theme_color solid;
+        padding: .4rem 0 .4rem .8rem;
+        margin-left: 1rem;
+        cursor: pointer;
+    }
+}
+
+.selection_head{
+    li{
+        width: min-content;
+        min-width: 20rem;
+        cursor: pointer;
+        margin-top: .2rem;
+    }
+
+    button{
+        font-size: 1rem;
+        background-color: $dark_theme;
+        color: white;
+        padding: .5rem 1rem;
+        border: none;
+        border-radius: .5rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+}
+
+.svg_wrapper{
+    svg{
+        border: .1rem solid $dark_theme;
     }
 }

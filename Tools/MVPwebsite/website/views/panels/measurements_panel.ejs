@@ -17,7 +17,11 @@ let measurements = [
     <div class="measurements_items">
         <% measurements.forEach((item, index) => { %>
             <div class="measurement-item">
-              <label for="measurement-<%= index %>"><%= item.key %>:</label>
+              <label for="measurement-<%= index %>" <%
+                  if (item.error) {
+              %> style="color: red" <%
+                  }
+              %>><%= item.key %>:</label>
               <input
                 type="text"
                 id="measurement-<%= index %>"
@@ -26,11 +30,16 @@ let measurements = [
                 placeholder="Enter <%= item.key %>"
                 required
               >
-              <span>cm</span>
+              <span <%
+                  if (item.error) {
+              %> style="color: red" <%
+                  }
+              %>>cm</span>
             </div>
             <br>
           <% }); %>
     </div>
     <button type="submit">Done</button>
+    <button type="logout">Log Out</button>
   </form>
 </div>

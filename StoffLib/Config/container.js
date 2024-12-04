@@ -27,7 +27,7 @@ export default class CContainer extends ChildrenHaving {
     /* frontend stuff  */
 
     render(dir, own_path){
-        return this._dev_render("design_config_component.ejs", dir, own_path);
+        return this._dev_render("container_component.ejs", dir, own_path);
     }
 
     on_dom_load(own_path){
