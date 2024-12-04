@@ -454,6 +454,8 @@ class StraightLine extends Line{
 
     closest_position(vec){
         const rel = this.get_to_relative_function()(vec);
+        if (rel.x < 0) return this.p1;
+        if (rel.x > 1) return this.p2;
         return this.get_to_absolute_function()(new Vector(rel.x, 0));
     }
 

@@ -5,7 +5,9 @@
     "browser-sync": "^2.26.2",
     "canvas": "^2.11.2",
     "chroma-js": "^2.4.2",
+    "compression": "^1.7.5",
     "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "epxress": "^0.0.1-security",
     "express": "^4.19.2",
@@ -18,14 +20,13 @@
   "scripts": {
     "dev": "nodemon DevServer/index.js",
     "measure": "node Tools/Measurements/index.js",
-
     "web": "nodemon Website/index.js",
     "web_hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files ',Website/public/**,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
-
     "go": "(cd ./Tools/StoffGo && go run .)",
-
     "docs_dev": "cd Docs && mkdocs serve",
-    "docs_build": "cd Docs && mkdocs build"
+    "docs_build": "cd Docs && mkdocs build",
+    "mvp_dev": "cd Tools/MVPwebsite && npm run dev",
+    "mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot"
   },
   "devDependencies": {
     "sass": "^1.78.0"

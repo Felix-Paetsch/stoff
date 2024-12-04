@@ -1,38 +1,54 @@
-// require('dotenv').config();
-"use strict";
+const dotenvPath = path.resolve('../../node_modules/dotenv');
+await import(`file://${dotenvPath}/config.js`);
 
-const express = require('express');
-const app = express();
-const { CONF } = require("./config");
-const port = CONF.port;
+import fs from 'fs/promises';
+import path from 'path';
+import CONF from "./config.json" assert { type: 'json' };
+import EventManager from "./event_manager.js";
 
-let server;
-if (CONF.use_https){
-  const fs = require('fs');
-  const options = {
-    key:  fs.readFileSync(CONF.private_key_path),
-    cert: fs.readFileSync(CONF.cert_path)
-  };
-  server = require('https').createServer(options,app);
-} else {
-  server = require('http').createServer(app);
-}
 
-app.set('view engine', 'ejs');
+const event_manager = new EventManager();
 
-(async () => {
-  require("./use_middleware.js")(app);
-  
-  require("./set_up_routes/admin_routes.js")(app);
-  require("./set_up_routes/editing_routes.js")(app);
-  require("./set_up_routes/public_routes.js")(app);
-  
+const executeHooks = async () => {
+    const currentDir = process.cwd();
+    const folders = await fs.readdir(currentDir, { withFileTypes: true });
 
-  server.listen(port, () => {
-    console.log(`App listening at PORT :: ${port}`)
-  });
+    // Prepare the list of allowed modules from config
+    const allowedModules = Array.isArray(CONF.use_modules) && CONF.use_modules.length > 0
+        ? CONF.use_modules.map(module => module.toLowerCase())
+        : null;
 
-  if (CONF.use_https){
-    require("./init_redirection_server.js")()
-  }
-})()
+    for (const folder of folders) {
+        if (folder.isDirectory()) {
+            const folderName = folder.name.toLowerCase();
+
+            // Skip folders not in the allowedModules list, if the list is provided
+            if (allowedModules && !allowedModules.includes(folderName)) continue;
+
+            const hookPath = path.join(currentDir, folder.name, 'hook.js');
+
+            // Check if hook.js exists
+            const fileExists = await fs
+                .access(hookPath)
+                .then(() => true)
+                .catch(() => false);
+
+            if (!fileExists) continue;
+
+            try {
+                const hook = await import(`file://${hookPath}`);
+                if (typeof hook.default === 'function') {
+                    hook.default(event_manager);
+                }
+            } catch (error) {
+                if (CONF.catch_module_error) {
+                    console.error(`Error loading or executing ${hookPath}:`, error.message);
+                } else {
+                    throw error;
+                }
+            }
+        }
+    }
+};
+
+executeHooks();

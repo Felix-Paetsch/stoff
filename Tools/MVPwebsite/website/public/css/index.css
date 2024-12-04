@@ -1,0 +1,137 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: white;
+  background-color: #C44900;
+  font-family: "Roboto", sans-serif;
+  padding: 1rem;
+}
+
+main {
+  border-radius: 2rem;
+  background-color: #0D0A0B;
+  min-height: calc(100vh - 8rem);
+  padding: 1em 3em;
+}
+
+#dashboard_flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 2em;
+  padding-bottom: 2em;
+}
+
+.table_panel {
+  min-height: 20em;
+  min-width: 25em;
+  background-color: #EFD6AC;
+  border-radius: 1em;
+  margin-right: 2em;
+  margin-bottom: 2em;
+  color: black;
+  padding: 2em;
+}
+
+/* ======= Panels =========== */
+.text_panel {
+  width: min-content;
+  line-height: 1.5em;
+}
+.text_panel p {
+  margin: 0;
+}
+
+.register_panel label {
+  min-width: 7rem;
+  display: inline-block;
+}
+
+.table_panel.register_panel input[type=text],
+.table_panel.register_panel input[type=password] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.table_panel.register_panel input[type=text]:focus,
+.table_panel.register_panel input[type=password]:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.table_panel.register_panel button[type=submit] {
+  font-size: 1rem;
+  background-color: #0D0A0B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.table_panel.register_panel #name_input {
+  margin-bottom: 0.6rem;
+}
+
+.table_panel.measurements_panel {
+  width: 100%;
+  margin-right: 0;
+}
+.table_panel.measurements_panel .measurements_items {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.table_panel.measurements_panel .measurement-item {
+  min-width: 20rem;
+  margin: 0 1rem 1rem 0;
+  display: flex;
+  flex-direction: row;
+  border-right: 0.1rem solid black;
+  border-bottom: 0.1rem solid black;
+  padding: 0 0 0.5rem 0;
+}
+.table_panel.measurements_panel .measurement-item label {
+  display: inline-block;
+  padding: 0.5rem;
+  min-width: 5rem;
+}
+.table_panel.measurements_panel .measurement-item span {
+  display: inline-block;
+  padding: 0.5rem;
+}
+.table_panel.measurements_panel input[type=text] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.table_panel.measurements_panel input[type=text]:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.table_panel.measurements_panel button[type=submit] {
+  font-size: 1rem;
+  background-color: #0D0A0B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.big_img_panel {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box; /* Ensure padding is included in the element's total width */
+}
+.big_img_panel .big_img_panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+}

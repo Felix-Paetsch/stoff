@@ -1,0 +1,159 @@
+$dark_theme: #0D0A0B;
+$theme_color: #C44900;
+$light_color: #EFD6AC;
+
+*{
+    box-sizing: border-box;
+}
+
+body {
+    color: white;
+    background-color: $theme_color;
+
+    font-family: "Roboto", sans-serif;
+    padding: 1rem;
+}
+
+main {
+    border-radius: 2rem;
+    background-color: $dark_theme;
+    min-height: calc(100vh - 8rem);
+    padding: 1em 3em;
+}
+
+#dashboard_flex{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 2em;
+    padding-bottom: 2em;
+}
+
+.table_panel{
+    min-height: 20em;
+    min-width: 25em;
+    background-color: $light_color;
+    border-radius: 1em;
+    margin-right: 2em;
+    margin-bottom: 2em;
+    color: black;
+    padding: 2em;
+}
+
+/* ======= Panels =========== */
+.text_panel{
+    width: min-content;
+    line-height: 1.5em;
+
+    p {
+        margin: 0;
+    }
+}
+
+.register_panel label{
+    min-width: 7rem;
+    display: inline-block;
+}
+
+.table_panel.register_panel {
+    input[type="text"],
+    input[type="password"] {
+        padding: .5rem 1rem; // Adjust padding as needed
+        border: 1px solid #ccc; // Optional: styling for borders
+        border-radius: 4px; // Optional: rounded corners
+        box-sizing: border-box; // Ensures padding doesn’t affect width
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: #007BFF; // Optional: border color on focus
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); // Optional: glow effect
+    }
+
+    button[type="submit"]{
+        font-size: 1rem;
+        background-color: $dark_theme;
+        color: white;
+        padding: .5rem 1rem;
+        border: none;
+        border-radius: .5rem;
+        cursor: pointer;
+    }
+
+    #name_input{
+        margin-bottom: .6rem;
+    }
+}
+  
+.table_panel.measurements_panel {
+    width: 100%;
+    margin-right: 0;
+
+    .measurements_items{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .measurement-item{
+        min-width: 20rem;
+        margin: 0 1rem 1rem 0;
+        display: flex;
+        flex-direction: row;
+
+        border-right: .1rem solid black;
+        border-bottom: .1rem solid black;
+
+        padding: 0 0 0.5rem 0;
+        
+        label{
+            display: inline-block;
+            padding: .5rem;
+            min-width: 5rem;
+        }
+
+        span{
+            display: inline-block;
+            padding: .5rem;
+        }
+    }
+
+    input[type="text"]{
+        padding: .5rem 1rem; // Adjust padding as needed
+        border: 1px solid #ccc; // Optional: styling for borders
+        border-radius: 4px; // Optional: rounded corners
+        box-sizing: border-box; // Ensures padding doesn’t affect width
+    }
+
+    input[type="text"]:focus{
+        outline: none;
+        border-color: #007BFF; // Optional: border color on focus
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); // Optional: glow effect
+    }
+
+    button[type="submit"]{
+        font-size: 1rem;
+        background-color: $dark_theme;
+        color: white;
+        padding: .5rem 1rem;
+        border: none;
+        border-radius: .5rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+}
+
+.big_img_panel {
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box; /* Ensure padding is included in the element's total width */
+
+
+    .big_img_panel img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+}

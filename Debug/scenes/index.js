@@ -1,4 +1,3 @@
-import { vec_angle, triangle_data } from "../../StoffLib/geometry.js";
 import Sketch from "../../StoffLib/sketch.js";
 
 export default function() {
