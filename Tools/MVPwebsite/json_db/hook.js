@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-let current_data = null;
+let current_data = [];
 
-const dataFilePath = path.join(process.cwd(), './data/global_storage.json');
+const dataFilePath = path.join(process.cwd(), './json_db/data/global_storage.json');
 
 const loadInitialData = async () => {
     try {
@@ -12,7 +12,7 @@ const loadInitialData = async () => {
         console.log("Global JSON storage loaded.");
     } catch (error) {
         console.log(`Global JSON storage reset.`);
-        current_data = null;
+        current_data = [];
     }
 };
 

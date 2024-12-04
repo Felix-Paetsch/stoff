@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/fonts/fontawesome/main.css">
 
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Playwrite+CU:wght@100..400&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
@@ -14,48 +15,12 @@
 <body>
     <main>
         <h1>StoffLib</h1>
-        <p id="init_text" style="display:none">Leonie & Felix --- Stoff Project --- Prototype</p>
-        <p id="measurements_text">Your Name --- Measurements</p>
+        <p id="top_text"><%- texts["initial_subtitle"] %></p>
         <div id="dashboard_flex">
             <%- include("./panels/register_panel.ejs") %>
-            <%- include("./panels/img_panel.ejs", {
-                url: "https://i.ytimg.com/vi/87Zyf175yWM/sddefault.jpg"
-            }) %>
-            <%- include("./panels/big_img_panel.ejs", {
-                url: "https://i.ytimg.com/vi/87Zyf175yWM/sddefault.jpg"
-            }) %>
-            <%- include("./panels/measurements_panel.ejs") %>
-            <%
-                const texts = {
-                    "start1": `We are working on a project to generate clothing (sewing patterns)
-                    based on your size measurements and style preferences. 
-                    We want to make a first big-scale test. 
-                    <br \\>
-                    So if you are participating at the 
-                    <b>WinterAka Windischleuba Hälfte 1/2</b> you can become one of our test subjects!
-                    See the mail for more detail or contact us at <i>felixpaetsch@gmail.com</i> if you have any questions.`,
-                    "input_mea": `
-                        Input your measurements. You can write floats with period "." or with comma ","
-                        <br \\>
-                        Click into the corresponding box to see what exactly you should measure.
-                        If you still have questions, contact us at <i>felixpaetsch@gmail.com</i>.
-                    `
-                }
-            %>
-
             <%- include("./panels/text_panel.ejs", {
-                text: texts["start1"]
+                text: texts["stoff_description"]
             }) %>
-            <%- include("./panels/svg_wrapper.ejs", {
-                text: "Current version",
-                svg: svg
-            }) %>
-            <%- include("./panels/svg_option_wrapper.ejs", {
-                text: "Current version",
-                svg: svg
-            }) %>
-            <%- include("./panels/selection_head.ejs") %>
-            <%- include("./panels/thank_you.ejs") %>
         </div>
     </main>
 

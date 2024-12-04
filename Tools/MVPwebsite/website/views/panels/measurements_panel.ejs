@@ -14,6 +14,8 @@ let measurements = [
 
 <div class="table_panel measurements_panel">
   <form action="/submit-measurements" method="post">
+    <input type="hidden" name="user_ident" value="<%= ident %>">
+
     <div class="measurements_items">
         <% measurements.forEach((item, index) => { %>
             <div class="measurement-item">

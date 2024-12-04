@@ -48,6 +48,12 @@ main {
   min-width: 7rem;
   display: inline-block;
 }
+.register_panel #register_error .active {
+  display: inline-block;
+  margin: 2rem 0 2rem 0;
+  max-width: 20rem;
+  font-size: 0.8rem;
+}
 
 .table_panel.register_panel input[type=text],
 .table_panel.register_panel input[type=password] {
