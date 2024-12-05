@@ -55,8 +55,8 @@ export default class CBoolean extends ConfigElement {
         return this.value;
     }
 
-    render(dir, own_path){
-        return this._dev_render("boolean_component.ejs", dir, own_path);
+    render(dir, own_path, data = {}){
+        return this._dev_render("boolean_component.ejs", dir, own_path, data);
     }
 
     on_dom_load(own_path){
