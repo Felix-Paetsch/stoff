@@ -1,7 +1,7 @@
 import WEBSITE_CONF from "../../config.json" assert { type: 'json' };
 
 export default (req, res) => {
-    req.event_emitter.emit("page_not_found", {
+    req.event_manager.emit("page_not_found", {
         event_source: "website",
         type: "error",
         internal: false,

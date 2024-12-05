@@ -13,7 +13,6 @@
             });
 
             const result = await response.json();
-            console.log(result);
 
             if (result) {
                 console.log("Server reset detected. Reloading page...");

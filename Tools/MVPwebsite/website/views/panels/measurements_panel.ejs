@@ -1,47 +1,26 @@
-<%
-// Initialize the array of key-value pairs
-let measurements = [
-    { 
-        key: "Tail Length", 
-        value: null, 
-        urls: [],
-        description: "whaaa"
-    },
-  { key: "Width", value: null, unit: "cm" },
-  { key: "Height", value: null, unit: "cm" }
-];
-%>
-
 <div class="table_panel measurements_panel">
-  <form action="/submit-measurements" method="post">
+  <form hx-post="/submit-measurements" hx-swap="none" method="post">
     <input type="hidden" name="user_ident" value="<%= ident %>">
+    <input type="hidden" name="user_name" value="<%= name %>">
 
     <div class="measurements_items">
         <% measurements.forEach((item, index) => { %>
-            <div class="measurement-item">
-              <label for="measurement-<%= index %>" <%
-                  if (item.error) {
-              %> style="color: red" <%
-                  }
-              %>><%= item.key %>:</label>
+            <div class="measurement-item  <%- item.error ? "with_error" : ""%>">
+              <label for="measurement-<%= index %>"><%= item.display %>:</label>
               <input
                 type="text"
                 id="measurement-<%= index %>"
-                name="measurement[<%= item.key %>]"
+                name="measurement][<%= item.key %>"
                 value="<%= item.value !== null ? item.value : '' %>"
-                placeholder="Enter <%= item.key %>"
+                placeholder="Enter <%= item.display %>"
                 required
               >
-              <span <%
-                  if (item.error) {
-              %> style="color: red" <%
-                  }
-              %>>cm</span>
+              <span>cm</span>
             </div>
             <br>
           <% }); %>
     </div>
-    <button type="submit">Done</button>
-    <button type="logout">Log Out</button>
+    <button type="submit">Save & Next</button>
+    <button type="button" onclick="window.location.reload()">Log Out</button>
   </form>
 </div>

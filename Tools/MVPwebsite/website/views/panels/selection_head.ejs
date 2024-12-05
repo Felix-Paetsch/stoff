@@ -1,7 +1,16 @@
 <div class="table_panel selection_head">
     <h2>Design</h2>
     <p>Click on the list items to modify your T-shirt:</p>
-    <%- design_config.render("./website/views/config_render") %>
-    <button type="back">Back</button>
-    <button type="logout">Log Out</button>
+    <%- design_config.render("./website/views/config_render", locals) %>
+    <button 
+        hx-post="/display_measurements" 
+        hx-vals='{"ident": "<%= user.ident %>"}' 
+        hx-swap="none">
+        Back
+    </button>
+    <button 
+        hx-post="/thank-you" 
+        hx-swap="none">
+        Done!
+    </button>
 </div>

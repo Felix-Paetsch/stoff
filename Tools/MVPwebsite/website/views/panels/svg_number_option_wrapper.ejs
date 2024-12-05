@@ -1,0 +1,50 @@
+<div class="table_panel svg_wrapper svg_option_wrapper svg_number_option_wrapper" >
+    <h3
+        hx-post="/choose_specific_option"
+        hx-vars='{
+            value: document.getElementById("number_input").value, 
+            config_type: "number", 
+            current_selection_option_id: "<%= current_selection_option_id %>", 
+            ident: "<%= ident %>"
+        }' 
+        hx-trigger="click"
+    ><%- text %></h3>
+
+    <div id="number_input_top_row">
+        <div id="current_number_input_value">
+            Wert: <span><%= new String(value) %></span>
+        </div>
+        <input 
+            type="range" 
+            min="<%= settings.min %>" 
+            value="<%= value  %>" 
+            max="<%= settings.max %>"
+            step="<%= settings.step_size %>"
+            
+            x-default="<%= value %>" 
+            hx-post="/preview_number_input" 
+            hx-vars='{
+                value: document.getElementById("number_input").value, 
+                config_type: "number", 
+                current_selection_option_id: "<%= current_selection_option_id %>", 
+                ident: "<%= ident %>"
+            }' 
+            hx-trigger="input"
+            id="number_input"
+        >
+        <div id="number_input_submit"
+            hx-post="/choose_specific_option"
+            hx-vars='{
+                value: document.getElementById("number_input").value, 
+                config_type: "number", 
+                current_selection_option_id: "<%= current_selection_option_id %>", 
+                ident: "<%= ident %>"
+            }' 
+            hx-trigger="click"
+        ></div>
+    </div>
+
+    <div id="number_input_svg_wrapper">
+        <%- svg %>
+    </div>
+</div>

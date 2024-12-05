@@ -35,6 +35,8 @@ export default (app) => {
     app.set('view engine', 'ejs');
 
     app.use((req, res, next) => {
+        req.event_manager = app.event_manager;
+        
         if (!req.headers.host) {
             return res.status(403).send("Bad request: Host header is required\nConsider updating your browser");
         }

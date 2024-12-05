@@ -18,7 +18,7 @@ main {
     border-radius: 2rem;
     background-color: $dark_theme;
     min-height: calc(100vh - 8rem);
-    padding: 1em 3em;
+    padding: 1rem 1rem 1rem 3rem;
 }
 
 #dashboard_flex{
@@ -97,7 +97,6 @@ main {
   
 .table_panel.measurements_panel {
     width: 100%;
-    margin-right: 0;
 
     .measurements_items{
         display: flex;
@@ -126,6 +125,11 @@ main {
         span{
             display: inline-block;
             padding: .5rem;
+        }
+
+        &.with_error{
+            color: $theme_color;
+            border-color: $theme_color;
         }
     }
 
@@ -189,6 +193,10 @@ main {
         min-width: 20rem;
         cursor: pointer;
         margin-top: .2rem;
+
+        i {
+            cursor: default;
+        }
     }
 
     button{
@@ -206,5 +214,69 @@ main {
 .svg_wrapper{
     svg{
         border: .1rem solid $dark_theme;
+    }
+
+    &.svg_option_wrapper{
+        cursor: pointer;
+    }
+}
+
+.svg_number_option_wrapper{
+    #number_input_top_row{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    #current_number_input_value{
+        white-space: nowrap;
+        min-width: 5.5rem;
+        margin: .3rem 0 1rem 0;
+    }
+
+    input[type=range] {
+        --width: 1em;
+        --height: 1.5em;
+        --border: .2em solid #000000;
+        -webkit-appearance: none; 
+        appearance: none;
+        width: 100%;
+        max-width: 15rem;
+        cursor: pointer;
+        height: .2rem;
+        border-radius: .1em;
+        background: $theme_color;
+        outline: none;
+        opacity: 0.7;
+        margin: .85rem 0 0 0;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+    
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: var(--width);
+        height: var(--height);
+        background: $theme_color;
+        cursor: pointer;
+        border: var(--border);
+    }
+    
+    input[type=range]::-moz-range-thumb {
+        width: var(--width);
+        height: var(--height);
+        background: $theme_color;
+        cursor: pointer;
+        border: var(--border);
+    }
+
+    #number_input_submit{
+        width: 2rem;
+        height: 2rem;
+        background-color: $theme_color;
+        cursor: pointer;
+        margin-left: 1.5rem;
+        border-radius: .5rem;
     }
 }

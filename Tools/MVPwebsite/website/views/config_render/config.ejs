@@ -1,7 +1,7 @@
 <div class="config_component config">
     <% for (let i = 0; i < t.children.length; i++){
         try { %>
-            <%- t.children[i].render(dir, ["BASE", i]) %>
+            <%- t.children[i].render(dir, ["BASE", i], locals) %>
         <% } catch (e){ console.trace(e) }
     } %>
 </div>

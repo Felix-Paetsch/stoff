@@ -1,7 +1,14 @@
 import WEBSITE_CONF from "../../config.json" assert { type: 'json' };
 
 export default(app) => {
-    if (WEBSITE_CONF.is_publish || !WEBSITE_CONF.hot_reload) {
+    if (WEBSITE_CONF.is_publish) {
+        return;
+    }
+
+    if (!WEBSITE_CONF.hot_reload){
+        app.post("/hot_reload", (req, res) => {
+            return res.json(false);
+        });
         return;
     }
 

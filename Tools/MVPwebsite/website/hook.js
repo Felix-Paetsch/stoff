@@ -9,9 +9,12 @@ import register_middleware from "./middleware/main.js";
 import add_error_route from "./middleware/errors.js";
 import initRedirectionServer from './init_redirection_server.js';
 
+import { connect as connect_db } from "./db_interaction.js";
+
 export default (event_manager) => {
     const app = express();
     app.event_manager = event_manager;
+    connect_db(event_manager);
     app.use((req, res, next) => {
         req.event_manager = event_manager;
         next();
