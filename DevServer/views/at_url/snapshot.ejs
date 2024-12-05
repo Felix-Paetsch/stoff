@@ -20,7 +20,7 @@
                 <div id="sketch_display">
                     <%- frame.svg %>
                 </div>
-                <pre id="data_pre"><%= "SKETCH_DATA: " + JSON.stringify(frame.sketch_data, true, 2); %></pre>
+                <pre id="data_pre"><%= "SKETCH_DATA: " + JSON.stringify(frame.sketch_data, true, 2).replace(/<br>/g, "\" \n      + \""); %></pre>
             </div>
         <% } %>
     </main>
@@ -36,7 +36,7 @@
                     <div id="sketch_display">
                         ${ rd.svg }
                     </div>
-                    <pre id="data_pre">SKETCH_DATA: ${ JSON.stringify(rd.sketch_data, true, 2).replace(/&/g, "&amp;")
+                    <pre id="data_pre">SKETCH_DATA: ${ JSON.stringify(rd.sketch_data, true, 2).replace(/<br>/g, "\" \n      + \"").replace(/&/g, "&amp;")
                             .replace(/</g, "&lt;")
                             .replace(/>/g, "&gt;")
                             .replace(/"/g, "&quot;")

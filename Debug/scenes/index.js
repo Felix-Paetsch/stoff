@@ -1,11 +1,12 @@
 import Sketch from "../../StoffLib/sketch.js";
 
 export default function() {
-    console.time("start");
     const s = new Sketch();
     const pts = [];
     const k = 1;
     const n = 5;
+
+    s.dev.start_recording();
     for (let i = 2*k; i < 2 * n; i++){
         if (i % 2 == 0){
             pts.push(s.add_point(i, i))
@@ -20,14 +21,11 @@ export default function() {
             t => Math.sin(6*t),
             t => Math.sin(2.8*(i+k)*t)
         );
-    }
 
-    console.time("validate");
-    for (let i = 0; i < 100; i++) {
-        s.validate();
+        s.data.index = i;
     }
-    console.timeEnd("validate");
-    console.timeEnd("start");
+    
+    s.dev.stop_recording().at_url("/test");
 
     return s;
 }

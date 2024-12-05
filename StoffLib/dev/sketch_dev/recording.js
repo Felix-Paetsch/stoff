@@ -42,6 +42,18 @@ export default (Sketch) => {
 
                 if (!taking_snapshot){
                     global_recording.snapshot(this);
+
+                    {
+                        const old_limit = Error.stackTraceLimit;
+                        Error.stackTraceLimit = Infinity;
+    
+                        const error = new Error("");
+                        const stackTrace = "Stack Trace<br>" + error.stack.split("\n").slice(2).map(s => s.trim()).join("<br>");
+                        global_recording.snapshots[global_recording.snapshots.length - 1].data["Stack Trace"] = stackTrace;
+    
+                        Error.stackTraceLimit = old_limit;
+                    }
+
                     global_taking_snapshot = false;
                 }
                 return result;
@@ -83,8 +95,20 @@ class Recorder {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
-        this.snapshots.push(this.sketch.copy());
+        const copy = this.sketch.copy();
 
+        {
+            const old_limit = Error.stackTraceLimit;
+            Error.stackTraceLimit = Infinity;
+
+            const error = new Error("");
+            const stackTrace = "Stack Trace<br>" + error.stack.split("\n").slice(4).map(s => s.trim()).join("<br>");
+            copy.data["Stack Trace"] = stackTrace;
+
+            Error.stackTraceLimit = old_limit;
+        }
+        
+        this.snapshots.push(copy);
         if (cold_snapshot) this.taking_snapshot = false;
     }
 
