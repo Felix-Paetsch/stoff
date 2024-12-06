@@ -59,9 +59,9 @@ function styleline_panel(s, design, mea){
   let line2 = lines_comp.waistline;
   line2 = utils.sort_lines(s, line2)[0];
   let p2 = utils.get_point_on_line_percent(s, line2, 0.3);
-
   let parts;
   parts = utils.split_at_points(s, p1, line1, p2, line2, "side");
+
   if (design === "panel shoulder"){
     simple_dart_web(parts[0], "shoulder", mea);
   } else {

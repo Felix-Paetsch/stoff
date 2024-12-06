@@ -9,18 +9,18 @@ import { spline } from "../../StoffLib/curves.js";
 
 
 function lengthen_top_without_dart(s, mea, shorten){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
   let fold = lines.fold[0];
   let waist = lines.waistline[0];
   let p = fold.p2;
   let vec = fold.get_line_vector().normalize().scale(mea.waist_height).add(p);
 
   let p2 = s.add_point(new Point(vec));
-  if (s.data.front){
+//  if (s.data.front){
     vec = waist.get_line_vector().normalize().scale(mea.bottom_width_front/2).add(p2);
-  } else {
+  /*} else {
     vec = waist.get_line_vector().normalize().scale(mea.bottom_width_back/2).add(p2);
-  }
+  }*/
   let p3 = s.add_point(new Point(vec));
 
   let fold2 = s.line_between_points(p, p2).set_color("green");
@@ -45,7 +45,7 @@ function lengthen_top_without_dart(s, mea, shorten){
 };
 
 function lengthen_top_without_dart_new(s, mea, shorten){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
   let fold = lines.fold[0];
   let waist = lines.waistline[0];
   lengthen_top(s, mea, shorten, waist, fold)
@@ -54,8 +54,9 @@ function lengthen_top_without_dart_new(s, mea, shorten){
   return s;
 };
 
-function lengthen_top_with_dart(s, mea, shorten, dart = s.data.comp.lines_by_key("type").dart){
-  const lines = s.data.comp.lines_by_key("type");
+function lengthen_top_with_dart(s, mea, shorten, dart = s.lines_by_key("type").dart){
+
+  const lines = s.lines_by_key("type");
   let fold = lines.fold[0];
   let waistlines = lines.waistline;
   waistlines = utils.sort_lines(s, waistlines);
@@ -70,7 +71,7 @@ function lengthen_top_with_dart(s, mea, shorten, dart = s.data.comp.lines_by_key
 
 
 function curve_line(s){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
   let side = utils.sort_lines(s, lines.side)[0];
   let side_bottom = utils.sort_lines(s, lines.side_bottom).reverse();
 
@@ -81,7 +82,7 @@ function curve_line(s){
 }
 
 function correct_belly(s, mea, percent = 1){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
 
   const p_upper = lines.side_bottom[0].p1;
   const p_lower = lines.side_bottom[0].p2;
@@ -104,7 +105,6 @@ function correct_belly(s, mea, percent = 1){
   let p2 = s.add_point(fold_bottom.get_line_vector().scale(0.5).add(fold_bottom.p1));
 
   let ln_h = s.line_between_points(p1, p2);
-
   if (s.data.front){
     console.log("front");
   } else {
@@ -152,14 +152,14 @@ function correct_belly(s, mea, percent = 1){
   let len = ln_h.get_length();
 
   let vec_h
-  if (s.data.front){
+//  if (s.data.front){
     vec_h = get_vec(p2, p_upper, len, len_side/2);
     p1.move_to(vec_h);
 
     len = lines.bottom[0].get_length();
     vec_h = get_vec(fold_bottom.p2, p1, len, len_side/2);
     p_lower.move_to(vec_h);
-  } else {
+/*  } else {
 
     vec_h = get_vec(p_upper, p2, len_side/2, len);
     p1.move_to(vec_h);
@@ -168,7 +168,7 @@ function correct_belly(s, mea, percent = 1){
     vec_h = get_vec(p1, fold_bottom.p2, len_side/2, len);
     p_lower.move_to(vec_h);
 
-  }
+  } */
   s.remove_point(p2);
   /*
   */
@@ -177,7 +177,7 @@ function correct_belly(s, mea, percent = 1){
 
 
 function correct_belly_waistline_dart(s, mea){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
 
   const p_upper = lines.side_bottom[0].p1;
   const p_lower = lines.side_bottom[0].p2;
@@ -204,93 +204,93 @@ function correct_belly_waistline_dart(s, mea){
   let p4 = s.add_point(temp[0]);
   let ln_h2 = s.line_between_points(p3, p4);
 
-if (s.data.front){
-  console.log("front");
-} else {
-  console.log("back");
-}
-//console.log(ln_h.get_length() - width)
-//console.log(ln_h2.get_length());
+  if (s.data.front){
+    console.log("front");
+  } else {
+    console.log("back");
+  }
+  //console.log(ln_h.get_length() - width)
+  //console.log(ln_h2.get_length());
 
-let width_diff = ln_h.get_length() - width;
-// wenn zu wenig, dann negative zahl. Wenn zu viel
-// aktuell vorhanden, dann positive Zahl.
-let diff = width_diff + ln_h2.get_length();
-//console.log(diff)
-let len;
-if (width_diff <= 0.2 && width_diff >= -0.2){
-  opposite_dart(s, mea);
-  //s.remove_point(p1);
-  //s.remove_point(p2);
-  s.point_on_line(p1, lines.side_bottom[0]);
+  let width_diff = ln_h.get_length() - width;
+  // wenn zu wenig, dann negative zahl. Wenn zu viel
+  // aktuell vorhanden, dann positive Zahl.
+  let diff = width_diff + ln_h2.get_length();
+  //console.log(diff)
+  let len;
+  if (width_diff <= 0.2 && width_diff >= -0.2){
+    opposite_dart(s, mea);
+    //s.remove_point(p1);
+    //s.remove_point(p2);
+    s.point_on_line(p1, lines.side_bottom[0]);
 
-  s.remove_point(p3);
-  s.remove_point(p4);
-  s.remove_point(lines.dart1[0].p1);
-} else if (diff <= 0.2 && diff >= -0.2){
-  len = Math.min(Math.abs(width_diff), Math.abs(ln_h2.get_length()));
-  let vec = ln_h.get_line_vector().normalize().scale(len*0.7);
-  //s.remove_point(p2);
-  s.point_on_line(p1, lines.side_bottom[0]);
-  p1.move_to(p1.add(vec));
+    s.remove_point(p3);
+    s.remove_point(p4);
+    s.remove_point(lines.dart1[0].p1);
+  } else if (diff <= 0.2 && diff >= -0.2){
+    len = Math.min(Math.abs(width_diff), Math.abs(ln_h2.get_length()));
+    let vec = ln_h.get_line_vector().normalize().scale(len*0.7);
+    //s.remove_point(p2);
+    s.point_on_line(p1, lines.side_bottom[0]);
+    p1.move_to(p1.add(vec));
 
-  s.remove_point(p3);
-  s.remove_point(p4);
-  s.remove_point(lines.dart1[0].p1);
-  opposite_dart(s, mea);
-} else if (diff > 0.2 && diff < 7){
-  opposite_dart(s, mea, 0.65);
-  let vec = ln_h.get_line_vector().normalize().scale(Math.abs(width_diff)*0.4);
-  //s.remove_point(p2);
-  s.point_on_line(p1, lines.side_bottom[0]);
-  p1.move_to(p1.add(vec));
+    s.remove_point(p3);
+    s.remove_point(p4);
+    s.remove_point(lines.dart1[0].p1);
+    opposite_dart(s, mea);
+  } else if (diff > 0.2 && diff < 7){
+    opposite_dart(s, mea, 0.65);
+    let vec = ln_h.get_line_vector().normalize().scale(Math.abs(width_diff)*0.4);
+    //s.remove_point(p2);
+    s.point_on_line(p1, lines.side_bottom[0]);
+    p1.move_to(p1.add(vec));
 
-  s.remove_point(p3);
-  s.remove_point(p4);
-  s.remove_point(lines.dart1[0].p1);
+    s.remove_point(p3);
+    s.remove_point(p4);
+    s.remove_point(lines.dart1[0].p1);
 
-} else if (diff < -0.2 && diff > -6){
-  opposite_dart(s, mea, 0.35);
-  let vec = ln_h.get_line_vector().normalize().scale(Math.abs(diff)*-0.55);
-  //s.remove_point(p2);
-  s.point_on_line(p1, lines.side_bottom[0]);
-  p1.move_to(p1.add(vec));
+  } else if (diff < -0.2 && diff > -6){
+    opposite_dart(s, mea, 0.35);
+    let vec = ln_h.get_line_vector().normalize().scale(Math.abs(diff)*-0.55);
+    //s.remove_point(p2);
+    s.point_on_line(p1, lines.side_bottom[0]);
+    p1.move_to(p1.add(vec));
 
-  s.remove_point(p3);
-  s.remove_point(p4);
-  s.remove_point(lines.dart1[0].p1);
-} else {
-  opposite_dart(s, mea, 0.55);
-  s.point_on_line(p1, lines.side_bottom[0]);
-  s.remove_points(p3, p4);
-  s.remove_point(lines.dart1[0].p1);
-  console.log("Das ist noch nicht implementiert, das braucht eine deutlichere Veränderung im Schnittmuster!");
+    s.remove_point(p3);
+    s.remove_point(p4);
+    s.remove_point(lines.dart1[0].p1);
+  } else {
+    opposite_dart(s, mea, 0.55);
+    s.point_on_line(p1, lines.side_bottom[0]);
+    s.remove_points(p3, p4);
+    s.remove_point(lines.dart1[0].p1);
+    console.log("Das ist noch nicht implementiert, das braucht eine deutlichere Veränderung im Schnittmuster!");
 
-}
-p1.data.type = "middle_bottom_side";
+  }
+  p1.data.type = "middle_bottom_side";
 
-len = ln_h.get_length();
+  len = ln_h.get_length();
 
-let vec_h
+  let vec_h
 
-if (s.data.front){
-  vec_h = get_vec(p2, p_upper, len, mea.waist_height/2);
-  p1.move_to(vec_h);
+//  if (s.data.front){
+    vec_h = get_vec(p2, p_upper, len, mea.waist_height/2);
+    p1.move_to(vec_h);
 
-  len = lines.bottom[0].get_length();
-  vec_h = get_vec(fold_bottom.p2, p1, len, mea.waist_height/2);
-  p_lower.move_to(vec_h);
-} else {
+    len = lines.bottom[0].get_length();
+    vec_h = get_vec(fold_bottom.p2, p1, len, mea.waist_height/2);
+    p_lower.move_to(vec_h);
+/*  } else {
 
-  vec_h = get_vec(p_upper, p2, mea.waist_height/2, len);
-  p1.move_to(vec_h);
+    vec_h = get_vec(p_upper, p2, mea.waist_height/2, len);
+    p1.move_to(vec_h);
 
-  len = lines.bottom[0].get_length();
-  vec_h = get_vec(p1, fold_bottom.p2, mea.waist_height/2, len);
-  p_lower.move_to(vec_h);
+    len = lines.bottom[0].get_length();
+    vec_h = get_vec(p1, fold_bottom.p2, mea.waist_height/2, len);
+    p_lower.move_to(vec_h);
 
-}
-s.remove_point(p2);
+  } */
+  s.remove_point(p2);
 };
 
 
@@ -310,7 +310,7 @@ function set_ratio(s, mea, ratio_f = 1, ratio_b = 1, both = false){
 
 
 function correct_belly_middle(s, mea, percent = 0.35){
-    const lines = s.data.comp.lines_by_key("type");
+    const lines = s.lines_by_key("type");
     const width = mea.belly*mea.ratio/4;
 
 
@@ -329,8 +329,7 @@ function correct_belly_middle(s, mea, percent = 0.35){
 
     let vec;
 
-
-      if (width_diff > 2 && width_diff < 5){
+  if (width_diff > 2 && width_diff < 5){
         vec = ln_h.get_line_vector().normalize().scale(width_diff * 0.7* (1- percent));
         s.point_on_line(p1, side_bottom);
         p1.move_to(p1.add(vec));
@@ -365,10 +364,10 @@ function correct_belly_middle(s, mea, percent = 0.35){
         vec = ln_h.get_line_vector().normalize().scale(width_diff * -percent);
         s.point_on_line(p2, fold_bottom);
         p2.move_to(p2.add(vec));
-
         //s.remove_point(p2);
       } else {
         s.point_on_line(p1, side_bottom);
+        s.point_on_line(p2, fold_bottom);
         console.log("Das ist noch nicht implementiert, das braucht eine deutlichere Veränderung im Schnittmuster!");
       }
 
@@ -381,7 +380,7 @@ function correct_belly_middle(s, mea, percent = 0.35){
 
     let waistline = lines.waistline[0];
     let vec_h;
-    if(s.data.front){
+    if(!s.data.closed){
       vec_h = get_vec(p2, waistline.p2, len, side_len/2);
       p1.move_to(vec_h);
 
@@ -423,7 +422,7 @@ function correct_belly_middle(s, mea, percent = 0.35){
 };
 
 function opposite_dart(s, mea, scale = 0.45){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
   let darts = utils.get_waistline_dart(s);
   darts[0].set_color("green")
 
@@ -435,15 +434,14 @@ function opposite_dart(s, mea, scale = 0.45){
   vec2 = vec2.add(vec);
   const p = s.add_point(vec2);
 //  s.remove_point()
-s.line_between_points(p, darts[0].p2).data.type = "dart_bottom";
-s.line_between_points(p, darts[1].p2).data.type = "dart_bottom";
+  s.line_between_points(p, darts[0].p2).data.type = "dart_bottom";
+  s.line_between_points(p, darts[1].p2).data.type = "dart_bottom";
 
 };
 
 function opposite_dart2(s, darts){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
 //  let darts = lines.dart;
-
   darts[0].set_color("green")
   let vec = darts[0].p2.add(darts[1].p2).scale(0.5);
   let p1 = s.add_point(vec);
@@ -452,7 +450,6 @@ function opposite_dart2(s, darts){
   let p2 = s.add_point(vec2);
   let ln = s.line_between_points(p1, p2);
   let bottom = lines.bottom[0];
-
 
   let temp = s.intersection_positions(ln, bottom);
   let p3 = s.add_point(temp[0]);
@@ -469,7 +466,7 @@ function opposite_dart2(s, darts){
 }
 
 function lengthen_top(s, mea, shorten, waist, fold){
-//  const lines = s.data.comp.lines_by_key("type");
+//  const lines = s.lines_by_key("type");
 //  let fold = lines.fold[0];
   //let waist = lines.waistline[0];
   let p = fold.p2;
@@ -482,10 +479,12 @@ function lengthen_top(s, mea, shorten, waist, fold){
 
   let a = p2.subtract(waist.p2).length();
   let c = mea.waist_height;
-
+  let b;
   if (s.data.front){
-
-    let b = mea.bottom_width_front / 2;
+    b = mea.bottom_width_front / 2;
+  } else {
+    b = mea.bottom_width_back / 2;
+  }
     let angle = get_angle_cos(a, b, c);
 
     let fun = rotation_fun(waist.p2, angle);
@@ -496,8 +495,7 @@ function lengthen_top(s, mea, shorten, waist, fold){
     let side_bottom = s.line_between_points(waist.p2, p3);
     side_bottom.data.type = "side_bottom";
     s.line_between_points(p2, p3).data.type = "bottom";
-  } else {
-    let b = mea.bottom_width_back / 2;
+    /*
     let angle = get_angle_cos(a, b, c);
     let fun = rotation_fun(waist.p2, -angle);
 
@@ -507,8 +505,7 @@ function lengthen_top(s, mea, shorten, waist, fold){
     p3.move_to(waist.p2.subtract(p3).normalize().scale(-mea.waist_height).add(waist.p2));
     let side_bottom = s.line_between_points(waist.p2, p3);
     side_bottom.data.type = "side_bottom";
-    s.line_between_points(p2, p3).data.type = "bottom";
-  }
+    s.line_between_points(p2, p3).data.type = "bottom";*/
 };
 
 // a ist differenz zwischen Punkten
@@ -551,7 +548,7 @@ function lengthen_styleline(arr, mea, percent, closed = false){
   }
 
 // Hier ist das für front
-  let lines = front_i.data.comp.lines_by_key("type");
+  let lines = front_i.lines_by_key("type");
   let darts = lines.dart;
   if(darts){
     darts.forEach(elem =>{
@@ -576,7 +573,7 @@ function lengthen_styleline(arr, mea, percent, closed = false){
 
   // ab hier für back
 
-  lines = back_i.data.comp.lines_by_key("type");
+  lines = back_i.lines_by_key("type");
 
   if(darts){
     darts.forEach(elem =>{
@@ -592,13 +589,12 @@ function lengthen_styleline(arr, mea, percent, closed = false){
   let ln2_len_b = len_back - ln1_len_b;
   fold_bottom = line_with_length(back_i, waistline.p1, len_side_bottom + 2, 0).set_color("green");
   fold_bottom.data.type = "fold_bottom";
-  vec = get_vec( waistline.p2, fold_bottom.p2, len_side_bottom + add_len_b, ln1_len_b);
+  vec = get_vec( fold_bottom.p2, waistline.p2,  ln1_len_b, len_side_bottom + add_len_b);
   p1 = back_i.add_point(vec);
   bottom = back_i.line_between_points(fold_bottom.p2, p1);
   side_bottom = back_i.line_between_points(waistline.p2, p1);
   bottom.data.type = "bottom";
   side_bottom.data.type = "side_bottom";
-
 
 correct_belly(back_i, mea, ratio_back);
 
@@ -607,37 +603,40 @@ let p2;
 
 if (!closed){
   // front
-lengthen_middle(front_o, ln2_len_f, len_side_bottom + add_len_f, len_side_bottom);
-correct_belly_middle(front_o, mea);
-  // back
+  lengthen_middle(front_o, ln2_len_f, len_side_bottom + add_len_f, len_side_bottom);
+  correct_belly_middle(front_o, mea);
+    // back
 
-lengthen_middle(back_o, ln2_len_b, len_side_bottom + add_len_b, len_side_bottom);
-set_ratio(back_o, mea, 1 - ratio_front, 1 - ratio_back);
-correct_belly_middle(back_o, mea);
+  lengthen_middle(back_o, ln2_len_b, len_side_bottom + add_len_b, len_side_bottom);
+  set_ratio(back_o, mea, 1 - ratio_front, 1 - ratio_back);
+  correct_belly_middle(back_o, mea);
+  back_o.dev.at_new_url("/bla")
 
-front_o.data.type = "middle";
-back_o.data.type = "middle";
+  front_o.data.type = "middle";
+  back_o.data.type = "middle";
 
 
 } else {
   middle.data.front = false;
   lengthen_middle(middle, ln2_len_b + ln2_len_f, len_side_bottom + add_len_b, len_side_bottom + add_len_f, 0.5);
+
   middle.data.type = "middle";
   set_ratio(middle, mea, 1 - ratio_front, 1 - ratio_back, true);
-
   correct_belly_middle(middle, mea, 0.5);
+
   //console.
 
 
-}
-let ln;
-arr.forEach((s) => {
-  if (s.data.type === "middle"){
-    ln = s.lines_by_key("type").fold_bottom;
-    s.merge_lines(ln[0], ln[1], true);
   }
-  shorten_length_new(s, percent);
-});
+
+  let ln;
+  arr.forEach((s) => {
+    if (s.data.type === "middle"){
+      ln = s.lines_by_key("type").fold_bottom;
+      s.merge_lines(ln[0], ln[1], true);
+    }
+    shorten_length_new(s, percent);
+  });
 
 
 
@@ -645,17 +644,16 @@ arr.forEach((s) => {
 
 
 function lengthen_middle(s, len_bottom, len_height_i, len_height_o, percent = 0.35){
-  const lines = s.data.comp.lines_by_key("type");
+  const lines = s.lines_by_key("type");
   let waistline = lines.waistline[0];
   let diff = len_bottom - waistline.get_length();
   let diff_i = diff * percent;
   let ln_h = line_with_length(s, waistline.p1, len_height_i, 0);
   let vec;
-
-  if (s.data.front){
-    vec = get_vec(ln_h.p2, waistline.p2, len_bottom - diff_i, len_height_o);
-  } else {
+  if (s.data.closed){
     vec = get_vec( waistline.p2, ln_h.p2, len_height_o, len_bottom - diff_i);
+  } else {
+    vec = get_vec(ln_h.p2, waistline.p2, len_bottom - diff_i, len_height_o);
   }
   let p1 = s.add_point(vec);
   let side_bottom = s.line_between_points(waistline.p2, p1);
@@ -663,17 +661,17 @@ function lengthen_middle(s, len_bottom, len_height_i, len_height_o, percent = 0.
 
 
   s.remove_point(ln_h.p2);
-  if (s.data.front){
-    vec = get_vec(waistline.p1, p1, len_height_i, len_bottom);
-  } else {
+  if (s.data.closed){
     vec = get_vec(p1, waistline.p1, len_bottom, len_height_i);
-
+  } else {
+    vec = get_vec(waistline.p1, p1, len_height_i, len_bottom);
   }
   let p2 = s.add_point(vec);
   let bottom = s.line_between_points(p2, p1);
   bottom.data.type = "bottom";
   let fold_bottom = s.line_between_points(waistline.p1, p2);
   fold_bottom.data.type = "fold_bottom";
+
 
 }
 
@@ -776,7 +774,6 @@ function shorten_with_dart(s, percent){
 
 
   shorten_length_new(s, percent);
-
   s.data.shortened = true;
   let lines = s.lines_by_key("type");
   let darts = lines.dart_bottom;
@@ -803,9 +800,9 @@ function shorten_with_dart(s, percent){
 
 
 
-    let ln = s.line_between_points(bottom.p1, p2);
+    let ln = s.line_between_points(bottom.p1, p1);
     ln.data.type = "bottom";
-    ln = s.line_between_points(p1, bottom.p2);
+    ln = s.line_between_points(p2, bottom.p2);
     ln.data.type = "bottom";
 
     s.remove(pt1);
@@ -813,14 +810,15 @@ function shorten_with_dart(s, percent){
     lines = s.lines_by_key("type");
     darts = lines.dart_bottom;
     let vec;
-    if (s.data.front){
-      vec = get_vec(darts[0].p2, bottom.p2, darts[1].get_length(), ln.get_length());
-    } else {
+    //if (s.data.front){
+      vec = get_vec(darts[1].p2, bottom.p2, darts[0].get_length(), ln.get_length());
+  /*  } else {
       vec = get_vec( bottom.p2, darts[0].p2, ln.get_length(), darts[1].get_length());
-    }
-    p1.move_to(vec)
+    }*/
+    p2.move_to(vec)
 
     s.remove_line(bottom);
+    s.dev.at_new_url("/wa")
     return s;
     /*
 */

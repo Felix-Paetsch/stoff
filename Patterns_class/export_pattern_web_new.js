@@ -4,8 +4,8 @@ import { Vector } from '../StoffLib/geometry.js';
 
 import mea from './measurements.js';
 import basic_pattern_top from './top/pattern_top.js';
-import pattern_top_new from './top/pattern_top_new.js';
-import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
+import pattern_top from './top/pattern_top.js';
+//import basic_pattern_sleeve from './sleeves/pattern_sleeve.js';
 import change from './simple_main.js';
 import lengthen from './lengthen/top.js';
 import seam from './seam_allowance/simple_seam.js';
@@ -13,7 +13,8 @@ import annotate from './annotate/annotate.js';
 // ToDo!!! Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet,
 // sollte eine Warung ausgegeben werden!
 
-import pictures from '../Pictures/main_pictures.js';
+import create from './create/create_main.js';
+
 
 import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
 
@@ -72,8 +73,6 @@ export default {
             cOption(
               "styleline",
               "classic princess",
-              "panel side",
-              "panel shoulder",
               "panel",
               1
             ),
@@ -165,6 +164,7 @@ export default {
         )
     ),
     create_design: (design_config) => {
+
       let temp = design_config.Schnittmuster["für"];
       let measurements;
       if ( temp === "Debby"){
@@ -213,20 +213,33 @@ export default {
 
   //    return pattern_top_new.back(measurements);
 
-      let back = pattern_top_new.back(measurements, design_config["top designs"].ease);
-      let front = pattern_top_new.front(measurements, design_config["top designs"].ease);
+
+
+      let s = new Sketch();
+      let basic = create.basic_pattern(measurements);
+      s = change.paste_sketches(s, basic);
+      //s.save_on_A4("renders");
+
+      return s;
+
+
+
+
+
+
+
+
+
+      /*
+      let back = pattern_top.first_pattern(measurements, design_config["top designs"].ease, false);
+      let front = pattern_top.first_pattern(measurements, design_config["top designs"].ease);
 
 
       front = change.main_top(front, design_config["top designs"], measurements, design_config["neckline"]);
       back = change.main_top(back, design_config["top designs"], measurements, design_config["neckline"]);
 
-      /*
-      front.remove_point(front.data.pt);
-      back.remove_point(back.data.pt);
-      front.data.pt = false;
-      back.data.pt = false;
 
-      */
+
       let height_sleeve;
       let sleeve;
       if (design_config["top designs"].type === "styleline"){
@@ -238,10 +251,8 @@ export default {
       }
 
     //  sleeve = change.main_sleeve(sleeve, design_config["sleeve"], measurements);
-      /*
-      */
 
-      let s = new Sketch();
+  //    let s = new Sketch();
       let sketches = change.main_merge(front, back, design_config["top designs"]);
 
 
@@ -257,25 +268,27 @@ export default {
         delete s.data.pt;
 
         if (s.data.type === "middle" || s.data.type === "sleeve"){
-          sketches2 = (annotate.annotate(s, sketches2));
+          sketches2 = (annotate.new_annotate(s, sketches2));
         } else {
-          sketches2.push(annotate.annotate(s));
+          sketches2.push(annotate.new_annotate(s));
         }
-        /*
-        */
+
       });
-      //let elem = sketches2.shift();
-      //sketches2.push(elem);
+      */
+      /*
+      let elem = sketches2.shift();
+      sketches2.push(elem);
     //  return(annotate.annotate(sketches[0]))
       //  sketches.push(sleeve);
 
 
 
-
+      */
+      /*
       s = change.paste_sketches(s, sketches2);
-    //  s = change.paste_sketches(s, sketches2);
       //s.save_on_A4("renders");
 
       return s;
+      */
     }
 }
