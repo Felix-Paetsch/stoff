@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoffLib</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Playwrite+CU:wght@100..400&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main>
+        <h1>StoffLib</h1>
+        <p id="top_text"><%- texts["initial_subtitle"] %></p>
+        <div id="dashboard_flex">
+            <%- include("./panels/register_panel.ejs") %>
+            <%- include("./panels/text_panel.ejs", {
+                text: texts["stoff_description"]
+            }) %>
+        </div>
+    </main>
+
+    <script src="/js/tools/hot_reload.js"></script>
+    <script src="/js/tools/record_page.js"></script>
+</body>
+</html>

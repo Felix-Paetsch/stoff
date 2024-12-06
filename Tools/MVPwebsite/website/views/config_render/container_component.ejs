@@ -1,0 +1,8 @@
+<div class="config_component container_component">
+    <h3><%- t.name.name %></h3>
+    <ul>
+        <% for (let i = 0; i < t.children.length; i++){ %>
+            <%- t.children[i].render(dir, [...own_path, i], locals) %>
+        <% } %>
+    </ul>
+</div>

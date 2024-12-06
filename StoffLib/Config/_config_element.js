@@ -155,7 +155,7 @@ export default class ConfigElement{
     }
 
 
-    _dev_render(rel_file_path, dir, own_path){
+    _dev_render(rel_file_path, dir, own_path, data = {}){
         return render_file_sync(
             path.join(dir, rel_file_path),
             {
@@ -163,7 +163,8 @@ export default class ConfigElement{
                 t: this,
                 dir,
                 own_path,
-                serialized_path: ConfigElement.serialize_path(own_path)
+                serialized_path: ConfigElement.serialize_path(own_path),
+                ...data
             }
         )
     }

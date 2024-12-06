@@ -1,0 +1,26 @@
+<div class="table_panel measurements_panel">
+  <form hx-post="/submit-measurements" hx-swap="none" method="post">
+    <input type="hidden" name="user_ident" value="<%= ident %>">
+    <input type="hidden" name="user_name" value="<%= name %>">
+
+    <div class="measurements_items">
+        <% measurements.forEach((item, index) => { %>
+            <div class="measurement-item  <%- item.error ? "with_error" : ""%>">
+              <label for="measurement-<%= index %>"><%= item.display %>:</label>
+              <input
+                type="text"
+                id="measurement-<%= index %>"
+                name="measurement][<%= item.key %>"
+                value="<%= item.value !== null ? item.value : '' %>"
+                placeholder="Enter <%= item.display %>"
+                required
+              >
+              <span>cm</span>
+            </div>
+            <br>
+          <% }); %>
+    </div>
+    <button type="submit">Save & Next</button>
+    <button type="button" onclick="window.location.reload()">Log Out</button>
+  </form>
+</div>

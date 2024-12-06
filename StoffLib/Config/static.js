@@ -8,8 +8,8 @@ export default class CStatic extends ConfigElement {
         this.value = value === null ? name : value;
     }
 
-    render(dir, own_path){
-        return this._dev_render("static_component.ejs", dir, own_path);
+    render(dir, own_path, data = {}){
+        return this._dev_render("static_component.ejs", dir, own_path, data);
     }
 
     serialize(){

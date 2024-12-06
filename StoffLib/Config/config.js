@@ -34,8 +34,8 @@ export default class Config extends ChildrenHaving{
     }
 
     /* frontend stuff */
-    render(dir){
-        return this.children.map((c, i) => c.render(dir, ["BASE", i])).join("\n");
+    render(dir, data = {}){
+        return this._dev_render("config.ejs", dir, ["BASE"], data);
     }
 
     on_dom_load(){

@@ -1,0 +1,11 @@
+<div id="top_text" hx-swap-oob="innerHTML">Logged in as <%= name %> --- <%- texts.logged_in_subtitle %></div>
+
+<div id="dashboard_flex" hx-swap-oob="innerHTML">
+    <%- include("../panels/measurements_panel.ejs") %>
+    <%- include("../panels/img_panel.ejs", {
+        url: "https://cdn.shopify.com/s/files/1/0333/9049/3835/files/bodymeasures_480x480.jpg?v=1612896631"
+    }) %>
+    <%- include("../panels/text_panel.ejs", {
+        text: texts.measurements_text
+    }) %>
+</div>

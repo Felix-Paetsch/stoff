@@ -1,0 +1,37 @@
+<div id="top_text" hx-swap-oob="innerHTML">Logged in as <%= name %> --- <%- texts.choose_design_subtitle %></div>
+
+<div id="dashboard_flex" hx-swap-oob="innerHTML">
+    <%- include("../panels/svg_wrapper.ejs", {
+        text: "Current version",
+        svg
+    }) %>
+    <%- include("../panels/selection_head.ejs") %>
+
+    <% if (
+        typeof current_selection_option_id != "undefined"
+        && typeof current_selection_option_id !== null
+    ){
+        const config_el = design_config.get_by_id(current_selection_option_id);
+        if (config_type == "option"){
+            for (let i = 0; i < config_el.children.length; i++){
+                config_el.select(i);
+        %>
+                <%- include("../panels/svg_option_wrapper.ejs", {
+                    text: `${config_el.name.name}: ${config_el.children[i].name}`,
+                    option_id: config_el.id,
+                    option: i,
+                    svg: make_svg(design_config)
+                }) %>
+        <%
+            };
+        } else if (config_type == "number"){
+        %>
+                <%- include("../panels/svg_number_option_wrapper.ejs", {
+                    ...config_el,
+                    text: config_el.name.name,
+                    option_id: config_el.id,
+                    svg: make_svg(design_config, 400, 500)
+                }) %>
+        <% }
+    } %>
+</div>

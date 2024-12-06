@@ -1,0 +1,7 @@
+User-Agent: *
+Disallow: /forbidden
+Disallow: /forbidden/
+Disallow: /notfound
+Disallow: /notfound/
+
+Allow: /

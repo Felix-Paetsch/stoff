@@ -1,0 +1,239 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: white;
+  background-color: #C44900;
+  font-family: "Roboto", sans-serif;
+  padding: 1rem;
+}
+
+main {
+  border-radius: 2rem;
+  background-color: #0D0A0B;
+  min-height: calc(100vh - 8rem);
+  padding: 1rem 1rem 1rem 3rem;
+}
+
+#dashboard_flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 2em;
+  padding-bottom: 2em;
+}
+
+.table_panel {
+  min-height: 20em;
+  min-width: 25em;
+  background-color: #EFD6AC;
+  border-radius: 1em;
+  margin-right: 2em;
+  margin-bottom: 2em;
+  color: black;
+  padding: 2em;
+}
+
+/* ======= Panels =========== */
+.text_panel {
+  width: min-content;
+  line-height: 1.5em;
+}
+.text_panel p {
+  margin: 0;
+}
+
+.register_panel label {
+  min-width: 7rem;
+  display: inline-block;
+}
+.register_panel #register_error .active {
+  display: inline-block;
+  margin: 2rem 0 2rem 0;
+  max-width: 20rem;
+  font-size: 0.8rem;
+}
+
+.table_panel.register_panel input[type=text],
+.table_panel.register_panel input[type=password] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.table_panel.register_panel input[type=text]:focus,
+.table_panel.register_panel input[type=password]:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.table_panel.register_panel button {
+  font-size: 1rem;
+  background-color: #0D0A0B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.table_panel.register_panel #name_input {
+  margin-bottom: 0.6rem;
+}
+
+.table_panel.measurements_panel {
+  width: 100%;
+}
+.table_panel.measurements_panel .measurements_items {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.table_panel.measurements_panel .measurement-item {
+  min-width: 20rem;
+  margin: 0 1rem 1rem 0;
+  display: flex;
+  flex-direction: row;
+  border-right: 0.1rem solid black;
+  border-bottom: 0.1rem solid black;
+  padding: 0 0 0.5rem 0;
+}
+.table_panel.measurements_panel .measurement-item label {
+  display: inline-block;
+  padding: 0.5rem;
+  min-width: 5rem;
+}
+.table_panel.measurements_panel .measurement-item span {
+  display: inline-block;
+  padding: 0.5rem;
+}
+.table_panel.measurements_panel .measurement-item.with_error {
+  color: #C44900;
+  border-color: #C44900;
+}
+.table_panel.measurements_panel input[type=text] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.table_panel.measurements_panel input[type=text]:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.table_panel.measurements_panel button {
+  font-size: 1rem;
+  background-color: #0D0A0B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.big_img_panel {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box; /* Ensure padding is included in the element's total width */
+}
+.big_img_panel .big_img_panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.thank_you_panel h3 {
+  width: 100%;
+  margin-left: 1rem;
+  font-size: 4rem;
+}
+.thank_you_panel span {
+  font-size: 1.2em;
+  border-left: 0.2rem #C44900 solid;
+  padding: 0.4rem 0 0.4rem 0.8rem;
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.selection_head li {
+  width: min-content;
+  min-width: 20rem;
+  cursor: pointer;
+  margin-top: 0.2rem;
+}
+.selection_head li i {
+  cursor: default;
+}
+.selection_head button {
+  font-size: 1rem;
+  background-color: #0D0A0B;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.svg_wrapper svg {
+  border: 0.1rem solid #0D0A0B;
+}
+.svg_wrapper.svg_option_wrapper h3 {
+  cursor: pointer;
+}
+
+.svg_number_option_wrapper #number_input_top_row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.svg_number_option_wrapper #current_number_input_value {
+  white-space: nowrap;
+  min-width: 5.5rem;
+  margin: 0.3rem 0 1rem 0;
+}
+.svg_number_option_wrapper input[type=range] {
+  --width: 1em;
+  --height: 1.5em;
+  --border: .2em solid #000000;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  max-width: 15rem;
+  cursor: pointer;
+  height: 0.2rem;
+  border-radius: 0.1em;
+  background: #C44900;
+  outline: none;
+  opacity: 0.7;
+  margin: 0.85rem 0 0 0;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+.svg_number_option_wrapper input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--width);
+  height: var(--height);
+  background: #C44900;
+  cursor: pointer;
+  border: var(--border);
+}
+.svg_number_option_wrapper input[type=range]::-moz-range-thumb {
+  width: var(--width);
+  height: var(--height);
+  background: #C44900;
+  cursor: pointer;
+  border: var(--border);
+}
+.svg_number_option_wrapper #number_input_submit {
+  width: 2rem;
+  height: 2rem;
+  background-color: #C44900;
+  cursor: pointer;
+  margin-left: 1.5rem;
+  border-radius: 0.5rem;
+}

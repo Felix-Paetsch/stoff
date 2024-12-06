@@ -1,0 +1,15 @@
+<div class="table_panel register_panel">
+    <form hx-post="/register" hx-swap="none" method="post">
+        <div id="name_input">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <span id="register_error"></span>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+</div>

@@ -1,0 +1,10 @@
+<% if (typeof current_selection_option_id !== "undefined" && t.id == current_selection_option_id){ %>
+    <li><i><%- t.name.name %></i></li>
+<% } else { %>
+    <li 
+        hx-post="/activate_specific_item" 
+        hx-vals='{"config_type": "option", "current_selection_option_id": "<%= t.id %>", "ident": "<%= ident %>"}' 
+        hx-swap="none">
+        <%- t.name.name %>
+    </li>
+<% } %>
