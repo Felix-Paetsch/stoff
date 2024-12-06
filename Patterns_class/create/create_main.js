@@ -8,6 +8,8 @@ import utils from '../funs/utils.js';
 import {line_with_length} from '../funs/basicFun.js';
 import pattern_top from '../top/pattern_top.js';
 
+import {TShirtBasePatternFront, TShirtBasePatternBack} from '../base/t-shirt_base.js';
+
 import change from './create_basic_pattern.js';
 
 
@@ -112,8 +114,8 @@ function set_neckline(type, front){
 
 
 function basic_pattern(mea){
-  const front = pattern_top.first_pattern(mea, obj_data_front["top designs"].ease, true);
-  const back = pattern_top.first_pattern(mea, obj_data_back["top designs"].ease, false);
+  const front = new TShirtBasePatternFront(mea, obj_data_front["top designs"].ease).get_sketch();
+  const back = new TShirtBasePatternBack(mea, obj_data_front["top designs"].ease).get_sketch();
 
   change.change_front_and_back(front, back, obj_data_front, obj_data_back);
 

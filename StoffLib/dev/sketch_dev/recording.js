@@ -80,10 +80,11 @@ class Recorder {
             this.old_methods[method_name] = old_method;
 
             s[method_name] = function (...args) {
-                const taking_snapshot = this.dev.recorder.taking_snapshot;
-                if (!taking_snapshot) this.dev.recorder.startSnapshot();
-                const result = old_method.apply(this, args);
-                if (!taking_snapshot) this.dev.recorder.endSnapshot();
+                console.log(s.dev.recorder);
+                const taking_snapshot = s.dev.recorder.taking_snapshot;
+                if (!taking_snapshot) s.dev.recorder.startSnapshot();
+                const result = old_method.apply(s, args);
+                if (!taking_snapshot) s.dev.recorder.endSnapshot();
                 return result;
             };
         }
@@ -124,6 +125,11 @@ class Recorder {
 
     stop_recording() {
         this.sketch.dev.recorder = null;
+
+        for (const method_name of Object.keys(this.old_methods)) {
+            this.sketch[method_name] = this.old_methods[method_name].bind(this.sketch);
+        }
+
         return new Recording(this.snapshots).lock();
     }
 }

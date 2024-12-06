@@ -164,7 +164,6 @@ export default {
         )
     ),
     create_design: (design_config) => {
-
       let temp = design_config.Schnittmuster["für"];
       let measurements;
       if ( temp === "Debby"){
