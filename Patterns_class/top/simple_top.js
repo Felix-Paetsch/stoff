@@ -209,6 +209,7 @@ function simple_middle_dart(s, type, percent){
   return s;
 };
 
+// bereits kopiert
 // einfaches unterscheiden der Arten des Abnähers und entsprechende
 // ausführung weiterer Funktionen (z.B. simple_middle_dart)
 function simple_dart_web(s, pos){
@@ -224,7 +225,7 @@ function simple_dart_web(s, pos){
   }
 };
 
-
+// bereits kopiert
 // berechnet wo das Bein des Abnähers liegen muss, damit dieser genau Senkrecht
 // zur Taille verläuft und ruft waistline_simple_dart auf
 function simple_waistline_web(s){
@@ -250,7 +251,7 @@ function simple_waistline_web(s){
 };
 
 
-
+// bereits uebernommen
 // halbiert den Abnäher auf beide angegebene Positionen. Wenn nur eine
 // Position angegeben wird, wird die andere Hälfte wie bei without dart
 // an die seite "geschoben"

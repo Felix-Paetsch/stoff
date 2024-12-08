@@ -171,7 +171,6 @@ function mirror_on_fold(sk){
 
   let points = s.get_points();
   points = [...points];
-
   mirror_sketch(sk);
   s.paste_sketch(sk);
 
@@ -206,7 +205,7 @@ function get_pair_of_lines(s, lines){
   while(lines.length){
     let line = lines.splice(0,1);
     for (let i = 0; i < lines.length; i++){
-      
+
       if(line[0].common_endpoint(lines[i])){
         return [line[0], lines[i]];
       }

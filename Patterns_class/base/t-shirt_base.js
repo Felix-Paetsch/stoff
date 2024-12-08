@@ -3,14 +3,20 @@ import { Point } from '../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data } from '../../StoffLib/geometry.js';
 import { spline } from "../../StoffLib/curves.js";
 
-import Pattern from "./pattern.js";
+import PatternComponent from "./pattern_component.js";
 
 import {line_with_length, point_at, get_point_on_other_line2} from '../funs/basicFun.js';
 
-export default class TShirtBasePattern extends Pattern{
-    constructor(mea, ease, side = "front"){
+
+import neck from '../neckline/neckline.js';
+import arm from '../sleeves/simple_sleeve.js';
+
+
+
+export default class TShirtBasePattern extends PatternComponent{
+    constructor(mea, ease, design, side = "front"){
         /*
-            Notes: 
+            Notes:
                 You have to decide what to put in the config object (see pattern) or whether you need it at all.
                 In my head it is initial data for the setUp that woun't change -> help keep track of stuff later
                 Likewise "this.side" is redundant (if you want to include fromt as a boolean at least), but i liked strings more.
@@ -21,7 +27,7 @@ export default class TShirtBasePattern extends Pattern{
                     - you can iterate over the keys and add them to the lines / pts as attributes if you want that
 
                 I havent changed the interface to the outside world. But
-                
+
                 {
                     "p5": pts.p5,
                     "p6": pts.p6,
@@ -33,13 +39,15 @@ export default class TShirtBasePattern extends Pattern{
                 seem like strange data attributes. Usually whenever you have something really messy, it should be really descriptive what comes in
                 and what comes out.
         */
-        super(mea, {ease, side});
+        super(mea, {ease, side}, design);
 
         this.sketch = new Sketch();
 
         this.initialize_shorthands();
         this.main_construction();
         this.add_ease();
+        this.neckline();
+        this.armpit();
     }
 
     initialize_shorthands(){
@@ -72,7 +80,7 @@ export default class TShirtBasePattern extends Pattern{
         pts.b = this.sketch.point(0, this.sh.center);
         lns.a_to_b = this.sketch.line_between_points(pts.a,pts.b);
         lns.a_to_b.data.type = "fold";
-        
+
         pts.p1 = this.sketch.point(pts.b.subtract(new Vector(0, this.sh.shoulder)));
         pts.p2 = this.sketch.point(pts.p1.subtract(new Vector(this.sh.across/2, 0)));
         pts.p3 = this.sketch.point(pts.p1.subtract(new Vector(this.sh.shoulder_width/2, 0)));
@@ -82,7 +90,7 @@ export default class TShirtBasePattern extends Pattern{
         pts.c = this.sketch.point(pts.b.add(new Vector(pts.p3.x, -len)));
 
         len = Math.sqrt(Math.pow(this.sh.shoulder_length, 2) - Math.pow(pts.c.y - pts.p1.y, 2));
-        
+
         pts.d = this.sketch.point(pts.c.add(new Vector(len, pts.p1.y - pts.c.y)));
         lns.c_to_d = this.sketch.line_between_points(pts.d, pts.c);
         lns.c_to_d.data.type = "shoulder";
@@ -108,14 +116,14 @@ export default class TShirtBasePattern extends Pattern{
         let c1 = (this.sh.bust/2) - lns.b_to_g.get_length() + (diff/4);
         let b1 = this.sh.side_height;
 
-        let angle = triangle_data({a: a1, b: b1, c: c1}).beta;
+        let angle = triangle_data({a: a1, b: b1, c: c1}).gamma;
 
         let fun = rotation_fun(pts.e, angle);
         pts.f = this.sketch.add_point(pts.g.copy());
         pts.f.data.type = "f"
         pts.f.move_to(fun(pts.g));
         pts.f.move_to(pts.e.subtract(pts.f).normalize().scale(-this.sh.side_height).add(pts.e));
- 
+
         lns.e_to_f = this.sketch.line_between_points(pts.e, pts.f);
 
         lns.e_to_f.data.type = "side";
@@ -182,7 +190,7 @@ export default class TShirtBasePattern extends Pattern{
             vec = p2.subtract(neckline_base.p2).scale(0.4);
         }
         p2.move_to(vec.add(neckline_base.p2));
-        
+
         let l = this.sketch.line_from_function_graph(neckline_base.p1, neckline_base.p2, spline.bezier(
             [neckline_base.p1, p, p2, neckline_base.p2]
         ));
@@ -195,12 +203,12 @@ export default class TShirtBasePattern extends Pattern{
         let lines = this.sketch.lines_by_key("type");
         let side = lines.side[0];
         let extra = this.config.ease / 4;
-    
+
         let ln = this.sketch.line_with_offset(side, extra, true);
-    
+
         side.p1.move_to(ln.p1);
         side.p2.move_to(ln.p2);
-    
+
         this.sketch.remove_points(ln.p1, ln.p2);
         return this;
     };
@@ -208,6 +216,43 @@ export default class TShirtBasePattern extends Pattern{
     get_sketch(){
         return this.sketch;
     }
+
+    neckline(){
+      const design = this.design["neckline"].type;
+      if (design === "round"){
+        neck.slim_neckline(this.get_sketch(), 0.7);
+      } else if (design === "V-Line wide"){
+        neck.v_line(this.get_sketch(), "wide");
+      } else if (design === "V-Line deep"){
+        neck.v_line(this.get_sketch(), "deep");
+      } else if(design === "V-Line") {
+        neck.v_line(this.get_sketch(), "normal");
+      } else if (design === "round wide"){
+        neck.round_wide(this.get_sketch());
+      } else if (design === "square"){
+        neck.square(this.get_sketch());
+      } else if (design === "boat"){
+        neck.boat(this.get_sketch());
+      }
+    }
+
+    armpit(){
+      arm.armpit(this.get_sketch());
+    }
+
+    set_grainline(vec){
+      this.sketch.data.up_direction = vec;
+    }
+
+    set_grainline_basic(){
+      let lines = this.get_sketch().lines_by_key("type").fold;
+
+      if (lines.length > 1){
+        // es wird automatisch der Teil von Fold gewählt, welcher am längsten ist
+        lines = lines.sort(function(a, b){return b.get_length() - a.get_length()});
+      }
+      this.set_grainline(lines[0].get_line_vector().scale(-1));
+    };
 }
 
 export class TShirtBasePatternFront extends TShirtBasePattern{

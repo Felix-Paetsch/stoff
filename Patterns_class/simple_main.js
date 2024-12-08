@@ -168,7 +168,7 @@ function paste_sketches(s, arr){
 return s;
 }
 
-
+// benutzt
 function main_neckline(s, design){
   design = design["type"];
   let without_changeing_shoulder = ["round", "staps"];

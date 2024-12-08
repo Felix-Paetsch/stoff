@@ -10,6 +10,9 @@ import pattern_top from '../top/pattern_top.js';
 
 import {TShirtBasePatternFront, TShirtBasePatternBack} from '../base/t-shirt_base.js';
 
+import ObjData from '../base/obj_data.js';
+import Pattern from '../base/pattern.js';
+
 import change from './create_basic_pattern.js';
 
 
@@ -25,7 +28,7 @@ const obj_data_front = {
     length: 0.9,
     ease: 8
   },
-  neckline: { type: 'round' },
+  neckline: { type: 'boat' },
   sleeve: { type: 'straight', length: 0.5 }
 };
 
@@ -45,81 +48,22 @@ const obj_data_back = {
 
 
 
-function set_type(type, front){
-  if(front){
-    this.obj_data_front["top designs"].type = type;
-  } else {
 
-  }
-}
+function basic_pattern(mea, data){
+//  const front = new TShirtBasePatternFront(mea, obj_data_front["top designs"].ease, obj_data_front).get_sketch();
+//  const back = new TShirtBasePatternBack(mea, obj_data_front["top designs"].ease, obj_data_back).get_sketch();
 
-function set_position(type, position, front){
-  if(front){
-    this.obj_data_front["top designs"].position = type;
-    this.obj_data_front["top designs"].percent = position;
-  } else {
-    this.obj_data_back["top designs"].position = type;
-    this.obj_data_back["top designs"].percent = position;
-  }
-}
-
-function set_styleline(type, front){
-  if(front){
-    this.obj_data_front["top designs"].styleline = type;
-  } else {
-    this.obj_data_back["top designs"].styleline = type;
-  }
-}
-
-function set_closed(bool, front){
-  if(front){
-    this.obj_data_front["top designs"].closed = bool;
-  } else {
-    this.obj_data_back["top designs"].closed = bool;
-  }
-}
-
-function set_dartstyle(type, front){
-  if(front){
-    this.obj_data_front["top designs"].dartstyle = type;
-  } else {
-    this.obj_data_back["top designs"].dartstyle = type;
-  }
-}
-
-function set_ease(width, front){
-  if(front){
-    this.obj_data_front["top designs"].ease = width;
-  } else {
-    this.obj_data_back["top designs"].ease = width;
-  }
-}
-
-function set_length(len, front){
-  if(front){
-    this.obj_data_front["top designs"].length = len;
-  } else {
-    this.obj_data_back["top designs"].length = len;
-  }
-}
-
-function set_neckline(type, front){
-  if(front){
-    this.obj_data_front["top designs"].neckline = type;
-  } else {
-    this.obj_data_back["top designs"].neckline = type;
-  }
-}
+//  change.change_front_and_back(front, back, obj_data_front, obj_data_back);
+  const design_data = new ObjData(data);
+  //design_data.set_side("neckline", 0.4);
+  const type = data["top designs"].type;
+  let front = new Pattern(mea, design_data, design_data);
 
 
 
-function basic_pattern(mea){
-  const front = new TShirtBasePatternFront(mea, obj_data_front["top designs"].ease).get_sketch();
-  const back = new TShirtBasePatternBack(mea, obj_data_front["top designs"].ease).get_sketch();
 
-  change.change_front_and_back(front, back, obj_data_front, obj_data_back);
-
-  return [front, back];
+  //console.log(front.sketch)
+  return front.finish_pattern_for_print();
 }
 
 
@@ -135,14 +79,7 @@ function annotate_and_finisch_pattern(arr){
 
 
 export default {
-  set_type,
-  set_position,
-  set_styleline,
-  set_closed,
-  set_dartstyle,
-  set_ease,
-  set_length,
-  set_neckline,
+
   basic_pattern,
   annotate_and_finisch_pattern
 }

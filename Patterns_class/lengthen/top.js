@@ -49,6 +49,7 @@ function lengthen_top_without_dart_new(s, mea, shorten){
   let fold = lines.fold[0];
   let waist = lines.waistline[0];
   lengthen_top(s, mea, shorten, waist, fold)
+
   correct_belly(s, mea);
   shorten_length_new(s, shorten);
   return s;
@@ -117,7 +118,6 @@ function correct_belly(s, mea, percent = 1){
   // aktuell vorhanden, dann positive Zahl.
 
   let vec;
-
   if (width_diff > 1.5 && width_diff < 3){
     vec = ln_h.get_line_vector().normalize().scale(width_diff * 0.7);
     s.point_on_line(p1, side_bottom);
@@ -131,8 +131,9 @@ function correct_belly(s, mea, percent = 1){
     p1.move_to(p1.add(vec));
 
     let side = utils.sort_lines(s, lines.side);
-    vec = get_vec(fold_bottom.p1, side[0].p1, lines.waistline[0].get_length()+(Math.abs(width_diff)*0.4), side[0].get_length());
-    side[0].p2.move_to(vec);
+
+//    vec = get_vec(fold_bottom.p1, side[0].p1, lines.waistline[0].get_length()+(Math.abs(width_diff)*0.4), side[0].get_length());
+//    side[0].p2.move_to(vec);
 
   //  s.remove_point(p2);
 

@@ -215,11 +215,11 @@ export default {
 
 
       let s = new Sketch();
-      let basic = create.basic_pattern(measurements);
-      s = change.paste_sketches(s, basic);
+      let basic = create.basic_pattern(measurements, design_config);
+    //  s = change.paste_sketches(s, basic);
       //s.save_on_A4("renders");
 
-      return s;
+      return basic;
 
 
 
