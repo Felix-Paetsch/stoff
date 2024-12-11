@@ -54,10 +54,12 @@ function basic_pattern(mea, data){
 //  const back = new TShirtBasePatternBack(mea, obj_data_front["top designs"].ease, obj_data_back).get_sketch();
 
 //  change.change_front_and_back(front, back, obj_data_front, obj_data_back);
-  const design_data = new ObjData(data);
-  //design_data.set_side("neckline", 0.4);
+const design_data = new ObjData(data);
+  const design_data2 = new ObjData(data);
+
+//  design_data2.set_styleline("waistline", 0.35, "neckline", 0.7);
   const type = data["top designs"].type;
-  let front = new Pattern(mea, design_data, design_data);
+  let front = new Pattern(mea, design_data, design_data2);
 
 
 

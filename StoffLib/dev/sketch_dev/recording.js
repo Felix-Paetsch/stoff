@@ -80,7 +80,6 @@ class Recorder {
             this.old_methods[method_name] = old_method;
 
             s[method_name] = function (...args) {
-                console.log(s.dev.recorder);
                 const taking_snapshot = s.dev.recorder.taking_snapshot;
                 if (!taking_snapshot) s.dev.recorder.startSnapshot();
                 const result = old_method.apply(s, args);

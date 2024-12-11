@@ -36,8 +36,8 @@ export default function offset_sample_points(line, radius, direction = 0){
             // 1a)
             const vec1 = sp[prev_left].subtract(sp[left]);
             const vec2 = sp[right].subtract(sp[left]);
-            const angle = vec_angle_clockwise(vec1, vec2) / 2;
-            const center_vec = vec1.rotate(angle).to_len(radius);
+            let angle = vec_angle_clockwise(vec1, vec2, true);
+            const center_vec = vec1.rotate(angle/2).to_len(radius);
             abs_sample_points.push(sp[left].add(center_vec));
         }
 
@@ -75,9 +75,9 @@ export default function offset_sample_points(line, radius, direction = 0){
  * - Line for first point
  * - Line for middle
  * 2. Add Very last point
- * 
+ *
  * 3. Remove loops
- *  
+ *
  */
 
 function filter_out_cycles(abs_sample_points) {
@@ -122,25 +122,25 @@ For each line segment, consider all the following line segments. If a line segme
 function line_segments_intersect(l1, l2) {
     const [p, r] = [l1[0], l1[1].subtract(l1[0])];
     const [q, s] = [l2[0], l2[1].subtract(l2[0])];
-    
+
     const rxs = r.cross(s);
     const qmp = q.subtract(p);
     const t = qmp.cross(s) / rxs;
     const u = qmp.cross(r) / rxs;
-    
+
     if (rxs === 0) {
         return [false, null];
     }
-    
+
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
         const intersection = p.add(r.scale(t));
         return [true, intersection];
     }
-    
+
     return [false, null];
 }
 
-Then start again from the first point of the line segment we looked at. 
+Then start again from the first point of the line segment we looked at.
 
 Explain in text in detail the indexing and your strategy before writing the code.
 

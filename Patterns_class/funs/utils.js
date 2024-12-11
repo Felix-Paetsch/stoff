@@ -4,6 +4,8 @@ import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
+import { spline } from "../../StoffLib/curves.js";
+
 import dart from '../darts/simple_dart.js';
 
 function lotpunkt(s, pt, ln){
@@ -164,6 +166,8 @@ function mirror_sketch(s){
   return s;
 }
 
+// todo: wenn im Hals ein Schnitt drin ist, dass die
+// richtige Linie gefunden wird, wie bei bottom
 // spiegelt die Sketch an der faltkante und "klappt sie auf"
 function mirror_on_fold(sk){
   const s = new Sketch();
@@ -187,6 +191,14 @@ function mirror_on_fold(sk){
 
   let neckline = lines.neckline;
   let bottom = lines.bottom;
+
+  if (neckline.length > 2){
+    neckline = get_pair_of_lines(s, neckline);
+    if (neckline === []){
+      return s;
+    }
+  }
+
   s.merge_lines(neckline[0], neckline[1], true);
   if (bottom.length > 2){
     bottom = get_pair_of_lines(s, bottom);
@@ -195,8 +207,9 @@ function mirror_on_fold(sk){
     }
   }
 
-  s.merge_lines(bottom[0], bottom[1], true);
-
+  merge_to_curve(s, bottom, false, "bottom");
+  /*
+*/
   return s;
 }
 
@@ -320,6 +333,54 @@ function reposition_zhk(comp, vec){
 
 
 
+function merge_to_curve(s, lines, senkrecht = true, data_type = "side"){
+  let points = [];
+  let pt = [];
+  lines.forEach((ln) => {
+    const p1 = s.add_point(s.position_at_length(ln, ln.get_length() * 0.2));
+    const p2 = s.add_point(s.position_at_length(ln, ln.get_length() * 0.2, true));
+/*
+    if (p1.subtract(p2).length() == 0){
+      console.log(ln.sample_points.map(s => s.to_array()));
+    }*/
+
+    points.push(p1.set_color("red"));
+    points.push(p2.set_color("green"));
+    pt.push(...ln.get_endpoints());
+  });
+
+  pt = pt.filter((x, i) => pt.indexOf(x) == i);
+
+  if (senkrecht){
+    points.sort(function(a, b){return a.y - b.y});
+    pt.sort(function(a, b){return a.y - b.y});
+  } else {
+    points.sort(function(a, b){return a.x - b.x});
+    pt.sort(function(a, b){return a.x - b.x});
+  }
+
+  let pts = pt.splice(0,1).concat(pt.splice(pt.length -1, 1));
+
+
+  let curve = s.line_from_function_graph(pts[0], pts[1], spline.catmull_rom_spline(
+    [pts[0]].concat(points).concat([pts[1]])));
+
+    lines.forEach((ln) => {
+      ln.set_color("red")
+    });
+
+
+    pt.concat(points).forEach((p) => {
+      s.remove_point(p);
+    });
+    /*
+    */
+    curve.data.type = data_type;
+    return curve;
+}
+
+
+
 /*function get_point_on_line_percent(s, ln, percent){
 // Siehe: position_at_length
 
@@ -397,4 +458,5 @@ export default {
   switch_inner_outer_dart,
   mirror_sketch,
   mirror_on_fold,
+  merge_to_curve,
    get_nearest_set_of_dart_lines};

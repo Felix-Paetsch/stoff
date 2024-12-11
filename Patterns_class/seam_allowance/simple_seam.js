@@ -128,6 +128,61 @@ function seam_allowance_first(s, width){
 };
 
 
+function seam_allowance(s, seam_a){
+  let lines = s.lines_by_key("type");
+
+  //console.log(lines.side[0].sample_points.map(p => p.to_array()));
+  let ln_side = s.line_with_offset(lines.side[0], seam_a.side, true);
+  ln_side.line.data.type = "s_a_side";
+  let ln_armpit = s.line_with_offset(lines.armpit[0], seam_a.armpit, true);
+  ln_armpit.line.data.type = "s_a_armpit";
+  close_lines(s, ln_side.p1, ln_armpit.p2, 3);
+  let ln_shoulder = s.line_with_offset(lines.shoulder[0], seam_a.side, true);
+  ln_shoulder.line.data.type = "s_a_shoulder";
+  close_lines(s, ln_armpit.p1, ln_shoulder.p2, 3);
+
+}
+
+function seam_allowance_after_mirror(s, seam_a){
+  let lines = s.lines_by_key("type");
+
+  let ln_bottom = s.line_with_offset(lines.bottom[0], seam_a.hem, true);
+  let ln_side = lines.s_a_side;
+  let len1 = ln_side[0].p1.subtract(ln_bottom.p1).length();
+  let len2 = ln_side[0].p1.subtract(ln_bottom.p2).length();
+
+  if(len1 < len2){
+    close_lines(s, ln_side[0].p1, ln_bottom.p1, 3);
+    close_lines(s, ln_side[1].p1, ln_bottom.p2, 3);
+  } else {
+    close_lines(s, ln_side[0].p1, ln_bottom.p2, 3);
+    close_lines(s, ln_side[1].p1, ln_bottom.p1, 3);
+
+  }
+
+  let ln_neckline = s.line_with_offset(lines.neckline[0], seam_a.neckline);
+  let ln_shoulder = lines.s_a_shoulder;
+  len1 = ln_shoulder[0].p1.subtract(ln_neckline.p1).length();
+  len2 = ln_shoulder[0].p1.subtract(ln_neckline.p2).length();
+
+  if(len1 < len2){
+    close_lines(s, ln_shoulder[0].p1, ln_neckline.p1, 3);
+    close_lines(s, ln_shoulder[1].p1, ln_neckline.p2, 3);
+  } else {
+    close_lines(s, ln_shoulder[0].p1, ln_neckline.p2, 3);
+    close_lines(s, ln_shoulder[1].p1, ln_neckline.p1, 3);
+  }
+
+
+  /*
+*/
+}
+
+function seam_allowance_middle(s, seam_a){
+
+}
+
+
 function seam_allowance_neck(s, width){
 
 };
@@ -145,15 +200,26 @@ function close_lines(s, ln1_p, ln2_p, distance){
   let ln1 = ln1_p.get_adjacent_lines()[0];
   let ln2 = ln2_p.get_adjacent_lines()[0];
 
+  ln1.set_color("red");
+  ln2.set_color("blue");
+  console.log("I suspect we find the positions, but we throw all of them out");
+  console.log(s.intersection_positions(ln1, ln2));
+  s.dev.at_url("/maeh")
+
   let temp = s.intersection_positions(ln1, ln2)[0];
+  console.log(temp)
+  let pt = s.add_point(temp);
 
+  s.point_on_line(pt, ln1);
+  s.point_on_line(pt, ln2);
+  //ln1_p.move_to(temp);
+  //ln2_p.move_to(temp);
+  s.remove(ln1_p, ln2_p);
+  //s.merge_points(ln1_p, ln2_p);
+
+  return [ln1, ln2];
   /*
-  ln1_p.move_to(temp);
-  ln2_p.move_to(temp);
-
-  s.merge_points(ln1_p, ln2_p);
-
-  return [ln1, ln2];*/
+  */
 };
 
 function lengthen_line(s, p, distance){
@@ -171,4 +237,4 @@ function lengthen_line(s, p, distance){
 };
 
 
-export default {seam_allowance_first, seam_allowance_neck, seam_allowance_bottom, merge_all_lines};
+export default {seam_allowance, seam_allowance_after_mirror, seam_allowance_middle, seam_allowance_first, seam_allowance_neck, seam_allowance_bottom, merge_all_lines};

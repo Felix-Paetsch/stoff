@@ -31,7 +31,6 @@ export default class SingleDart extends TShirtBasePattern{
 
 
   parse_design_position(){
-
     if(this.design["top designs"].percent){
       // dieser Fall tritt nur auf, wenn bereits selber änderungen vorgenommen wurden
       // noch unsicher, ob zusätzliche änderungen vorgenommen werden müssen
@@ -44,6 +43,7 @@ export default class SingleDart extends TShirtBasePattern{
         case "french":
           this.design["top designs"].percent = 0.9;
           this.design["top designs"].side = "side";
+          this.switch_io_dart = "side";
           break;
         case "side middle":
           this.design["top designs"].percent = 0.3;
@@ -63,8 +63,12 @@ export default class SingleDart extends TShirtBasePattern{
     if(this.dartside() === "waistline"){
       top.waistline_simple_dart(this.get_sketch(), this.dartposition());
     } else {
-      console.log(this.darttype())
       top.simple_middle_dart(this.get_sketch(), this.dartside(), this.dartposition());
+    }
+
+    if (this.switch_io_dart){
+      let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === this.switch_io_dart);
+      utils.switch_inner_outer_dart(dart);
     }
   }
 
@@ -76,8 +80,9 @@ export default class SingleDart extends TShirtBasePattern{
     // finden, bei wie viel % der Abnäher liegen muss, damit er genau Senkrecht liegt
     let lines = s.lines_by_key("type").dart;
 
-    lines = utils.sort_dart_lines( lines); // [0] ist am weitesten außen
+    lines = utils.sort_dart_lines(lines); // [0] ist am weitesten außen
     let dist = lines[0].p2.subtract(lines[1].p2).length();
+
     if(s.data.dartposition !== "waistline"){
       dist = dist/2;
     }
@@ -86,7 +91,7 @@ export default class SingleDart extends TShirtBasePattern{
     let waist_width = waist_inner[0].get_length() + waist_inner[1].get_length();
     waist_inner = waist_inner.filter(ln => ln.data.side === "inner")[0];
 
-    let val = waist_inner.get_length() - (dist / 2);
+    let val = waist_inner.get_length() - (dist);
     let percent = val/waist_width;
 
     return percent;
@@ -131,8 +136,12 @@ export default class SingleDart extends TShirtBasePattern{
   mirror(){
     let lines = this.get_sketch().lines_by_key("type");
     let fold = lines.fold[0];
-    let fold_bottom = lines.fold_bottom[0];
-    let line = this.get_sketch().merge_lines(fold_bottom, fold, true);
+    let fold_bottom = lines.fold_bottom;
+
+    if(fold_bottom){
+      let line = this.get_sketch().merge_lines(fold_bottom[0], fold, true);
+    }
+
 
     this.sketch = utils.mirror_on_fold(this.get_sketch());
   };

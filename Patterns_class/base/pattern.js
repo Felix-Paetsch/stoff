@@ -13,7 +13,8 @@ import neck from '../neckline/neckline.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 import dart from '../darts/simple_dart.js';
-
+import annotate from '../annotate/annotate.js';
+import seam from '../seam_allowance/simple_seam.js';
 
 import { split, split_tip} from '../funs/simple_split.js';
 
@@ -21,6 +22,7 @@ import SingleDart from '../basic_patterns/single_dart.js';
 import DoubleDart from '../basic_patterns/double_dart.js';
 import Styleline from '../basic_patterns/styleline.js';
 import WithoutDart from '../basic_patterns/without_dart.js';
+import Middle from '../basic_patterns/middle.js';
 
 export default class Pattern{
   constructor(measurements = {}, design_front = {}, design_back = {}){
@@ -28,6 +30,7 @@ export default class Pattern{
       this.measurements = measurements;
       this.design_front = design_front.get();
       this.design_back = design_back.get();
+
       let front = this.parse_pattern_type("front", this.design_front);
       let back = this.parse_pattern_type("back", this.design_back);
 
@@ -69,18 +72,28 @@ export default class Pattern{
 
 
     this.components.filter(elem => elem.dart === true).forEach((elem) => {
-      this.dart(elem.get_sketch());
-      this.dart_trim(elem.get_sketch());
+      if(elem.dartstyle() === "tuck"){
+        this.tuck(elem.get_sketch());
+      } else {
+        this.dart(elem.get_sketch());
+      }
     });
 
     this.components.forEach((elem) => {
-      this.seam_allowance(elem.get_sketch());
+      elem.seam_allowance(elem.get_sketch());
       this.remove_unnessesary_things(elem.get_sketch());
     });
-
     this.components.forEach((elem) => {
-      elem.mirror();
+      if (elem instanceof Middle){
+      //  this.seam_allowance(elem.get_sketch());
+        this.components.push(elem.mirror());
+      } else {
+        elem.mirror();
+    //    this.seam_allowance_after_mirror(elem.get_sketch());
+      }
     });
+    /*this.seam_allowance_after_mirror(elem.get_sketch());
+    */
 
 
     return this.paste_sketches(s, this.components);
@@ -100,27 +113,83 @@ export default class Pattern{
   }
 
 
-// Aktuell macht diese Funktion noch nichts, soll aber am Ende alle Teile die
-// es noch brauchen die zusätzlichen Linien des Abnähers hinzufügen
-  dart_trim(s){
-
-  }
-
   dart(s){
     let lines = s.lines_by_key("type").dart;
     lines = utils.sort_dart_lines(lines);
     while(lines.length > 0){
+      this.fill_in_dart(s, [lines[0], lines[1]]);
       s.remove(dart.single_dart(s, [lines[0], lines[1]]));
+      annotate.annotate_dart(s, [lines[0], lines[1]]);
       lines.splice(0, 2);
     }
+    annotate.remove_dart(s);
+    this.connect_filling(s);
+
+  }
+
+  connect_filling(s){
+    let lines = s.lines_by_key("type").filling;
+    lines.forEach((line) => {
+      let ln1 = line.p1.other_adjacent_line(line);
+      let ln2 = line.p2.other_adjacent_line(line);
+      ln1 = s.merge_lines(line, ln1, true);
+      s.merge_lines(ln1, ln2, true);
+    });
   }
 
 
-// aktuell auch noch nicht programmiert
-// soll je nach Art der Linie (seite, hals, saum) unterschiedliche
-// längen an Nahtzugabe geben
-  seam_allowance(s){
+  fill_in_dart(s, lines){
 
+    if(lines[0].data.dartposition === "waistline"){
+      let other_lines = s.lines_by_key("type").dart_bottom;
+      if (other_lines){
+        if (other_lines[0].p1 !== other_lines[1].p1){
+          let ln1 = s.line_between_points(lines[0].p1, other_lines[0].p1);
+          ln1.data.side = "inner";
+          let ln2 = s.line_between_points(lines[0].p1, other_lines[1].p1);
+          ln2.data.side = "outer";
+          let data1 = other_lines[0].data;
+          let data2 = other_lines[1].data;
+          s.remove(other_lines[0], other_lines[1]);
+          dart.fill_in_dart(s, [ln1, ln2]).data.type = "filling";
+
+          s.line_between_points(ln1.p2, lines[1].p2).data = data1;
+          s.line_between_points(ln2.p2, lines[0].p2).data = data2;
+          s.remove(ln1, ln2);
+        } else {
+          return;
+        }
+      } else {
+        dart.fill_in_dart(s, lines).data.type = "filling";
+      }
+    } else {
+      dart.fill_in_dart(s, lines).data.type = "filling";
+    }
+  }
+
+  tuck(s){
+    let lines = s.lines_by_key("type").dart;
+    lines = utils.sort_dart_lines(lines);
+    while(lines.length > 0){
+      this.fill_in_dart(s, [lines[0], lines[1]]);
+      dart.simple_tuck(s, [lines[0], lines[1]]);
+      annotate.annotate_tuck(s, [lines[0], lines[1]]);
+      lines.splice(0, 2);
+    }
+    annotate.remove_dart(s);
+  }
+
+
+
+  seam_allowance_after_mirror(s){
+    let seam_allowances = {
+      neckline: 0.5,
+      armpit: 1,
+      hem: 2,
+      side: 1
+    };
+
+    seam.seam_allowance_after_mirror(s, seam_allowances);
   }
 
 // später ggf. anders umsetzen, erstmal übergangsfunktion zum schön sein

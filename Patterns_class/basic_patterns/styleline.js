@@ -26,7 +26,7 @@ export default class Styleline extends TShirtBasePattern{
     this.set_grainline_basic();
     this.split_into_styleline();
     this.lengthen();
-
+    this.shorten();
     /*
     this.shift_dart();
     */
@@ -56,16 +56,18 @@ export default class Styleline extends TShirtBasePattern{
 
   parse_design_position(){
     let design = this.design["top designs"].styleline;
-    if (design === "classic princess"){
-      this.design.side = "waistline";
-      this.design.percent = this.#calculate_upright_position(this.get_sketch());
-      this.design.secondside = "shoulder";
-      this.design.secondpercent = 0.5;
-    } else if (design === "panel"){
-      this.design.side = "waistline";
-      this.design.percent = 0.55;
-      this.design.secondside = "armpit";
-      this.design.secondpercent = 0.4;
+    if(!this.design.percent){
+      if (design === "classic princess"){
+        this.design.side = "waistline";
+        this.design.percent = this.#calculate_upright_position(this.get_sketch());
+        this.design.secondside = "shoulder";
+        this.design.secondpercent = 0.5;
+      } else if (design === "panel"){
+        this.design.side = "waistline";
+        this.design.percent = 0.55;
+        this.design.secondside = "armpit";
+        this.design.secondpercent = 0.4;
+      }
     }
   }
 
@@ -75,13 +77,16 @@ export default class Styleline extends TShirtBasePattern{
     // gleich vergessen
     // Später kann man schauen, ob man Teilt, aber nicht über den Abnäherpunkt
     // geht, für Jetzt ist diese Zusätzliche Variante zu viel Aufwand
+
     top.waistline_simple_dart(this.get_sketch(), this.dartposition());
     let angle = this.#get_angle();
     let patterns = top.split_pattern(this.get_sketch(), this.seconddartside(), this.seconddartposition());
     this.multipart = true;
-    this.first_part = new Middle(patterns[1], this.mea, this.design, this.config);
+    this.first_part = new Middle(patterns[1], this.sh, this.design, this.config);
     this.sketch = patterns[0];
     this.#rotate_middle(angle);
+    /*
+    */
     // Maybe CutOfClass even inherits from this class - your choice
     // oder this.parts = patterns.map(p => CutOfClass3(p))
   }
@@ -130,11 +135,62 @@ export default class Styleline extends TShirtBasePattern{
   }
 
   lengthen(){
-    
+    const s = this.get_sketch();
+    let lines = s.lines_by_key("type");
+    let darts = lines.dart;
+    if(darts){
+      darts.forEach(elem =>{
+        elem.data.type = "side";
+      });
+    }
+    let waistline = lines.waistline[0];
+    let ratio_front = waistline.get_length()/(this.sh.waist/2);
+    let add_len_f = 2 * (1- ratio_front);
+
+    let ln1_len_f = (this.sh.bottom / 2)* ratio_front;
+    let fold_bottom = line_with_length(s, waistline.p1, this.sh.waist_height + 2, 0).set_color("green");
+    fold_bottom.data.type = "fold_bottom";
+
+    let vec = this.get_vec(fold_bottom.p2, waistline.p2, ln1_len_f, this.sh.waist_height + add_len_f);
+
+    let p1 = s.add_point(vec);
+    let bottom = s.line_between_points(fold_bottom.p2, p1);
+    let side_bottom = s.line_between_points(waistline.p2, p1);
+    bottom.data.type = "bottom";
+    side_bottom.data.type = "side_bottom";
+    lengthen.correct_belly(s, this.sh, ratio_front);
+    this.first_part.lengthen(((this.sh.bottom /2) - ln1_len_f), this.sh.waist_height + add_len_f, this.sh.waist_height);
+  }
+
+  // muss noch genauer angesehen und überarbeitet werden
+  get_vec(p1, p2, len1, len2){
+    let diff = p1.subtract(p2).length();
+
+    let angle = triangle_data({a: diff, b: len2, c: len1}).beta;
+    let fun = rotation_fun(p1, -angle);
+
+    return fun(p2).subtract(p1).normalize().scale(len1).add(p1);
+
   };
 
 
+  // Wenn man die Falte an der gespiegelt werden soll zerscheidet, kann es sein, dass
+  // gar nicht oder falsch gespiegelt wird.
+  // Das ganze System muss also überarbeitet werden
   mirror(){
+    let lines = this.get_sketch().lines_by_key("type");
+    let fold = lines.fold[0];
+    let fold_bottom = lines.fold_bottom[0];
+    let line = this.get_sketch().merge_lines(fold_bottom, fold, true);
 
+    this.sketch = utils.mirror_on_fold(this.get_sketch());
   };
+
+
+  shorten(){
+    this.get_sketch().lines_by_key("type").side[1].data.type = "side_bottom";
+    lengthen.shorten_length_new(this.get_sketch(), this.design["top designs"].length);
+    this.first_part.shorten();
+  };
+
 }

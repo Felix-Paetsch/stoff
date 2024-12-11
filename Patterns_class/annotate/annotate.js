@@ -280,38 +280,40 @@ function annotate_tuck(s, [ln1, ln2]){
   ln.data.type = "dart_annotated";
 
 
-
   let lines = s.lines_by_key("type");
   let bottom = lines.dart_bottom;
   if (bottom){
-    if(!s.data.shortened){
-      let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
-      if (adjacent.includes(ln1)){
-        let p_ann2 = s.add_point(vec.scale(3).add(bottom[0].p1));
-        p_ann2.data.addition = "3";
-        ln = s.line_between_points(p_ann2, p_middle);
-        ln.data.type = "dart_bottom_annotated";
+    let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
+    if (adjacent.includes(ln1)){
+      if(!s.data.shortened){
+        let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
+        if (adjacent.includes(ln1)){
+          let p_ann2 = s.add_point(vec.scale(3).add(bottom[0].p1));
+          p_ann2.data.addition = "3";
+          ln = s.line_between_points(p_ann2, p_middle);
+          ln.data.type = "dart_bottom_annotated";
 
-        ln = s.line_between_points(bottom[0].p1, p_ann2);
-        ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[0].p1, p_ann2);
+          ln.data.type = "dart_remove";
 
-        ln = s.line_between_points(bottom[0].p2, p_ann2);
-        ln.data.type = "dart_remove";
-        ln = s.line_between_points(bottom[1].p2, p_ann2);
-        ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[0].p2, p_ann2);
+          ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[1].p2, p_ann2);
+          ln.data.type = "dart_remove";
+        }
+        } else {
+          vec = bottom[0].p1.subtract(bottom[1].p1).scale(0.5).add(bottom[1].p1);
+          let p_bot = s.add_point(vec);
+          ln = s.line_between_points(p_bot, p_middle);
+          ln.data.type = "dart_annotated";
+          ln = s.line_between_points(bottom[0].p2, p_bot);
+          ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[1].p2, p_bot);
+          ln.data.type = "dart_remove";
+        /*
+        */
+
       }
-      } else {
-        vec = bottom[0].p1.subtract(bottom[1].p1).scale(0.5).add(bottom[1].p1);
-        let p_bot = s.add_point(vec);
-        ln = s.line_between_points(p_bot, p_middle);
-        ln.data.type = "dart_annotated";
-        ln = s.line_between_points(bottom[0].p2, p_bot);
-        ln.data.type = "dart_remove";
-        ln = s.line_between_points(bottom[1].p2, p_bot);
-        ln.data.type = "dart_remove";
-      /*
-      */
-
     }
 
   }
@@ -340,4 +342,4 @@ function remove_dart(s){
 }
 
 
-export default {annotate, new_annotate, annotate_dart, annotate_tuck};
+export default {annotate, new_annotate, annotate_dart, annotate_tuck, remove_dart};

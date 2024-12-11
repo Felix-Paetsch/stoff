@@ -10,6 +10,7 @@ import {line_with_length, point_at, get_point_on_other_line2} from '../funs/basi
 
 import neck from '../neckline/neckline.js';
 import arm from '../sleeves/simple_sleeve.js';
+import seam from '../seam_allowance/simple_seam.js';
 
 
 
@@ -60,6 +61,7 @@ export default class TShirtBasePattern extends PatternComponent{
             "point_width": ["bust_point_width", "shoulderblade_width"],
             "point_height": ["bust_point_height", "shoulderblade_height"],
             "waist": ["waist_width_front", "waist_width_back"],
+            "bottom": ["bottom_width_front", "bottom_width_back"],
         }
 
         this.sh = { ... this.measurements };
@@ -253,6 +255,22 @@ export default class TShirtBasePattern extends PatternComponent{
       }
       this.set_grainline(lines[0].get_line_vector().scale(-1));
     };
+
+    dartstyle(){
+      return this.design["top designs"].dartstyle;
+    }
+
+    // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
+    // längen an Nahtzugabe geben
+    seam_allowance(s){
+      let seam_allowances = {
+        neckline: 0.5,
+        armpit: 1,
+        hem: 2,
+        side: 1
+      };
+      seam.seam_allowance(s, seam_allowances);
+    }
 }
 
 export class TShirtBasePatternFront extends TShirtBasePattern{

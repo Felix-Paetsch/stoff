@@ -376,7 +376,12 @@ function vec_angle(vec1, vec2, reference = ZERO) {
 }
 
 
-function vec_angle_clockwise(vec1, vec2, reference = ZERO) {
+function vec_angle_clockwise(vec1, vec2, reference = ZERO, offset_range = false){
+    if (typeof reference == "boolean"){
+        offset_range = reference;
+        reference = ZERO;
+    }
+
     vec1 = vec1.subtract(reference);
     vec2 = vec2.subtract(reference);
 
@@ -392,7 +397,7 @@ function vec_angle_clockwise(vec1, vec2, reference = ZERO) {
         angle = 2 * Math.PI - angle; // Clockwise angle adjustment
     }
 
-    if (angle > Math.PI) angle = angle - 2 * Math.PI
+    if (angle > Math.PI && !offset_range) angle = angle - 2 * Math.PI
 
     return angle;
 }

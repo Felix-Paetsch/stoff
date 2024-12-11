@@ -27,6 +27,12 @@ export default class DoubleDart extends TShirtBasePattern{
 
     this.parse_design_position();
     this.shift_dart();
+
+    if (this.switch_io_dart){
+      let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === this.switch_io_dart);
+      utils.switch_inner_outer_dart(dart);
+    }
+
     this.set_grainline_basic();
     this.lengthen();
   };
@@ -46,6 +52,7 @@ export default class DoubleDart extends TShirtBasePattern{
           case "french":
             this.design.percent = 0.9;
             this.design.side = "side";
+            this.switch_io_dart = "side";
             break;
           case "side middle":
             this.design.percent = 0.3;
@@ -67,6 +74,7 @@ export default class DoubleDart extends TShirtBasePattern{
             this.design.side = "waistline";
             this.design.secondpercent = 0.9;
             this.design.secondside = "side";
+            this.switch_io_dart = "side";
             break;
           case "waistline and shoulder":
             this.design.percent = this.#calculate_upright_position(this.get_sketch());
@@ -205,9 +213,20 @@ export default class DoubleDart extends TShirtBasePattern{
     mirror(){
       let lines = this.get_sketch().lines_by_key("type");
       let fold = lines.fold[0];
-      let fold_bottom = lines.fold_bottom[0];
-      let line = this.get_sketch().merge_lines(fold_bottom, fold, true);
+      let fold_bottom = lines.fold_bottom;
+
+      if(fold_bottom){
+        let line = this.get_sketch().merge_lines(fold_bottom[0], fold, true);
+      }
 
       this.sketch = utils.mirror_on_fold(this.get_sketch());
     };
+/*
+    shorten(){
+      if(this.design.side === "waistline"){
+        lengthen.shorten_with_dart(this.get_sketch(), this.design["top designs"].length);
+      } else {
+        lengthen.shorten_length_new(this.get_sketch(), this.design["top designs"].length);
+      }
+    }*/
 };

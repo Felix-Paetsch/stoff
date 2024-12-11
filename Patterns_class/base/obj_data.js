@@ -2,7 +2,7 @@ export default class ObjData{
 
   constructor(design){
     if (design){
-      this.design = design;
+      this.design = JSON.parse(JSON.stringify(design));
     } else {
       this.design = {
         'top designs': {
@@ -70,7 +70,7 @@ export default class ObjData{
   }
 
 
-  set_styleline(first, second, firstpercent, secondpercent){
+  set_styleline(first, firstpercent, second,  secondpercent){
     this.design.side = first;
     this.design.percent = firstpercent;
     this.design.secondside = second;
