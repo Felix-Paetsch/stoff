@@ -94,6 +94,10 @@ class Vector {
         return this.add(vec.scale(-1));
     }
 
+    mirror_at(vec){
+      return vec.scale(2).subtract(this);
+    }
+
     length() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
@@ -358,7 +362,10 @@ function rotation_fun(rotation_vec, angle) {
     };
 }
 
-function vec_angle(vec1, vec2) {
+function vec_angle(vec1, vec2, reference = ZERO) {
+    vec1 = vec1.subtract(reference);
+    vec2 = vec2.subtract(reference);
+
     const dotProduct = vec1.dot(vec2);
     const lengthsProduct = vec1.length() * vec2.length();
 
@@ -369,18 +376,23 @@ function vec_angle(vec1, vec2) {
 }
 
 
-function vec_angle_clockwise(vec1, vec2) {
+function vec_angle_clockwise(vec1, vec2, reference = ZERO) {
+    vec1 = vec1.subtract(reference);
+    vec2 = vec2.subtract(reference);
+
     const dot = vec1.dot(vec2);
     const cross = vec1.x * vec2.y - vec1.y * vec2.x; // 2D cross product
-    const angle = Math.acos(dot / (vec1.length() * vec2.length()));
+    let angle = Math.acos(dot / (vec1.length() * vec2.length()));
 
     if (isNaN(angle)){
         return Math.PI;
     }
 
     if (cross < 0) {
-        return 2 * Math.PI - angle; // Clockwise angle adjustment
+        angle = 2 * Math.PI - angle; // Clockwise angle adjustment
     }
+
+    if (angle > Math.PI) angle = angle - 2 * Math.PI
 
     return angle;
 }

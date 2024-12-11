@@ -41,12 +41,12 @@ class Sketch{
         if (typeof args[0] == "number" && typeof args[1] == "number"){
             return this.add_point(new Point(args[0], args[1]));
         }
-        
+
         throw new Error("Invalid arguments given!");
     }
 
     add(...args){
-        /* 
+        /*
             Vector  -> Point
             Point   -> Point
             x, y    -> Point
@@ -374,6 +374,7 @@ Sketch.graphical_non_pure_methods = [
     "line_between_points",
     "line_from_function_graph",
     "line_with_length",
+    "line_at_angle",
     "line_with_offset",
     "merge_lines",
     "merge_points",

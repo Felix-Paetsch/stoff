@@ -93,6 +93,12 @@ class Line{
         return this;
     }
 
+    other_endpoint(pt){
+        if (this.p1 == pt) return this.p2;
+        if (this.p2 == pt) return this.p1;
+        throw new Error("Point is not an endpoint of this line!");
+    }
+
     set_color(color){
         this.attributes.stroke = color;
         return this;
@@ -369,16 +375,17 @@ class Line{
         assert(false, "This should not happen!");
     }
 
-    vec_at_length(d){
+    position_at_fraction(f, reversed = false){
+        return this.position_at_length(f * this.length(), reversed);
+    }
+
+    vec_at_length(d, reversed = false){
+        if (reversed) d = this.endpoint_distance() - d;
         return this.p1.add(this.get_line_vector().normalize().scale(d));
     }
 
-    vec_at_fraction(f){
-        return this.vec_at_length(f * this.length());
-    }
-
-    position_at_fraction(f){
-        return this.position_at_length(f * this.length());
+    vec_at_fraction(f, reversed = false){
+        return this.vec_at_length(f * this.endpoint_distance(), reversed);
     }
 
     closest_position(vec){
@@ -445,11 +452,15 @@ class StraightLine extends Line{
     }
 
     get_length(){
-        return this.get_line_vector().length();
+        return this.endpoint_distance();
     }
 
-    position_at_length(d){
-        return Point.from_vector(this.vec_at_length(d));
+    position_at_length(d, reversed = false){
+        return this.vec_at_length(d, reversed);
+    }
+
+    position_at_fraction(d, reversed = false){
+        return this.vec_at_fraction(d, reversed);
     }
 
     closest_position(vec){

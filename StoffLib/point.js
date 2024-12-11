@@ -61,6 +61,16 @@ class Point extends Vector{
         return this.adjacent_lines;
     }
 
+    other_adjacent_line(...lines){
+        this.guard_has_lines(...lines);
+
+        const other_lines = this.adjacent_lines.filter(l => lines.indexOf(l) < 0);
+        if (other_lines.length == 1) return other_lines[0];
+
+        if (other_lines.length == 0) throw new Error("Point has not other adjacent lines");
+        throw new Error("Point has more than 1 other adjacent lines");
+    }
+
     move_to(x, y){
         return this.set(x, y);
     }

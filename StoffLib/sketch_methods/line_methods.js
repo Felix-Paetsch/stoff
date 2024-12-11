@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, distance_from_line_segment } from '../geometry.js';
+import { Vector, affine_transform_from_input_output, distance_from_line_segment, UP } from '../geometry.js';
 import { intersect_lines, intersection_positions } from '../unicorns/intersect_lines.js';
 import { default_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
@@ -21,6 +21,21 @@ export default (Sketch) => {
 
     Sketch.prototype.line_with_length = function(...args){
         return line_with_length(this, ...args);
+    };
+
+    Sketch.prototype.line_at_angle = function(point, angle, length, reference_vec = UP){
+      // Rotes the vector point -> reference_vec by `angle` clockwise and creates a line in that direction
+
+      const reference_direction = reference_vec.subtract(point)
+      const vec = reference_direction.to_len(length).rotate(angle);
+      const newPt = point.add(vec);
+
+      const new_pt = this.add_point(point.add(vec));
+      const line = this.line_between_points(point, new_pt);
+      return {
+          line: line,
+          other_endpoint: new_pt
+      };
     };
 
     Sketch.prototype.line_from_function_graph = function(pt1, pt2, f_1, f_2 = null){

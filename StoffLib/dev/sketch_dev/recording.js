@@ -46,11 +46,11 @@ export default (Sketch) => {
                     {
                         const old_limit = Error.stackTraceLimit;
                         Error.stackTraceLimit = Infinity;
-    
+
                         const error = new Error("");
                         const stackTrace = "Stack Trace<br>" + error.stack.split("\n").slice(2).map(s => s.trim()).join("<br>");
                         global_recording.snapshots[global_recording.snapshots.length - 1].data["Stack Trace"] = stackTrace;
-    
+
                         Error.stackTraceLimit = old_limit;
                     }
 
@@ -108,7 +108,7 @@ class Recorder {
 
             Error.stackTraceLimit = old_limit;
         }
-        
+
         this.snapshots.push(copy);
         if (cold_snapshot) this.taking_snapshot = false;
     }
@@ -149,7 +149,7 @@ files.forEach(file => {
 class Recording {
     constructor(snapshots = []) {
         this.snapshots = snapshots;
-        
+
         this.render_processed_snapshots = null;
         this.locked = false;
     }
@@ -194,7 +194,7 @@ class Recording {
     save_as_html = function(path, title = "/StoffLib", data = null){
         writeFileSync(path, this.to_html(title), 'utf-8');
     }
-    
+
     at_url(url, overwrite = false) {
         this.process_snapshots(url);
 
@@ -223,16 +223,16 @@ class Recording {
 
     to_mp4(save_to, fps = 2, width = 700, height = null, extra_padding = 50) {
         console.log("Start Video Creation");
-    
+
         const outputPath = path.isAbsolute(save_to) ? save_to : path.join('./renders', save_to);
-        
+
         const timestamp = new Date().toISOString().replace(/:/g, '-');
         const frameDir = `./___frames_${timestamp}`;
-    
+
         if (!existsSync(frameDir)) {
             mkdirSync(frameDir);
         }
-    
+
         // Calculate Dimensions for final Video to have frames take on same size
         width = width - 2*extra_padding;
         if (height == null){
@@ -268,24 +268,24 @@ class Recording {
 
         this.snapshots.forEach((snapshot, index) => {
             const originalCanvas = create_canvas_from_sketch(snapshot, target_width, target_height);
-            
+
             const enlargedCanvas = createCanvas(target_padded_width, target_padded_height);
             const ctx = enlargedCanvas.getContext('2d');
-            
+
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, enlargedCanvas.width, enlargedCanvas.height);
-            
+
             const originalWidth = originalCanvas.width;
             const originalHeight = originalCanvas.height;
 
             ctx.drawImage(originalCanvas, Math.ceil((target_padded_width - originalWidth)/2), Math.ceil((target_padded_height - originalHeight)/2));
-            
+
             const enlargedBuffer = enlargedCanvas.toBuffer();
             const framePath = `${frameDir}/frame_${String(index).padStart(5, '0')}.png`;
 
             writeFileSync(framePath, enlargedBuffer);
         });
-        
+
         console.log("Start FFMpeg");
         const frameDirAbs = path.resolve(frameDir);  // Convert the frame directory to an absolute path
         const outputPathAbs = path.resolve(outputPath);  // Convert the output path to an absolute path
@@ -330,13 +330,13 @@ class Recording {
 
         return this;
     }
-    
+
     unlock(){
         this.locked = false;
         this.render_processed_snapshots = null;
         return this;
     }
-    
+
     lock(){
         this.locked = true;
         return this;
