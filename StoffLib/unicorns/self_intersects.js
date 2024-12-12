@@ -1,218 +1,122 @@
+/*
+    Note this code was written using ChatGPT improving upon the old iteration.
+*/
+
 import { line_segments_intersect } from "../geometry.js";
 
 export default (LineClass) => {
     LineClass.prototype.self_intersects = function() {
-        if (
-            this.self_intersection_cache.self_intersects !== null
-            && !this.sample_points.some(
-                (point, index) => {
-                    return point !== this.self_intersection_cache.sp[index]
+        const cached = this.self_intersection_cache;
+        const points = this.sample_points;
+        const plen = points.length;
+
+        if (cached.self_intersects !== null) {
+            const oldPoints = cached.sp;
+            if (oldPoints.length === plen) {
+                let same = true;
+                for (let i = 0; i < plen; i++) {
+                    const a = oldPoints[i], b = points[i];
+                    if (a.x !== b.x || a.y !== b.y) { same = false; break; }
                 }
-            )
-        ){
-            return this.self_intersection_cache.self_intersects;
+                if (same) return cached.self_intersects;
+            }
         }
 
-        this.self_intersection_cache.sp = [...this.sample_points];
-
+        cached.sp = points.slice();
         const monotone_segments = [];
-        let start = 0;
-        let i = 1;
+        let start = 0, i = 1;
 
-        // Step 1: Split into monotone segments while skipping duplicate points
-        while (i < this.sample_points.length) {
-            let prev = this.sample_points[start];
-            let curr = this.sample_points[i];
-
-            // Skip duplicates
-            while (i < this.sample_points.length && curr.x === prev.x && curr.y === prev.y) {
+        while (i < plen) {
+            let prev = points[start], curr = points[i];
+            while (i < plen && curr.x === prev.x && curr.y === prev.y) {
                 i++;
-                curr = this.sample_points[i];
+                curr = points[i];
             }
-
-            if (i === this.sample_points.length) {
-                break;
-            }
-
-            const x_diff = curr.x - prev.x;
-            const y_diff = curr.y - prev.y;
-
-            const x_increasing = x_diff > 0;
-            const x_decreasing = x_diff < 0;
-            const y_increasing = y_diff > 0;
-            const y_decreasing = y_diff < 0;
-
-            while (i + 1 < this.sample_points.length) {
-                let next = this.sample_points[i + 1];
-
-                // Skip duplicates
-                while (i + 1 < this.sample_points.length && next.x === curr.x && next.y === curr.y) {
+            if (i === plen) break;
+            const x_diff = curr.x - prev.x, y_diff = curr.y - prev.y;
+            const x_inc = x_diff > 0, x_dec = x_diff < 0;
+            const y_inc = y_diff > 0, y_dec = y_diff < 0;
+            while (i + 1 < plen) {
+                let next = points[i + 1];
+                while (i + 1 < plen && next.x === curr.x && next.y === curr.y) {
                     i++;
-                    next = this.sample_points[i + 1];
+                    next = points[i + 1];
                 }
-
-                if (i + 1 === this.sample_points.length) {
-                    break;
-                }
-
-                const next_x_diff = next.x - curr.x;
-                const next_y_diff = next.y - curr.y;
-
-                if ((x_increasing && next_x_diff <= 0) ||
-                    (x_decreasing && next_x_diff >= 0) ||
-                    (x_diff === 0 && ((y_increasing && next_y_diff <= 0) || (y_decreasing && next_y_diff >= 0)))) {
-                    // Monotonicity breaks
-                    break;
-                }
-
+                if (i + 1 === plen) break;
+                const nx_diff = next.x - curr.x, ny_diff = next.y - curr.y;
+                if ((x_inc && nx_diff <= 0) || (x_dec && nx_diff >= 0) ||
+                    (x_diff === 0 && ((y_inc && ny_diff <= 0) || (y_dec && ny_diff >= 0)))) break;
                 i++;
                 prev = curr;
                 curr = next;
             }
-
             monotone_segments.push([start, i]);
-            start = i;
-            i = i + 1;
+            start = i; i++;
         }
 
-        // Step 2: Build line segments excluding zero-length segments
-        const segment_lines = monotone_segments.map(([start, end]) => {
+        const segCount = monotone_segments.length;
+        const segment_lines = [];
+        for (let si = 0; si < segCount; si++) {
+            const [segStart, segEnd] = monotone_segments[si];
             const lines = [];
-            let prevIndex = start;
-
-            // Find the first non-duplicate point
-            while (prevIndex < end && this.sample_points[prevIndex].x === this.sample_points[prevIndex + 1]?.x &&
-                this.sample_points[prevIndex].y === this.sample_points[prevIndex + 1]?.y) {
-                prevIndex++;
-            }
-
-            for (let j = prevIndex + 1; j <= end; j++) {
-                const currIndex = j;
-
-                // Skip duplicates
-                while (currIndex <= end && this.sample_points[prevIndex].x === this.sample_points[currIndex].x &&
-                    this.sample_points[prevIndex].y === this.sample_points[currIndex].y) {
-                    j++;
-                }
-
-                if (j > end) {
-                    break;
-                }
-
-                const p1 = this.sample_points[prevIndex];
-                const p2 = this.sample_points[currIndex];
-
-                // Skip zero-length segments
-                if (p1.x === p2.x && p1.y === p2.y) {
-                    prevIndex = currIndex;
-                    continue;
-                }
-
-                lines.push([p1, p2]);
-                prevIndex = currIndex;
-            }
-
-            for (let i = 0; i < lines.length; i++){
-                if (lines[i][0].x < lines[i][1].x) return {
-                    lines,
-                    direction: 1
-                }
-                if (lines[i][0].x > lines[i][1].x) return {
-                    lines,
-                    direction: -1
+            let pidx = segStart;
+            while (pidx < segEnd && points[pidx].x === points[pidx + 1]?.x && points[pidx].y === points[pidx + 1]?.y) pidx++;
+            for (let j = pidx + 1; j <= segEnd; j++) {
+                while (j <= segEnd && points[pidx].x === points[j].x && points[pidx].y === points[j].y) j++;
+                if (j > segEnd) break;
+                const p1 = points[pidx], p2 = points[j];
+                if (p1.x !== p2.x || p1.y !== p2.y) {
+                    lines.push([p1, p2]);
+                    pidx = j;
+                } else {
+                    pidx = j;
                 }
             }
+            let direction = 1;
+            for (let k = 0; k < lines.length; k++){
+                if (lines[k][0].x < lines[k][1].x) {direction = 1; break;}
+                if (lines[k][0].x > lines[k][1].x) {direction = -1; break;}
+            }
+            segment_lines.push({ lines, direction });
+        }
 
-            return {
-                lines,
-                direction: 1
-            };
-        });
-
-        for (let i = 0; i < segment_lines.length - 1; i++) {
-            const lines1 = segment_lines[i].lines;
-            const x1_range = [lines1[0][0].x, lines1[lines1.length - 1][1].x];
-
-            const [start1, increment1, l1_left, l1_right] = segment_lines[i].direction > 0 ? 
-                [0, 1, 0, 1]
-            :   [lines1.length - 1, -1, 1, 0];
-            /*
-                - where to start
-                - what direction to traverse to next line
-                - point with lower x (or y) index
-                - point with higher x (or y) index
-            */
-
-            for (let j = i + 1; j < segment_lines.length; j++) {
-                const lines2 = segment_lines[j].lines;
-                const x2_range = [lines2[0][0].x, lines2[lines2.length - 1][1].x];
-                let [start2, increment2, l2_left, l2_right] = segment_lines[j].direction > 0 ? 
-                    [0, 1, 0, 1]
-                :   [lines2.length - 1, -1, 1, 0];
-
-                let current_line1 = start1;
-                let current_line2 = start2;
-
-                if (Math.min(...x2_range) > Math.max(x1_range) || Math.min(...x1_range) > Math.max(x2_range)){
-                    continue;
-                }
-
-                while (current_line1 >= 0 && current_line1 < lines1.length && current_line2 >= 0 && current_line2 <= lines2.length){
-                    if (lines1[current_line1][l1_right].x < lines2[current_line2][l2_left].x){
-                        current_line1 += increment1;
-                        continue;
-                    }
-                    if (lines2[current_line2][l2_right].x < lines1[current_line1][l1_left].x){
-                        current_line2 += increment2;
-                        continue;
-                    }
-
-                    const [intersects, _] = line_segments_intersect(lines1[current_line1], lines2[current_line2]);
+        for (let si = 0; si < segCount - 1; si++) {
+            const seg1 = segment_lines[si];
+            const lines1 = seg1.lines;
+            if (!lines1.length) continue;
+            const x1min = lines1[0][0].x;
+            const x1max = lines1[lines1.length - 1][1].x;
+            const s1 = seg1.direction > 0 ? 0 : lines1.length - 1;
+            const inc1 = seg1.direction > 0 ? 1 : -1;
+            const l1_left = seg1.direction > 0 ? 0 : 1;
+            const l1_right = seg1.direction > 0 ? 1 : 0;
+            for (let sj = si + 1; sj < segCount; sj++) {
+                const seg2 = segment_lines[sj];
+                const lines2 = seg2.lines;
+                if (!lines2.length) continue;
+                const x2min = lines2[0][0].x;
+                const x2max = lines2[lines2.length - 1][1].x;
+                if (x2min > x1max || x1min > x2max) continue;
+                let s2 = seg2.direction > 0 ? 0 : lines2.length - 1;
+                const inc2 = seg2.direction > 0 ? 1 : -1;
+                const l2_left = seg2.direction > 0 ? 0 : 1;
+                const l2_right = seg2.direction > 0 ? 1 : 0;
+                let c1 = s1, c2 = s2;
+                while (c1 >= 0 && c1 < lines1.length && c2 >= 0 && c2 < lines2.length) {
+                    const l1 = lines1[c1], l2 = lines2[c2];
+                    if (l1[l1_right].x < l2[l2_left].x) { c1 += inc1; continue; }
+                    if (l2[l2_right].x < l1[l1_left].x) { c2 += inc2; continue; }
+                    const [intersects] = line_segments_intersect(l1, l2);
                     if (intersects) {
-                        if (j == i+1){
-                            if (segment_lines[i].direction){
-                                // letzter vom ersten segment
-                                // erster vom zweiten segment
-                                // größter x wert
-                                if (
-                                    current_line1 == lines1.length - 1
-                                    && current_line2 == 0
-                                ){
-                                    break;
-                                };
-                            } else {
-                                if (
-                                    current_line2 == lines2.length - 1
-                                    && current_line1 == 0
-                                ){
-                                    if (
-                                        lines1[current_line1][l1_right].x < lines2[current_line2][l2_right].x
-                                    ) {
-                                        current_line1 += increment1;
-                                    } else {
-                                        current_line2 += increment2;
-                                    }
-                                    continue;
-                                }
-                            }
-                        }
-
-                        this.self_intersection_cache.self_intersects = true;
+                        cached.self_intersects = true;
                         return true;
                     }
-
-                    if (
-                        lines1[current_line1][l1_right].x < lines2[current_line2][l2_right].x
-                    ) {
-                        current_line1 += increment1;
-                    } else {
-                        current_line2 += increment2;
-                    }
+                    if (l1[l1_right].x < l2[l2_right].x) c1 += inc1; else c2 += inc2;
                 }
             }
         }
 
-        this.self_intersection_cache.self_intersects = false;
+        cached.self_intersects = false;
         return false;
-    } 
+    }
 }
