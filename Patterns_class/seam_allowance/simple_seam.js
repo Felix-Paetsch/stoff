@@ -1,12 +1,13 @@
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
-import { Vector } from '../../StoffLib/geometry.js';
+import { Vector, affine_transform_from_input_output } from '../../StoffLib/geometry.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
 import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
 import evaluate from '../funs/basicEval.js';
 
 import utils from '../funs/utils.js';
+import fs from "fs";
 
 
 function merge_all_lines(s){
@@ -200,14 +201,7 @@ function close_lines(s, ln1_p, ln2_p, distance){
   let ln1 = ln1_p.get_adjacent_lines()[0];
   let ln2 = ln2_p.get_adjacent_lines()[0];
 
-  ln1.set_color("red");
-  ln2.set_color("blue");
-  console.log("I suspect we find the positions, but we throw all of them out");
-  console.log(s.intersection_positions(ln1, ln2));
-  s.dev.at_url("/maeh")
-
   let temp = s.intersection_positions(ln1, ln2)[0];
-  console.log(temp)
   let pt = s.add_point(temp);
 
   s.point_on_line(pt, ln1);
@@ -218,8 +212,6 @@ function close_lines(s, ln1_p, ln2_p, distance){
   //s.merge_points(ln1_p, ln2_p);
 
   return [ln1, ln2];
-  /*
-  */
 };
 
 function lengthen_line(s, p, distance){

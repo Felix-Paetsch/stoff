@@ -168,7 +168,7 @@ class Line{
         );
     }
 
-    vec_to_absolue(vec){
+    vec_to_absolute(vec){
         return this.get_to_absolute_function()(vec);
     }
 
@@ -366,7 +366,7 @@ class Line{
                 const relative_vec = this.sample_points[i].mult(1-fraction_left)
                         .add(this.sample_points[i+1].mult(fraction_left));
 
-                return this.vec_to_absolue(relative_vec);
+                return this.vec_to_absolute(relative_vec);
             }
 
             sum += next_length;

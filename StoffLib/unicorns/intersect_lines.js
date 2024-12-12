@@ -3,6 +3,7 @@ import { copy_sketch_obj_data } from '../copy.js';
 import { interpolate_colors } from '../colors.js';
 
 const EPSILON = 0.000001;
+const SMALL_EPSILON = 0.000000001;
 const EPSILON2 = EPSILON * EPSILON;
 
 export {
@@ -317,7 +318,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
     }
 
     // Check if the lines are parallel (denominator is zero)
-    if (Math.abs(denominator) < EPSILON) {
+    if (Math.abs(denominator) < SMALL_EPSILON) {
         const normalize = affine_transform_from_input_output(
             [start1, end1],
             [new Vector(0,0), new Vector(1, 0)]
@@ -375,7 +376,6 @@ function _find_monotone_intersection_positions(s1, s2){
             ]
         ]
     */
-
     const ip = [];
 
     let s1_index = 0;
