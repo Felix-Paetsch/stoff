@@ -28,7 +28,6 @@ export default (Sketch) => {
 
       const reference_direction = reference_vec.subtract(point)
       const vec = reference_direction.to_len(length).rotate(angle);
-      const newPt = point.add(vec);
 
       const new_pt = this.add_point(point.add(vec));
       const line = this.line_between_points(point, new_pt);
@@ -108,7 +107,7 @@ export default (Sketch) => {
         return this._line_between_points_from_sample_points(pt1, pt2, sp);
     }
 
-    Sketch.prototype.interpolate_lines = function(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
+    Sketch.prototype._felix_interpolate_lines = function(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
         // Interpoliert line1 und line2.
         // p1 und p2 geben zu jedem Zeitpunkt t an, wo wir uns auf den jeweiligen Linien befinden
         //      annahme: p_i(0) = 0 und p_i(1) = 1
@@ -215,6 +214,140 @@ export default (Sketch) => {
 
         return new_line;
     }
+
+    Sketch.prototype.interpolate_lines = function(
+        line1, 
+        line2, 
+        direction = 0, 
+        f = (x) => x, 
+        p1 = (x) => x, 
+        p2 = (x) => x
+    ) {
+        this._guard_lines_in_sketch(line1, line2);
+    
+        // A helper to normalize a given function g so that g(0)=0 and g(1)=1
+        function normalize_fun(g) {
+            const g0 = g(0);
+            const g1 = g(1);
+            if (g0 === g1) {
+                throw new Error("Interpolation Function has equal endpoints");
+            }
+            const a = 1 / (g1 - g0);
+            const b = -a * g0;
+            return function (x) {
+                return a * g(x) + b;
+            };
+        }
+    
+        // Normalize f, p1, p2 only once
+        const f_norm = normalize_fun(f);
+        const p1_norm = normalize_fun(p1);
+        const p2_norm = normalize_fun(p2);
+    
+        // Handle direction-based orientation changes
+        let flippedLine1 = false;
+        let flippedLine2 = false;
+        if (direction === 1 || direction === 3) {
+            line1.swap_orientation();
+            flippedLine1 = true;
+        }
+        if (direction === 2 || direction === 3) {
+            line2.swap_orientation();
+            flippedLine2 = true;
+        }
+    
+        // Get endpoints
+        const [endpoint_L11, endpoint_L12] = line1.get_endpoints();
+        const [endpoint_L21, endpoint_L22] = line2.get_endpoints();
+    
+        const start = endpoint_L11; // start of new line
+        const end   = endpoint_L22; // end of new line
+    
+        // Precompute transformation from absolute coords to relative [0,1] coordinates along start-end
+        const abs_to_rel = affine_transform_from_input_output(
+            [start, end],
+            [new Vector(0,0), new Vector(1,0)]
+        );
+    
+        // Precompute n, k
+        const n = Math.ceil(1 / this.sample_density);
+        const k = Math.ceil(1 / CONF.INTERPOLATION_NORMALIZATION_DENSITY);
+    
+        // Get normalized samples of line1 and line2
+        const line1_normalized = line1.abs_normalized_sample_points(k);
+        const line2_normalized = line2.abs_normalized_sample_points(k);
+    
+        // Inline function to interpolate a point from the normalized sample points array
+        // position between 0 and 1
+        function interpolateFromNormalized(samples, position) {
+            const len = samples.length;
+            const index = position * (len - 1);
+            const idxFloor = Math.floor(index);
+            const idxCeil = idxFloor === len - 1 ? idxFloor : idxFloor + 1;
+            const frac = index - idxFloor;
+    
+            if (idxFloor === idxCeil) {
+                // exact index, just return the point
+                return samples[idxFloor];
+            }
+    
+            // Linear interpolation between samples[idxFloor] and samples[idxCeil]
+            const s1 = samples[idxFloor];
+            const s2 = samples[idxCeil];
+            // Avoiding multiple vector ops: do inline
+            const x = s1.x * (1 - frac) + s2.x * frac;
+            const y = s1.y * (1 - frac) + s2.y * frac;
+            return new Vector(x, y);
+        }
+    
+        // Pre-allocate sample_points array
+        const sample_points = new Array(n + 1);
+    
+        // Instead of creating multiple intermediate vectors, do minimal overhead
+        for (let i = 0; i <= n; i++) {
+            const t = i / n;
+    
+            // Evaluate p1 and p2 at t
+            const pt1 = p1_norm(t);
+            const pt2 = p2_norm(t);
+    
+            // Interpolate along line1 and line2
+            const line1Point = interpolateFromNormalized(line1_normalized, pt1);
+            const line2Point = interpolateFromNormalized(line2_normalized, pt2);
+    
+            // Transform to target coordinates
+            // Assuming abs_to_rel is a simple, efficient inline transform:
+            const L1_rel = abs_to_rel(line1Point);
+            const L2_rel = abs_to_rel(line2Point);
+    
+            // Compute f(t)
+            const f_t = f_norm(t);
+    
+            // Combine line1 and line2 points according to f(t)
+            const x = L1_rel.x * (1 - f_t) + L2_rel.x * f_t;
+            const y = L1_rel.y * (1 - f_t) + L2_rel.y * f_t;
+    
+            sample_points[i] = new Vector(x, y);
+        }
+    
+        // Restore line orientation if changed
+        if (flippedLine1) {
+            line1.swap_orientation();
+        }
+        if (flippedLine2) {
+            line2.swap_orientation();
+        }
+    
+        // Create the new line
+        const new_line = this._line_between_points_from_sample_points(
+            start,
+            end,
+            sample_points
+        );
+    
+        new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
+        return new_line;
+    };    
 
     Sketch.prototype.merge_lines = function(line1, line2, delete_join = false, data_callback = default_data_callback){
         this._guard_lines_in_sketch(line1, line2);

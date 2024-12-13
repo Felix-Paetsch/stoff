@@ -9,7 +9,7 @@ function add_calls_tracker(fun, name){
     return function(...args) {
         Calls[name] += 1;
 
-        return fun.apply(this, args);;
+        return fun.apply(this, args);
     };
 }
 
