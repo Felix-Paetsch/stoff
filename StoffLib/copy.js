@@ -3,23 +3,35 @@ import { Point } from './point.js';
 import { Line } from './line.js';
 import { ConnectedComponent } from './connected_component.js';
 
-function default_data_callback(d1, d2){
-    return Object.assign(d1, d2);
+function default_data_callback(...data){
+    return copy_data_callback(...data);
+    return Object.assign({}, ...data);
 }
 
-function copy_sketch_obj_data(source, target, data_callback = default_data_callback, include_appearance = true){
+function copy_data_callback(...data){
+    return Object.assign({}, ...data.map(d => dublicate_data(d)));
+}
+
+function copy_sketch_obj_data(source, target, data_callback = copy_data_callback, include_appearance = true){
     // Source: Line | Point
     // Target: Line | Point
 
     if (include_appearance){
-        target.set_color(source.get_color());
+        if (
+            (source instanceof Line && target instanceof Line)
+            || (source instanceof Point && target instanceof Point)
+        )
+        {
+            target.attributes = dublicate_data(source.attributes);
+        }
     }
     const data_copy = dublicate_data(source.data);
-    return data_callback(target.data, data_copy)
+    target.data = data_callback(target.data, data_copy)
     || data_copy;
+    return target.data;
 }
 
-function copy_sketch(source, target, data_callback = default_data_callback, position = null){
+function copy_sketch(source, target, data_callback = copy_data_callback, position = null){
     // Source: Sketch
     // Target: Sketch
 
@@ -159,7 +171,8 @@ export {
     copy_sketch_obj_data,
     copy_connected_component,
     copy_sketch,
-    default_data_callback
+    default_data_callback,
+    copy_data_callback
 }
 
 function dublicate_data(data, get_point_reference = (pt) => pt, get_line_reference = (ln) => ln){

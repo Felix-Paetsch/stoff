@@ -741,7 +741,7 @@ function shorten_length_new(s, percent){
   //let side = s.merge_lines(lines.side_bottom[0], lines.side_bottom[1], true);
   let side = lines.side;
   let waistline_dart = lines.waistline.length > 1;
-  let side_len = lines.side_bottom[0].get_length() *2;
+  let side_len = lines.bottom[0].p2.other_adjacent_line(lines.bottom[0]).get_length() *2;
   if(side.length > 1){
     side = [side[1]];
   }
@@ -753,7 +753,8 @@ function shorten_length_new(s, percent){
   if (percent === 1){
     return;
   }
-  let temp = side.position_at_length(percent * side_len + (side.get_length() - side_len));
+  percent = 1 - percent;
+  let temp = side.position_at_length(percent * side_len, true);
   let pt = s.add_point(temp);
   let p = side.p2;
   s.point_on_line(pt, side);
@@ -776,7 +777,7 @@ function shorten_length_new(s, percent){
 
   let ln = s.line_between_points(fold.p2, pt);
   ln.data.type = "bottom";
-  temp = fold.position_at_length(percent * fold.get_length());
+  temp = fold.position_at_length(percent * fold.get_length(), true);
   fold.p2.move_to(temp);
 
 

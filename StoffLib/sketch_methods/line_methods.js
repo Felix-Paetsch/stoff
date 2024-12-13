@@ -1,6 +1,6 @@
 import { Vector, affine_transform_from_input_output, distance_from_line_segment, UP } from '../geometry.js';
 import { intersect_lines, intersection_positions } from '../unicorns/intersect_lines.js';
-import { default_data_callback, copy_sketch_obj_data } from '../copy.js';
+import { default_data_callback, copy_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
 import { Point } from '../point.js';
 import { interpolate_colors } from '../colors.js';
@@ -383,9 +383,7 @@ export default (Sketch) => {
         );
 
         new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
-
-        copy_sketch_obj_data(line1, new_line, data_callback);
-        copy_sketch_obj_data(line2, new_line, data_callback);
+        new_line.data = data_callback(line1.data, line2.data);
 
         if (delete_join){
             this.remove_point(line1.p2);
@@ -397,7 +395,7 @@ export default (Sketch) => {
         return new_line;
     }
 
-    Sketch.prototype.point_on_line = function(pt, line, data_callback = default_data_callback){
+    Sketch.prototype.point_on_line = function(pt, line, data_callback = copy_data_callback){
         const abs = line.get_absolute_sample_points();
 
         let closest_line_segment_first_index = 0;
@@ -488,7 +486,7 @@ export default (Sketch) => {
         return intersection_positions(line1, line2);
     }
 
-    Sketch.prototype.copy_line = function(line, from, to, data_callback = default_data_callback){
+    Sketch.prototype.copy_line = function(line, from, to, data_callback = copy_data_callback){
         this._guard_points_in_sketch(from, to);
         const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);

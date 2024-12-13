@@ -83,6 +83,9 @@ class Vector {
     }
 
     to_len(a){
+        if (this.length() < 0.000000000001){
+          throw new Error("Vector is (almost) 0");
+        }
         return this.normalize().scale(a);
     }
 

@@ -52,6 +52,10 @@ class Line{
 
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
+
+        if (typeof this._init !== "undefined"){
+            this._init();
+        }
     }
 
     offset_sample_points(radius, direction = 0){

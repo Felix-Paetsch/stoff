@@ -11,17 +11,48 @@ export default (Sketch) => {
       }
     }
 
-    const old_init = Sketch.prototype._init ? Sketch.prototype._init : () => {};
-    Sketch.prototype._init = function (){
-        old_init.bind(this)();
-        this.dev = {};
-        Object.keys(Sketch_dev).forEach(key => {
-            this.dev[key] = Sketch_dev[key].bind(this);
-        });
-    };
+    {
+        const old_init = Sketch.prototype._init ? Sketch.prototype._init : () => {};
+        Sketch.prototype._init = function (){
+            old_init.bind(this)();
+            this.dev = {};
+            Object.keys(Sketch_dev).forEach(key => {
+                this.dev[key] = Sketch_dev[key].bind(this);
+            });
+        };
+    }
 
     Sketch.dev = Sketch_dev;
-    Route.Sketch = Sketch;
     register_render_at(Sketch);
     register_recording_methods(Sketch);
+
+
+    const Line_dev = {
+      mark_endpoints: function() {
+        this.p1.set_color("green");
+        this.p2.set_color("red");
+        try {
+            this.p1.data._side = "p1";
+            this.p2.data._side = "p2";
+        } catch {}
+        this.p1.attributes.radius = 5;
+        this.p2.attributes.radius = 5;
+        this.attributes.strokeWidth = 2;
+      }
+    }
+
+    {
+        const old_init = Sketch.Line.prototype._init ? Sketch.Line.prototype._init : () => {};
+        Sketch.Line.prototype._init = function (){
+            old_init.bind(this)();
+            this.dev = {};
+            Object.keys(Line_dev).forEach(key => {
+                this.dev[key] = Line_dev[key].bind(this);
+            });
+        };
+    }
+
+    Sketch.Line.dev = Line_dev;
+
+    Route.Sketch = Sketch;
 }

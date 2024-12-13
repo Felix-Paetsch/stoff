@@ -17,9 +17,10 @@ import {line_with_length} from '../funs/basicFun.js';
 
 
 export default class Middle extends PatternComponent{
-  constructor(sketch, mea, design, config){
+  constructor(sketch, mea, design, config, seam_allowance){
     super(mea, config, design);
     this.sketch = sketch;
+    this.seam_allowances = seam_allowance;
 
     this.set_grainline_basic();
   }
@@ -59,13 +60,25 @@ export default class Middle extends PatternComponent{
   // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
   // längen an Nahtzugabe geben
   seam_allowance(s){
-    let seam_allowances = {
-      neckline: 0.5,
-      armpit: 1,
-      hem: 2,
-      side: 1
-    };
-    seam.seam_allowance_middle(s, seam_allowances);
+
+// aktuell ist das so, aber eigentlich sollte die linie selber wissen, was sie
+// braucht. ich bin mir gerade nur nicht sicher, wo ich das am besten der Linie
+// sage
+/*
+    let lines = s.lines_by_key("type");
+    lines.side.forEach((ln) => {
+      ln.data.s_a = "side";
+    });
+          s.dev.at_new_url("/waaa")
+    lines.fold[0].swap_orientation().data.s_a = "side";
+
+    lines.armpit[0].data.s_a = "armpit";
+    lines.bottom[0].swap_orientation().data.s_a = "hem";
+    lines.shoulder[0].data.s_a = "side";
+
+    lines = s.get_lines();
+    seam.seam_allow(s, lines, this.seam_allowances);
+    */
   }
 
 
@@ -76,11 +89,16 @@ export default class Middle extends PatternComponent{
   }
 
   shorten(){
+
+// Probleme durch noch nicht einheitliche benennung der Seiten - noch nicht
+// sicher, was da sinvoll ist.
     let fold_bottom = this.get_sketch().lines_by_key("type").fold_bottom;
     this.get_sketch().merge_lines(fold_bottom[0], fold_bottom[1], true);
     lengthen.shorten_length_new(this.get_sketch(), this.design["top designs"].length);
     let s = this.get_sketch();
   //  s.lines_by_key("type").dart[0].set_color("red")
-    utils.merge_to_curve(s, s.lines_by_key("type").dart.concat(s.lines_by_key("type").fold_bottom));
+  //  if (s.lines_by_key("type").fold_bottom){
+      utils.merge_to_curve(s, s.lines_by_key("type").dart.concat(s.lines_by_key("type").fold_bottom));
+    //}
   }
 }

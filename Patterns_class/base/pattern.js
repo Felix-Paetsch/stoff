@@ -89,7 +89,7 @@ export default class Pattern{
         this.components.push(elem.mirror());
       } else {
         elem.mirror();
-    //    this.seam_allowance_after_mirror(elem.get_sketch());
+        elem.seam_allowance_after_mirror(elem.get_sketch());
       }
     });
     /*this.seam_allowance_after_mirror(elem.get_sketch());
@@ -126,15 +126,54 @@ export default class Pattern{
     this.connect_filling(s);
 
   }
+  tuck(s){
+    let lines = s.lines_by_key("type").dart;
+    lines = utils.sort_dart_lines(lines);
+    while(lines.length > 0){
+      this.fill_in_dart(s, [lines[0], lines[1]]);
+      dart.simple_tuck(s, [lines[0], lines[1]]);
+      annotate.annotate_tuck(s, [lines[0], lines[1]]);
+      lines.splice(0, 2);
+    }
+    annotate.remove_dart(s);
+    this.connect_filling(s);
+    
+  }
 
   connect_filling(s){
     let lines = s.lines_by_key("type").filling;
-    lines.forEach((line) => {
-      let ln1 = line.p1.other_adjacent_line(line);
-      let ln2 = line.p2.other_adjacent_line(line);
-      ln1 = s.merge_lines(line, ln1, true);
-      s.merge_lines(ln1, ln2, true);
-    });
+    if (lines){
+      lines.forEach((line) => {
+        let ln1 = line.p1.other_adjacent_line(line);
+        let ln2 = line.p2.other_adjacent_line(line);
+
+        if(line.get_endpoints().includes(ln1.p2)){
+          ln1 = s.merge_lines(
+            ln1, line, true,
+            (data_ln1, data_line) => {
+              return data_ln1;
+            }
+          );
+            s.merge_lines(ln1, ln2, true, (data_ln1, data_l2) => {
+                return data_ln1;
+            });
+
+        } else {
+          ln2 = s.merge_lines(
+            ln2, line, true,
+            (data_ln1, data_line) => {
+              return data_ln1;
+            }
+          );
+            s.merge_lines(ln2, ln1, true, (data_ln1, data_l2) => {
+                return data_ln1;
+            });
+
+
+        }
+
+      });
+    }
   }
 
 
@@ -167,30 +206,10 @@ export default class Pattern{
     }
   }
 
-  tuck(s){
-    let lines = s.lines_by_key("type").dart;
-    lines = utils.sort_dart_lines(lines);
-    while(lines.length > 0){
-      this.fill_in_dart(s, [lines[0], lines[1]]);
-      dart.simple_tuck(s, [lines[0], lines[1]]);
-      annotate.annotate_tuck(s, [lines[0], lines[1]]);
-      lines.splice(0, 2);
-    }
-    annotate.remove_dart(s);
-  }
 
 
 
-  seam_allowance_after_mirror(s){
-    let seam_allowances = {
-      neckline: 0.5,
-      armpit: 1,
-      hem: 2,
-      side: 1
-    };
 
-    seam.seam_allowance_after_mirror(s, seam_allowances);
-  }
 
 // später ggf. anders umsetzen, erstmal übergangsfunktion zum schön sein
   remove_unnessesary_things(s){

@@ -15,6 +15,10 @@ class Point extends Vector{
             strokeWidth: 1,
             opacity: 1
         };
+
+        if (typeof this._init !== "undefined"){
+            this._init();
+        }
     }
 
     vector(){

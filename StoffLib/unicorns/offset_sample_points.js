@@ -47,7 +47,7 @@ export default function offset_sample_points(line, radius, direction = 0) {
         abs_sample_points.push(midpoint.add(edge_orth));
 
         prev_left = left;
-        left++;
+        left = right;
     }
 
     if (sp[left] && sp[plen - 1].distance(sp[left]) < EPSILON) {
