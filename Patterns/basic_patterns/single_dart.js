@@ -61,6 +61,8 @@ export default class SingleDart extends TShirtBasePattern{
   };
 
   shift_dart(){
+    if (!this.dartposition()) throw new Error("Bad dartposition selected");
+
     if(this.dartside() === "waistline"){
       top.waistline_simple_dart(this.get_sketch(), this.dartposition());
     } else {

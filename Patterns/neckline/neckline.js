@@ -11,7 +11,7 @@ import utils from '../funs/utils.js';
 
 
 function slim_neckline(s, distance){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let vec = shoulder.get_line_vector();
   let percent = 1 - distance/shoulder.get_length();
@@ -26,7 +26,7 @@ function slim_neckline(s, distance){
 function new_curve_v_line(s){
   //const pt1 = s.point(0,0);
   //const pt2 = s.point(30, 0);
-  let line = s.data.comp.lines_by_key("type").neckline[0];
+  let line = s.lines_by_key("type").neckline[0];
   const pt1 = line.p1;
   const pt2 = line.p2;
 
@@ -37,13 +37,13 @@ function new_curve_v_line(s){
   let vec2 = vec.get_orthonormal();
   let vec3;
   //let p = s.point(vec2.add(pt2))
-  if (s.data.front){
+  //if (s.data.front){
     vec3 = vec.add(vec2.scale(1));
     vec2 = vec.add(vec2.scale(-1));
-  } else {
+/*  } else {
     vec3 = vec.add(vec2.scale(-1));
     vec2 = vec.add(vec2.scale(1));
-  }
+  }*/
   let l = s.line_from_function_graph(pt1, pt2, spline.bezier([
       pt1, vec2.add(pt1), pt2
   ])); //.plot_control_points(s));
@@ -54,7 +54,7 @@ function new_curve_v_line(s){
 
 
 function v_line(s, design){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let fold = lines.fold[0];
   let percent_s;
@@ -94,7 +94,7 @@ function v_line(s, design){
 }
 
 function round_wide(s){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let fold = lines.fold[0];
   let percent_s;
@@ -117,7 +117,7 @@ function round_wide(s){
 
 
 function square(s){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let fold = lines.fold[0];
   let neckline = lines.neckline[0];
@@ -159,7 +159,7 @@ function square(s){
 }
 
 function square_shoulder_dart(s){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let fold = lines.fold[0];
   let neckline = lines.neckline[0];
@@ -198,7 +198,7 @@ function square_shoulder_dart(s){
 
 
 function boat(s){
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let shoulder = lines.shoulder[0];
   let fold = lines.fold[0];
   let neckline = lines.neckline[0];

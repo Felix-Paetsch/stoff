@@ -14,9 +14,51 @@ import eva from '../funs/basicEval.js';
 import seam from '../seam_allowance/simple_seam.js';
 
 
+function new_annotate(s, s_old = []){
+  if (s.data.type !== "middle"){
+    let lines = s.lines_by_key("type");
+    if (lines.waistline.length){
+      lines.waistline.forEach((ln) => {
+        s.remove_line(ln);
+      });
+    }
+    let ln2 = lines.fold[0];
+    let ln3 = lines.fold_bottom[0]
+    ln2 = s.merge_lines(ln2, ln3, true);
+    //s.data.comp = new ConnectedComponent(ln2);
+    ln2.data.type = "fold";
+
+    s = utils.mirror_on_fold(s);
+  } else {
+    let lines = s.lines_by_key("type");
+    let sk = new Sketch();
+    if (lines.waistline.length){
+      lines.waistline.forEach((ln) => {
+        s.remove_line(ln);
+      });
+    }
+    sk.paste_sketch(s);
+    // diese unterscheidung ist reine optik, würde reichen, wenn nur eines
+    // davon genommen wird
+    if (s.data.front){
+      utils.mirror_sketch(s);
+    } else {
+      utils.mirror_sketch(sk);
+    }
+    s = [s].concat(s_old).concat([sk]);
+
+  }
+
+
+  return s;
+}
+
+
 function annotate(s, s_old = [], dart_type = "dart"){
-  seam.merge_all_lines(s);
-  seam.seam_allowance_first(s, 1.5);
+
+
+  //seam.merge_all_lines(s);
+  //seam.seam_allowance_first(s, 1.5);
   let lines = s.lines_by_key("type");
   //let ln = lines.waistline;
   let ln2;
@@ -53,7 +95,7 @@ function annotate(s, s_old = [], dart_type = "dart"){
       });
     }
 
-    lines = sk.data.comp.lines_by_key("type");
+    lines = sk.lines_by_key("type");
       //console.log(s.data.comp.root().data)
     ln = lines.waistline;
 
@@ -71,9 +113,10 @@ function annotate(s, s_old = [], dart_type = "dart"){
 
 
   } else {
-    temp = mirror(s);
-    remove_dart(temp);
     lines = s.lines_by_key("type");
+    //s.merge_lines(lines.fold[0], lines.fold_bottom[0], true).data.type = "fold";
+    temp = utils.mirror_on_fold(s);
+    remove_dart(temp);
     //console.log(s.data.comp.root().data)
     let ln = lines.waistline;
 
@@ -100,19 +143,7 @@ function mirror_middle(s){
 
   }
 
-  let p = sk.data.comp.lines_by_key("type").bottom[0].p1;
-  let vec;
-  let vec2;
-  sk.data.comp.transform((pt) => {
-    vec = pt.subtract(p);
-    vec2 = new Vector(vec.x, 0);
-    vec = vec.add(vec2.scale(-2)).add(p);
-    pt.move_to(vec);
-  });
-  let lines = sk.data.comp.lines();
-  lines.forEach((ln) => {
-    ln.mirror();
-  });
+  utils.mirror_sketch(s);
 
   //utils.position_sketch(s, sk);
 
@@ -120,7 +151,9 @@ function mirror_middle(s){
 }
 
 
-function mirror(s){
+// Jetzt bei utils.mirror_on_fold zu finden
+/* function mirror(s){
+
   const sk = new Sketch();
   sk.paste_sketch(s);
   //console.log(s.data)
@@ -176,11 +209,11 @@ function mirror(s){
 
   s.merge_lines(lines1[0], lines1[1], true);
   s.merge_lines(lines2[0], lines2[1], true);
-  /*
-  */
+
 
   return s;
 };
+*/
 
 function annotate_dart(s, [ln1, ln2]){
   let p = ln1.p1;
@@ -195,7 +228,7 @@ function annotate_dart(s, [ln1, ln2]){
   ln.data.type = "dart_annotated";
   p_middle.data.width = vec_p_middle.subtract(ln1.p2).length();
 
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let bottom = lines.dart_bottom;
   if (bottom){
       let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
@@ -247,38 +280,40 @@ function annotate_tuck(s, [ln1, ln2]){
   ln.data.type = "dart_annotated";
 
 
-
-  let lines = s.data.comp.lines_by_key("type");
+  let lines = s.lines_by_key("type");
   let bottom = lines.dart_bottom;
   if (bottom){
-    if(!s.data.shortened){
-      let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
-      if (adjacent.includes(ln1)){
-        let p_ann2 = s.add_point(vec.scale(3).add(bottom[0].p1));
-        p_ann2.data.addition = "3";
-        ln = s.line_between_points(p_ann2, p_middle);
-        ln.data.type = "dart_bottom_annotated";
+    let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
+    if (adjacent.includes(ln1)){
+      if(!s.data.shortened){
+        let adjacent = bottom[0].p2.get_adjacent_lines().concat(bottom[1].p2.get_adjacent_lines());
+        if (adjacent.includes(ln1)){
+          let p_ann2 = s.add_point(vec.scale(3).add(bottom[0].p1));
+          p_ann2.data.addition = "3";
+          ln = s.line_between_points(p_ann2, p_middle);
+          ln.data.type = "dart_bottom_annotated";
 
-        ln = s.line_between_points(bottom[0].p1, p_ann2);
-        ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[0].p1, p_ann2);
+          ln.data.type = "dart_remove";
 
-        ln = s.line_between_points(bottom[0].p2, p_ann2);
-        ln.data.type = "dart_remove";
-        ln = s.line_between_points(bottom[1].p2, p_ann2);
-        ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[0].p2, p_ann2);
+          ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[1].p2, p_ann2);
+          ln.data.type = "dart_remove";
+        }
+        } else {
+          vec = bottom[0].p1.subtract(bottom[1].p1).scale(0.5).add(bottom[1].p1);
+          let p_bot = s.add_point(vec);
+          ln = s.line_between_points(p_bot, p_middle);
+          ln.data.type = "dart_annotated";
+          ln = s.line_between_points(bottom[0].p2, p_bot);
+          ln.data.type = "dart_remove";
+          ln = s.line_between_points(bottom[1].p2, p_bot);
+          ln.data.type = "dart_remove";
+        /*
+        */
+
       }
-      } else {
-        vec = bottom[0].p1.subtract(bottom[1].p1).scale(0.5).add(bottom[1].p1);
-        let p_bot = s.add_point(vec);
-        ln = s.line_between_points(p_bot, p_middle);
-        ln.data.type = "dart_annotated";
-        ln = s.line_between_points(bottom[0].p2, p_bot);
-        ln.data.type = "dart_remove";
-        ln = s.line_between_points(bottom[1].p2, p_bot);
-        ln.data.type = "dart_remove";
-      /*
-      */
-
     }
 
   }
@@ -307,4 +342,4 @@ function remove_dart(s){
 }
 
 
-export default {annotate, annotate_dart, annotate_tuck};
+export default {annotate, new_annotate, annotate_dart, annotate_tuck, remove_dart};

@@ -55,6 +55,8 @@ export default class Pattern{
       arr.reverse();
       return arr;
     }
+
+    throw new Error("Invalid config input");
   }
 
 

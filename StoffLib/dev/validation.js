@@ -8,9 +8,12 @@ import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
 
 import CONF from '../config.json' assert { type: 'json' };
 const error_margin = CONF.VAL_ERROR_MARGIN;
-
+let currently_validating = false;
 
 function validate_sketch(s){
+    if (currently_validating) return;
+    currently_validating = true;
+
     s.lines.forEach(l => {
         relative_endpoints_are_correct(l);
         sketch_points_as_enpoints(s, l);
@@ -29,6 +32,8 @@ function validate_sketch(s){
                         l.data.SELF_INTERSECTS = true;
                     }
                     s.dev.at_url("/self_intersects", null, true);
+                    
+                    Error.stackTraceLimit = Infinity;
                     throw new Error("A line self intersected! \nYou may visit /self_intersects to see the problem.\n");
                 } // Callback before the assert
             );
@@ -43,6 +48,7 @@ function validate_sketch(s){
     });
 
     data_object_valid(s.data, s);
+    currently_validating = false;
 }
 
 // TEST CASES LINES

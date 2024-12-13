@@ -1,4 +1,4 @@
-import { Vector, vec_angle, rotation_fun } from '../../StoffLib/geometry.js';
+import { Vector, vec_angle_clockwise, rotation_fun } from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -7,10 +7,12 @@ import utils from './utils.js';
 
 
 
-
+// trennt an der Linie bei dem gegeben Punkt und entlang
+// des bereits vorhandenen Abnähers die aktuelle Sketch in zwei
+// gibt den Winkel des ehemaligen Abnähers zurück
 function split(s, line, pt){
-  let darts = s.data.comp.lines_by_key("type").dart;
-  darts = utils.sort_lines(s, darts);
+  let darts = s.lines_by_key("type").dart;
+  darts = utils.sort_dart_lines(darts);
   let inner = darts[1];
   let outer = darts[0];
 
@@ -24,14 +26,17 @@ function split(s, line, pt){
   let dart1 = utils.close_component(s, inner.p1, [pt, pt2]);
   let dart2 = utils.close_component(s, outer.p1, [pt, pt2]);
   dart1.data.type = "dart";
+  dart1.data.side = "inner";
+  dart1.data.dartposition = line.data.type;
   dart2.data.type = "dart";
-  s.data.comp = new ConnectedComponent(dart1);
-  s.data.comp2 = new ConnectedComponent(dart2);
+  dart2.data.side = "outer";
+  dart2.data.dartposition = line.data.type;
 
-  return vec_angle(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
+  return vec_angle_clockwise(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));
 
 };
 
+// wofür????
 function split_tip(s, lines){
   let darts = s.data.comp.lines_by_key("type").dart;
   darts = utils.sort_lines(s, darts);

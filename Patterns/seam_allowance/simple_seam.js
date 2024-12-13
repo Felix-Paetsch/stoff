@@ -1,12 +1,13 @@
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
-import { Vector } from '../../StoffLib/geometry.js';
+import { Vector, affine_transform_from_input_output } from '../../StoffLib/geometry.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
 import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
 import evaluate from '../funs/basicEval.js';
 
 import utils from '../funs/utils.js';
+import fs from "fs";
 
 
 function merge_all_lines(s){
@@ -52,13 +53,11 @@ neue fehler
   bottom = merge_side_lines(s, trim, bottom);
   shoulder = merge_side_lines(s, trim, shoulder);
 
+
   if (bottom_side){
     side = s.merge_lines(side, bottom_side);
     side.data.type = "side";
   }
-  s.dev.at_new_url("/bla")
-
-
 
   /*
   if(s.data.dart && side_dart.includes(s.data.dart)){
@@ -129,6 +128,126 @@ function seam_allowance_first(s, width){
 
 };
 
+// geht davon aus, dass jede der Linien Teil einer geschlossenen ZHK ist
+// und jeder Punkt nur zwei Linien hat
+// es wird angenommen, dass von jeder Linienart nur eine Linie vorhanden ist
+function seam_allow(s, given_lns, seam_a){
+
+  let lines = s.lines_by_key("type");
+  let temp = [];
+  given_lns.forEach((ln) => {
+    temp = temp.concat(ln.get_endpoints());
+  });
+
+  temp = temp.filter((p, i) => temp.indexOf(p) == i);
+
+  let lns;
+  let ln1;
+  let ln2;
+
+
+
+  while (temp.length > 0){
+    let lines = s.lines_by_key("type");
+
+    lns = temp[0].get_adjacent_lines();
+    if(given_lns.includes(lns[0])  && given_lns.includes(lns[1])){
+      if(!lines["s_a_"+lns[0].data.type]){
+        ln1 = s.line_with_offset(lns[0], seam_a[lns[0].data.s_a], true).line;
+        ln1.data.type = "s_a_" + lns[0].data.type;
+      } else {
+        ln1 = lines["s_a_"+lns[0].data.type][0];
+      }
+
+      if(!lines["s_a_"+lns[1].data.type]){
+        ln2 = s.line_with_offset(lns[1], seam_a[lns[1].data.s_a], true).line;
+        ln2.data.type = "s_a_" + lns[1].data.type;
+      } else {
+        ln2 = lines["s_a_"+lns[1].data.type][0];
+      }
+      close_lines_new(s, ln1, ln2);
+    }
+    temp.splice(0, 1);
+  }
+
+};
+
+// alte variante
+/* function seam_allowance(s, seam_a){
+
+  let lines = s.lines_by_key("type");
+
+  //console.log(lines.side[0].sample_points.map(p => p.to_array()));
+  let ln_side = s.line_with_offset(lines.side[0], seam_a.side, true);
+  ln_side.line.data.type = "s_a_side";
+  let ln_armpit = s.line_with_offset(lines.armpit[0], seam_a.armpit, true);
+  ln_armpit.line.data.type = "s_a_armpit";
+  close_lines(s, ln_side.p1, ln_armpit.p2, 3);
+  let ln_shoulder = s.line_with_offset(lines.shoulder[0], seam_a.side, true);
+  ln_shoulder.line.data.type = "s_a_shoulder";
+  close_lines(s, ln_armpit.p1, ln_shoulder.p2, 3);
+
+}
+*/
+
+function seam_allowance_after_mirror(s, seam_a){
+  let lines = s.lines_by_key("type");
+
+  let ln_bottom = s.line_with_offset(lines.bottom[0], seam_a.hem, true).line;
+  let ln_side = lines.s_a_side;
+
+  let temp;
+  ln_bottom = close_lines_new(s, ln_side[0], ln_bottom).ln2;
+  close_lines_new(s, ln_side[1], ln_bottom);
+
+
+  let ln_neckline = s.line_with_offset(lines.neckline[0], seam_a.neckline).line;
+  let ln_shoulder = lines.s_a_shoulder;
+
+  ln_neckline = close_lines_new(s, ln_shoulder[0], ln_neckline).ln2;
+  close_lines_new(s, ln_shoulder[1], ln_neckline);
+
+
+  /*
+*/
+}
+
+
+
+function close_lines_new(s, ln1, ln2){
+  let len1 = ln1.p1.subtract(ln2.p1).length();
+  let len2 = ln1.p1.subtract(ln2.p2).length();
+  let len3 = ln1.p2.subtract(ln2.p1).length();
+  let len4 = ln1.p2.subtract(ln2.p2).length();
+
+  let len = Math.min(len1, len2, len3, len4);
+
+  switch (len) {
+    case len1:
+      return close_lines(s, ln1.p1, ln2.p1, 3);
+      break;
+    case len2:
+      return close_lines(s, ln1.p1, ln2.p2, 3);
+      break;
+    case len3:
+      return close_lines(s, ln1.p2, ln2.p1, 3);
+      break;
+    case len4:
+      return close_lines(s, ln1.p2, ln2.p2, 3);
+      break;
+
+    default:
+
+  }
+
+}
+
+
+
+function seam_allowance_middle(s, seam_a){
+
+}
+
 
 function seam_allowance_neck(s, width){
 
@@ -146,16 +265,20 @@ function close_lines(s, ln1_p, ln2_p, distance){
   ln2_p = lengthen_line(s, ln2_p, distance);
   let ln1 = ln1_p.get_adjacent_lines()[0];
   let ln2 = ln2_p.get_adjacent_lines()[0];
-
   let temp = s.intersection_positions(ln1, ln2)[0];
+  s.dev.at_new_url("/maeh")
+  let pt = s.add_point(temp);
 
-  /*
-  ln1_p.move_to(temp);
-  ln2_p.move_to(temp);
 
-  s.merge_points(ln1_p, ln2_p);
+  ln1 = s.point_on_line(pt, ln1).line_segments[0];
+  ln2 = s.point_on_line(pt, ln2).line_segments[0];
 
-  return [ln1, ln2];*/
+  s.remove(ln1_p, ln2_p);
+
+  return {
+    ln1,
+    ln2
+  };
 };
 
 function lengthen_line(s, p, distance){
@@ -167,10 +290,10 @@ function lengthen_line(s, p, distance){
   let p2 = s.add_point(temp);
 
   const ln2 = s.line_between_points(p, p2);
-  let line = s.merge_lines(ln, ln2, true);
+  s.merge_lines(ln, ln2, true);
 
   return p2;
 };
 
 
-export default {seam_allowance_first, seam_allowance_neck, seam_allowance_bottom, merge_all_lines};
+export default { seam_allow, seam_allowance_after_mirror, seam_allowance_middle, seam_allowance_first, seam_allowance_neck, seam_allowance_bottom, merge_all_lines};

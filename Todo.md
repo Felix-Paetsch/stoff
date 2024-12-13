@@ -13,3 +13,10 @@ Arrange sketches in one panel using tetris
 
 
 Website
+
+
+
+Speed improvements
+===================
+Array of vectors => Float64Array of (x,y)
+

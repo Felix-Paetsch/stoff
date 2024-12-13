@@ -1,4 +1,4 @@
-import { Vector, vec_angle, rotation_fun , triangle_data} from '../../StoffLib/geometry.js';
+import { Vector, vec_angle_clockwise, rotation_fun , triangle_data} from '../../StoffLib/geometry.js';
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
@@ -13,41 +13,31 @@ import eva from '../funs/basicEval.js';
 import annotate from '../annotate/annotate.js';
 
 
-
+// rückt den punkt nach "unten" mit single dart um anschliessend mit
+// dart_trim die Schnittlinien als aussenkanten zu malen
 function dart(s, type){
-  s.data.dart = type;
-  let lines = s.data.comp.lines_by_key("type").dart;
+
+  let lines = s.lines_by_key("type").dart;
   let i = lines.length / 2;
-  if (i === 1){
-    //s.remove_point(single_dart(s, lines));
+  lines = utils.sort_dart_lines(lines);
+  while(lines.length > 0){
     if (!eva.eval_waistline_dart(type)){
-    /*
-    */
-      dart_trim(s, lines, single_dart(s, lines));
+      dart_trim(s, [lines[0], lines[1]],single_dart(s, [lines[0], lines[1]]));
 
     } else {
-      s.remove_point(single_dart(s, lines));
+      s.remove_point(single_dart(s, [lines[0], lines[1]]));
       if (s.data.shortened){
         dart_trim_bottom(s, s.lines_by_key("type").dart_bottom);
       }
     }
-    annotate.annotate_dart(s, lines);
-  } else if (i === 2){
-    let [pair1, pair2] = split_dart(lines);
-    dart_trim(s, pair1, single_dart(s, pair1));
-    dart_trim(s, pair2, single_dart(s, pair2));
-
-    if(eva.eval_waistline_dart(type) && s.data.shortened){
-      dart_trim_bottom(s, s.lines_by_key("type").dart_bottom);
+    if (!s.data.tuck){
+      annotate.annotate_dart(s, [lines[0], lines[1]]);
     }
-
-    annotate.annotate_dart(s, pair2);
-    annotate.annotate_dart(s, pair1);
-  //  s.remove_point(single_dart(s, pair1));
-  //  s.remove_point(single_dart(s, pair2));
+    lines.splice(0, 2);
   }
 };
 
+// bewegt den Punkt nach "unten"
 function single_dart(s, [line1, line2]){
   let p_ret = s.add_point(line1.p1.copy());
 
@@ -67,64 +57,27 @@ function single_dart(s, [line1, line2]){
   return p_ret;
 };
 
-
-function split_dart(lines){
-  let pair1_1 = lines.splice(0,1)[0];
-  let pair1_2 = lines.filter(elem => {
-    return pair1_1.is_adjacent(elem);
-  })[0];
-  let pair2 = lines.filter(elem => {
-    return !(pair1_1.is_adjacent(elem));
-  });
-
-  return [[pair1_1, pair1_2], pair2];
-};
-
+// nutzt dart() und wandelt danach alle "normalen" Abnäher des sketches in
+// Tuck darts um mit simple_tuck
 function tuck_dart(s, type){
-  s.data.dart = type;
-
   s.data.tuck = true;
-  let lines = s.data.comp.lines_by_key("type").dart;
-  let i = lines.length / 2;
-  if (i === 1){
-    let p = single_dart(s, lines);
-
-    if (!eva.eval_waistline_dart(type)){
-      dart_trim(s, lines, p);
-    } else {
-      s.remove_point(p);
-      if (s.data.shortened){
-        dart_trim_bottom(s, s.lines_by_key("type").dart_bottom);
-      }
-    }
-    simple_tuck(s, lines);
-
-    annotate.annotate_tuck(s, lines);
-
-    //dart_trim(s, lines, single_dart(s, lines));
-
-
-  } else if (i === 2){
-    let [pair1, pair2] = split_dart(lines);
-    let p1 = single_dart(s, pair1);
-    let p2 = single_dart(s, pair2);
-    dart_trim(s, pair1, p1);
-    dart_trim(s, pair2, p2);
-
-    simple_tuck(s, pair1);
-    simple_tuck(s, pair2);
-    //s.remove_point(p1);
-    //s.remove_point(p2);
-    //dart_trim(s, pair1, p1);
-    //dart_trim(s, pair2, p2);
-    annotate.annotate_tuck(s, pair1);
-    annotate.annotate_tuck(s, pair2);
+  dart(s, type);
+  let lines = s.lines_by_key("type").dart;
+  lines = utils.sort_dart_lines(lines);
+  while(lines.length > 0){
+    /*
+    */
+    simple_tuck(s, [lines[0], lines[1]]);
+    annotate.annotate_tuck(s, [lines[0], lines[1]]);
+    lines.splice(0, 2);
   }
+
+  return s;
 }
 
 function simple_tuck(s, [line1, line2]){
   let pt = s.add_point(line1.p1.copy());
-  s.line_between_points(line1.p1, pt).set_color("red");
+  s.line_between_points(line1.p1, pt);
   line1.set_endpoints(pt, line1.p2);
 
   let vec = line1.get_line_vector().scale(0.5).add(line1.p1);
@@ -135,18 +88,92 @@ function simple_tuck(s, [line1, line2]){
 }
 
 
+function fill_in_dart(s, dart_lines){
+  /*
+      We fill in the dart with the line sgement adjacent to the outer one.
+      If that segment is to short we take the next line, we expect the next line then to be well defined.
+      #madeByFelix
+  */
+
+  // 1, Constructing (half of) the line with which to fill the dart at the correct position
+  const center_pt = dart_lines[0].common_endpoint(dart_lines[1]);
+
+  const outer_line = dart_lines.filter(l => l.data.side == "outer")[0];
+  const inner_line = dart_lines.filter(l => l.data.side == "inner")[0];
+
+  const outer_pt = outer_line.other_endpoint(center_pt);
+  const original_line_to_mirror = outer_pt.other_adjacent_line(outer_line);
+  const copy_line_to_mirror = s.copy_line(
+          original_line_to_mirror,
+          ...original_line_to_mirror.get_endpoints()
+  );
+
+  const outer_outer_pt = copy_line_to_mirror.other_endpoint(outer_pt);
+  const original_line_to_mirror_extension = outer_outer_pt.other_adjacent_line(copy_line_to_mirror, original_line_to_mirror);
+  const copy_line_to_mirror_extension = s.copy_line(
+          original_line_to_mirror_extension,
+          ...original_line_to_mirror_extension.get_endpoints()
+  );
+
+  const full_line_to_mirror = s.merge_lines(copy_line_to_mirror, copy_line_to_mirror_extension);
+  const most_outer_pt = full_line_to_mirror.other_endpoint(outer_pt);
+
+  // Create Half Line
+  const dart_full_angle = vec_angle_clockwise(outer_pt, inner_line.other_endpoint(center_pt), center_pt);
+  const half_line_at_angle = s.line_at_angle(center_pt, dart_full_angle/2, 100, outer_pt);
+
+  const mirror_center_vec = half_line_at_angle.line.closest_position(most_outer_pt);
+  const most_outer_pt_mirrored = s.add(most_outer_pt.mirror_at(mirror_center_vec));
+  full_line_to_mirror.set_endpoints(outer_pt, most_outer_pt_mirrored).mirror();
+
+  // Cut the line at the right position
+  const intersections = s.intersect_lines(full_line_to_mirror, half_line_at_angle.line);
+  const target_line = intersections.l1_segments[0];
+
+  s.remove(
+      intersections.l1_segments[1],
+      ...intersections.l2_segments,
+      most_outer_pt_mirrored,
+      half_line_at_angle.other_endpoint
+  );
+
+  const fill_in_center_pt = target_line.other_endpoint(outer_pt);
+
+  // Copy the line over
+  const target_line_mirror = s.copy_line(
+      target_line,
+      inner_line.other_endpoint(center_pt),
+      fill_in_center_pt,
+  ).mirror();
+
+  const merged = s.merge_lines(target_line, target_line_mirror);
+  s.remove(fill_in_center_pt);
+
+  // merges has on the side of merge.p1 the "outer" side and on merge.p2 the "inner" site
+  return merged;
+}
+
+
+
+// Warnung: Noch nicht überarbeitet
+// bei zu kurzen Linien ein großes Problem, wodurch man erst noch
+// eine Fallunterscheidung zu kurven oder so machen muss (fuer kurven dieses hier)
+// ansonsten reicht bestimmt die Tangente und macht einiges einfacher
+// Bildet die Schneidelinien die ein Abnäher braucht
 function dart_trim(s, lines, p_dart){
 // bei dart_trim_new abgedeckt
+
   lines.reverse();
   let adjacent = lines[0].p2.get_adjacent_lines();
   let line = adjacent.filter(elem =>{
-  return elem.data.type != "dart";
-})[0];
+    return elem.data.type != "dart";
+  })[0];
 
-  if (line.data.type === "waistline"){
+//  if (line.data.type === "waistline"){
       s.remove_point(p_dart);
+      s.line_between_points(lines[0].p2, lines[1].p2).data.type = "trim";
     return;
-  }
+//  }
   /*
 */
 
@@ -166,11 +193,9 @@ function dart_trim(s, lines, p_dart){
     angle = angle * -1;
   }
   */
-  if (s.data.front){
-    fun = rotation_fun(lines[0].p1, angle);
-  } else {
-    fun = rotation_fun(lines[0].p1, -angle);
-  }
+
+  fun = rotation_fun(lines[0].p1, angle);
+
 
 
   let p_new = s.add_point(lines[0].p2.copy());
@@ -201,7 +226,6 @@ function dart_trim(s, lines, p_dart){
   line = s.copy_line(segment, lines[0].p2, p2_new);
   line.mirror();
   line.data.type = "trim";
-
 
   s.remove_point(p_dart);
   s.remove_point(p_new);
@@ -283,7 +307,8 @@ function dart_trim_bottom(s, lines){
   //  }
 
 
-    vec2 = lines[0].p2.subtract(lines[1].p2).scale(0.5).add(lines[1].p2);
+// Warning: wird vermutlich noch falsch berechnet!
+    vec2 = lines[0].p2.subtract(lines[1].p2).scale(0.5).add(lines[1].p1);
   }
 
   vec = lines[0].p1.subtract(lines[1].p1).scale(0.5).add(lines[1].p1);
@@ -305,12 +330,12 @@ function dart_trim_bottom(s, lines){
   };
   let new_tri = triangle_data(tri);
   vec_haupt = vec_haupt.to_len(new_tri.c);
+  // irgendwie ist vec2 falsch berechnet
   let p_main = s.add_point(vec_haupt.add(vec2));
 
 
     s.line_between_points(p_main, lines[1].p1).data.type = "trim";
     s.line_between_points(p_main, lines[0].p1).data.type = "trim";
-
 
 
     if (bool){
@@ -325,7 +350,7 @@ return s;
   */
 }
 
-function close_styleline_side(s){
+/*function close_styleline_side(s){
   let lines = s.lines_by_key("type");
   let darts = lines.dart;
 
@@ -349,7 +374,7 @@ function close_styleline_side(s){
 
   s.merge_lines(lines.side[0], lines.side[1], true);
   return s;
-}
+}*/
 
 
-export default {dart, tuck_dart, simple_tuck, split_dart, single_dart, close_styleline_side};
+export default {dart, tuck_dart, simple_tuck, single_dart, fill_in_dart};

@@ -5,10 +5,12 @@ import Route from "./request_routing.js";
 export default (Sketch) => {
     let count = 0;
 
+    Error.stackTraceLimit = Infinity;
+
     const Sketch_dev = {
-      at_new_url: function(url) {
-          return this.dev.at_url(url + (count++))
-      }
+        at_new_url: function(url) {
+            return this.dev.at_url(url + (count++))
+        }
     }
 
     {

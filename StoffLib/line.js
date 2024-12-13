@@ -440,7 +440,7 @@ class Line{
             // Skip the first point, compare each with the previous
             if (index === 0) return true;
             const prevPoint = this.sample_points[index - 1];
-            return !(point.x === prevPoint.x && point.y === prevPoint.y);
+            return prevPoint.distance(point) > 0.0000000001;
         });
     }
 
