@@ -37,6 +37,7 @@ export default function offset_sample_points(line, radius, direction = 0){
             const vec1 = sp[prev_left].subtract(sp[left]);
             const vec2 = sp[right].subtract(sp[left]);
             let angle = vec_angle_clockwise(vec1, vec2, true);
+
             const center_vec = vec1.rotate(angle/2).to_len(radius);
             abs_sample_points.push(sp[left].add(center_vec));
         }
@@ -47,7 +48,7 @@ export default function offset_sample_points(line, radius, direction = 0){
         abs_sample_points.push(cp.add(orth));
 
         prev_left = left;
-        left++;
+        left = right;
     }
 
     // 2.

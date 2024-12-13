@@ -2,7 +2,7 @@ import { Vector, convex_hull } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
 import { Point } from './point.js';
 import { Line } from './line.js';
-import { copy_sketch, default_data_callback, copy_sketch_obj_data } from './copy.js';
+import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
 import CONF from './config.json' assert { type: 'json' };
 
 import register_rendering_functions from "./sketch_methods/rendering_methods/register.js";
@@ -339,9 +339,7 @@ class Sketch{
 
     paste_sketch(sketch, data_callback = null, position = null){
         if (data_callback == null){
-            data_callback = (target_sketch_data, src_sketch_data) => {
-                return Object.assign(target_sketch_data, src_sketch_data);
-            }
+            data_callback = copy_data_callback
         }
         return copy_sketch(sketch, this, data_callback, position);
     }
@@ -400,6 +398,10 @@ Sketch.graphical_non_pure_methods.forEach(methodName => {
     };
 });
 
+
+Sketch.Line = Line;
+Sketch.Point = Point;
+
 // Add Dev Obj
 import fs from 'fs';
 if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
@@ -410,7 +412,6 @@ if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
         throw err;
     }
 }
-
 
 export { Sketch };
 export default Sketch;

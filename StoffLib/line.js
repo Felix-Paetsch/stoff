@@ -51,6 +51,10 @@ class Line{
 
         endpoint_1.add_adjacent_line(this);
         endpoint_2.add_adjacent_line(this);
+
+        if (typeof this._init !== "undefined"){
+            this._init();
+        }
     }
 
     offset_sample_points(radius, direction = 0){
@@ -427,6 +431,10 @@ class Line{
             const prevPoint = this.sample_points[index - 1];
             return !(point.x === prevPoint.x && point.y === prevPoint.y);
         });
+    }
+
+    _renormalize_ample_points() {
+      throw new Error("Unimplemented!");
     }
 
     toString(){
