@@ -14,6 +14,8 @@ import neck from '../neckline/neckline.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 
+import seam from '../seam_allowance/simple_seam.js';
+
 
 import { split, split_tip} from '../funs/simple_split.js';
 
@@ -82,7 +84,7 @@ export default class Styleline extends TShirtBasePattern{
     let angle = this.#get_angle();
     let patterns = top.split_pattern(this.get_sketch(), this.seconddartside(), this.seconddartposition());
     this.multipart = true;
-    this.first_part = new Middle(patterns[1], this.sh, this.design, this.config);
+    this.first_part = new Middle(patterns[1], this.sh, this.design, this.config, this.seam_allowances);
     this.sketch = patterns[0];
     this.#rotate_middle(angle);
     /*
@@ -159,6 +161,7 @@ export default class Styleline extends TShirtBasePattern{
     bottom.data.type = "bottom";
     side_bottom.data.type = "side_bottom";
     lengthen.correct_belly(s, this.sh, ratio_front);
+
     this.first_part.lengthen(((this.sh.bottom /2) - ln1_len_f), this.sh.waist_height + add_len_f, this.sh.waist_height);
   }
 
@@ -192,5 +195,23 @@ export default class Styleline extends TShirtBasePattern{
     lengthen.shorten_length_new(this.get_sketch(), this.design["top designs"].length);
     this.first_part.shorten();
   };
+
+  // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
+  // längen an Nahtzugabe geben
+  seam_allowance(s){
+
+    let lines = s.lines_by_key("type");
+    lines.side[0].data.s_a = "side";
+    lines.shoulder[0].data.s_a = "side";
+
+    if (lines.armpit){
+      lines.armpit[0].data.s_a = "armpit";
+      seam.seam_allow(s, [lines.side[0], lines.armpit[0], lines.shoulder[0]], this.seam_allowances);
+    } else {
+      seam.seam_allow(s, [lines.side[0], lines.shoulder[0]], this.seam_allowances);
+
+    }
+  }
+
 
 }

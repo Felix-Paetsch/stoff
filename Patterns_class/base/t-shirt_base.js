@@ -44,6 +44,13 @@ export default class TShirtBasePattern extends PatternComponent{
 
         this.sketch = new Sketch();
 
+        this.seam_allowances = {
+          neckline: 0.5,
+          armpit: 1,
+          hem: 2,
+          side: 1
+        };
+
         this.initialize_shorthands();
         this.main_construction();
         this.add_ease();
@@ -263,13 +270,17 @@ export default class TShirtBasePattern extends PatternComponent{
     // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
     // längen an Nahtzugabe geben
     seam_allowance(s){
-      let seam_allowances = {
-        neckline: 0.5,
-        armpit: 1,
-        hem: 2,
-        side: 1
-      };
-      seam.seam_allowance(s, seam_allowances);
+
+      let lines = s.lines_by_key("type");
+      lines.side[0].data.s_a = "side";
+      s.dev.at_new_url("/wa")
+      lines.armpit[0].data.s_a = "armpit";
+      lines.shoulder[0].data.s_a = "side";
+      seam.seam_allow(s, [lines.side[0], lines.armpit[0], lines.shoulder[0]], this.seam_allowances);
+    }
+    seam_allowance_after_mirror(s){
+
+      seam.seam_allowance_after_mirror(s, this.seam_allowances);
     }
 }
 

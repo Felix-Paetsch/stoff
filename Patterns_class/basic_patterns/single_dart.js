@@ -27,6 +27,7 @@ export default class SingleDart extends TShirtBasePattern{
     this.shift_dart();
     this.set_grainline_basic();
     this.lengthen();
+
   };
 
 
@@ -146,5 +147,10 @@ export default class SingleDart extends TShirtBasePattern{
     this.sketch = utils.mirror_on_fold(this.get_sketch());
   };
 
+
+  seam_allowance(s){
+//    this.get_sketch().lines_by_key("type").side[0].swap_orientation();
+    super.seam_allowance(s);
+  }
 
 }

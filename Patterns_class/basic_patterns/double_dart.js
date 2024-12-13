@@ -27,7 +27,6 @@ export default class DoubleDart extends TShirtBasePattern{
 
     this.parse_design_position();
     this.shift_dart();
-
     if (this.switch_io_dart){
       let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === this.switch_io_dart);
       utils.switch_inner_outer_dart(dart);
@@ -221,6 +220,12 @@ export default class DoubleDart extends TShirtBasePattern{
 
       this.sketch = utils.mirror_on_fold(this.get_sketch());
     };
+
+    seam_allowance(s){
+    //  this.get_sketch().lines_by_key("type").side[0].swap_orientation();
+      super.seam_allowance(s);
+    }
+
 /*
     shorten(){
       if(this.design.side === "waistline"){

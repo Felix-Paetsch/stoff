@@ -227,7 +227,6 @@ function dart_trim(s, lines, p_dart){
   line.mirror();
   line.data.type = "trim";
 
-  s.dev.at_new_url("/bla");
   s.remove_point(p_dart);
   s.remove_point(p_new);
   s.remove_line(temp.l2_segments[0]);
