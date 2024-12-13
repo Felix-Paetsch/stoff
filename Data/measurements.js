@@ -141,19 +141,10 @@ const isa = {
 };
 
 
-function calculate_measurements(mea){
-  let half = mea.under_bust / 2;
-  //console.log(half)
-  mea.bust_width_front = mea.bust_width - (half + 2);
-  //console.log(mea.waist_width_front);
-  mea.bust_width_back = mea.bust_width - mea.bust_width_front;
-  mea.waist_width_front = mea.waist_width - (half - 5);
-  mea.waist_width_back = mea.waist_width - mea.waist_width_front;
-  //console.log(mea.waist_width_back);
-  mea.ratio = mea.bust_width_front/mea.bust_width_back;
 
-  return mea;
-};
-
-
-export default {debby, felix, leonie, calculate_measurements, isa};
+export const people_measurements = {
+    Debby: debby,
+    Felix: felix,
+    Leonie: leonie,
+    Isa: isa
+}

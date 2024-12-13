@@ -8,7 +8,7 @@ import { Config } from "../StoffLib/Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
 
-import pattern_data from '../Patterns_class/export_pattern_web_new.js';
+import pattern_data from '../Patterns/export_pattern.js';
 //import pattern_data from '../Pictures/entry.js';
 const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/debug_create_design.js";
