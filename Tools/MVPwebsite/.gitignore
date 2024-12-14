@@ -1,7 +1,6 @@
-**config.json
-database/init/sql
-discord/channel_id_map.json
 json_db/data
 .env
 node_modules
 
+!website/public/bilder/
+!website/public/bilder/**

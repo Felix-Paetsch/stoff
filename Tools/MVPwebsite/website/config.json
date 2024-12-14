@@ -1,0 +1,15 @@
+{
+    "is_publish": false,
+    "use_https": false,
+    "throw_on_server_error": true,
+
+    "hot_reload": false,
+    "enable_snapshots": false,
+
+    "use_minified": false,
+    "json_limit": "50mb",
+    "port": 3005,
+
+    "private_key_path": "",
+    "cert_path": ""
+}

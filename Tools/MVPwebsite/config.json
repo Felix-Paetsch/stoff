@@ -1,0 +1,43 @@
+{
+    "catch_module_error": false,
+    "use_modules": ["website", "json_db"],
+
+    "texts": {
+        "initial_subtitle": "Leonie & Felix --- Stoff Project --- Prototype",
+        "stoff_description": "We are working on a project to generate clothing (sewing patterns) based on your size measurements and style preferences. We want to make a first big-scale test. <br /> So if you are participating at the <b>WinterAka Windischleuba Hälfte 1/2</b>, you can become one of our test subjects! See the mail for more detail or contact us at <i>felixpaetsch@gmail.com</i> if you have any questions (Or just contact Leonie ;)",
+
+        "logged_in_subtitle": "Input your measurements!",
+        "choose_design_subtitle": "Choose your design!",
+
+        "measurements_text": "Something for Leonie to write!"
+    },
+    "measurements": [
+        { "name": "1 Schulterlänge", "value": "shoulder_length" },
+        { "name": "2 Schulterbreite", "value": "shoulder_width" },
+        { "name": "3 Brustweite", "value": "bust_width" },
+        { "name": "4 Unterbrustweite", "value": "under_bust" },
+        { "name": "5 Brustpunktweite", "value": "bust_point_width" },
+        { "name": "6 Brustpunkthöhe", "value": "bust_point_height" },
+        { "name": "7 Seitenhöhe", "value": "side_height" },
+        { "name": "8 Taille Höhe", "value": "waist_height" },
+        { "name": "9 Taillenbreite", "value": "waist_width_front" },
+        { "name": "10 Bauchweite", "value": "waist_width_front" },
+        { "name": "11 Schulterhöhe vorne", "value": "shoulder_height_front" },
+        { "name": "12 Zentrumshöhe vorne", "value": "center_height_front" },
+        { "name": "13 Diagonal vorne", "value": "diagonal_front" },
+        { "name": "14 Vorne quer", "value": "across_front" },
+        { "name": "15 Untere Breite vorne", "value": "bottom_width_front" },
+        { "name": "16 Schulterblattbreite", "value": "shoulderblade_width" },
+        { "name": "17 Schulterblatthöhe", "value": "shoulderblade_height" },
+        { "name": "18 Schulterhöhe hinten", "value": "shoulder_height_back" },
+        { "name": "19 Zentrumshöhe hinten", "value": "center_height_back" },
+        { "name": "20 Diagonal hinten", "value": "diagonal_back" },
+        { "name": "21 Hinten quer", "value": "across_back" },
+        { "name": "22 Untere Breite hinten", "value": "bottom_width_back" },
+        { "name": "23 Arm", "value": "arm" },
+        { "name": "24 Armlänge", "value": "arm length" },
+        { "name": "25 Handgelenkbreite", "value": "wristwidth" },
+        { "name": "26 Ellenbogenbreite", "value": "ellbow_width" },
+        { "name": "27 Ellenbogenlänge", "value": "ellbow_length" }
+    ]
+}

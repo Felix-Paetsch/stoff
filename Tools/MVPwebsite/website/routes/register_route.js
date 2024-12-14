@@ -35,7 +35,7 @@ export default (app) => {
 
             res.render("responses/measurements", {
                 ...CONF,
-                measurements: CONF.measurements.slice(0, 2).map(m => {
+                measurements: CONF.measurements.map(m => {
                     return {
                         key: m.value,
                         display: m.name,
