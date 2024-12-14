@@ -1,95 +1,66 @@
+import Pattern from "../core/pattern.js";
+import Sketch from "../../StoffLib/sketch.js";
 
-import { Sketch } from '../../StoffLib/sketch.js';
-import { Vector } from '../../StoffLib/geometry.js';
 import utils from '../funs/utils.js';
 import dart from '../darts/simple_dart.js';
 import annotate from '../annotate/annotate.js';
 
-import SingleDart from '../shirt/single_dart.js';
-import DoubleDart from '../shirt/double_dart.js';
-import Styleline from '../shirt/styleline.js';
-import WithoutDart from '../shirt/without_dart.js';
 import Middle from '../shirt/middle.js';
+import { Vector } from '../../StoffLib/geometry.js';
 
-export default class Pattern{
-  constructor(measurements = {}, design_front = {}, design_back = {}){
-      this.mea = measurements;
-      this.measurements = measurements;
-      this.design_front = design_front;
-      this.design_back  = design_back;
-
-      let front = this.parse_pattern_type("front", this.design_front);
-      let back = this.parse_pattern_type("back", this.design_back);
-
-      this.components = front.concat(back);
-
-  }
-
-
-  parse_pattern_type(side, design_data){
-    console.log(design_data);
-    const type = design_data.dartAllocation.type;
-    let arr = [];
-    if(type === "without dart"){
-      return [new WithoutDart(this.mea, design_data, side)];
-    } else if (type === "single dart"){
-      return [new SingleDart(this.mea, design_data, side)];
-    } else if (type === "double dart"){
-      return [new DoubleDart(this.mea, design_data, side)];
-    } else if (type === "styleline"){
-      arr.push(new Styleline(this.mea, design_data, side));
-      let temp = arr[0].get_splitted_part();
-      arr.push(temp);
-      arr.reverse();
-      return arr;
+export default class ShirtBase extends Pattern{
+    constructor(measurements, config){
+        super(measurements, config);
     }
 
-    throw new Error("Invalid config input");
-  }
+    build_from_side_component(SideComponent){
+        this.components.push(
+            new SideComponent("front", this),
+            new SideComponent("back", this)
+        );
+
+        this.render = () => {
+            let s = new Sketch();
+        
+        
+            this.components.filter(elem => elem.dart === true).forEach((elem) => {
+                if(elem.dartstyle() === "tuck"){
+                this.tuck(elem.get_sketch());
+                } else {
+                this.dart(elem.get_sketch());
+                }
+            });
+        
+            this.components.forEach((elem) => {
+                elem.seam_allowance(elem.get_sketch());
+                this.remove_unnessesary_things(elem.get_sketch());
+            });
+            this.components.forEach((elem) => {
+                if (elem instanceof Middle){
+                //  this.seam_allowance(elem.get_sketch());
+                this.components.push(elem.mirror());
+                } else {
+                elem.mirror();
+                elem.seam_allowance_after_mirror(elem.get_sketch());
+                }
+            });
+            /*this.seam_allowance_after_mirror(elem.get_sketch());
+            */
+        
+        
+            return this.paste_sketches(s, this.components);
+        
+        }
+    }
+
+    render(){
+        throw new Error("Unimplemented");
+    }
+
+    
 
 
-  get_components(){
-    return this.components;
-  }
-
-  get(name, side){
-    return this.components.filter(elem => elem.name() === name).filter(elem => elem.side() === side)[0];
-  }
-
-
-  finish_pattern_for_print(){
-    let s = new Sketch();
-
-
-    this.components.filter(elem => elem.dart === true).forEach((elem) => {
-      if(elem.dartstyle() === "tuck"){
-        this.tuck(elem.get_sketch());
-      } else {
-        this.dart(elem.get_sketch());
-      }
-    });
-
-    this.components.forEach((elem) => {
-      elem.seam_allowance(elem.get_sketch());
-      this.remove_unnessesary_things(elem.get_sketch());
-    });
-    this.components.forEach((elem) => {
-      if (elem instanceof Middle){
-      //  this.seam_allowance(elem.get_sketch());
-        this.components.push(elem.mirror());
-      } else {
-        elem.mirror();
-        elem.seam_allowance_after_mirror(elem.get_sketch());
-      }
-    });
-    /*this.seam_allowance_after_mirror(elem.get_sketch());
-    */
-
-
-    return this.paste_sketches(s, this.components);
-
-  }
-
+    // Not cleaned up!!!
   paste_sketches(s, arr){
     let [sk] = arr.splice(0,1);
     sk = sk.get_sketch();
@@ -194,15 +165,9 @@ export default class Pattern{
     } else {
       dart.fill_in_dart(s, lines).data.type = "filling";
     }
-  }
+}
 
-
-
-
-
-
-// später ggf. anders umsetzen, erstmal übergangsfunktion zum schön sein
-  remove_unnessesary_things(s){
+remove_unnessesary_things(s){
     s.remove(s.data.pt);
     delete s.data.pt;
 
@@ -215,5 +180,4 @@ export default class Pattern{
     }
 
 
-  }
-}
+  }}

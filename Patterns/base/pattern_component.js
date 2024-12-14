@@ -8,6 +8,6 @@ export default class PatternComponent{
 
     // später will ich das über das Objekt design machen
     get_length(){
-      return this.design["top designs"].length;
+      return this.design.length;
     }
 }

@@ -1,10 +1,10 @@
 import { people_measurements } from '../Data/measurements.js';
 import adjusted_measurements from './adjust_measurements.js';
 
-import create from './create/create_main.js';
+import config_compiler from "./config_compiler.js";
 
 import { Config, cContainer, cBoolean, cNumber, cOption } from "../StoffLib/Config/exports.js";
-
+import { construct_shirt } from './shirt/shirt_constructor.js';
 
 export default {
     design_config: new Config(
@@ -20,7 +20,6 @@ export default {
           "top designs",
             cOption(
               "type",
-              "without change",
               "without dart",
               "single dart",
               "double dart",
@@ -28,18 +27,6 @@ export default {
               "added fullness",
               1
             ),
-            /*
-            cSelection(
-              "position",
-              "waistline",
-              "side middle",
-              "french",
-              "shoulder middle",
-              //"shoulder tip",
-              "side", // wird ohne Abnäher an die Seite gebracht, nur für double dart
-              [0]
-            ),
-            */
             cOption(
               "position",
               "waistline",
@@ -64,7 +51,6 @@ export default {
               "dartstyle",
               "normal",
               "tuck",
-        //      "gathering",
               0
             ),
             cNumber(
@@ -95,24 +81,11 @@ export default {
             "V-Line wide",
             "square",
             "boat",
-            //"straps",
             0
           )
         ),
         cContainer(
           "sleeve",
-          /*
-          cOption(
-            "sleeveheight",
-            "eingehalten 5/6",
-            "eingehalten 4/5",
-            "eingehalten 3/4",
-            "hemd 3/4",
-            "hemd 2/3",
-            "hemd 1/2",
-            2
-          ),
-          */
           cOption(
             "type",
             "straight",
@@ -125,15 +98,6 @@ export default {
             "flared",
             "cap",
             "ruffles",
-            /*
-            "kimono short straight",
-            "kimono short curve",
-            "sleeveless snug",
-            "sleeveless loose",
-            "sleeveless american",
-            // vorerst abgewählt, da kein Ärmel, sondern das Vorder- und Rückenteil
-            // verändert wird.
-            */
             0
           ),
           cNumber(
@@ -148,8 +112,9 @@ export default {
     ),
     create_design: (design_config) => {
       let fuer = design_config.Schnittmuster["für"];
+      
       let measurements = adjusted_measurements(people_measurements[fuer], design_config);
 
-      return create.basic_pattern(measurements, design_config);
+      return construct_shirt(measurements, config_compiler(design_config)).render();
     }
 }

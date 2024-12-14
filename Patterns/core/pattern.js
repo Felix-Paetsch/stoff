@@ -1,3 +1,4 @@
+import PatternComponent from "../core/pattern_component.js";
 import Sketch from "../../StoffLib/sketch.js";
 
 export default class Pattern extends PatternComponent{
@@ -11,5 +12,13 @@ export default class Pattern extends PatternComponent{
 
     render(){
         return new Sketch();
+    }
+
+    render_print(){
+        return this.render();
+    }
+
+    render_guide(){
+        return this.render();
     }
 }

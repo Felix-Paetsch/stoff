@@ -49,7 +49,9 @@ export default (Sketch) => {
 
                         const error = new Error("");
                         const stackTrace = "Stack Trace<br>" + error.stack.split("\n").slice(2).map(s => s.trim()).join("<br>");
-                        global_recording.snapshots[global_recording.snapshots.length - 1].data["Stack Trace"] = stackTrace;
+
+                        const s_data = global_recording.snapshots[global_recording.snapshots.length - 1]?.data;
+                        if (s_data) s_data["Stack Trace"] = stackTrace;
 
                         Error.stackTraceLimit = old_limit;
                     }

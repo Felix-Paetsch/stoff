@@ -264,7 +264,7 @@ export default class TShirtBasePattern extends PatternComponent{
     };
 
     dartstyle(){
-      return this.design["top designs"].dartstyle;
+      return this.design.dartAllocation.dartstyle;
     }
 
     // soll je nach Art der Linie (seite, hals, saum) unterschiedliche

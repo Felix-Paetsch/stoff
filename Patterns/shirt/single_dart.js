@@ -1,24 +1,22 @@
-
-import { Sketch } from '../../StoffLib/sketch.js';
-import { Point } from '../../StoffLib/point.js';
-import { Vector, rotation_fun, triangle_data } from '../../StoffLib/geometry.js';
-import { spline } from "../../StoffLib/curves.js";
-
 import TShirtBasePattern from "../base/t-shirt_base.js";
 
-import {line_with_length, point_at, get_point_on_other_line2} from '../funs/basicFun.js';
-
-
-import sleeve from '../sleeves/simple_sleeve.js';
 import utils from '../funs/utils.js';
-import neck from '../neckline/neckline.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
+import ShirtBase from "./base.js";
 
 
-export default class SingleDart extends TShirtBasePattern{
-  constructor(mea, design, side = "front"){
-    super(mea, design["top designs"].ease, design, side);
+export default class SingleDartShirt extends ShirtBase{
+    constructor(measurements, design_config){
+        super(measurements, design_config);
+        this.build_from_side_component(SingleDartSide);
+    }
+}
+
+class SingleDartSide extends TShirtBasePattern{
+  constructor(side = "front", parent){
+    const design = JSON.parse(JSON.stringify(parent.design_config));
+    super(parent.mea, design.ease, design, side);
     this.dart = true;
 
   //  sleeve.armpit(this.get_sketch());
@@ -32,32 +30,26 @@ export default class SingleDart extends TShirtBasePattern{
 
 
   parse_design_position(){
-    if(this.design["top designs"].percent){
-      // dieser Fall tritt nur auf, wenn bereits selber änderungen vorgenommen wurden
-      // noch unsicher, ob zusätzliche änderungen vorgenommen werden müssen
-    } else {
-      switch (this.design["top designs"].position) {
+    switch (this.design.dartAllocation.position) {
         case "waistline":
-          this.design["top designs"].percent = this.#calculate_upright_position(this.get_sketch());
-          this.design["top designs"].side = "waistline";
+          this.design.dartAllocation.percent = this.#calculate_upright_position(this.get_sketch());
+          this.design.dartAllocation.side = "waistline";
           break;
         case "french":
-          this.design["top designs"].percent = 0.9;
-          this.design["top designs"].side = "side";
+          this.design.dartAllocation.percent = 0.9;
+          this.design.dartAllocation.side = "side";
           this.switch_io_dart = "side";
           break;
         case "side middle":
-          this.design["top designs"].percent = 0.3;
-          this.design["top designs"].side = "side";
+          this.design.dartAllocation.percent = 0.3;
+          this.design.dartAllocation.side = "side";
           break;
         case "shoulder":
-          this.design["top designs"].percent = 0.5;
-          this.design["top designs"].side = "shoulder";
+          this.design.dartAllocation.percent = 0.5;
+          this.design.dartAllocation.side = "shoulder";
           break;
         default:
-
       }
-    }
   };
 
   shift_dart(){
@@ -101,16 +93,16 @@ export default class SingleDart extends TShirtBasePattern{
   }
 
   darttype(){
-    return this.design["top designs"].position;
+    return this.design.dartAllocation.position;
   }
 
 // irgendwie das noch anders benennen?
   dartside(){
-    return this.design["top designs"].side;
+    return this.design.dartAllocation.side;
   }
 
   dartposition(){
-    return this.design["top designs"].percent;
+    return this.design.dartAllocation.percent;
   }
 
   get_mirror_line(){
