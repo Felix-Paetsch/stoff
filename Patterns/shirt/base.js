@@ -20,6 +20,7 @@ export default class ShirtBase extends Pattern{
         );
 
         this.render = () => {
+            // @TODO
             let s = new Sketch();
         
         

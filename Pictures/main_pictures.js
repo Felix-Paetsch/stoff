@@ -446,22 +446,22 @@ function main_styleline(s, type){
   let p1;
   let p2;
 
-  let p1_b = s.add_point(s.position_at_length(bottom, 0.25*bottom.get_length()));
-  let p2_b = s.add_point(s.position_at_length(bottom, 0.25*bottom.get_length(), true));
+  let p1_b = s.add_point(bottom.position_at_length(0.25*bottom.get_length()));
+  let p2_b = s.add_point(bottom.position_at_length(0.25*bottom.get_length(), true));
   let p1_t;
   let p2_t;
   if (type === "classic princess"){
     p1 = s.add_point(-1, 7);
     p2 = s.add_point(5, 7);
     let shoulder = lines.shoulder;
-    p1_t =  s.add_point(s.position_at_length(shoulder[0], 0.5*shoulder[0].get_length()));
-    p2_t =  s.add_point(s.position_at_length(shoulder[1], 0.5*shoulder[1].get_length()));
+    p1_t =  s.add_point(shoulder[0].position_at_length(0.5*shoulder[0].get_length()));
+    p2_t =  s.add_point(shoulder[1].position_at_length(0.5*shoulder[1].get_length()));
   } else {
     p1 = s.add_point(-1.7, 7);
     p2 = s.add_point(5.7, 7);
     let armpit = lines.armpit;
-    p1_t =  s.add_point(s.position_at_length(armpit[0], 0.625*armpit[0].get_length()));
-    p2_t =  s.add_point(s.position_at_length(armpit[1], 0.625*armpit[1].get_length()));
+    p1_t =  s.add_point(armpit[0].position_at_length(0.625*armpit[0].get_length()));
+    p2_t =  s.add_point(armpit[1].position_at_length(0.625*armpit[1].get_length()));
   }
   //let temp1 = s.line_between_points(p1_t, p1);
   //let temp2 = s.line_between_points(p1, p1_b);
@@ -800,10 +800,10 @@ function shorten_sleeve(s, percent, side = 0){
 
   let len = outer[side].get_length() - ((outer[side].get_length() - inner[side].get_length()) * 4/5);
 
-  let vec = s.position_at_length(outer[side], len * percent * 0.95, true);
+  let vec = outer[side].position_at_length(len * percent * 0.95, true);
   let p1 = s.add_point(vec);
   s.point_on_line(p1, outer[side]);
-  vec = s.position_at_length(inner[side], inner[side].get_length() * percent * 0.95, true);
+  vec = inner[side].position_at_length(inner[side].get_length() * percent * 0.95, true);
   let p2 = s.add_point(vec);
   s.point_on_line(p2, inner[side]);
 

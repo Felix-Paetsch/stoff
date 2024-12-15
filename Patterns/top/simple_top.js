@@ -152,7 +152,7 @@ function split_pattern(s, type, percent){
     percent = 0.05
   }
   let line = lines[type][0];
-  let p = s.add_point(s.position_at_length(line, line.get_length() * percent));
+  let p = s.add_point(line.position_at_length(line.get_length() * percent));
   split(s, line, p);
 
 
@@ -173,7 +173,7 @@ function simple_middle_dart(s, type, percent){
   }
 
   let line = lines_comp[type][0];
-  let p = s.add_point(s.position_at_length(line, percent * line.get_length()));
+  let p = s.add_point(line.position_at_length(percent * line.get_length()));
   let angle = split(s, line, p);
 
   let outer = s.lines_by_key("type").dart.filter(ln => ln.data.side === "outer");
@@ -302,7 +302,7 @@ function double_dart_web(s, pos){
   let dart_parts = lines.dart;
   // sollte genau die zwei Schenkel vom Abnäher enthalten von simple_dart_web o.ä.
 
-  let p = s.add_point(s.position_at_length(line, line.get_length() * percent));
+  let p = s.add_point(line.position_at_length(line.get_length() * percent));
   let angle = split(s, line, p);
 
 

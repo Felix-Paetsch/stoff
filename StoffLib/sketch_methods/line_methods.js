@@ -447,8 +447,16 @@ export default (Sketch) => {
         }
     }
 
-    Sketch.prototype.position_at_length = function(line, length, reversed = false){
-        return line.position_at_length(length, reversed);
+    Sketch.prototype.split_line_at_length = function(line, length, data_callback = copy_data_callback, reversed = false){
+        const position = line.position_at_length(length, reversed);
+        const pt = this.add(position);
+        return this.point_on_line(pt, line, data_callback);
+    }
+
+    Sketch.prototype.split_line_at_fraction = function(line, length, data_callback = copy_data_callback, reversed = false){
+        const position = line.position_at_fraction(length, reversed);
+        const pt = this.add(position);
+        return this.point_on_line(pt, line, data_callback);
     }
 
     Sketch.prototype.intersect_lines = function(line1, line2){

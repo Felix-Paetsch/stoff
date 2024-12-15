@@ -20,3 +20,8 @@ Speed improvements
 ===================
 Array of vectors => Float64Array of (x,y)
 
+
+
+Notes
+=======
+Percent: Wo entlang der kanonischen linie eingefügt werden soll

@@ -285,7 +285,7 @@ function lengthen_line(s, p, distance){
   let ln = p.get_adjacent_lines()[0];
   let p2_bool = ln.p2 === p;
   let temp;
-  temp = s.position_at_length(ln, 0.5, p2_bool);
+  temp = ln.position_at_length(0.5, p2_bool);
   temp = temp.subtract(p).scale(-4 * distance).add(p);
   let p2 = s.add_point(temp);
 

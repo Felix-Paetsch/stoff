@@ -151,7 +151,7 @@ export default class DoubleDart extends TShirtBasePattern{
       let dart_parts = lines.dart;
       // sollte genau die zwei Schenkel vom Abnäher enthalten von simple_dart_web o.ä.
 
-      let p = s.add_point(s.position_at_length(line, line.get_length() * percent));
+      let p = s.add_point(line.position_at_length(line.get_length() * percent));
       let angle = split(s, line, p);
 
       let outer = s.lines_by_key("type").dart.filter(ln => ln.data.side === "outer")[0];

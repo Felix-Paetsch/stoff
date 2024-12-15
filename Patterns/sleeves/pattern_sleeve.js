@@ -96,7 +96,7 @@ function curve(s, pt1, pt2, len){
       l = s.line_with_length(pt1, pt2, len2);
     }
     /*
-    const pt = s.position_at_length(l, l.get_length()*0.1);
+    const pt = l.position_at_length(l.get_length()*0.1);
 
 
     const pt3 = s.point(pt).set_color("red");

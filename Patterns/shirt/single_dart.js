@@ -1,9 +1,8 @@
-import TShirtBasePattern from "../base/t-shirt_base.js";
-
 import utils from '../funs/utils.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 import ShirtBase from "./base.js";
+import DartAllocationSideBase from "./dartAllocation_side_base.js";
 
 
 export default class SingleDartShirt extends ShirtBase{
@@ -13,59 +12,64 @@ export default class SingleDartShirt extends ShirtBase{
     }
 }
 
-class SingleDartSide extends TShirtBasePattern{
-  constructor(side = "front", parent){
-    const design = JSON.parse(JSON.stringify(parent.design_config));
-    super(parent.mea, design.ease, design, side);
-    this.dart = true;
+class SingleDartSide extends DartAllocationSideBase{
+    constructor(side = "front", parent){
+        super(side, parent);
+        this.dart = true;
 
-  //  sleeve.armpit(this.get_sketch());
+        this.compute_dart_position();
 
-    this.parse_design_position();
-    this.shift_dart();
-    this.set_grainline_basic();
-    this.lengthen();
-
-  };
+        this.shift_dart();
+        this.set_grainline_basic();
+        this.lengthen();
+    };
 
 
-  parse_design_position(){
-    switch (this.design.dartAllocation.position) {
-        case "waistline":
-          this.design.dartAllocation.percent = this.#calculate_upright_position(this.get_sketch());
-          this.design.dartAllocation.side = "waistline";
-          break;
-        case "french":
-          this.design.dartAllocation.percent = 0.9;
-          this.design.dartAllocation.side = "side";
-          this.switch_io_dart = "side";
-          break;
-        case "side middle":
-          this.design.dartAllocation.percent = 0.3;
-          this.design.dartAllocation.side = "side";
-          break;
-        case "shoulder":
-          this.design.dartAllocation.percent = 0.5;
-          this.design.dartAllocation.side = "shoulder";
-          break;
-        default:
-      }
-  };
+    compute_dart_position(){
+        // @TODO: Maybe want to already here have a dart be a class?
 
-  shift_dart(){
-    if (!this.dartposition()) throw new Error("Bad dartposition selected");
+        const dart_position_map = {
+            "waistline": {
+                dart_at_line: "waistline",
+                fraction: this.#calculate_upright_position(this.get_sketch())
+            },
+            "french": {
+                dart_at_line: "side",
+                fraction: 0.9
+            },
+            "side middle": {
+                dart_at_line: "side",
+                fraction: 0.3
+            },
+            "shoulder": {
+                dart_at_line: "shoulder",
+                fraction: 0.5
+            },
+        }
 
-    if(this.dartside() === "waistline"){
-      top.waistline_simple_dart(this.get_sketch(), this.dartposition());
-    } else {
-      top.simple_middle_dart(this.get_sketch(), this.dartside(), this.dartposition());
+        if (!dart_position_map[this.design_config.dartAllocation.position]){
+            throw new Error("Bad dart position selected!");
+        }
+
+        Object.assign(
+            this.design_config.dartAllocation,
+            dart_position_map[this.design_config.dartAllocation.position]
+        );
+    };
+
+    // @TODO: Below
+    shift_dart(){
+        if(this.dartside() === "waistline"){
+            top.waistline_simple_dart(this.get_sketch(), this.dartposition());
+        } else {
+            top.simple_middle_dart(this.get_sketch(), this.dartside(), this.dartposition());
+        }
+
+        if (this.design_config.dartAllocation.position == "french"){
+            let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === "side");
+            utils.switch_inner_outer_dart(dart);
+        }
     }
-
-    if (this.switch_io_dart){
-      let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === this.switch_io_dart);
-      utils.switch_inner_outer_dart(dart);
-    }
-  }
 
 
   // berechnet wo das Bein des Abnähers liegen muss, damit dieser genau Senkrecht
@@ -93,16 +97,16 @@ class SingleDartSide extends TShirtBasePattern{
   }
 
   darttype(){
-    return this.design.dartAllocation.position;
+    return this.design_config.dartAllocation.position;
   }
 
 // irgendwie das noch anders benennen?
   dartside(){
-    return this.design.dartAllocation.side;
+    return this.design_config.dartAllocation.dart_at_line;
   }
 
   dartposition(){
-    return this.design.dartAllocation.percent;
+    return this.design_config.dartAllocation.fraction;
   }
 
   get_mirror_line(){
@@ -118,9 +122,9 @@ class SingleDartSide extends TShirtBasePattern{
   lengthen(){
 
     if (this.dartside() === "waistline"){
-      lengthen.lengthen_top_with_dart(this.get_sketch(), this.mea, this.get_length());
+      lengthen.lengthen_top_with_dart(this.get_sketch(), this.mea, this.design_config.length);
     } else {
-      lengthen.lengthen_top_without_dart_new(this.get_sketch(), this.mea, this.get_length());
+      lengthen.lengthen_top_without_dart_new(this.get_sketch(), this.mea, this.design_config.length);
     }
   }
 

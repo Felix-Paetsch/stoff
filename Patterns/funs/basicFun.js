@@ -17,6 +17,7 @@ function line_with_length(s, pt, len, degree) {
 };
 
 function point_at(s, ln, part) {
+  console.warn("Depricated");
   const pt1 = ln.get_endpoints()[0];
   const pt2 = ln.get_endpoints()[1];
   //console.log(pt1,pt2);

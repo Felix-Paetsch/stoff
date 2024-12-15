@@ -337,8 +337,8 @@ function merge_to_curve(s, lines, senkrecht = true, data_type = "side"){
   let points = [];
   let pt = [];
   lines.forEach((ln) => {
-    const p1 = s.add_point(s.position_at_length(ln, ln.get_length() * 0.2));
-    const p2 = s.add_point(s.position_at_length(ln, ln.get_length() * 0.2, true));
+    const p1 = s.add_point(ln.position_at_length(ln.get_length() * 0.2));
+    const p2 = s.add_point(ln.position_at_length(ln.get_length() * 0.2, true));
 /*
     if (p1.subtract(p2).length() == 0){
       console.log(ln.sample_points.map(s => s.to_array()));
