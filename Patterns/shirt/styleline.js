@@ -24,7 +24,7 @@ export default class Styleline extends TShirtBasePattern{
     super(mea, design["top designs"].ease, design, side);
 
     this.parse_design_position();
-    this.set_grainline_basic();
+    this.compute_grainline();
     this.split_into_styleline();
     this.lengthen();
     this.shorten();

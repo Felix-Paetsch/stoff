@@ -22,7 +22,7 @@ class SingleDartSide extends DartAllocationSideBase{
         this.compute_dart_position();
 
         this.shift_dart();
-        this.set_grainline_basic();
+        this.compute_grainline();
         this.lengthen();
     };
 

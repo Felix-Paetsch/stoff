@@ -7,7 +7,6 @@ import PatternComponent from "../core/pattern_component.js";
 
     Long term this could be refactored:
     Move construct_base_neckline out of construcor; give 2 Points to the constructor instead of a line.
-
 */
 
 export default class NecklineSide extends PatternComponent{

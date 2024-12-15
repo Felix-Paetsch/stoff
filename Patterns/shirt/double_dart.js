@@ -31,7 +31,7 @@ export default class DoubleDart extends TShirtBasePattern{
       utils.switch_inner_outer_dart(dart);
     }
 
-    this.set_grainline_basic();
+    this.compute_grainline();
     this.lengthen();
   };
 

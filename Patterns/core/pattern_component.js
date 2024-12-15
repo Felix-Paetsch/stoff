@@ -1,3 +1,5 @@
+import { UP } from "../../StoffLib/geometry.js";
+
 export default class PatternComponent{
     constructor(parent = null){
         if (parent){
@@ -11,7 +13,8 @@ export default class PatternComponent{
         }
 
         this.parent = parent;
-        this.components = []
+        this.components = [];
+        this.up_direction = UP;
     }
 
     get_component_names(){
@@ -48,6 +51,15 @@ export default class PatternComponent{
     get_sketch(){
         if (this.sketch) return this.sketch;
         throw new Error("Component doesn't have Sketch");
+    }
+
+    set_grainline(vec){
+        if (this.sketch){
+            this.sketch.data.up_direction = vec;
+        }
+
+        this.up_direction = vec;
+        return this;
     }
 
     render(){

@@ -253,7 +253,7 @@ export default class TShirtBasePattern extends PatternComponent{
       this.sketch.data.up_direction = vec;
     }
 
-    set_grainline_basic(){
+    compute_grainline(){
       let lines = this.get_sketch().lines_by_key("type").fold;
 
       if (lines.length > 1){

@@ -22,7 +22,7 @@ export default class WithoutDart extends TShirtBasePattern{
     super(mea, design["top designs"].ease, design, side);
 
     this.shift_dart();
-    this.set_grainline_basic();
+    this.compute_grainline();
     this.lengthen();
   }
 

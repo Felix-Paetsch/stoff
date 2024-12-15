@@ -7,12 +7,11 @@ import annotate from '../annotate/annotate.js';
 import NecklineSide from "../neckline/neckline_side.js";
 import {line_with_length} from '../funs/basicFun.js';
 
-
-import arm from '../sleeves/simple_sleeve.js';
 import seam from '../seam_allowance/simple_seam.js';
-
+import arm from "../sleeves/simple_sleeve.js"
 
 import PatternComponent from "../core/pattern_component.js";
+import Armpit from '../sleeves/armpit.js';
 
 export default class DartAllocationSideBase extends PatternComponent{
     constructor(side, parent){
@@ -33,7 +32,10 @@ export default class DartAllocationSideBase extends PatternComponent{
           hem: 2,
           side: 1
         };
-        this.armpit();
+
+        const armpit = new Armpit(this);
+        armpit.construct();
+        this.add_component("armpit", armpit);
     }
 
     initialize_shorthands(){
@@ -210,34 +212,36 @@ export default class DartAllocationSideBase extends PatternComponent{
         side.p1.move_to(ln.p1);
         side.p2.move_to(ln.p2);
 
-        this.sketch.remove_points(ln.p1, ln.p2);
+        this.sketch.remove(ln.p1, ln.p2);
         return this;
     };
 
-
-    // After here it's strange
-
-    get_sketch(){
-        return this.sketch;
-    }
-
-    armpit(){
-      arm.armpit(this.get_sketch());
-    }
-
-    set_grainline(vec){
-      this.sketch.data.up_direction = vec;
-    }
-
-    set_grainline_basic(){
-      let lines = this.get_sketch().lines_by_key("type").fold;
-
-      if (lines.length > 1){
-        // es wird automatisch der Teil von Fold gewählt, welcher am längsten ist
-        lines = lines.sort(function(a, b){return b.get_length() - a.get_length()});
-      }
-      this.set_grainline(lines[0].get_line_vector().scale(-1));
+    compute_grainline(){
+        let lines = this.get_lines("fold").sort((a, b) => b.get_length() - a.get_length());
+        const gl = lines[0].get_line_vector().scale(-1);
+        this.set_grainline(gl);
+        return gl;
     };
+
+    /*
+    
+        Todo Next:
+        1.
+        - Move tuck() to the correct file
+        - Figure out what fill_darts() macht ~~~~ it could be....
+        => tuck() to tuck_darts() and update names
+
+        2.
+        Figure out what fill_in_darts macht (und ob fill_darts umbenannt werden sollte)
+        Incorporate "Seam Allowance"
+
+        3. Fix for other configurations
+
+
+        4. Start 2nd round of refactor:
+        - Delte unnesseccary files
+        - Look at Todo.md
+    */
 
     dartstyle(){
       return this.design_config.dartAllocation.dartstyle;

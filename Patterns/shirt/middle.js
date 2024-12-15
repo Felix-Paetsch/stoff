@@ -20,7 +20,7 @@ export default class Middle extends PatternComponent{
     this.sketch = sketch;
     this.seam_allowances = seam_allowance;
 
-    this.set_grainline_basic();
+    this.compute_grainline();
   }
 
 
@@ -34,7 +34,7 @@ export default class Middle extends PatternComponent{
     this.sketch.data.up_direction = vec;
   }
 
-  set_grainline_basic(){
+  compute_grainline(){
     this.set_grainline_upwards();
   };
 
