@@ -9,7 +9,7 @@ import sleeve_type from '../sleeves/sleeve_types.js';
 import lengthen from '../lengthen/top.js';
 import dart from '../darts/simple_dart.js';
 import utils from '../funs/utils.js';
-import neck from '../neckline/neckline.js';
+import neck from '../neckline/neckline_side_options.js';
 import eva from '../funs/basicEval.js';
 import seam from '../seam_allowance/simple_seam.js';
 

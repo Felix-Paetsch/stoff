@@ -1,8 +1,6 @@
 
 import sleeve from '../sleeves/simple_sleeve.js';
 import utils from '../funs/utils.js';
-import neck from '../neckline/neckline.js';
-import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 import seam from '../seam_allowance/simple_seam.js';
 

@@ -25,11 +25,14 @@ export default class ShirtBase extends Pattern{
         
         
             this.components.filter(elem => elem.dart === true).forEach((elem) => {
-                if(elem.dartstyle() === "tuck"){
-                this.tuck(elem.get_sketch());
-                } else {
-                this.dart(elem.get_sketch());
-                }
+              if(elem.dartstyle() === "tuck"){
+                elem.tuck();
+              } else {
+                elem.fill_darts();
+              }
+              if (elem.sketch.lines_by_key("type").shoulder.length > 1){
+                throw new Error("Should be 1");
+              };
             });
         
             this.components.forEach((elem) => {
@@ -75,68 +78,7 @@ export default class ShirtBase extends Pattern{
   }
 
 
-  dart(s){
-    let lines = s.lines_by_key("type").dart;
-    lines = utils.sort_dart_lines(lines);
-    while(lines.length > 0){
-      this.fill_in_dart(s, [lines[0], lines[1]]);
-      s.remove(dart.single_dart(s, [lines[0], lines[1]]));
-      annotate.annotate_dart(s, [lines[0], lines[1]]);
-      lines.splice(0, 2);
-    }
-    annotate.remove_dart(s);
-    this.connect_filling(s);
 
-  }
-  tuck(s){
-    let lines = s.lines_by_key("type").dart;
-    lines = utils.sort_dart_lines(lines);
-    while(lines.length > 0){
-      this.fill_in_dart(s, [lines[0], lines[1]]);
-      dart.simple_tuck(s, [lines[0], lines[1]]);
-      annotate.annotate_tuck(s, [lines[0], lines[1]]);
-      lines.splice(0, 2);
-    }
-    annotate.remove_dart(s);
-    this.connect_filling(s);
-    
-  }
-
-  connect_filling(s){
-    let lines = s.lines_by_key("type").filling;
-    if (lines){
-      lines.forEach((line) => {
-        let ln1 = line.p1.other_adjacent_line(line);
-        let ln2 = line.p2.other_adjacent_line(line);
-
-        if(line.get_endpoints().includes(ln1.p2)){
-          ln1 = s.merge_lines(
-            ln1, line, true,
-            (data_ln1, data_line) => {
-              return data_ln1;
-            }
-          );
-            s.merge_lines(ln1, ln2, true, (data_ln1, data_l2) => {
-                return data_ln1;
-            });
-
-        } else {
-          ln2 = s.merge_lines(
-            ln2, line, true,
-            (data_ln1, data_line) => {
-              return data_ln1;
-            }
-          );
-            s.merge_lines(ln2, ln1, true, (data_ln1, data_l2) => {
-                return data_ln1;
-            });
-
-
-        }
-
-      });
-    }
-  }
 
 
   fill_in_dart(s, lines){
@@ -169,9 +111,6 @@ export default class ShirtBase extends Pattern{
 }
 
 remove_unnessesary_things(s){
-    s.remove(s.data.pt);
-    delete s.data.pt;
-
     let waistlines = s.lines_by_key("type").waistline;
 
     if (waistlines){

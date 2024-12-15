@@ -8,7 +8,7 @@ import PatternComponent from "./pattern_component.js";
 import {line_with_length, point_at, get_point_on_other_line2} from '../funs/basicFun.js';
 
 
-import neck from '../neckline/neckline.js';
+import neck from '../neckline/neckline_side_options.js';
 import arm from '../sleeves/simple_sleeve.js';
 import seam from '../seam_allowance/simple_seam.js';
 
@@ -193,7 +193,7 @@ export default class TShirtBasePattern extends PatternComponent{
         let p2 = this.sketch.point(neckline_base.p1.x, neckline_base.p2.y);
         let vec = p.subtract(neckline_base.p1).scale(0.5);
         p.move_to(vec.add(neckline_base.p1));
-        if(this.sketch.data.front){
+        if(this.sketch.data.is_front){
             vec = p2.subtract(neckline_base.p2).scale(0.6);
         } else {
             vec = p2.subtract(neckline_base.p2).scale(0.4);

@@ -118,7 +118,7 @@ function a_line(s){
 
   let angle = vec_angle(darts[0].p2.subtract(darts[0].p1), darts[1].p2.subtract(darts[0].p1));
   let fun;
-  if (s.data.front){
+  if (s.data.is_front){
     fun = rotation_fun(side.p1, angle * 0.5);
   } else {
     fun = rotation_fun(side.p1, -angle * 0.5);
@@ -176,8 +176,8 @@ function simple_middle_dart(s, type, percent){
   let p = s.add_point(line.position_at_length(percent * line.get_length()));
   let angle = split(s, line, p);
 
-  let outer = s.lines_by_key("type").dart.filter(ln => ln.data.side === "outer");
-  let inner = s.lines_by_key("type").dart.filter(ln => ln.data.side === "inner");
+  let outer = s.lines_by_key("type").dart.filter(ln => ln.data.dartside === "outer");
+  let inner = s.lines_by_key("type").dart.filter(ln => ln.data.dartside === "inner");
   // ist egal welche von zwei Möglichkeiten hier genommen wird, da
   // beide den selben Punkt als p1 haben
   utils.rotate_zhk(s, -angle, outer[0].p1);
@@ -241,7 +241,7 @@ function simple_waistline_web(s){
 
   let waist_inner = s.lines_by_key("type").waistline;
   let waist_width = waist_inner[0].get_length() + waist_inner[1].get_length();
-  waist_inner = waist_inner.filter(ln => ln.data.side === "inner")[0];
+  waist_inner = waist_inner.filter(ln => ln.data.dartside === "inner")[0];
 
   let val = waist_inner.get_length() - (dist / 2);
   let percent = val/waist_width;
@@ -306,8 +306,8 @@ function double_dart_web(s, pos){
   let angle = split(s, line, p);
 
 
-  let outer = s.lines_by_key("type").dart.filter(ln => ln.data.side === "outer")[0];
-  let inner = s.lines_by_key("type").dart.filter(ln => ln.data.side === "inner")[0];
+  let outer = s.lines_by_key("type").dart.filter(ln => ln.data.dartside === "outer")[0];
+  let inner = s.lines_by_key("type").dart.filter(ln => ln.data.dartside === "inner")[0];
   // ist egal welche von zwei Möglichkeiten hier genommen wird, da
   // beide den selben Punkt als p1 haben
   if (angle > Math.PI){
@@ -418,7 +418,7 @@ function simple_dart_tip(s, type1, type2){
   }
   */
   let dart_o = comp_sorted[0].lines_by_key("type").dart[0];
-  if (s.data.front){
+  if (s.data.is_front){
     utils.rotate_outer_zhk_new(s, comp_sorted[0], angle, dart_o.p1);
   } else {
     utils.rotate_outer_zhk_new(s, comp_sorted[0], angle, dart_o.p1, -1);

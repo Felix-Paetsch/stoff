@@ -11,7 +11,7 @@ import dart from '../darts/simple_dart.js';
 function lotpunkt(s, pt, ln){
   //const ln_p = ln.endpoints();
   let direction = 1;
-  if(s.data.front){
+  if(s.data.is_front){
     direction = -1;
   }
 
@@ -53,8 +53,8 @@ function get_nearest_set_of_dart_lines(s, pattern, lines){
 // welche einen gemeinsamen Punkt haben
 // Gibt sortierten Array zurueck, abwechselnd mit outer und inner
 function sort_dart_lines(lines){
-  let inner = lines.filter(ln => (ln.data.side === "inner"));
-  let outer = lines.filter(ln => (ln.data.side === "outer"));
+  let inner = lines.filter(ln => (ln.data.dartside === "inner"));
+  let outer = lines.filter(ln => (ln.data.dartside === "outer"));
   let arr = [];
   for(let i = 0; i < inner.length; i++){
     for(let j = 0; j < outer.length; j++){

@@ -1,6 +1,8 @@
 import utils from '../funs/utils.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
+import { split } from '../funs/simple_split.js';
+import { vec_angle_clockwise } from "../../StoffLib/geometry.js"
 import ShirtBase from "./base.js";
 import DartAllocationSideBase from "./dartAllocation_side_base.js";
 
@@ -62,7 +64,8 @@ class SingleDartSide extends DartAllocationSideBase{
         if(this.dartside() === "waistline"){
             top.waistline_simple_dart(this.get_sketch(), this.dartposition());
         } else {
-            top.simple_middle_dart(this.get_sketch(), this.dartside(), this.dartposition());
+            // top.simple_middle_dart(this.get_sketch(), this.darttype(), this.dartposition());
+            this.simple_middle_dart();
         }
 
         if (this.design_config.dartAllocation.position == "french"){
@@ -70,6 +73,61 @@ class SingleDartSide extends DartAllocationSideBase{
             utils.switch_inner_outer_dart(dart);
         }
     }
+
+    simple_middle_dart(){
+        this.sketch.dev.start_recording();  
+
+        let line = this.get_line(this.darttype());
+        let side = this.get_line("side");
+        let fold = this.get_line("fold");
+
+        const darts = this.get_lines("dart");
+        const {
+            inner, outer
+        } = this.ordered_lines(...darts);
+
+        // Split
+        const fraction = Math.max(Math.min(this.dartposition(), 0.95), 0.05);
+        const {
+          point, line_segments
+        } = this.sketch.split_line_at_fraction(line, fraction);
+        let pt2 = this.sketch.add_point(point.copy());
+        line_segments[0].set_endpoints(line_segments[0].p1, pt2);
+
+        let p2 = this.sketch.add_point(inner.p1.copy());
+        inner.set_endpoints(p2, inner.p2);
+
+        let dart1 = utils.close_component(this.sketch, inner.p1, [point, pt2]);
+        let dart2 = utils.close_component(this.sketch, outer.p1, [point, pt2]);
+        dart1.data.type = "dart";
+        dart1.data.dartposition = line.data.type;
+        dart2.data.type = "dart";
+        dart2.data.dartposition = line.data.type;
+
+        const other_dart_lines = this.get_lines("dart").filter(l => l.data.type !== this.darttype());
+        const {
+          outer: other_outer,
+          inner: other_inner
+        } = this.ordered_lines(...other_dart_lines);
+        
+        const angle = vec_angle_clockwise(other_outer.p2, other_inner.p2, other_inner.p1);
+        utils.rotate_zhk(this.sketch, -angle, other_outer.p1);
+
+        this.sketch.merge_points(inner.p1, outer.p1);
+      
+        if (this.darttype() !== "waistline"){
+          line = this.sketch.line_between_points(fold.p2, side.p2);
+          line.data.type = "waistline";
+          this.sketch.remove_points(other_inner.p2, other_outer.p2);
+        } else {
+          let temp = this.sketch.merge_points(other_inner.p2, other_outer.p2);
+          this.sketch.remove_lines(other_inner, other_outer);
+          temp = temp.get_adjacent_lines();
+          this.sketch.merge_lines(temp[0], temp[1], true);
+      }
+      console.log(this.sketch.lines_by_key("type").shoulder.length);
+      this.sketch.dev.stop_recording().at_url("/testn", true);
+  }
 
 
   // berechnet wo das Bein des Abnähers liegen muss, damit dieser genau Senkrecht
@@ -88,7 +146,7 @@ class SingleDartSide extends DartAllocationSideBase{
 
     let waist_inner = s.lines_by_key("type").waistline;
     let waist_width = waist_inner[0].get_length() + waist_inner[1].get_length();
-    waist_inner = waist_inner.filter(ln => ln.data.side === "inner")[0];
+    waist_inner = waist_inner.filter(ln => ln.data.dartside === "inner")[0];
 
     let val = waist_inner.get_length() - (dist);
     let percent = val/waist_width;

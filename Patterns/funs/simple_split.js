@@ -26,10 +26,10 @@ function split(s, line, pt){
   let dart1 = utils.close_component(s, inner.p1, [pt, pt2]);
   let dart2 = utils.close_component(s, outer.p1, [pt, pt2]);
   dart1.data.type = "dart";
-  dart1.data.side = "inner";
+  dart1.data.dartside = "inner";
   dart1.data.dartposition = line.data.type;
   dart2.data.type = "dart";
-  dart2.data.side = "outer";
+  dart2.data.dartside = "outer";
   dart2.data.dartposition = line.data.type;
 
   return vec_angle_clockwise(outer.p2.subtract(inner.p1), inner.p2.subtract(inner.p1));

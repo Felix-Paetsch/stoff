@@ -88,7 +88,7 @@ function simple_tuck(s, [line1, line2]){
 }
 
 
-function fill_in_dart(s, dart_lines){
+function fill_in_dart(s, inner_line, outer_line){
   /*
       We fill in the dart with the line sgement adjacent to the outer one.
       If that segment is to short we take the next line, we expect the next line then to be well defined.
@@ -96,10 +96,7 @@ function fill_in_dart(s, dart_lines){
   */
 
   // 1, Constructing (half of) the line with which to fill the dart at the correct position
-  const center_pt = dart_lines[0].common_endpoint(dart_lines[1]);
-
-  const outer_line = dart_lines.filter(l => l.data.side == "outer")[0];
-  const inner_line = dart_lines.filter(l => l.data.side == "inner")[0];
+  const center_pt = inner_line.common_endpoint(outer_line);
 
   const outer_pt = outer_line.other_endpoint(center_pt);
   const original_line_to_mirror = outer_pt.other_adjacent_line(outer_line);
@@ -260,7 +257,7 @@ function dart_trim_new(s, lines, p_dart){
     }
 
 let vec;
-    if (s.data.front){
+    if (s.data.is_front){
       vec = line.get_tangent_vector(lines[0].p2);
     } else {
       vec = line.get_tangent_vector(lines[1].p2);

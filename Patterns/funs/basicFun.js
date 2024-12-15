@@ -64,6 +64,26 @@ function get_point_on_other_line(s, a, len_b, vec) {
 }
 
 function get_point_on_other_line2(s, a, ve, len_b, vec) {
+  // Apparently we have, calculating the left point
+  /*
+            -------------
+            |           x|
+            |        x   |
+            |     x      |
+            |  x         |
+            x            |
+            |            |
+
+            s Sketch
+            a some point
+            ve some vector
+            len_b some int
+            vec som vector
+  */
+
+  console.log("=============");
+  console.log(s, a, ve, len_b, vec);
+
   const len_c = Math.sqrt(Math.abs((len_b * len_b) - (ve.x * ve.x)));
 
   ve.x = 0;
@@ -107,7 +127,7 @@ function new_neckline(s, neckline){
   let p2 = s.point(neckline.p1.x, neckline.p2.y);
   let vec = p.subtract(neckline.p1).scale(0.5);
   p.move_to(vec.add(neckline.p1));
-  if(s.data.front){
+  if(s.data.is_front){
     vec = p2.subtract(neckline.p2).scale(0.6);
   } else {
     vec = p2.subtract(neckline.p2).scale(0.4);

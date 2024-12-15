@@ -16,7 +16,7 @@ function lengthen_top_without_dart(s, mea, shorten){
   let vec = fold.get_line_vector().normalize().scale(mea.waist_height).add(p);
 
   let p2 = s.add_point(new Point(vec));
-//  if (s.data.front){
+//  if (s.data.is_front){
     vec = waist.get_line_vector().normalize().scale(mea.bottom_width_front/2).add(p2);
   /*} else {
     vec = waist.get_line_vector().normalize().scale(mea.bottom_width_back/2).add(p2);
@@ -102,7 +102,7 @@ function correct_belly(s, mea, percent = 1){
   let p2 = s.add_point(fold_bottom.get_line_vector().scale(0.5).add(fold_bottom.p1));
 
   let ln_h = s.line_between_points(p1, p2);
-  if (s.data.front){
+  if (s.data.is_front){
     console.log("front");
   } else {
     console.log("back");
@@ -149,7 +149,7 @@ function correct_belly(s, mea, percent = 1){
   let len = ln_h.get_length();
 
   let vec_h
-//  if (s.data.front){
+//  if (s.data.is_front){
     vec_h = get_vec(p2, p_upper, len, len_side/2);
     p1.move_to(vec_h);
 
@@ -179,7 +179,7 @@ function correct_belly_waistline_dart(s, mea){
   const p_upper = lines.side_bottom[0].p1;
   const p_lower = lines.side_bottom[0].p2;
 
-  if (s.data.front){
+  if (s.data.is_front){
     mea.ratio = mea.waist_width_front/mea.waist_width_back;
   } else {
     mea.ratio = mea.waist_width_back/mea.waist_width_front;
@@ -201,7 +201,7 @@ function correct_belly_waistline_dart(s, mea){
   let p4 = s.add_point(temp[0]);
   let ln_h2 = s.line_between_points(p3, p4);
 
-  if (s.data.front){
+  if (s.data.is_front){
     console.log("front");
   } else {
     console.log("back");
@@ -270,7 +270,7 @@ function correct_belly_waistline_dart(s, mea){
 
   let vec_h
 
-//  if (s.data.front){
+//  if (s.data.is_front){
     vec_h = get_vec(p2, p_upper, len, mea.waist_height/2);
     p1.move_to(vec_h);
 
@@ -297,7 +297,7 @@ function set_ratio(s, mea, ratio_f = 1, ratio_b = 1, both = false){
     mea.ratio = mea.ratio + ratio_b * mea.waist_width_back/mea.waist_width_front;
 
   } else {
-    if(s.data.front){
+    if(s.data.is_front){
       mea.ratio = ratio_f * mea.waist_width_front/mea.waist_width_back;
     } else {
       mea.ratio = ratio_b * mea.waist_width_back/mea.waist_width_front;
@@ -433,10 +433,10 @@ function opposite_dart(s, mea, scale = 0.45){
 //  s.remove_point()
   let ln = s.line_between_points(p, darts[0].p2)
   ln.data.type = "dart_bottom";
-  ln.data.side = darts[0].data.side;
+  ln.data.dartside = darts[0].data.dartside;
   ln = s.line_between_points(p, darts[1].p2);
   ln.data.type = "dart_bottom";
-  ln.data.side = darts[1].data.side;
+  ln.data.dartside = darts[1].data.dartside;
 };
 
 function opposite_dart2(s, darts){
@@ -480,7 +480,7 @@ function lengthen_top(s, mea, shorten, waist, fold){
   let a = p2.subtract(waist.p2).length();
   let c = mea.waist_height;
   let b;
-  if (s.data.front){
+  if (s.data.is_front){
     b = mea.bottom_width_front / 2;
   } else {
     b = mea.bottom_width_back / 2;
@@ -617,7 +617,7 @@ if (!closed){
 
 
 } else {
-  middle.data.front = false;
+  middle.data.is_front = false;
   lengthen_middle(middle, ln2_len_b + ln2_len_f, len_side_bottom + add_len_b, len_side_bottom + add_len_f, 0.5);
 
   middle.data.type = "middle";
@@ -689,7 +689,7 @@ function shorten_length(s, percent){
   len = len * (1- percent);
 
   let bottom = lines.bottom[0];
-  let new_bottom = s.line_with_offset(bottom, len, s.data.front);
+  let new_bottom = s.line_with_offset(bottom, len, s.data.is_front);
 
   let vec = new_bottom.line.get_line_vector();
   new_bottom.line.p1.move_to(new_bottom.line.p1.add(vec.scale(-0.5)));
@@ -765,7 +765,7 @@ function shorten_length_new(s, percent){
       elem.data.type = "bottom";
     });
     if(waistline_dart){
-      let dart = lines.dart.filter(elem => elem.data.dartposition === "waistline").filter(elem => elem.data.side === "outer")[0];
+      let dart = lines.dart.filter(elem => elem.data.dartposition === "waistline").filter(elem => elem.data.dartside === "outer")[0];
       s.line_between_points(dart.p2, pt).data.type = "bottom";
   //    s.remove(lines.dart_bottom[0].p1);
     } else {
@@ -828,7 +828,7 @@ function shorten_with_dart(s, percent){
     lines = s.lines_by_key("type");
     darts = lines.dart_bottom;
     let vec;
-    //if (s.data.front){
+    //if (s.data.is_front){
       vec = get_vec(darts[1].p2, bottom.p2, darts[0].get_length(), ln.get_length());
   /*  } else {
       vec = get_vec( bottom.p2, darts[0].p2, ln.get_length(), darts[1].get_length());

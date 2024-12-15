@@ -10,7 +10,6 @@ import {line_with_length, point_at, get_point_on_other_line2} from '../funs/basi
 
 import sleeve from '../sleeves/simple_sleeve.js';
 import utils from '../funs/utils.js';
-import neck from '../neckline/neckline.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 

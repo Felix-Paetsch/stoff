@@ -15,8 +15,8 @@ function armpit(s){
   let side = lines_comp.side[0];
   let c = shoulder.p2;
   let e = side.p1;
-  let p5 = s.data.p5;
-  let p6 = s.data.p6;
+  let p5 = s.data.base_p5;
+  let p6 = s.data.base_p6;
   p6.move_to(p6.add(new Vector(0, -1)))
   let len = c.distance(p5);
   let vec1 = shoulder.get_line_vector().get_orthonormal().scale(len).add(c).add(shoulder.get_line_vector().scale(0.1));
@@ -38,8 +38,8 @@ function armpit(s){
   )); //.plot_control_points(s));
 
   s.remove(temp, temp2, p5, p6);
-  delete s.data.p5;
-  delete s.data.p6;
+  delete s.data.base_p5;
+  delete s.data.base_p6;
   curve.data.type = "armpit";
   return s;
 }

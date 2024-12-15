@@ -30,14 +30,14 @@ function sleeve(mea, height, sleeve_type = "eingehalten 3/4", len_front, len_bac
   let pt2 = s.add_point(new Point(a.add(new Vector((mea.arm)*0.525, 0)))); // back
   pt2.data.type = "top side back";
   pt1.data.type = "top side front";
-  pt2.data.front = false;
-  pt1.data.front = true;
+  pt2.data.is_front = false;
+  pt1.data.is_front = true;
 
 //  console.log(mea.arm, pt1.subtract(pt2).length())
 
   let c1 = curve(s, pt1, p1, len_front);
   c1.data.curve = true;
-  c1.data.front = true;
+  c1.data.is_front = true;
   c1.data.type = "armpit";
   c1.mirror();
   let c2 = curve(s, p1, pt2, len_back); // back
@@ -151,14 +151,14 @@ function new_sleeve(mea, height, sleeve_type = "eingehalten 3/4", len_front, len
     let pt2 = s.add_point(new Point(a.add(new Vector((mea.arm)*0.525, 0)))); // back
     pt2.data.type = "top side back";
     pt1.data.type = "top side front";
-    pt2.data.front = false;
-    pt1.data.front = true;
+    pt2.data.is_front = false;
+    pt1.data.is_front = true;
 
   //  console.log(mea.arm, pt1.subtract(pt2).length())
 
     let c1 = curve(s, pt1, p1, len_front);
     c1.data.curve = true;
-    c1.data.front = true;
+    c1.data.is_front = true;
     c1.data.type = "armpit";
     c1.mirror();
     let c2 = curve(s, p1, pt2, len_back); // back

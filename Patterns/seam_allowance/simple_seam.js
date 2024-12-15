@@ -117,9 +117,9 @@ function seam_allowance_first(s, width){
   let shoulders = lines.shoulder[0];
   let neckline = lines.neckline[0];
 
-  let ln_side = s.line_with_offset(side, width, s.data.front);
-  let ln2 = s.line_with_offset(bottom, width, !s.data.front);
-  let ln3 = s.line_with_offset(side, width, !s.data.front);
+  let ln_side = s.line_with_offset(side, width, s.data.is_front);
+  let ln2 = s.line_with_offset(bottom, width, !s.data.is_front);
+  let ln3 = s.line_with_offset(side, width, !s.data.is_front);
 
 //  [ln1, ln2] = close_lines(s, ln1.p2, ln2.p2, 2);
 
@@ -134,6 +134,7 @@ function seam_allowance_first(s, width){
 function seam_allow(s, given_lns, seam_a){
 
   let lines = s.lines_by_key("type");
+
   let temp = [];
   given_lns.forEach((ln) => {
     temp = temp.concat(ln.get_endpoints());
@@ -144,8 +145,6 @@ function seam_allow(s, given_lns, seam_a){
   let lns;
   let ln1;
   let ln2;
-
-
 
   while (temp.length > 0){
     let lines = s.lines_by_key("type");
@@ -196,7 +195,6 @@ function seam_allowance_after_mirror(s, seam_a){
   let ln_bottom = s.line_with_offset(lines.bottom[0], seam_a.hem, true).line;
   let ln_side = lines.s_a_side;
 
-  let temp;
   ln_bottom = close_lines_new(s, ln_side[0], ln_bottom).ln2;
   close_lines_new(s, ln_side[1], ln_bottom);
 
@@ -206,10 +204,6 @@ function seam_allowance_after_mirror(s, seam_a){
 
   ln_neckline = close_lines_new(s, ln_shoulder[0], ln_neckline).ln2;
   close_lines_new(s, ln_shoulder[1], ln_neckline);
-
-
-  /*
-*/
 }
 
 
@@ -237,7 +231,7 @@ function close_lines_new(s, ln1, ln2){
       break;
 
     default:
-
+      throw new Error("Unexpected!");
   }
 
 }
@@ -266,7 +260,6 @@ function close_lines(s, ln1_p, ln2_p, distance){
   let ln1 = ln1_p.get_adjacent_lines()[0];
   let ln2 = ln2_p.get_adjacent_lines()[0];
   let temp = s.intersection_positions(ln1, ln2)[0];
-  s.dev.at_new_url("/maeh")
   let pt = s.add_point(temp);
 
 

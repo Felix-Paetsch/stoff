@@ -424,6 +424,11 @@ class Line{
         return this.get_to_absolute_function()(best);
     }
 
+    minimal_distance(vec){
+        const p = this.closest_position(vec);
+        return p.distance(vec);
+    }
+
     set_sketch(s, overwrite = false){
         if (this.sketch == null || overwrite || s == null){
             this.sketch = s;

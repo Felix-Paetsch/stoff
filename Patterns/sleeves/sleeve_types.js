@@ -298,7 +298,7 @@ function casual(sk){
   let len_f;
   let len_b;
 
-  if (lines[0].data.front){
+  if (lines[0].data.is_front){
     len_f = lines[0].get_length();
     len_b = lines[1].get_length();
   } else {

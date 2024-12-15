@@ -1,13 +1,13 @@
 import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data } from '../../StoffLib/geometry.js';
-import { spline } from "../../StoffLib/curves.js";
+import dart from '../darts/simple_dart.js';
+import annotate from '../annotate/annotate.js';
+
+import NecklineSide from "../neckline/neckline_side.js";
+import {line_with_length} from '../funs/basicFun.js';
 
 
-import {line_with_length, get_point_on_other_line2} from '../funs/basicFun.js';
-
-
-import neck from '../neckline/neckline.js';
 import arm from '../sleeves/simple_sleeve.js';
 import seam from '../seam_allowance/simple_seam.js';
 
@@ -15,8 +15,6 @@ import seam from '../seam_allowance/simple_seam.js';
 import PatternComponent from "../core/pattern_component.js";
 
 export default class DartAllocationSideBase extends PatternComponent{
-
-    // @TODO: Below
     constructor(side, parent){
         super(parent);
         this.side = side;
@@ -24,15 +22,17 @@ export default class DartAllocationSideBase extends PatternComponent{
         this.initialize_shorthands();
         this.sketch = new Sketch();
 
+        this.main_construction();
+        this.add_ease();
+
+        this.get_component("neckline").construct();
+
         this.seam_allowances = {
           neckline: 0.5,
           armpit: 1,
           hem: 2,
           side: 1
         };
-        this.main_construction();
-        this.add_ease();
-        this.neckline();
         this.armpit();
     }
 
@@ -60,6 +60,15 @@ export default class DartAllocationSideBase extends PatternComponent{
     }
 
     main_construction(){
+        // I want an image for (in) the docs!
+        /*
+        
+            One could change the order in which things are drawn to make this more clear.
+            I like the create_neckline fn a lot.
+            But I probably prefer to see this fn as a black box anyway, so it doesn't matter to much.
+        
+        */
+
         const pts = {}
         const lns = {}
 
@@ -84,7 +93,16 @@ export default class DartAllocationSideBase extends PatternComponent{
 
         pts.c.move_to(pts.c.subtract(pts.d).scale(0.75).add(pts.d));
 
-        pts.p5 = get_point_on_other_line2(this.sketch, pts.p2, pts.c.subtract(pts.p2), 10, pts.p3.subtract(pts.p1).get_orthonormal()).set_color("blue");
+
+        const len_b = 10;
+        const ve = pts.c.subtract(pts.p2);
+        const len_c = Math.sqrt(Math.abs((len_b * len_b) - (ve.x * ve.x)));
+        const a = pts.p2;
+        const vec = pts.p3.subtract(pts.p1).get_orthonormal();
+        ve.x = 0;
+        const vec_p = vec.scale(len_c).add(a).add(ve);
+        pts.p5 = this.sketch.add_point(new Point(vec_p.x, vec_p.y)).set_color("blue");
+
 
         len = pts.p4.subtract(pts.p2).length();
 
@@ -94,7 +112,7 @@ export default class DartAllocationSideBase extends PatternComponent{
 
         lns.b_to_g = line_with_length(this.sketch, pts.b, this.sh.point_width/2, 90);
         lns.b_to_g.data.type = "waistline";
-        lns.b_to_g.data.side = "inner";
+        lns.b_to_g.data.dartside = "inner";
         pts.g = lns.b_to_g.p2;
 
         let diff = this.sh.bust_width_back + this.sh.bust_width_front - this.sh.under_bust;
@@ -124,72 +142,67 @@ export default class DartAllocationSideBase extends PatternComponent{
         const supposed_length = this.sh.waist /2 - length_b_g;
         const p8_help = this.sketch.split_line_at_length(lns.l_help, supposed_length)
         
-        this.sketch.remove_line(p8_help.line_segments[1]); // There is a chance this can be 0
+        this.sketch.remove_line(p8_help.line_segments[1]);
         pts.p8 = p8_help.point;
 
         lns.l_help = this.sketch.line_between_points(pts.h, pts.p8);
         lns.g_to_h = this.sketch.line_between_points(pts.h, pts.g);
         lns.g_to_h.data.type = "dart";
-        lns.g_to_h.data.side = "inner";
+        lns.g_to_h.data.dartside = "inner";
 
         const vec_length = lns.g_to_h.get_length();
         let vec_i = lns.l_help.get_line_vector().normalize().scale(vec_length).add(pts.h);
-        pts.i = this.sketch.add_point(new Point(vec_i.x, vec_i.y));
-        pts.i.data.type = "i";
+        pts.i = this.sketch.add_point(vec_i);
         lns.f_to_i = this.sketch.line_between_points(pts.i, pts.f);
         lns.f_to_i.data.type = "waistline";
-        lns.f_to_i.data.side = "outer";
+        lns.f_to_i.data.dartside = "outer";
         lns.h_to_i = this.sketch.line_between_points(pts.h, pts.i);
         lns.h_to_i.data.type = "dart";
-        lns.h_to_i.data.side = "outer";
-
+        lns.h_to_i.data.dartside = "outer";
 
         this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4, pts.p7, pts.p8);
 
         lns.l_help = this.sketch.line_between_points(pts.d, pts.a);
-        const neck = this.construct_neckline(lns.l_help);
-        neck.data.type = "neckline";
-        neck.data.curve = true;
-        neck.data.direction = -1;
-        neck.data.direction_split = -1;
 
-        const pt_vec = lns.a_to_b.get_line_vector().scale(0.2).add(pts.a);
-        pts.pt = this.sketch.add_point(new Point(pt_vec.x, pt_vec.y));
-
+        this.add_component("neckline", new NecklineSide(this, lns.l_help));
+        
+        const center_vec = lns.a_to_b.get_line_vector().scale(0.2).add(pts.a);
         this.sketch.data = {
-            "p5": pts.p5,
-            "p6": pts.p6,
-            "pt": pts.pt,
-            "height_sleeve": pts.e.y - pts.c.y,
-            "front": this.side == "front"
+          "base_p5": pts.p5,
+          "base_p6": pts.p6,
+          "center": center_vec,
+          "is_front": this.side == "front" 
         }
-
-        this.sketch.dev.at_new_url("/hey");
     }
 
-    construct_neckline(neckline_base){
-        let p = this.sketch.point(neckline_base.p1.x, neckline_base.p2.y);
-        let p2 = this.sketch.point(neckline_base.p1.x, neckline_base.p2.y);
-        let vec = p.subtract(neckline_base.p1).scale(0.5);
-        p.move_to(vec.add(neckline_base.p1));
-        if(this.sketch.data.front){
-            vec = p2.subtract(neckline_base.p2).scale(0.6);
-        } else {
-            vec = p2.subtract(neckline_base.p2).scale(0.4);
-        }
-        p2.move_to(vec.add(neckline_base.p2));
+    inner_line(l1, l2){
+        if (l1.minimal_distance(this.sketch.data.center) > l2.minimal_distance(this.sketch.data.center)){
+            return l2;
+        } return l1;
+    }
 
-        let l = this.sketch.line_from_function_graph(neckline_base.p1, neckline_base.p2, spline.bezier(
-            [neckline_base.p1, p, p2, neckline_base.p2]
-        ));
-        l.data.type = "neckline";
-        this.sketch.remove(neckline_base, p, p2);
-        return l;
+    outer_line(l1, l2){
+        return this.inner_line(l1, l2) == l1 ? l2 : l1;
+    }
+
+    ordered_lines(l1, l2){
+        return {
+          "inner": this.inner_line(l1, l2),
+          "outer": this.outer_line(l1, l2)
+        }
+    }
+
+    order_lines(lines){
+        const r = lines.map(l => [l, l.minimal_distance(this.sketch.data.center)])
+                    .sort((l1, l2) => l1[1] - l2[1])
+                    .map(l => l[0])
+
+        lines.splice(0, lines.length, ...r);
+        return r;
     }
 
     add_ease(){
-        let lines = this.sketch.lines_by_key("type");
-        let side = lines.side[0];
+        let side = this.get_line("side");
         let extra = this.design_config.ease / 4;
 
         let ln = this.sketch.line_with_offset(side, extra, true);
@@ -201,27 +214,11 @@ export default class DartAllocationSideBase extends PatternComponent{
         return this;
     };
 
+
+    // After here it's strange
+
     get_sketch(){
         return this.sketch;
-    }
-
-    neckline(){
-      const design = this.design_config["neckline"].type;
-      if (design === "round"){
-        neck.slim_neckline(this.get_sketch(), 0.7);
-      } else if (design === "V-Line wide"){
-        neck.v_line(this.get_sketch(), "wide");
-      } else if (design === "V-Line deep"){
-        neck.v_line(this.get_sketch(), "deep");
-      } else if(design === "V-Line") {
-        neck.v_line(this.get_sketch(), "normal");
-      } else if (design === "round wide"){
-        neck.round_wide(this.get_sketch());
-      } else if (design === "square"){
-        neck.square(this.get_sketch());
-      } else if (design === "boat"){
-        neck.boat(this.get_sketch());
-      }
     }
 
     armpit(){
@@ -244,6 +241,98 @@ export default class DartAllocationSideBase extends PatternComponent{
 
     dartstyle(){
       return this.design_config.dartAllocation.dartstyle;
+    }
+
+    fill_darts(){
+      const lines = this.order_lines(this.get_lines("dart"));
+      while(lines.length > 0){
+        this.fill_in_dart([lines[0], lines[1]]);
+        this.sketch.remove(dart.single_dart(this.sketch, [lines[0], lines[1]]));
+        annotate.annotate_dart(this.sketch, [lines[0], lines[1]]);
+        lines.splice(0, 2);
+      }
+      annotate.remove_dart(this.sketch);
+      this.connect_filling(this.sketch);
+    }
+
+    tuck(){
+      const lines = this.order_lines(this.get_lines("dart"));
+
+      while(lines.length > 0){
+        this.fill_in_dart(s, [lines[0], lines[1]]);
+        dart.simple_tuck(s, [lines[0], lines[1]]);
+        annotate.annotate_tuck(s, [lines[0], lines[1]]);
+        lines.splice(0, 2);
+      }
+      annotate.remove_dart(s);
+      this.connect_filling(s);
+      
+    }
+
+    fill_in_dart(lines){
+    
+        if(lines[0].data.dartposition === "waistline"){
+          let other_lines = this.get_lines("dart_bottom");
+          if (other_lines){
+            if (other_lines[0].p1 !== other_lines[1].p1){
+              let ln1 = s.line_between_points(lines[0].p1, other_lines[0].p1);
+              ln1.data.side = "inner";
+              let ln2 = s.line_between_points(lines[0].p1, other_lines[1].p1);
+              ln2.data.side = "outer";
+              let data1 = other_lines[0].data;
+              let data2 = other_lines[1].data;
+              this.sketch.remove(other_lines[0], other_lines[1]);
+              dart.fill_in_dart(s, [ln1, ln2]).data.type = "filling";
+    
+              s.line_between_points(ln1.p2, lines[1].p2).data = data1;
+              s.line_between_points(ln2.p2, lines[0].p2).data = data2;
+              s.remove(ln1, ln2);
+            } else {
+              return;
+            }
+          } else {
+            dart.fill_in_dart(this.sketch, lines).data.type = "filling";
+          }
+        } else {
+          const {inner, outer} = this.ordered_lines(...lines);
+          dart.fill_in_dart(this.sketch, inner, outer).data.type = "filling";
+        }
+    }
+  
+    connect_filling(s){
+      let lines = s.lines_by_key("type").filling;
+      if (lines){
+        lines.forEach((line) => {
+          let ln1 = line.p1.other_adjacent_line(line);
+          let ln2 = line.p2.other_adjacent_line(line);
+  
+          if(line.get_endpoints().includes(ln1.p2)){
+            ln1 = s.merge_lines(
+              ln1, line, true,
+              (data_ln1, data_line) => {
+                return data_ln1;
+              }
+            );
+              s.merge_lines(ln1, ln2, true, (data_ln1, data_l2) => {
+                  return data_ln1;
+              });
+  
+          } else {
+            ln2 = s.merge_lines(
+              ln2, line, true,
+              (data_ln1, data_line) => {
+                return data_ln1;
+              }
+            );
+              s.merge_lines(ln2, ln1, true, (data_ln1, data_l2) => {
+                  return data_ln1;
+              });
+  
+  
+          }
+  
+        });
+      }
     }
 
     // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
