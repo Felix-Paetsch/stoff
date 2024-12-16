@@ -6,7 +6,6 @@ node_modules
 **node_modules
 renders
 Server/public/tailwind.css
-Measurements/data/measurement**
 **.blend**
 **__pycache__/
 **.py[cod]
@@ -15,11 +14,6 @@ Tools/Blender/assets
 ___frames_**
 Docs/site
 
-// Needed by Felix
-_todo.md
-
 // Needed by ??
 **Leonie
 Patterns/_example
-day_documentation.md
-_TryOut

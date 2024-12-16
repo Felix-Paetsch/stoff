@@ -24,7 +24,7 @@ export default (app) => {
         res.render("responses/measurements", {
             ...CONF,
             ...user,
-            measurements: CONF.measurements.slice(0, 2).map(m => {
+            measurements: CONF.measurements.map(m => {
                 return {
                     key: m.value,
                     display: m.name,
@@ -37,7 +37,7 @@ export default (app) => {
     app.post("/activate_specific_item", async (req, res) => {
         const user = await get_user(req.body.ident);
         const design_config = cConfig.deserialize(user.serialized_config);
-        
+
         const locals = {
             ...req.body,
             ...CONF,
@@ -58,13 +58,13 @@ export default (app) => {
         const design_config = cConfig.deserialize(user.serialized_config);
 
         if (req.body.config_type == "option"){
-            design_config.get_by_id(req.body.current_selection_option_id).select(+req.body.option); 
+            design_config.get_by_id(req.body.current_selection_option_id).select(+req.body.option);
         } else if (req.body.config_type == "number"){
             design_config.get_by_id(req.body.current_selection_option_id).set(+req.body.value);
         }
         user.serialized_config = design_config.serialize();
         write_user(user);
-        
+
         const locals = {
             ...req.body,
             ...CONF,
