@@ -9,25 +9,27 @@
         "logged_in_subtitle": "Input your measurements!",
         "choose_design_subtitle": "Choose your design!",
 
-        "measurements_text": "Bevor du die Maße nimmst, stell dich entspannt hin, so wie du auch im Alltag stehst. Stehst du stattdessen besonders gerade, anders als im Alltag, führt das zu falschen Maßen und du wirst ein Kleidungsstück erhalten, welches dir gut passt, wenn du gerade stehst, aber sonst recht unbequem sein wird. \n\n"
-          ++ "Fahre mit deinem Finger die mittige, oberste Kante deiner Schulter entlang bis zum Ende der Armkugel. Den hier gefundenen Punkt nennen wir SP.\n "
-          ++ "Nehme ein einfaches Stück Schnur und binde es um deine Taille. Wenn du dir nicht sicher bist, an welcher Stelle diese sich befindet hilft es, dich seitlich "
-          ++ "zu beugen. Dort wo \"ein Knick\" entsteht, befindet sich deine Taille.\n"
-          ++ "Bei allen Maßen die du zur Taille misst, nimm dieses Band als Referenz.\n"
-          ++ "Hüftweite wird waagerecht an der Stelle der höchsten Poerhebung gemessen unter einbeziehung der Bauchwölbung.\n"
-          ++ "Hinweis: Trage immer das drunter, was du auch später unter dem hier erstellten Kleidungsstück tragen würdest, wenn du die Maße nimmst."
+        "measurements_text": [
+            "Bevor du die Maße nimmst, stell dich entspannt hin, so wie du auch im Alltag stehst. Stehst du stattdessen besonders gerade, anders als im Alltag, führt das zu falschen Maßen und du wirst ein Kleidungsstück erhalten, welches dir gut passt, wenn du gerade stehst, aber sonst recht unbequem sein wird. \n\n",
+            "Fahre mit deinem Finger die mittige, oberste Kante deiner Schulter entlang bis zum Ende der Armkugel. Den hier gefundenen Punkt nennen wir SP.\n ",
+            "Nehme ein einfaches Stück Schnur und binde es um deine Taille. Wenn du dir nicht sicher bist, an welcher Stelle diese sich befindet hilft es, dich seitlich ",
+            "zu beugen. Dort wo \"ein Knick\" entsteht, befindet sich deine Taille.\n",
+            "Bei allen Maßen die du zur Taille misst, nimm dieses Band als Referenz.\n",
+            "Hüftweite wird waagerecht an der Stelle der höchsten Poerhebung gemessen unter einbeziehung der Bauchwölbung.\n",
+            "Hinweis: Trage immer das drunter, was du auch später unter dem hier erstellten Kleidungsstück tragen würdest, wenn du die Maße nimmst."
+        ]
     },
     "measurements": [
         { "name": "1 Schulterlänge", "value": "shoulder_length", "note": "Miss vom SP der einen Seite aus bis zum anderen SP gerade über deinen Rücken." },
         { "name": "2 Schulterbreite", "value": "shoulder_width", "note": "Miss vom Halsansatz deiner Schulter bis zum SP gerade über die Schulter." },
         { "name": "3 Brustweite", "value": "bust_width", "note": "Lege das Maßband gerade an der breitesten Stelle um deine Brust. (meist dort, wo auch die Brustwarzen liegen)"},
         { "name": "4 Unterbrustweite", "value": "under_bust" , "note": "Lege das Maßband gerade direkt unterhalb deiner Brust um deine Brust."},
-        { "name": "5 Brustpunktweite", "value": "bust_point_width", "Miss von einer Brustwarze zur anderen." },
+        { "name": "5 Brustpunktweite", "value": "bust_point_width", "note": "Miss von einer Brustwarze zur anderen." },
         { "name": "6 Brustpunkthöhe", "value": "bust_point_height", "note": "Miss von einer Brustwarze gerade runter bis zur Taille."},
         { "name": "7 Seitenhöhe", "value": "side_height", "note": "Lege zwei Finger unter deine Achsel. Nimm von der unteren Kante deiner Finger gerade runter bis zur Taille dein Maß." },
         { "name": "8 Taillenhöhe", "value": "waist_height", "note": "Nimm von der Taille aus bis zur Hüftweite an einer vergleichweise flachen Seite Senkrecht dein Maß." },
-        { "name": "9 Taillenweite", "value": "waist_width_front", "note":  "Der Umfang deiner Taille."},
-        { "name": "10 Mittlere Hüftweite", "value": "waist_width_front", "note": "Halbiere deine Taillenhöhe und nimm auf dieser Höhe erneut den Umfang." },
+        { "name": "9 Taillenweite", "value": "waist_width", "note":  "Der Umfang deiner Taille."},
+        { "name": "10 Mittlere Hüftweite", "value": "belly", "note": "Halbiere deine Taillenhöhe und nimm auf dieser Höhe erneut den Umfang." },
         { "name": "11 Schulterhöhe vorne", "value": "shoulder_height_front", "note": "Miss vom Halsansatz deiner Schulter (siehe 2) gerade nach unten über deine Brust bis zu deiner Taille." },
         { "name": "12 Mittlere Höhe vorne", "value": "center_height_front", "note": "Miss von dem Punkt wo sich deine Schlüsselbeine treffen gerade nach unten über deine Brust bis zu deiner Taille." },
         { "name": "13 Diagonale Höhe vorne", "value": "diagonal_front", "note": "Miss vom SP diagonal über deine Brust bis zur vorderen Mitte deiner Taille." },

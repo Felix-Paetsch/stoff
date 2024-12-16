@@ -30,6 +30,7 @@ export default (app) => {
                     const sourceStats = fs.statSync(sourceFilePath);
                     if (!fs.existsSync(cssFilePath) || fs.statSync(cssFilePath).mtime < sourceStats.mtime) {
                         const result = sass.compile(sourceFilePath);
+                        res.set('Content-Type', 'text/css');
                         res.send(result.css);
                         fs.writeFileSync(cssFilePath, result.css);
                         return;

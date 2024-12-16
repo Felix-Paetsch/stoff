@@ -1,10 +1,20 @@
 <div id="top_text" hx-swap-oob="innerHTML">Logged in as <%= name %> --- <%- texts.logged_in_subtitle %></div>
 
-<div id="dashboard_flex" hx-swap-oob="innerHTML">
+<div id="dashboard_flex" hx-swap-oob="outerHTML" class="dashboard_grid" x-data="{current_option_text: 'Click on a measurement for explanation.'}">
     <%- include("../panels/measurements_panel.ejs") %>
+    
+    <div class="table_panel text_panel" id="text_expl_panel"><p x-text="current_option_text"></p></div>
+
     <%- include("../panels/img_panel.ejs", {
-        url: "https://cdn.shopify.com/s/files/1/0333/9049/3835/files/bodymeasures_480x480.jpg?v=1612896631"
+        url: "/bilder/1-4,7-10,15.png"
     }) %>
+    <%- include("../panels/img_panel.ejs", {
+        url: "/bilder/5,6,11-13,23-17.png"
+    }) %>
+    <%- include("../panels/img_panel.ejs", {
+        url: "/bilder/17-22.png"
+    }) %>
+
     <%- include("../panels/text_panel.ejs", {
         text: texts.measurements_text
     }) %>

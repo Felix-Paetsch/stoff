@@ -1,6 +1,6 @@
 <div id="top_text" hx-swap-oob="innerHTML">Logged in as <%= name %> --- <%- texts.choose_design_subtitle %></div>
 
-<div id="dashboard_flex" hx-swap-oob="innerHTML">
+<div id="dashboard_flex" hx-swap-oob="outerHTML">
     <%- include("../panels/svg_wrapper.ejs", {
         text: "Current version",
         svg

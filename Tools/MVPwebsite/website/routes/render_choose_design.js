@@ -26,6 +26,7 @@ export default (app) => {
             ...user,
             measurements: CONF.measurements.map(m => {
                 return {
+                    ...m,
                     key: m.value,
                     display: m.name,
                     value: user.measurements[m.value] ? user.measurements[m.value] : null

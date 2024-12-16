@@ -27,6 +27,42 @@ main {
     flex-wrap: wrap;
     margin-top: 2em;
     padding-bottom: 2em;
+
+    &.dashboard_grid{
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 2rem;
+        grid-template-rows: auto auto auto;
+        padding-right: 2em;
+    }
+
+    @media (min-width: 110em) {
+        &.dashboard_grid {
+            grid-template-columns: 2.5fr 1fr 1fr;
+        }
+    }
+
+    .img_panel, .text_panel{
+        width: 10em;
+        margin-right: 0;
+    }
+    
+    .measurements_panel {
+        grid-column: 1 / 2;
+        grid-row: 1 / 4;
+    }
+
+    .text_panel {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    #text_expl_panel{
+        grid-column: 2;
+        grid-row: 1;
+        min-height: auto;
+        height: min-content;
+    }
 }
 
 .table_panel{

@@ -46,6 +46,7 @@ export default (app) => {
                 measurements: measurements.map(mea => {
                     const confItem = CONF.measurements.find(m => m.value === mea.key) || {};
                     return {
+                        ...confItem,
                         ...mea,
                         display: confItem.name
                     };

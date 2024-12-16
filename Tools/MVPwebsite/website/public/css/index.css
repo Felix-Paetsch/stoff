@@ -6,7 +6,7 @@ body {
   color: white;
   background-color: #C44900;
   font-family: "Roboto", sans-serif;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 main {
@@ -22,6 +22,36 @@ main {
   flex-wrap: wrap;
   margin-top: 2em;
   padding-bottom: 2em;
+}
+#dashboard_flex.dashboard_grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-column-gap: 2rem;
+  grid-template-rows: auto auto auto;
+  padding-right: 2em;
+}
+@media (min-width: 110em) {
+  #dashboard_flex.dashboard_grid {
+    grid-template-columns: 2.5fr 1fr 1fr;
+  }
+}
+#dashboard_flex .img_panel, #dashboard_flex .text_panel {
+  width: 10em;
+  margin-right: 0;
+}
+#dashboard_flex .measurements_panel {
+  grid-column: 1/2;
+  grid-row: 1/4;
+}
+#dashboard_flex .text_panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+#dashboard_flex #text_expl_panel {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: auto;
+  height: min-content;
 }
 
 .table_panel {
@@ -181,7 +211,7 @@ main {
 .svg_wrapper svg {
   border: 0.1rem solid #0D0A0B;
 }
-.svg_wrapper.svg_option_wrapper h3 {
+.svg_wrapper.svg_option_wrapper {
   cursor: pointer;
 }
 
