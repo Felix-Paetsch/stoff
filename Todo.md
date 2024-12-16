@@ -21,7 +21,8 @@ Speed improvements
 Array of vectors => Float64Array of (x,y)
 
 
-
+Design improvements
+===================
 
 We might want to chage what we mean by "side" bcs currently it is conflicting. The premirror stuff maybe should be called half instead.
 I kinda want to move away from accessing points via p1, p2
@@ -58,7 +59,11 @@ Probably Fix single dart first and then adress Outer/Inner problem
 Make more asserts
 Render Till Crash
 adjust_measurements.js muss temporär bleiben
+remove unneccessary things: Mark things as temporary (e.g construction stack env ...)
+    i.e. get a new enviroment to construct things in and then at the end can pop that environment
 
-Notes
-=======
-Percent: Wo entlang der kanonischen linie eingefügt werden soll
+get_line by:
+    special characterisitcs
+    adjacent lines/pts
+
+allow several recordings / things at the same url, sep by _________ many iframes?

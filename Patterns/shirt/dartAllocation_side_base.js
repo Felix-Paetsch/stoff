@@ -26,6 +26,9 @@ export default class DartAllocationSideBase extends PatternComponent{
         this.add_ease();
 
         this.get_component("neckline").construct();
+        const armpit = new Armpit(this);
+        armpit.construct();
+        this.add_component("armpit", armpit);
 
         this.seam_allowances = {
           neckline: 0.5,
@@ -33,10 +36,6 @@ export default class DartAllocationSideBase extends PatternComponent{
           hem: 2,
           side: 1
         };
-
-        const armpit = new Armpit(this);
-        armpit.construct();
-        this.add_component("armpit", armpit);
     }
 
     initialize_shorthands(){
@@ -241,7 +240,18 @@ export default class DartAllocationSideBase extends PatternComponent{
       return this.design_config.dartAllocation.dartstyle;
     }
 
-    fill_darts(){
+    handle_darts(){
+        if (!this.dart) return;
+        if(this.dartstyle() === "tuck"){
+            this.fill_darts_tuck();
+        } else {
+            this.fill_darts_normal();
+        }
+    }
+
+    fill_darts_normal(){
+      // If we have more than 1 dart: Export the method to fill one dart this way
+      // Also find a way which darts belong together =Y common endpoint
       const lines = this.order_lines(this.get_lines("dart"));
       assert(lines.length % 2 == 0, "Odd number of dart lines!");
       while(lines.length > 0){
@@ -333,17 +343,17 @@ export default class DartAllocationSideBase extends PatternComponent{
 
     // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
     // längen an Nahtzugabe geben
-    seam_allowance(s){
-
-      let lines = s.lines_by_key("type");
-      lines.side[0].data.s_a = "side";
-      s.dev.at_new_url("/wa")
-      lines.armpit[0].data.s_a = "armpit";
-      lines.shoulder[0].data.s_a = "side";
-      seam.seam_allow(s, [lines.side[0], lines.armpit[0], lines.shoulder[0]], this.seam_allowances);
+    seam_allowance(){
+      const side = this.get_line("side");
+      side.data.s_a = "side";
+      const armpit = this.get_line("armpit");
+      armpit.data.s_a = "armpit";
+      const shoulder = this.get_line("shoulder");
+      shoulder.data.s_a = "side";
+      seam.seam_allow(this.sketch, [side, armpit, shoulder], this.seam_allowances);
     }
-    seam_allowance_after_mirror(s){
+    seam_allowance_after_mirror(){
 
-      seam.seam_allowance_after_mirror(s, this.seam_allowances);
+      seam.seam_allowance_after_mirror(this.sketch, this.seam_allowances);
     }
 }

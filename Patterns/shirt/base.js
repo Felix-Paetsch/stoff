@@ -3,7 +3,7 @@ import Sketch from "../../StoffLib/sketch.js";
 
 import utils from '../funs/utils.js';
 import dart from '../darts/simple_dart.js';
-import annotate from '../annotate/annotate.js';
+import { assert } from "../../Debug/validation_utils.js";
 
 import Middle from '../shirt/middle.js';
 import { Vector } from '../../StoffLib/geometry.js';
@@ -22,23 +22,8 @@ export default class ShirtBase extends Pattern{
         this.render = () => {
             // @TODO
             let s = new Sketch();
-        
-        
-            this.components.filter(elem => elem.dart === true).forEach((elem) => {
-              if (elem.get_lines("dart").length == 1) throw new Error("Bad dog!");
-
-              if(elem.dartstyle() === "tuck"){
-                elem.fill_darts_tuck();
-              } else {
-                elem.fill_darts();
-              }
-              if (elem.sketch.lines_by_key("type").shoulder.length > 1){
-                throw new Error("Should be 1");
-              };
-            });
-        
+  
             this.components.forEach((elem) => {
-                elem.seam_allowance(elem.get_sketch());
                 this.remove_unnessesary_things(elem.get_sketch());
             });
             this.components.forEach((elem) => {

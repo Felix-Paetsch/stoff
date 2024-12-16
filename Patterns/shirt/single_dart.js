@@ -1,5 +1,4 @@
 import utils from '../funs/utils.js';
-import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
 import { vec_angle_clockwise } from "../../StoffLib/geometry.js"
 import ShirtBase from "./base.js";
@@ -22,6 +21,11 @@ class SingleDartSide extends DartAllocationSideBase{
         this.shift_dart();
         this.compute_grainline();
         this.lengthen();
+
+        this.handle_darts();
+
+        
+        this.seam_allowance();
     };
 
 
@@ -136,16 +140,12 @@ class SingleDartSide extends DartAllocationSideBase{
 
         this.sketch.merge_points(inner.p1, outer.p1);
       
-        let fold = this.get_line("fold");
         if (this.darttype() !== "waistline"){
           let line;
-          if (this.dartside() === "side"){
-            line = this.sketch.line_between_points(fold.p2, line_segments[1].p2);
-          } else {
-            const side = this.get_line("side");
-            line = this.sketch.line_between_points(fold.p2, side.p2);
-          }
-          
+          line = this.sketch.line_between_points(
+              this.point_between_lines("fold", "waistline"), 
+              this.point_between_lines("side", "waistline")
+          );
           line.data.type = "waistline";
           this.sketch.remove_points(other_inner.p2, other_outer.p2);
         } else {
@@ -154,7 +154,6 @@ class SingleDartSide extends DartAllocationSideBase{
           temp = temp.get_adjacent_lines();
           this.sketch.merge_lines(temp[0], temp[1], true);
       }
-      console.log(this.sketch.lines_by_key("type").shoulder.length);
   }
 
 
