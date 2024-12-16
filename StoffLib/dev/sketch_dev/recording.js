@@ -11,12 +11,22 @@ import clean_rendering_data from "./tools/clean_rendering_data.js";
 import load_assets from './tools/load_assets.js';
 
 export default (Sketch) => {
-    Sketch.dev.start_recording = function(debug = false){
-        new Recorder(this, Sketch, debug);
+    Sketch.dev.strict_debug_recording = function(){
+        new Recorder(this, Sketch, true);
     };
 
-    Sketch.dev.stop_recording = function(){
-        return this.dev.recorder.stop_recording();
+    Sketch.dev.start_recording = function(...args){
+        const r = new Recorder(this, Sketch, false);
+        if (args.length == 0) return;
+        r.hot_at_url(...args);
+    };
+
+    Sketch.dev.stop_recording = function(...args){
+        const r = this.dev.recorder.stop_recording();
+        if (args.length > 0){
+            r.at_url(...args);
+        }
+        return r;
     }
 
     Sketch.dev.Recording = Recording;
@@ -133,6 +143,34 @@ class Recorder {
 
         return new Recording(this.snapshots).lock();
     }
+
+    hot_at_url(url, overwrite = null){
+        const get  = new Route(url, "get",  overwrite);
+        const post = new Route(url, "post", overwrite);
+
+        let currently_live = false;
+
+        get.request = (function(){
+            currently_live = true;
+
+            const r = new Recording(this.snapshots);
+            return r.to_html(url);
+        }).bind(this);
+
+        post.request = (function(){
+            if (currently_live) {
+                return { live: true };
+            }
+
+            const r = new Recording(this.snapshots);
+            r.process_snapshots(url);
+            currently_live = true;
+            return {
+                live: false,
+                render_data: r.render_processed_snapshots
+            };
+        }).bind(this);
+    }
 }
 
 
@@ -196,7 +234,7 @@ class Recording {
         writeFileSync(path, this.to_html(title), 'utf-8');
     }
 
-    at_url(url, overwrite = false) {
+    at_url(url, overwrite = null) {
         this.process_snapshots(url);
 
         const get  = new Route(url, "get",  overwrite);

@@ -1,7 +1,6 @@
 import utils from '../funs/utils.js';
 import top from '../top/simple_top.js';
 import lengthen from '../lengthen/top.js';
-import { split } from '../funs/simple_split.js';
 import { vec_angle_clockwise } from "../../StoffLib/geometry.js"
 import ShirtBase from "./base.js";
 import DartAllocationSideBase from "./dartAllocation_side_base.js";
@@ -20,7 +19,6 @@ class SingleDartSide extends DartAllocationSideBase{
         this.dart = true;
 
         this.compute_dart_position();
-
         this.shift_dart();
         this.compute_grainline();
         this.lengthen();
@@ -62,9 +60,8 @@ class SingleDartSide extends DartAllocationSideBase{
     // @TODO: Below
     shift_dart(){
         if(this.dartside() === "waistline"){
-            top.waistline_simple_dart(this.get_sketch(), this.dartposition());
+            this.simple_waistline_dart();
         } else {
-            // top.simple_middle_dart(this.get_sketch(), this.darttype(), this.dartposition());
             this.simple_middle_dart();
         }
 
@@ -74,12 +71,36 @@ class SingleDartSide extends DartAllocationSideBase{
         }
     }
 
-    simple_middle_dart(){
-        this.sketch.dev.start_recording();  
+    simple_waistline_dart(){
+        this.simple_middle_dart("side", 0.5);
+        this.simple_middle_dart("waistline");
 
-        let line = this.get_line(this.darttype());
+        const darts = this.get_lines("dart");
+        const {
+            outer, inner
+        } = this.ordered_lines(...darts);
+
         let side = this.get_line("side");
         let fold = this.get_line("fold");
+        let ln = this.sketch.line_between_points(fold.p2, side.p2);
+
+        let vec = inner.get_line_vector().add(inner.p2);
+        inner.p2.move_to(vec.x, vec.y);
+        let pt = this.sketch.intersection_positions(ln, inner);
+        inner.p2.move_to(pt[0]);
+
+        let len = inner.get_length();
+        vec = outer.get_line_vector().normalize().scale(len).add(outer.p1);
+        outer.p2.move_to(vec.x, vec.y);
+
+        this.sketch.remove_line(ln);
+    }
+
+    simple_middle_dart(dartside = null, position = null){
+        dartside = dartside || this.dartside();
+        position = position || this.dartposition();
+
+        let line = this.get_line(dartside);
 
         const darts = this.get_lines("dart");
         const {
@@ -87,7 +108,7 @@ class SingleDartSide extends DartAllocationSideBase{
         } = this.ordered_lines(...darts);
 
         // Split
-        const fraction = Math.max(Math.min(this.dartposition(), 0.95), 0.05);
+        const fraction = Math.max(Math.min(position, 0.95), 0.05);
         const {
           point, line_segments
         } = this.sketch.split_line_at_fraction(line, fraction);
@@ -104,7 +125,7 @@ class SingleDartSide extends DartAllocationSideBase{
         dart2.data.type = "dart";
         dart2.data.dartposition = line.data.type;
 
-        const other_dart_lines = this.get_lines("dart").filter(l => l.data.type !== this.darttype());
+        const other_dart_lines = this.get_lines("dart").filter(l => l.data.type !== dartside);
         const {
           outer: other_outer,
           inner: other_inner
@@ -115,8 +136,16 @@ class SingleDartSide extends DartAllocationSideBase{
 
         this.sketch.merge_points(inner.p1, outer.p1);
       
+        let fold = this.get_line("fold");
         if (this.darttype() !== "waistline"){
-          line = this.sketch.line_between_points(fold.p2, side.p2);
+          let line;
+          if (this.dartside() === "side"){
+            line = this.sketch.line_between_points(fold.p2, line_segments[1].p2);
+          } else {
+            const side = this.get_line("side");
+            line = this.sketch.line_between_points(fold.p2, side.p2);
+          }
+          
           line.data.type = "waistline";
           this.sketch.remove_points(other_inner.p2, other_outer.p2);
         } else {
@@ -126,7 +155,6 @@ class SingleDartSide extends DartAllocationSideBase{
           this.sketch.merge_lines(temp[0], temp[1], true);
       }
       console.log(this.sketch.lines_by_key("type").shoulder.length);
-      this.sketch.dev.stop_recording().at_url("/testn", true);
   }
 
 
@@ -178,7 +206,6 @@ class SingleDartSide extends DartAllocationSideBase{
 
 
   lengthen(){
-
     if (this.dartside() === "waistline"){
       lengthen.lengthen_top_with_dart(this.get_sketch(), this.mea, this.design_config.length);
     } else {

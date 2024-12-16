@@ -8,10 +8,10 @@ import NecklineSide from "../neckline/neckline_side.js";
 import {line_with_length} from '../funs/basicFun.js';
 
 import seam from '../seam_allowance/simple_seam.js';
-import arm from "../sleeves/simple_sleeve.js"
 
 import PatternComponent from "../core/pattern_component.js";
 import Armpit from '../sleeves/armpit.js';
+import { assert } from '../../Debug/validation_utils.js';
 
 export default class DartAllocationSideBase extends PatternComponent{
     constructor(side, parent){
@@ -20,6 +20,7 @@ export default class DartAllocationSideBase extends PatternComponent{
         
         this.initialize_shorthands();
         this.sketch = new Sketch();
+        this.sketch.dev.start_recording("/testing", true);
 
         this.main_construction();
         this.add_ease();
@@ -178,9 +179,22 @@ export default class DartAllocationSideBase extends PatternComponent{
     }
 
     inner_line(l1, l2){
+        const common_pt = l1.common_endpoint(l2);
+        if (common_pt){
+            if (
+                l1.other_endpoint(common_pt).distance(this.sketch.data.center)
+              > l2.other_endpoint(common_pt).distance(this.sketch.data.center)
+            ){
+                return l2;
+            }
+            return l1;
+        }
+
         if (l1.minimal_distance(this.sketch.data.center) > l2.minimal_distance(this.sketch.data.center)){
             return l2;
-        } return l1;
+        }
+        
+        return l1;
     }
 
     outer_line(l1, l2){
@@ -223,32 +237,13 @@ export default class DartAllocationSideBase extends PatternComponent{
         return gl;
     };
 
-    /*
-    
-        Todo Next:
-        1.
-        - Move tuck() to the correct file
-        - Figure out what fill_darts() macht ~~~~ it could be....
-        => tuck() to tuck_darts() and update names
-
-        2.
-        Figure out what fill_in_darts macht (und ob fill_darts umbenannt werden sollte)
-        Incorporate "Seam Allowance"
-
-        3. Fix for other configurations
-
-
-        4. Start 2nd round of refactor:
-        - Delte unnesseccary files
-        - Look at Todo.md
-    */
-
     dartstyle(){
       return this.design_config.dartAllocation.dartstyle;
     }
 
     fill_darts(){
       const lines = this.order_lines(this.get_lines("dart"));
+      assert(lines.length % 2 == 0, "Odd number of dart lines!");
       while(lines.length > 0){
         this.fill_in_dart([lines[0], lines[1]]);
         this.sketch.remove(dart.single_dart(this.sketch, [lines[0], lines[1]]));
@@ -259,30 +254,27 @@ export default class DartAllocationSideBase extends PatternComponent{
       this.connect_filling(this.sketch);
     }
 
-    tuck(){
+    fill_darts_tuck(){
       const lines = this.order_lines(this.get_lines("dart"));
-
+      assert(lines.length % 2 == 0, "Odd number of dart lines!");
       while(lines.length > 0){
-        this.fill_in_dart(s, [lines[0], lines[1]]);
-        dart.simple_tuck(s, [lines[0], lines[1]]);
-        annotate.annotate_tuck(s, [lines[0], lines[1]]);
+        this.fill_in_dart([lines[0], lines[1]]);
+        dart.simple_tuck(this.sketch, [lines[0], lines[1]]);
+        annotate.annotate_tuck(this.sketch, [lines[0], lines[1]]);
         lines.splice(0, 2);
       }
-      annotate.remove_dart(s);
-      this.connect_filling(s);
+      annotate.remove_dart(this.sketch);
+      this.connect_filling(this.sketch);
       
     }
 
     fill_in_dart(lines){
-    
         if(lines[0].data.dartposition === "waistline"){
           let other_lines = this.get_lines("dart_bottom");
           if (other_lines){
             if (other_lines[0].p1 !== other_lines[1].p1){
               let ln1 = s.line_between_points(lines[0].p1, other_lines[0].p1);
-              ln1.data.side = "inner";
               let ln2 = s.line_between_points(lines[0].p1, other_lines[1].p1);
-              ln2.data.side = "outer";
               let data1 = other_lines[0].data;
               let data2 = other_lines[1].data;
               this.sketch.remove(other_lines[0], other_lines[1]);

@@ -55,19 +55,18 @@ function lengthen_top_without_dart_new(s, mea, shorten){
   return s;
 };
 
-function lengthen_top_with_dart(s, mea, shorten, dart = s.lines_by_key("type").dart){
+function lengthen_top_with_dart(s, mea, shorten, dart = null){
+    dart = dart || s.lines_by_key("type").dart;
+    const lines = s.lines_by_key("type");
+    let fold = lines.fold[0];
+    let waistline = lines.waistline[1];
+    lengthen_top(s, mea, shorten, waistline, fold)
+    opposite_dart2(s, dart);
+    correct_belly_waistline_dart(s, mea);
 
-  const lines = s.lines_by_key("type");
-  let fold = lines.fold[0];
-  let waistlines = lines.waistline;
-  waistlines = utils.sort_lines(s, waistlines);
-  lengthen_top(s, mea, shorten, waistlines[0], fold)
-  opposite_dart2(s, dart);
-  correct_belly_waistline_dart(s, mea);
-
-  shorten_with_dart(s, shorten);
-  //curve_line(s);
-  return s;
+    shorten_with_dart(s, shorten);
+    //curve_line(s);
+    return s;
 };
 
 
@@ -745,7 +744,9 @@ function shorten_length_new(s, percent){
   if(side.length > 1){
     side = [side[1]];
   }
+
   side = utils.merge_to_curve(s, side.concat(lines.side_bottom));
+
 
   let fold = lines.fold_bottom[0];
   let darts = lines.dart_bottom;
@@ -787,8 +788,6 @@ function shorten_length_new(s, percent){
 
 
 function shorten_with_dart(s, percent){
-
-
   shorten_length_new(s, percent);
   s.data.shortened = true;
   let lines = s.lines_by_key("type");
@@ -800,6 +799,7 @@ function shorten_with_dart(s, percent){
   }
   let bottom = lines.bottom[0];
 
+  darts = s.lines_by_key("type").dart;
   let vec1 = s.intersection_positions(darts[0], bottom);
 
   if (vec1.length === 0){
@@ -836,7 +836,6 @@ function shorten_with_dart(s, percent){
     p2.move_to(vec)
 
     s.remove_line(bottom);
-    s.dev.at_new_url("/wa")
     return s;
     /*
 */

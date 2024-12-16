@@ -369,12 +369,10 @@ function merge_to_curve(s, lines, senkrecht = true, data_type = "side"){
       ln.set_color("red")
     });
 
-
     pt.concat(points).forEach((p) => {
       s.remove_point(p);
     });
-    /*
-    */
+
     curve.data.type = data_type;
     return curve;
 }

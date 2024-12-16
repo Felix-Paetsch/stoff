@@ -25,8 +25,10 @@ export default class ShirtBase extends Pattern{
         
         
             this.components.filter(elem => elem.dart === true).forEach((elem) => {
+              if (elem.get_lines("dart").length == 1) throw new Error("Bad dog!");
+
               if(elem.dartstyle() === "tuck"){
-                elem.tuck();
+                elem.fill_darts_tuck();
               } else {
                 elem.fill_darts();
               }

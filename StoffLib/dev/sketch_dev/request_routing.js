@@ -1,7 +1,7 @@
 
 
 export default class Route{
-    constructor(url, method, overwrite = false){
+    constructor(url, method, overwrite = null){
         this.url = url;
         this.method = method.toUpperCase();
         this.overwrite = overwrite;

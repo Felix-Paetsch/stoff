@@ -30,7 +30,34 @@ sketch.data should be moved to class data unless inherent to the sketch
 armpit: anchored at 4 pts.. maybe enought to give with? maybe even construct 2 of these pts
 => maybe allows to render to sketch w only anchors
 darAllocation_side_base.add_ease seems reasonable, but... maybe "offset_endpoints()
+.fill_darts and .fill_darts_tuck
 
+Probably Fix single dart first and then adress Outer/Inner problem
+
+    /*
+    
+        Todo Next:
+        2.
+        Figure out what fill_in_darts macht (und ob fill_darts umbenannt werden sollte)
+        Incorporate "Seam Allowance"
+
+        3. Fix for other configurations
+
+        Remove
+        ordered_lines();
+
+        4. Start 2nd round of refactor:
+        - Delte unnesseccary files
+        - Look at Todo.md
+        - Rename things
+    */
+
+    Calculate inner/outer from the other point! (they share an endpoint..)
+    Single Middle Dart: Unified mechanism for choosing the correct point
+
+Make more asserts
+Render Till Crash
+adjust_measurements.js muss temporär bleiben
 
 Notes
 =======

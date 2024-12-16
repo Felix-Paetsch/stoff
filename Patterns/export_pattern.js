@@ -114,7 +114,6 @@ export default {
       let fuer = design_config.Schnittmuster["für"];
       
       let measurements = adjusted_measurements(people_measurements[fuer], design_config);
-
       return construct_shirt(measurements, config_compiler(design_config)).render();
     }
 }
