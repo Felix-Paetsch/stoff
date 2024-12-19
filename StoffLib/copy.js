@@ -1,14 +1,30 @@
 import { Vector } from './geometry.js';
 import { Point } from './point.js';
 import { Line } from './line.js';
+import Sketch from './sketch.js';
 import { ConnectedComponent } from './connected_component.js';
 
 function default_data_callback(...data){
-    return copy_data_callback(...data);
+    data = data.filter(d => {
+        return !(
+            d instanceof Line
+            || d instanceof Point
+            || d instanceof ConnectedComponent
+            || d instanceof Sketch
+        );
+    });
     return Object.assign({}, ...data);
 }
 
 function copy_data_callback(...data){
+    data = data.filter(d => {
+        return !(
+            d instanceof Line
+            || d instanceof Point
+            || d instanceof ConnectedComponent
+            || d instanceof Sketch
+        );
+    });
     return Object.assign({}, ...data.map(d => dublicate_data(d)));
 }
 
@@ -26,7 +42,7 @@ function copy_sketch_obj_data(source, target, data_callback = copy_data_callback
         }
     }
     const data_copy = dublicate_data(source.data);
-    target.data = data_callback(target.data, data_copy)
+    target.data = data_callback(target.data, source.data, target, source)
     || data_copy;
     return target.data;
 }
@@ -59,7 +75,7 @@ function copy_sketch(source, target, data_callback = copy_data_callback, positio
         corresponding_line
     );
 
-    target.data = data_callback(target.data, data_copy)
+    target.data = data_callback(target.data, data_copy, target, source)
             || target.data;
     return target.data;
 }

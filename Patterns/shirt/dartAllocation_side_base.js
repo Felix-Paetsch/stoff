@@ -1,4 +1,4 @@
-import { Sketch } from '../../StoffLib/sketch.js';
+import Sketch from '../core/sewing_sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data } from '../../StoffLib/geometry.js';
 import dart from '../darts/simple_dart.js';
@@ -20,7 +20,6 @@ export default class DartAllocationSideBase extends PatternComponent{
         
         this.initialize_shorthands();
         this.sketch = new Sketch();
-        this.sketch.dev.start_recording("/testing", true);
 
         this.main_construction();
         this.add_ease();
@@ -36,6 +35,8 @@ export default class DartAllocationSideBase extends PatternComponent{
           hem: 2,
           side: 1
         };
+
+        // this.sketch.dev.start_recording("/testing", false);
     }
 
     initialize_shorthands(){
@@ -178,6 +179,8 @@ export default class DartAllocationSideBase extends PatternComponent{
     }
 
     inner_line(l1, l2){
+        // Probably want to remove this one day??
+
         const common_pt = l1.common_endpoint(l2);
         if (common_pt){
             if (
@@ -256,7 +259,7 @@ export default class DartAllocationSideBase extends PatternComponent{
       assert(lines.length % 2 == 0, "Odd number of dart lines!");
       while(lines.length > 0){
         this.fill_in_dart([lines[0], lines[1]]);
-        this.sketch.remove(dart.single_dart(this.sketch, [lines[0], lines[1]]));
+        dart.single_dart(this.sketch, [lines[0], lines[1]]);
         annotate.annotate_dart(this.sketch, [lines[0], lines[1]]);
         lines.splice(0, 2);
       }

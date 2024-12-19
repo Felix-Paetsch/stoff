@@ -216,8 +216,11 @@ function mirror_middle(s){
 */
 
 function annotate_dart(s, [ln1, ln2]){
-  let p = ln1.p1;
-  let vec_p_middle = ln1.p2.subtract(ln2.p2).scale(0.5).add(ln2.p2);
+  let p = ln1.common_endpoint(ln2);
+  const ln1p2 = ln1.other_endpoint(p);
+  const ln2p2 = ln2.other_endpoint(p);
+
+  let vec_p_middle = ln1p2.subtract(ln2p2).scale(0.5).add(ln2p2);
   let vec = p.subtract(vec_p_middle).normalize();
 
   let p_ann = s.add_point(vec.scale(-3).add(p));
@@ -226,7 +229,7 @@ function annotate_dart(s, [ln1, ln2]){
   p_middle.data.type = "dart_middle";
   let ln = s.line_between_points(p_ann, p_middle);
   ln.data.type = "dart_annotated";
-  p_middle.data.width = vec_p_middle.subtract(ln1.p2).length();
+  p_middle.data.width = vec_p_middle.subtract(ln1p2).length();
 
   let lines = s.lines_by_key("type");
   let bottom = lines.dart_bottom;
@@ -259,7 +262,7 @@ function annotate_dart(s, [ln1, ln2]){
     }
   }
 
-  ln = s.line_between_points(ln1.p1, p_ann);
+  ln = s.line_between_points(p, p_ann);
   ln.data.type = "dart_remove";
 };
 

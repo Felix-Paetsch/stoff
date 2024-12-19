@@ -1,4 +1,4 @@
-import { Vector, convex_hull } from './geometry.js';
+import { Vector, convex_hull, ZERO } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
 import { Point } from './point.js';
 import { Line } from './line.js';
@@ -113,13 +113,13 @@ class Sketch{
 
     remove(...els){
         for (const el of els){
-            if (el instanceof Point){
+            if (el instanceof Array){
+                this.remove(...el);
+            } else if (el instanceof Point){
                 this.remove_point(el);
-            }
-            else if (el instanceof Line){
+            } else if (el instanceof Line){
                 this.remove_line(el);
-            }
-            else {
+            } else {
                 this.delete_component(el);
             }
         }
@@ -169,6 +169,14 @@ class Sketch{
     transform(pt_fun = (pt) => {}){
         this.points.forEach(pt_fun);
         return this;
+    }
+
+    mirror(...args){
+        if (args.length == 0) {
+            args = [ZERO];
+        }
+
+        this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
     }
 
     clear(){
@@ -312,7 +320,8 @@ class Sketch{
     // ===============
 
     merge_points(pt1, pt2, data_callback = default_data_callback){
-        if (pt1.subtract(pt2).length() > 0.01){
+        if (pt1 == pt2) return pt1;
+        if (pt1.subtract(pt2).length() > 0.0001){
             throw new Error("Points are not ontop each other");
         }
 
@@ -331,7 +340,15 @@ class Sketch{
         return pt1;
     }
 
-    copy(){
+    copy(el = null){
+        if (el instanceof Point){
+            return this.point(el.copy());
+        }
+
+        if (el instanceof Line){
+            return this.copy_line(el);
+        }
+
         const s = new Sketch();
         s.paste_sketch(this, null, new Vector(0,0));
         return s;

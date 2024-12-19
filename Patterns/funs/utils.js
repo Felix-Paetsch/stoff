@@ -114,6 +114,7 @@ function rotate_zhk(s, angle, p){
 
 // nimmt die gegebenen Linien und tauscht "inner" gegen "outer" aus und umgekehrt
 function switch_inner_outer_dart(lines){
+  throw new Error("Shouldn't be called anymore");
   let inner = lines.filter(ln => ln.data.side === "inner");
   let outer = lines.filter(ln => ln.data.side === "outer");
   inner.forEach((ln) => {

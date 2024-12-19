@@ -108,7 +108,7 @@ export default class Pattern{
     lines = utils.sort_dart_lines(lines);
     while(lines.length > 0){
       this.fill_in_dart(s, [lines[0], lines[1]]);
-      s.remove(dart.single_dart(s, [lines[0], lines[1]]));
+      dart.single_dart(s, [lines[0], lines[1]]);
       annotate.annotate_dart(s, [lines[0], lines[1]]);
       lines.splice(0, 2);
     }

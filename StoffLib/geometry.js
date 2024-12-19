@@ -1,3 +1,4 @@
+import { assert } from "../Debug/validation_utils.js";
 import triangle_data from "./unicorns/triangle_data.js";
 
 class Vector {
@@ -44,10 +45,16 @@ class Vector {
         return this.x * vec.y - this.y * vec.x;
     }
 
-    distance(vec) {
+    distance(el) {
+        if (el instanceof Line) return Line.distance(el);
         return Math.sqrt(
-            Math.pow(this.x - vec.x, 2) + Math.pow(this.y - vec.y, 2)
+            Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2)
         );
+    }
+
+    distinct(vec, eps = true){
+        if (eps == true) eps = 0;
+        return this.distance(vec) > eps
     }
 
     mult(el) {
@@ -97,8 +104,16 @@ class Vector {
         return this.add(vec.scale(-1));
     }
 
-    mirror_at(vec){
-      return vec.scale(2).subtract(this);
+    mirror_at(el, vec2 = null){
+        if (el instanceof Line) return this.mirror_at(el.project(this));
+        if (el instanceof Array) return this.mirror_at(...el);
+        if (vec2 instanceof Vector) return this.mirror_at(new Line(el, vec2));
+
+        return el.scale(2).subtract(this);
+    }
+
+    project_onto(line){
+
     }
 
     length() {
@@ -239,23 +254,40 @@ class Matrix {
     }
 }
 
-function distance_from_line(line_points, vec) {
-    const [vec1, vec2] = line_points;
+class Line {
+    constructor(p1, p2){
+        if (p1 instanceof Array) return new Line(...p1);
+        assert(p1 instanceof Vector && p2 instanceof Vector);
+        assert(p1.distance(p2) > 0, "Points can't be identical!");
+        this.points = [p1, p2];
+    }
 
-    const vec1ToVec = vec.subtract(vec1);
-    const vec1ToVec2 = vec2.subtract(vec1);
+    static from_direction(vec, direction){
+        return new Line(vec, vec.add(direction));
+    }
 
-    // Calculate the projection of vec1ToVec onto vec1ToVec2
-    const projection = vec1ToVec.dot(vec1ToVec2) / vec1ToVec2.dot(vec1ToVec2);
+    get_orthogonal(at = ZERO){
+        return Line.from_direction(at, p1.subtract(p2).get_orthogonal());
+    }
 
-    // Calculate the closest point on the line
-    const closestPoint = new Vector(
-        vec1.x + projection * vec1ToVec2.x,
-        vec1.y + projection * vec1ToVec2.y
-    );
+    project(vec){
+        const [vec1, vec2] = this.points;
 
-    // Calculate the distance from vec to the closest point on the line
-    return vec.subtract(closestPoint).length();
+        const vec1ToVec = vec.subtract(vec1);
+        const vec1ToVec2 = vec2.subtract(vec1);
+
+        const projection = vec1ToVec.dot(vec1ToVec2) / vec1ToVec2.dot(vec1ToVec2);
+
+        // Calculate the closest point on the line
+        return new Vector(
+            vec1.x + projection * vec1ToVec2.x,
+            vec1.y + projection * vec1ToVec2.y
+        );
+    }
+
+    distance(vec){
+        return vec.distance(this.project(vec));
+    }
 }
 
 function distance_from_line_segment(endpoints, vec) {
@@ -378,7 +410,6 @@ function vec_angle(vec1, vec2, reference = ZERO) {
     return angle || 0;
 }
 
-
 function vec_angle_clockwise(vec1, vec2, reference = ZERO, offset_range = false){
     if (typeof reference == "boolean"){
         offset_range = reference;
@@ -484,7 +515,6 @@ export {
     orthogonal_transform_from_input_output,
     closest_vec_on_line_segment,
     distance_from_line_segment,
-    distance_from_line,
     convex_hull,
     bounding_box,
     deg_to_rad,
@@ -498,5 +528,6 @@ export {
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    Line as PlainLine
 };

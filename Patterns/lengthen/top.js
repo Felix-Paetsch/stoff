@@ -442,11 +442,13 @@ function opposite_dart2(s, darts){
   const lines = s.lines_by_key("type");
 //  let darts = lines.dart;
   darts[0].set_color("green")
-  let vec = darts[0].p2.add(darts[1].p2).scale(0.5);
-  let p1 = s.add_point(vec);
-  let vec2 = vec.subtract(darts[0].p1).scale(4);
-  vec2 = vec2.add(vec);
+  const center = darts[0].other_endpoint(darts[1]).add(darts[1].other_endpoint(darts[0])).scale(0.5);
+  let p1 = s.add_point(center);
+  let vec2 = center.subtract(darts[0].p1).scale(-4);
+  s.add(center);
+  vec2 = vec2.add(center);
   let p2 = s.add_point(vec2);
+  p2.data.pt2 = "pt2"
   let ln = s.line_between_points(p1, p2);
   let bottom = lines.bottom[0];
 

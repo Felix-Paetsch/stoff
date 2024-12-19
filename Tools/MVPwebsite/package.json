@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --ext js,ejs,scss index.js",
-    "dev_hot": "concurrently \"nodemon index.js\" \"browser-sync start --proxy http://localhost:3005 --files ',**/*.js,**/*.ejs,**/*.scss' --no-notify --no-open --port 3006\""
+    "dev_hot": "concurrently \"nodemon index.js\" \"browser-sync start --proxy http://localhost:3005 --files ',**/*.js,**/*.ejs,**/*.scss' --no-notify --no-open --port 3006\"",
+    "host": "nohup node index.js > output.log 2>&1 &"
   }
 }

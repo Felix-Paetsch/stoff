@@ -3,6 +3,8 @@ import { Sketch } from '../../StoffLib/sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { ConnectedComponent} from '../../StoffLib/connected_component.js';
 
+import { assert } from '../../Debug/validation_utils.js';
+
 import utils from '../funs/utils.js';
 
 import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
@@ -39,22 +41,15 @@ function dart(s, type){
 
 // bewegt den Punkt nach "unten"
 function single_dart(s, [line1, line2]){
-  let p_ret = s.add_point(line1.p1.copy());
+    assert(line1.is_adjacent(line2), "Expect dart lines to be adjacent");
 
-  if (line1.is_adjacent(line2)){
-    let p1 = line1.p2;
-    let p2 = line2.p2;
-    let p3 = line1.p1;
+    const common = line1.common_endpoint(line2);
+    let p1 = line1.other_endpoint(common);
+    let p2 = line2.other_endpoint(common);
+    
     let vec = p1.subtract(p2).scale(0.5).add(p2);
-    let pt = s.add_point(new Point(vec));
-
-    vec = pt.subtract(p3).normalize().scale(2.5).add(p3);
-    p3.move_to(vec);
-    s.remove_point(pt);
-    /*
-    */
-  }
-  return p_ret;
+    vec = vec.subtract(common).normalize().scale(2.5).add(common);
+    common.move_to(vec);
 };
 
 // nutzt dart() und wandelt danach alle "normalen" Abnäher des sketches in

@@ -67,3 +67,7 @@ get_line by:
     adjacent lines/pts
 
 allow several recordings / things at the same url, sep by _________ many iframes?
+.simple_middle_dart() abstract this split operation
+
+
+Update mutable functions for sketch

@@ -383,7 +383,7 @@ export default (Sketch) => {
         );
 
         new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
-        new_line.data = data_callback(line1.data, line2.data);
+        new_line.data = data_callback(line1.data, line2.data, line1, line2);
 
         if (delete_join){
             this.remove_point(line1.p2);
@@ -494,7 +494,11 @@ export default (Sketch) => {
         return intersection_positions(line1, line2);
     }
 
-    Sketch.prototype.copy_line = function(line, from, to, data_callback = copy_data_callback){
+    Sketch.prototype.copy_line = function(line, from = null, to = null, data_callback = copy_data_callback){
+        if (from == null){
+            from = line.p1;
+            to = line.p2;
+        }
         this._guard_points_in_sketch(from, to);
         const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);

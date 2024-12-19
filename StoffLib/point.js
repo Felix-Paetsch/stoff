@@ -66,13 +66,20 @@ class Point extends Vector{
     }
 
     other_adjacent_line(...lines){
+        return this.other_adjacent_lines(...lines)[0] || null;
+    }
+
+    other_adjacent_lines(...lines){
         this.guard_has_lines(...lines);
+        return this.adjacent_lines.filter(l => lines.indexOf(l) < 0);
+    }
 
-        const other_lines = this.adjacent_lines.filter(l => lines.indexOf(l) < 0);
-        if (other_lines.length == 1) return other_lines[0];
+    common_line(point){
+        return this.common_lines(point)[0] || null;
+    }
 
-        if (other_lines.length == 0) throw new Error("Point has not other adjacent lines");
-        throw new Error("Point has more than 1 other adjacent lines");
+    common_lines(point){
+        return this.adjacent_lines.filter(l => point.adjacent_lines.includes(l));
     }
 
     move_to(x, y){

@@ -99,9 +99,26 @@ class Line{
     }
 
     other_endpoint(pt){
+        if (pt instanceof Line) return this.other_endpoint(this.common_endpoint(pt));
         if (this.p1 == pt) return this.p2;
         if (this.p2 == pt) return this.p1;
         throw new Error("Point is not an endpoint of this line!");
+    }
+
+    has_endpoint(pt){
+        return this.p1 == pt || this.p2 == pt;
+    }
+
+    is_deleted(){
+        return this.sketch == null;
+    }
+
+    set_changed_endpoint(p1, p2){
+        if (this.p1 == p1) return this.set_endpoints(p1, p2)
+        if (this.p2 == p1) return this.set_endpoints(p2, p1)
+        if (this.p1 == p2) return this.set_endpoints(p2, p1)
+        if (this.p2 == p2) return this.set_endpoints(p1, p2)
+        throw new Error("Both points aren't endpoints of the line");
     }
 
     set_color(color){

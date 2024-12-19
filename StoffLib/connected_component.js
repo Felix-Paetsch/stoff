@@ -1,4 +1,4 @@
-import { Vector } from './geometry.js';
+import { Vector, ZERO } from './geometry.js';
 import { copy_connected_component } from './copy.js';
 import { Sketch } from "./sketch.js";
 
@@ -14,6 +14,14 @@ class ConnectedComponent{
     transform(pt_fun = (pt) => {}){
         this.points().forEach(pt_fun);
         return this;
+    }
+
+    mirror(...args){
+        if (args.length == 0) {
+            args = [ZERO];
+        }
+
+        this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
     }
 
     group_by_key(key){

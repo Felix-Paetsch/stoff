@@ -68,11 +68,24 @@ class SingleDartSide extends DartAllocationSideBase{
         } else {
             this.simple_middle_dart();
         }
+    }
 
-        if (this.design_config.dartAllocation.position == "french"){
-            let dart = this.get_sketch().lines_by_key("type").dart.filter(elem => elem.data.dartposition === "side");
-            utils.switch_inner_outer_dart(dart);
-        }
+    pseudo_common(l1, l2){
+      if (l1.p1.distance(l2.p1) < 0.00001) return l1.p1;
+      if (l1.p1.distance(l2.p2) < 0.00001) return l1.p1;
+      if (l1.p2.distance(l2.p1) < 0.00001) return l1.p2;
+      if (l1.p2.distance(l2.p2) < 0.00001) return l1.p2;
+      return null;
+    }
+
+    pseudo_other(l, pt){
+      if (l.p1.distance(pt) < 0.00001) return l.p2;
+      return l.p1;
+    }
+
+    fix_dart_orientation(l1, l2){
+      if (l1.p1.distance(l2.p1) < 0.0001) return 1;
+      return -1;
     }
 
     simple_waistline_dart(){
@@ -88,14 +101,12 @@ class SingleDartSide extends DartAllocationSideBase{
         let fold = this.get_line("fold");
         let ln = this.sketch.line_between_points(fold.p2, side.p2);
 
-        let vec = inner.get_line_vector().add(inner.p2);
-        inner.p2.move_to(vec.x, vec.y);
-        let pt = this.sketch.intersection_positions(ln, inner);
-        inner.p2.move_to(pt[0]);
+        const common = this.pseudo_common(inner, outer);
+        let pt1 = this.sketch.intersection_positions(ln, inner);
+        this.pseudo_other(inner, common).move_to(pt1[0]);
 
-        let len = inner.get_length();
-        vec = outer.get_line_vector().normalize().scale(len).add(outer.p1);
-        outer.p2.move_to(vec.x, vec.y);
+        let pt2 = this.sketch.intersection_positions(ln, outer);
+        this.pseudo_other(outer, common).move_to(pt2[0]);
 
         this.sketch.remove_line(ln);
     }
@@ -107,6 +118,7 @@ class SingleDartSide extends DartAllocationSideBase{
         let line = this.get_line(dartside);
 
         const darts = this.get_lines("dart");
+        //if (darts.length % 2 ==);
         const {
             inner, outer
         } = this.ordered_lines(...darts);
@@ -114,46 +126,48 @@ class SingleDartSide extends DartAllocationSideBase{
         // Split
         const fraction = Math.max(Math.min(position, 0.95), 0.05);
         const {
-          point, line_segments
+          point
         } = this.sketch.split_line_at_fraction(line, fraction);
-        let pt2 = this.sketch.add_point(point.copy());
-        line_segments[0].set_endpoints(line_segments[0].p1, pt2);
 
-        let p2 = this.sketch.add_point(inner.p1.copy());
-        inner.set_endpoints(p2, inner.p2);
+        const { cut_parts } = this.sketch.cut([point, inner.common_endpoint(outer)]);
 
-        let dart1 = utils.close_component(this.sketch, inner.p1, [point, pt2]);
-        let dart2 = utils.close_component(this.sketch, outer.p1, [point, pt2]);
-        dart1.data.type = "dart";
-        dart1.data.dartposition = line.data.type;
-        dart2.data.type = "dart";
-        dart2.data.dartposition = line.data.type;
+        cut_parts[0].line.attributes.strokeWidth = 5;
+        cut_parts[0].line.data.type = "dart";
+        cut_parts[0].line.data.dartposition = line.data.type;
+        cut_parts[1].line.data.type = "dart";
+        cut_parts[1].line.data.dartposition = line.data.type;
 
-        const other_dart_lines = this.get_lines("dart").filter(l => l.data.type !== dartside);
-        const {
-          outer: other_outer,
-          inner: other_inner
-        } = this.ordered_lines(...other_dart_lines);
-        
-        const angle = vec_angle_clockwise(other_outer.p2, other_inner.p2, other_inner.p1);
-        utils.rotate_zhk(this.sketch, -angle, other_outer.p1);
+        const other_dart_lines = this.get_lines("dart").filter(l => l.data.type !== line.data.type);  
+        const res = this.sketch.glue(other_dart_lines[0], other_dart_lines[1]);
+        console.log(res);
 
-        this.sketch.merge_points(inner.p1, outer.p1);
-      
         if (this.darttype() !== "waistline"){
-          let line;
-          line = this.sketch.line_between_points(
-              this.point_between_lines("fold", "waistline"), 
-              this.point_between_lines("side", "waistline")
-          );
-          line.data.type = "waistline";
-          this.sketch.remove_points(other_inner.p2, other_outer.p2);
+            let line;
+            line = this.sketch.line_between_points(
+                this.point_between_lines("fold", "waistline"), 
+                this.point_between_lines("side", "waistline")
+            );
+            line.data.type = "waistline";
+            this.sketch.remove(res.points[1]);
         } else {
-          let temp = this.sketch.merge_points(other_inner.p2, other_outer.p2);
-          this.sketch.remove_lines(other_inner, other_outer);
-          temp = temp.get_adjacent_lines();
-          this.sketch.merge_lines(temp[0], temp[1], true);
-      }
+            if (rotate_around == other_inner.p2){
+                let temp = this.sketch.merge_points(other_inner.p1, other_inner.p1);
+                this.sketch.remove_lines(inner, outer);
+                temp = temp.get_adjacent_line
+                ();
+                this.sketch.merge_lines(temp[0], temp[1], true);
+                other_inner.swap_orientation();
+                other_outer.swap_orientation();
+            } else {
+              let line;
+              line = this.sketch.line_between_points(
+                  this.point_between_lines("fold", "waistline"), 
+                  this.point_between_lines("side", "waistline")
+              );
+              line.data.type = "waistline";
+              this.sketch.remove_points(other_inner.p2, other_outer.p2);
+            }
+        }
   }
 
 
