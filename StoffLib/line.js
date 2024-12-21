@@ -98,6 +98,11 @@ class Line{
         return this;
     }
 
+    remove(){
+        if (!this.sketch) throw new Error("Line doesn't belong to a sketch");
+        this.sketch.remove(this);
+    }
+
     other_endpoint(pt){
         if (pt instanceof Line) return this.other_endpoint(this.common_endpoint(pt));
         if (this.p1 == pt) return this.p2;

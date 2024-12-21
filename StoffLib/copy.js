@@ -187,8 +187,10 @@ export {
     copy_sketch_obj_data,
     copy_connected_component,
     copy_sketch,
+
     default_data_callback,
-    copy_data_callback
+    copy_data_callback,
+    dublicate_data
 }
 
 function dublicate_data(data, get_point_reference = (pt) => pt, get_line_reference = (ln) => ln){

@@ -77,7 +77,7 @@ export function cut_without_fixed_point(s, line, grp1, grp2){
             ...line.p1.get_adjacent_lines().filter(l => !grp1.includes(l) && l !== line),
             ...line.p2.get_adjacent_lines().filter(l => !grp1.includes(l) && l !== line)
         ]
-    } else {
+    } else if (!(grp1 instanceof Array)){
         // Detect Lines which belong to a cycle
         // Later this could be advanced
 

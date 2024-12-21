@@ -102,6 +102,11 @@ class Point extends Vector{
         return this;
     }
 
+    remove(){
+        if (!this.sketch) throw new Error("Point doesn't belong to a sketch");
+        this.sketch.remove(this);
+    }
+
     has_lines(...ls){
         for (let i = 0; i < ls.length; i++){
             if (!this.adjacent_lines.includes(ls[i])) return false;

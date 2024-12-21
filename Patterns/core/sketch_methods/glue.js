@@ -1,9 +1,10 @@
 import { assert } from "../../../Debug/validation_utils.js";
 import { affine_transform_from_input_output } from "../../../StoffLib/geometry.js";
+import { default_data_callback } from "../../../StoffLib/copy.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
     assert(ep1[0] == ep2[0], "First glue point isn't equal");
-    const fixed = ep[0];
+    const fixed = ep1[0];
     const p1 = ep1[1];
     const p2 = ep2[1];
     
@@ -24,6 +25,10 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
     const cb = typeof data.points == "string" ? default_data_callback : data.points;
     const merged_pt = s.merge_points(p1, p2, cb);
 
+    if (data.anchors == "delete"){
+        s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
+    }
+
     const glue_lines = merged_pt.common_lines(fixed);
 
     if (data.lines == "keep"){
@@ -39,13 +44,13 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
         }
     }
     
-    if (data.lines == "delete"){
-        s.remove_lines(glue_lines);
+    if (data.lines == "delete" || data.points.startsWith("delete")){
+        s.remove_lines(...glue_lines);
     } else if (!data.points.startsWith("delete")){ // Merge Case
         assert(glue_lines.length == 1 || glue_lines.length == 2, "Can't glue lines (wront amount)");
         const r = s.copy_line(glue_lines[0]);
         r.data = data.lines(...glue_lines.map(l => l.data), ...glue_lines); // data.lines is data_callback
-        s.remove(glue_lines);
+        s.remove(...glue_lines);
     }
 
     const merged = [];
@@ -107,6 +112,10 @@ export function glue(s, ep1, ep2, data){
         s.merge_points(ep1[1], ep2[1], cb)
     ];
 
+    if (data.anchors == "delete"){
+        s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
+    }
+
     const glue_lines = merged_pts[0].common_lines(merged_pts[1]);
 
     if (data.lines == "keep"){
@@ -121,7 +130,7 @@ export function glue(s, ep1, ep2, data){
         }
     }
     
-    if (data.lines == "delete"){
+    if (data.lines == "delete" || data.points.startsWith("delete")){
         s.remove_lines(...glue_lines);
     } else if (!data.points.startsWith("delete")){ // Merge Case
         assert(glue_lines.length == 1 || glue_lines.length == 2, "Can't glue lines (wront amount)");
@@ -169,7 +178,7 @@ export function glue(s, ep1, ep2, data){
     }
 }
 
-function delete_glue_point(pt, line_callback){
+function delete_glue_point(s, pt, line_callback){
     const adjacent = pt.get_adjacent_lines();
     if (adjacent.length < 2){
         s.remove(pt);
@@ -186,7 +195,7 @@ function restricted_component_pts(p1, fixed){
     const visited_points = [fixed];
     const to_visit_points = [p1];
 
-    while (other_lines.length > 0){
+    while (to_visit_points.length > 0){
         const current_pt = to_visit_points.pop();
         visited_points.push(current_pt);
 

@@ -508,6 +508,9 @@ const LEFT = new Vector(-1,0);
 const RIGHT = new Vector(1,0);
 const DOWN = new Vector(0,1);
 
+const VERTICAL = new Line(UP, DOWN);
+const HORIZONTAL = new Line(LEFT, RIGHT);
+
 export {
     Vector,
     Matrix,
@@ -529,5 +532,7 @@ export {
     DOWN,
     LEFT,
     RIGHT,
+    VERTICAL,
+    HORIZONTAL,
     Line as PlainLine
 };

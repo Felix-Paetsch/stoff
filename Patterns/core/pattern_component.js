@@ -1,3 +1,4 @@
+import { dublicate_data } from "../../StoffLib/copy.js";
 import { UP } from "../../StoffLib/geometry.js";
 import { Line } from "../../StoffLib/line.js";
 import { Point } from "../../StoffLib/point.js";
@@ -34,9 +35,26 @@ export default class PatternComponent{
     add_component(...args){
         if (args.length == 1){
             this.components.push(args[0]);
+            return args[0];
         } else {
             this.components.push(args[1]);
             this.components[args[0]] = args[1];
+            return args[1];
+        }
+    }
+
+    construct_component(...args){
+        if (typeof args[0] == "string"){
+            const component = new args[1](this, ...args.slice(2));
+            component.construct();
+            this.components.push(component);
+            this.components[args[0]] = component;
+            return component;
+        } else {
+            const component = new args[0](...args.slice(1));
+            component.construct();
+            this.components.push(component);
+            return component;
         }
     }
 
@@ -47,7 +65,25 @@ export default class PatternComponent{
 
     get_lines(type){
         if (!this.sketch) throw new Error("Component has no canonical sketch!");
-        return this.sketch.lines_by_key("type")[type];
+        return this._set_line_point_array_methods(this.sketch.lines_by_key("type")[type] || []);
+    }
+
+    get_untyped_lines(){
+        return this.get_lines("_");
+    }
+
+    get_untyped_points(){
+        return this.get_points("_");
+    }
+
+    get_point(type){
+        if (!this.sketch) throw new Error("Component has no canonical sketch!");
+        return this.sketch.points_by_key("type")[type][0];
+    }
+
+    get_points(type){
+        if (!this.sketch) throw new Error("Component has no canonical sketch!");
+        return this._set_line_point_array_methods(this.sketch.points_by_key("type")[type] || []);
     }
 
     point_between_lines(type1, type2){
@@ -93,7 +129,7 @@ export default class PatternComponent{
             }
         }
 
-        return points;
+        return this._set_line_point_array_methods(points);
     }
 
     line_between_points(check1, check2){
@@ -139,20 +175,24 @@ export default class PatternComponent{
             }
         }
 
-        return lines;
+        return this._set_line_point_array_methods(lines);
     }
 
     adjacent_line(pt, check){
         return this.adjacent_lines(pt, check)[0];
     }
 
-    adjacent_lines(pt, check){
+    adjacent_lines(pt, check = null){
         if (typeof check == "string"){
             const type = check;
             check = (ln) => ln.data.type === type 
+        } else if (check == null || check == true){
+            check = (ln) => true;
         }
 
-        return pt.get_adjacent_lines().filer(l => check(l));
+        return this._set_line_point_array_methods(
+            pt.get_adjacent_lines().filer(l => check(l))
+        );
     }
 
     get_sketch(){
@@ -167,6 +207,19 @@ export default class PatternComponent{
 
         this.up_direction = vec;
         return this;
+    }
+
+    _set_line_point_array_methods(arr){
+        arr.set_type = (t)    => arr.forEach(x => x.data.type = t);
+        arr.set_data = (data) => arr.forEach(x => {
+            if (typeof data == "function") {
+                const r = data(x);
+                if (r) x.data = r;
+            } else {
+                x.data = dublicate_data(data);
+            }
+        });
+        return arr;
     }
 
     render(){

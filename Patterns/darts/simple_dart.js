@@ -213,7 +213,6 @@ function dart_trim(s, lines, p_dart){
   } else {
     segment = temp.l1_segments[1];
   }
-  //s.dev.at_url("/wha")
   s.copy_line(segment, lines[1].p2, p2_new).data.type = "trim";
   line = s.copy_line(segment, lines[0].p2, p2_new);
   line.mirror();

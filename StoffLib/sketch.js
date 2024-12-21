@@ -177,6 +177,8 @@ class Sketch{
         }
 
         this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
+        this.lines.forEach(l => l.mirror());
+        return this;
     }
 
     clear(){
@@ -355,6 +357,10 @@ class Sketch{
     }
 
     paste_sketch(sketch, data_callback = null, position = null){
+        if (data_callback instanceof Vector){
+            position = data_callback;
+            data_callback = null;
+        }
         if (data_callback == null){
             data_callback = copy_data_callback
         }

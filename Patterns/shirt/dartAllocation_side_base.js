@@ -1,8 +1,11 @@
 import Sketch from '../core/sewing_sketch.js';
 import { Point } from '../../StoffLib/point.js';
-import { Vector, rotation_fun, triangle_data } from '../../StoffLib/geometry.js';
+import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../StoffLib/geometry.js';
 import dart from '../darts/simple_dart.js';
 import annotate from '../annotate/annotate.js';
+
+import fill_in_darts from "./fill_in_darts.js";
+import { _connect_filling, _fill_in_dart } from "./fill_in_darts.js";
 
 import NecklineSide from "../neckline/neckline_side.js";
 import {line_with_length} from '../funs/basicFun.js';
@@ -16,27 +19,26 @@ import { assert } from '../../Debug/validation_utils.js';
 export default class DartAllocationSideBase extends PatternComponent{
     constructor(side, parent){
         super(parent);
+
+        // Initialization
         this.side = side;
-        
         this.initialize_shorthands();
         this.sketch = new Sketch();
 
-        this.main_construction();
-        this.add_ease();
-
-        this.get_component("neckline").construct();
-        const armpit = new Armpit(this);
-        armpit.construct();
-        this.add_component("armpit", armpit);
-
+        // Config
         this.seam_allowances = {
-          neckline: 0.5,
-          armpit: 1,
-          hem: 2,
-          side: 1
+            neckline: 0.5,
+            armpit: 1,
+            hem: 2,
+            side: 1
         };
 
-        // this.sketch.dev.start_recording("/testing", false);
+        this.main_construction();
+
+        // Independent Constructions
+        this.get_component("neckline").construct_neckline_type();
+        this.add_ease();
+        this.construct_component("armpit", Armpit);
     }
 
     initialize_shorthands(){
@@ -165,9 +167,7 @@ export default class DartAllocationSideBase extends PatternComponent{
 
         this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4, pts.p7, pts.p8);
 
-        lns.l_help = this.sketch.line_between_points(pts.d, pts.a);
-
-        this.add_component("neckline", new NecklineSide(this, lns.l_help));
+        this.add_component("neckline", new NecklineSide(this, pts.d, pts.a));
         
         const center_vec = lns.a_to_b.get_line_vector().scale(0.2).add(pts.a);
         this.sketch.data = {
@@ -176,47 +176,6 @@ export default class DartAllocationSideBase extends PatternComponent{
           "center": center_vec,
           "is_front": this.side == "front" 
         }
-    }
-
-    inner_line(l1, l2){
-        // Probably want to remove this one day??
-
-        const common_pt = l1.common_endpoint(l2);
-        if (common_pt){
-            if (
-                l1.other_endpoint(common_pt).distance(this.sketch.data.center)
-              > l2.other_endpoint(common_pt).distance(this.sketch.data.center)
-            ){
-                return l2;
-            }
-            return l1;
-        }
-
-        if (l1.minimal_distance(this.sketch.data.center) > l2.minimal_distance(this.sketch.data.center)){
-            return l2;
-        }
-        
-        return l1;
-    }
-
-    outer_line(l1, l2){
-        return this.inner_line(l1, l2) == l1 ? l2 : l1;
-    }
-
-    ordered_lines(l1, l2){
-        return {
-          "inner": this.inner_line(l1, l2),
-          "outer": this.outer_line(l1, l2)
-        }
-    }
-
-    order_lines(lines){
-        const r = lines.map(l => [l, l.minimal_distance(this.sketch.data.center)])
-                    .sort((l1, l2) => l1[1] - l2[1])
-                    .map(l => l[0])
-
-        lines.splice(0, lines.length, ...r);
-        return r;
     }
 
     add_ease(){
@@ -232,117 +191,92 @@ export default class DartAllocationSideBase extends PatternComponent{
         return this;
     };
 
+    unfolded_sketch(){
+        const glue_sketch = new Sketch();
+
+        this.mark_symmetry_line();
+        this.get_sketch().anchor();
+        glue_sketch.paste_sketch(this.get_sketch().mirror(VERTICAL));
+        glue_sketch.paste_sketch(this.get_sketch().mirror(VERTICAL));
+        this.get_sketch().remove_anchors();
+        const symm_lines = glue_sketch.lines_by_key("symmetry_line")[true];
+        glue_sketch.glue(...symm_lines, { points: "delete", anchors: "delete" });
+
+        return glue_sketch;
+    }
+
+    dart_lines(most_inner_pt = null, most_outer_pt = null){
+        const odl = this.ordered_dart_lines(
+            most_inner_pt || this.point_between_lines("neckline", "fold"),
+            most_outer_pt || this.point_between_lines("side", "bottom")
+        );
+        const res = [];
+        for (let i = 0; i < odl.length; i++){
+            res.push(odl[i].inner, odl[i].outer);
+        }
+
+        return res;
+    }
+
+    ordered_dart_lines(lines = null, most_inner_pt = null, most_outer_pt = null){
+        const res = [];
+        
+        if (lines instanceof Point){
+            most_outer_pt = most_inner_pt;
+            most_inner_pt = lines;
+            lines = null;
+        }
+
+        const start_pt = most_inner_pt || this.point_between_lines("neckline", "fold");
+        const stop_pt  = most_outer_pt || this.point_between_lines("side", "waistline");
+
+        const directions = start_pt.get_adjacent_lines();
+        directions.forEach(line => {
+            const dart_lines = [];
+
+            let current_line = line;
+            let next_ep = current_line.other_endpoint(start_pt);
+            while (true){
+                if (
+                    current_line.data.type == "dart" && (!lines || lines.includes(current_line))
+                ) dart_lines.push(current_line);
+                if (next_ep.get_adjacent_lines().length !== 2 || next_ep == stop_pt) break;
+                if (next_ep == start_pt) throw new Error("Looped back to start_pt while trying to math dart lines!");
+
+                current_line = next_ep.other_adjacent_line(current_line);
+                next_ep = current_line.other_endpoint(next_ep);
+            }
+            if (dart_lines.length % 2 == 1) throw new Error("Found single dart line!");
+            for (let i = 0; i < dart_lines.length - 1; i += 2){
+                dart_lines[i].data.dartside = "inner";
+                dart_lines[i+1].data.dartside = "outer";
+                res.push({
+                    inner: dart_lines[i],
+                    outer: dart_lines[i + 1]
+                })
+            }
+        });
+
+        return res;
+    }
+
+    set_computed_dart_sides(...args){
+        return this.ordered_dart_lines(...args);
+    }
+
     compute_grainline(){
         let lines = this.get_lines("fold").sort((a, b) => b.get_length() - a.get_length());
         const gl = lines[0].get_line_vector().scale(-1);
         this.set_grainline(gl);
         return gl;
     };
-
-    dartstyle(){
-      return this.design_config.dartAllocation.dartstyle;
-    }
-
-    handle_darts(){
-        if (!this.dart) return;
-        if(this.dartstyle() === "tuck"){
-            this.fill_darts_tuck();
-        } else {
-            this.fill_darts_normal();
-        }
-    }
-
-    fill_darts_normal(){
-      // If we have more than 1 dart: Export the method to fill one dart this way
-      // Also find a way which darts belong together =Y common endpoint
-      const lines = this.order_lines(this.get_lines("dart"));
-      assert(lines.length % 2 == 0, "Odd number of dart lines!");
-      while(lines.length > 0){
-        this.fill_in_dart([lines[0], lines[1]]);
-        dart.single_dart(this.sketch, [lines[0], lines[1]]);
-        annotate.annotate_dart(this.sketch, [lines[0], lines[1]]);
-        lines.splice(0, 2);
-      }
-      annotate.remove_dart(this.sketch);
-      this.connect_filling(this.sketch);
-    }
-
-    fill_darts_tuck(){
-      const lines = this.order_lines(this.get_lines("dart"));
-      assert(lines.length % 2 == 0, "Odd number of dart lines!");
-      while(lines.length > 0){
-        this.fill_in_dart([lines[0], lines[1]]);
-        dart.simple_tuck(this.sketch, [lines[0], lines[1]]);
-        annotate.annotate_tuck(this.sketch, [lines[0], lines[1]]);
-        lines.splice(0, 2);
-      }
-      annotate.remove_dart(this.sketch);
-      this.connect_filling(this.sketch);
-      
-    }
-
-    fill_in_dart(lines){
-        if(lines[0].data.dartposition === "waistline"){
-          let other_lines = this.get_lines("dart_bottom");
-          if (other_lines){
-            if (other_lines[0].p1 !== other_lines[1].p1){
-              let ln1 = s.line_between_points(lines[0].p1, other_lines[0].p1);
-              let ln2 = s.line_between_points(lines[0].p1, other_lines[1].p1);
-              let data1 = other_lines[0].data;
-              let data2 = other_lines[1].data;
-              this.sketch.remove(other_lines[0], other_lines[1]);
-              dart.fill_in_dart(s, [ln1, ln2]).data.type = "filling";
     
-              s.line_between_points(ln1.p2, lines[1].p2).data = data1;
-              s.line_between_points(ln2.p2, lines[0].p2).data = data2;
-              s.remove(ln1, ln2);
-            } else {
-              return;
-            }
-          } else {
-            dart.fill_in_dart(this.sketch, lines).data.type = "filling";
-          }
-        } else {
-          const {inner, outer} = this.ordered_lines(...lines);
-          dart.fill_in_dart(this.sketch, inner, outer).data.type = "filling";
-        }
+    dartstyle(){
+        return this.design_config.dartAllocation.dartstyle;
     }
-  
-    connect_filling(s){
-      let lines = s.lines_by_key("type").filling;
-      if (lines){
-        lines.forEach((line) => {
-          let ln1 = line.p1.other_adjacent_line(line);
-          let ln2 = line.p2.other_adjacent_line(line);
-  
-          if(line.get_endpoints().includes(ln1.p2)){
-            ln1 = s.merge_lines(
-              ln1, line, true,
-              (data_ln1, data_line) => {
-                return data_ln1;
-              }
-            );
-              s.merge_lines(ln1, ln2, true, (data_ln1, data_l2) => {
-                  return data_ln1;
-              });
-  
-          } else {
-            ln2 = s.merge_lines(
-              ln2, line, true,
-              (data_ln1, data_line) => {
-                return data_ln1;
-              }
-            );
-              s.merge_lines(ln2, ln1, true, (data_ln1, data_l2) => {
-                  return data_ln1;
-              });
-  
-  
-          }
-  
-        });
-      }
-    }
+
+
+    
 
     // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
     // längen an Nahtzugabe geben
@@ -355,8 +289,12 @@ export default class DartAllocationSideBase extends PatternComponent{
       shoulder.data.s_a = "side";
       seam.seam_allow(this.sketch, [side, armpit, shoulder], this.seam_allowances);
     }
-    seam_allowance_after_mirror(){
 
+    seam_allowance_after_mirror(){
       seam.seam_allowance_after_mirror(this.sketch, this.seam_allowances);
     }
 }
+
+DartAllocationSideBase.prototype.fill_in_darts = fill_in_darts;
+DartAllocationSideBase.prototype._fill_in_dart  = _fill_in_dart;
+DartAllocationSideBase.prototype._connect_filling  = _connect_filling;

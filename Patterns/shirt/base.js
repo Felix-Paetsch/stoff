@@ -1,5 +1,5 @@
 import Pattern from "../core/pattern.js";
-import Sketch from "../../StoffLib/sketch.js";
+import Sketch from "../core/sewing_sketch.js";
 
 import utils from '../funs/utils.js';
 import dart from '../darts/simple_dart.js';
@@ -11,6 +11,7 @@ import { Vector } from '../../StoffLib/geometry.js';
 export default class ShirtBase extends Pattern{
     constructor(measurements, config){
         super(measurements, config);
+        this.sketch = new Sketch();
     }
 
     build_from_side_component(SideComponent){
@@ -20,53 +21,23 @@ export default class ShirtBase extends Pattern{
         );
 
         this.render = () => {
-            // @TODO
-            let s = new Sketch();
-  
-            this.components.forEach((elem) => {
-                this.remove_unnessesary_things(elem.get_sketch());
+            this.components.forEach((component) => {
+                this.remove_unnessesary_things(component.get_sketch());
+                const uf = component.unfolded_sketch();
+                uf.anchor();
+                this.sketch.paste_sketch(uf);
             });
-            this.components.forEach((elem) => {
-                if (elem instanceof Middle){
-                //  this.seam_allowance(elem.get_sketch());
-                this.components.push(elem.mirror());
-                } else {
-                elem.mirror();
-                elem.seam_allowance_after_mirror(elem.get_sketch());
-                }
-            });
-            /*this.seam_allowance_after_mirror(elem.get_sketch());
-            */
         
-        
-            return this.paste_sketches(s, this.components);
-        
+            this.sketch.decompress_components();
+            this.sketch.remove_anchors();
+
+            return this.sketch;
         }
     }
 
     render(){
         throw new Error("Unimplemented");
     }
-
-    
-
-
-    // Not cleaned up!!!
-  paste_sketches(s, arr){
-    let [sk] = arr.splice(0,1);
-    sk = sk.get_sketch();
-
-    s.paste_sketch(sk, null, new Vector(0,0));
-    arr.forEach((i) => {
-      utils.position_sketch(s, i.get_sketch());
-    });
-
-  return s;
-  }
-
-
-
-
 
   fill_in_dart(s, lines){
 
