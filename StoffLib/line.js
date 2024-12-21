@@ -1,4 +1,4 @@
-import { Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
+import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
 import { Point } from './point.js';
 import { ConnectedComponent } from './connected_component.js';
 import { assert } from '../Debug/validation_utils.js';
@@ -214,18 +214,55 @@ class Line{
         return [this.p1, this.p2];
     }
 
+    get_tangent_line(pt){
+        return PlainLine.from_direction(pt, this.get_tangent_vector(pt));
+    }
+
     get_tangent_vector(pt){
-        if (!this.get_endpoints().includes(pt)){
-            throw new Error("Point is not endpoint of line.");
+        // Points along the line in the direction this.p1 -> this.p2, unless we put in this.p1;
+        
+        const to_absolute = this.get_to_absolute_function();
+        if (this.p1.equals(pt)){
+            let i = 1;
+            while (this.sample_points[i].distance(this.sample_points[0]) < 0.000000001){
+                i++;
+            }
+            const tangent_inwards = this.p1.subtract(to_absolute(this.sample_points[i])).normalize();
+            return this.p1 == pt ? tangent_inwards : tangent_inwards.invert()
         }
 
-        const to_absolute = this.get_to_absolute_function();
-        if (pt == this.p1){
-            return this.p1.subtract(to_absolute(this.sample_points[1])).normalize();
-        } else {
-            const tangent_point = this.sample_points[this.sample_points.length - 2];
-            return this.p2.subtract(to_absolute(tangent_point)).normalize();
+        if (this.p2.equals(pt)){
+            let i = this.sample_points.length - 1;
+            while (this.sample_points[i].distance(this.sample_points[this.sample_points.length - 1]) < 0.000000001){
+                i--;
+            }
+            return this.p2.subtract(to_absolute(this.sample_points[i])).normalize();
         }
+
+        const pt_rel = this.get_to_relative_function()(pt);
+        let min = Infinity;
+        let best_index = null;
+
+        for (let i = 0; i < this.sample_points.length - 1; i++){
+            const closest_on_line = closest_vec_on_line_segment([
+                this.sample_points[i], this.sample_points[i + 1]
+            ], pt_rel);
+            const dist = closest_on_line.distance(pt_rel);
+
+            if (dist < min){
+                min = dist;
+                best_index = i;
+            }
+        }
+        
+        if (min > 0.000001) throw new Error("Vector is not on line!");
+        let left = best_index;
+        let right = best_index+1;
+        while (this.sample_points[left].distance(this.sample_points[right] < 0.000000001)){
+            if (left > 0) left--;
+            if (right < this.sample_points.length - 1) right ++;
+        }
+        return to_absolute(this.sample_points[right].subtract(this.sample_points[left]));
     }
 
     mirror(direction = false){

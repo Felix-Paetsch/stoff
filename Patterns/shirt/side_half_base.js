@@ -1,22 +1,18 @@
 import Sketch from '../core/sewing_sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../StoffLib/geometry.js';
-import dart from '../darts/simple_dart.js';
-import annotate from '../annotate/annotate.js';
 
 import fill_in_darts from "./fill_in_darts.js";
 import { _connect_filling, _fill_in_dart } from "./fill_in_darts.js";
 
-import NecklineSide from "../neckline/neckline_side.js";
+import NecklineSideHalf from "../neckline/neckline_side.js";
 import {line_with_length} from '../funs/basicFun.js';
 
-import seam from '../seam_allowance/simple_seam.js';
-
 import PatternComponent from "../core/pattern_component.js";
-import Armpit from '../sleeves/armpit.js';
-import { assert } from '../../Debug/validation_utils.js';
+import ArmpitSide from '../sleeves/armpit.js';
+import ShirtSideBase from "./side_base.js";
 
-export default class DartAllocationSideBase extends PatternComponent{
+export default class ShirtSideHalfBase extends PatternComponent{
     constructor(side, parent){
         super(parent);
 
@@ -25,20 +21,12 @@ export default class DartAllocationSideBase extends PatternComponent{
         this.initialize_shorthands();
         this.sketch = new Sketch();
 
-        // Config
-        this.seam_allowances = {
-            neckline: 0.5,
-            armpit: 1,
-            hem: 2,
-            side: 1
-        };
-
         this.main_construction();
 
         // Independent Constructions
         this.get_component("neckline").construct_neckline_type();
         this.add_ease();
-        this.construct_component("armpit", Armpit);
+        this.construct_component("armpit", ArmpitSide);
     }
 
     initialize_shorthands(){
@@ -167,7 +155,7 @@ export default class DartAllocationSideBase extends PatternComponent{
 
         this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4, pts.p7, pts.p8);
 
-        this.add_component("neckline", new NecklineSide(this, pts.d, pts.a));
+        this.add_component("neckline", new NecklineSideHalf(this, pts.d, pts.a));
         
         const center_vec = lns.a_to_b.get_line_vector().scale(0.2).add(pts.a);
         this.sketch.data = {
@@ -203,6 +191,10 @@ export default class DartAllocationSideBase extends PatternComponent{
         glue_sketch.glue(...symm_lines, { points: "delete", anchors: "delete" });
 
         return glue_sketch;
+    }
+
+    unfold(){
+        return ShirtSideBase.from_side_half(this);
     }
 
     dart_lines(most_inner_pt = null, most_outer_pt = null){
@@ -274,27 +266,8 @@ export default class DartAllocationSideBase extends PatternComponent{
     dartstyle(){
         return this.design_config.dartAllocation.dartstyle;
     }
-
-
-    
-
-    // soll je nach Art der Linie (seite, hals, saum) unterschiedliche
-    // längen an Nahtzugabe geben
-    seam_allowance(){
-      const side = this.get_line("side");
-      side.data.s_a = "side";
-      const armpit = this.get_line("armpit");
-      armpit.data.s_a = "armpit";
-      const shoulder = this.get_line("shoulder");
-      shoulder.data.s_a = "side";
-      seam.seam_allow(this.sketch, [side, armpit, shoulder], this.seam_allowances);
-    }
-
-    seam_allowance_after_mirror(){
-      seam.seam_allowance_after_mirror(this.sketch, this.seam_allowances);
-    }
 }
 
-DartAllocationSideBase.prototype.fill_in_darts = fill_in_darts;
-DartAllocationSideBase.prototype._fill_in_dart  = _fill_in_dart;
-DartAllocationSideBase.prototype._connect_filling  = _connect_filling;
+ShirtSideHalfBase.prototype.fill_in_darts = fill_in_darts;
+ShirtSideHalfBase.prototype._fill_in_dart  = _fill_in_dart;
+ShirtSideHalfBase.prototype._connect_filling  = _connect_filling;

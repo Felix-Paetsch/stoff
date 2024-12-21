@@ -1,7 +1,7 @@
 import { assert } from "../../Debug/validation_utils.js";
 import Sketch from "../../StoffLib/sketch.js";
 import { Line } from "../../StoffLib/line.js";
-import { Vector } from "../../StoffLib/geometry.js";
+import { Vector, polygon_contains_point } from "../../StoffLib/geometry.js";
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
@@ -226,6 +226,110 @@ export default class SewingSketch extends Sketch{
 
     remove_anchors(){
         this.get_lines().filter(l => l.data?.type == "anchor").forEach(l => l.remove());
+    }
+
+    oriented_component(el){
+        /* Gibt zurück: 
+            { 
+                lines: Die Linien im Uhrzeigersinn,
+                points: Die Punkte im Uhrzeigersinn, 
+                        startend mit dem Endpunkt der ersten Linie am weitesten vorne im Uhrzeigersinn
+                orientation: Für jede Linie, ob p1 -> p2 im Uhrzeigersinn verläuft        
+                }
+        */
+        if (el instanceof ConnectedComponent) return this.oriented_component(el.root_el);
+
+        let lines = [];
+        if (el instanceof Array){
+            lines.push(el.shift());
+
+            let smth_changed = false;
+            while (el.length > 0){
+                for (let i = 0; i < el.length; i++){
+                    if (el[i].common_endpoint(lines[lines.length - 1])){
+                        lines.push(el.splice(i, 1));
+                        smth_changed = true;
+                    }
+                }
+                
+
+                if (!smth_changed) throw new Error("Component lines don't form cycle.");
+                smth_changed = true;
+            }
+            
+            assert(lines[0].common_endpoint(lines[lines.length - 1]), "Component lines don't form cycle.");
+        } else {
+            if (el instanceof Line) lines = [el]
+            else lines = [el.get_adjacent_lines()[0]];
+
+            // Collect Lines (assert circle)
+            let current_ep   = lines[0].p2;
+            let current_line = lines[0];
+            while (true){
+                assert(current_ep.get_adjacent_lines().length == 2, "Component lines don't form cycle.");
+                const next_line = current_ep.other_adjacent_line(current_line);
+                if (next_line == lines[0]){
+                    break;
+                }
+                lines.push(next_line);
+                current_ep = next_line.other_endpoint(current_ep);
+                current_line = next_line;
+            }
+        }
+
+        if (!lines[1].has_endpoint(lines[0].p2)){
+            // Make it so that the second line contains p2 of the first line
+            const temp = lines.shift();
+            lines.reverse();
+            lines.unshift(temp);
+        }
+
+        const lines_with_orientation = [{
+            "line": lines[0],
+            "orientation": true
+        }];
+
+        for (let i = 1; i < lines.length; i++){
+            lines_with_orientation.push({
+                "line": lines[i],
+                "orientation": lines_with_orientation[i - 1].orientation ?
+                    lines[i - 1].p2 == lines[i].p1 : lines[i - 1].p1 == lines[i].p1
+
+                // l1 -> l2 -> l3 -> l4
+                // orientation TRUE: line in this chain is [p1, p2]
+                // orientation FLASE: line in this chain is [p2, p1]
+            });
+        }
+
+        // Figure out if test vec inside/outside polygon
+        //      Construct Test Vec
+        const cp = lines[0].position_at_fraction(0.5);
+        const tv = lines[0].get_tangent_vector(cp);
+        const test_vec = cp.add(tv.get_orthogonal().scale(0.0000001));
+
+        //      Construct Polygon         
+        const polygon = [].concat(...lines_with_orientation.map(l => {
+            const abs = l.line.get_absolute_sample_points();
+            if (!l.orientation){
+                abs.reverse();
+            }
+            return abs;
+        }));
+
+        if (polygon_contains_point(polygon, test_vec)){
+            lines_with_orientation.reverse();
+            lines_with_orientation.forEach(l => l.orientation = !l.orientation);
+        }
+
+        const points = lines_with_orientation.map(l => {
+            return l.orientation ? l.line.p1 : l.line.p2; // Den Anfangspunkt im Kreis
+        });
+
+        return {
+            lines: lines_with_orientation.map(l => l.line),
+            points,
+            orientations: lines_with_orientation.map(l => l.orientation)
+        }
     }
 
     decompress_components(){

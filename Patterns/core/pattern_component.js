@@ -2,6 +2,8 @@ import { dublicate_data } from "../../StoffLib/copy.js";
 import { UP } from "../../StoffLib/geometry.js";
 import { Line } from "../../StoffLib/line.js";
 import { Point } from "../../StoffLib/point.js";
+import add_seam_allowance from "./seam_allowance.js";
+import { assert } from "../../Debug/validation_utils.js";
 
 export default class PatternComponent{
     constructor(parent = null){
@@ -35,12 +37,32 @@ export default class PatternComponent{
     add_component(...args){
         if (args.length == 1){
             this.components.push(args[0]);
-            return args[0];
+            return this;
         } else {
             this.components.push(args[1]);
             this.components[args[0]] = args[1];
-            return args[1];
+            return this;
         }
+    }
+
+    set_component(name, value){
+        this.components[this.components.indexOf(this.components[name])] = value;
+        this.components[name] = value;
+        return this;
+    }
+
+    remove_component(name){
+        if (this.components[name]){
+            this.components.filter(c => c !== this.components[name]);
+            delete this.components[name];
+            return;
+        }
+
+        for (let key of Object.keys(this.components)){
+            if (this.components[key] == name) return this.remove_component(key);
+        }
+
+        this.components.filter(c => c !== name);
     }
 
     construct_component(...args){
@@ -207,6 +229,16 @@ export default class PatternComponent{
 
         this.up_direction = vec;
         return this;
+    }
+
+    add_seam_allowance(base, values){
+        assert(this.sketch, "Component doesn't have sketch!");
+        if (!values){
+            values = base;
+            base = this.get_seam_allowance_component();
+        }
+
+        add_seam_allowance(this.sketch, base, values);
     }
 
     _set_line_point_array_methods(arr){

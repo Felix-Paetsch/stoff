@@ -2,10 +2,9 @@ import PatternComponent from "../core/pattern_component.js";
 import { Vector } from "../../StoffLib/geometry.js";
 import { spline } from "../../StoffLib/curves.js";
 
-export default class Armpit extends PatternComponent{
+export default class ArmpitSide extends PatternComponent{
     constructor(parent, ...args){
         super(parent);
-        this.design_config = parent.design_config["neckline"];
         if (args.length > 0){
             this.args = args;
             this.construct_base_neckline(...args);

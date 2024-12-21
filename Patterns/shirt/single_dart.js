@@ -1,6 +1,6 @@
 import lengthen from '../lengthen/top.js';
 import ShirtBase from "./base.js";
-import DartAllocationSideBase from "./dartAllocation_side_base.js";
+import ShirtSideHalfBase from "./side_half_base.js";
 
 // @remove
 import utils from '../funs/utils.js';
@@ -9,11 +9,11 @@ import utils from '../funs/utils.js';
 export default class SingleDartShirt extends ShirtBase{
     constructor(measurements, design_config){
         super(measurements, design_config);
-        this.build_from_side_component(SingleDartSide);
+        this.build_from_side_half_component(SingleDartSideHalf);
     }
 }
 
-class SingleDartSide extends DartAllocationSideBase{
+class SingleDartSideHalf extends ShirtSideHalfBase{
     constructor(side = "front", parent){
         super(side, parent);
 

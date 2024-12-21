@@ -74,3 +74,13 @@ Neckline, ...
 => Components can be rendered "out of context"
 
 "Oriantable surface - method" i.e. to differentiate sides after glueing
+
+StandAlone things maybe move somewhere else...
+==============================================
+Fill in dart
+add_seam_allowance (sollte auf componenten klasse sein (?) oder zumindest auf den Instanzen)
+
+Better Epsilon handling (see e.g. geometry)
+Make anchor data object a string
+
+.dev.at_url(a,b, true/false) doesnt work for false

@@ -352,6 +352,7 @@ export default (Sketch) => {
     Sketch.prototype.merge_lines = function(line1, line2, delete_join = false, data_callback = default_data_callback){
         this._guard_lines_in_sketch(line1, line2);
 
+        const [old_p1, old_p2] = line1.get_endpoints();
         if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
             throw new Error("Can't merge lines with both endpoints in common.");
         } else if (line1.p1 == line2.p1){
@@ -392,6 +393,10 @@ export default (Sketch) => {
             this.remove_line(line2);
         }
 
+        // Make sure we take orientation from line 1
+        if (new_line.p1 == old_p2 || new_line.p2 == old_p1){
+            new_line.swap_orientation();
+        }
         return new_line;
     }
 
