@@ -1,18 +1,9 @@
-import { Vector } from "../../StoffLib/geometry.js";
-import Sketch from "../../StoffLib/sketch.js";
-
 import { spline } from "../../StoffLib/curves.js";
 import neck from "./neckline_side_options.js";
 
-import PatternComponent from "../core/pattern_component.js";
+import PatternPart from "../core/pattern_part.js";
 
-/*
-
-    Long term this could be refactored:
-    Move construct_base_neckline out of construcor; give 2 Points to the constructor instead of a line.
-*/
-
-export default class NecklineSide extends PatternComponent{
+export default class NecklineSideHalf extends PatternPart{
     constructor(parent, ...args){
         super(parent);
 
@@ -46,7 +37,6 @@ export default class NecklineSide extends PatternComponent{
     }
 
     construct_neckline_type(){
-        // Maybe want to move construct_base_neckline(.) here
         const neckline_map = {
             "round":        [neck.slim_neckline, 0.7],
             "V-Line wide":  [neck.v_line, "wide"],

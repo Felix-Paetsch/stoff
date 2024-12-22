@@ -106,8 +106,15 @@ export default (Sketch) => {
         this._guard_points_in_sketch(pt1, pt2);
         return this._line_between_points_from_sample_points(pt1, pt2, sp);
     }
-
-    Sketch.prototype._felix_interpolate_lines = function(line1, line2, direction = 0, f = (x) => x, p1 = (x) => x, p2 = (x) => x){
+    
+    Sketch.prototype.interpolate_lines = function(
+        line1, 
+        line2, 
+        direction = 0, 
+        f = (x) => x, 
+        p1 = (x) => x, 
+        p2 = (x) => x
+    ) {
         // Interpoliert line1 und line2.
         // p1 und p2 geben zu jedem Zeitpunkt t an, wo wir uns auf den jeweiligen Linien befinden
         //      annahme: p_i(0) = 0 und p_i(1) = 1
@@ -119,110 +126,6 @@ export default (Sketch) => {
 
         // direction 0-3: ändert welche Punkte jeweils als Start-/Endpunkte gewählt werden sollen (1 bis 4)
 
-        this._guard_lines_in_sketch(line1, line2);
-
-        function normalize_fun(f){
-            // returns a linear transformated version of f with f(0) = 0, f(1) = 1
-            const f0 = f(0);
-            const f1 = f(1);
-
-            if (f0 == f1){
-                throw new Error("Interpolation Function has equal endpoints");
-            }
-
-            const a = 1/(f(1) - f(0));
-            const b = - a * f(0)
-
-            return (x) => {
-                return a*f(x) + b;
-            }
-        }
-
-        f =  normalize_fun(f);
-        p1 = normalize_fun(p1);
-        p2 = normalize_fun(p2);
-
-        function avg_point(sample_points, position){
-            // position is a number between 0 and 1
-            const len = sample_points.length;
-            const index = position * (len - 1);
-
-            if (Math.floor(index) == Math.ceil(index)){
-                return sample_points[index];
-            }
-
-            let left_space  = index - Math.floor(index);
-            let right_space = Math.ceil(index) - index;
-
-            const p_left  = sample_points[Math.floor(index)].mult(right_space);
-            const p_right = sample_points[Math.ceil(index)].mult(left_space);
-
-            return p_left.add(p_right);
-        }
-
-        if (direction == 1 || direction == 3){
-            line1.swap_orientation();
-        }
-
-        if (direction == 2 || direction == 3){
-            line2.swap_orientation();
-        }
-
-        let [endpoint_L11, endpoint_L12] = line1.get_endpoints();
-        let [endpoint_L21, endpoint_L22] = line2.get_endpoints();
-
-        let start = endpoint_L11;
-        let end   = endpoint_L22;
-
-        const abs_to_rel = affine_transform_from_input_output(
-            [start,  end],
-            [new Vector(0,0), new Vector(1,0)]
-        );
-
-        const n = Math.ceil(1/this.sample_density); // line segments of new line
-        const k = Math.ceil(1/CONF.INTERPOLATION_NORMALIZATION_DENSITY); // line segments of old lines auf Bogenlänge
-
-        const line1_normalized = line1.abs_normalized_sample_points(k);
-        const line2_normalized = line2.abs_normalized_sample_points(k);
-
-        const sample_points = Array.from({ length: n + 1 }, (v, i) => {
-            const t = i/n;
-
-            const avg_1_target_coord = abs_to_rel(avg_point(line1_normalized, p1(t)));
-            const avg_2_target_coord = abs_to_rel(avg_point(line2_normalized, p2(t)));
-            const f_t = f(t);
-
-            return avg_1_target_coord.mult(1 - f_t)
-                    .add(avg_2_target_coord.mult(f_t))
-        });
-
-        if (direction == 1 || direction == 3){
-            line1.swap_orientation();
-        }
-
-        if (direction == 2 || direction == 3){
-            line2.swap_orientation();
-        }
-
-        const new_line = this._line_between_points_from_sample_points(
-            start,
-            end,
-            sample_points
-        );
-
-        new_line.set_color(interpolate_colors(line1.get_color(), line2.get_color(), 0.5));
-
-        return new_line;
-    }
-
-    Sketch.prototype.interpolate_lines = function(
-        line1, 
-        line2, 
-        direction = 0, 
-        f = (x) => x, 
-        p1 = (x) => x, 
-        p2 = (x) => x
-    ) {
         this._guard_lines_in_sketch(line1, line2);
     
         // A helper to normalize a given function g so that g(0)=0 and g(1)=1

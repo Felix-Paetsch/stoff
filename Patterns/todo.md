@@ -2,6 +2,7 @@
 
 ## ToDo
 - Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet, sollte eine Warung ausgegeben werden!
+- #calculate_upright_position
 
 Design improvements
 ===================
@@ -73,7 +74,7 @@ Connected Component  (Fron&Back)
 Neckline, ...
 => Components can be rendered "out of context"
 
-"Oriantable surface - method" i.e. to differentiate sides after glueing
+Move Assert somewhere different from standard debug?
 
 StandAlone things maybe move somewhere else...
 ==============================================
@@ -84,3 +85,5 @@ Better Epsilon handling (see e.g. geometry)
 Make anchor data object a string
 
 .dev.at_url(a,b, true/false) doesnt work for false
+
+geometry angles -> input two line segments

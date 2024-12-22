@@ -784,6 +784,15 @@ function shorten_length_new(s, percent){
   fold.p2.move_to(temp);
 
 
+  {
+      let lines = s.lines_by_key("type");
+      let fold = lines.fold[0];
+      let fold_bottom = lines.fold_bottom;
+
+      if (fold_bottom){
+          s.merge_lines(fold_bottom[0], fold, true);
+      }
+  }
 
   return s;
 }

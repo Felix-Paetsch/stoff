@@ -1,8 +1,8 @@
-import PatternComponent from "../core/pattern_component.js";
 import { Vector } from "../../StoffLib/geometry.js";
 import { spline } from "../../StoffLib/curves.js";
+import PatternPart from "../core/pattern_part.js";
 
-export default class ArmpitSide extends PatternComponent{
+export default class ArmpitSide extends PatternPart{
     constructor(parent, ...args){
         super(parent);
         if (args.length > 0){

@@ -168,8 +168,8 @@ export class Vector {
         return this;
     }
 
-    rotate(angle) {
-        return rotation_fun(new Vector(0, 0), angle)(this);
+    rotate(angle, around = ZERO) {
+        return rotation_fun(around, angle)(this);
     }
 
     copy(){
@@ -395,6 +395,10 @@ export class Ray{
         const pt = this.to_line().intersect(target);
         if (!pt || this.contains(pt)) return pt;
         return null;
+    }
+
+    rotate(angle){
+        return new Ray(this.src, this.direction.rotate(angle));
     }
 }
 

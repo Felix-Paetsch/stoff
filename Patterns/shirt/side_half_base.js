@@ -5,8 +5,7 @@ import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../StoffLib/ge
 import fill_in_darts from "./fill_in_darts.js";
 import { _connect_filling, _fill_in_dart } from "./fill_in_darts.js";
 
-import NecklineSideHalf from "../neckline/neckline_side.js";
-import {line_with_length} from '../funs/basicFun.js';
+import NecklineSideHalf from "../neckline/neckline_side_half.js";
 
 import PatternComponent from "../core/pattern_component.js";
 import ArmpitSide from '../sleeves/armpit.js';
@@ -103,7 +102,8 @@ export default class ShirtSideHalfBase extends PatternComponent{
         pts.p6 = this.sketch.add_point(vec_p6).set_color("blue");
         pts.e = this.sketch.add_point(pts.p6.add(new Vector(-2.5, 0)));
 
-        lns.b_to_g = line_with_length(this.sketch, pts.b, this.sh.point_width/2, 90);
+        lns.b_to_g = this.sketch.line_at_angle(pts.b, - Math.PI / 2, this.sh.point_width/2).line;
+
         lns.b_to_g.data.type = "waistline";
         lns.b_to_g.data.dartside = "inner";
         pts.g = lns.b_to_g.p2;

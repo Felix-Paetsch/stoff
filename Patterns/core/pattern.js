@@ -1,5 +1,6 @@
+// A full Pattern; also having methods for he website and so on
+
 import PatternComponent from "../core/pattern_component.js";
-import Sketch from "../../StoffLib/sketch.js";
 
 export default class Pattern extends PatternComponent{
     constructor(measurements = {}, design_config = {}){
@@ -10,8 +11,11 @@ export default class Pattern extends PatternComponent{
         this.design_config = design_config;
     }
 
+    
+
     render(){
-        return new Sketch();
+        if (this.sketch) return this.sketch;
+        throw new Error("Unimplemented");
     }
 
     render_print(){
