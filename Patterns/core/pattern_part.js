@@ -7,6 +7,8 @@ import { dublicate_data } from "../../StoffLib/copy.js";
 import { Line } from "../../StoffLib/line.js";
 import { Point } from "../../StoffLib/point.js";
 
+import fill_in_darts from "./pattern_part_methods/fill_in_darts.js";
+
 export default class PatternPart{
     constructor(parent){
         if (parent){
@@ -185,3 +187,5 @@ export default class PatternPart{
         throw new Error("Unimplemented for this part");
     }
 }
+
+PatternPart.prototype.fill_in_darts = fill_in_darts;

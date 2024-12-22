@@ -1,5 +1,5 @@
-import { DOWN, Ray, vec_angle } from '../../StoffLib/geometry.js';
-import lengthen from '../lengthen/top.js';
+import { DOWN, PlainLine, Ray, vec_angle } from '../../StoffLib/geometry.js';
+import lengthen from '../_depricated/lengthen/top.js';
 import ShirtBase from "./base.js";
 import ShirtSideHalfBase from "./side_half_base.js";
 
@@ -18,16 +18,26 @@ class SingleDartSideHalf extends ShirtSideHalfBase{
         this.dart = true;
         this.compute_dart_position();
 
-        // Handle Darts
-        this.shift_dart();
-        this.fill_in_darts();
-
-        // Independent Constructions
-        this.lengthen();
+        if (this.dartside() === "waistline"){
+            this.waistline_construction();
+        } else {
+            this.non_wasteline_construction();
+        }
       
         this.mark_symmetry_line();
         this.compute_grainline();
     };
+
+    waistline_construction(){
+        this.shift_dart_to_waistline();
+        lengthen.lengthen_top_with_dart(this.get_sketch(), this.mea, this.design_config.length);
+    }
+
+    non_wasteline_construction(){
+        this.shift_dart_basic();
+        this.fill_in_darts();
+        lengthen.lengthen_top_without_dart_new(this.get_sketch(), this.mea, this.design_config.length);
+    }
 
     compute_dart_position(){
         const dart_position_map = {
@@ -58,14 +68,6 @@ class SingleDartSideHalf extends ShirtSideHalfBase{
             dart_position_map[this.design_config.dartAllocation.position]
         );
     };
-
-    shift_dart(){
-        if(this.dartside() === "waistline"){
-            this.shift_dart_to_waistline();
-        } else {
-            this.shift_dart_basic();
-        }
-    }
 
     shift_dart_basic(dartside = null, position = null){
       // Shift anywhere except baseline
@@ -102,7 +104,6 @@ class SingleDartSideHalf extends ShirtSideHalfBase{
     }
 
     shift_dart_to_waistline(){
-        this.sketch.dev.start_recording("/waistlineTest");
         const glue_dart_lines = this.shift_dart_basic("side", 0.5);
         const pivot = glue_dart_lines[0].common_endpoint(glue_dart_lines[1]);
 
@@ -129,19 +130,22 @@ class SingleDartSideHalf extends ShirtSideHalfBase{
             points: "delete"
         });
 
-        return this.get_untyped_lines().set_data({
+        const dart_lines = this.get_untyped_lines().set_data({
             type: "dart",
             dartposition: "waistline"
         });
-    }
 
-    lengthen(){
-      console.log("@todo here");
-      if (this.dartside() === "waistline"){
-        lengthen.lengthen_top_with_dart(this.get_sketch(), this.mea, this.design_config.length);
-      } else {
-        lengthen.lengthen_top_without_dart_new(this.get_sketch(), this.mea, this.design_config.length);
-      }
+        const dart_endpoints = dart_lines.map(l => l.other_endpoint(pivot));
+        const cut_line = new PlainLine(
+            dart_endpoints[0].other_adjacent_line(dart_lines[0]).other_endpoint(dart_endpoints[0]),
+            dart_endpoints[1].other_adjacent_line(dart_lines[1]).other_endpoint(dart_endpoints[1])
+        );
+
+        const new_positions = dart_lines.map(l => cut_line.intersect(l.get_endpoints()));
+        dart_endpoints[0].move_to(new_positions[0]);
+        dart_endpoints[1].move_to(new_positions[1]);
+
+        return dart_lines;
     }
 
     mark_symmetry_line(){

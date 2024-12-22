@@ -1,7 +1,7 @@
-import WithoutDart from "./without_dart.js";
-import SingleDart from "./single_dart.js";
-import DoubleDart from "./double_dart.js";
-import Styleline from "./styleline.js";
+import WithoutDart from "../_depricated/shirt/without_dart.js";
+import SingleDart  from "./single_dart.js";
+import DoubleDart  from "../_depricated/shirt/double_dart.js";
+import Styleline   from "../_depricated/shirt/styleline.js";
 
 export default class ShirtConstructor{
     constructor(measurements, config){

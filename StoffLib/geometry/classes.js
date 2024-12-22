@@ -261,7 +261,7 @@ export class Matrix {
 export class Line {
     constructor(p1, p2){
         if (p1 instanceof Array) return new Line(...p1);
-        assert(p1 instanceof Vector && p2 instanceof Vector);
+        assert(p1 instanceof Vector && p2 instanceof Vector, "Given arguments aren't points");
         assert(p1.distance(p2) > 0, "Points can't be identical!");
         this.points = [p1, p2];
     }

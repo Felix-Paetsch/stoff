@@ -2,13 +2,10 @@ import Sketch from '../core/sewing_sketch.js';
 import { Point } from '../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../StoffLib/geometry.js';
 
-import fill_in_darts from "./fill_in_darts.js";
-import { _connect_filling, _fill_in_dart } from "./fill_in_darts.js";
-
-import NecklineSideHalf from "../neckline/neckline_side_half.js";
+import NecklineSideHalf from "../parts/neckline/neckline_side_half.js";
 
 import PatternComponent from "../core/pattern_component.js";
-import ArmpitSide from '../sleeves/armpit.js';
+import ArmpitSide from '../parts/armpit/armpit_side.js';
 import ShirtSideBase from "./side_base.js";
 
 export default class ShirtSideHalfBase extends PatternComponent{
@@ -197,63 +194,8 @@ export default class ShirtSideHalfBase extends PatternComponent{
         return ShirtSideBase.from_side_half(this);
     }
 
-    dart_lines(most_inner_pt = null, most_outer_pt = null){
-        const odl = this.ordered_dart_lines(
-            most_inner_pt || this.point_between_lines("neckline", "fold"),
-            most_outer_pt || this.point_between_lines("side", "bottom")
-        );
-        const res = [];
-        for (let i = 0; i < odl.length; i++){
-            res.push(odl[i].inner, odl[i].outer);
-        }
-
-        return res;
-    }
-
-    ordered_dart_lines(lines = null, most_inner_pt = null, most_outer_pt = null){
-        const res = [];
-        
-        if (lines instanceof Point){
-            most_outer_pt = most_inner_pt;
-            most_inner_pt = lines;
-            lines = null;
-        }
-
-        const start_pt = most_inner_pt || this.point_between_lines("neckline", "fold");
-        const stop_pt  = most_outer_pt || this.point_between_lines("side", "waistline");
-
-        const directions = start_pt.get_adjacent_lines();
-        directions.forEach(line => {
-            const dart_lines = [];
-
-            let current_line = line;
-            let next_ep = current_line.other_endpoint(start_pt);
-            while (true){
-                if (
-                    current_line.data.type == "dart" && (!lines || lines.includes(current_line))
-                ) dart_lines.push(current_line);
-                if (next_ep.get_adjacent_lines().length !== 2 || next_ep == stop_pt) break;
-                if (next_ep == start_pt) throw new Error("Looped back to start_pt while trying to math dart lines!");
-
-                current_line = next_ep.other_adjacent_line(current_line);
-                next_ep = current_line.other_endpoint(next_ep);
-            }
-            if (dart_lines.length % 2 == 1) throw new Error("Found single dart line!");
-            for (let i = 0; i < dart_lines.length - 1; i += 2){
-                dart_lines[i].data.dartside = "inner";
-                dart_lines[i+1].data.dartside = "outer";
-                res.push({
-                    inner: dart_lines[i],
-                    outer: dart_lines[i + 1]
-                })
-            }
-        });
-
-        return res;
-    }
-
-    set_computed_dart_sides(...args){
-        return this.ordered_dart_lines(...args);
+    _dart_lines_default_inner_outer_poitns(){
+        return [this.point_between_lines("neckline", "fold"), this.point_between_lines("side", "waistline")]
     }
 
     compute_grainline(){
@@ -267,7 +209,3 @@ export default class ShirtSideHalfBase extends PatternComponent{
         return this.design_config.dartAllocation.dartstyle;
     }
 }
-
-ShirtSideHalfBase.prototype.fill_in_darts = fill_in_darts;
-ShirtSideHalfBase.prototype._fill_in_dart  = _fill_in_dart;
-ShirtSideHalfBase.prototype._connect_filling  = _connect_filling;

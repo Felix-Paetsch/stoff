@@ -4,9 +4,10 @@
 */
 
 import { UP } from "../../StoffLib/geometry.js";
-import add_seam_allowance from "./seam_allowance.js";
+import add_seam_allowance from "./pattern_component_methods/seam_allowance.js";
 import { assert } from "../../Debug/validation_utils.js";
 import PatternPart from "./pattern_part.js";
+import { Point } from "../../StoffLib/point.js";
 
 export default class PatternComponent extends PatternPart{
     constructor(parent = null){
@@ -91,6 +92,73 @@ export default class PatternComponent extends PatternPart{
         }
 
         add_seam_allowance(this.sketch, base, values);
+    }
+
+    dart_lines(most_inner_pt, most_outer_pt){
+        const odl = this.ordered_dart_lines(most_inner_pt, most_outer_pt);
+        const res = [];
+        for (let i = 0; i < odl.length; i++){
+            res.push(odl[i].inner, odl[i].outer);
+        }
+
+        return res;
+    }
+    
+    ordered_dart_lines(lines = null, most_inner_pt = null, most_outer_pt = null){
+        if (lines instanceof Point){
+            most_outer_pt = most_inner_pt;
+            most_inner_pt = lines;
+            lines = null;
+        }
+
+        if (lines == null){
+            lines = this.get_lines("dart");
+        }
+
+        if (most_inner_pt == null){
+            const r = this._dart_lines_default_inner_outer_poitns();
+            most_inner_pt = r[0];
+            most_outer_pt = r[1];
+        }
+
+        assert(most_inner_pt !== most_outer_pt, "Ordering Points must be different");
+        const res = [];
+
+        const start_pt = most_inner_pt;
+        const stop_pt  = most_outer_pt;
+
+        const directions = start_pt.get_adjacent_lines();
+        directions.forEach(line => {
+            const dart_lines = [];
+
+            let current_line = line;
+            let next_ep = current_line.other_endpoint(start_pt);
+            while (true){
+                if (
+                    current_line.data.type == "dart" && lines.includes(current_line)
+                ) dart_lines.push(current_line);
+                if (next_ep.get_adjacent_lines().length !== 2 || next_ep == stop_pt) break;
+                if (next_ep == start_pt) throw new Error("Looped back to start_pt while trying to math dart lines!");
+
+                current_line = next_ep.other_adjacent_line(current_line);
+                next_ep = current_line.other_endpoint(next_ep);
+            }
+            if (dart_lines.length % 2 == 1) throw new Error("Found single dart line!");
+            for (let i = 0; i < dart_lines.length - 1; i += 2){
+                dart_lines[i].data.dartside = "inner";
+                dart_lines[i+1].data.dartside = "outer";
+                res.push({
+                    inner: dart_lines[i],
+                    outer: dart_lines[i + 1]
+                })
+            }
+        });
+
+        return res;
+    }
+
+    set_computed_dart_sides(...args){
+        return this.ordered_dart_lines(...args);
     }
 
     render(){

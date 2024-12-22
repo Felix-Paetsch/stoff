@@ -40,7 +40,10 @@ Probably Fix single dart first and then adress Outer/Inner problem
     Single Middle Dart: Unified mechanism for choosing the correct point
 
 Make more asserts
-Render Till Crash
+Assert Functionality (2LINES)
+assert.TWO_LINES(pt);
+=> Reorganize in core and so on how asserts happen
+
 adjust_measurements.js muss temporär bleiben
 remove unneccessary things: Mark things as temporary (e.g construction stack env ...)
     i.e. get a new enviroment to construct things in and then at the end can pop that environment
@@ -65,7 +68,6 @@ Note: currently cut and glue don't enforce totally correct input (for now)
 [Als hilfe für mich] Diagramm was wie passiert aufmalen
 
 
-
 ## Pattern
 Vollständiges Ding -> insb. auch für Website interaktion
 ## Component
@@ -87,3 +89,6 @@ Make anchor data object a string
 .dev.at_url(a,b, true/false) doesnt work for false
 
 geometry angles -> input two line segments
+
+.next();
+// Next thing in one direction
