@@ -19,3 +19,5 @@ Website
 Speed improvements
 ===================
 Array of vectors => Float64Array of (x,y)
+
+TODO: Make StoffLib properly work standAlone.. w/o or minimal forreign exports(?)
