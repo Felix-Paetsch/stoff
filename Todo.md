@@ -21,3 +21,6 @@ Speed improvements
 Array of vectors => Float64Array of (x,y)
 
 TODO: Make StoffLib properly work standAlone.. w/o or minimal forreign exports(?)
+
+
+Figure out how to do asserts in stofflib (maybe a nice way to isolate it, to incldue its own version)

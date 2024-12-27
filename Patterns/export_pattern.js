@@ -6,6 +6,9 @@ import config_compiler from "./config_compiler.js";
 import { Config, cContainer, cBoolean, cNumber, cOption } from "../StoffLib/Config/exports.js";
 import { construct_shirt } from './shirt/shirt_constructor.js';
 
+import assert from './core/assert.js';
+import Sketch from '../StoffLib/sketch.js';
+
 export default {
     design_config: new Config(
         cContainer(
@@ -113,6 +116,12 @@ export default {
     create_design: (design_config) => {
       let fuer = design_config.Schnittmuster["für"];
       
+      const s = new Sketch();
+      const p = s.add(2,3);
+      const q = s.add(5,6);
+      s.line_between_points(p,q);
+      assert.IS_ISOLATED(p);
+
       let measurements = adjusted_measurements(people_measurements[fuer], design_config);
       return construct_shirt(measurements, config_compiler(design_config)).render();
     }
