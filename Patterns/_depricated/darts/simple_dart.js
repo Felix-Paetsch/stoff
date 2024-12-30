@@ -1,6 +1,6 @@
 import { Vector, vec_angle_clockwise, rotation_fun , triangle_data} from '../../../StoffLib/geometry.js';
 import { Sketch } from '../../../StoffLib/sketch.js';
-import { Point } from '../../../StoffLib/point.js';
+import Point from '../../../StoffLib/point.js';
 import { ConnectedComponent} from '../../../StoffLib/connected_component.js';
 
 import { assert } from '../../../Debug/validation_utils.js';

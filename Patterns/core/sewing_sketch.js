@@ -1,11 +1,11 @@
 import { assert } from "../../Debug/validation_utils.js";
 import Sketch from "../../StoffLib/sketch.js";
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 import { Vector, polygon_contains_point } from "../../StoffLib/geometry.js";
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
-import { Point } from "../../StoffLib/point.js";
+import Point from "../../StoffLib/point.js";
 import { ConnectedComponent } from "../../StoffLib/connected_component.js";
 import { default_data_callback } from "../../StoffLib/copy.js";
 

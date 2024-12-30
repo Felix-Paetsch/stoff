@@ -1,5 +1,5 @@
 import { Sketch } from '../../../StoffLib/sketch.js';
-import { Point } from '../../../StoffLib/point.js';
+import Point from '../../../StoffLib/point.js';
 import { Vector } from '../../../StoffLib/geometry.js';
 import { ConnectedComponent} from '../../../StoffLib/connected_component.js';
 

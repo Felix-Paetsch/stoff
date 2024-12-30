@@ -1,7 +1,7 @@
 import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
-import { Point } from './point.js';
+import Point from './point.js';
 import { ConnectedComponent } from './connected_component.js';
-import { assert } from '../Debug/validation_utils.js';
+import assert from './assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
 import add_self_intersection_test from './unicorns/self_intersects.js';
@@ -62,29 +62,6 @@ class Line{
         return offset_sample_points(this, radius, direction);
     }
 
-    is_adjacent(thing){
-        if (thing instanceof Point){
-            return thing == this.p1 || thing == this.p2
-        }
-
-        if (thing instanceof Line){
-            return this.common_endpoint(thing) !== null;
-        }
-
-        throw new Error("Unexpected thing comparing against.");
-    }
-
-    common_endpoint(line){
-        if (this.p1 == line.p1 || this.p1 == line.p2){
-            return this.p1;
-        }
-        if (this.p2 == line.p1 || this.p2 == line.p2){
-            return this.p2;
-        }
-
-        return null;
-    }
-
     set_endpoints(p1, p2){
         this.p1.remove_line(this);
         this.p2.remove_line(this);
@@ -99,15 +76,16 @@ class Line{
     }
 
     remove(){
-        if (!this.sketch) throw new Error("Line doesn't belong to a sketch");
+        assert.HAS_SKETCH(this);
+
         this.sketch.remove(this);
     }
 
     other_endpoint(pt){
+        assert.HAS_ENDPOINT(this, pt);
+
         if (pt instanceof Line) return this.other_endpoint(this.common_endpoint(pt));
-        if (this.p1 == pt) return this.p2;
-        if (this.p2 == pt) return this.p1;
-        throw new Error("Point is not an endpoint of this line!");
+        return this.p1 == pt ? this.p2 : this.p1;
     }
 
     has_endpoint(pt){
@@ -212,6 +190,17 @@ class Line{
 
     get_endpoints(){
         return [this.p1, this.p2];
+    }
+
+    orientation(...args){
+        assert.HAS_ENDPOINT(this, args[0]);
+        args[1] && assert.HAS_ENDPOINT(this, args[1]);
+
+        return 2*(this.same_orientation(...args) - 0.5);
+    }
+
+    same_orientation(...args){
+        return this.p1 == args[0];
     }
 
     get_tangent_line(pt){
@@ -340,15 +329,13 @@ class Line{
     }
 
     is_adjacent(thing){
+        assert.IS_SKETCH_ELEMENT(thing);
+
         if (thing instanceof Point){
             return thing == this.p1 || thing == this.p2
         }
 
-        if (thing instanceof Line){
-            return this.common_endpoint(thing) !== null;
-        }
-
-        throw new Error("Unexpected thing comparing against.");
+        return this.common_endpoint(thing) !== null;
     }
 
     common_endpoint(line){
@@ -414,10 +401,7 @@ class Line{
 
     position_at_length(length, reversed = false){
         const l = this.get_length();
-
-        if (length > l){
-            throw new Error("Specified length is longer than line.");
-        }
+        assert(length <= l, "Specified length longer than line.");
 
         if (reversed){
             length = l - length;
@@ -446,19 +430,33 @@ class Line{
             sum += next_length;
         }
 
-        assert(false, "This should not happen!");
+        assert.INVALID_PATH();
     }
 
     position_at_fraction(f, reversed = false){
+        assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
+
+        f = f >= 0 ? f : 1 - f;
         return this.position_at_length(f * this.length(), reversed);
     }
 
     vec_at_length(d, reversed = false){
+        assert.CALLBACK("Specified length longer than line.", () => {
+            return this.endpoint_distance() - Math.abs(d) >= 0
+        });
+
+        if (d < 0){
+            d *= -1;
+            reversed = !reversed;
+        }
         if (reversed) d = this.endpoint_distance() - d;
         return this.p1.add(this.get_line_vector().normalize().scale(d));
     }
 
     vec_at_fraction(f, reversed = false){
+        assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
+
+        f = f >= 0 ? f : 1 - f;
         return this.vec_at_length(f * this.endpoint_distance(), reversed);
     }
 
@@ -488,13 +486,11 @@ class Line{
         return p.distance(vec);
     }
 
-    set_sketch(s, overwrite = false){
-        if (this.sketch == null || overwrite || s == null){
+    set_sketch(s){
+        if (this.sketch == null || s == null){
             this.sketch = s;
             return this;
         }
-
-        throw new Error("Line already belongs to a sketch!");
     }
 
     _remove_duplicate_points() {
@@ -542,12 +538,14 @@ class StraightLine extends Line{
         return this.endpoint_distance();
     }
 
-    position_at_length(d, reversed = false){
-        return this.vec_at_length(d, reversed);
+    position_at_length(f, reversed = false){
+        f = f >= 0 ? f : 1 - f;
+        return this.vec_at_length(f, reversed);
     }
 
-    position_at_fraction(d, reversed = false){
-        return this.vec_at_fraction(d, reversed);
+    position_at_fraction(f, reversed = false){
+        f = f >= 0 ? f : 1 - f;
+        return this.vec_at_fraction(f, reversed);
     }
 
     closest_position(vec){
@@ -563,3 +561,4 @@ class StraightLine extends Line{
 }
 
 export { StraightLine, Line };
+export default Line;

@@ -53,6 +53,7 @@ app.post('/pattern', async (req, res) => {
         });
 
     } catch (error){
+        console.error(error.stack);
         res.status(422).json({
             error: true,
             stack: error.stack
@@ -80,6 +81,7 @@ app.get("/pattern_json", (req, res) => {
             error: false
         });
     } catch (error){
+        console.error(error.stack);
         res.status(422).json({
             error: true,
             stack: error.stack

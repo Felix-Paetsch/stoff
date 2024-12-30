@@ -4,8 +4,8 @@
 */
 
 import { dublicate_data } from "../../StoffLib/copy.js";
-import { Line } from "../../StoffLib/line.js";
-import { Point } from "../../StoffLib/point.js";
+import Line from "../../StoffLib/line.js";
+import Point from "../../StoffLib/point.js";
 
 import fill_in_darts from "./pattern_part_methods/fill_in_darts.js";
 

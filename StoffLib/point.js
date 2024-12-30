@@ -1,5 +1,6 @@
 import { Vector } from './geometry.js';
 import { ConnectedComponent } from './connected_component.js';
+import assert from './assert.js';
 
 class Point extends Vector{
     constructor(x, y, color = "black"){
@@ -52,7 +53,7 @@ class Point extends Vector{
     }
 
     get_tangent_vector(line){
-        this.guard_has_lines(line);
+        assert.HAS_LINES(this, line);
         return line.get_tangent_vector(this);
     }
 
@@ -70,7 +71,7 @@ class Point extends Vector{
     }
 
     other_adjacent_lines(...lines){
-        this.guard_has_lines(...lines);
+        assert.HAS_LINES(this, ...lines);
         return this.adjacent_lines.filter(l => lines.indexOf(l) < 0);
     }
 
@@ -96,14 +97,14 @@ class Point extends Vector{
 
     remove_line(l, ignore_not_present = false){
         if (!ignore_not_present){
-            this.guard_has_lines(l);
+            assert.HAS_LINES(this, l);
         }
         this.adjacent_lines = this.adjacent_lines.filter(line => line != l);
         return this;
     }
 
     remove(){
-        if (!this.sketch) throw new Error("Point doesn't belong to a sketch");
+        assert.HAS_SKETCH(this);
         this.sketch.remove(this);
     }
 
@@ -114,19 +115,11 @@ class Point extends Vector{
         return true;
     }
 
-    guard_has_lines(...ls){
-        if (!this.has_lines(...ls)){
-            throw new Error("Point is not connected with the line(s).");
-        }
-    }
-
-    set_sketch(s, overwrite = false){
-        if (this.sketch == null || overwrite || s == null){
+    set_sketch(s){
+        if (this.sketch == null || s == null){
             this.sketch = s;
             return this;
         }
-
-        throw new Error("Point already belongs to a sketch!");
     }
 
     static from_vector(vec) {
@@ -134,4 +127,4 @@ class Point extends Vector{
     }
 }
 
-export { Point };
+export default Point;

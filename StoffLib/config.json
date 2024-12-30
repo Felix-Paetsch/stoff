@@ -18,5 +18,9 @@
     "ASSERT_NON_SELFINTERSECTING": false,
 
     "_descr4": "for development",
-    "DEV_REFERENCE_IMG_OPACITY": 0.5
+    "DEV_REFERENCE_IMG_OPACITY": 0.5,
+
+    "execute_internal_custom_assert": true,
+    "execute_external_custom_assert": true,
+    "fail_on_asserts": true
 }

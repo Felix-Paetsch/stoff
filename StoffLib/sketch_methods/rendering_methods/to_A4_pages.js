@@ -133,6 +133,6 @@ function createOrEmptyFolderSync(folderPath) {
             fs.mkdirSync(folderPath);
         }
     } catch (error) {
-        console.error(`Error handling folder '${folderName}':`, error);
+        console.error(`Error handling folder '${folderPath}':`, error);
     }
 }

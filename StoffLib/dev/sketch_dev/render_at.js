@@ -48,7 +48,7 @@ export default (Sketch) => {
         writeFileSync(path, this.dev.to_html(title, data), 'utf-8');
     }
 
-    Sketch.dev.at_url = function(url, data = null, overwrite = null){
+    Sketch.dev.at_url = function(url, overwrite = null, data = null){
         const get  = new Route(url, "get",  overwrite);
         const post = new Route(url, "post", overwrite);
 

@@ -1,6 +1,6 @@
 import { Vector } from './geometry.js';
-import { Point } from './point.js';
-import { Line } from './line.js';
+import Point from './point.js';
+import Line from './line.js';
 import Sketch from './sketch.js';
 import { ConnectedComponent } from './connected_component.js';
 

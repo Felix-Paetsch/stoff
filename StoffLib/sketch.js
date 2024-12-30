@@ -1,7 +1,7 @@
 import { Vector, convex_hull, ZERO } from './geometry.js';
 import { validate_sketch } from './dev/validation.js';
-import { Point } from './point.js';
-import { Line } from './line.js';
+import Point from './point.js';
+import Line from './line.js';
 import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
 import CONF from './config.json' assert { type: 'json' };
 

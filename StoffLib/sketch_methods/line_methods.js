@@ -2,7 +2,7 @@ import { Vector, affine_transform_from_input_output, distance_from_line_segment,
 import { intersect_lines, intersection_positions } from '../unicorns/intersect_lines.js';
 import { default_data_callback, copy_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
-import { Point } from '../point.js';
+import Point from '../point.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
 import CONF from '../config.json' assert { type: 'json' };
@@ -361,8 +361,8 @@ export default (Sketch) => {
         return this.point_on_line(pt, line, data_callback);
     }
 
-    Sketch.prototype.split_line_at_fraction = function(line, length, data_callback = copy_data_callback, reversed = false){
-        const position = line.position_at_fraction(length, reversed);
+    Sketch.prototype.split_line_at_fraction = function(line, fraction, data_callback = copy_data_callback, reversed = false){
+        const position = line.position_at_fraction(fraction, reversed);
         const pt = this.add(position);
         return this.point_on_line(pt, line, data_callback);
     }

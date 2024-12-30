@@ -1,7 +1,7 @@
 
 import { Vector, vec_angle, rotation_fun , deg_to_rad} from '../StoffLib/geometry.js';
 import { Sketch } from '../StoffLib/sketch.js';
-import { Point } from '../StoffLib/point.js';
+import Point from '../StoffLib/point.js';
 import { ConnectedComponent} from '../StoffLib/connected_component.js';
 
 import { spline } from "../StoffLib/curves.js";
