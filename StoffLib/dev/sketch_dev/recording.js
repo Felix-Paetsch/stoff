@@ -258,6 +258,12 @@ class Recording {
                 render_data: this.render_processed_snapshots
             };
         }).bind(this);
+
+        return this;
+    }
+
+    hot_at_url(url, overwrite = null){
+        return this.at_url(url, overwrite).unlock();
     }
 
     to_mp4(save_to, fps = 2, width = 700, height = null, extra_padding = 50) {

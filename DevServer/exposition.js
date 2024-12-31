@@ -1,4 +1,4 @@
-import { Sketch } from "../StoffLib/sketch.js";
+import Sketch from "../StoffLib/sketch.js";
 import { spline } from "../StoffLib/curves.js";
 
 export default function(){

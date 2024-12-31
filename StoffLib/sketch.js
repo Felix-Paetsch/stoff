@@ -1,5 +1,4 @@
 import { Vector, convex_hull, ZERO } from './geometry.js';
-import { validate_sketch } from './dev/validation.js';
 import Point from './point.js';
 import Line from './line.js';
 import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
@@ -8,6 +7,9 @@ import CONF from './config.json' assert { type: 'json' };
 import register_rendering_functions from "./sketch_methods/rendering_methods/register.js";
 import register_CC_functions from "./sketch_methods/connected_components_methods.js";
 import register_line_functions from "./sketch_methods/line_methods.js";
+
+import assert from './assert.js';
+import register_assert from "./assert_methods/register.js";
 
 class Sketch{
     constructor(){
@@ -61,7 +63,10 @@ class Sketch{
         }
 
         if (args[0] instanceof Line){
-            this._guard_points_in_sketch(args[0].get_endpoints());
+            args[0].get_endpoints().forEach(p => {
+                assert.HAS_SKETCH(p, this);
+            });
+
             this.lines.push(args[0]);
             l.set_sketch(this);
             return l;
@@ -83,7 +88,11 @@ class Sketch{
     }
 
     remove_lines(...lines){
-        this._guard_lines_in_sketch(...lines);
+        lines.forEach(l => {
+            assert.IS_LINE(l);
+            assert.HAS_SKETCH(l, this);
+        });
+
         for (const line of lines){
             this._delete_element_from_data(line);
             line.get_endpoints().forEach(p => p.remove_line(line));
@@ -100,10 +109,16 @@ class Sketch{
     }
 
     remove_points(...points){
-        this._guard_points_in_sketch(...points);
+        points.forEach(p => {
+            assert.IS_POINT(p);
+            assert.HAS_SKETCH(p, this);
+        });
+
         for (const pt of points){
-          this._delete_element_from_data(pt);
+            this._delete_element_from_data(pt);
             this.remove_lines(...pt.get_adjacent_lines());
+        }
+        for (const pt of points){
             pt.sketch = null;
             pt.adjacent_lines = [];
         }
@@ -112,26 +127,33 @@ class Sketch{
     }
 
     remove(...els){
-        for (const el of els){
-            if (el instanceof Array){
-                this.remove(...el);
-            } else if (el instanceof Point){
-                this.remove_point(el);
-            } else if (el instanceof Line){
-                this.remove_line(el);
+        const points_to_remove = [];
+        const lines_to_remove  = [];
+
+        for (let i = 0; i < els.length; i++){
+            if (els[i] instanceof Point) points_to_remove.push(els[i]);
+            else if (els[i] instanceof Line) lines_to_remove.push(els[i]);
+            else if (els[i] instanceof ConnectedComponent){
+                const { points, lines } = els[i].to_obj();
+                lines_to_remove.push(...lines);
+                points_to_remove.push(...points);
             } else {
-                this.delete_component(el);
+                assert.THROW("Trying to remove something that is not Point/Line/ConnectedComponent from Sketch.");
             }
         }
+
+        this.remove_lines(...lines_to_remove);
+        this.remove_points(...points_to_remove);
     }
 
     _delete_element_from_data(el){
         let nesting = 0;
+        const max_nesting = 50;
 
         function delete_el_from_data_obj(data){
             nesting++;
-            if (nesting > 50){
-                throw new Error("Seems like some object has loop in data structure! (Nesting > " + 50 + ")");
+            if (nesting > max_nesting){
+                throw new Error("Seems like some object has loop in data structure! (Nesting > " + max_nesting + ")");
             }
 
             if (data instanceof Array){
@@ -189,6 +211,7 @@ class Sketch{
 
     has_points(...pt){
         for (let i = 0; i < pt.length; i++){
+            assert.IS_POINT(pt[i]);
             if (!this.points.includes(pt[i])) return false;
         }
         return true;
@@ -196,6 +219,7 @@ class Sketch{
 
     has_lines(...ls){
         for (let i = 0; i < ls.length; i++){
+            assert.IS_LINE(ls[i]);
             if (!this.lines.includes(ls[i])) return false;
         }
         return true;
@@ -210,24 +234,6 @@ class Sketch{
 
     has(...se){
         return this.has_sketch_elements(...se);
-    }
-
-    _guard_points_in_sketch(...pt){
-        if (!this.has_points(...pt)){
-            throw new Error("Points are not part of the sketch.");
-        }
-    }
-
-    _guard_lines_in_sketch(...ls){
-        if (!this.has_lines(...ls)){
-            throw new Error("Lines are not part of the sketch.");
-        }
-    }
-
-    _guard_sketch_elements_in_sketch(...ls){
-        if (!this.has_sketch_elements(...ls)){
-            throw new Error("Elements are not part of the sketch.");
-        }
     }
 
     get_bounding_box(min_bb = [0,0]){
@@ -323,9 +329,7 @@ class Sketch{
 
     merge_points(pt1, pt2, data_callback = default_data_callback){
         if (pt1 == pt2) return pt1;
-        if (pt1.subtract(pt2).length() > 0.0001){
-            throw new Error("Points are not ontop each other");
-        }
+        assert.VEC_EQUAL(pt1, pt2);
 
         copy_sketch_obj_data(pt2, pt1, data_callback);
 
@@ -372,10 +376,8 @@ class Sketch{
     }
 }
 
-
 Sketch.prototype.validate = function(){
-    validate_sketch(this);
-    return true;
+    return assert.IS_VALID(this);
 };
 
 register_rendering_functions(Sketch);
@@ -414,9 +416,16 @@ Sketch.graphical_non_pure_methods = [
 // Validation
 Sketch.graphical_non_pure_methods.forEach(methodName => {
     const originalMethod = Sketch.prototype[methodName];
+    let currently_internal = false;
     Sketch.prototype[methodName] = function(...args) {
+        const was_already_internal = currently_internal;
+        currently_internal = true;
+
         const result = originalMethod.apply(this, args);
-        validate_sketch(this);
+
+        if (!was_already_internal) this.validate();
+
+        currently_internal = was_already_internal;
         return result;
     };
 });
@@ -427,6 +436,7 @@ Sketch.Point = Point;
 
 // Add Dev Obj
 import fs from 'fs';
+import ConnectedComponent from './connected_component.js';
 if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
     try {
         const sketch_dev = await import("./dev/sketch_dev/index.js");
@@ -436,5 +446,7 @@ if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
     }
 }
 
-export { Sketch };
+// Initializations
+register_assert(Sketch);
+
 export default Sketch;

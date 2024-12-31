@@ -1,9 +1,11 @@
 import { Vector, ZERO } from './geometry.js';
 import { copy_connected_component } from './copy.js';
-import { Sketch } from "./sketch.js";
+import Sketch from "./sketch.js";
+import assert from "./assert.js";
 
 class ConnectedComponent{
     constructor(element){
+        assert.HAS_SKETCH(element);
         this.root_el = element;
     }
 
@@ -11,7 +13,7 @@ class ConnectedComponent{
         return this.root_el;
     }
 
-    transform(pt_fun = (pt) => {}){
+    transform(pt_fun = (_pt) => {}){
         this.points().forEach(pt_fun);
         return this;
     }
@@ -71,6 +73,8 @@ class ConnectedComponent{
     }
 
     contains(el){
+        assert.IS_SKETCH_ELEMENT(el);
+
         const {
             points, lines
         } = this.obj();
@@ -79,6 +83,7 @@ class ConnectedComponent{
     }
 
     equals(component){
+        assert.IS_CONNECTED_COMPONENT(component);
         return this.contains(component.root());
     }
 
@@ -121,8 +126,8 @@ class ConnectedComponent{
     }
 
     self_intersecting(){
-        // Returns true if two lines intersect with not marked point
-        throw new Error("Inimplemented!")
+        // Returns true if two lines (of the component) intersect with not marked point
+        throw new Error("Unimplemented!")
     }
 
     to_sketch = function(position = null){
@@ -136,7 +141,7 @@ class ConnectedComponent{
     }
 }
 
-export { ConnectedComponent };
+export default ConnectedComponent;
 
 function _calculate_bb_from_points_and_lines(points, lines){
     let _min_x = Infinity;

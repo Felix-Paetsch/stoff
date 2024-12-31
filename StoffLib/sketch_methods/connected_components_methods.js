@@ -1,24 +1,22 @@
-import { ConnectedComponent } from '../connected_component.js';
+import { assert } from 'console';
+import ConnectedComponent from '../connected_component.js';
 import { copy_connected_component } from '../copy.js';
 
 export default (Sketch) => {
     Sketch.prototype.connected_component = function (sketch_el){
-        this._guard_sketch_elements_in_sketch(sketch_el);
+        assert.HAS_SKETCH(sketch_el, this);
         if (sketch_el instanceof ConnectedComponent) return sketch_el;
         return new ConnectedComponent(sketch_el);
     }
 
     Sketch.prototype.delete_component = function (sketch_el){
+        assert.HAS_SKETCH(sketch_el, this);
         if (sketch_el instanceof ConnectedComponent){
             this._delete_element_from_data(sketch_el);
-            this._guard_sketch_elements_in_sketch(sketch_el.root_el);
-
-
             const pts = sketch_el.points();
             return this.remove_points(...pts);
         }
 
-        this._guard_sketch_elements_in_sketch(sketch_el);
         return this.remove_points(...(new ConnectedComponent(sketch_el)).points());
     }
 
@@ -39,4 +37,6 @@ export default (Sketch) => {
     Sketch.prototype.paste_connected_component = function(cc, position){
         return copy_connected_component(cc, this, position);
     }
+
+    Sketch.ConnectedComponent = ConnectedComponent;
 }

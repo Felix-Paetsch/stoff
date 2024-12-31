@@ -1,4 +1,4 @@
-import { Sketch } from '../../../StoffLib/sketch.js';
+import Sketch from '../../../StoffLib/sketch.js';
 import Point from '../../../StoffLib/point.js';
 import { Vector, rotation_fun, triangle_data } from '../../../StoffLib/geometry.js';
 import { spline } from "../../../StoffLib/curves.js";

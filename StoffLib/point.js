@@ -1,5 +1,5 @@
 import { Vector } from './geometry.js';
-import { ConnectedComponent } from './connected_component.js';
+import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
 
 class Point extends Vector{

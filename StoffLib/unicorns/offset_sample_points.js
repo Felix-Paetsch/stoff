@@ -1,6 +1,4 @@
-import { line_segments_intersect, vec_angle_clockwise } from '../geometry.js';
-
-const EPSILON = 0.0000001;
+import { line_segments_intersect, vec_angle_clockwise, EPS } from '../geometry.js';
 
 export default function offset_sample_points(line, radius, direction = 0){
     if (radius < 0){
@@ -20,7 +18,7 @@ export default function offset_sample_points(line, radius, direction = 0){
 
     while (left < sp.length){
         let right = left + 1;
-        while (right < sp.length && sp[left].distance(sp[right]) < EPSILON){
+        while (right < sp.length && sp[left].equals(sp[right], EPS.FINE)){
             right++;
         }
 
@@ -51,7 +49,7 @@ export default function offset_sample_points(line, radius, direction = 0){
     }
 
     // 2.
-    if (sp[left].distance(sp[sp.length - 1]) < EPSILON){
+    if (sp[left].equals(sp[sp.length - 1], EPS.FINE)){
         left = prev_left;
     }
     const orth = sp[sp.length - 1].subtract(sp[left]).get_orthogonal().to_len(radius);

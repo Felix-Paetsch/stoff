@@ -1,6 +1,7 @@
 import { assert } from "../../../Debug/validation_utils.js";
 import { affine_transform_from_input_output } from "../../../StoffLib/geometry.js";
 import { default_data_callback } from "../../../StoffLib/copy.js";
+import { EPS } from "../../../StoffLib/geometry.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
     assert(ep1[0] == ep2[0], "First glue point isn't equal");
@@ -13,7 +14,7 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
     const rcp2 = restricted_component_pts(p2, fixed);
 
     // Check they dont have a pt in common (or they lie on top), then move && glue...
-    if (p1.distance(p2) < 0.00000001){
+    if (p1.equals(p2, EPS.TINY)){
         for (let i = 0; i < rcp1.length; i++){
             if (rcp2.includes(rcp1[i])) throw new Error("Can't glue linked parts");
         }

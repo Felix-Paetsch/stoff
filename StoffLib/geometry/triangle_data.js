@@ -1,3 +1,5 @@
+import { EPS } from "../geometry.js";
+
 export default function triangle_data(triangle) {
     const { SSA = true, ...inputTriangle } = triangle;
 
@@ -99,9 +101,7 @@ export default function triangle_data(triangle) {
     if (angleKeys.length === 2) {
         const missingAngleKey = ['alpha', 'beta', 'gamma'].find(k => angles[k] === undefined);
         angles[missingAngleKey] = Math.PI - angles[angleKeys[0]] - angles[angleKeys[1]];
-        if (angles[missingAngleKey] <= 0.000001) {
-            throw new Error("Invalid triangle: angle sum exceeds π radians");
-        }
+        assert(angles[missingAngleKey] <= EPS.MEDIUM, "Invalid triangle: angle sum exceeds π radians");
     }
     Alpha = angles.alpha;
     Beta = angles.beta;

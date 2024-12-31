@@ -150,6 +150,7 @@ export default class ShirtSideHalfBase extends PatternComponent{
         lns.h_to_i.data.type = "dart";
         lns.h_to_i.data.dartside = "outer";
 
+        this.sketch.validate();
         this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4, pts.p7, pts.p8);
 
         this.add_component("neckline", new NecklineSideHalf(this, pts.d, pts.a));
@@ -207,5 +208,48 @@ export default class ShirtSideHalfBase extends PatternComponent{
     
     dartstyle(){
         return this.design_config.dartAllocation.dartstyle;
+    }
+
+
+    // =====================
+
+    shift_dart_basic(dartside = null, position = null){
+        // Shift anywhere except baseline
+        dartside = dartside || this.dartside();
+        position = position || this.dartposition();
+  
+        let line = this.get_line(dartside);
+        const [inner, outer] = this.dart_lines();
+  
+        const fraction = Math.max(Math.min(position, 0.95), 0.05);
+        const { point } = this.sketch.split_line_at_fraction(line, fraction);
+  
+        const old_dart_lines = this.dart_lines();
+        this.sketch.cut([inner.common_endpoint(outer), point], true);
+        
+        const dart_lines = this.get_untyped_lines().set_data({
+            type: "dart",
+            dartposition: line.data.type
+        });
+  
+        const res = this.sketch.glue(...old_dart_lines, {
+            points: "delete"
+        });
+  
+        line = this.sketch.line_between_points(
+            this.point_between_lines("fold", "waistline"), 
+            this.point_between_lines("side", "waistline")
+        );
+  
+        this.sketch.remove(res.merged_lines[0]);
+        line.data.type = "waistline";
+  
+        return dart_lines;
+    }
+
+    mark_symmetry_line(){
+        const l = this.get_line("fold");
+        l.data.symmetry_line = true;
+        return l;
     }
 }

@@ -5,6 +5,7 @@ import {
     ZERO,
     UP
 } from "./classes.js";
+import EPS from "./eps.js";
 
 function distance_from_line_segment(endpoints, vec) {
     return closest_vec_on_line_segment(endpoints, vec).distance(vec);
@@ -17,7 +18,7 @@ function closest_vec_on_line_segment(endpoints, vec) {
     const vec1ToVec2 = vec2.subtract(vec1);
     const lineSegmentLength = vec1ToVec2.length();
 
-    if (lineSegmentLength < 0.000001){
+    if (lineSegmentLength < EPS.FINE){
       return vec1.add(vec2).scale(0.5);
     }
 

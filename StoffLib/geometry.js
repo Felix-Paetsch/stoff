@@ -1,3 +1,4 @@
+import EPS from "./geometry/eps.js";
 import triangle_data from "./geometry/triangle_data.js";
 import {
     Vector,
@@ -54,5 +55,6 @@ export {
     VERTICAL,
     HORIZONTAL,
     Line as PlainLine,
-    Ray
+    Ray,
+    EPS
 };

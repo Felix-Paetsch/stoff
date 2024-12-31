@@ -1,7 +1,7 @@
 import { Vector, vec_angle, rotation_fun } from '../../../StoffLib/geometry.js';
-import { Sketch } from '../../../StoffLib/sketch.js';
+import Sketch from '../../../StoffLib/sketch.js';
 import Point from '../../../StoffLib/point.js';
-import { ConnectedComponent} from '../../../StoffLib/connected_component.js';
+import ConnectedComponent from '../../../StoffLib/connected_component.js';
 
 import top from '../top/simple_top.js';
 import sleeve from '../sleeves/simple_sleeve.js';

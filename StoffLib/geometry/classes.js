@@ -1,5 +1,6 @@
 import { rotation_fun, vec_angle } from "./algorithms.js";
-import { assert } from "../../Debug/validation_utils.js";
+import assert from "../assert.js";
+import EPS from "./eps.js";
 
 export class Vector {
     constructor(x = 0, y = 0, column = true) {
@@ -52,8 +53,7 @@ export class Vector {
         );
     }
 
-    equals(vec, eps = true){
-        if (eps == true) eps = 0;
+    equals(vec, eps = EPS.MINY){
         return this.distance(vec) <= eps
     }
 
@@ -94,9 +94,10 @@ export class Vector {
     }
 
     to_len(a){
-        if (this.length() < 0.000000000001){
-          throw new Error("Vector is (almost) 0");
-        }
+        assert.CALLBACK("Vector is (almost) 0", () => {
+            return this.length() > EPS.STRICT_EQUAL;
+        });
+
         return this.normalize().scale(a);
     }
 
@@ -261,8 +262,7 @@ export class Matrix {
 export class Line {
     constructor(p1, p2){
         if (p1 instanceof Array) return new Line(...p1);
-        assert(p1 instanceof Vector && p2 instanceof Vector, "Given arguments aren't points");
-        assert(p1.distance(p2) > 0, "Points can't be identical!");
+        assert.VEC_NOT_EQUAL(p1, p2);
         this.points = [p1, p2];
     }
 
@@ -275,7 +275,7 @@ export class Line {
     }
 
     contains(vec){
-        return vec.distance(this.project(vec)) < 0.000001;
+        return vec.distance(this.project(vec)) < EPS.MODERATE;
     }
 
     project(vec){
@@ -364,13 +364,13 @@ export class Ray{
 
     contains(vec){
         const p = this.project(vec);
-        if (!p.equals(vec, 0.000001)) return false;
-        if (p.equals(this.src, 0.000001)) return true;
+        if (!p.equals(vec, EPS.MODERATE)) return false;
+        if (p.equals(this.src, EPS.MODERATE)) return true;
 
         const vec_direction = vec.subtract(this.src);
         const angle = vec_angle(vec_direction, this.direction);
 
-        return Math.abs(angle) < 0.001; // Either 0* or 180*
+        return Math.abs(angle) < EPS.COARSE; // Either 0* or 180*
     }
 
     project(vec){

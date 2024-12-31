@@ -13,7 +13,7 @@ import pattern_data from '../Patterns/export_pattern.js';
 const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/debug_create_design.js";
 
-import { Sketch } from "../StoffLib/sketch.js";
+import Sketch from "../StoffLib/sketch.js";
 import register_dev_serve from "./dev_serve.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
 import exposition from "./exposition.js";

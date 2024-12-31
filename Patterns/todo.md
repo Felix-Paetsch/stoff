@@ -40,8 +40,6 @@ StandAlone things maybe move somewhere else...
 Fill in dart
 add_seam_allowance (sollte auf componenten klasse sein (?) oder zumindest auf den Instanzen)
 
-Better Epsilon handling (see e.g. geometry)
-
 geometry angles -> input two line segments/lines
 
 .next();
@@ -54,3 +52,7 @@ smth smth Render at clusterfuck colors
 
 Components and parents?
 Do global recording by method
+
+
+Fix colors.js
+Move validate sketch stuff between register and dev.

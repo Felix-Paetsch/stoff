@@ -6,11 +6,9 @@ changes in Geometry?
 
 TODO
 ================================================================
-Introduce EPSILON
 Self-intersection improvements (u.a. store prev results)
 improve Docs
 Arrange sketches in one panel using tetris
-
 
 Website
 

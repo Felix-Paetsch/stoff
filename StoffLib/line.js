@@ -1,6 +1,6 @@
-import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull } from './geometry.js';
+import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull, EPS } from './geometry.js';
 import Point from './point.js';
-import { ConnectedComponent } from './connected_component.js';
+import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
@@ -213,7 +213,7 @@ class Line{
         const to_absolute = this.get_to_absolute_function();
         if (this.p1.equals(pt)){
             let i = 1;
-            while (this.sample_points[i].distance(this.sample_points[0]) < 0.000000001){
+            while (this.sample_points[i].distance(this.sample_points[0]) < EPS.MEDIUM){
                 i++;
             }
             const tangent_inwards = this.p1.subtract(to_absolute(this.sample_points[i])).normalize();
@@ -222,7 +222,7 @@ class Line{
 
         if (this.p2.equals(pt)){
             let i = this.sample_points.length - 1;
-            while (this.sample_points[i].distance(this.sample_points[this.sample_points.length - 1]) < 0.000000001){
+            while (this.sample_points[i].distance(this.sample_points[this.sample_points.length - 1]) < EPS.MEDIUM){
                 i--;
             }
             return this.p2.subtract(to_absolute(this.sample_points[i])).normalize();
@@ -244,10 +244,11 @@ class Line{
             }
         }
         
-        if (min > 0.000001) throw new Error("Vector is not on line!");
+        if (min > EPS.MODERATE) assert.THROW("Vector/Point is not on line.");
+
         let left = best_index;
         let right = best_index+1;
-        while (this.sample_points[left].distance(this.sample_points[right] < 0.000000001)){
+        while (this.sample_points[left].distance(this.sample_points[right] < EPS.MEDIUM)){
             if (left > 0) left--;
             if (right < this.sample_points.length - 1) right ++;
         }
@@ -494,13 +495,18 @@ class Line{
     }
 
     _remove_duplicate_points() {
-        if (this.sample_points.length <= 1) return;
+        if (this.sample_points.length <= 2) return;
 
+        let last_index = 0;
         this.sample_points = this.sample_points.filter((point, index) => {
             // Skip the first point, compare each with the previous
             if (index === 0) return true;
-            const prevPoint = this.sample_points[index - 1];
-            return prevPoint.distance(point) > 0.0000000001;
+            const prevPoint = this.sample_points[last_index];
+            if (prevPoint.distance(point) > EPS.WEAK_EQUAL){
+                last_index = index;
+                return true;
+            }
+            return false;
         });
     }
 

@@ -2,13 +2,9 @@
     Note this code was written using ChatGPT improving upon the old iteration.
 */
 
-import { affine_transform_from_input_output, Vector, closest_vec_on_line_segment } from "../geometry.js";
+import { affine_transform_from_input_output, Vector, closest_vec_on_line_segment, EPS } from "../geometry.js";
 import { copy_sketch_obj_data } from '../copy.js';
 import { interpolate_colors } from '../colors.js';
-
-const EPSILON = 0.000001;
-const SMALL_EPSILON = 0.000000001;
-const EPSILON2 = EPSILON * EPSILON;
 
 export {
     intersect_lines,
@@ -206,7 +202,7 @@ function _filter_intersection_positions(cleaned_ip, line1, line2){
         const ip = cleaned_ip[i];
         if (filtered_ip0.length > 0) {
             const dist = filtered_ip0[filtered_ip0.length - 1][4].distance(ip[4]);
-            if (dist < 0.001) continue;
+            if (dist < EPS.LOOSE) continue;
         }
         filtered_ip0.push(ip);
     }
@@ -220,7 +216,7 @@ function _filter_intersection_positions(cleaned_ip, line1, line2){
         const ip = filtered_ip0[i];
         if (filtered_ip.length > 0) {
             const dist = filtered_ip[filtered_ip.length - 1][4].distance(ip[4]);
-            if (dist < 0.001) continue;
+            if (dist < EPS.LOOSE) continue;
         }
         filtered_ip.push(ip);
     }
@@ -236,51 +232,51 @@ function _line_segments_intersect(start1, end1, start2, end2) {
 
     const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
 
-    if (d_start1_end1 < EPSILON){
-        if (d_start2_end2 < EPSILON){
+    if (d_start1_end1 < EPS.MODERATE){
+        if (d_start2_end2 < EPS.MODERATE){
             const d_s1_s2 = start1.distance(start2);
             const d_s1_e2 = start1.distance(end2);
             const d_e1_s2 = end1.distance(start2);
             const d_e1_e2 = end1.distance(end2);
-            if (d_s1_s2 < EPSILON) return [true, 0, 0];
-            if (d_s1_e2 < EPSILON) return [true, 0, 1];
-            if (d_e1_s2 < EPSILON) return [true, 1, 0];
-            if (d_e1_e2 < EPSILON) return [true, 1, 1];
+            if (d_s1_s2 < EPS.MODERATE) return [true, 0, 0];
+            if (d_s1_e2 < EPS.MODERATE) return [true, 0, 1];
+            if (d_e1_s2 < EPS.MODERATE) return [true, 1, 0];
+            if (d_e1_e2 < EPS.MODERATE) return [true, 1, 1];
             return [false];
         }
 
         const closest_start = closest_vec_on_line_segment([start2, end2], start1);
         const closest_end = closest_vec_on_line_segment([start2, end2], end1);
-        if (start1.distance(closest_start) < EPSILON){
+        if (start1.distance(closest_start) < EPS.MODERATE){
             return [true, 0, start2.distance(closest_start)/d_start2_end2];
         }
-        if (end1.distance(closest_end) < EPSILON){
+        if (end1.distance(closest_end) < EPS.MODERATE){
             return [true, 1, start2.distance(closest_end)/d_start2_end2];
         }
         return [false];
-    } else if (d_start2_end2 < EPSILON){
+    } else if (d_start2_end2 < EPS.MODERATE){
         const closest_start = closest_vec_on_line_segment([start1, end1], start2);
         const closest_end = closest_vec_on_line_segment([start1, end1], end2);
         const d_s1e1 = d_start1_end1;
-        if (start2.distance(closest_start) < EPSILON){
+        if (start2.distance(closest_start) < EPS.MODERATE){
             return [true, start1.distance(closest_start)/d_s1e1, 0];
         }
-        if (end2.distance(closest_end) < EPSILON){
+        if (end2.distance(closest_end) < EPS.MODERATE){
             return [true, start1.distance(closest_end)/d_s1e1, 0];
         }
         return [false];
     }
 
-    if (Math.abs(denominator) < SMALL_EPSILON) {
+    if (Math.abs(denominator) < EPS.FINE) {
         const normalize = affine_transform_from_input_output(
             [start1, end1],
             [new Vector(0,0), new Vector(1,0)]
         );
         const s2_normal = normalize(start2);
-        if (Math.abs(s2_normal.y) > EPSILON) return [false];
+        if (Math.abs(s2_normal.y) > EPS.MODERATE) return [false];
         const e2_normal = normalize(end2);
-        if ((-EPSILON > s2_normal.x && -EPSILON > e2_normal.x) ||
-            (1 + EPSILON < s2_normal.x && 1 + EPSILON < e2_normal.x)) {
+        if ((-EPS.MODERATE > s2_normal.x && -EPS.MODERATE > e2_normal.x) ||
+            (1 + EPS.MODERATE < s2_normal.x && 1 + EPS.MODERATE < e2_normal.x)) {
             return [false];
         }
 
@@ -293,14 +289,14 @@ function _line_segments_intersect(start1, end1, start2, end2) {
         const d_s2_e2 = d_start2_end2;
         const dist_s2 = start2.distance(abs_intersection_pos);
         let relY_slice = 0;
-        if (d_s2_e2 > EPSILON) relY_slice = dist_s2 / d_s2_e2;
+        if (d_s2_e2 > EPS.MODERATE) relY_slice = dist_s2 / d_s2_e2;
         return [true, relX_slice, relY_slice];
     }
 
     const ua = ((end2.x - start2.x) * (start1.y - start2.y) - (end2.y - start2.y) * (start1.x - start2.x)) / denominator;
     const ub = ((end1.x - start1.x) * (start1.y - start2.y) - (end1.y - start1.y) * (start1.x - start2.x)) / denominator;
 
-    if (ua < -EPSILON || ua > 1+EPSILON || ub < -EPSILON || ub > 1+EPSILON) {
+    if (ua < -EPS.MODERATE || ua > 1+EPS.MODERATE || ub < -EPS.MODERATE || ub > 1+EPS.MODERATE) {
         return [false];
     }
 
@@ -317,10 +313,10 @@ function _find_monotone_intersection_positions(s1, s2){
         const s2_sx = s2[s2_index][0].x;
         const s2_ex = s2[s2_index+1][0].x;
 
-        if (s1_ex + EPSILON < s2_sx) {
+        if (s1_ex + EPS.MODERATE < s2_sx) {
             s1_index++;
             continue;
-        } else if (s2_ex + EPSILON < s1_sx) {
+        } else if (s2_ex + EPS.MODERATE < s1_sx) {
             s2_index++;
             continue;
         } else {
@@ -332,8 +328,8 @@ function _find_monotone_intersection_positions(s1, s2){
                 ip.push([
                     s1[s1_index][1], s1[s1_index+1][1],
                     s2[s2_index][1], s2[s2_index+1][1],
-                    Math.min(1 - EPSILON2, Math.max(intersection_res[1], EPSILON2)),
-                    Math.min(1 - EPSILON2, Math.max(intersection_res[2], EPSILON2))
+                    Math.min(1 - EPS.MODERATE_SQUARED, Math.max(intersection_res[1], EPS.MODERATE_SQUARED)),
+                    Math.min(1 - EPS.MODERATE_SQUARED, Math.max(intersection_res[2], EPS.MODERATE_SQUARED))
                 ]);
             }
 

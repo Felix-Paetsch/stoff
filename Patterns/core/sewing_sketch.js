@@ -1,12 +1,12 @@
-import { assert } from "../../Debug/validation_utils.js";
+import assert from "../../StoffLib/assert.js";
 import Sketch from "../../StoffLib/sketch.js";
 import Line from "../../StoffLib/line.js";
-import { Vector, polygon_contains_point } from "../../StoffLib/geometry.js";
+import { Vector, polygon_contains_point, EPS } from "../../StoffLib/geometry.js";
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
 import Point from "../../StoffLib/point.js";
-import { ConnectedComponent } from "../../StoffLib/connected_component.js";
+import ConnectedComponent from "../../StoffLib/connected_component.js";
 import { default_data_callback } from "../../StoffLib/copy.js";
 
 /*
@@ -143,11 +143,9 @@ export default class SewingSketch extends Sketch{
         ident1 = _glue_ident_to_global_form(ident1);
         ident2 = _glue_ident_to_global_form(ident2);
 
-        assert(
-            ident1[0].distance(ident1[1]) > 0.00000001
-            && ident2[0].distance(ident2[1]) > 0.00000001
-            , "Glueing points for each side must be distinct.")
-    
+        assert.VEC_NOT_EQUAL(ident1[0], ident1[1]);
+        assert.VEC_NOT_EQUAL(ident2[0], ident2[1]);
+
         if (ident1[0] == ident2[1]){
             ident2 = [ident2[1], ident2[0]];
         } else if (ident1[1] == ident2[0]){
@@ -305,7 +303,7 @@ export default class SewingSketch extends Sketch{
         //      Construct Test Vec
         const cp = lines[0].position_at_fraction(0.5);
         const tv = lines[0].get_tangent_vector(cp);
-        const test_vec = cp.add(tv.get_orthogonal().scale(0.0000001));
+        const test_vec = cp.add(tv.get_orthogonal().scale(EPS.FINE));
 
         //      Construct Polygon         
         const polygon = [].concat(...lines_with_orientation.map(l => {

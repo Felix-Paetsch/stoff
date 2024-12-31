@@ -1,8 +1,7 @@
 import Point from '../point.js';
 import Line from '../line.js';
 import { Vector } from '../geometry.js';
-import { ConnectedComponent } from '../connected_component.js';
-import { Sketch } from "../sketch.js";
+import ConnectedComponent from '../connected_component.js';
 import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
 
 
@@ -38,8 +37,6 @@ function validate_sketch(s){
                 } // Callback before the assert
             );
         }
-
-        // sufficent_sample_point_spacing(l, error_margin);
     });
 
     s.points.forEach(p => {
@@ -92,16 +89,6 @@ function points_are_in_sketch(s, l){
         s.has_points(...l.get_endpoints()),
         "Test failed: Line endpoints are not in sketch"
     );
-}
-
-function sufficent_sample_point_spacing(l, min_distance){
-    const sp = l.get_sample_points();
-    for (let i = 0; i < sp.length - 2; i++){
-        assert(
-            sp[i].subtract(sp[i+1]).length() > min_distance,
-            "Test failed: Sample points are to tightly spaced"
-        );
-    }
 }
 
 function line_doesnt_self_intersect(l, callback = () => {}){

@@ -2,7 +2,7 @@ import { Vector } from './geometry.js';
 import Point from './point.js';
 import Line from './line.js';
 import Sketch from './sketch.js';
-import { ConnectedComponent } from './connected_component.js';
+import ConnectedComponent from './connected_component.js';
 
 function default_data_callback(...data){
     data = data.filter(d => {

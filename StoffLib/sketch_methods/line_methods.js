@@ -3,6 +3,7 @@ import { intersect_lines, intersection_positions } from '../unicorns/intersect_l
 import { default_data_callback, copy_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
 import Point from '../point.js';
+import assert from '../assert.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
 import CONF from '../config.json' assert { type: 'json' };
@@ -10,7 +11,10 @@ import CONF from '../config.json' assert { type: 'json' };
 export default (Sketch) => {
     Sketch.prototype.line_between_points = function(pt1, pt2){
         // Makes a straight line between pt1, pt2
-        this._guard_points_in_sketch(pt1, pt2);
+        [pt1, pt2].forEach(p => {
+            assert.IS_POINT(p);
+            assert.HAS_SKETCH(p, this);
+        });
 
         const l = new StraightLine(pt1, pt2, this.sample_density);
         l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
@@ -89,7 +93,10 @@ export default (Sketch) => {
     }
 
     Sketch.prototype._line_between_points_from_sample_points = function(pt1, pt2, sp){
-        this._guard_points_in_sketch(pt1, pt2);
+        [pt1, pt2].forEach(p => {
+            assert.IS_POINT(p);
+            assert.HAS_SKETCH(p, this);
+        });
 
         const to_rel_fun = affine_transform_from_input_output(
             [sp[0],  sp[sp.length - 1]],
@@ -103,7 +110,10 @@ export default (Sketch) => {
     }
 
     Sketch.prototype._line_between_points_from_abs_sample_points = function(pt1, pt2, sp){
-        this._guard_points_in_sketch(pt1, pt2);
+        [pt1, pt2].forEach(p => {
+            assert.IS_POINT(p);
+            assert.HAS_SKETCH(p, this);
+        });
         return this._line_between_points_from_sample_points(pt1, pt2, sp);
     }
     
@@ -126,7 +136,10 @@ export default (Sketch) => {
 
         // direction 0-3: ändert welche Punkte jeweils als Start-/Endpunkte gewählt werden sollen (1 bis 4)
 
-        this._guard_lines_in_sketch(line1, line2);
+        [line1, line2].forEach(l => {
+            assert.IS_LINE(l);
+            assert.HAS_SKETCH(l, this);
+        });
     
         // A helper to normalize a given function g so that g(0)=0 and g(1)=1
         function normalize_fun(g) {
@@ -253,7 +266,10 @@ export default (Sketch) => {
     };    
 
     Sketch.prototype.merge_lines = function(line1, line2, delete_join = false, data_callback = default_data_callback){
-        this._guard_lines_in_sketch(line1, line2);
+        [line1, line2].forEach(l => {
+            assert.IS_LINE(l);
+            assert.HAS_SKETCH(l, this);
+        });
 
         const [old_p1, old_p2] = line1.get_endpoints();
         if ((line1.p2 == line2.p1 && line1.p1 == line2.p2) || (line1.p1 == line2.p1 && line1.p2 == line2.p2)){
@@ -378,7 +394,10 @@ export default (Sketch) => {
             Note, that this function deletes line1 and line 2 and replaces them.
         */
 
-        this._guard_lines_in_sketch(line1, line2);
+        [line1, line2].forEach(l => {
+            assert.IS_LINE(l);
+            assert.HAS_SKETCH(l, this);
+        });
         return intersect_lines(this, line1, line2)
     }
 
@@ -398,7 +417,10 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.intersection_positions = function(line1, line2){
-        this._guard_lines_in_sketch(line1, line2);
+        [line1, line2].forEach(l => {
+            assert.IS_LINE(l);
+            assert.HAS_SKETCH(l, this);
+        });
         return intersection_positions(line1, line2);
     }
 
@@ -407,7 +429,10 @@ export default (Sketch) => {
             from = line.p1;
             to = line.p2;
         }
-        this._guard_points_in_sketch(from, to);
+        [from, to].forEach(p => {
+            assert.IS_POINT(p);
+            assert.HAS_SKETCH(p, this);
+        });
         const l = new Line(from, to, line.copy_sample_points(), line.get_color());
         this.lines.push(l);
         l.set_sketch(this);

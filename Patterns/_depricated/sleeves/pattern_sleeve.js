@@ -1,7 +1,7 @@
-import { Sketch } from '../../../StoffLib/sketch.js';
+import Sketch from '../../../StoffLib/sketch.js';
 import Point from '../../../StoffLib/point.js';
 import { Vector } from '../../../StoffLib/geometry.js';
-import { ConnectedComponent} from '../../../StoffLib/connected_component.js';
+import ConnectedComponent from '../../../StoffLib/connected_component.js';
 
 import { line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
 import evaluate from '../funs/basicEval.js';
