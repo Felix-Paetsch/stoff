@@ -18,7 +18,7 @@ export default function (Sketch){
     });
 
     assert.register_assert("INVALID_PATH", "An invalid path was reached.", () => false);
-    assert.register_assert("THROW", "An error was thrown", () => false);
+    assert.register_assert("THROW", "An error was thrown", (err = false) => err);
 
     assert.register_assert("HAS_SKETCH", "Element doesn't have a registered sketch.", (el, s) => {
         if (el instanceof ConnectedComponent){

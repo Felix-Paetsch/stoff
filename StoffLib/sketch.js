@@ -188,7 +188,7 @@ class Sketch{
         this.lines.forEach(l => delete_el_from_data_obj(l.data));
     }
 
-    transform(pt_fun = (pt) => {}){
+    transform(pt_fun = (_pt) => {}){
         this.points.forEach(pt_fun);
         return this;
     }

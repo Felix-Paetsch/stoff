@@ -9,6 +9,7 @@ TODO
 Self-intersection improvements (u.a. store prev results)
 improve Docs
 Arrange sketches in one panel using tetris
+make logs work in dev website (i.e also be displayed)
 
 Website
 
