@@ -27,7 +27,8 @@ import {
     vec_angle_clockwise,
     rotation_fun,
     line_segments_intersect,
-    polygon_contains_point
+    polygon_contains_point,
+    orientation
 } from "./geometry/algorithms.js";
 
 function mirror_type(el, vec2 = null){
@@ -55,6 +56,7 @@ export {
     mirror_type,
     line_segments_intersect,
     polygon_contains_point,
+    orientation,
     ZERO,
     UP,
     DOWN,

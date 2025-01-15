@@ -6,21 +6,24 @@ export default class HeartSide{
         this.top  = top;
         this.bottom = bottom;
         this.sketch = top.sketch;
-        this.lines = this.sketch.path_between_points(top, bottom, first_line);
+
+        this.wing_added = !first_line.has_endpoint(bottom);
+        this.line = first_line;
     }
 
     orientation(){
-        return - Math.sign(this.lines[0].get_tangent_vector(this.top).x);
+        return - Math.sign(this.line.get_tangent_vector(this.top).x);
     }
 
     has_wing(){
-        return this.lines.length !== 1;
+        return this.wing_added;
     }
 
     wing(scale = 1){
+        assert(!this.has_wing(), "We already have a wing.");
+        
         const orientation = this.orientation();
 
-        assert(!this.has_wing(), "We already have a wing.");
         const p1 = this.sketch.point(orientation * (.6 + .2 * scale), -.2 -.3 * scale);
         const p15 = this.sketch.point(orientation * (.75 + .6 * scale), -.1 - 0.1 * scale);
         const p2 = this.sketch.point(orientation * (.65 + .7 * scale), .4);
@@ -30,7 +33,7 @@ export default class HeartSide{
         this.sketch.plot(p15, p2, arc(-orientation * 0.2));
         this.sketch.plot(p2, p3, arc(-orientation * 0.1));
 
-        const heart_line = this.lines[0];
+        const heart_line = this.line;
         const proj1 = this.sketch.add(heart_line.closest_position(p1));
         const proj2 = this.sketch.add(heart_line.closest_position(p3));
         
@@ -48,5 +51,7 @@ export default class HeartSide{
         
         this.sketch.line_between_points(p1, cs1.other_endpoint(this.top));
         this.sketch.line_between_points(p3, cs2.other_endpoint(this.bottom));
+
+        this.wing_added = true;
     }
 }

@@ -153,6 +153,12 @@ function vec_angle_clockwise(vec1, vec2, reference = ZERO, offset_range = false)
     return angle;
 }
 
+function orientation(vec1, vec2, vec3){
+    const a = vec_angle_clockwise(vec1, vec2, vec3);
+    assert(a !== 0 && a !== 180 && a !== -180, "Vectors are colinear");
+    return a > 0 ? 1 : -1;
+}
+
 function bounding_box(points){
     let _min_x = Infinity;
     let _min_y = Infinity;
@@ -257,5 +263,6 @@ export {
     rotation_fun,
     line_segments_intersect,
     random_vec,
-    polygon_contains_point
+    polygon_contains_point,
+    orientation
 };

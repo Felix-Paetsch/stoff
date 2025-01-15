@@ -13,8 +13,11 @@ export default function() {
     heart.set_length(1);
     
     // const hs = heart.get_general_heartside();
-    const hs = heart.get_right_heartside();
+    // const hs = heart.get_right_heartside();
+    const hs = heart.get_left_heartside();
     hs.wing(0.2);
+
+    heart.add_right_wing(.7);
     
     /*
         What info does a stage need for construction??

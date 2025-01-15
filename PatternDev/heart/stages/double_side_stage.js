@@ -5,6 +5,14 @@ export default class DoubleSideStage extends PatternStage{
     constructor(){
         super()
     }
+    
+    add_left_wing(scale = 1){
+        return this.get_right_heartside().wing(scale);
+    }
+
+    add_right_wing(scale = 1){
+        return this.get_right_heartside().wing(scale);
+    }
 
     get_right_heartside(){
         return new HeartSide(

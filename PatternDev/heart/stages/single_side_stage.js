@@ -13,8 +13,6 @@ export default class SingleSideStage extends PatternStage{
         const s = new Sketch();
         this.wd.sketch = s;
 
-        s.dev.start_recording("/test");
-
         const pt1 = s.point(0,0);
         const pt2 = s.point(-1,1);
         const pt3 = s.point(0,2);
@@ -33,8 +31,13 @@ export default class SingleSideStage extends PatternStage{
             el.data.side = side == "original" ? "left" : "right";
         });
     }
+    
+    add_wing(scale = 1){
+        return this.get_general_heartside().wing(scale);
+    }
 
     get_general_heartside(){
+        this.remove_exposed("set_length");
         return new HeartSide(this.wd.top_point, this.wd.bottom_point, this.wd.top_point.get_adjacent_line());
     }
 
