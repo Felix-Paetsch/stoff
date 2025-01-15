@@ -53,3 +53,4 @@ A lot to write down..
 ## Other
 - Make things work stand-alone w/o (or minimal) foreign exports
 - MVP website: People don't get overwritten in data
+- Directory aufräumen, sobald Entscheidungen getroffen
