@@ -3,12 +3,18 @@ import assert from "../StoffLib/assert.js";
 import InitStage from "./pattern_stages/initStage.js";
 
 export default class PatternConstructor {
-    constructor(measurements, stages) {
-        this.measurements = measurements;
+    constructor(measurements = null, stages = []) {
+        this.measurements = measurements || null;
+
+        this.stages = [];
+        this.add_patter_stage(InitStage);
         this.current_stage = 0;
-        this.stages = [new InitStage(this), stages];
+        for (const s of stages){
+            this.add_patter_stage(s);
+        }
 
         this.is_finished = false;
+        this.working_data = {};
         
         this.proxy = new Proxy(this, this.#proxy_handler());
         return this.proxy;
@@ -22,9 +28,13 @@ export default class PatternConstructor {
                 }
 
                 for (let i = this.current_stage; i < this.stages.length; i++){
-                    if (!this.stages[i].__exposes(prop)){
-                        for (let j = this.current_stage; j < i; j++) this.#advance_stage();
-                        return this.stages[i].__get(prop);
+                    if (this.stages[i].__exposes(prop)){
+                        for (let j = this.current_stage; j < i; j++) this.__advance_stage();
+                        const r = this.stages[i].__get(prop);
+                        if (typeof r == "function"){
+                            return r.bind(this.stages[i]);
+                        }
+                        return r;
                     }
                 }
 
@@ -50,23 +60,39 @@ export default class PatternConstructor {
     finish(){
         assert(!this.is_finished, "Pattern was already finished.");
 
-        while (this.current_stage < this.stages.length){
-            this.#advance_stage();
+        while (this.current_stage < this.stages.length - 1){
+            this.__advance_stage();
         }
 
         this.is_finished = true;
-        this.result = this.stages[this.current_stage].finish();
-        return this.result;
+        const r = this.stages[this.current_stage].finish(this.working_data, this.measurements);
+        assert(typeof r !== "undefined", `.finish() returned >undefined<`);
+
+        this.final_result = r;
+        return this.final_result;
+    }
+
+    get_result(){
+        if (!this.is_finished) return this.finish();
+        return this.final_result;
     }
 
     _get_original(){
         return this;
     }
 
-    #advance_stage(){
-        assert(this.current_stage < this.stages.length, "No further stage to advance to.");
-        this.stages[this.current_stage].on_exit();
-        this.stages[++this.current_stage].on_enter();
+    __advance_stage(){
+        assert(this.current_stage < this.stages.length - 1, "No further stage to advance to.");
+        
+        const current_stage = this.stages[this.current_stage];
+        const new_wd = current_stage.on_exit(this.working_data, this.measurements);
+        this.working_data = new_wd ? new_wd : current_stage.wd ? current_stage.wd : this.working_data;
+
+        const next_stage = this.stages[++this.current_stage];
+        next_stage.wd = this.working_data;
+        next_stage.measurements = this.measurements;
+        next_stage.on_enter(this.working_data, this.measurements);
+
         return this;
     }
 }

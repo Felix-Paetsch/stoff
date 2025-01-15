@@ -62,12 +62,19 @@ class Point extends Vector{
         return this;
     }
 
+    get_adjacent_line(){
+        assert(this.adjacent_lines.length < 2, "Point has more than one adjacent line.");
+        return this.adjacent_lines[0]
+    }
+
     get_adjacent_lines(){
         return this.adjacent_lines;
     }
 
     other_adjacent_line(...lines){
-        return this.other_adjacent_lines(...lines)[0] || null;
+        const other = this.other_adjacent_lines(...lines);
+        assert(other.length < 2, "Point has more than one other adjacent line.");
+        return other[0] || null;
     }
 
     other_adjacent_lines(...lines){

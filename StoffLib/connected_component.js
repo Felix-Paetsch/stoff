@@ -1,4 +1,4 @@
-import { Vector, ZERO } from './geometry.js';
+import { Vector, ZERO, mirror_type } from './geometry.js';
 import { copy_connected_component } from './copy.js';
 import Sketch from "./sketch.js";
 import assert from "./assert.js";
@@ -24,6 +24,9 @@ class ConnectedComponent{
         }
 
         this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
+        if (mirror_type(...args) == "Line"){
+            this.lines().forEach(l => l.mirror());
+        }
     }
 
     group_by_key(key){

@@ -1,7 +1,7 @@
-import { assert } from "../../../Debug/validation_utils.js";
-import { affine_transform_from_input_output } from "../../../StoffLib/geometry.js";
-import { default_data_callback } from "../../../StoffLib/copy.js";
-import { EPS } from "../../../StoffLib/geometry.js";
+import assert from "../../StoffLib/assert.js";
+import { affine_transform_from_input_output } from "../../StoffLib/geometry.js";
+import { default_data_callback } from "../../StoffLib/copy.js";
+import { EPS } from "../../StoffLib/geometry.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
     assert(ep1[0] == ep2[0], "First glue point isn't equal");
@@ -30,7 +30,8 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
         s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
     }
 
-    const glue_lines = merged_pt.common_lines(fixed);
+    const glue_lines = s.lines_by_key("__glue_line")[true] || merged_pt.common_lines(fixed);
+    s.remove_underscore_attributes("__glue_line");
 
     if (data.lines == "keep"){
         return {
@@ -117,7 +118,8 @@ export function glue(s, ep1, ep2, data){
         s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
     }
 
-    const glue_lines = merged_pts[0].common_lines(merged_pts[1]);
+    const glue_lines = s.lines_by_key("__glue_line")[true] || merged_pts[0].common_lines(merged_pts[1]);
+    s.remove_underscore_attributes("__glue_line");
 
     if (data.lines == "keep"){
         return {

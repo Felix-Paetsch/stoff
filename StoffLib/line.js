@@ -126,6 +126,10 @@ class Line{
         return this.sample_points;
     }
 
+    is_straight(){
+        return !this.sample_points.some(p => p.y !== 0);
+    }
+
     connected_component(){
         return new ConnectedComponent(this);
     }
@@ -260,6 +264,7 @@ class Line{
             const t = this.p1;
             this.p1 = this.p2;
             this.p2 = t;
+            this.swap_orientation();
             // This performs double mirror
         }
         this.sample_points.forEach(p => p.set(p.x, - p.y));
@@ -278,6 +283,10 @@ class Line{
 
     reverse(){
         return this.swap_orientation();
+    }
+
+    stretch(factor = 1){
+        this.sample_points.forEach(p => p.set(p.x, factor * p.y));
     }
 
     endpoint_distance(){

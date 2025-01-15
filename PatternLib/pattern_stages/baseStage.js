@@ -1,8 +1,14 @@
 import assert from "../../StoffLib/assert.js";
 
 export default class PatternStage{
-    constructor(constructor = null){
-        this.pattern_constructor = constructor?._get_original ? constructor._get_original() : null;
+    constructor(){
+        // Will be set before on_enter;
+        this.pattern_constructor = null;
+        this.measurements = null; 
+        this.wd = null;
+
+        // May overwrite in subclass
+        this.name = null;
     }
 
     __exposes(obj){
@@ -13,7 +19,7 @@ export default class PatternStage{
     } 
 
     __get(obj){
-        assert(this.__exposes(obj), `Stage does not expose method you try to call: ${ method }`);
+        assert(this.__exposes(obj), `Stage does not expose method you try to call: ${ obj }`);
         return this[obj];
     }
 

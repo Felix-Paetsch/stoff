@@ -30,6 +30,13 @@ import {
     polygon_contains_point
 } from "./geometry/algorithms.js";
 
+function mirror_type(el, vec2 = null){
+    if (el instanceof Line) return "Line";
+    if (el instanceof Array) return mirror_type(...el);
+    if (vec2 instanceof Vector) return "Line";
+    return "Point";
+}
+
 export {
     Vector,
     Matrix,
@@ -45,6 +52,7 @@ export {
     vec_angle_clockwise,
     rotation_fun,
     triangle_data,
+    mirror_type,
     line_segments_intersect,
     polygon_contains_point,
     ZERO,

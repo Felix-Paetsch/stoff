@@ -3,7 +3,13 @@ import ConnectedComponent from '../connected_component.js';
 import { copy_connected_component } from '../copy.js';
 
 export default (Sketch) => {
-    Sketch.prototype.connected_component = function (sketch_el){
+    Sketch.prototype.connected_component = function (sketch_el = null){
+        if (sketch_el === null){
+            const cc = this.get_connected_components();
+            assert(cc.length == 1, "Sketch has more than one connected component or is empty.");
+            return cc[0];
+        }
+
         assert.HAS_SKETCH(sketch_el, this);
         if (sketch_el instanceof ConnectedComponent) return sketch_el;
         return new ConnectedComponent(sketch_el);

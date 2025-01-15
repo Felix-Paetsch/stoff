@@ -1,10 +1,16 @@
-import Sketch from "../../StoffLib/sketch.js";
 import PatternConstructor from "../../PatternLib/patternConstructor.js";
-import InitStage from "../../PatternLib/pattern_stages/initStage.js";
+
+import SingleSideStage from "../../PatternDev/heart/single_side_stage.js";
+import DoubleSideStage from "../../PatternDev/heart/double_side_stage.js";
+import CutStage from "../../PatternDev/heart/cut_stage.js";
 
 export default function() {
-    const shirt = new PatternConstructor();
-    shirt.add_patter_stage(new InitStage());
+    const heart = new PatternConstructor();
+    heart.add_patter_stage(SingleSideStage);
+    heart.add_patter_stage(DoubleSideStage);
+    heart.add_patter_stage(CutStage);
+
+    heart.set_length(0.9);
     
     /*
         What info does a stage need for construction??
@@ -16,9 +22,5 @@ export default function() {
         in theory a stage has a costructor, but nothing else neccessarily associated..
     */
 
-    shirt.hi = "you";
-    console.log("hi there");
-
-    const s = new Sketch();
-    return s;
+    return heart.finish();
 }

@@ -1,10 +1,10 @@
 import assert from "../StoffLib/assert.js";
 import Sketch from "../StoffLib/sketch.js";
 import Line from "../StoffLib/line.js";
-import { Vector, polygon_contains_point, EPS } from "../StoffLib/geometry.js";
+import { Vector, polygon_contains_point, EPS, VERTICAL } from "../StoffLib/geometry.js";
 
-import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./_depricated/sketch_methods/cut.js";
-import { glue_with_fixed_point, glue } from "./_depricated/sketch_methods/glue.js";
+import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
+import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
 import Point from "../StoffLib/point.js";
 import ConnectedComponent from "../StoffLib/connected_component.js";
 import { default_data_callback } from "../StoffLib/copy.js";
@@ -357,14 +357,95 @@ export default class SewingSketch extends Sketch{
 
         return this;
     }
+
+    unfold(along_line, in_place = true){
+        if (!(along_line instanceof Line)){
+            assert(
+                along_line instanceof Array
+                && along_line.length == 2, "Unfold data has wrong format."
+            );
+    
+            assert.HAS_SKETCH(along_line[0], this);
+            assert.HAS_SKETCH(along_line[1], this);
+    
+            const common = along_line[0].common_lines(along_line[1]);
+            assert(common.length < 2, "Expected at most one glue line between glue points");
+           
+            along_line = this.line_between_points(...along_line);
+            along_line.data.__temp = true;
+        }
+    
+        along_line.data.__unfold_line = true;
+
+        if (!in_place){
+            const copy = this.copy();
+            if (along_line.data.__temp) this.remove(along_line);
+            return copy.unfold(copy.lines_by_key("__unfold_line")[true][0], false);
+        }
+
+        // In Place, along Line is a line;
+        this.anchor();
+        this.mirror(VERTICAL); // The "orignal" lines should keep orientation
+        const cc = this.connected_component();
+        this.paste_sketch(this);
+        cc.mirror(VERTICAL);
+
+        this.decompress_components();
+
+        const glue_lines = this.lines_by_key("__unfold_line")[true];
+        this.glue(...glue_lines, { lines: "delete", anchors: "delete" });
+
+        return this;
+    }
+
+    remove_underscore_attributes(...attr){
+        this.points.concat(this.lines).forEach(p => {
+            for (const key of Object.keys(p.data)){
+                if (
+                    key.startsWith("__") 
+                    && (
+                        attr.length == 0
+                        || attr.includes(key) || attr.includes(key.slice(2))
+                    )
+                ){
+                    delete p.data[key];
+                }
+            }
+        });
+    }
+
+    delete_with_underscore_attributes(...attr){
+        this.lines.concat(this.points).forEach(p => {
+            for (const key of Object.keys(p.data)){
+                if (
+                    key.startsWith("__") 
+                    && (
+                        attr.length == 0
+                        || attr.includes(key) || attr.includes(key.slice(2))
+                    )
+                ){
+                    this.remove(p);
+                }
+            }
+        });
+    }
 }
 
 function _glue_ident_to_global_form(ident){
-    if (ident instanceof Line) return [ident.p1, ident.p2];
+    if (ident instanceof Line) {
+        ident.data.__glue_line = true;
+        return [ident.p1, ident.p2]
+    };
     assert(ident instanceof Array);
     const [el1, el2] = ident;
     if (el1 instanceof Point && el2 instanceof Point) return ident;
-    if (el1 instanceof Line && el2 instanceof Point) return [el2, el1.other_endpoint(el2)];
-    if (el2 instanceof Line && el1 instanceof Point) return [el1, el2.other_endpoint(el1)];
+    if (el1 instanceof Line && el2 instanceof Point){
+        el1.data.__glue_line = true;
+        return [el2, el1.other_endpoint(el2)];
+    }
+    if (el2 instanceof Line && el1 instanceof Point){
+        el2.data.__glue_line = true;
+        return [el1, el2.other_endpoint(el1)]
+    };
     throw new Error("Bad glue identifier");
 }

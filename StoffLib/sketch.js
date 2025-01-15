@@ -355,7 +355,7 @@ class Sketch{
             return this.copy_line(el);
         }
 
-        const s = new Sketch();
+        const s = new this.constructor();
         s.paste_sketch(this, null, new Vector(0,0));
         return s;
     }

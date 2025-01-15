@@ -10,6 +10,11 @@ Self-intersection improvements (u.a. store prev results)
 improve Docs
 Arrange sketches in one panel using tetris
 make logs work in dev website (i.e also be displayed)
+lots of QOL features on stages
+smooth out around point (when merging)
+"Make C infty"
+Move .unfold to sewing sketch
+For glue/cut: when removing lines use id system to memorize which ones
 
 Website
 
