@@ -130,6 +130,10 @@ class Line{
         return !this.sample_points.some(p => p.y !== 0);
     }
 
+    is_convex(){
+        return !this.sample_points.some(p => p.y !== 0);
+    }
+
     connected_component(){
         return new ConnectedComponent(this);
     }

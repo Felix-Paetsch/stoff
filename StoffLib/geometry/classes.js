@@ -31,8 +31,8 @@ export class Vector {
             return this.set(x[0], x[1]);
         }
 
-        this.x = x;
-        this.y = y;
+        this.x = x;  // LEFT, RIGHT
+        this.y = y;  // UP, DOWN
         this[0] = x;
         this[1] = y;
         return this;

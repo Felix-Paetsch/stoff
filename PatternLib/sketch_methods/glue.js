@@ -27,7 +27,7 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
     const merged_pt = s.merge_points(p1, p2, cb);
 
     if (data.anchors == "delete"){
-        s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
+        s.get_lines().forEach(l => l.data.__anchor && l.remove());
     }
 
     const glue_lines = s.lines_by_key("__glue_line")[true] || merged_pt.common_lines(fixed);
@@ -115,7 +115,7 @@ export function glue(s, ep1, ep2, data){
     ];
 
     if (data.anchors == "delete"){
-        s.get_lines().forEach(l => l.data.type == "anchor" && l.remove());
+        s.get_lines().forEach(l => l.data.__anchor && l.remove());
     }
 
     const glue_lines = s.lines_by_key("__glue_line")[true] || merged_pts[0].common_lines(merged_pts[1]);

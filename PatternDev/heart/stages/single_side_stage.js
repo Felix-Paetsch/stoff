@@ -1,10 +1,13 @@
-import PatternStage from "../../PatternLib/pattern_stages/baseStage.js";
-import Sketch from "../../PatternLib/sewing_sketch.js";
-import { arc } from "../../StoffLib/curves.js";
-import assert from "../../StoffLib/assert.js";
+import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
+import Sketch from "../../../PatternLib/sewing_sketch.js";
+import HeartSide from "../heart_side.js";
+import { arc } from "../../../StoffLib/curves.js";
+import assert from "../../../StoffLib/assert.js";
 
 export default class SingleSideStage extends PatternStage{
-    constructor(){ super(); }
+    constructor(){
+        super();
+    }
 
     on_enter(){
         const s = new Sketch();
@@ -21,11 +24,18 @@ export default class SingleSideStage extends PatternStage{
         s.merge_lines(l1, l2, true);
 
         this.wd.bottom_point = pt3;
+        this.wd.top_point = pt1;
         // Note that somehow this is not the best choice until we have references;
     }
 
     on_exit(){
-        this.wd.sketch.unfold(this.wd.sketch.get_points());
+        this.wd.sketch.unfold([this.wd.top_point, this.wd.bottom_point], (el, side, _original) => {
+            el.data.side = side == "original" ? "left" : "right";
+        });
+    }
+
+    get_general_heartside(){
+        return new HeartSide(this.wd.top_point, this.wd.bottom_point, this.wd.top_point.get_adjacent_line());
     }
 
     set_length(l){

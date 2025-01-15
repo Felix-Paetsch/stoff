@@ -35,6 +35,14 @@ export default function (Sketch){
         return true;
     });
 
+    assert.register_assert("HAVE_SKETCH", "Elements doesn't have a registered sketch.", (els, s) => {
+        els.forEach(el => {
+            assert.HAS_SKETCH(el, s);
+        });
+
+        return true;
+    });
+
     assert.register_assert("SAME_SKETCH", "Elements belong to different sketches.", (...args) => {
         assert.HAS_SKETCH(args[0]);
         const s = args[0].sketch;

@@ -1,8 +1,8 @@
 import PatternConstructor from "../../PatternLib/patternConstructor.js";
 
-import SingleSideStage from "../../PatternDev/heart/single_side_stage.js";
-import DoubleSideStage from "../../PatternDev/heart/double_side_stage.js";
-import CutStage from "../../PatternDev/heart/cut_stage.js";
+import SingleSideStage from "../../PatternDev/heart/stages/single_side_stage.js";
+import DoubleSideStage from "../../PatternDev/heart/stages/double_side_stage.js";
+import CutStage from "../../PatternDev/heart/stages/cut_stage.js";
 
 export default function() {
     const heart = new PatternConstructor();
@@ -10,7 +10,11 @@ export default function() {
     heart.add_patter_stage(DoubleSideStage);
     heart.add_patter_stage(CutStage);
 
-    heart.set_length(0.9);
+    heart.set_length(1);
+    
+    // const hs = heart.get_general_heartside();
+    const hs = heart.get_right_heartside();
+    hs.wing(0.2);
     
     /*
         What info does a stage need for construction??

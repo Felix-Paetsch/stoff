@@ -15,6 +15,7 @@ smooth out around point (when merging)
 "Make C infty"
 Move .unfold to sewing sketch
 For glue/cut: when removing lines use id system to memorize which ones
+tool for relative orientation... (see heart)
 
 Website
 

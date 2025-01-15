@@ -175,14 +175,9 @@ export default class SewingSketch extends Sketch{
         return glue(this, ident1, ident2, data);
     }
 
-    anchor(anchor_string = null, ...objects){
+    anchor(...objects){
         // Connect everything by anchor lines. Usefull to move things, around especially when glueing
         
-        if (typeof anchor_string !== "string"){
-            if (anchor_string) objects.push(anchor_string);
-            anchor_string = "anchor";
-        }
-
         const pts = [];
         const lns = [];
 
@@ -213,7 +208,7 @@ export default class SewingSketch extends Sketch{
             );
             
             a.data = {
-                type: anchor_string
+                __anchor: true
             };
 
             a.set_color("rgb(200,200,200)");
@@ -223,7 +218,7 @@ export default class SewingSketch extends Sketch{
     }
 
     remove_anchors(){
-        this.get_lines().filter(l => l.data?.type == "anchor").forEach(l => l.remove());
+        this.get_lines().filter(l => l.data?.__anchor).forEach(l => l.remove());
     }
 
     oriented_component(el){
@@ -330,6 +325,31 @@ export default class SewingSketch extends Sketch{
         }
     }
 
+    path_between_points(p1, p2, line = null){
+        if (line == null){
+            assert.ONE_ADJACENT_LINE(p1);
+            line = p1.get_adjacent_line();
+        }
+
+        assert.HAVE_SKETCH([line, p1, p2], this);
+        assert.IS_LINE(line);
+        assert.IS_POINT(p1);
+        assert.IS_POINT(p2)
+
+        const lines = [line];
+        let last_line_p2 = lines[0].other_endpoint(p1);
+        while (last_line_p2 !== p2){
+            const new_line = last_line_p2.other_adjacent_line(lines[lines.length-1]);
+            lines.push(new_line);
+
+            assert(new_line instanceof Line, "There is no path from p1 to p2.");
+            assert(last_line_p2 != p1, "There is no path from p1 to p2.");
+            last_line_p2 = new_line.other_endpoint(last_line_p2);
+        }
+
+        return lines;
+    }
+
     decompress_components(){
         const cc = this.get_connected_components().map(c => c.obj());
         if (cc.length == 0) return this;
@@ -358,7 +378,7 @@ export default class SewingSketch extends Sketch{
         return this;
     }
 
-    unfold(along_line, in_place = true){
+    unfold(along_line, callback = (_element, _type, _original) => {}, in_place = true){
         if (!(along_line instanceof Line)){
             assert(
                 along_line instanceof Array
@@ -376,9 +396,9 @@ export default class SewingSketch extends Sketch{
         }
     
         along_line.data.__unfold_line = true;
-
         if (!in_place){
             const copy = this.copy();
+            this.remove_underscore_attributes("__unfold_line");
             if (along_line.data.__temp) this.remove(along_line);
             return copy.unfold(copy.lines_by_key("__unfold_line")[true][0], false);
         }
@@ -387,13 +407,29 @@ export default class SewingSketch extends Sketch{
         this.anchor();
         this.mirror(VERTICAL); // The "orignal" lines should keep orientation
         const cc = this.connected_component();
+
+        const old_pts = [...this.points];
+        const old_lines = [...this.lines];
+        old_lines.forEach(l => l.data.__unfoldUID = tUID());
+        old_pts.forEach(p => p.data.__unfoldUID = tUID());
+
         this.paste_sketch(this);
         cc.mirror(VERTICAL);
 
-        this.decompress_components();
-
         const glue_lines = this.lines_by_key("__unfold_line")[true];
         this.glue(...glue_lines, { lines: "delete", anchors: "delete" });
+
+        this.lines.forEach(l => {
+            const ref = old_lines.filter(l => l.data.__unfoldUID == l.data.__unfoldUID)[0];
+            if (ref == l) callback(l, "original", l)
+            else callback(l, "mirror", ref);
+        });
+
+        this.points.forEach(l => {
+            const ref = old_pts.filter(l => l.data.__unfoldUID == l.data.__unfoldUID)[0];
+            if (ref == l) callback(l, "original", l)
+            else callback(l, "mirror", ref);
+        });
 
         return this;
     }
@@ -448,4 +484,16 @@ function _glue_ident_to_global_form(ident){
         return [el1, el2.other_endpoint(el1)]
     };
     throw new Error("Bad glue identifier");
+}
+
+const _tUIDgen = tUID_gen();
+const tUID = () => _tUIDgen.next().value
+function* tUID_gen() {
+    const MAX_SAFE_INT = Number.MAX_SAFE_INTEGER;
+    let current = 0;
+
+    while (true) {
+        yield "tUID_" + current;
+        current = (current + 1) >= MAX_SAFE_INT - 1 ? 0 : current + 1;
+    }
 }
