@@ -1,8 +1,8 @@
-import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
-import Sketch from "../../../PatternLib/sewing_sketch.js";
+import PatternStage from "../../../../PatternLib/pattern_stages/baseStage.js";
+import Sketch from "../../../../PatternLib/sewing_sketch.js";
 import HeartSide from "../heart_side.js";
-import { arc } from "../../../StoffLib/curves.js";
-import assert from "../../../StoffLib/assert.js";
+import { arc } from "../../../../StoffLib/curves.js";
+import assert from "../../../../StoffLib/assert.js";
 
 export default class SingleSideStage extends PatternStage{
     constructor(){

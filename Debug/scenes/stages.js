@@ -1,8 +1,8 @@
 import PatternConstructor from "../../PatternLib/patternConstructor.js";
 
-import SingleSideStage from "../../PatternDev/heart/stages/single_side_stage.js";
-import DoubleSideStage from "../../PatternDev/heart/stages/double_side_stage.js";
-import CutStage from "../../PatternDev/heart/stages/cut_stage.js";
+import SingleSideStage from "../PatternDev/heart/stages/single_side_stage.js";
+import DoubleSideStage from "../PatternDev/heart/stages/double_side_stage.js";
+import CutStage from "../PatternDev/heart/stages/cut_stage.js";
 
 export default function() {
     const heart = new PatternConstructor();

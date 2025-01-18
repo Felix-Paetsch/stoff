@@ -1,4 +1,4 @@
-import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
+import PatternStage from "../../../../PatternLib/pattern_stages/baseStage.js";
 import HeartSide from "../heart_side.js";
 
 export default class DoubleSideStage extends PatternStage{
