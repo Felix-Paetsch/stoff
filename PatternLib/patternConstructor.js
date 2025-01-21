@@ -5,16 +5,18 @@ import InitStage from "./pattern_stages/initStage.js";
 export default class PatternConstructor {
     constructor(measurements = null, stages = []) {
         this.measurements = measurements || null;
+        this.working_data = { a: true };
 
+        this.current_stage = -1;
         this.stages = [];
         this.add_patter_stage(InitStage);
-        this.current_stage = 0;
+        this.__advance_stage();
+
         for (const s of stages){
             this.add_patter_stage(s);
         }
 
         this.is_finished = false;
-        this.working_data = {};
         
         this.proxy = new Proxy(this, this.#proxy_handler());
         return this.proxy;
@@ -53,6 +55,7 @@ export default class PatternConstructor {
         }
 
         stage.pattern_constructor = this;
+        stage.measurements = this.measurements;
         if (position_ident === null) this.stages.push(stage);
         return this.proxy;
     }
@@ -83,9 +86,12 @@ export default class PatternConstructor {
 
     __advance_stage(){
         assert(this.current_stage < this.stages.length - 1, "No further stage to advance to.");
-        
+
         const current_stage = this.stages[this.current_stage];
-        const new_wd = current_stage.on_exit(this.working_data, this.measurements);
+        let new_wd = current_stage?.on_exit ? 
+            current_stage.on_exit(this.working_data, this.measurements)
+            : this.working_data;
+
         this.working_data = new_wd ? new_wd : current_stage.wd ? current_stage.wd : this.working_data;
 
         const next_stage = this.stages[++this.current_stage];
@@ -94,5 +100,11 @@ export default class PatternConstructor {
         next_stage.on_enter(this.working_data, this.measurements);
 
         return this;
+    }
+
+    set_working_data(data){
+        this.working_data = data;
+        this.stages[this.current_stage].wd = data;
+        return this.proxy;
     }
 }
