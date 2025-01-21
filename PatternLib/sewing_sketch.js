@@ -75,7 +75,7 @@ export default class SewingSketch extends Sketch{
 
         if (line instanceof Array){
             if (line[0] instanceof Line){
-                return cut_along_line_path(this, this.order_by_endpoints(...line), fixed_pt, grp1);
+                return cut_along_line_path(this, this.order_by_endpoints(...line), fixed_pt, grp1, grp2);
             }
             // The line is given by the two endpoints
             if (fixed_pt === true){
@@ -221,6 +221,7 @@ export default class SewingSketch extends Sketch{
 
     remove_anchors(){
         this.get_lines().filter(l => l.data?.__anchor).forEach(l => l.remove());
+        return this;
     }
 
     oriented_component(el){
@@ -450,6 +451,8 @@ export default class SewingSketch extends Sketch{
                 }
             }
         });
+
+        return this
     }
 
     delete_with_underscore_attributes(...attr){
@@ -466,6 +469,8 @@ export default class SewingSketch extends Sketch{
                 }
             }
         });
+
+        return this;
     }
 }
 

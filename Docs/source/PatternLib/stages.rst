@@ -1,8 +1,8 @@
 Pattern Stages
 ==============
 
-Pattern stages are sequential building blocks used by the `PatternConstructor <pattern_constructor>`_ to assamble as sewing pattern.
-See here for a `guide <guide_to_stages>`_ how they are indended to be used and work together with the `PatternConstructor <pattern_constructor>`_.
+Pattern stages are sequential building blocks used by the :doc:`PatternConstructor <pattern_constructor>` to assamble as sewing pattern.
+See here for a :doc:`guide <todo>` how they are indended to be used and work together with the :doc:`PatternConstructor <pattern_constructor>`.
 
 **Source File**: ./PatternLib/pattern_stages/baseStage.js
 
@@ -25,25 +25,22 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
 
         **Default**: null
 
-
-    .. _stages_wd:
-
     .. js:attribute:: wd
 
         Shorthand for "working data". The working data is used to communicate
         between different stages and the pattern constructor.
 
-        The working data is set by the `PatternConstructor <pattern_constructor>`_
+        The working data is set by the :doc:`PatternConstructor <pattern_constructor>`
         before this stages ``.on_enter()`` is called.
         Inside the stage you can either work with having data on the stage directly
-        or storing it inside ``this.wd``. If you don't return anything from ``this.on_exit()`` the `PatternConstructor <pattern_constructor>`_
+        or storing it inside ``this.wd``. If you don't return anything from ``this.on_exit()`` the :doc:`PatternConstructor <pattern_constructor>`
         will the the working data of the next stage to the working data of this one (if it is not falsy).
 
         **Type**: object
 
     .. js:attribute:: measurements
 
-        The measurements will be set like ``this.wd`` from the `PatternConstructor <pattern_constructor>`_ before ``this.on_enter()``
+        The measurements will be set like ``this.wd`` from the :doc:`PatternConstructor <pattern_constructor>` before ``this.on_enter()``
 
         **Type**: object
 
@@ -74,12 +71,10 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
 
    **Methods**:
 
-.. _stages_exposes:
-
     .. js:function:: _exposes(obj)
     
-        Tells the `PatternConstructor <pattern_constructor>`_ whether a given method or object (with key "obj") from this class 
-        (or computed - see ``this.__get()``) is exposed for the `proxy functionality <proxy_mechanism>`_ of the `PatternConstructor <pattern_constructor>`_.
+        Tells the :doc:`PatternConstructor <pattern_constructor>` whether a given method or object (with key "obj") from this class 
+        (or computed - see ``this.__get()``) is exposed for the :doc:`proxy functionality <proxy_mechanism>` of the :doc:`PatternConstructor <pattern_constructor>`.
         By default we expose:
         
         - Methods on this class which dont start with ``_`` (and are not internal  ``#``.) and are not contained in ``this.exposed_removed``
@@ -95,8 +90,8 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
 
     .. js:function:: __get(obj)
     
-        See also ``this._exposes(obj)``. Given a key called on the  `PatternConstructor <pattern_constructor>`_
-        which is `propagated <todo>`_ to this class instance, we return the corresponding value. It can either be something like
+        See also ``this._exposes(obj)``. Given a key called on the  :doc:`PatternConstructor <pattern_constructor>`
+        which is :doc:`propagated <proxy_mechanism>` to this class instance, we return the corresponding value. It can either be something like
         ``this[obj]`` or more sufficticated like an on the fly created function.  
 
         **Parameters**:
@@ -140,7 +135,7 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
         
         Exits the stage. This usually means performing "intermediate finishing touches" to a sketch (or doing nothing).
         If this method returns something not falsy this will be the new working data. Else the stages working data will be the new working data.
-        (If we latter is also falsy we resort to the working data of the `PatternConstructor <pattern_constructor>`_.)
+        (If we latter is also falsy we resort to the working data of the :doc:`PatternConstructor <pattern_constructor>`.)
 
         **Parameters**:
             - arg1 (*type*): The first argument.
@@ -151,7 +146,7 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
     .. js:function:: finish()
         
         If this stage is the last stage it is expected that ``this.finish()`` is implemented.
-        The return result of this will be the return result of the pattern construction, see `PatternConstructor.finish() <pattern_constructor>`_.
+        The return result of this will be the return result of the pattern construction, see :doc:`PatternConstructor.finish() <pattern_constructor>`.
 
 
         **Raises**:
@@ -159,7 +154,7 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
         
     .. js:function:: advance_stage()
         
-        Advances the `PatternConstructor <pattern_constructor>`_ to the next stage (so the stage after this one).
+        Advances the :doc:`PatternConstructor <pattern_constructor>` to the next stage (so the stage after this one).
         
 **Source File**: ./PatternLib/pattern_stages/initStage.js
 
@@ -168,7 +163,7 @@ See here for a `guide <guide_to_stages>`_ how they are indended to be used and w
 .. js:class:: InitStage
     
    ``class InitStage extends baseStage``
-   This stage marks the beginning of the construction of a sewing pattern. It is used inside the `PatternConstructor <pattern_constructor>`_.
+   This stage marks the beginning of the construction of a sewing pattern. It is used inside the :doc:`PatternConstructor <pattern_constructor>`.
 
    **Constructor**:
 

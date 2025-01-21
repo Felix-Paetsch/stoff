@@ -1,7 +1,7 @@
-The `PatternConstructor <pattern_constructor>`_ proxy mechanism
+The :doc:`PatternConstructor <pattern_constructor>` proxy mechanism
 ===========================================================================
 
-The `PatternConstructor <pattern_constructor>`_ class provides a (hopefully nice) interface to work with `PatternStages <stages>`. 
+The :doc:`PatternConstructor <pattern_constructor>` class provides a (hopefully nice) interface to work with `PatternStages <stages>`. 
 Internally it has an array of PatternStages, starting with the :ref:`InitStage <init_stage>`. When you add stages using ``PatternConstructor.add_patter_stage`` they will be added there.
 Additionally it has a pointer to (counter of) the current stage.
 
@@ -21,13 +21,13 @@ When it moves to the next stage it does so in the following steps:
 3. It sets ``.measurements`` to ``.measurements``
 4. It calls ``.on_enter(this.working_data, this.measurements)`` on the next stage
 
-When you directly call ``PatternConstructor.finish()`` after initialization, it will just move step by step to the last stage and then call ``.finish()`` on it and return the result. (And return it subsequently again every time you call ``PatternConstructor.get_result()``, see :ref:`here. <pattern_constructor_finish>`).
+When you directly call ``PatternConstructor.finish()`` after initialization, it will just move step by step to the last stage and then call ``.finish()`` on it and return the result. (And return it subsequently again every time you call ``PatternConstructor.get_result()``, see `PatternConstructor.finish() <pattern_constructor>`).
 
 Calling methods on stages
 ----------------------------------
-Somewhat the whole point of stages and the lazy traversing of them is that you can have stage-specific methods. A stage can expose methods (and objects) through ``Stage._exposes(obj)`` and ``Stage._get(obj)``, see :ref:`here. <stages_exposes>`
+Somewhat the whole point of stages and the lazy traversing of them is that you can have stage-specific methods. A stage can expose methods (and objects) through ``Stage._exposes(obj)`` and ``Stage._get(obj)``, see `PatternStage._exposes. <stages>`
 
-You access them, by callem them on the `PatternConstructor <pattern_constructor>`_. It will:
+You access them, by callem them on the :doc:`PatternConstructor <pattern_constructor>`. It will:
 
 1. Tests if itself has the method of object & return that, otherwise
 2. Tests the current stage if it exposes that thing and returns it, otherwise
@@ -41,8 +41,8 @@ Handling global / global-ish data
 ------------------------------------
 
 The data that should be passed between stages and is like a global config should be put inside the ``.working_data`` (``.wd``).
-From the outside world you can do that with :ref:`these methods. <pattern_constructor_working_data>` Additionally you can just do something like
+From the outside world you can do that with :doc:`PatternConstructor methods. <pattern_constructor>` Additionally you can just do something like
 ``PatternConstructor.working_data.key = value``. Note that this only works, if it is indeed an object and the stages ``.wd`` is a reference to the same object.
 
-Additionally you can of course update the working data inside stages, see :ref:`here. <stages_wd>`
+Additionally you can of course update the working data inside stages, see :doc:`stages. <stages>`
 You can also call methods on stages which then modify the working data for you.

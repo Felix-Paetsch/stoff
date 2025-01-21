@@ -34,6 +34,10 @@ A lot to write down..
 - Fix / update colors.js
 
 ## PatternLib
+- Sewing Sketch Updates
+    - Cutting along several lines..
+        w/wo fixed point (maybe a new method)
+    - Throw errors correctly in typed methdos
 - QoL features on stages
     - See where we currently are
     - Call history

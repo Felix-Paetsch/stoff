@@ -2,7 +2,7 @@ Pattern Constructor
 ====================
 
 The `PatternConstructor` class serves as the orchestrator for creating sewing patterns. It manages a sequence of `PatternStages` and the transitions between them using
-a `proxy mechanism <proxy_mechanism>`_.
+a :doc:`proxy mechanism. <proxy_mechanism>`
 
 **Source File**: ./PatternLib/patternConstructor.js
 
@@ -17,8 +17,6 @@ a `proxy mechanism <proxy_mechanism>`_.
             - stages (*[]PatternStage*): An array of initial stages for this pattern. See ``this.add_pattern_stage(stage, position_ident)`` for details
 
    **Methods**:
-  
-.. _pattern_constructor_working_data:
 
     .. js:function:: add_patter_stage(stage, position_ident = null)
     
@@ -50,13 +48,6 @@ a `proxy mechanism <proxy_mechanism>`_.
             **Returns**:
                 - *object*: Working Data
             
-    
-        
-    
-        
-
-.. _pattern_constructor_finish:
-
     .. js:function:: finish()
     
         Finishes the current pattern by traversing through all stages and calling ``.finish()`` on the last stage (without exiting it.)
