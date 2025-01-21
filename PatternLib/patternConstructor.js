@@ -6,9 +6,11 @@ export default class PatternConstructor {
     constructor(measurements = null, stages = []) {
         this.measurements = measurements || null;
 
+        this.working_data = {};
+        this.current_stage = -1;
         this.stages = [];
         this.add_patter_stage(InitStage);
-        this.current_stage = 0;
+        this.__advance_stage();
         for (const s of stages){
             this.add_patter_stage(s);
         }
@@ -27,21 +29,26 @@ export default class PatternConstructor {
                     return this[prop];
                 }
 
-                for (let i = this.current_stage; i < this.stages.length; i++){
-                    if (this.stages[i].__exposes(prop)){
-                        for (let j = this.current_stage; j < i; j++) this.__advance_stage();
-                        const r = this.stages[i].__get(prop);
-                        if (typeof r == "function"){
-                            return r.bind(this.stages[i]);
-                        }
-                        return r;
+                if (this.is_finished){
+                    assert.THROW("Can't call methods on stages after finishing the pattern.");
+                }
+
+                if (this.stages[this.current_stage]._exposes(prop)){
+                    return this.stages[this.current_stage]._get(prop);
+                }
+
+                while (!this.on_last_stage()){
+                    if (this.stages[this.current_stage]._exposes(prop)){
+                        return this.stages[this.current_stage]._get(prop);
                     }
+
+                    this.__advance_stage();
                 }
 
                 assert.THROW(`No future stage exposes thing "${prop}"`);
             },
             set: (target, prop, value, receiver) => {
-                return Reflect.set(target, prop, value, receiver);
+                throw new Error("You are trying to set things via the proxy. If you are sure you want to set properties, use `._get_original()` first.");
             }
         };
     }
@@ -49,7 +56,7 @@ export default class PatternConstructor {
     add_patter_stage(stage, position_ident = null){
         if (!(stage instanceof PatternStage)){
             assert(stage?.prototype instanceof PatternStage, "Didn't provide valid stage.");
-            stage = new stage(this.proxy);
+            stage = new stage();
         }
 
         stage.pattern_constructor = this;
@@ -81,12 +88,19 @@ export default class PatternConstructor {
         return this;
     }
 
+    on_last_stage(){
+        return this.current_stage == this.stages.length -1;
+    }
+
     __advance_stage(){
         assert(this.current_stage < this.stages.length - 1, "No further stage to advance to.");
         
         const current_stage = this.stages[this.current_stage];
-        const new_wd = current_stage.on_exit(this.working_data, this.measurements);
-        this.working_data = new_wd ? new_wd : current_stage.wd ? current_stage.wd : this.working_data;
+        let new_wd = current_stage?.on_exit ? 
+            current_stage.on_exit(this.working_data, this.measurements)
+            : this.working_data;
+
+        this.working_data = new_wd || current_stage.wd || this.working_data;
 
         const next_stage = this.stages[++this.current_stage];
         next_stage.wd = this.working_data;
@@ -94,5 +108,15 @@ export default class PatternConstructor {
         next_stage.on_enter(this.working_data, this.measurements);
 
         return this;
+    }
+
+    set_working_data(data){
+        this.working_data = data;
+        this.stages[this.current_stage].wd = data;
+        return this.proxy;
+    }
+
+    get_working_data(){
+        return current_stage.wd || this.working_data;
     }
 }

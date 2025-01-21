@@ -31,7 +31,8 @@
     "mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot",
     "mvp_host": "cd Tools/MVPwebsite && npm run host",
 
-    "undoc": "cd ..\\Undoc && .\\main.exe ../StoffLib/Docs"
+    "build_docs": "cd Docs && make html",
+    "docs_hot": "sphinx-autobuild Docs/source Docs/build/html"
   },
   "devDependencies": {
     "sass": "^1.78.0"

@@ -104,6 +104,14 @@ class Line{
         throw new Error("Both points aren't endpoints of the line");
     }
 
+    replace_endpoint(old_pt, new_pt) {
+        if (this.p1 == old_pt) return this.set_endpoints(new_pt, this.p2)
+        if (this.p2 == old_pt) return this.set_endpoints(this.p1, new_pt)
+        if (this.p1 == new_pt) return this.set_endpoints(old_pt, this.p2)
+        if (this.p2 == new_pt) return this.set_endpoints(this.p1, old_pt)
+        throw new Error("Neither point was an endpoint of the line");
+    }
+
     set_color(color){
         this.attributes.stroke = color;
         return this;

@@ -15,30 +15,32 @@ export default class PatternStage{
     }
 
     // For pattern constructor
-    __exposes(obj){
+    _exposes(obj){
         return (typeof this[obj] === "function" || typeof this.exposed_added[obj] === "function") 
         && !obj.startsWith("_") 
         && !obj.startsWith("#")
         && !this.exposed_removed.includes(obj);
     } 
 
-    __get(obj){
-        assert(this.__exposes(obj), `Stage does not expose method you try to call: ${ obj }`);
-        return this.exposed_added[obj] || this[obj];
+    _get(obj){
+        assert(this._exposes(obj), `Stage does not expose method you try to call: ${ obj }`);
+        return this.exposed_added[obj] || this[obj].bind(this);
     }
 
     // Methods to call on stage
     advance_stage(){
-        return this.pattern_constructor.__advance_stage();
+        this.pattern_constructor.__advance_stage();
     }
 
     remove_exposed(key){
         this.exposed_removed.push(key);
+        return this;
     }
 
     add_exposed(key, value){
         this.exposed_added[key] = value;
         this.exposed_removed = this.exposed_removed.filter(k => key !== k);
+        return this;
     }
 
     on_enter(){}
