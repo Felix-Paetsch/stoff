@@ -48,8 +48,7 @@ export default class PatternConstructor {
                 assert.THROW(`No future stage exposes thing "${prop}"`);
             },
             set: (target, prop, value, receiver) => {
-                // return Reflect.set(target, prop, value, receiver);
-                throw new Error("You are trying to set things via the proxy. If you are sure you want to set properties, use `._get_original()` first.");
+                return Reflect.set(target, prop, value, receiver);
             }
         };
     }

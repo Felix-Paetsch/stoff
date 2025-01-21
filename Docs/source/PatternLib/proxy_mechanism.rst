@@ -21,11 +21,11 @@ When it moves to the next stage it does so in the following steps:
 3. It sets ``.measurements`` to ``.measurements``
 4. It calls ``.on_enter(this.working_data, this.measurements)`` on the next stage
 
-When you directly call ``PatternConstructor.finish()`` after initialization, it will just move step by step to the last stage and then call ``.finish()`` on it and return the result. (And return it subsequently again every time you call ``PatternConstructor.get_result()``, see `PatternConstructor.finish() <pattern_constructor>`).
+When you directly call ``PatternConstructor.finish()`` after initialization, it will just move step by step to the last stage and then call ``.finish()`` on it and return the result. (And return it subsequently again every time you call ``PatternConstructor.get_result()``, see :doc:`PatternConstructor.finish() <pattern_constructor>`).
 
 Calling methods on stages
 ----------------------------------
-Somewhat the whole point of stages and the lazy traversing of them is that you can have stage-specific methods. A stage can expose methods (and objects) through ``Stage._exposes(obj)`` and ``Stage._get(obj)``, see `PatternStage._exposes. <stages>`
+Somewhat the whole point of stages and the lazy traversing of them is that you can have stage-specific methods. A stage can expose methods (and objects) through ``Stage._exposes(obj)`` and ``Stage._get(obj)``, see :doc:`PatternStage._exposes() <stages>`.
 
 You access them, by callem them on the :doc:`PatternConstructor <pattern_constructor>`. It will:
 

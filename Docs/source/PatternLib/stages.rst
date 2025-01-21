@@ -2,7 +2,7 @@ Pattern Stages
 ==============
 
 Pattern stages are sequential building blocks used by the :doc:`PatternConstructor <pattern_constructor>` to assamble as sewing pattern.
-See here for a :doc:`guide <todo>` how they are indended to be used and work together with the :doc:`PatternConstructor <pattern_constructor>`.
+See here for a :doc:`guide <stages_guide>` how they are indended to be used and work together with the :doc:`PatternConstructor <pattern_constructor>`.
 
 **Source File**: ./PatternLib/pattern_stages/baseStage.js
 

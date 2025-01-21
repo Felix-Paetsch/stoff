@@ -1,7 +1,7 @@
 Sewing Sketch
 ==============
 
-´SewingSketches´ expands upon :doc:`Sketch <../StoffLib/sketch>` and implements higher-level, more sewing-pattern related functionality. 
+`SewingSketches` expands upon :doc:`Sketch <../StoffLib/sketch>` and implements higher-level, more sewing-pattern related functionality. 
 You most likely will prefer a ``SewingSketch`` over the normal ``Sketch`` when working in this domain.
 Also it is a bit more oppinionated, as some methods only work well when :doc:`Points <../StoffLib/point>` or :doc:`Lines <../StoffLib/line>`
 have the ``type`` key set in their ``data`` attribute.
