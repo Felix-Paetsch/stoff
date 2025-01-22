@@ -155,7 +155,7 @@ function vec_angle_clockwise(vec1, vec2, reference = ZERO, offset_range = false)
 
 function orientation(vec1, vec2, vec3){
     const a = vec_angle_clockwise(vec1, vec2, vec3);
-    assert(a !== 0 && a !== 180 && a !== -180, "Vectors are colinear");
+    assert(a !== 0 && a !== Math.PI && a !== -Math.PI, "Vectors are colinear");
     return a > 0 ? 1 : -1;
 }
 

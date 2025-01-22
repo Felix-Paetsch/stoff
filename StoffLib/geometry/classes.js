@@ -275,8 +275,8 @@ export class Line {
         return Line.from_direction(at, this.points[0].subtract(this.points[1]).get_orthogonal());
     }
 
-    contains(vec){
-        return vec.distance(this.project(vec)) < EPS.MODERATE;
+    contains(vec, eps = EPS.MODERATE){
+        return vec.distance(this.project(vec)) < eps;
     }
 
     project(vec){
@@ -303,7 +303,11 @@ export class Line {
     }
 
     to_line(){
-        return this;
+        return this.copy();
+    }
+
+    copy(){
+        return new Line(...this.points);
     }
 
     intersect(target) {
@@ -363,10 +367,10 @@ export class Ray{
         return Line.from_direction(at, p1.subtract(p2).get_orthogonal());
     }
 
-    contains(vec){
+    contains(vec, eps = EPS.MODERATE){
         const p = this.project(vec);
-        if (!p.equals(vec, EPS.MODERATE)) return false;
-        if (p.equals(this.src, EPS.MODERATE)) return true;
+        if (!p.equals(vec, eps)) return false;
+        if (p.equals(this.src, eps)) return true;
 
         const vec_direction = vec.subtract(this.src);
         const angle = vec_angle(vec_direction, this.direction);
