@@ -17,3 +17,4 @@ It can be used as a stand-alone module in other projects.
    connected_components
    curves
    assert
+   colors
