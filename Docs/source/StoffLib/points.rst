@@ -13,7 +13,7 @@ Points
  .. js:function:: constructor(x, y)
     
   **Parameters**:
-   - x (*number*): x-position
+   - x (*number|Vector*): x-position
    - y (*number*): y-position
   
    Alternatively x can also be a vector and we then use its position.
@@ -82,7 +82,6 @@ Points
  .. js:function:: set_color(color)
  
   **Parameters**:
-    
     - color (*string*)
  
   **Returns**:
@@ -102,7 +101,6 @@ Points
   Later this might be used to unify the terminology for setting the same attribute on lines and points.
  
   **Parameters**:
-    
     - attr (*string*)
     - value (*string*)
  
@@ -122,7 +120,6 @@ Points
   ``line.get_tangent_vector(this)``. It is unit length and points away from the line.
  
   **Parameters**:
-    
     - line (*Line*): An adjacent line
  
   **Returns**:
@@ -202,7 +199,7 @@ Points
 
   **Parameters**:
     - x (*number|Vector*)
-    - y (*number|null)
+    - y (*number|null*)
  
   **Returns**:
     - this
