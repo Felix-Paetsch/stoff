@@ -491,6 +491,14 @@ Note that there is also a (different) line class in :doc:`geometry.js <geometry>
   **Returns**:
     - *boolean*
 
+ **Dev methods**
+
+ Dev methods are things which shouldn't be used in production but can be helpful for development,
+ perhaps integrated with the surrounding environment and breaking if changing that.
+
+ .. js:function:: dev.mark_endpoints()
+     
+  Marks the line and its endpoints in the sketch, by setting rendering attributes.
 
 
 .. js:class:: StraightLine

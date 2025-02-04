@@ -12,9 +12,10 @@ It can be used as a stand-alone module in other projects.
    geometry
    points
    lines
-   sketches
-   sketch_dev
-   connected_components
+   sketch
+   recording
+   connected_component
    curves
-   assert
    colors
+   config  
+   assert

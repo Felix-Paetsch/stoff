@@ -58,3 +58,6 @@ html_static_path = ['_static']
 html_css_files = [
     'custom.css',  # Replace with your CSS file name
 ]
+html_js_files = [
+    'order.js',
+]

@@ -220,7 +220,7 @@ Points
 
  **Static**:
   
- .. js:function:: prototype.from_vector(vec)
+ .. js:function:: static.from_vector(vec)
       
   Returns a point at the same position of the vector.
   

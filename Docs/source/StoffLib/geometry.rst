@@ -527,7 +527,7 @@ Classes
 
    **Static**:
       
-    .. js:method:: prototype.from_direction(vec, direction)
+    .. js:method:: static.from_direction(vec, direction)
         
       Returns a line through ``vec`` going in the specified direction
     
@@ -665,7 +665,7 @@ Classes
       
  **Static**:
       
-  .. js:method:: prototype.from_direction(src, passing)
+  .. js:method:: static.from_direction(src, passing)
     
    Returns a ray starting at src, going through passing. 
 

@@ -66,7 +66,7 @@ function bezier(points, t){
         );
 }
 
-function hermite_spline(points, velocities, relative = false){
+function hermite_spline(points, velocities, relative = true){
     // Returns a fn creating the hermite spline through the given poitns with the right velocity
     // relative means whether the velocity is given as a vector from (0, 0) or from the current control pt
 
@@ -110,7 +110,7 @@ function hermite_spline(points, velocities, relative = false){
     return res_fun;
 }
 
-function catmull_rom_spline(points, start_velocity = null, end_velocity = null, relative = false){
+function catmull_rom_spline(points, start_velocity = null, end_velocity = null, relative = true){
     assert(points.length > 1);
 
     if (start_velocity == null){
@@ -143,39 +143,48 @@ function points_forEach(vec_callback = (pt) => {}){
     return this;
 }
 
-function bezier_plot_control_points(sketch, pt_callback = (pt) => {}){
+function bezier_plot_control_points(sketch, pt_callback = (pt) => {}, ln_callback = (ln) => {}){
     const pts = [];
-    this.points.forEach((vec, i) => {
+    this.points.forEach((vec) => {
         const pt = sketch.add(vec.copy());
         pt.set_color("rgba(219, 165, 255,.5)");
         pts.push(pt);
-        pt_callback(pt, i);
+        pts.push(pt);
     });
 
+    const lns = [];
     for (let i = 0; i < pts.length - 1; i ++){
-        sketch.line_between_points(pts[i], pts[i+1]).set_color("rgba(0,100,0,.3)");
+        lns.push(sketch.line_between_points(pts[i], pts[i+1]).set_color("rgba(0,100,0,.3)"));
     }
+    
+    pts.forEach((p, i) => pt_callback(p, i))
+    lns.forEach((l, i) => ln_callback(l, i))
+
     return this;
 }
 
-function hermite_plot_control_points(sketch, pt_callback = (pt) => {}){
+function hermite_plot_control_points(sketch, pt_callback = (pt, i) => {}, ln_callback = (ln, i) => {}){
     const pts = [];
-    this.points.forEach((vec, i) => {
+    this.points.forEach((vec) => {
         const pt = sketch.add(vec.copy());
         pt.set_color("rgba(219, 165, 255,.5)");
         pts.push(pt);
-        pt_callback(pt, i);
     });
 
+    const lns = [];
     for (let i = 0; i < pts.length/2; i ++){
-        sketch.line_between_points(pts[2*i], pts[2*i+1]).set_color("rgba(0,100,0,.3)");
+        lns.push(ln_callback(sketch.line_between_points(pts[2*i], pts[2*i+1]).set_color("rgba(0,100,0,.3)")));
     }
+
+    pts.forEach((p, i) => pt_callback(p, i))
+    lns.forEach((l, i) => ln_callback(l, i))
+    
     return this;
 }
 
 // Build Up
 
-function bezier_smooth_cubic(points, tangents, relative = false){
+function bezier_smooth_cubic(points, tangents, relative = true){
     assert(tangents.length == points.length, "We require same amt of points and tangents");
 
     const new_pts = [];

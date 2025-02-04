@@ -86,12 +86,12 @@ function calculate_correct_width_height(s, width = null, height = null) {
     // Set rendering width and height
     const aspect_ratio = sketch_bb.width / sketch_bb.height;
     if (width == null && height !== null){
-        width = aspect_ratio * (height * CONF.DEFAULT_PX_PER_UNIT - 2 * CONF.DEFAULT_SAVE_PX_PADDING) + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+        width = aspect_ratio * (height - 2 * CONF.DEFAULT_SAVE_PX_PADDING) + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
     } else if (width !== null && height == null){
-        height = (width * CONF.DEFAULT_PX_PER_UNIT - 2 * CONF.DEFAULT_SAVE_PX_PADDING) / aspect_ratio + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+        height = (width - 2 * CONF.DEFAULT_SAVE_PX_PADDING) / aspect_ratio + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
     } else if (width == null && height == null){
-        width = sketch_bb.width * CONF.DEFAULT_PX_PER_UNIT + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
-        height = sketch_bb.height * CONF.DEFAULT_PX_PER_UNIT + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+        width = sketch_bb.width + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
+        height = sketch_bb.height + 2 * CONF.DEFAULT_SAVE_PX_PADDING;
     }
 
     return {
