@@ -5,18 +5,18 @@ import InitStage from "./pattern_stages/initStage.js";
 export default class PatternConstructor {
     constructor(measurements = null, stages = []) {
         this.measurements = measurements || null;
-
         this.working_data = {};
+
         this.current_stage = -1;
         this.stages = [];
         this.add_patter_stage(InitStage);
         this.__advance_stage();
+
         for (const s of stages){
             this.add_patter_stage(s);
         }
 
         this.is_finished = false;
-        this.working_data = {};
         
         this.proxy = new Proxy(this, this.#proxy_handler());
         return this.proxy;
@@ -60,6 +60,7 @@ export default class PatternConstructor {
         }
 
         stage.pattern_constructor = this;
+        stage.measurements = this.measurements;
         if (position_ident === null) this.stages.push(stage);
         return this.proxy;
     }
@@ -94,13 +95,13 @@ export default class PatternConstructor {
 
     __advance_stage(){
         assert(this.current_stage < this.stages.length - 1, "No further stage to advance to.");
-        
+
         const current_stage = this.stages[this.current_stage];
         let new_wd = current_stage?.on_exit ? 
             current_stage.on_exit(this.working_data, this.measurements)
             : this.working_data;
 
-        this.working_data = new_wd || current_stage.wd || this.working_data;
+        this.working_data = new_wd ? new_wd : current_stage.wd ? current_stage.wd : this.working_data;
 
         const next_stage = this.stages[++this.current_stage];
         next_stage.wd = this.working_data;

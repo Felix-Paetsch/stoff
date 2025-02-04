@@ -13,6 +13,7 @@ export default function() {
     heart.add_patter_stage(SingleSideStage);
     heart.add_patter_stage(DoubleSideStage);
     heart.add_patter_stage(CutStage);
+    heart.add_patter_stage(new CutStage());
 
     heart.set_length(1);
     
@@ -22,16 +23,6 @@ export default function() {
     // hs.wing(0.2);
 
     heart.add_right_wing(.7);
-    
-    /*
-        What info does a stage need for construction??
-        the constructor?
-        the prev stage?
-        after add_pattern_stage it should be initialized either way..
-        (as we want to look at its attributes for later)
-        shirt.PatternStage.whaa
-        in theory a stage has a costructor, but nothing else neccessarily associated..
-    */
 
     r.at_url("/test");
     return heart.finish();
