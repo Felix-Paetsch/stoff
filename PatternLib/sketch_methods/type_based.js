@@ -24,7 +24,7 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.get_typed_points = function(type){
-        return _set_typed_line_point_array_methods(this.points_by_key("type")[type] || []);
+        return this._set_typed_line_point_array_methods(this.points_by_key("type")[type] || []);
     }
 
     // Weakly typed

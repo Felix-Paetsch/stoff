@@ -4,6 +4,8 @@ import { default_data_callback } from "../../StoffLib/copy.js";
 import { EPS } from "../../StoffLib/geometry.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
+    console.log(data);
+
     assert(ep1[0] == ep2[0], "First glue point isn't equal");
     const fixed = ep1[0];
     const p1 = ep1[1];
@@ -59,7 +61,7 @@ export function glue_with_fixed_point(s, ep1, ep2, data){
     if (data.points == "delete_both"){
         merged.push(delete_glue_point(s, fixed, data.lines));
     }
-    if (data.points.startsWith("delete")){
+    if (typeof data.points == "string" && data.points.startsWith("delete")){
         merged.unshift(delete_glue_point(s, merged_pt, data.lines));
         return {
             glue_type: "with_fixed",
@@ -133,9 +135,9 @@ export function glue(s, ep1, ep2, data){
         }
     }
     
-    if (data.lines == "delete" || data.points.startsWith("delete")){
+    if (data.lines == "delete" || (typeof data.points == "string" && data.points.startsWith("delete"))){
         s.remove_lines(...glue_lines);
-    } else if (!data.points.startsWith("delete")){ // Merge Case
+    } else if (!(typeof data.points == "string" && data.points.startsWith("delete"))){ // Merge Case
         assert(glue_lines.length == 1 || glue_lines.length == 2, "Can't glue lines (wront amount)");
         const r = s.copy_line(glue_lines[0]);
         r.data = data.lines(...glue_lines.map(l => l.data), ...glue_lines); // data.lines is data_callback

@@ -14,9 +14,13 @@
 
 import PatternStage from "../../PatternLib/pattern_stages/baseStage.js";
 import SewingSketch from "../../PatternLib/sewing_sketch.js";
-import { Vector, triangle_data, rotation_fun } from "../../StoffLib/geometry.js";
+import { Vector, triangle_data, rotation_fun, vec_angle_clockwise , vec_angle, deg_to_rad, rad_to_deg} from "../../StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
 import { spline } from "../../StoffLib/curves.js";
+import ConnectedComponent from "../../StoffLib/connected_component.js";
+
+// To be ported
+// import NecklineSideHalf from "../../Patterns/parts/neckline/neckline_side_half.js"
 
 export default class BasicPatternStage extends PatternStage{
     constructor(t){
@@ -30,7 +34,7 @@ export default class BasicPatternStage extends PatternStage{
         this.sketch = s;
         this.side = "front";
         this.#initialize_shorthands();
-        this.#main_construction_without_waist();
+        this.#main_construction();
     }
 
     finish() {
@@ -48,6 +52,8 @@ export default class BasicPatternStage extends PatternStage{
             "point_height": ["bust_point_height", "shoulderblade_height"],
             "waist": ["waist_width_front", "waist_width_back"],
             "bottom": ["bottom_width_front", "bottom_width_back"],
+            "over_bust": ["over_bust_front", "over_bust_back"],
+            "belly": ["belly_front", "belly_back"],
         }
 
         this.sh = { ... this.measurements };
@@ -146,7 +152,7 @@ export default class BasicPatternStage extends PatternStage{
         pts.p6.data.type = "p6";
         pts.e.data.type = "e";
         pts.c.data.type = "c";
-        this.#ease();
+      //  this.#ease();
 
         this.sketch.data = {
             "p5": pts.p5,
@@ -202,87 +208,131 @@ export default class BasicPatternStage extends PatternStage{
 
         let len = Math.sqrt(Math.pow(this.sh.diagonal, 2) - Math.pow(this.sh.shoulder_width / 2, 2));
         pts.c = this.sketch.point(pts.b.add(new Vector(pts.p3.x, -len)));
-
+        
         len = Math.sqrt(Math.pow(this.sh.shoulder_length, 2) - Math.pow(pts.c.y - pts.p1.y, 2));
-
+        
         pts.d = this.sketch.point(pts.c.add(new Vector(len, pts.p1.y - pts.c.y)));
         lns.c_to_d = this.sketch.line_between_points(pts.d, pts.c);
         lns.c_to_d.data.type = "shoulder";
-
-        pts.c.move_to(pts.c.subtract(pts.d).scale(0.75).add(pts.d));
-
-
-        const len_b = 10;
-        const ve = pts.c.subtract(pts.p2);
-        const len_c = Math.sqrt(Math.abs((len_b * len_b) - (ve.x * ve.x)));
-        const a = pts.p2;
-        const vec = pts.p3.subtract(pts.p1).get_orthonormal();
-        ve.x = 0;
-        const vec_p = vec.scale(len_c).add(a).add(ve);
-        pts.p5 = this.sketch.add_point(new Point(vec_p.x, vec_p.y)).set_color("blue");
+        
+        
+        lns.b_to_f = this.sketch.line_at_angle(pts.b, - Math.PI / 2, this.sh.waist / 2).line;
+        lns.b_to_f.data.type = "waistline";
+        pts.f = lns.b_to_f.p2;
+        pts.f.data.type = "f";
 
 
-        len = pts.p4.subtract(pts.p2).length();
-
-        const vec_p6 = pts.p2.subtract(pts.p1).get_orthonormal().scale((this.sh.arm - 20) * (2 / 5)).add(pts.p5).add(pts.p4.subtract(pts.p2).normalize().scale(len - 2.5))//.subtract(p2)//.add(p3);
-        pts.p6 = this.sketch.add_point(vec_p6).set_color("blue");
-        pts.e = this.sketch.add_point(pts.p6.add(new Vector(-2.5, 0)));
-
-        lns.b_to_g = this.sketch.line_at_angle(pts.b, - Math.PI / 2, this.sh.point_width / 2).line;
-
-        lns.b_to_g.data.type = "waistline";
-        lns.b_to_g.data.dartside = "inner";
-        pts.g = lns.b_to_g.p2;
-
-        let diff = this.sh.bust_width_back + this.sh.bust_width_front - this.sh.under_bust;
-        let a1 = pts.e.subtract(pts.g).length();
-        let c1 = (this.sh.bust / 2) - lns.b_to_g.get_length() + (diff / 4);
-        let b1 = this.sh.side_height;
-
-        let angle = triangle_data({ a: a1, b: b1, c: c1 }).gamma;
-
-        let fun = rotation_fun(pts.e, angle);
-        pts.f = this.sketch.add_point(pts.g.copy());
-        pts.f.move_to(fun(pts.g));
-        pts.f.move_to(pts.e.subtract(pts.f).normalize().scale(-this.sh.side_height).add(pts.e));
-
-        lns.e_to_f = this.sketch.line_between_points(pts.e, pts.f);
-
-        lns.e_to_f.data.type = "side";
-
-        let vec_p7 = pts.a.subtract(pts.b).normalize().scale(this.sh.point_height).add(pts.b);
-        pts.p7 = this.sketch.add_point(new Point(vec_p7.x, vec_p7.y));
-        pts.p7.set_color("blue");
-        let vec_h = pts.p7.subtract(pts.b).add(pts.g);
+        let vec_h = pts.b.subtract(new Vector(this.sh.point_width / 2, this.sh.point_height));
         pts.h = this.sketch.add_point(new Point(vec_h.x, vec_h.y));
+        pts.h.data.type = "h";
 
-        lns.l_help = this.sketch.line_between_points(pts.f, pts.g);
-        const length_b_g = lns.b_to_g.get_length();
-        const supposed_length = this.sh.waist / 2 - length_b_g;
-        const p8_help = this.sketch.split_line_at_length(lns.l_help, supposed_length)
+        let angle;
+        if (this.sh.bust > this.sh.over_bust){
+            len = this.sh.side_height - this.sh.point_height; 
+            // nur erstmal zur sicherheit, falld das nicht im Abschnitt vorher gemacht wurde
+        
+            let diff = this.sh.bust / 2 - this.sh.over_bust / 2;
+            let pt = this.sketch.add_point(pts.h.subtract(new Vector(diff/2, -len)));
+            let pt2 = this.sketch.add_point(pt.add(new Vector(diff, 0)));
+                    
+            angle = vec_angle(pt.subtract(pts.h), pt2.subtract(pts.h)) ;
 
-        this.sketch.remove_line(p8_help.line_segments[1]);
-        pts.p8 = p8_help.point;
+            this.sketch.remove(pt, pt2);
+        }
 
-        lns.l_help = this.sketch.line_between_points(pts.h, pts.p8);
-        lns.g_to_h = this.sketch.line_between_points(pts.h, pts.g);
-        lns.g_to_h.data.type = "dart";
-        lns.g_to_h.data.dartside = "inner";
+        if (this.sh.bust > this.sh.waist){
+            let diff = this.sh.bust - this.sh.waist;
+            pts.g = this.sketch.add_point(pts.b.subtract(new Vector((this.sh.point_width - diff)/2), 0));
+            
+            let temp = this.sketch.add_point(pts.g.subtract(new Vector(diff, 0)));
+            angle = angle + vec_angle_clockwise(pts.g.subtract(pts.h), temp.subtract(pts.h));
+            this.sketch.remove_points(temp, pts.g);
+            
+            /*
+            */
+        }
 
-        const vec_length = lns.g_to_h.get_length();
-        let vec_i = lns.l_help.get_line_vector().normalize().scale(vec_length).add(pts.h);
-        pts.i = this.sketch.add_point(vec_i);
-        lns.f_to_i = this.sketch.line_between_points(pts.i, pts.f);
-        lns.f_to_i.data.type = "waistline";
-        lns.f_to_i.data.dartside = "outer";
-        lns.h_to_i = this.sketch.line_between_points(pts.h, pts.i);
-        lns.h_to_i.data.type = "dart";
-        lns.h_to_i.data.dartside = "outer";
+        let temp = this.sketch.split_line_at_length(lns.b_to_f, this.sh.point_width / 2);
+        let rest_len = temp.line_segments[1].get_length();
+        this.sketch.remove_point(pts.f);
+        pts.f = temp.point;
+        pts.f.data.type = "f";
 
-        this.sketch.validate();
+        lns.c_to_h = this.sketch.line_between_points(pts.c, pts.h);
+        lns.h_to_f = this.sketch.line_between_points(pts.h, pts.f);
+        
+        this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4);
+
+
+        const pts2 = {}
+        const lns2 = {}
+
+        pts2.a = this.sketch.add_point(-60, 15);
+        pts2.b = this.sketch.add_point(-60, 15 + this.sh.side_height);
+        lns2.a_to_b = this.sketch.line_between_points(pts2.a, pts2.b);
+
+        //lns2.b_to_f = this.sketch.line_at_angle(pts2.b, rad_to_deg(90), rest_len);
+        pts2.f = this.sketch.add_point(pts2.b.subtract(new Vector(-rest_len, 0)));
+        lns2.b_to_f = this.sketch.line_between_points(pts2.b, pts2.f);
+
+        pts2.h = this.sketch.add_point(pts2.b.subtract(new Vector(-(this.sh.bust - this.sh.point_width) / 2, this.sh.point_height)));
+
+        let temp_angle = vec_angle_clockwise(pts.c.subtract(pts.h), lns.h_to_f.get_line_vector());
+
+        pts2.c = this.sketch.add_point(pts2.f.copy());
+        let fun = rotation_fun(pts2.h, -temp_angle - angle/2);
+        pts2.c.move_to(fun(pts2.c));
+        let vec = pts2.c.subtract(pts2.h).normalize().scale(lns.c_to_h.get_length());
+        pts2.c.move_to(pts2.h.add(vec));
+
+        lns2.c_to_h = this.sketch.line_between_points(pts2.c, pts2.h);
+        lns2.h_to_f = this.sketch.line_between_points(pts2.h, pts2.f);
+
+        vec = lns2.h_to_f.get_line_vector().normalize().scale(lns.h_to_f.get_length());
+        pts2.f.move_to(pts2.h.add(vec));
+
+        vec = pts2.h.subtract(pts.h);
+        Object.keys(pts2).forEach(key => {
+            const p = pts2[key];
+            p.move_to(p.subtract(vec));
+        });
+        angle = vec_angle_clockwise(pts2.c.subtract(pts.h), pts.c.subtract(pts.h));
+        fun = rotation_fun(pts.h, angle);
+        Object.keys(pts2).forEach(key => {
+            const p = pts2[key];
+            p.move_to(fun(p));
+        });
+
+        this.sketch.remove(pts2.c, lns.c_to_h);
+
+        pts.a.data.type = "a";
+        pts.b.data.type = "b";
+        pts.c.data.type = "c";
+        pts.d.data.type = "d";
+        pts.f.data.type = "g";
+        pts2.a.data.type = "e";
+        pts2.b.data.type = "f";
+        pts2.f.data.type = "i";
+        pts2.h.data.type = "h";
+        pts.h.data.type = "h";
+
+        lns.a_to_b.data.type = "fold";
+        lns.b_to_f.data.type = "b_to_g";
+        lns.h_to_f.data.type = "h_to_g";
+        lns2.h_to_f.data.type = "h_to_i";
+        lns2.b_to_f.data.type = "i_to_f";
+        lns2.a_to_b.data.type = "side";
+
+        this.#ease_new();
+        // bis hier könnte eine Stage sein, und das wird von den anderen zwei stages aufgerufen
+        this.#merge_to_dart();
+        /*
+        */
+       this.sketch.validate();
+       /*
         this.sketch.remove_points(pts.p1, pts.p2, pts.p3, pts.p4, pts.p7, pts.p8);
 
-        this.add_component("neckline", new NecklineSideHalf(this, pts.d, pts.a));
+       // this.add_component("neckline", new NecklineSideHalf(this, pts.d, pts.a));
 
         const center_vec = lns.a_to_b.get_line_vector().scale(0.2).add(pts.a);
         this.sketch.data = {
@@ -291,6 +341,7 @@ export default class BasicPatternStage extends PatternStage{
             "center": center_vec,
             "is_front": this.side == "front"
         }
+        */
     };
 
     #ease(){
@@ -319,5 +370,88 @@ export default class BasicPatternStage extends PatternStage{
             });
             /*
         */
+    };
+
+    /*
+        Ich mache das so, da ich die Abnäherspitze, sowie die Schulterpasse genau so lassen will, 
+        sonst verzieht sich alles. Die einzige Möglichkeit die ich habe ist also, den Bereich zwischen Seitennaht 
+        und Abnäherspitze zu vergrößern. Damit sich nicht der Winkel zum Abnäher hin verzieht, bleibt mir nur,
+        die Punkte der Seitennaht (e, f) zu verschieben. Was das am Ende für Auswirkungen hat, muss ich wohl noch 
+        ausprobieren
+    */
+    #ease_new(){
+        let ease = 1; // das hier sollte noch von Aussen gesteuert werden 
+        // und ggf. fuer beide Punkte einzelnd die Groesse bestimmt werden
+        let e = this.sketch.get_typed_point("e");
+        let f = this.sketch.get_typed_point("f");
+
+        e.move_to(e.add(new Vector(-ease, 0)));
+        f.move_to(f.add(new Vector(-ease, 0)));
+    };
+
+    #merge_to_dart(waistline_dart = false){
+        let pts = this.sketch.get_typed_points("h");
+        //this.sketch.merge_points(pts[0], pts[1]);
+        
+        if (waistline_dart){
+
+        } else {
+            let shoulder = this.sketch.get_typed_line("shoulder");
+            let temp = this.sketch.split_line_at_fraction(shoulder, 0.5); // TODO: das hier ggf. ändern
+            let k = temp.point;
+            k.data.type = "k";
+            let l = this.sketch.add_point(k.copy());
+            l.data.type = "l";
+            temp.line_segments[0].replace_endpoint(k, l);
+            temp.line_segments[0].data.type = "d_to_l";
+            temp.line_segments[1].data.type = "k_to_c";
+
+            
+
+            this.sketch.line_between_points(this.sketch.get_typed_line("h_to_g").p1, l).data.type = "h_to_l";
+            this.sketch.line_between_points(this.sketch.get_typed_line("h_to_i").p1, k).data.type = "h_to_k";
+            let h = this.sketch.get_typed_point("h");
+            let angle = vec_angle_clockwise(this.sketch.get_typed_line("h_to_g").get_line_vector(), this.sketch.get_typed_line("h_to_i").get_line_vector());
+
+            let i = this.sketch.get_typed_point("i");
+            let f = this.sketch.get_typed_point("f");
+
+            let angle2 = vec_angle_clockwise(h.subtract(i), f.subtract(i)) + deg_to_rad(90);
+            let fun = rotation_fun(h, -angle - angle2);
+
+            let comp = new ConnectedComponent(k);
+            comp.transform(p => p.move_to(fun(p)));
+
+            this.sketch.merge_points(pts[0], pts[1]);
+
+            this.#lengthen_dart();
+        }
+        /*
+
+        */
+    };
+
+    #lengthen_dart(){
+        /*
+        let ln1 = this.sketch.get_typed_line("h_to_g");
+        let ln2 = this.sketch.get_typed_line("h_to_i");
+        this.sketch.glue(ln1, ln2)
+        */
+
+       let b = this.sketch.get_typed_point("b");
+       let b_to_m = this.sketch.line_at_angle(b, deg_to_rad(180), this.sh.waist_height).line;
+       b_to_m.data.type = "b_to_m";
+       b_to_m.p2.data.type = "m";
+        let m_to_n = this.sketch.line_at_angle(b_to_m.p2, deg_to_rad(270), this.sh.bottom / 2).line;
+        m_to_n.data.type = "m_to_n";
+        //   console.log(this.sh);
+        //console.log(m_to_n)
+        m_to_n.data.type = "n";
+        let vec = b_to_m.get_line_vector().scale(0.5).add(b).add(new Vector(-this.sh.belly /2, 0));
+        let o = this.sketch.add_point(vec);
+        /*
+        o.data.type = "o";
+        */
+        
     }
 }
