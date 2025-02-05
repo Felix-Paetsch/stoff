@@ -320,6 +320,9 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.point_on_line = function(pt, line, data_callback = copy_data_callback){
+        if (!(pt instanceof Point)){
+            pt = this.add(pt);
+        }
         const abs = line.get_absolute_sample_points();
 
         let closest_line_segment_first_index = 0;

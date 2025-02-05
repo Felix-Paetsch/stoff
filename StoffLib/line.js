@@ -8,7 +8,7 @@ import add_self_intersection_test from './unicorns/self_intersects.js';
 import CONF from './config.json' assert { type: 'json' };
 
 class Line{
-    constructor(endpoint_1, endpoint_2, sample_points, color = "black"){
+    constructor(endpoint_1, endpoint_2, sample_points){
         /*
             Sample points is an array of values [x(t), y(t)] with
             x(t), y(t) relative to the endpoints, t starts at 0 (including it) and goes to 1 (including it)
@@ -18,7 +18,7 @@ class Line{
         */
 
         this.attributes = {
-            stroke: color,
+            stroke: "black",
             strokeWidth: 1,
             opacity: 1
         };
@@ -138,9 +138,42 @@ class Line{
         return !this.sample_points.some(p => p.y !== 0);
     }
 
-    is_convex(){
-        return !this.sample_points.some(p => p.y !== 0);
+    is_convex() {
+        const pts = this.sample_points;
+        const n = pts.length;
+      
+        if (n < 4) return true;
+        let sign = 0;
+      
+        for (let i = 0; i < n; i++) {
+            // Get three consecutive points, wrapping around with modulo arithmetic.
+            const p0 = pts[i];
+            const p1 = pts[(i + 1) % n];
+            const p2 = pts[(i + 2) % n];
+        
+            // Compute the edge vectors using the Vector.subtract() method.
+            const v1 = p1.subtract(p0);
+            const v2 = p2.subtract(p1);
+        
+            // Use the Vector.cross() method to get the "z-component" of the cross product.
+            // This tells us whether the turn from p0->p1->p2 is clockwise or counterclockwise.
+            const crossVal = v1.cross(v2);
+        
+            // Ignore collinear cases (which may arise from floating point inaccuracies).
+            if (Math.abs(crossVal) < EPS.TINY) continue;
+        
+            // Record the sign of the first nonzero cross product.
+            if (sign === 0) {
+                sign = Math.sign(crossVal);
+            } else if (Math.sign(crossVal) !== sign) {
+                // If the sign of the cross product differs at any vertex, the polygon is nonconvex.
+                return false;
+            }
+        }
+      
+        return true;
     }
+      
 
     connected_component(){
         return new ConnectedComponent(this);
@@ -216,6 +249,9 @@ class Line{
     }
 
     same_orientation(...args){
+        assert.HAS_ENDPOINT(this, args[0]);
+        args[1] && assert.HAS_ENDPOINT(this, args[1]);
+
         return this.p1 == args[0];
     }
 
@@ -293,20 +329,13 @@ class Line{
         return this;
     }
 
-    reverse(){
-        return this.swap_orientation();
-    }
-
     stretch(factor = 1){
         this.sample_points.forEach(p => p.set(p.x, factor * p.y));
+        return this;
     }
 
     endpoint_distance(){
         return this.p1.distance(this.p2);
-    }
-
-    length(){
-        return this.get_length();
     }
 
     get_length(){
@@ -374,7 +403,7 @@ class Line{
     rel_normalized_sample_points(k = null) {
         if (k == null){
             const density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-            k = this.length() / (density * this.endpoint_distance());
+            k = this.get_length() / (density * this.endpoint_distance());
         }
         k = Math.round(k);
     
@@ -423,6 +452,7 @@ class Line{
 
     position_at_length(length, reversed = false){
         const l = this.get_length();
+        length = length >= 0 ? length : l - length;
         assert(length <= l, "Specified length longer than line.");
 
         if (reversed){
@@ -459,27 +489,7 @@ class Line{
         assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
 
         f = f >= 0 ? f : 1 - f;
-        return this.position_at_length(f * this.length(), reversed);
-    }
-
-    vec_at_length(d, reversed = false){
-        assert.CALLBACK("Specified length longer than line.", () => {
-            return this.endpoint_distance() - Math.abs(d) >= 0
-        });
-
-        if (d < 0){
-            d *= -1;
-            reversed = !reversed;
-        }
-        if (reversed) d = this.endpoint_distance() - d;
-        return this.p1.add(this.get_line_vector().normalize().scale(d));
-    }
-
-    vec_at_fraction(f, reversed = false){
-        assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
-
-        f = f >= 0 ? f : 1 - f;
-        return this.vec_at_length(f * this.endpoint_distance(), reversed);
+        return this.position_at_length(f * this.get_length(), reversed);
     }
 
     closest_position(vec){
@@ -511,8 +521,8 @@ class Line{
     set_sketch(s){
         if (this.sketch == null || s == null){
             this.sketch = s;
-            return this;
         }
+        return this;
     }
 
     _remove_duplicate_points() {
@@ -534,7 +544,7 @@ class Line{
     _renormalize(density = null){
         if (!density) density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
 
-        const n = this.length() / density;
+        const n = this.get_length() / density;
         this.sample_points = this.rel_normalized_sample_points(n);
         return this;
     }
@@ -544,7 +554,11 @@ class Line{
     }
 
     toJSON(){
-        return this.sample_points;
+        return {
+            p1: this.p1.toJSON(),
+            p2: this.p2.toJSON(),
+            sample_points: this.sample_points
+        }
     }
 }
 
@@ -557,7 +571,7 @@ class StraightLine extends Line{
         super(
             endpoint_1,
             endpoint_2,
-            Array.from({ length: n + 1 }, (v, i) => new Vector(i/n, 0))
+            Array.from({ length: n + 1 }, (_v, i) => new Vector(i/n, 0))
         );
     }
 
@@ -565,15 +579,30 @@ class StraightLine extends Line{
         return this.endpoint_distance();
     }
 
-    position_at_length(f, reversed = false){
-        f = f >= 0 ? f : 1 - f;
-        return this.vec_at_length(f, reversed);
+    position_at_length(d, reversed = false) {
+        assert.CALLBACK("Specified length longer than line.", () => {
+            return this.endpoint_distance() - Math.abs(d) >= 0;
+        });
+      
+        if (d < 0) {
+            d = -d;
+            reversed = !reversed;
+        }
+        
+        if (reversed) {
+            d = this.endpoint_distance() - d;
+        }
+    
+        return this.p1.add(
+            this.get_line_vector().normalize().scale(d)
+        );
     }
-
-    position_at_fraction(f, reversed = false){
-        f = f >= 0 ? f : 1 - f;
-        return this.vec_at_fraction(f, reversed);
+      
+    position_at_fraction(f, reversed = false) {
+        assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
+        return this.position_at_length(this.get_length() * d, reversed);
     }
+      
 
     closest_position(vec){
         const rel = this.get_to_relative_function()(vec);

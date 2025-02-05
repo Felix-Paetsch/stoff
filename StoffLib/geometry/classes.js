@@ -7,6 +7,7 @@ export class Vector {
         if (x instanceof Vector){
             y = x.y;
             x = x.x;
+            column = x.is_column
         }
 
         if (
@@ -47,7 +48,7 @@ export class Vector {
     }
 
     distance(el) {
-        if (el instanceof Line) return Line.distance(el);
+        if (el instanceof Line || el instanceof Ray) return el.distance(this);
         return Math.sqrt(
             Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2)
         );
@@ -110,7 +111,7 @@ export class Vector {
     }
 
     mirror_at(el, vec2 = null){
-        if (el instanceof Line) return this.mirror_at(el.project(this));
+        if (el instanceof Line || el instanceof Ray) return this.mirror_at(el.project(this));
         if (el instanceof Array) return this.mirror_at(...el);
         if (vec2 instanceof Vector) return this.mirror_at(new Line(el, vec2));
 
@@ -174,7 +175,7 @@ export class Vector {
     }
 
     copy(){
-      return new Vector(this.x, this.y);
+      return new Vector(this.x, this.y, this.is_column);
     }
 }
 
@@ -195,14 +196,14 @@ export class Matrix {
             this.col2 = new Vector(this.row1[1], this.row2[1]);
         }
 
-        this[0] = this.row1;
-        this[1] = this.row2;
+        this[0] = this.col1;
+        this[1] = this.col1;
     }
 
     transpose() {
         return new Matrix(
-            new Vector(this[0][0], this[1][0]),
-            new Vector(this[0][1], this[1][1])
+            new Vector(this.row1[0], this.row2[0]),
+            new Vector(this.row1[1], this.row2[1])
         );
     }
 
@@ -225,13 +226,13 @@ export class Matrix {
     }
 
     det() {
-        return this[0][0] * this[1][1] - this[0][1] * this[1][0];
+        return this.row1[0] * this.row2[1] - this.row1[1] * this.row2[0];
     }
 
     invert() {
         const pre_scaled = new Matrix(
-            new Vector(this[1][1], this[0][1] * -1),
-            new Vector(this[1][0] * -1, this[0][0])
+            new Vector(this.row2[1], this.row1[1] * -1),
+            new Vector(this.row2[0] * -1, this.row1[0])
         );
         return pre_scaled.scale(1 / this.det());
     }
@@ -255,7 +256,7 @@ export class Matrix {
     }
 
     toString(){
-        return `[${ this.col1.toString() }, ${ this.col2.toString() }]]`
+        return `[${ this.col1.toString() }, ${ this.col2.toString() }]`
     }
 }
 
@@ -274,8 +275,8 @@ export class Line {
         return Line.from_direction(at, this.points[0].subtract(this.points[1]).get_orthogonal());
     }
 
-    contains(vec){
-        return vec.distance(this.project(vec)) < EPS.MODERATE;
+    contains(vec, eps = EPS.MODERATE){
+        return vec.distance(this.project(vec)) < eps;
     }
 
     project(vec){
@@ -302,7 +303,11 @@ export class Line {
     }
 
     to_line(){
-        return this;
+        return this.copy();
+    }
+
+    copy(){
+        return new Line(...this.points);
     }
 
     intersect(target) {
@@ -362,10 +367,10 @@ export class Ray{
         return Line.from_direction(at, p1.subtract(p2).get_orthogonal());
     }
 
-    contains(vec){
+    contains(vec, eps = EPS.MODERATE){
         const p = this.project(vec);
-        if (!p.equals(vec, EPS.MODERATE)) return false;
-        if (p.equals(this.src, EPS.MODERATE)) return true;
+        if (!p.equals(vec, eps)) return false;
+        if (p.equals(this.src, eps)) return true;
 
         const vec_direction = vec.subtract(this.src);
         const angle = vec_angle(vec_direction, this.direction);

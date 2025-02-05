@@ -3,7 +3,7 @@ import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
 
 class Point extends Vector{
-    constructor(x, y, color = "black"){
+    constructor(x, y){
         super(x, y);
 
         this.adjacent_lines = [];
@@ -49,7 +49,9 @@ class Point extends Vector{
     }
 
     copy(){
-        return new Point(this.x, this.y).set_color(this.get_color());
+        const r = new Point(this.x, this.y);
+        r.attributes = JSON.parse(JSON.stringify(r.attributes));
+        return r;
     }
 
     get_tangent_vector(line){

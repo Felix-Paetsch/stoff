@@ -14,7 +14,6 @@
     "RENDER_MAX_SAMPLE_POINTS_PER_LINE": 100,
 
     "_descr3": "validation steps included",
-    "VAL_ERROR_MARGIN": 0.00001,
     "ASSERT_NON_SELFINTERSECTING": false,
 
     "_descr4": "for development",

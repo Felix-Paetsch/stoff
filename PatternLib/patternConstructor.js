@@ -5,7 +5,7 @@ import InitStage from "./pattern_stages/initStage.js";
 export default class PatternConstructor {
     constructor(measurements = null, stages = []) {
         this.measurements = measurements || null;
-        this.working_data = { a: true };
+        this.working_data = {};
 
         this.current_stage = -1;
         this.stages = [];
@@ -29,15 +29,20 @@ export default class PatternConstructor {
                     return this[prop];
                 }
 
-                for (let i = this.current_stage; i < this.stages.length; i++){
-                    if (this.stages[i].__exposes(prop)){
-                        for (let j = this.current_stage; j < i; j++) this.__advance_stage();
-                        const r = this.stages[i].__get(prop);
-                        if (typeof r == "function"){
-                            return r.bind(this.stages[i]);
-                        }
-                        return r;
+                if (this.is_finished){
+                    assert.THROW("Can't call methods on stages after finishing the pattern.");
+                }
+
+                if (this.stages[this.current_stage]._exposes(prop)){
+                    return this.stages[this.current_stage]._get(prop);
+                }
+
+                while (!this.on_last_stage()){
+                    if (this.stages[this.current_stage]._exposes(prop)){
+                        return this.stages[this.current_stage]._get(prop);
                     }
+
+                    this.__advance_stage();
                 }
 
                 assert.THROW(`No future stage exposes thing "${prop}"`);
@@ -51,7 +56,7 @@ export default class PatternConstructor {
     add_patter_stage(stage, position_ident = null){
         if (!(stage instanceof PatternStage)){
             assert(stage?.prototype instanceof PatternStage, "Didn't provide valid stage.");
-            stage = new stage(this.proxy);
+            stage = new stage();
         }
 
         stage.pattern_constructor = this;
@@ -84,6 +89,10 @@ export default class PatternConstructor {
         return this;
     }
 
+    on_last_stage(){
+        return this.current_stage == this.stages.length -1;
+    }
+
     __advance_stage(){
         assert(this.current_stage < this.stages.length - 1, "No further stage to advance to.");
 
@@ -106,5 +115,9 @@ export default class PatternConstructor {
         this.working_data = data;
         this.stages[this.current_stage].wd = data;
         return this.proxy;
+    }
+
+    get_working_data(){
+        return current_stage.wd || this.working_data;
     }
 }

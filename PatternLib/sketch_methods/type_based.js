@@ -39,6 +39,8 @@ export default (Sketch) => {
         } else if (check1 instanceof Line){
             const checkln = check1;
             check1 = (ln) => ln == checkln;
+        } else if (check1 === null){
+            check1 = (_) => true;
         }
 
         if (typeof check2 == "string"){
@@ -47,6 +49,8 @@ export default (Sketch) => {
         } else if (check2 instanceof Line){
             const checkln = check2;
             check2 = (ln) => ln == checkln;
+        } else if (check2 === null){
+            check2 = (_) => true;
         }
 
         const points = [];
@@ -85,6 +89,8 @@ export default (Sketch) => {
         } else if (check1 instanceof Point){
             const checkpt = check1;
             check1 = (pt) => pt == checkpt;
+        } else if (check1 === null){
+            check1 = (_) => true;
         }
 
         if (typeof check2 == "string"){
@@ -93,6 +99,8 @@ export default (Sketch) => {
         } else if (check2 instanceof Point){
             const checkpt = check2;
             check2 = (pt) => pt == checkpt;
+        } else if (check2 === null){
+            check2 = (_) => true;
         }
 
         const lines = [];
@@ -130,6 +138,9 @@ export default (Sketch) => {
             check = (ln) => ln.data.type === type 
         } else if (check == null || check == true){
             check = (_ln) => true;
+        } else if (check instanceof Point){
+            const tcheck = check;
+            check = (ln) => ln.has_endpoint(tcheck);
         }
 
         return _set_typed_line_point_array_methods(

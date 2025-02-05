@@ -161,7 +161,7 @@ export function glue(s, ep1, ep2, data){
 
     if (data.lines == "delete"){
         return {
-            glue_type: "with_fixed",
+            glue_type: "without_fixed",
             points: merged_pts,
             
             remove_points: false,
@@ -172,7 +172,7 @@ export function glue(s, ep1, ep2, data){
     const glue_line = merged_pts[0].common_line(merged_pts[0]);
     
     return {
-        glue_type: "with_fixed",
+        glue_type: "without_fixed",
         points: merged_pts,
 
         glue_line,

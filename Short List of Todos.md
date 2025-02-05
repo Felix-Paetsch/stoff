@@ -34,6 +34,10 @@ A lot to write down..
 - Fix / update colors.js
 
 ## PatternLib
+- Sewing Sketch Updates
+    - Cutting along several lines..
+        w/wo fixed point (maybe a new method)
+    - Throw errors correctly in typed methdos
 - QoL features on stages
     - See where we currently are
     - Call history
@@ -49,6 +53,8 @@ A lot to write down..
 - adding stages
     - customly from another stage
     - at a specific - somehow specified - position, not just the end
+- callback:
+    - do this thing ones that method is exposed
 
 ## Other
 - Make things work stand-alone w/o (or minimal) foreign exports

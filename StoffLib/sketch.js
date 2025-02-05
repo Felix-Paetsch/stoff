@@ -1,4 +1,4 @@
-import { Vector, convex_hull, ZERO } from './geometry.js';
+import { Vector, convex_hull, ZERO, mirror_type } from './geometry.js';
 import Point from './point.js';
 import Line from './line.js';
 import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
@@ -45,6 +45,17 @@ class Sketch{
         }
 
         throw new Error("Invalid arguments given!");
+    }
+
+    add_line(line){
+        assert.IS_LINE(line);
+        line.get_endpoints().forEach(p => {
+            assert.HAS_SKETCH(p, this);
+        });
+
+        this.lines.push(line);
+        l.set_sketch(this);
+        return l;
     }
 
     add(...args){
@@ -199,7 +210,9 @@ class Sketch{
         }
 
         this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
-        this.lines.forEach(l => l.mirror());
+        if (mirror_type(...args) == "Line"){
+            this.lines().forEach(l => l.mirror());
+        }
         return this;
     }
 
@@ -368,7 +381,8 @@ class Sketch{
         if (data_callback == null){
             data_callback = copy_data_callback
         }
-        return copy_sketch(sketch, this, data_callback, position);
+        copy_sketch(sketch, this, data_callback, position);
+        return this;
     }
 
     toString(){

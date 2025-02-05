@@ -230,8 +230,9 @@ class Recording {
         return htmlOutput;
     }
 
-    save_as_html = function(path, title = "/StoffLib", data = null){
+    save_as_html = function(path, title = "/StoffLib"){
         writeFileSync(path, this.to_html(title), 'utf-8');
+        return this;
     }
 
     at_url(url, overwrite = null) {

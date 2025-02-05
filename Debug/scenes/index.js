@@ -1,4 +1,5 @@
 import Sketch from "../../StoffLib/sketch.js";
+import {UP, LEFT, RIGHT} from "../../StoffLib/geometry.js"
 
 export default function() {
     const s = new Sketch();
@@ -26,6 +27,8 @@ export default function() {
     }
     
     s.dev.stop_recording().at_url("/test");
+
+    console.log(UP.rotate(Math.PI/2).equals(RIGHT));
 
     return s;
 }

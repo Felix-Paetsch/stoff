@@ -40,7 +40,7 @@ export default (Sketch) => {
         return components;
     }
 
-    Sketch.prototype.paste_connected_component = function(cc, position){
+    Sketch.prototype.paste_connected_component = function(cc, position = null){
         return copy_connected_component(cc, this, position);
     }
 
