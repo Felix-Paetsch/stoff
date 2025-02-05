@@ -18,7 +18,7 @@ class Line{
         */
 
         this.attributes = {
-            stroke: "black",
+            stroke: "rgb(255,0,0)",
             strokeWidth: 1,
             opacity: 1
         };
@@ -600,7 +600,7 @@ class StraightLine extends Line{
       
     position_at_fraction(f, reversed = false) {
         assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
-        return this.position_at_length(this.get_length() * d, reversed);
+        return this.position_at_length(this.get_length() * f, reversed);
     }
       
 
