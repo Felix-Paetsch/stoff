@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/main/settings_components.css">
     <link rel="stylesheet" href="/fonts/fontawesome/main.css">
 </head>
-<body>
+<body class="<%- is_debug ? 'debug_page' : '' %>">
     <% if (!is_debug) { %>
         <div id="left_bar">
             <div id="params_selection">
@@ -38,6 +38,8 @@
         
             const design_config_serialized = ${ JSON.stringify(design_config.serialize()) };
             window.design_config = Config.deserialize(design_config_serialized);
+
+            const is_debug = ${is_debug};
 
             document.addEventListener("DOMContentLoaded", () => {
                 ${ !is_debug ? 'window.design_config.on_dom_load();' : '' }

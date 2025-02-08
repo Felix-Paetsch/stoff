@@ -4,8 +4,6 @@ import { default_data_callback } from "../../StoffLib/copy.js";
 import { EPS } from "../../StoffLib/geometry.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
-    console.log(data);
-
     assert(ep1[0] == ep2[0], "First glue point isn't equal");
     const fixed = ep1[0];
     const p1 = ep1[1];

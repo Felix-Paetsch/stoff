@@ -4,7 +4,7 @@ import Line from "../../StoffLib/line.js";
 export default (Sketch) => {
     // Strictly typed
     Sketch.prototype.get_typed_line = function(type){
-        return this.lines_by_key("type")[type][0];
+        return (this.lines_by_key("type")[type] || [null])[0];
     }
 
     Sketch.prototype.get_typed_lines = function(type){
@@ -20,7 +20,7 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.get_typed_point = function(type){
-        return this.points_by_key("type")[type][0];
+        return (this.points_by_key("type")[type] || [null])[0];
     }
 
     Sketch.prototype.get_typed_points = function(type){
@@ -29,7 +29,7 @@ export default (Sketch) => {
 
     // Weakly typed
     Sketch.prototype.get_point_between_lines = function(check1, check2){
-        return this.get_points_between_lines(check1, check2)[0];
+        return this.get_points_between_lines(check1, check2)[0] || null;
     }
 
     Sketch.prototype.get_points_between_lines = function(check1, check2){
@@ -79,7 +79,7 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.get_line_between_points = function(check1, check2){
-        return this.get_lines_between_points(check1, check2)[0];
+        return this.get_lines_between_points(check1, check2)[0] || null;
     }
 
     Sketch.prototype.get_lines_between_points = function(check1, check2){
@@ -125,11 +125,11 @@ export default (Sketch) => {
             }
         }
 
-        return _set_typed_line_point_array_methods(lines);
+        return this._set_typed_line_point_array_methods(lines);
     }
 
     Sketch.prototype.get_adjacent_line = function(pt, check){
-        return this.adjacent_lines(pt, check)[0];
+        return this.get_adjacent_lines(pt, check)[0] || null;
     }
 
     Sketch.prototype.get_adjacent_lines = function(pt, check = null){
@@ -143,8 +143,8 @@ export default (Sketch) => {
             check = (ln) => ln.has_endpoint(tcheck);
         }
 
-        return _set_typed_line_point_array_methods(
-            pt.get_adjacent_lines().filer(l => check(l))
+        return this._set_typed_line_point_array_methods(
+            pt.get_adjacent_lines().filter(l => check(l))
         );
     }
 

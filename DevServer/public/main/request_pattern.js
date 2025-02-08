@@ -38,8 +38,12 @@ function throttle_func(func, interval_in_s) {
 function request_img_unthrottled(){
     const url = new URL(window.location.href);
     const params = url.search;
+    const timestamp = `t=${Date.now()}`;
 
-    fetch(`/pattern${params}`, {
+    // Ensure the URL has either `?` or `&` before appending the timestamp
+    const updatedParams = params ? `${params}&${timestamp}` : `?${timestamp}`;
+
+    fetch(`/pattern${updatedParams}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -60,6 +64,7 @@ function request_img_unthrottled(){
         }
     })
     .then(r => {
+        console.log("Resonse");
         document.getElementById('sketch_display').innerHTML = r.svg;
         document.getElementById("sketch_data").textContent = "SKETCH_DATA: " + JSON.stringify(r.rendering_data, true, 2);
         if (typeof add_svg_hover_events !== 'undefined') {

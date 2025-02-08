@@ -211,7 +211,7 @@ class Sketch{
 
         this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
         if (mirror_type(...args) == "Line"){
-            this.lines().forEach(l => l.mirror());
+            this.lines.forEach(l => l.mirror());
         }
         return this;
     }
@@ -359,9 +359,15 @@ class Sketch{
         return pt1;
     }
 
+    copy_point = function (point, data_callback = copy_data_callback) {
+        const p = this.add_point(point.copy());
+        copy_sketch_obj_data(point, p, data_callback);
+        return p;
+    }
+
     copy(el = null){
         if (el instanceof Point){
-            return this.point(el.copy());
+            return this.copy_point(el);
         }
 
         if (el instanceof Line){

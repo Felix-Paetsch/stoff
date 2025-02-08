@@ -72,7 +72,7 @@ export default class SewingSketch extends Sketch{
             There are various reasons this can fail. To be documented. I.g. this fails if the input doesn't make sense in the current context.
             You should log the sketch and the stuff you put in right before.
         */
-
+       
         if (line instanceof Array){
             if (line[0] instanceof Line){
                 return cut_along_line_path(this, this.order_by_endpoints(...line), fixed_pt, grp1, grp2);
@@ -339,9 +339,11 @@ export default class SewingSketch extends Sketch{
         assert.IS_POINT(p1);
         assert.IS_POINT(p2)
 
+        const points = [p1];
         const lines = [line];
         let last_line_p2 = lines[0].other_endpoint(p1);
         while (last_line_p2 !== p2){
+            points.push(last_line_p2);
             const new_line = last_line_p2.other_adjacent_line(lines[lines.length-1]);
             lines.push(new_line);
 
@@ -349,8 +351,12 @@ export default class SewingSketch extends Sketch{
             assert(last_line_p2 != p1, "There is no path from p1 to p2.");
             last_line_p2 = new_line.other_endpoint(last_line_p2);
         }
+        points.push(p2);
 
-        return lines;
+        return {
+            lines,
+            points
+        };
     }
 
     decompress_components(){

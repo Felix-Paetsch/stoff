@@ -89,7 +89,7 @@ class Point extends Vector{
     }
 
     common_lines(point){
-        return this.adjacent_lines.filter(l => point.adjacent_lines.includes(l));
+        return this.adjacent_lines.filter(l => point.get_adjacent_lines().includes(l));
     }
 
     move_to(x, y){

@@ -14,6 +14,7 @@ export function cut_with_fixed_point(s, line, fixed_pt, grp1, grp2){
     }
 
     const p1 = s.copy(non_fixed);
+    //console.log(non_fixed.data, p1.data);
     p1.data.p = "p1";
     const p2 = s.copy(non_fixed);
     p2.data.p = "p2";
@@ -30,8 +31,6 @@ export function cut_with_fixed_point(s, line, fixed_pt, grp1, grp2){
 
     const l1 = s.copy_line(line, endpoints1[from_index], endpoints1[to_index]);
     const l2 = s.copy_line(line, endpoints2[from_index], endpoints2[to_index]);
-    l1.data.l = "l1";
-    l2.data.l = "l2";
 
     for (const adjacent of grp1){
         adjacent.set_changed_endpoint(adjacent.other_endpoint(non_fixed), p1);

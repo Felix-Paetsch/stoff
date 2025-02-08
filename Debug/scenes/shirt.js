@@ -150,6 +150,15 @@ export default function(){
     });
     
     shirt.add_patter_stage(BasicPatternStage);
+    shirt.two_waistline_darts();
+   // shirt.move_dart("fold", 0.2);
+   // shirt.move_dart_to_outer_waistline_dart()
+    //  shirt.remove_outer_waistline_dart();
+    // shirt.correct_second_dart();
+    
+   // shirt.split_at_dart();
+   // shirt.remove_waistline_darts();
+    shirt.split_up_dart(["shoulder", 0.3, 0.4], ["fold", 0.8, 0.3], ["fold", 0.1, 0.3]);
     return shirt.finish();
 }
 
@@ -163,12 +172,12 @@ function calculate_measurements(mea) {
     mea.waist_width_back = mea.waist_width - mea.waist_width_front;
     //console.log(mea.waist_width_back);
     mea.ratio = mea.bust_width_front / mea.bust_width_back;
-    console.log(mea.ratio)
+ //   console.log(mea.ratio)
     half = half - (mea.arm / 2);
     mea.across_front = mea.ratio * half;
     mea.across_back = half + (half - mea.across_front);
-    console.log(mea.across_front)
-    console.log(mea.across_back)
+  //  console.log(mea.across_front)
+   // console.log(mea.across_back)
     //console.log(2 - mea.ratio)
     mea.across_front = mea.across_front + 4;
     mea.across_back = mea.across_back + 6;

@@ -83,9 +83,12 @@ body{
 
 /* display */
 #sketch_display pre{
-    max-width: calc(100vw - var(--left-bar-width));
     padding: 1em;
     overflow-x: auto;
+}
+
+body:not(.debug_page) #sketch_display pre{
+    max-width: calc(100vw - var(--left-bar-width));
 }
 
 #sketch_display svg{

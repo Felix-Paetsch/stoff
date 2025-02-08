@@ -15,6 +15,22 @@ export default (Sketch) => {
         new Recorder(this, Sketch, true);
     };
 
+    Sketch.dev.is_recording = function(){
+        return !!this.dev.recorder;
+    }
+
+    Sketch.dev.start_recording_once = function (...args) {
+        if (this.dev.is_recording()) return;
+        const r = new Recorder(this, Sketch, false);
+        if (args.length == 0) return;
+        r.hot_at_url(...args);
+    };
+
+    Sketch.dev.snapshot = function () {
+        if (!this.dev.is_recording()) { throw new Error("Not recording"); }
+        this.dev.recorder.snapshot();
+    };
+
     Sketch.dev.start_recording = function(...args){
         const r = new Recorder(this, Sketch, false);
         if (args.length == 0) return;

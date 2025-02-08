@@ -37,12 +37,12 @@ export default class PatternConstructor {
                     return this.stages[this.current_stage]._get(prop);
                 }
 
-                while (!this.on_last_stage()){
+                while (!this.on_last_stage()) {
+                    this.__advance_stage();
+
                     if (this.stages[this.current_stage]._exposes(prop)){
                         return this.stages[this.current_stage]._get(prop);
                     }
-
-                    this.__advance_stage();
                 }
 
                 assert.THROW(`No future stage exposes thing "${prop}"`);
