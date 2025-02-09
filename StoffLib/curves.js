@@ -21,7 +21,7 @@ export const spline = {
 
 
 function bezier_spline(static_points, degree = 2){
-    assert((static_points.length - 1) % degree === 0);
+    assert((static_points.length - 1) % degree === 0, "The number of input points -1 must be a multiple of the degree");
     assert(degree >= 1);
 
     const points = [...static_points];

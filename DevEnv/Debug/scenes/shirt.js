@@ -158,7 +158,11 @@ export default function(){
     
    // shirt.split_at_dart();
    // shirt.remove_waistline_darts();
-    shirt.split_up_dart(["shoulder", 0.3, 0.4], ["fold", 0.8, 0.3], ["fold", 0.1, 0.3]);
+    shirt.split_up_dart(["armpit", 0.6, 0.4], ["fold", 0.4, 0.3], ["neckline", 0.7, 0.3]);
+    shirt.move_dart_number_to_darttip(1, "p")
+    shirt.move_dart_number_to_darttip(2, "p")
+   // shirt.split_dart_number_to_bottom(3, [2]);
+    shirt.split_dart_number_to_bottom(1);
     return shirt.finish();
 }
 

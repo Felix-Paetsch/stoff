@@ -21,8 +21,8 @@ function monitor_server_reset() {
         .catch(error => {
             console.error('Error accessing the server:', error);
             // Increment the wait time for each subsequent attempt
-            current_wait_time_s *= 1.5;
-            current_wait_time_s = Math.max(5, current_wait_time_s);
+            current_wait_time_s *= 1.25;
+            current_wait_time_s = Math.min(5, current_wait_time_s);
         })
         .finally(() => {
             // Schedule the next check, converting seconds to milliseconds

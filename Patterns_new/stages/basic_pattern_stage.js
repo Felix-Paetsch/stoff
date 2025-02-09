@@ -16,7 +16,7 @@ import PatternStage from "../../PatternLib/pattern_stages/baseStage.js";
 import SewingSketch from "../../PatternLib/sewing_sketch.js";
 import { Vector, triangle_data, rotation_fun, vec_angle_clockwise , vec_angle, deg_to_rad} from "../../StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
-import { spline } from "../../StoffLib/curves.js";
+import { spline , arc} from "../../StoffLib/curves.js";
 import ConnectedComponent from "../../StoffLib/connected_component.js";
 import assert from "../../StoffLib/assert.js";
 import DartData from "./dart_data.js";
@@ -71,24 +71,35 @@ export default class BasicPatternStage extends PatternStage{
         }
     }
 
-    #construct_neckline(neckline_base){
-        let p = this.sketch.point(neckline_base.p1.x, neckline_base.p2.y);
-        let p2 = this.sketch.point(neckline_base.p1.x, neckline_base.p2.y);
-        let vec = p.subtract(neckline_base.p1).scale(0.5);
-        p.move_to(vec.add(neckline_base.p1));
-        if(this.sketch.data.is_front){
-            vec = p2.subtract(neckline_base.p2).scale(0.6);
-        } else {
-            vec = p2.subtract(neckline_base.p2).scale(0.4);
-        }
-        p2.move_to(vec.add(neckline_base.p2));
+    #construct_neckline(){
+        let a = this.sketch.get_typed_point("a");
+        let d = this.sketch.get_typed_point("d");
+        let p = this.sketch.point(d.x, a.y);
+        let p2 = this.sketch.point(p.copy());
 
-        let l = this.sketch.line_from_function_graph(neckline_base.p1, neckline_base.p2, spline.bezier(
-            [neckline_base.p1, p, p2, neckline_base.p2]
+        let vec2 = d.get_adjacent_line().get_line_vector().get_orthonormal().scale(d.subtract(a).length()).add(d);
+        p2.move_to(p2.subtract(new Vector(vec2.x, 0)));
+        p.move_to(p.subtract(new Vector(vec2.x, 0)));
+        let vec = p.subtract(d).scale(0.5).add(d);
+        p.move_to(vec);
+
+        /*
+        if(this.side == "front"){
+            vec = p2.subtract(a).scale(0.6);
+        } else {
+            vec = p2.subtract(a).scale(0.4);
+        }
+        p2.move_to(vec.add(a));
+        */        
+        let l = this.sketch.line_from_function_graph(d, a, spline.bezier(
+            [d, p, p2, a]
         ));
         l.data.type = "neckline";
-        this.sketch.remove(neckline_base, p, p2);
+        l.set_color("black");
+        this.sketch.remove(p, p2);
         return l;
+        /*
+        */
     }
 
     #main_construction(){
@@ -116,19 +127,20 @@ export default class BasicPatternStage extends PatternStage{
 
         let len = Math.sqrt(Math.pow(this.sh.diagonal, 2) - Math.pow(this.sh.shoulder_width / 2, 2));
         pts.c = this.sketch.point(pts.b.add(new Vector(pts.p3.x, -len)));
-        
+
         len = Math.sqrt(Math.pow(this.sh.shoulder_length, 2) - Math.pow(pts.c.y - pts.p1.y, 2));
         
         pts.d = this.sketch.point(pts.c.add(new Vector(len, pts.p1.y - pts.c.y)));
         lns.c_to_d = this.sketch.line_between_points(pts.d, pts.c);
         lns.c_to_d.data.type = "shoulder";
         
+        pts.c.move_to(lns.c_to_d.get_line_vector().scale(0.75).add(pts.d));
+        
         
         lns.b_to_f = this.sketch.line_at_angle(pts.b, - Math.PI / 2, this.sh.waist / 2).line;
         lns.b_to_f.data.type = "b_to_g";
         pts.f = lns.b_to_f.p2;
         pts.f.data.type = "f";
-
 
         let vec_h = pts.b.subtract(new Vector(this.sh.point_width / 2, this.sh.point_height));
         pts.h = this.sketch.add_point(new Point(vec_h.x, vec_h.y));
@@ -210,9 +222,8 @@ export default class BasicPatternStage extends PatternStage{
             const p = pts2[key];
             p.move_to(fun(p));
         });
-
         this.sketch.remove(pts2.c, lns.c_to_h);
-
+        
         pts.a.data.type = "a";
         pts.b.data.type = "b";
         pts.c.data.type = "c";
@@ -223,11 +234,11 @@ export default class BasicPatternStage extends PatternStage{
         pts2.f.data.type = "i";
         pts2.h.data.type = "h";
         pts.h.data.type = "h";
-
+        
         lns.a_to_b.data.type = "fold";
         lns.b_to_f.data.type = "b_to_g";
         lns.h_to_f.data.type = "h_to_g";
-
+        
         lns2.h_to_f.data.type = "h_to_i";
         lns.h_to_i = lns2.h_to_f;
         lns2.b_to_f.swap_orientation();
@@ -235,14 +246,26 @@ export default class BasicPatternStage extends PatternStage{
         lns.i_to_f = lns2.b_to_f;
         lns2.a_to_b.data.type = "side";
         lns.e_to_f = lns2.a_to_b;
-
+        
         this.#ease_new();
         // bis hier könnte eine Stage sein, und das wird von den anderen zwei stages aufgerufen
-
+        
         // Ich habe mich dazu entschieden, die Verlängerung noch allgemein zu machen und 
         // anschließend erst zu spliten für Styleline o.ae.
         
+        let temp_armpit = this.sketch.line_between_points(pts.c, pts2.a)
+        temp_armpit = this.sketch.split_line_at_fraction(temp_armpit, 0.8)
+        let ln_h = this.sketch.line_between_points(temp_armpit.point, pts.a)
+        let ln_h2 = this.sketch.line_between_points(pts.d, pts2.b)
+        let p_h = this.sketch.intersection_positions(ln_h, ln_h2);
+        this.sketch.point(p_h[0]).data.type = "armpit_point1";
+
+        this.sketch.remove(temp_armpit.point, ln_h2);
+        
+        this.draw_armpit();
         this.#merge_to_dart();
+        //this.draw_round_neckline();
+        this.#construct_neckline();
         /*
     */
         /*
@@ -588,11 +611,6 @@ export default class BasicPatternStage extends PatternStage{
         let h_to_k = this.sketch.get_typed_line("h_to_k");
         let h_to_l = this.sketch.get_typed_line("h_to_l");
 
-        // TODO: Diese linie entfernen, sobald Armpit und neckline gezeichnet wird!!!!
-        let temp1 = this.sketch.line_between_points(this.sketch.get_typed_point("c"), this.sketch.get_typed_point("e"));
-        temp1.data.type = "armpit";
-        let temp2 = this.sketch.line_between_points(this.sketch.get_typed_point("d"), this.sketch.get_typed_point("a"));
-        temp2.data.type = "neckline";
 
  
         let splitted_line;
@@ -613,14 +631,12 @@ export default class BasicPatternStage extends PatternStage{
             splitted_line = this.sketch.split_line_at_fraction(ln, percent);
             splitted_line.line_segments[0].data.type = "c_to_k";
             splitted_line.line_segments[1].data.type = "l_to_f";
-            temp1 = splitted_line.line_segments[0];
             rotation = !rotation;
         } else if(side == "neckline"){
             let ln = this.sketch.get_typed_line("neckline");
             splitted_line = this.sketch.split_line_at_fraction(ln, percent);
             splitted_line.line_segments[0].data.type = "d_to_k";
             splitted_line.line_segments[1].data.type = "l_to_a";
-            temp2 = splitted_line.line_segments[0];
             this.wd.direction_swap_of_k_l = true;
         } else if (side == "shoulder"){
             let ln;
@@ -671,9 +687,6 @@ export default class BasicPatternStage extends PatternStage{
         } else {
             this.sketch.merge_lines(this.sketch.get_typed_line("d_to_k"), this.sketch.get_typed_line("l_to_c"), true).data.type = "d_to_c";
         }
-            
-        
-        this.sketch.remove(temp1, temp2);
         /*
         */
     }
@@ -766,10 +779,7 @@ export default class BasicPatternStage extends PatternStage{
 
     }
 
-
-    split_double(){
-
-    }
+// bis hier "einfache Funktionen" die untereinander auch kompatibel sind
 
     // nimmt an, dass der Abnäher noch nicht verschoben wurde
     // Ich gehe davon aus, das niemand auf die Idee kommt, solche Faxen zu machen wie 
@@ -782,12 +792,6 @@ export default class BasicPatternStage extends PatternStage{
 
 
         let rot_vec = this.sketch.get_typed_line("b_to_m").get_line_vector();
-
-        // ToDo: Das kommt noch raus
-        let temp1 = this.sketch.line_between_points(this.sketch.get_typed_point("d"), this.sketch.get_typed_point("a"));
-        temp1.data.type = "neckline";
-        let temp2 = this.sketch.line_between_points(this.sketch.get_typed_point("c"), this.sketch.get_typed_point("e"));
-        temp2.data.type = "armpit";
 
         let h = this.sketch.get_typed_point("h");
         let f = this.sketch.get_typed_point("f");
@@ -818,12 +822,12 @@ export default class BasicPatternStage extends PatternStage{
                 if(x == 0){
                     points.push([ln.p1, y]);
                 } else if (x == 1){
-                    if(line == "shoulder"){
+                    if(line == "side"){
                         dart_at_f = y;
                     } else {
                         last = [ln.p2, y];
                         ln.p2.data.rotation = y;
-                        p.data.dart = "cut_point";
+                        ln.p2.data.dart = "cut_point";
                     }
                 } else {
                     let p = this.sketch.add_point(ln.position_at_length(x * ln.get_length()));
@@ -872,6 +876,15 @@ export default class BasicPatternStage extends PatternStage{
         cut_points_with_left_line.forEach(({pt, left_line}) => {
             const { rotation } = pt.data;
             const cut_res = this.sketch.cut([pt, fixed], fixed);
+            cut_res.cut_parts[0].line.data.type = "dart";
+            cut_res.cut_parts[0].line.data.dart_number = pt.data.dart_number;
+            cut_res.cut_parts[0].line.data.darttip = "h";
+            cut_res.cut_parts[0].line.swap_orientation();
+            cut_res.cut_parts[1].line.data.type = "dart";
+            cut_res.cut_parts[1].line.data.dart_number = pt.data.dart_number;
+            cut_res.cut_parts[1].line.data.darttip = "h";
+            cut_res.cut_parts[1].line.swap_orientation();
+
             const left_cut_part = cut_res.cut_parts.filter(p => left_line.is_adjacent(p.point))[0];
             const rotation_component = this.sketch.path_between_points(left_cut_part.point, f_pt, left_line);
             const points_to_rotate = rotation_component.points;
@@ -888,12 +901,141 @@ export default class BasicPatternStage extends PatternStage{
         }
         this.sketch.points_by_key("dart").cut_point.forEach(p =>{
             delete p.data.dart;
-            p.data.darttip = "h";
         })
         
         return;
     }
     
+
+    // Das verschieben zur anderen Abnäherspitze führt zur Korrektur in der ein oder anderen 
+    // Länge vom einer der beiden Abnäherlinien. Dadurch wird mindestens eine weitere Linie 
+    // minimal im Winkel verändert. 
+    // Daher bitte nicht zu oft hin und her verändern.
+    move_dart_number_to_darttip(number, new_darttip = "p"){
+   //     let pts = this.sketch.points_by_key("dart_number")[number];
+        let lns = this.sketch.lines_by_key("dart_number")[number];
+        let old_darttip = lns[0].data.darttip;
+        lns[0].data.darttip = new_darttip;
+        lns[1].data.darttip = new_darttip;
+        let old_p = this.sketch.get_typed_point(old_darttip);
+        let new_p = this.sketch.get_typed_point(new_darttip);
+
+        assert.IS_POINT(old_p);
+        assert.IS_POINT(new_p);
+
+        lns[0].replace_endpoint(old_p, new_p);
+        lns[1].replace_endpoint(old_p, new_p);
+        let len = Math.max(lns[0].get_length(), lns[1].get_length());
+
+        lns[0].p2.move_to(lns[0].get_line_vector().normalize().scale(len).add(new_p));
+        lns[1].p2.move_to(lns[1].get_line_vector().normalize().scale(len).add(new_p));
+    }
+
+// Ich gehe davon aus, dass beide Taillenabnäher nur einmal mit hilfe eines Abnähers aufgespalten werden können
+
+    split_dart_number_to_bottom(number, darts_left = []){
+        let lns = this.sketch.lines_by_key("dart_number")[number];
+
+        let dart_lines_left = [];
+        darts_left.forEach(number =>{
+            dart_lines_left = dart_lines_left.concat(this.sketch.lines_by_key("dart_number")[number]);
+        });
+
+        
+        assert.CALLBACK("Abnäher wurde an p schon gespalten", () =>{
+            return !(this.wd.split_p && lns[0].data.darttip == "p");
+        });
+        assert.CALLBACK("Abnäher wurde an h schon gespalten", () => {
+            return !(this.wd.split_h && lns[0].data.darttip == "h");
+        });
+
+        let temp_ln = lns[0].p2.other_adjacent_line(lns[0]);
+        if(temp_ln.data.type == "neckline" || temp_ln.data.type == "fold"){
+            if(lns[0].p2.data.p == "p1"){
+                lns.reverse();
+            }
+        } else {
+            if (lns[0].p2.data.p == "p2") {
+                console.log("here")
+                lns.reverse();
+            }
+        }
+                        /*
+                        */
+
+        let h;
+        let j;
+        let h_to_i;
+        let j_to_i;
+
+        if (lns[0].data.darttip == "h"){
+            h = this.sketch.get_typed_point("h");
+            j = this.sketch.get_typed_point("j");
+            if (temp_ln.data.type == "neckline" || temp_ln.data.type == "fold") {
+                h_to_i = this.sketch.get_typed_line("h_to_i");
+            } else {
+                h_to_i = this.sketch.get_typed_line("h_to_g");
+            }
+            j_to_i = this.sketch.get_typed_line("j_to_i");
+        } else {
+            h = this.sketch.get_typed_point("p");
+            j = this.sketch.get_typed_point("q"); 
+            if (temp_ln.data.type == "neckline" || temp_ln.data.type == "fold") {
+                h_to_i = this.sketch.get_typed_line("p_to_s");
+            } else {
+                h_to_i = this.sketch.get_typed_line("p_to_s");
+            }
+            j_to_i = this.sketch.get_typed_line("q_to_s");
+        }
+        assert.IS_POINT(j);
+        let h2 = this.sketch.add_point(h.copy());
+
+        let p_h = this.sketch.add_point(j.subtract(h).scale(5).add(h));
+        let ln_h = this.sketch.line_between_points(h, p_h);
+        let bottom_lns = this.sketch.get_typed_lines("m_to_n");
+        let positions = this.sketch.intersection_positions(bottom_lns[0], ln_h);
+        let bottom_ln;
+        if(positions.length > 0){
+            bottom_ln = bottom_lns[0];
+        } else {
+            positions = this.sketch.intersection_positions(bottom_lns[1], ln_h);
+            bottom_ln = bottom_lns[1];
+        }
+        
+        p_h.move_to(positions[0]);
+        this.sketch.remove(ln_h);
+        let temp = this.sketch.point_on_line(p_h, bottom_ln);
+        let temp_cut = this.sketch.cut([p_h, j], null, [temp.line_segments[1], j_to_i], [temp.line_segments[0], j.other_adjacent_line(j_to_i)]);
+        
+        lns[1].replace_endpoint(h, h2);
+        h_to_i.replace_endpoint(h, h2);
+        dart_lines_left.forEach(line =>{
+            line.replace_endpoint(h, h2);
+        });        
+
+        let comp = new ConnectedComponent(h2);
+        comp.transform(p =>{
+            p.move_to(p.add(new Vector(-10,0)));
+        });
+         /*
+*/
+    }
+
+    draw_armpit(){
+        let pt = this.sketch.get_typed_point("armpit_point1");
+        let pt2 = this.sketch.get_typed_point("armpit_point2");
+        let c = this.sketch.get_typed_point("c");
+        let e = this.sketch.get_typed_point("e");
+        let vec = this.sketch.get_typed_line("side").get_line_vector().get_orthonormal().scale(5).add(e);
+
+        let l = this.sketch.line_from_function_graph(c, e, spline.bezier(
+            [c, pt, vec, e]
+        ));
+        this.sketch.remove(pt);
+        l.set_color("black");
+        l.data.type = "armpit";
+        return l;
+    }
 
 }
 
