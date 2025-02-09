@@ -8,7 +8,7 @@ export default (Sketch) => {
     }
 
     Sketch.prototype.get_typed_lines = function(type){
-        return _set_typed_line_point_array_methods(this.lines_by_key("type")[type] || []);
+        return this._set_typed_line_point_array_methods(this.lines_by_key("type")[type] || []);
     }
 
     Sketch.prototype.get_untyped_lines = function(){
@@ -75,7 +75,7 @@ export default (Sketch) => {
             }
         }
 
-        return _set_typed_line_point_array_methods(points);
+        return this._set_typed_line_point_array_methods(points);
     }
 
     Sketch.prototype.get_line_between_points = function(check1, check2){
