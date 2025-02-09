@@ -1,5 +1,5 @@
 import express from 'express';
-import WEBSITE_CONF from "../config.json" assert { type: 'json' };
+import WEBSITE_CONF from "../config.json" with {type: "json"};
 import compression from 'compression';
 import bodyParser from 'body-parser';
 import path from 'path';

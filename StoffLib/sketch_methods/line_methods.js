@@ -6,7 +6,7 @@ import Point from '../point.js';
 import assert from '../assert.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
-import CONF from '../config.json' assert { type: 'json' };
+import CONF from '../config.json' with {type: "json"};
 
 export default (Sketch) => {
     Sketch.prototype.line_between_points = function(pt1, pt2){

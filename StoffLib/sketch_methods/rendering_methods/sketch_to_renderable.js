@@ -1,4 +1,4 @@
-import CONF from '../../config.json' assert { type: 'json' };
+import CONF from '../../config.json' with {type: "json"};
 import { interpolate_colors } from '../../colors.js';
 
 export {

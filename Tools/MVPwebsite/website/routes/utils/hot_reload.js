@@ -1,4 +1,4 @@
-import WEBSITE_CONF from "../../config.json" assert { type: 'json' };
+import WEBSITE_CONF from "../../config.json" with {type: "json"};
 
 export default(app) => {
     if (WEBSITE_CONF.is_publish) {

@@ -1,4 +1,4 @@
-import { assert } from "../../../Debug/validation_utils.js";
+import { assert } from "../../../DevEnv/Debug/validation_utils.js";
 import { affine_transform_from_input_output } from "../../../StoffLib/geometry.js";
 import { default_data_callback } from "../../../StoffLib/copy.js";
 import { EPS } from "../../../StoffLib/geometry.js";

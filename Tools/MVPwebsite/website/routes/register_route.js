@@ -1,4 +1,4 @@
-import CONF from "../../config.json" assert { type: 'json' };
+import CONF from "../../config.json" with {type: "json"};
 import bcrypt from 'bcrypt';
 import Pattern from "../../../../Pictures/entry.js";
 import { write_user } from "../db_interaction.js";

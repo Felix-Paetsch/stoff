@@ -1,4 +1,4 @@
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
 
 function* generate_setting(design_config){
     let frame = 0;

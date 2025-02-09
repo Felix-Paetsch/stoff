@@ -1,12 +1,14 @@
-import { Vector, convex_hull, ZERO, mirror_type } from './geometry.js';
+import { Vector } from './geometry.js';
 import Point from './point.js';
 import Line from './line.js';
 import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
+import SketchElementCollection from './sketch_element_collection.js';
 
 import register_rendering_functions from "./sketch_methods/rendering_methods/register.js";
 import register_CC_functions from "./sketch_methods/connected_components_methods.js";
 import register_line_functions from "./sketch_methods/line_methods.js";
+import register_collection_methods from "./collection_methods/index.js"
 
 import assert from './assert.js';
 import register_assert from "./assert_methods/register.js";
@@ -87,11 +89,19 @@ class Sketch{
     }
 
     get_points(){
-        return this.points;
+        return this.make_sketch_element_collection(this.points);
     }
 
     get_lines(){
-        return this.lines;
+        return this.make_sketch_element_collection(this.lines);
+    }
+
+    get_sketch_elements(){
+        return this.make_sketch_element_collection(this.points.concat(this.lines));
+    }
+
+    get_sketch(){
+        return this;
     }
 
     remove_line(line){
@@ -199,23 +209,6 @@ class Sketch{
         this.lines.forEach(l => delete_el_from_data_obj(l.data));
     }
 
-    transform(pt_fun = (_pt) => {}){
-        this.points.forEach(pt_fun);
-        return this;
-    }
-
-    mirror(...args){
-        if (args.length == 0) {
-            args = [ZERO];
-        }
-
-        this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
-        if (mirror_type(...args) == "Line"){
-            this.lines.forEach(l => l.mirror());
-        }
-        return this;
-    }
-
     clear(){
         this.points = [];
         this.lines  = [];
@@ -247,95 +240,6 @@ class Sketch{
 
     has(...se){
         return this.has_sketch_elements(...se);
-    }
-
-    get_bounding_box(min_bb = [0,0]){
-        // min_bb sets minimal required width and height for a bb
-        // the bb will be made bigger to hit these limits if needed
-
-        let _min_x = Infinity;
-        let _min_y = Infinity;
-        let _max_x = - Infinity;
-        let _max_y = - Infinity;
-
-        if (this.points.length == 0){
-            return {
-                width:  min_bb[0],
-                height: min_bb[1],
-                top_left:  new Vector(0,0),
-                top_right: new Vector(0,0),
-                bottom_left:  new Vector(0,0),
-                bottom_right: new Vector(0,0)
-            }
-        }
-
-        this.lines.forEach(l => {
-            const { top_left, bottom_right } = l.get_bounding_box();
-
-            _min_x = Math.min(top_left.x, _min_x);
-            _max_x = Math.max(bottom_right.x, _max_x);
-            _min_y = Math.min(top_left.y, _min_y);
-            _max_y = Math.max(bottom_right.y, _max_y);
-        });
-
-        this.points.forEach(p => {
-            _min_x = Math.min(p.x, _min_x);
-            _max_x = Math.max(p.x, _max_x);
-            _min_y = Math.min(p.y, _min_y);
-            _max_y = Math.max(p.y, _max_y);
-        });
-
-        const width_to_needed_diff  = Math.max(0, min_bb[0] - (_max_x - _min_x));
-        const height_to_needed_diff = Math.max(0, min_bb[1] - (_max_y - _min_y));
-
-        _min_x = _min_x - width_to_needed_diff/2;
-        _max_x = _max_x + width_to_needed_diff/2;
-        _min_y = _min_y - height_to_needed_diff/2;
-        _max_y = _max_y + height_to_needed_diff/2;
-
-        return {
-            width:  _max_x - _min_x,
-            height: _max_y - _min_y,
-            top_left:  new Vector(_min_x, _min_y),
-            top_right: new Vector(_max_x, _min_y),
-            bottom_left:  new Vector(_min_x, _max_y),
-            bottom_right: new Vector(_max_x, _max_y)
-        }
-    }
-
-    convex_hull(){
-        return convex_hull(
-            this.points.concat(this.lines.map(l => l.get_absolute_sample_points()).flat())
-        );
-    }
-
-    group_by_key(key){
-        return {
-            points: this.points_by_key(key),
-            lines: this.lines_by_key(key)
-        };
-    }
-
-    lines_by_key(key){
-        return this.lines.reduce((acc, line) => {
-            const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
-            if (!acc[groupKey]) {
-                acc[groupKey] = [];
-            }
-            acc[groupKey].push(line);
-            return acc;
-        }, {});
-    }
-
-    points_by_key(key){
-        return this.points.reduce((acc, pt) => {
-            const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
-            if (!acc[groupKey]) {
-                acc[groupKey] = [];
-            }
-            acc[groupKey].push(pt);
-            return acc;
-        }, {});
     }
 
     // ===============
@@ -403,6 +307,7 @@ Sketch.prototype.validate = function(){
 register_rendering_functions(Sketch);
 register_CC_functions(Sketch);
 register_line_functions(Sketch);
+register_collection_methods(Sketch);
 
 Sketch.graphical_non_pure_methods = [
     "add",
@@ -453,6 +358,7 @@ Sketch.graphical_non_pure_methods.forEach(methodName => {
 
 Sketch.Line = Line;
 Sketch.Point = Point;
+Sketch.SketchElementCollection = SketchElementCollection;
 
 // Add Dev Obj
 import fs from 'fs';

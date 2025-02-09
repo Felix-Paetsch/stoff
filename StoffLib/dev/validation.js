@@ -2,10 +2,10 @@ import Point from '../point.js';
 import Line from '../line.js';
 import { Vector, EPS } from '../geometry.js';
 import ConnectedComponent from '../connected_component.js';
-import { assert, try_with_error_msg } from '../../Debug/validation_utils.js';
+import { assert, try_with_error_msg } from '../../DevEnv/Debug/validation_utils.js';
 
 
-import CONF from '../config.json' assert { type: 'json' };
+import CONF from '../config.json' with {type: "json"};
 const error_margin = EPS.MODERATE;
 let currently_validating = false;
 

@@ -5,7 +5,7 @@ import assert from './assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
 import add_self_intersection_test from './unicorns/self_intersects.js';
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points){

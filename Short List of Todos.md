@@ -60,3 +60,32 @@ A lot to write down..
 - Make things work stand-alone w/o (or minimal) foreign exports
 - MVP website: People don't get overwritten in data
 - Directory aufräumen, sobald Entscheidungen getroffen
+
+
+Unstructured
+================
+walk n lines in one direction and get that line
+Allia — 19.01.2025 17:44
+set line endpoint stuff
+split at point -> completely split
+Allia — heute um 15:32 Uhr
+better query language:
+.adjacent(line).not_adjacent(lineasda). \dots
+point.is_ajdacent
+treat untyped like typed with "_"
+all returned arrays have these methods associated
+Allia — heute um 15:40 Uhr
+for pts, lines:
+.get_adjacent_line(s)
+with extra arguments, like sewing sketch
+Allia — heute um 15:52 Uhr
+call methods on points directly to get bool
+cut (and similar) => methods  on result to get the part you want more easily 
+
+Redo Docs..
+
+Queries
+
+> sketchElementCollection
+vs 
+point, line, cc

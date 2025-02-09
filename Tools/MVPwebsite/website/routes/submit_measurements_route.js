@@ -1,4 +1,4 @@
-import CONF from "../../config.json" assert { type: 'json' };
+import CONF from "../../config.json" with {type: "json"};
 import { get_user, write_user } from "../db_interaction.js";
 import { render_base } from "./render_choose_design.js";
 

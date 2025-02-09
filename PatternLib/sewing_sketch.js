@@ -5,7 +5,6 @@ import { Vector, polygon_contains_point, EPS, VERTICAL } from "../StoffLib/geome
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
-import add_type_based_methods from "./sketch_methods/type_based.js";
 
 import Point from "../StoffLib/point.js";
 import ConnectedComponent from "../StoffLib/connected_component.js";
@@ -479,8 +478,6 @@ export default class SewingSketch extends Sketch{
         return this;
     }
 }
-
-add_type_based_methods(SewingSketch);
 
 function _glue_ident_to_global_form(ident){
     if (ident instanceof Line) {

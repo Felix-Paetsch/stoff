@@ -1,6 +1,6 @@
 import redirect_page_not_found from "./utils/redirect_page_not_found.js";
 import hot_reload_route from "./utils/hot_reload.js";
-import CONF from "../../config.json" assert { type: 'json' };
+import CONF from "../../config.json" with {type: "json"};
 
 import register_route from './register_route.js';
 import design_routes from './render_choose_design.js';

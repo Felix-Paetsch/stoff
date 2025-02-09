@@ -3,7 +3,7 @@ import { createServer as createHttpsServer } from 'https';
 import { createServer as createHttpServer } from 'http';
 import fs from 'fs';
 
-import WEBSITE_CONF from "./config.json" assert { type: 'json' };
+import WEBSITE_CONF from "./config.json" with {type: "json"};
 import register_routes from './routes/index.js';
 import register_middleware from "./middleware/main.js";
 import add_error_route from "./middleware/errors.js";

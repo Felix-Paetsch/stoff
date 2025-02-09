@@ -3,7 +3,7 @@ await import(`file://${dotenvPath}/config.js`);
 
 import fs from 'fs/promises';
 import path from 'path';
-import CONF from "./config.json" assert { type: 'json' };
+import CONF from "./config.json" with {type: "json"};
 import EventManager from "./event_manager.js";
 
 

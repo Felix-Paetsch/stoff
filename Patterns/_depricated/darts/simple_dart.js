@@ -3,7 +3,7 @@ import Sketch from '../../../StoffLib/sketch.js';
 import Point from '../../../StoffLib/point.js';
 import ConnectedComponent from '../../../StoffLib/connected_component.js';
 
-import { assert } from '../../../Debug/validation_utils.js';
+import { assert } from '../../../DevEnv/Debug/validation_utils.js';
 
 import utils from '../funs/utils.js';
 

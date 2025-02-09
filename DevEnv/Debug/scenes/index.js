@@ -1,5 +1,5 @@
-import Sketch from "../../StoffLib/sketch.js";
-import {UP, LEFT, RIGHT} from "../../StoffLib/geometry.js"
+import Sketch from "../../../StoffLib/sketch.js";
+import {UP, LEFT, RIGHT} from "../../../StoffLib/geometry.js"
 
 export default function() {
     const s = new Sketch();
@@ -7,7 +7,7 @@ export default function() {
     const k = 1;
     const n = 5;
 
-    s.dev.start_recording();
+    // s.dev.start_recording();
     for (let i = 2*k; i < 2 * n; i++){
         if (i % 2 == 0){
             pts.push(s.add_point(i, i))
@@ -26,7 +26,7 @@ export default function() {
         s.data.index = i;
     }
     
-    s.dev.stop_recording().at_url("/test");
+    // s.dev.stop_recording().at_url("/test");
 
     console.log(UP.rotate(Math.PI/2).equals(RIGHT));
 

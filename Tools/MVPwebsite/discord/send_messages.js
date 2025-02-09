@@ -1,4 +1,4 @@
-import CHANNELS from "./channel_id_map.json" assert { type: 'json' };
+import CHANNELS from "./channel_id_map.json" with {type: "json"};
 import { EmbedBuilder } from 'discord.js';
 import try_wrapper from "./try_wrapper.js";
 

@@ -1,5 +1,5 @@
-import PatternConstructor from "../../PatternLib/patternConstructor.js";
-import BasicPatternStage from "../../Patterns_new/stages/basic_pattern_stage.js";
+import PatternConstructor from "../../../PatternLib/patternConstructor.js";
+import BasicPatternStage from "../../../Patterns_new/stages/basic_pattern_stage.js";
 
 /*
 let measurements = { // Puppe mit lustigen Maßen

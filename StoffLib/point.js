@@ -131,6 +131,17 @@ class Point extends Vector{
         }
     }
 
+    get_bounding_box(){
+        return {
+            width:  0,
+            height: 0,
+            top_left:  this,
+            top_right: this,
+            bottom_left:  this,
+            bottom_right: this
+        }
+    }
+
     static from_vector(vec) {
         return new Point(vec.x, vec.y);
     }

@@ -1,4 +1,4 @@
-import { assert } from "../../../Debug/validation_utils.js";
+import { assert } from "../../../DevEnv/Debug/validation_utils.js";
 
 export function cut_with_fixed_point(s, line, fixed_pt, grp1, grp2){
     assert(line.has_endpoint(fixed_pt), "Line doesn't have fixed point as endpoint");
