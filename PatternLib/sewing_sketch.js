@@ -27,7 +27,8 @@ export default class SewingSketch extends Sketch{
         if (lines.length <= 1) return lines;
         if (lines.length == 2) return set_two_line_orientations(lines);
 
-        const res = [lines.pop()];
+        const res = this.new_sketch_element_collection();
+        res.push(lines.pop());
         res.orientations = [true];
         const smth_found = null;
         while (lines.length > 0){
@@ -249,7 +250,7 @@ export default class SewingSketch extends Sketch{
     }
 
     remove_anchors(){
-        this.get_lines().filter(l => l.data?.__anchor).forEach(l => l.remove());
+        this.lines_by_key("__anchor")[true].remove();
         return this;
     }
 
@@ -349,12 +350,14 @@ export default class SewingSketch extends Sketch{
         const points = lines_with_orientation.map(l => {
             return l.orientation ? l.line.p1 : l.line.p2; // Den Anfangspunkt im Kreis
         });
+        
+        const ret_lines = lines_with_orientation.map(l => l.line);
 
-        return {
-            lines: lines_with_orientation.map(l => l.line),
-            points,
+        return this.object_to_sketch_element_collection({
+            lines: this.make_sketch_element_collection(ret_lines),
+            points: this.make_sketch_element_collection(points),
             orientations: lines_with_orientation.map(l => l.orientation)
-        }
+        });
     }
 
     path_between_points(p1, p2, line = null){
@@ -368,8 +371,8 @@ export default class SewingSketch extends Sketch{
         assert.IS_POINT(p1);
         assert.IS_POINT(p2)
 
-        const points = [p1];
-        const lines = [line];
+        const points = this.make_sketch_element_collection([p1]);
+        const lines = this.make_sketch_element_collection([line]);
         let last_line_p2 = lines[0].other_endpoint(p1);
         while (last_line_p2 !== p2){
             points.push(last_line_p2);
@@ -382,10 +385,10 @@ export default class SewingSketch extends Sketch{
         }
         points.push(p2);
 
-        return {
+        return this.object_to_sketch_element_collection({
             lines,
             points
-        };
+        });
     }
 
     decompress_components(){

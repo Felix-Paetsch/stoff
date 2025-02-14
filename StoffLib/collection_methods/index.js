@@ -23,12 +23,12 @@ export default function register_collection_methods(Class){
 
     Class.prototype.object_to_sketch_element_collection = function(obj, points = null, lines = null, sketch = null){
         // If points or lines are not given, we assume they are already the keys of the object.
-        const r = new SketchElementCollection([...(points || obj.points || []), ...(lines || obj.lines || [])], sketch)
+        const r = new SketchElementCollection([...(points || obj.points || []), ...(lines || obj.lines || [])], sketch || this.get_sketch(true))
         return Object.assign(r, obj);
     }
 
     set_if_not_exists(Class, "get_sketch_elements", function(){
-        return this.get_points().concat(this.get_lines());
+        return this.make_sketch_element_collection(this.get_points().concat(this.get_lines()));
     });
 
     // For most methods, only add methods if not already present

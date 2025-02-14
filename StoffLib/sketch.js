@@ -96,10 +96,6 @@ class Sketch{
         return this.lines;
     }
 
-    get_sketch_elements(){
-        return this.make_sketch_element_collection(this.points.concat(this.lines));
-    }
-
     get_sketch(){
         return this;
     }
