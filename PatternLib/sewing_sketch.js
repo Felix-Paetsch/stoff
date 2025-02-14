@@ -24,21 +24,51 @@ export default class SewingSketch extends Sketch{
     }
 
     order_by_endpoints(...lines){
-        if (lines.length == 0) return [];
-        const res = lines.pop();
+        if (lines.length <= 1) return lines;
+        if (lines.length == 2) return set_two_line_orientations(lines);
+
+        const res = [lines.pop()];
+        res.orientations = [true];
         const smth_found = null;
         while (lines.length > 0){
             for (let i = lines.length - 1; i >= 0; i--){
-                if (res[0].common_endpoint(lines[i]) && !res[1]?.common_endpoint(lines[i])){
+                if (res[0].common_endpoint(lines[i])){
+                    // Prepend
                     smth_found = true;
                     res.unshift(...lines.splice(i,1));
-                } else if (res[res.length - 1].common_endpoint(lines[i]) && !res[res.length - 2]?.common_endpoint(lines[i])){
+                    if (res.length == 2){
+                        set_two_line_orientations(res);
+                    } else {
+                        const next_orientation = res.orientations[0];
+                        res.orientations.unshift(
+                            res[1][next_orientation ? "p1" : "p2"] == res[0].p2
+                        );
+                    }
+                } else if (res[res.length - 1].common_endpoint(lines[i])){
+                    // Append
                     smth_found = true;
                     res.push(...lines.splice(i,1));
+                    if (res.length == 2){
+                        set_two_line_orientations(res);
+                    } else {
+                        const prev_orientation = res.orientations[res.orientations.length - 1];
+                        res.orientations.push(
+                            res[res.length - 2][prev_orientation ? "p2" : "p1"] == res[res.length - 1].p1
+                        );
+                    }
                 }
             }
 
             if (!smth_found) throw new Error("Lines dont form a connected segment");
+        }
+
+        function set_two_line_orientations(lines){
+            if (lines[1].has_endpoint(lines[0].p2)){
+                lines.orientations = [true, lines[1].p1 == lines[0].p2];
+            } else if (lines[1].has_endpoint(lines[0].p1)){
+                lines.orientations = [false, lines[1].p1 == lines[0].p1];
+            } else throw new Error("Lines dont form a connected segment");
+            return lines;
         }
 
         return res;

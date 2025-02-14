@@ -3,7 +3,7 @@ import register_collection_methods from "./collection_methods/index.js"
 export default class SketchElementCollection extends Array{
     constructor(arr, sketch=null){
         super(...arr);
-        this.sketch = sketch;
+        this.sketch = sketch || null;
     }
 
     static from_array(arr, sketch = null) {

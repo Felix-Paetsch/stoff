@@ -217,6 +217,32 @@ function convex_hull(points) {
     return lower.concat(upper);
 }
 
+function is_convex(pts, eps = EPS.TINY){
+    const n = pts.length;
+    if (n < 3) return true;
+
+    let sign = 0;
+    for (let i = 0; i < n; i++) {
+        const p0 = pts[i];
+        const p1 = pts[(i + 1) % n];
+        const p2 = pts[(i + 2) % n];
+
+        const v1 = p1.subtract(p0);
+        const v2 = p2.subtract(p1);
+        const cross = v1.cross(v2);
+
+        if (Math.abs(cross) < eps) continue;
+
+        if (sign === 0) {
+            sign = Math.sign(cross);
+        } else if (Math.sign(cross) !== sign) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 function random_vec(){
     // Returns a uniformly random unit length vec
     const r1 = Math.random() * 2 * Math.PI;
@@ -264,5 +290,6 @@ export {
     line_segments_intersect,
     random_vec,
     polygon_contains_point,
-    orientation
+    orientation,
+    is_convex
 };

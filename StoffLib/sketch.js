@@ -16,8 +16,8 @@ import register_assert from "./assert_methods/register.js";
 class Sketch{
     constructor(){
         this.sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-        this.points = [];
-        this.lines  = [];
+        this.points = this.new_sketch_element_collection();
+        this.lines  = this.new_sketch_element_collection();
         this.data   = {};
 
         if (typeof this._init !== "undefined"){
@@ -89,11 +89,11 @@ class Sketch{
     }
 
     get_points(){
-        return this.make_sketch_element_collection(this.points);
+        return this.points;
     }
 
     get_lines(){
-        return this.make_sketch_element_collection(this.lines);
+        return this.lines;
     }
 
     get_sketch_elements(){
@@ -210,8 +210,7 @@ class Sketch{
     }
 
     clear(){
-        this.points = [];
-        this.lines  = [];
+        this.remove_point(...this.points);
         this.data = {};
     }
 

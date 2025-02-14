@@ -32,7 +32,7 @@ class ConnectedComponent{
         const groupedPoints = points.reduce((acc, pt) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = [];
+                acc[groupKey] = this.new_sketch_element_collection();
             }
             acc[groupKey].push(pt);
             return acc;
@@ -41,7 +41,7 @@ class ConnectedComponent{
         const groupedLines = lines.reduce((acc, line) => {
             const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = [];
+                acc[groupKey] = this.new_sketch_element_collection();
             }
             acc[groupKey].push(line);
             return acc;
@@ -106,8 +106,8 @@ class ConnectedComponent{
         }
 
 
-        const visited_points = [];
-        const visited_lines  = [];
+        const visited_points = this.new_sketch_element_collection();
+        const visited_lines  = this.new_sketch_element_collection();
         const to_visit_points = [currently_visiting_point];
 
         while (to_visit_points.length > 0){

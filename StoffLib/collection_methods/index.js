@@ -21,6 +21,16 @@ export default function register_collection_methods(Class){
         return new SketchElementCollection([], this.get_sketch(true));
     }
 
+    Class.prototype.object_to_sketch_element_collection = function(obj, points = null, lines = null, sketch = null){
+        // If points or lines are not given, we assume they are already the keys of the object.
+        const r = new SketchElementCollection([...(points || obj.points || []), ...(lines || obj.lines || [])], sketch)
+        return Object.assign(r, obj);
+    }
+
+    set_if_not_exists(Class, "get_sketch_elements", function(){
+        return this.get_points().concat(this.get_lines());
+    });
+
     // For most methods, only add methods if not already present
     register_getter_methods(Class, set_if_not_exists);
     register_sporadic_methods(Class, set_if_not_exists);

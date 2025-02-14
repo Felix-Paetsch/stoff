@@ -1,12 +1,13 @@
 import { Vector } from './geometry.js';
 import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
+import register_collection_methods from "./collection_methods/index.js";
 
 class Point extends Vector{
     constructor(x, y){
         super(x, y);
 
-        this.adjacent_lines = [];
+        this.adjacent_lines = this.new_sketch_element_collection();
         this.data = {};
         this.sketch = null;
         this.attributes = {
@@ -71,6 +72,19 @@ class Point extends Vector{
 
     get_adjacent_lines(){
         return this.adjacent_lines;
+    }
+
+    get_lines(){
+        return this.adjacent_lines;
+    }
+
+    // Used in Collection Elements
+    get_points(){
+        return [this];
+    }
+
+    get_sketch(){
+        return this.sketch;
     }
 
     other_adjacent_line(...lines){
@@ -147,4 +161,5 @@ class Point extends Vector{
     }
 }
 
+register_collection_methods(Point);
 export default Point;
