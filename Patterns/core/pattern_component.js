@@ -5,7 +5,7 @@
 
 import { UP } from "../../StoffLib/geometry.js";
 import add_seam_allowance from "./pattern_component_methods/seam_allowance.js";
-import { assert } from "../../Debug/validation_utils.js";
+import { assert } from "../../DevEnv/Debug/validation_utils.js";
 import PatternPart from "./pattern_part.js";
 import Point from "../../StoffLib/point.js";
 

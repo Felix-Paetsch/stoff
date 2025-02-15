@@ -19,11 +19,11 @@ export default (Sketch) => {
         assert.HAS_SKETCH(sketch_el, this);
         if (sketch_el instanceof ConnectedComponent){
             this._delete_element_from_data(sketch_el);
-            const pts = sketch_el.points();
+            const pts = sketch_el.get_points();
             return this.remove_points(...pts);
         }
 
-        return this.remove_points(...(new ConnectedComponent(sketch_el)).points());
+        return this.remove_points(...(new ConnectedComponent(sketch_el)).get_points());
     }
 
     Sketch.prototype.get_connected_components = function(){
@@ -33,7 +33,7 @@ export default (Sketch) => {
             if (!visited_points.includes(p)){
                 const new_component = new ConnectedComponent(p);
                 components.push(new_component);
-                visited_points.push(...new_component.points());
+                visited_points.push(...new_component.get_points());
             }
         }
 

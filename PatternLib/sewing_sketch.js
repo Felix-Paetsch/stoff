@@ -5,7 +5,6 @@ import { Vector, polygon_contains_point, EPS, VERTICAL } from "../StoffLib/geome
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
-import add_type_based_methods from "./sketch_methods/type_based.js";
 
 import Point from "../StoffLib/point.js";
 import ConnectedComponent from "../StoffLib/connected_component.js";
@@ -25,21 +24,52 @@ export default class SewingSketch extends Sketch{
     }
 
     order_by_endpoints(...lines){
-        if (lines.length == 0) return [];
-        const res = lines.pop();
+        if (lines.length <= 1) return lines;
+        if (lines.length == 2) return set_two_line_orientations(lines);
+
+        const res = this.new_sketch_element_collection();
+        res.push(lines.pop());
+        res.orientations = [true];
         const smth_found = null;
         while (lines.length > 0){
             for (let i = lines.length - 1; i >= 0; i--){
-                if (res[0].common_endpoint(lines[i]) && !res[1]?.common_endpoint(lines[i])){
+                if (res[0].common_endpoint(lines[i])){
+                    // Prepend
                     smth_found = true;
                     res.unshift(...lines.splice(i,1));
-                } else if (res[res.length - 1].common_endpoint(lines[i]) && !res[res.length - 2]?.common_endpoint(lines[i])){
+                    if (res.length == 2){
+                        set_two_line_orientations(res);
+                    } else {
+                        const next_orientation = res.orientations[0];
+                        res.orientations.unshift(
+                            res[1][next_orientation ? "p1" : "p2"] == res[0].p2
+                        );
+                    }
+                } else if (res[res.length - 1].common_endpoint(lines[i])){
+                    // Append
                     smth_found = true;
                     res.push(...lines.splice(i,1));
+                    if (res.length == 2){
+                        set_two_line_orientations(res);
+                    } else {
+                        const prev_orientation = res.orientations[res.orientations.length - 1];
+                        res.orientations.push(
+                            res[res.length - 2][prev_orientation ? "p2" : "p1"] == res[res.length - 1].p1
+                        );
+                    }
                 }
             }
 
             if (!smth_found) throw new Error("Lines dont form a connected segment");
+        }
+
+        function set_two_line_orientations(lines){
+            if (lines[1].has_endpoint(lines[0].p2)){
+                lines.orientations = [true, lines[1].p1 == lines[0].p2];
+            } else if (lines[1].has_endpoint(lines[0].p1)){
+                lines.orientations = [false, lines[1].p1 == lines[0].p1];
+            } else throw new Error("Lines dont form a connected segment");
+            return lines;
         }
 
         return res;
@@ -220,7 +250,7 @@ export default class SewingSketch extends Sketch{
     }
 
     remove_anchors(){
-        this.get_lines().filter(l => l.data?.__anchor).forEach(l => l.remove());
+        this.lines_by_key("__anchor")[true].remove();
         return this;
     }
 
@@ -320,12 +350,14 @@ export default class SewingSketch extends Sketch{
         const points = lines_with_orientation.map(l => {
             return l.orientation ? l.line.p1 : l.line.p2; // Den Anfangspunkt im Kreis
         });
+        
+        const ret_lines = lines_with_orientation.map(l => l.line);
 
-        return {
-            lines: lines_with_orientation.map(l => l.line),
-            points,
+        return this.object_to_sketch_element_collection({
+            lines: this.make_sketch_element_collection(ret_lines),
+            points: this.make_sketch_element_collection(points),
             orientations: lines_with_orientation.map(l => l.orientation)
-        }
+        });
     }
 
     path_between_points(p1, p2, line = null){
@@ -339,8 +371,8 @@ export default class SewingSketch extends Sketch{
         assert.IS_POINT(p1);
         assert.IS_POINT(p2)
 
-        const points = [p1];
-        const lines = [line];
+        const points = this.make_sketch_element_collection([p1]);
+        const lines = this.make_sketch_element_collection([line]);
         let last_line_p2 = lines[0].other_endpoint(p1);
         while (last_line_p2 !== p2){
             points.push(last_line_p2);
@@ -353,10 +385,10 @@ export default class SewingSketch extends Sketch{
         }
         points.push(p2);
 
-        return {
+        return this.object_to_sketch_element_collection({
             lines,
             points
-        };
+        });
     }
 
     decompress_components(){
@@ -479,8 +511,6 @@ export default class SewingSketch extends Sketch{
         return this;
     }
 }
-
-add_type_based_methods(SewingSketch);
 
 function _glue_ident_to_global_form(ident){
     if (ident instanceof Line) {

@@ -25,13 +25,15 @@ A lot to write down..
 - Arange sketches/connected components compactly (for printing)
 - Smooth corner out (evt. around point when merging)
     - "Make C \infty"
-- Line is convex (there currently is an empty method.. thinking of "locally convex, no zig zags")
 - Merge several lines at ones
 - merge at point
+- (completely) split at a point on the line
+    - or at a point in general
+- call methods on points directly to get bool
+
 [bigger_projects]
 - ID / reference system (see proposal)
 - Which methods should be recorded and which not? (& how to set that)
-- Fix / update colors.js
 
 ## PatternLib
 - Sewing Sketch Updates
@@ -60,3 +62,6 @@ A lot to write down..
 - Make things work stand-alone w/o (or minimal) foreign exports
 - MVP website: People don't get overwritten in data
 - Directory aufräumen, sobald Entscheidungen getroffen
+
+## Other Other
+Redo Docs..

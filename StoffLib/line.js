@@ -1,11 +1,12 @@
-import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull, EPS } from './geometry.js';
+import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull, EPS, is_convex } from './geometry.js';
 import Point from './point.js';
 import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './unicorns/offset_sample_points.js';
 import add_self_intersection_test from './unicorns/self_intersects.js';
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
+import SketchElementCollection from './sketch_element_collection.js';
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points){
@@ -138,46 +139,46 @@ class Line{
         return this.sample_points;
     }
 
+    get_sketch(){
+        return this.sketch;
+    }
+
     is_straight(){
         return !this.sample_points.some(p => p.y !== 0);
     }
 
-    is_convex() {
-        const pts = this.sample_points;
-        const n = pts.length;
-      
-        if (n < 4) return true;
-        let sign = 0;
-      
-        for (let i = 0; i < n; i++) {
-            // Get three consecutive points, wrapping around with modulo arithmetic.
-            const p0 = pts[i];
-            const p1 = pts[(i + 1) % n];
-            const p2 = pts[(i + 2) % n];
-        
-            // Compute the edge vectors using the Vector.subtract() method.
-            const v1 = p1.subtract(p0);
-            const v2 = p2.subtract(p1);
-        
-            // Use the Vector.cross() method to get the "z-component" of the cross product.
-            // This tells us whether the turn from p0->p1->p2 is clockwise or counterclockwise.
-            const crossVal = v1.cross(v2);
-        
-            // Ignore collinear cases (which may arise from floating point inaccuracies).
-            if (Math.abs(crossVal) < EPS.TINY) continue;
-        
-            // Record the sign of the first nonzero cross product.
-            if (sign === 0) {
-                sign = Math.sign(crossVal);
-            } else if (Math.sign(crossVal) !== sign) {
-                // If the sign of the cross product differs at any vertex, the polygon is nonconvex.
-                return false;
-            }
-        }
-      
-        return true;
+    convert_to_straight_line() {
+        if (!this.is_straight()) return this;
+    
+        Object.setPrototypeOf(this, StraightLine.prototype);
+        this.constructor = StraightLine; // Change constructor reference
+    
+        const density = this.sample_points.length > 1
+            ? 1 / (this.sample_points.length - 1)
+            : CONF.DEFAULT_SAMPLE_POINT_DENSITY;
+    
+        const n = Math.ceil(1 / density);
+        this.sample_points = Array.from({ length: n + 1 }, (_v, i) => new Vector(i / n, 0));
+    
+        return this;
+    }    
+
+    is_convex(allow_overflow = false) {
+        if (!is_convex(this.same_orientation)) return false;
+        if (allow_overflow) return true;
+
+        const sp = this.sample_points;
+        let first_non_zero_sp_index = 0;
+        while(sp[++first_non_zero_sp_index].distance(sp[0]) < EPS.WEAK_EQUAL){}
+
+        let last_non_one_sp_index = sp.length - 1;
+        while(sp[--last_non_one_sp_index].distance(sp[sp.length - 1]) < EPS.WEAK_EQUAL){}
+
+        return (
+            sp[first_non_zero_sp_index].x >= - EPS.MINY
+            && sp[last_non_one_sp_index].x <= 1 + EPS.MINY
+        )
     }
-      
 
     connected_component(){
         return new ConnectedComponent(this);
@@ -242,7 +243,7 @@ class Line{
     }
 
     get_endpoints(){
-        return [this.p1, this.p2];
+        return new SketchElementCollection([this.p1, this.p2], this.sketch);
     }
 
     orientation(...args){

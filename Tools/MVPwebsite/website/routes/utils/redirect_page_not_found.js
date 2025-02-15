@@ -1,4 +1,4 @@
-import WEBSITE_CONF from "../../config.json" assert { type: 'json' };
+import WEBSITE_CONF from "../../config.json" with {type: "json"};
 
 export default (req, res) => {
     req.event_manager.emit("page_not_found", {

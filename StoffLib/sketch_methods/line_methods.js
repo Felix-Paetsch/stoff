@@ -6,7 +6,7 @@ import Point from '../point.js';
 import assert from '../assert.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
-import CONF from '../config.json' assert { type: 'json' };
+import CONF from '../config.json' with {type: "json"};
 
 export default (Sketch) => {
     Sketch.prototype.line_between_points = function(pt1, pt2){
@@ -368,10 +368,10 @@ export default (Sketch) => {
         line_segments.forEach(ls => copy_sketch_obj_data(line, ls, data_callback))
         this.remove_line(line);
 
-        return {
-            line_segments,
+        return this.object_to_sketch_element_collection({
+            line_segments: this.make_sketch_element_collection(line_segments),
             point: pt
-        }
+        }, [pt], line_segments, this)
     }
 
     Sketch.prototype.split_line_at_length = function(line, length, data_callback = copy_data_callback, reversed = false){
@@ -401,7 +401,23 @@ export default (Sketch) => {
             assert.IS_LINE(l);
             assert.HAS_SKETCH(l, this);
         });
-        return intersect_lines(this, line1, line2)
+
+        const {
+            intersection_points,
+            l1_segments,
+            l2_segments
+        } = intersect_lines(this, line1, line2);
+
+        return this.object_to_sketch_element_collection(
+            {
+                intersection_points: this.make_sketch_element_collection(intersection_points),
+                l1_segments: this.make_sketch_element_collection(l1_segments),
+                l2_segments: this.make_sketch_element_collection(l2_segments)
+            },
+            intersection_points,
+            l1_segments.concat(l2_segments),
+            this
+        )
     }
 
     Sketch.prototype.line_with_offset = function(line, offset, direction = 0){

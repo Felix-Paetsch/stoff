@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
 
 import design from "../Patterns/export_pattern_dev.js";
 import generate_setting from './generate_setting.js';

@@ -4,7 +4,7 @@
     "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "browser-sync": "^2.26.2",
-    "canvas": "^2.11.2",
+    "canvas": "^3.1.0",
     "chroma-js": "^2.4.2",
     "compression": "^1.7.5",
     "concurrently": "^8.2.2",
@@ -19,8 +19,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "nodemon DevServer/index.js",
-    "dev_cold": "node DevServer/index.js",
+    "dev": "nodemon DevEnv/DevServer/index.js",
+    "dev_cold": "node DevEnv/DevServer/index.js",
     "measure": "node Tools/Measurements/index.js",
     "web": "nodemon Website/index.js",
     "web_hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files ',Website/public/**,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
@@ -30,7 +30,6 @@
     "mvp_dev": "cd Tools/MVPwebsite && npm run dev",
     "mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot",
     "mvp_host": "cd Tools/MVPwebsite && npm run host",
-
     "build_docs": "cd Docs && make html",
     "docs_hot": "sphinx-autobuild Docs/source Docs/build/html"
   },

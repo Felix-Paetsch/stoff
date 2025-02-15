@@ -1,5 +1,5 @@
 import ffmpeg from 'fluent-ffmpeg';
-import CONF from './config.json' assert { type: 'json' };
+import CONF from './config.json' with {type: "json"};
 
 ffmpeg.setFfmpegPath('C:\\Program Files\\ffmpeg\\ffmpeg.exe'); // Update this path to the actual path of your ffmpeg.exe
 

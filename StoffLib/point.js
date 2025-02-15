@@ -1,12 +1,13 @@
 import { Vector } from './geometry.js';
 import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
+import register_collection_methods from "./collection_methods/index.js";
 
 class Point extends Vector{
     constructor(x, y){
         super(x, y);
 
-        this.adjacent_lines = [];
+        this.adjacent_lines = this.new_sketch_element_collection();
         this.data = {};
         this.sketch = null;
         this.attributes = {
@@ -73,6 +74,19 @@ class Point extends Vector{
         return this.adjacent_lines;
     }
 
+    get_lines(){
+        return this.adjacent_lines;
+    }
+
+    // Used in Collection Elements
+    get_points(){
+        return [this];
+    }
+
+    get_sketch(){
+        return this.sketch;
+    }
+
     other_adjacent_line(...lines){
         const other = this.other_adjacent_lines(...lines);
         assert(other.length < 2, "Point has more than one other adjacent line.");
@@ -131,9 +145,21 @@ class Point extends Vector{
         }
     }
 
+    get_bounding_box(){
+        return {
+            width:  0,
+            height: 0,
+            top_left:  this,
+            top_right: this,
+            bottom_left:  this,
+            bottom_right: this
+        }
+    }
+
     static from_vector(vec) {
         return new Point(vec.x, vec.y);
     }
 }
 
+register_collection_methods(Point);
 export default Point;

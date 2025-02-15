@@ -1,4 +1,4 @@
-import DC_CONF from "./config.json" assert { type: 'json' };
+import DC_CONF from "./config.json" with {type: "json"};
 
 import { Client, GatewayIntentBits } from 'discord.js';
 import { send_message, init as init_send_messages } from "./send_messages.js";

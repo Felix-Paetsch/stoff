@@ -2,6 +2,7 @@ import { Vector, ZERO, mirror_type } from './geometry.js';
 import { copy_connected_component } from './copy.js';
 import Sketch from "./sketch.js";
 import assert from "./assert.js";
+import register_collection_methods from "./collection_methods/index.js"
 
 class ConnectedComponent{
     constructor(element){
@@ -13,19 +14,16 @@ class ConnectedComponent{
         return this.root_el;
     }
 
-    transform(pt_fun = (_pt) => {}){
-        this.points().forEach(pt_fun);
-        return this;
-    }
-
     mirror(...args){
+        const {points, lines} = this.obj();
+
         if (args.length == 0) {
             args = [ZERO];
         }
 
-        this.transform((pt) => pt.move_to(pt.mirror_at(...args)));
+        points.forEach((pt) => pt.move_to(pt.mirror_at(...args)));
         if (mirror_type(...args) == "Line"){
-            this.lines().forEach(l => l.mirror());
+            lines.forEach(l => l.mirror());
         }
     }
 
@@ -34,7 +32,7 @@ class ConnectedComponent{
         const groupedPoints = points.reduce((acc, pt) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = [];
+                acc[groupKey] = this.new_sketch_element_collection();
             }
             acc[groupKey].push(pt);
             return acc;
@@ -43,7 +41,7 @@ class ConnectedComponent{
         const groupedLines = lines.reduce((acc, line) => {
             const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = [];
+                acc[groupKey] = this.new_sketch_element_collection();
             }
             acc[groupKey].push(line);
             return acc;
@@ -63,12 +61,21 @@ class ConnectedComponent{
         return this.group_by_key(key).points;
     }
 
-    points(){
+    get_points(){
         return this.obj().points;
     }
 
-    lines(){
+    get_lines(){
         return this.obj().lines;
+    }
+
+    get_sketch_elements(){
+        const r = this.obj();
+        return r.points.concat(r.lines);
+    }
+
+    get_sketch(){
+        return this.root_el.sketch;
     }
 
     get_bounding_box(){
@@ -99,8 +106,8 @@ class ConnectedComponent{
         }
 
 
-        const visited_points = [];
-        const visited_lines  = [];
+        const visited_points = this.new_sketch_element_collection();
+        const visited_lines  = this.new_sketch_element_collection();
         const to_visit_points = [currently_visiting_point];
 
         while (to_visit_points.length > 0){
@@ -129,7 +136,7 @@ class ConnectedComponent{
     }
 
     self_intersecting(){
-        // Returns true if two lines (of the component) intersect with not marked point
+        // Returns true if two lines (of the component) intersect (without) a designated point
         throw new Error("Unimplemented!")
     }
 
@@ -144,6 +151,7 @@ class ConnectedComponent{
     }
 }
 
+register_collection_methods(ConnectedComponent);
 export default ConnectedComponent;
 
 function _calculate_bb_from_points_and_lines(points, lines){

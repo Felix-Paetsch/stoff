@@ -1,6 +1,6 @@
 import cConfig from "../../../../StoffLib/Config/config.js";
 import Pattern from "../../../../Pictures/entry.js";
-import CONF from "../../config.json" assert { type: 'json' };
+import CONF from "../../config.json" with {type: "json"};
 import { get_user, write_user } from "../db_interaction.js";
 
 export function render_base(res, user){

@@ -41,20 +41,22 @@ export function cut_with_fixed_point(s, line, fixed_pt, grp1, grp2){
     }
 
     s.remove(non_fixed);
-    return {
+    return s.object_to_sketch_element_collection({
         fixed_pt: fixed_pt,
+        lines: s.make_sketch_element_collection([l1, l2]),
+        points: s.make_sketch_element_collection([p1, p2]),
         cut_parts: [
             {
                 line: l1,
                 point: p1,
-                adjacent: grp1
+                adjacent: s.make_sketch_element_collection(grp1)
             },{
                 line: l2,
                 point: p2,
-                adjacent: grp2
+                adjacent: s.make_sketch_element_collection(grp2)
             }
         ]
-    }
+    })
 }
 
 export function cut_without_fixed_point(s, line, grp1, grp2){
@@ -141,7 +143,9 @@ export function cut_without_fixed_point(s, line, grp1, grp2){
     const line2 = cut_parts_2[1].line;
     s.remove(cut_parts_2[0].line);
 
-    return {
+    return s.object_to_sketch_element_collection({
+        points: s.make_sketch_element_collection(line1.get_endpoints().concat(line2.get_endpoints())),
+        lines: s.make_sketch_element_collection([line1, line2]),
         cut_parts: [
             {
                 line: line2,
@@ -152,10 +156,12 @@ export function cut_without_fixed_point(s, line, grp1, grp2){
                 adjacent: grp2
             }
         ]
-    }
+    })
 }
 
 export function cut_along_line_path(s, path, grp1, grp2){
+    throw new Error("Currently it is not supported to cut along a line path");
+
     const endpoints = [];
     if (path.length == 1){
         endpoints.push(...path[0].get_endpoints);

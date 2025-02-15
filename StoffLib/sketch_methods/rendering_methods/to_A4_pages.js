@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { createCanvas } from 'canvas';
 import { sketch_to_renderable } from './sketch_to_renderable.js';
-import CONF from '../../config.json' assert { type: 'json' };
+import CONF from '../../config.json' with {type: "json"};
 import { interpolate_colors } from '../../colors.js';
 
 import { dirname } from 'path';
