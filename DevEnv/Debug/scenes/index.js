@@ -3,14 +3,17 @@ import {Vector} from "../../../StoffLib/geometry.js"
 
 export default function() {
     const s = new Sketch();
-    const pts =  [s.add(0,0), s.add(0,1)];
+    const pts =  [s.add(0,0), s.add(1, 0)];
     
-    const l = s._line_between_points_from_sample_points(...pts, [
-        new Vector(0,0), new Vector(0,1), new Vector(1,1), new Vector(1,2), new Vector(2,2)
-    ]);
+    const l = s.plot(...pts, (x) => Math.sin(2*Math.PI*x));
 
-    l.renormalize(0.05);
-    s.copy(l).smooth_out(0.2);
+    s.copy(l).smooth_out(.2);
+    s.copy(l).smooth_out(.6);
+    s.copy(l).smooth_out(1);
+    s.copy(l).smooth_out(1.3);
+    s.copy(l).smooth_out(1.7);
+    s.copy(l).smooth_out(2.5);
+    s.copy(l).smooth_out(3);
 
     return s;
 }

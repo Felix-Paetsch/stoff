@@ -23,3 +23,5 @@ secrets.md
 _docs
 
 .vscode
+
+!StoffLib/_calculations/**/*.jpg

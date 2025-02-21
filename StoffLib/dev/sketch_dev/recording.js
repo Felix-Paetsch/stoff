@@ -205,13 +205,13 @@ class Recording {
     constructor(snapshots = []) {
         this.snapshots = snapshots;
 
-        this.render_processed_snapshots = null;
+        this.render_processed_snapshots = [];
         this.locked = false;
     }
 
     process_snapshots(url = "StoffLib"){
-        this.lock();
-        if (this.render_processed_snapshots !== null) return;
+        //this.lock();
+        if (this.locked && this.render_processed_snapshots !== null) return;
 
         console.log("Started  Processing Snapshorts for:", url);
         this.render_processed_snapshots = this.snapshots.map(s => { return {
@@ -225,7 +225,7 @@ class Recording {
         this.process_snapshots(url);
 
         const assets = load_assets(
-            "./DevServer",
+            "./DevEnv/DevServer",
             [
                 "public/at_url/sketch.css",
                 "public/at_url/snapshot.css",
@@ -269,6 +269,7 @@ class Recording {
                 return { live: true };
             }
 
+            this.process_snapshots();
             currently_live = true;
             return {
                 live: false,

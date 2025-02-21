@@ -31,7 +31,8 @@ A lot to write down..
     - or at a point in general
 - call methods on points directly to get bool
 - intersect lines with rays/geometry.lines
-
+[debug]
+- allow for videos and hot at url and so on multiple instances (via timestamp instead of live)
 [bigger_projects]
 - ID / reference system (see proposal)
 - Which methods should be recorded and which not? (& how to set that)
@@ -52,7 +53,7 @@ A lot to write down..
 - More default stages:
     - Sequential stage
     - push stages
-    
+
 [methods(ish)]
 - adding stages
     - customly from another stage

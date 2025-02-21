@@ -16,7 +16,7 @@ export default (Sketch) => {
         };
 
         const assets = load_assets(
-            "./DevServer",
+            "./DevEnv/DevServer",
             [
                 "public/at_url/sketch.css",
                 "views/at_url/sketch.ejs",

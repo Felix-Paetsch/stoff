@@ -1,5 +1,5 @@
 import CONF from '../config.json' with {type: "json"};
-import { ZERO } from '../geometry.js';
+import { Vector, ZERO } from '../geometry.js';
 import Sketch from '../sketch.js';
 
 export default (Line) => {
@@ -102,7 +102,7 @@ export default (Line) => {
         }
 
         const total_length = this.get_length()/this.endpoint_distance();
-        const n = 10; // CONF.DEFAULT_SAMPLE_POINT_DENSITY;
+        const n = 1 / CONF.DEFAULT_SAMPLE_POINT_DENSITY;
         const len_per_pt = total_length/n;
 
         const new_sample_points = [this.sample_points[0]];
@@ -114,10 +114,9 @@ export default (Line) => {
         let latest_point = [0, 0]; // index, fraction (0-1) went to next pt
 
         // weight = 1 means it is the whole ker_size
-        // the ker range should move to the right with the speed of len_per_pt
-        const weight_per_step = ker_size / len_per_pt;
+        // How muth the weight should change for each unit of change in len
+        const weight_per_step = 1 / ker_size;
 
-        const r = new Sketch.dev.Recording().hot_at_url("/hot");
         while (true){
             let to_move_forwards = len_per_pt;
             while (to_move_forwards > 0){
@@ -174,12 +173,11 @@ export default (Line) => {
             }
 
             new_sample_points.push(compute_center_point(interp_points, weights));
-
-            interp_points.forEach(p => this.sketch.add(p).data.type = "test");
-            r.snapshot(this.sketch);
-            this.sketch.get_typed_points("test").remove();
             
-            if (weights.length == 1 && latest_point[0] == this.sample_points.length - 1) break;
+            if (weights.length == 1 && latest_point[0] == this.sample_points.length - 1){
+                new_sample_points.push(new Vector(1,0));
+                break;
+            }
         }
 
         this.sample_points = new_sample_points;
