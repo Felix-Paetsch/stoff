@@ -3,10 +3,11 @@ import Point from './point.js';
 import ConnectedComponent from './connected_component.js';
 import assert from './assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
-import offset_sample_points from './unicorns/offset_sample_points.js';
+import offset_sample_points from './line_methods/offset_sample_points.js';
 import add_self_intersection_test from './unicorns/self_intersects.js';
 import CONF from './config.json' with {type: "json"};
 import SketchElementCollection from './sketch_element_collection.js';
+import register_line_manipulation_functions from "./line_methods/line_manipulation.js"
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points){
@@ -144,7 +145,7 @@ class Line{
     }
 
     convert_to_straight_line() {
-        if (!this.is_straight()) return this;
+        if (!this.is_straight()) return false;
     
         Object.setPrototypeOf(this, StraightLine.prototype);
         this.constructor = StraightLine; // Change constructor reference
@@ -401,56 +402,6 @@ class Line{
         return null;
     }
 
-    rel_normalized_sample_points(k = null) {
-        if (k == null){
-            const density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-            k = this.get_length() / (density * this.endpoint_distance());
-        }
-        k = Math.round(k);
-    
-        const total_len = this.get_length() / this.endpoint_distance();
-        const step_size = 1 / k;
-        const sample_point_distance = total_len * step_size;
-    
-        const sp = this.sample_points;
-        const res = [sp[0]];
-    
-        let current_sp_index = 0;
-        let point_for_distance_from = sp[0]; // Is or is after sp[current_sp_index]
-        let distance_left = sample_point_distance;
-    
-        while (current_sp_index < sp.length - 1) {
-            let distance_to_next_sp_point = point_for_distance_from.subtract(sp[current_sp_index + 1]).length();
-            if (distance_to_next_sp_point < distance_left) {
-                distance_left -= distance_to_next_sp_point;
-                current_sp_index += 1;
-                point_for_distance_from = sp[current_sp_index];
-            } else {
-                const next_sample_point = point_for_distance_from.add(
-                    sp[current_sp_index + 1].subtract(point_for_distance_from).normalize().mult(distance_left)
-                );
-    
-                point_for_distance_from = next_sample_point;
-                res.push(next_sample_point);
-                distance_left = sample_point_distance;
-            }
-        }
-    
-        if (sp[sp.length - 1].subtract(res[res.length - 1]).length() < sample_point_distance * 0.3) {
-            res.pop();
-        }
-    
-        res.push(sp[sp.length - 1]);
-    
-        return res;
-    }
-    
-    abs_normalized_sample_points(k = null) {
-        const to_abs = this.get_to_absolute_function();
-        return this.rel_normalized_sample_points(k).map(to_abs);
-    }
-    
-
     position_at_length(length, reversed = false){
         const l = this.get_length();
         length = length >= 0 ? length : l - length;
@@ -526,30 +477,6 @@ class Line{
         return this;
     }
 
-    _remove_duplicate_points() {
-        if (this.sample_points.length <= 2) return;
-
-        let last_index = 0;
-        this.sample_points = this.sample_points.filter((point, index) => {
-            // Skip the first point, compare each with the previous
-            if (index === 0) return true;
-            const prevPoint = this.sample_points[last_index];
-            if (prevPoint.distance(point) > EPS.WEAK_EQUAL){
-                last_index = index;
-                return true;
-            }
-            return false;
-        });
-    }
-
-    _renormalize(density = null){
-        if (!density) density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-
-        const n = this.get_length() / density;
-        this.sample_points = this.rel_normalized_sample_points(n);
-        return this;
-    }
-
     toString(){
         return "[Line]"
     }
@@ -564,9 +491,10 @@ class Line{
 }
 
 add_self_intersection_test(Line);
+register_line_manipulation_functions(Line);
 
 class StraightLine extends Line{
-    constructor(endpoint_1, endpoint_2, density){
+    constructor(endpoint_1, endpoint_2, density = CONF.DEFAULT_SAMPLE_POINT_DENSITY){
         const n = Math.ceil(1 / density);
 
         super(
@@ -614,6 +542,10 @@ class StraightLine extends Line{
 
     self_intersects(){
         return false;
+    }
+
+    smooth_out(){
+        return this;
     }
 }
 

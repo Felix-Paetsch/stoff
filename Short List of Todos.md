@@ -30,6 +30,7 @@ A lot to write down..
 - (completely) split at a point on the line
     - or at a point in general
 - call methods on points directly to get bool
+- intersect lines with rays/geometry.lines
 
 [bigger_projects]
 - ID / reference system (see proposal)
@@ -49,8 +50,9 @@ A lot to write down..
     - Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet, sollte eine Warung ausgegeben
     - Gewisse zu spezifizierende Linien am Schnittmuster sollen bestimmte Länge haben
 - More default stages:
-    - Wrapper Stage
-    - Directed Acyclic Graph Stage
+    - Sequential stage
+    - push stages
+    
 [methods(ish)]
 - adding stages
     - customly from another stage

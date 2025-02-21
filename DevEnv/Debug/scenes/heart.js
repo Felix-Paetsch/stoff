@@ -1,5 +1,5 @@
-import Sketch from "../../StoffLib/sketch.js";
-import Point from "../../StoffLib/point.js";
+import Sketch from "../../../StoffLib/sketch.js";
+import Point from "../../../StoffLib/point.js";
 
 export default function(){
     const s = new Sketch();

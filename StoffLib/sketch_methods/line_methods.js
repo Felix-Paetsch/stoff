@@ -108,14 +108,6 @@ export default (Sketch) => {
         l.set_sketch(this);
         return l;
     }
-
-    Sketch.prototype._line_between_points_from_abs_sample_points = function(pt1, pt2, sp){
-        [pt1, pt2].forEach(p => {
-            assert.IS_POINT(p);
-            assert.HAS_SKETCH(p, this);
-        });
-        return this._line_between_points_from_sample_points(pt1, pt2, sp);
-    }
     
     Sketch.prototype.interpolate_lines = function(
         line1, 
@@ -190,8 +182,8 @@ export default (Sketch) => {
         const k = Math.ceil(1 / CONF.INTERPOLATION_NORMALIZATION_DENSITY);
     
         // Get normalized samples of line1 and line2
-        const line1_normalized = line1.abs_normalized_sample_points(k);
-        const line2_normalized = line2.abs_normalized_sample_points(k);
+        const line1_normalized = line1._abs_normalized_sample_points(k);
+        const line2_normalized = line2._abs_normalized_sample_points(k);
     
         // Inline function to interpolate a point from the normalized sample points array
         // position between 0 and 1
@@ -427,7 +419,7 @@ export default (Sketch) => {
             Point.from_vector(abs_sample_points[abs_sample_points.length - 1])
         );
 
-        const ret_line = this._line_between_points_from_abs_sample_points(p1, p2, abs_sample_points);
+        const ret_line = this._line_between_points_from_sample_points(p1, p2, abs_sample_points);
         return {
             p1,
             p2,

@@ -1,5 +1,5 @@
-import assert from "../../../StoffLib/assert.js";
-import { arc } from "../../../StoffLib/curves.js";
+import assert from "../../../../../StoffLib/assert.js";
+import { arc } from "../../../../../StoffLib/curves.js";
 
 export default class HeartSide{
     constructor(top, bottom, first_line){

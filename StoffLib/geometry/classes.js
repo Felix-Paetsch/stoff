@@ -6,8 +6,8 @@ export class Vector {
     constructor(x = 0, y = 0, column = true) {
         if (x instanceof Vector){
             y = x.y;
-            x = x.x;
             column = x.is_column
+            x = x.x;
         }
 
         if (
@@ -17,6 +17,9 @@ export class Vector {
             throw new Error("Vector entries are not proper numbers!");
         }
 
+        if (typeof column == "undefined"){
+            throw new Error("hey!");
+        }
         this.is_column = column;
         this.is_row = !column;
 
