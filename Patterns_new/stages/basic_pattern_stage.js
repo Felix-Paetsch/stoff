@@ -266,6 +266,7 @@ export default class BasicPatternStage extends PatternStage{
         this.#merge_to_dart();
         //this.draw_round_neckline();
         this.#construct_neckline();
+        this.sketch.get_typed_line("m_to_n").data.type = "bottom";
         /*
     */
         /*
@@ -967,32 +968,40 @@ export default class BasicPatternStage extends PatternStage{
         let j;
         let h_to_i;
         let j_to_i;
+        let lines = [];
 
         if (lns[0].data.darttip == "h"){
             h = this.sketch.get_typed_point("h");
             j = this.sketch.get_typed_point("j");
+            lines.push(this.sketch.get_typed_line("j_to_g"));
+            j_to_i = this.sketch.get_typed_line("j_to_i");
             if (temp_ln.data.type == "neckline" || temp_ln.data.type == "fold") {
                 h_to_i = this.sketch.get_typed_line("h_to_i");
+                lines.push(this.sketch.get_typed_line("h_to_g"));
             } else {
                 h_to_i = this.sketch.get_typed_line("h_to_g");
+                lines.push(this.sketch.get_typed_line("h_to_i"))
             }
-            j_to_i = this.sketch.get_typed_line("j_to_i");
+            
         } else {
             h = this.sketch.get_typed_point("p");
             j = this.sketch.get_typed_point("q"); 
+            j_to_i = this.sketch.get_typed_line("q_to_s");
+            lines.push(this.sketch.get_typed_line("q_to_r"));
             if (temp_ln.data.type == "neckline" || temp_ln.data.type == "fold") {
                 h_to_i = this.sketch.get_typed_line("p_to_s");
+                lines.push(this.sketch.get_typed_line("p_to_r"))
             } else {
                 h_to_i = this.sketch.get_typed_line("p_to_s");
+                lines.push(this.sketch.get_typed_line("p_to_r"))
             }
-            j_to_i = this.sketch.get_typed_line("q_to_s");
         }
         assert.IS_POINT(j);
         let h2 = this.sketch.add_point(h.copy());
 
         let p_h = this.sketch.add_point(j.subtract(h).scale(5).add(h));
         let ln_h = this.sketch.line_between_points(h, p_h);
-        let bottom_lns = this.sketch.get_typed_lines("m_to_n");
+        let bottom_lns = this.sketch.get_typed_lines("bottom");
         let positions = this.sketch.intersection_positions(bottom_lns[0], ln_h);
         let bottom_ln;
         if(positions.length > 0){
@@ -1003,16 +1012,31 @@ export default class BasicPatternStage extends PatternStage{
         }
         
         p_h.move_to(positions[0]);
+        p_h.data.type = "u";
         this.sketch.remove(ln_h);
         let temp = this.sketch.point_on_line(p_h, bottom_ln);
         let temp_cut = this.sketch.cut([p_h, j], null, [temp.line_segments[1], j_to_i], [temp.line_segments[0], j.other_adjacent_line(j_to_i)]);
-        
+        if(lns[0].data.darttip == "h"){
+            temp_cut.cut_parts[0].line.data.type = "j_to_u";
+            temp_cut.cut_parts[1].line.data.type = "j_to_u";
+        } else {
+            temp_cut.cut_parts[0].line.data.type = "q_to_u";
+            temp_cut.cut_parts[1].line.data.type = "q_to_u";
+        }
+
         lns[1].replace_endpoint(h, h2);
         h_to_i.replace_endpoint(h, h2);
         dart_lines_left.forEach(line =>{
             line.replace_endpoint(h, h2);
         });        
+        lines.push(temp_cut.cut_parts[0].line);
+        lines.push(temp_cut.cut_parts[1].line);
+        lines = lines.concat(lns);
 
+        lines.forEach(line =>{
+            line.data.old_type = line.data.type;
+            line.data.type = ("cut " + lns[0].data.darttip);
+        });
         let comp = new ConnectedComponent(h2);
         comp.transform(p =>{
             p.move_to(p.add(new Vector(-10,0)));
@@ -1036,7 +1060,6 @@ export default class BasicPatternStage extends PatternStage{
         l.data.type = "armpit";
         return l;
     }
-
 }
 
 

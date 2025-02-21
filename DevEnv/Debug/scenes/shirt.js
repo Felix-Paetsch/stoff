@@ -1,6 +1,6 @@
 import PatternConstructor from "../../../PatternLib/patternConstructor.js";
 import BasicPatternStage from "../../../Patterns_new/stages/basic_pattern_stage.js";
-
+import AnnotationStage from "../../../Patterns_new/stages/annotation_stage.js";
 /*
 let measurements = { // Puppe mit lustigen Maßen
     "shoulder_length": 13,
@@ -107,7 +107,7 @@ let measurements = { //debby
     }
 */
 
-let measurements = { 
+let measurements = {
     "over_bust_front": 48.5,
     "over_bust_back": 41.5,
     "belly_front": 55,
@@ -148,21 +148,31 @@ export default function(){
     shirt.set_working_data({
         ease: 2
     });
-    
+
     shirt.add_patter_stage(BasicPatternStage);
+    shirt.add_patter_stage(AnnotationStage);
     shirt.two_waistline_darts();
    // shirt.move_dart("fold", 0.2);
    // shirt.move_dart_to_outer_waistline_dart()
     //  shirt.remove_outer_waistline_dart();
     // shirt.correct_second_dart();
-    
+
    // shirt.split_at_dart();
    // shirt.remove_waistline_darts();
-    shirt.split_up_dart(["armpit", 0.6, 0.4], ["fold", 0.4, 0.3], ["neckline", 0.7, 0.3]);
+    shirt.split_up_dart(["armpit", 0.6, 0.4], ["neckline", 0.95, 0.6]);
     shirt.move_dart_number_to_darttip(1, "p")
-    shirt.move_dart_number_to_darttip(2, "p")
+    //shirt.move_dart_number_to_darttip(2, "p")
    // shirt.split_dart_number_to_bottom(3, [2]);
+   // shirt.split_dart_number_to_bottom(2);
     shirt.split_dart_number_to_bottom(1);
+
+    //shirt.move_dart_outside(1, 0);
+    shirt.move_dart_outside(2, 4);
+    shirt.move_waistline_dart();
+    shirt.curve_lines();
+    //shirt.fill_in_dart(2);
+    //shirt.fill_in_dart(1);
+
     return shirt.finish();
 }
 

@@ -90,6 +90,10 @@ class Line{
         return this.p1 == pt ? this.p2 : this.p1;
     }
 
+    endpoint_from_orientation(bool = true){
+        return bool ? this.p1 : this.p2;
+    }
+
     has_endpoint(pt){
         return this.p1 == pt || this.p2 == pt;
     }
