@@ -1,5 +1,5 @@
-import assert from "../../StoffLib/assert.js";
-import { EPS } from "../../StoffLib/geometry.js";
+import assert from "../../../StoffLib/assert.js";
+import { EPS } from "../../../StoffLib/geometry.js";
 
 
 
@@ -14,7 +14,8 @@ export default class DartData{
         });
         this.#eval_darts();
         this.#validate_darts();
-        this.check_sum();
+        // das ist mit Absicht nicht im Constructor, damit die Klasse auch bei anderen Fällen genutzt werden kann
+        //this.check_sum();
     }
 
     #eval_darts() {
@@ -66,6 +67,16 @@ export default class DartData{
         assert.CALLBACK("Teile vom Abnäher addieren sich nicht zu 100%!", () => {
             return Math.abs(this.sum - 1.0) < EPS.TINY;
         });
+    }
+
+    get_number_of_darts(){
+        let i = 0;
+        Object.keys(this.lines).forEach(line_name =>{
+            this.lines[line_name].forEach(dart => {
+                i++;
+            });
+        });
+        return i;
     }
 
     sort_lines(){

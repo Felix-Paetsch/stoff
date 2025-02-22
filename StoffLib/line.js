@@ -19,7 +19,7 @@ class Line{
         */
 
         this.attributes = {
-            stroke: "rgb(255,0,0)",
+            stroke: "rgb(0, 0, 0)",
             strokeWidth: 1,
             opacity: 1
         };
@@ -244,6 +244,12 @@ class Line{
 
     get_endpoints(){
         return new SketchElementCollection([this.p1, this.p2], this.sketch);
+    }
+
+    get_adjacent_lines() {
+        return new SketchElementCollection(this.p1.get_lines().concat(this.p2.get_lines()), this.sketch)
+            .unique()
+            .filter(l => l !== this);
     }
 
     orientation(...args){

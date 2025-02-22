@@ -1,7 +1,7 @@
 import assert from "../StoffLib/assert.js";
 import Sketch from "../StoffLib/sketch.js";
 import Line from "../StoffLib/line.js";
-import { Vector, polygon_contains_point, EPS, VERTICAL } from "../StoffLib/geometry.js";
+import { Vector,polygon_orientation, VERTICAL } from "../StoffLib/geometry.js";
 
 import { cut_with_fixed_point, cut_without_fixed_point, cut_along_line_path } from "./sketch_methods/cut.js";
 import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
@@ -24,13 +24,17 @@ export default class SewingSketch extends Sketch{
     }
 
     order_by_endpoints(...lines){
+        if (Array.isArray(lines[0])){
+            lines = [...lines[0]];
+        }
         if (lines.length <= 1) return lines;
         if (lines.length == 2) return set_two_line_orientations(lines);
 
         const res = this.new_sketch_element_collection();
         res.push(lines.pop());
         res.orientations = [true];
-        const smth_found = null;
+        res.points = this.make_sketch_element_collection([res[0].p1, res[0].p2]);
+        let smth_found = null;
         while (lines.length > 0){
             for (let i = lines.length - 1; i >= 0; i--){
                 if (res[0].common_endpoint(lines[i])){
@@ -44,6 +48,9 @@ export default class SewingSketch extends Sketch{
                         res.orientations.unshift(
                             res[1][next_orientation ? "p1" : "p2"] == res[0].p2
                         );
+                        res.points.unshift(
+                            res[0].other_endpoint(res.points[0])
+                        );
                     }
                 } else if (res[res.length - 1].common_endpoint(lines[i])){
                     // Append
@@ -56,6 +63,9 @@ export default class SewingSketch extends Sketch{
                         res.orientations.push(
                             res[res.length - 2][prev_orientation ? "p2" : "p1"] == res[res.length - 1].p1
                         );
+                        res.points.push(
+                            res[res.length - 1].other_endpoint(res.points[res.points.length - 1])
+                        )
                     }
                 }
             }
@@ -66,13 +76,41 @@ export default class SewingSketch extends Sketch{
         function set_two_line_orientations(lines){
             if (lines[1].has_endpoint(lines[0].p2)){
                 lines.orientations = [true, lines[1].p1 == lines[0].p2];
+                lines.points = [lines[0].p1, lines[0].p2, lines[1].p2];
             } else if (lines[1].has_endpoint(lines[0].p1)){
                 lines.orientations = [false, lines[1].p1 == lines[0].p1];
+                lines.points = [lines[0].p2, lines[0].p1, lines[1].other_endpoint(lines[0].p1)];
             } else throw new Error("Lines dont form a connected segment");
             return lines;
         }
 
+        res.lines = lines;
         return res;
+    }
+
+    oriented_lines(...lines) {
+        if (Array.isArray(lines[0])){
+            lines = lines[0]
+        }
+        lines = this.order_by_endpoints(...lines);
+        assert(lines[0].common_endpoint(lines[lines.length - 1]), "Lines dont form a cycle.")
+
+        let polygon = [];
+        for (let i = 0; i < lines.length; i++){
+            const abs = lines[i].get_absolute_sample_points();
+            if (!lines.orientations[i]){
+                abs.reverse();
+            }
+            polygon = polygon.concat(abs);
+        }
+        
+        if (!polygon_orientation(polygon)) {
+            lines.reverse();
+            lines.orientations.reverse();
+            lines.orientations = lines.orientations.map(o => !o);
+        }
+
+        return lines;
     }
 
     cut(line, fixed_pt = null, grp1 = "smart", grp2 = "smart"){
@@ -327,22 +365,15 @@ export default class SewingSketch extends Sketch{
             });
         }
 
-        // Figure out if test vec inside/outside polygon
-        //      Construct Test Vec
-        const cp = lines[0].position_at_fraction(0.5);
-        const tv = lines[0].get_tangent_vector(cp);
-        const test_vec = cp.add(tv.get_orthogonal().scale(EPS.FINE));
-
-        //      Construct Polygon         
         const polygon = [].concat(...lines_with_orientation.map(l => {
             const abs = l.line.get_absolute_sample_points();
-            if (!l.orientation){
+            if (!l.orientation) {
                 abs.reverse();
             }
             return abs;
         }));
 
-        if (polygon_contains_point(polygon, test_vec)){
+        if (!polygon_orientation(polygon)) {
             lines_with_orientation.reverse();
             lines_with_orientation.forEach(l => l.orientation = !l.orientation);
         }

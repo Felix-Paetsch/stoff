@@ -225,7 +225,7 @@ class Recording {
         this.process_snapshots(url);
 
         const assets = load_assets(
-            "./DevServer",
+            "./DevEnv/DevServer",
             [
                 "public/at_url/sketch.css",
                 "public/at_url/snapshot.css",
@@ -240,7 +240,7 @@ class Recording {
             route: url,
             assets
         }, {
-            root: dirname("../../../DevServer/at_url")
+            root: dirname("../../../DevEnv/DevServer/views")
         });
 
         return htmlOutput;
