@@ -207,11 +207,12 @@ class Recording {
 
         this.render_processed_snapshots = [];
         this.locked = false;
+        this.last_update_ts = Date.now();
     }
 
     process_snapshots(url = "StoffLib"){
         //this.lock();
-        if (this.locked && this.render_processed_snapshots !== null) return;
+        if (this.render_processed_snapshots.length > 0 || this.snapshots.length == 0) return;
 
         console.log("Started  Processing Snapshorts for:", url);
         this.render_processed_snapshots = this.snapshots.map(s => { return {
@@ -229,13 +230,13 @@ class Recording {
             [
                 "public/at_url/sketch.css",
                 "public/at_url/snapshot.css",
-                "views/at_url/snapshot.ejs",
+                "views/at_url/recording.ejs",
                 "public/at_url/snapshot.js",
                 "public/main/add_svg_hover_events.js"
             ]
         );
 
-        const htmlOutput = ejs.render(assets["snapshot.ejs"], {
+        const htmlOutput = ejs.render(assets["recording.ejs"], {
             render_data: this.render_processed_snapshots,
             route: url,
             assets
@@ -257,23 +258,25 @@ class Recording {
         const get  = new Route(url, "get",  overwrite);
         const post = new Route(url, "post", overwrite);
 
-        let currently_live = false;
-
         get.request = (function(){
-            currently_live = true;
             return this.to_html(url);
         }).bind(this);
 
-        post.request = (function(){
-            if (currently_live) {
-                return { live: true };
+        post.request = (function(req){
+            if (this.last_update_ts == req.body.ts) {
+                return { 
+                    ts: this.last_update_ts,
+                    live: true,
+                    type: "recording"
+                };
             }
 
-            this.process_snapshots();
-            currently_live = true;
+            this.process_snapshots(url);
             return {
+                ts: this.last_update_ts,
+                render_data: this.render_processed_snapshots,
                 live: false,
-                render_data: this.render_processed_snapshots
+                type: "recording"
             };
         }).bind(this);
 
@@ -391,12 +394,13 @@ class Recording {
             }
         }
 
+        this.last_update_ts = Date.now();
+        this.render_processed_snapshots = [];
         return this;
     }
 
     unlock(){
         this.locked = false;
-        this.render_processed_snapshots = null;
         return this;
     }
 

@@ -3,10 +3,9 @@ import register_render_at from "./render_at.js";
 import Route from "./request_routing.js";
 
 export default (Sketch) => {
-    let count = 0;
-
     Error.stackTraceLimit = Infinity;
 
+    let count = 0;
     const Sketch_dev = {
         at_new_url: function(url) {
             return this.dev.at_url(url + (count++))

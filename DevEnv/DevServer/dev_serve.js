@@ -39,7 +39,7 @@ export default (Sketch, app) => {
         const route = routes.find(r => r.url === req.url && r.method === req.method);
     
         if (route) {
-            res.send(route.request());
+            res.send(route.request(req));
         } else {
             next();
         }

@@ -12,7 +12,7 @@ function activate_frame(n){
         container[i].style.display = "none";
     }
 
-    container[n].style.display = "block";
+    container[Math.min(n, container.length - 1)].style.display = "block";
     document.getElementById("current_frame_num").textContent = n + 1;
     frame_slider.value = n+1;
 }

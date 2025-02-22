@@ -2,6 +2,7 @@
 const dataContainer = document.getElementById('sketch_display');
 const default_wait_time = 0.5;
 let current_wait_time_s = default_wait_time;
+let last_live_ts = null;
 
 function reset_server_monitor_wait_time(){
     current_wait_time_s = default_wait_time;
@@ -20,7 +21,10 @@ async function monitor_sketch_reset() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                ts: last_live_ts
+            })
         });
 
         if (response.status === 404) {
@@ -36,8 +40,12 @@ async function monitor_sketch_reset() {
         }
 
         const result = await response.json();
+        if (result.type !== local_live_view_type){
+            return window.location.reload();
+        }
         if (!result.live) {
-            update_display(result)
+            last_live_ts = result.ts;
+            update_display(result);
         }
     } catch (error) {
         document.getElementById("doesnt_exist").style.display="block";

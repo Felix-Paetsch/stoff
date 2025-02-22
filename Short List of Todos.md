@@ -23,16 +23,12 @@ A lot to write down..
 - Add relevant asserts
 [methods]
 - Arange sketches/connected components compactly (for printing)
-- Smooth corner out (evt. around point when merging)
-    - "Make C \infty"
 - Merge several lines at ones
 - merge at point
 - (completely) split at a point on the line
     - or at a point in general
 - call methods on points directly to get bool
 - intersect lines with rays/geometry.lines
-[debug]
-- allow for videos and hot at url and so on multiple instances (via timestamp instead of live)
 [bigger_projects]
 - ID / reference system (see proposal)
 - Which methods should be recorded and which not? (& how to set that)

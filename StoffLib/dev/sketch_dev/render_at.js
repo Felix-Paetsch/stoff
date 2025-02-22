@@ -53,28 +53,77 @@ export default (Sketch) => {
         const get  = new Route(url, "get",  overwrite);
         const post = new Route(url, "post", overwrite);
 
+        const current_ts = Date.now();
+
         const state = this.copy();
         const route_data = {
             svg: this.to_dev_svg(500, 500),
             data: clean_rendering_data(data),
-            live: false,
+            ts: current_ts,
             route: url,
+            type: "snapshot",
             sketch_data: clean_rendering_data(state.data)
         };
 
         get.request = (function(){
-            route_data.live = true;
             return state.dev.to_html(url, data);
         }).bind(this);
 
-        post.request = function(){
-            if (route_data.live) {
-                return { live: true };
+        post.request = function(req){
+            if (current_ts == req.body.ts) {
+                return { 
+                    ts: current_ts,
+                    live: true,
+                    type: "snapshot"
+                };
             }
 
             route_data.live = true;
             return {
                 ...route_data,
+                live: false
+            };
+        }
+    }
+
+    Sketch.dev.hot_at_url = function(url, overwrite = null, data = null){
+        const get  = new Route(url, "get",  overwrite);
+        const post = new Route(url, "post", overwrite);
+
+        let current_ts = Date.now();
+        const state = this.copy();
+        const route_data = {
+            data: clean_rendering_data(data),
+            route: url,
+            type: "snapshot",
+            sketch_data: clean_rendering_data(state.data)
+        };
+
+        get.request = (function(){
+            return state.dev.to_html(url, data);
+        }).bind(this);
+
+        const to_dev_svg = () => {
+            return this.to_dev_svg(500,500);
+        }
+
+        post.request = function(req){
+            if (Date.now() - current_ts > 15000){
+                current_ts = Date.now();
+            }
+            if (current_ts == req.body.ts) {
+                return { 
+                    ts: current_ts,
+                    live: true,
+                    type: "snapshot"
+                };
+            }
+
+            route_data.live = true;
+            return {
+                ...route_data,
+                ts: current_ts,
+                svg: to_dev_svg(),
                 live: false
             };
         }

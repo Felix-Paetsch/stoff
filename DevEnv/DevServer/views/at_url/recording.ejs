@@ -53,6 +53,8 @@
             document.getElementById("frame_slider").max = request_result.render_data.length;
             activate_frame(document.getElementById("frame_slider").value - 1);
         }
+
+        const local_live_view_type = "recording";
     </script>
     <div id="doesnt_exist">The route doesn't exist anymore. <br><br><small>Perhaps there was an error before getting to this point.</small></div>
     <script>const route = '<%= route %>';</script>
