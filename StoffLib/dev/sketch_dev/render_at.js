@@ -40,6 +40,7 @@ export default (Sketch) => {
         try {
             return old_to_html.bind(this)(...args);
         } catch (e) {
+            throw e;
             throw new Error("Can't find assets. Perhaps DevServer is not connected!");
         }
     }

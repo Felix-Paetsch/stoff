@@ -105,6 +105,11 @@ function orthogonal_transform_from_input_output(v1, v2) {
 
 function rotation_fun(rotation_vec, angle) {
     // Returns function that takes in a vector and rotates it `angle` around rotation_vec
+    // if angle is an array [v1, v2] it rotates the ray to v1 to the ray to v2
+    if (Array.isArray(angle)){
+        return rotation_fun(rotation_vec, vec_angle_clockwise(angle[0], angle[1], rotation_vec));
+    }
+
     const rotMatrix = new Matrix(
         new Vector(Math.cos(angle), Math.sin(angle)),
         new Vector(-1 * Math.sin(angle), Math.cos(angle))
@@ -267,6 +272,30 @@ function polygon_contains_point(polygon_points, point){
     return ctr % 2 == 1;
 }
 
+function polygon_orientation(points, eps = EPS.FINE, n = 1){
+    // Returns true if oriented clockwise, falso otherwise
+    // We assume the polygon is given in order and doesnt have self-intersections
+
+    let current_test_pt = -1;
+    let current_test_res = 0;
+
+    while (current_test_pt < points.length && Math.abs(current_test_res) < n) {
+        current_test_pt++;
+        const current = points[current_test_pt];
+        const next = points[(current_test_pt + 1) % points.length];
+        if (next.distance(current) < EPS.FINE){
+            continue;
+        }
+        const mid = current.add(next).scale(.5);
+        const dir = next.subtract(current);
+
+        const test_vec = mid.add(dir.get_orthogonal().scale(eps));
+        polygon_contains_point(points, test_vec) ? current_test_res++ : current_test_res--;
+    }
+
+    return current_test_res > 0;
+}
+
 function deg_to_rad(d) {
     return (Math.PI * d) / 180;
 }
@@ -290,6 +319,7 @@ export {
     line_segments_intersect,
     random_vec,
     polygon_contains_point,
+    polygon_orientation,
     orientation,
     is_convex
 };

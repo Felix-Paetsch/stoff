@@ -3,6 +3,12 @@ import Line from "../line.js";
 
 export default (Class, set_if_not_exists) => {
     // Not typed
+    set_if_not_exists(Class, "unique", function () {
+        const se = this.get_sketch_elements();
+        const filtered = se.filter((value, index) => se.indexOf(value) === index);
+        return this.make_sketch_element_collection(filtered);
+    });
+
     set_if_not_exists(Class, "group_by_key", function(key){
         const pts = this.points_by_key(key);
         const lns = this.lines_by_key(key);

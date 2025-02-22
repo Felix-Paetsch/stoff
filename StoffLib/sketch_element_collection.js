@@ -1,3 +1,5 @@
+import Line from "./line.js";
+import Point from "./point.js";
 import register_collection_methods from "./collection_methods/index.js"
 import Line from "./line.js";
 import Point from "./point.js";

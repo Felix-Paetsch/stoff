@@ -240,7 +240,7 @@ class Recording {
             route: url,
             assets
         }, {
-            root: dirname("../../../DevServer/at_url")
+            root: dirname("../../../DevEnv/DevServer/views")
         });
 
         return htmlOutput;
