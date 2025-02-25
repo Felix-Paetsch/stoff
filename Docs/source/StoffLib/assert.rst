@@ -3,7 +3,7 @@ Assert
 
 Provides a function for performing standard asserts. This function has many associated methods tailored for our use cases.
 
-**Source File**: ./StoffLib/assert.js
+**Source File**: ./assert.js
 
 .. js:method:: assert(bool, error)
 

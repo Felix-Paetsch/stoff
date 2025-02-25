@@ -29,6 +29,8 @@ A lot to write down..
     - or at a point in general
 - call methods on points directly to get bool
 - intersect lines with rays/geometry.lines
+- rework how snapshots work
+- intersection tests
 [bigger_projects]
 - ID / reference system (see proposal)
 - Which methods should be recorded and which not? (& how to set that)
@@ -49,6 +51,9 @@ A lot to write down..
 - More default stages:
     - Sequential stage
     - push stages
+- Move stages to a new directory (getting rid of pattern-relatedness)
+- Stage Debug utilities
+- first call on_exit and then (potentially) finish
 
 [methods(ish)]
 - adding stages

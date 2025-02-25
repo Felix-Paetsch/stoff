@@ -10,7 +10,7 @@ import register_CC_functions from "./sketch_methods/connected_components_methods
 import register_line_functions from "./sketch_methods/line_methods.js";
 import register_collection_methods from "./collection_methods/index.js"
 
-import assert from './assert.js';
+import assert from '../assert.js';
 import register_assert from "./assert_methods/register.js";
 
 class Sketch{
@@ -358,7 +358,7 @@ Sketch.SketchElementCollection = SketchElementCollection;
 // Add Dev Obj
 import fs from 'fs';
 import ConnectedComponent from './connected_component.js';
-if (fs.existsSync("./StoffLib/dev/sketch_dev/index.js")) {
+if (fs.existsSync("./Core/StoffLib/dev/sketch_dev/index.js")) {
     try {
         const sketch_dev = await import("./dev/sketch_dev/index.js");
         sketch_dev.default(Sketch);

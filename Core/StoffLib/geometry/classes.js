@@ -1,5 +1,5 @@
 import { rotation_fun, vec_angle } from "./algorithms.js";
-import assert from "../assert.js";
+import assert from "../../assert.js";
 import EPS from "./eps.js";
 
 export class Vector {

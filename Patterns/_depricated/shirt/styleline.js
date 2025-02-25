@@ -1,4 +1,4 @@
-import { rotation_fun, triangle_data , vec_angle} from '../../../StoffLib/geometry.js';
+import { rotation_fun, triangle_data , vec_angle} from '../../../Core/StoffLib/geometry.js';
 
 import TShirtBasePattern from "../base/t-shirt_base.js";
 import Middle from './middle.js';

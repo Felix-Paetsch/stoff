@@ -1,4 +1,4 @@
-import CONF from './config.json' with {type: "json"};
+import CONF from './StoffLib/config.json' with {type: "json"};
 
 const assert = (bool, error) => {
     if (!bool){

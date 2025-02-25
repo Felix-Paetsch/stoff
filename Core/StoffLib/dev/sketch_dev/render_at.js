@@ -28,7 +28,7 @@ export default (Sketch) => {
             ...route_data,
             assets
         }, {
-            root: dirname("../../../DevServer/at_url")
+            root: dirname("../../../../DevServer/at_url")
         });
 
         return htmlOutput;

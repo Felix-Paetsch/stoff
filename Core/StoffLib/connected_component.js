@@ -1,7 +1,7 @@
 import { Vector, ZERO, mirror_type } from './geometry.js';
 import { copy_connected_component } from './copy.js';
 import Sketch from "./sketch.js";
-import assert from "./assert.js";
+import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js"
 
 class ConnectedComponent{

@@ -1,6 +1,6 @@
 import merge_sketches from "../../Patterns/core/merge_sketches/main.js";
-import { UP, LEFT, DOWN, RIGHT, Vector } from "../../StoffLib/geometry.js";
-import Sketch from "../../StoffLib/sketch.js";
+import { UP, LEFT, DOWN, RIGHT, Vector } from "../../Core/StoffLib/geometry.js";
+import Sketch from "../../Core/StoffLib/sketch.js";
 
 export default function(){
     const hull_amt = 10;

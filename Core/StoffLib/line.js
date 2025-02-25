@@ -1,7 +1,7 @@
 import { PlainLine, Vector, affine_transform_from_input_output, closest_vec_on_line_segment, convex_hull, EPS, is_convex } from './geometry.js';
 import Point from './point.js';
 import ConnectedComponent from './connected_component.js';
-import assert from './assert.js';
+import assert from '../assert.js';
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from './line_methods/offset_sample_points.js';
 import add_self_intersection_test from './unicorns/self_intersects.js';

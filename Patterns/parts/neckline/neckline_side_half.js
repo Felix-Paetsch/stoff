@@ -1,4 +1,4 @@
-import { spline } from "../../../StoffLib/curves.js";
+import { spline } from "../../../Core/StoffLib/curves.js";
 import neck from "./neckline_side_options.js";
 
 import PatternPart from "../../core/pattern_part.js";

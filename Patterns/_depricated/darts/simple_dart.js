@@ -1,9 +1,9 @@
-import { Vector, vec_angle_clockwise, rotation_fun , triangle_data} from '../../../StoffLib/geometry.js';
-import Sketch from '../../../StoffLib/sketch.js';
-import Point from '../../../StoffLib/point.js';
-import ConnectedComponent from '../../../StoffLib/connected_component.js';
+import { Vector, vec_angle_clockwise, rotation_fun , triangle_data} from '../../../Core/StoffLib/geometry.js';
+import Sketch from '../../../Core/StoffLib/sketch.js';
+import Point from '../../../Core/StoffLib/point.js';
+import ConnectedComponent from '../../../Core/StoffLib/connected_component.js';
 
-import { assert } from '../../../DevEnv/Debug/validation_utils.js';
+import assert from "../../../Core/assert.js";
 
 import utils from '../funs/utils.js';
 

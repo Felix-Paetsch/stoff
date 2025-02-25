@@ -1,17 +1,17 @@
-import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
+import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
 import SewingSketch from "../../../PatternLib/sewing_sketch.js";
-import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../StoffLib/geometry.js";
-import Point from "../../../StoffLib/point.js";
-import { spline, arc } from "../../../StoffLib/curves.js";
-import ConnectedComponent from "../../../StoffLib/connected_component.js";
-import assert from "../../../StoffLib/assert.js";
+import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../Core/StoffLib/geometry.js";
+import Point from "../../../Core/StoffLib/point.js";
+import { spline, arc } from "../../../Core/StoffLib/curves.js";
+import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import assert from "../../../Core/assert.js";
 import DartData from "./dart_data.js";
-import { EPS } from "../../../StoffLib/geometry.js";
+import { EPS } from "../../../Core/StoffLib/geometry.js";
 
 
 
 
-export default class DartPatternStage extends PatternStage{
+export default class DartBaseStage extends BaseStage{
 
     constructor(t) {
         super();

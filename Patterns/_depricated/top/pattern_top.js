@@ -1,7 +1,7 @@
-import Sketch from '../../../../StoffLib/sketch.js';
-import Point from '../../../../StoffLib/point.js';
-import { Vector, vec_angle, rotation_fun , rad_to_deg} from '../../../../StoffLib/geometry.js';
-import ConnectedComponent from '../../../../StoffLib/connected_component.js';
+import Sketch from '../../../../Core/StoffLib/sketch.js';
+import Point from '../../../../Core/StoffLib/point.js';
+import { Vector, vec_angle, rotation_fun , rad_to_deg} from '../../../../Core/StoffLib/geometry.js';
+import ConnectedComponent from '../../../../Core/StoffLib/connected_component.js';
 
 import {new_neckline, line_with_length, point_at, get_point_on_other_line, get_point_on_other_line2, neckline, back_neckline} from '../funs/basicFun.js';
 import evaluate from '../funs/basicEval.js';

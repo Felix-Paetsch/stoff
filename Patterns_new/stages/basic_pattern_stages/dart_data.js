@@ -1,5 +1,5 @@
-import assert from "../../../StoffLib/assert.js";
-import { EPS } from "../../../StoffLib/geometry.js";
+import assert from "../../../Core/assert.js";
+import { EPS } from "../../../Core/StoffLib/geometry.js";
 
 
 

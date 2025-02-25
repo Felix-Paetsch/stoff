@@ -1,6 +1,6 @@
 
-import Sketch from '../../../StoffLib/sketch.js';
-import { Vector } from '../../../StoffLib/geometry.js';
+import Sketch from '../../../Core/StoffLib/sketch.js';
+import { Vector } from '../../../Core/StoffLib/geometry.js';
 import utils from '../funs/utils.js';
 import dart from '../darts/simple_dart.js';
 import annotate from '../annotate/annotate.js';

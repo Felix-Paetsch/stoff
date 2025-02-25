@@ -1,4 +1,4 @@
-import { DOWN, PlainLine, Ray, vec_angle } from '../../StoffLib/geometry.js';
+import { DOWN, PlainLine, Ray, vec_angle } from '../../Core/StoffLib/geometry.js';
 import lengthen from '../_depricated/lengthen/top.js';
 import ShirtBase from "./base.js";
 import ShirtSideHalfBase from "./side_half_base.js";

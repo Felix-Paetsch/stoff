@@ -1,6 +1,6 @@
 import Sketch from '../core/sewing_sketch.js';
-import Point from '../../StoffLib/point.js';
-import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../StoffLib/geometry.js';
+import Point from '../../Core/StoffLib/point.js';
+import { Vector, rotation_fun, triangle_data, VERTICAL } from '../../Core/StoffLib/geometry.js';
 
 import NecklineSideHalf from "../parts/neckline/neckline_side_half.js";
 

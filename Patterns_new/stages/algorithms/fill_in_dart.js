@@ -1,4 +1,4 @@
-import { rotation_fun, vec_angle_clockwise } from "../../../StoffLib/geometry.js";
+import { rotation_fun, vec_angle_clockwise } from "../../../Core/StoffLib/geometry.js";
 
 export default function fill_in_dart(sketch, dart_number, reverse){
     /*

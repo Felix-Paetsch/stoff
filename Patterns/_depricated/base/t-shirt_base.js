@@ -1,7 +1,7 @@
-import Sketch from '../../../StoffLib/sketch.js';
-import Point from '../../../StoffLib/point.js';
-import { Vector, rotation_fun, triangle_data } from '../../../StoffLib/geometry.js';
-import { spline } from "../../../StoffLib/curves.js";
+import Sketch from '../../../Core/StoffLib/sketch.js';
+import Point from '../../../Core/StoffLib/point.js';
+import { Vector, rotation_fun, triangle_data } from '../../../Core/StoffLib/geometry.js';
+import { spline } from "../../../Core/StoffLib/curves.js";
 
 import PatternComponent from "./pattern_component.js";
 

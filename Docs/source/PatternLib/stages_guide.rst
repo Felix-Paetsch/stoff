@@ -1,4 +1,4 @@
-Using :doc:`PatternStages <stages>`
+Using :doc:`BaseStages <stages>`
 =======================================
 
 A sewing pattern usually is constructed sequentially. In several stages.
@@ -22,28 +22,28 @@ Looks something like
 
 .. code-block:: javascript
 
-    import PatternConstructor from "../../PatternLib/patternConstructor.js";
+    import StageProcess from "../../PatternLib/stageManager.js";
 
     import SingleSideStage from "../PatternDev/heart/stages/single_side_stage.js";
     import DoubleSideStage from "../PatternDev/heart/stages/double_side_stage.js";
     import CutStage from "../PatternDev/heart/stages/cut_stage.js";
-    import Sketch from "../../StoffLib/sketch.js";
+    import Sketch from "../../Core/StoffLib/sketch.js";
 
     export default function() {
         const r = Sketch.dev.global_recording();
 
-        const heart = new PatternConstructor();
+        const heart = new StageProcess();
 
-        heart.add_patter_stage(SingleSideStage);
-        heart.add_patter_stage(DoubleSideStage);
-        heart.add_patter_stage(CutStage);
+        heart.add_stage(SingleSideStage);
+        heart.add_stage(DoubleSideStage);
+        heart.add_stage(CutStage);
 
 
         heart.add_right_wing(.7);
         return heart.finish();
     }
 
-You initialize your pattern, add some stages and then call functions on the :doc:`PatternConstructor <pattern_constructor>`.
+You initialize your pattern, add some stages and then call functions on the :doc:`StageProcess <parent>`.
 The functions called must be in order as stages expose them. You can't add a general wing after adding a right wing for example.
 
 Stages

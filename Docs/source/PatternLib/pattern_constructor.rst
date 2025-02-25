@@ -1,12 +1,12 @@
 Pattern Constructor
 ====================
 
-The `PatternConstructor` class serves as the orchestrator for creating sewing patterns. It manages a sequence of `PatternStages` and the transitions between them using
+The `StageProcess` class serves as the orchestrator for creating sewing patterns. It manages a sequence of `BaseStages` and the transitions between them using
 a :doc:`proxy mechanism. <proxy_mechanism>`
 
-**Source File**: ./PatternLib/patternConstructor.js
+**Source File**: ./PatternLib/stageManager.js
 
-.. js:class:: PatternConstructor
+.. js:class:: StageProcess
 
    **Constructor**:
 
@@ -14,18 +14,18 @@ a :doc:`proxy mechanism. <proxy_mechanism>`
 
         **Parameters**:
             - measurements (*object*): The user measurements. The measurements key of the stages will be set to this.
-            - stages (*[]PatternStage*): An array of initial stages for this pattern. See ``this.add_pattern_stage(stage, position_ident)`` for details
+            - stages (*[]BaseStage*): An array of initial stages for this pattern. See ``this.add_pattern_stage(stage, position_ident)`` for details
 
    **Methods**:
 
-    .. js:function:: add_patter_stage(stage, position_ident = null)
+    .. js:function:: add_stage(stage, position_ident = null)
     
-        Adds a ``PatternStage`` to the stages for this pattern. We can either give an instance of ``PatternStage`` as an argument
-        or a class which inherits from ``PatternStage``. In the later case we will initialize it with no parameters.
+        Adds a ``BaseStage`` to the stages for this pattern. We can either give an instance of ``BaseStage`` as an argument
+        or a class which inherits from ``BaseStage``. In the later case we will initialize it with no parameters.
         If ``position_ident == null`` we just push the stage to the end. Otherwise we (for now) get an error.
 
         **Parameters**:
-            - stage (*PatternStage | class*): The stage to add to the pattern
+            - stage (*BaseStage | class*): The stage to add to the pattern
             - position_ident (*obj | null*): Information on where to add the class. (Todo)
 
         **Returns**:
@@ -33,7 +33,7 @@ a :doc:`proxy mechanism. <proxy_mechanism>`
 
     .. js:function:: set_working_data(data)
         
-            Sets we working data of the PatternConstructor and of the current stage to ``data``
+            Sets we working data of the StageProcess and of the current stage to ``data``
     
             **Parameters**:
                 - data (*obj*): The new working data
@@ -43,7 +43,7 @@ a :doc:`proxy mechanism. <proxy_mechanism>`
 
     .. js:function:: get_working_data()
         
-            Returns the working data of the current stage. If that is falsy returns the working data of the PatternConstructor
+            Returns the working data of the current stage. If that is falsy returns the working data of the StageProcess
     
             **Returns**:
                 - *object*: Working Data

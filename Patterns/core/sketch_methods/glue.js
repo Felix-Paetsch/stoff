@@ -1,7 +1,7 @@
-import { assert } from "../../../DevEnv/Debug/validation_utils.js";
-import { affine_transform_from_input_output } from "../../../StoffLib/geometry.js";
-import { default_data_callback } from "../../../StoffLib/copy.js";
-import { EPS } from "../../../StoffLib/geometry.js";
+import assert from "../../../Core/assert.js";
+import { affine_transform_from_input_output } from "../../../Core/StoffLib/geometry.js";
+import { default_data_callback } from "../../../Core/StoffLib/copy.js";
+import { EPS } from "../../../Core/StoffLib/geometry.js";
 
 export function glue_with_fixed_point(s, ep1, ep2, data){
     assert(ep1[0] == ep2[0], "First glue point isn't equal");

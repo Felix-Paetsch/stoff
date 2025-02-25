@@ -1,10 +1,10 @@
 
-import { Vector, vec_angle, rotation_fun , vec_angle_clockwise} from '../../../StoffLib/geometry.js';
-import Sketch from '../../../StoffLib/sketch.js';
-import Point from '../../../StoffLib/point.js';
-import ConnectedComponent from '../../../StoffLib/connected_component.js';
+import { Vector, vec_angle, rotation_fun , vec_angle_clockwise} from '../../../Core/StoffLib/geometry.js';
+import Sketch from '../../../Core/StoffLib/sketch.js';
+import Point from '../../../Core/StoffLib/point.js';
+import ConnectedComponent from '../../../Core/StoffLib/connected_component.js';
 
-import { spline } from "../../../StoffLib/curves.js";
+import { spline } from "../../../Core/StoffLib/curves.js";
 
 import dart from '../darts/simple_dart.js';
 

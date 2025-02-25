@@ -1,7 +1,7 @@
 import render_file_sync from "./utils/rendering.js";
 import load_lib from "./utils/load_lib.js";
 
-import { assert } from "../../DevEnv/Debug/validation_utils.js";
+import assert from "./utils/conf_assert.js";
 const path = await load_lib("path");
 
 export default class ConfigElement{

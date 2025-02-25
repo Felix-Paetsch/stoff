@@ -1,9 +1,8 @@
 import ConfigElement from "./_config_element.js";
 import ChildrenHaving from "./_chilren_having.js";
-import { assert } from "../../DevEnv/Debug/validation_utils.js";
+import assert from "./utils/conf_assert.js"; // So it works in browser
 
 // Initial Config object
-
 export default class Config extends ChildrenHaving{
     constructor(...children){
         if (children.length == 1 && children[0] instanceof Config){

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import { Config } from "../../StoffLib/Config/exports.js";
+import { Config } from "../../Core/Config/exports.js";
 import create_app from "./app.js";
 const app = create_app();
 
@@ -13,10 +13,9 @@ import pattern_data from '../../Patterns/export_pattern.js';
 const { design_config, create_design } = pattern_data;
 import debug_create_design from "../Debug/debug_create_design.js";
 
-import Sketch from "../../StoffLib/sketch.js";
+import Sketch from "../../Core/StoffLib/sketch.js";
 import register_dev_serve from "./dev_serve.js";
 import clean_rendering_data from "./utils/clean_rendering_data.js";
-import exposition from "./exposition.js";
 
 register_dev_serve(Sketch, app);
 
@@ -27,12 +26,6 @@ app.get('/', (req, res) => {
         is_debug: req.query.debug !== undefined
     });
 });
-
-app.get("/exposition", (req, res) => {
-    res.render("exposition", {
-        EX: exposition()
-    });
-})
 
 let pattern_was_requested = false;
 app.post('/pattern', async (req, res) => {

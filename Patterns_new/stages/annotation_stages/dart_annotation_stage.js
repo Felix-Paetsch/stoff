@@ -1,8 +1,8 @@
-import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
-import ConnectedComponent from "../../../StoffLib/connected_component.js";
-import { spline } from "../../../StoffLib/curves.js";
-import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../StoffLib/geometry.js";
-import assert from "../../../StoffLib/assert.js";
+import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
+import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { spline } from "../../../Core/StoffLib/curves.js";
+import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../Core/StoffLib/geometry.js";
+import assert from "../../../Core/assert.js";
 import fill_in_dart from "../algorithms/fill_in_dart.js";
 
 
@@ -21,7 +21,7 @@ import fill_in_dart from "../algorithms/fill_in_dart.js";
 
 
 
-export default class DartAnnotationStage extends PatternStage {
+export default class DartAnnotationStage extends BaseStage {
     constructor() {
         super();
     }

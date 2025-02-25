@@ -3,9 +3,8 @@ import adjusted_measurements from './adjust_measurements.js';
 
 import config_compiler from "./config_compiler.js";
 
-import { Config, cContainer, cBoolean, cNumber, cOption } from "../StoffLib/Config/exports.js";
+import { Config, cContainer, cBoolean, cNumber, cOption } from "../Core/Config/exports.js";
 import construct_shirt from './shirt/construct_shirt.js';
-import Sketch from '../StoffLib/sketch.js';
 
 export default {
     design_config: new Config(

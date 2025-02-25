@@ -1,4 +1,4 @@
-import Sketch from "../../../StoffLib/sketch.js";
+import Sketch from "../../../Core/StoffLib/sketch.js";
 
 export default function() {
     const s = new Sketch();

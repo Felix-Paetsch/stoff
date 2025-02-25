@@ -1,5 +1,5 @@
-import { vec_angle, triangle_data } from "../../StoffLib/geometry.js";
-import Sketch from "../../StoffLib/sketch.js";
+import { vec_angle, triangle_data } from "../../Core/StoffLib/geometry.js";
+import Sketch from "../../Core/StoffLib/sketch.js";
 
 export default function() {
     const s = new Sketch();

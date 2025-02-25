@@ -1,7 +1,7 @@
-import { Vector, affine_transform_from_input_output, vec_angle, rotation_fun, deg_to_rad } from '../../../StoffLib/geometry.js';
-import { spline } from "../../../StoffLib/curves.js";
+import { Vector, affine_transform_from_input_output, vec_angle, rotation_fun, deg_to_rad } from '../../../Core/StoffLib/geometry.js';
+import { spline } from "../../../Core/StoffLib/curves.js";
 
-import Point from '../../../StoffLib/point.js';
+import Point from '../../../Core/StoffLib/point.js';
 
 // Gets point, length of the line and the degree of the line,
 // returns endpoint of the line

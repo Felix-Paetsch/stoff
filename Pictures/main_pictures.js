@@ -1,10 +1,10 @@
 
-import { Vector, vec_angle, rotation_fun , deg_to_rad} from '../StoffLib/geometry.js';
-import Sketch from '../StoffLib/sketch.js';
-import Point from '../StoffLib/point.js';
-import ConnectedComponent from '../StoffLib/connected_component.js';
+import { Vector, vec_angle, rotation_fun , deg_to_rad} from '../Core/StoffLib/geometry.js';
+import Sketch from '../Core/StoffLib/sketch.js';
+import Point from '../Core/StoffLib/point.js';
+import ConnectedComponent from '../Core/StoffLib/connected_component.js';
 
-import { spline } from "../StoffLib/curves.js";
+import { spline } from "../Core/StoffLib/curves.js";
 
 
 // front is boolean

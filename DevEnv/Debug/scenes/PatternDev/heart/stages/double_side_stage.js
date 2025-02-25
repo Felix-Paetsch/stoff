@@ -1,7 +1,7 @@
-import PatternStage from "../../../../../../PatternLib/pattern_stages/baseStage.js";
+import BaseStage from "../../../../../../Core/Stages/base_stages/baseStage.js";
 import HeartSide from "../heart_side.js";
 
-export default class DoubleSideStage extends PatternStage{
+export default class DoubleSideStage extends BaseStage{
     constructor(){
         super()
     }

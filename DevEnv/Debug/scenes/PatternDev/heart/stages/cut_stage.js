@@ -1,6 +1,6 @@
-import PatternStage from "../../../../../../PatternLib/pattern_stages/baseStage.js";
+import BaseStage from "../../../../../../Core/Stages/base_stages/baseStage.js";
 
-export default class CutStage extends PatternStage{
+export default class CutStage extends BaseStage{
     constructor(){
         super()
     }

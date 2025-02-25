@@ -1,4 +1,4 @@
-import { Vector } from "../../../StoffLib/geometry.js";
+import { Vector } from "../../../Core/StoffLib/geometry.js";
 
 export default function clean_rendering_data(data, failure_obj = "<Data unserializable>"){
     let d = failure_obj;

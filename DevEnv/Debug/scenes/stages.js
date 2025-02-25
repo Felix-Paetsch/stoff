@@ -1,19 +1,19 @@
-import PatternConstructor from "../../PatternLib/patternConstructor.js";
+import StageProcess from "../../PatternLib/stageManager.js";
 
 import SingleSideStage from "../PatternDev/heart/stages/single_side_stage.js";
 import DoubleSideStage from "../PatternDev/heart/stages/double_side_stage.js";
 import CutStage from "../PatternDev/heart/stages/cut_stage.js";
-import Sketch from "../../StoffLib/sketch.js";
+import Sketch from "../../Core/StoffLib/sketch.js";
 
 export default function() {
     const r = Sketch.dev.global_recording();
 
-    const heart = new PatternConstructor();
+    const heart = new StageProcess();
 
-    heart.add_patter_stage(SingleSideStage);
-    heart.add_patter_stage(DoubleSideStage);
-    heart.add_patter_stage(CutStage);
-    heart.add_patter_stage(new CutStage());
+    heart.add_stage(SingleSideStage);
+    heart.add_stage(DoubleSideStage);
+    heart.add_stage(CutStage);
+    heart.add_stage(new CutStage());
 
     heart.set_length(1);
     

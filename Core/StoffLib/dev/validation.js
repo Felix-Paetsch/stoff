@@ -2,7 +2,7 @@ import Point from '../point.js';
 import Line from '../line.js';
 import { Vector, EPS } from '../geometry.js';
 import ConnectedComponent from '../connected_component.js';
-import { assert, try_with_error_msg } from '../../DevEnv/Debug/validation_utils.js';
+import assert from "../../assert.js";
 
 
 import CONF from '../config.json' with {type: "json"};
@@ -205,4 +205,4 @@ function approx_eq(a,b = 0){
     return Math.abs(a-b) < error_margin
 }
 
-export { assert, try_with_error_msg, validate_sketch };
+export { assert, validate_sketch };

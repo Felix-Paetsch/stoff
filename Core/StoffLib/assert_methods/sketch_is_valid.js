@@ -1,4 +1,4 @@
-import assert from '../assert.js';
+import assert from '../../assert.js';
 import { Vector, ZERO } from '../geometry.js';
 import CONF from '../config.json' with {type: "json"};
 import Line from '../line.js';

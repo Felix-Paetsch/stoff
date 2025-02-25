@@ -1,5 +1,5 @@
 import { EPS, Vector } from "../geometry.js";
-import assert from "../assert.js";
+import assert from "../../assert.js";
 
 import register_sketch_valid from "./sketch_is_valid.js";
 

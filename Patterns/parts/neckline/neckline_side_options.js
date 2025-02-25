@@ -4,7 +4,7 @@
 */
 
 
-import { spline } from "../../../StoffLib/curves.js";
+import { spline } from "../../../Core/StoffLib/curves.js";
 
 function slim_neckline(neckline, distance){
     let shoulder = neckline.get_line("shoulder");

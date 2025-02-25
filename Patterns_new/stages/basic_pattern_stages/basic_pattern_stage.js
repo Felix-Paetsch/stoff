@@ -12,21 +12,21 @@
 
 */
 
-import PatternStage from "../../../PatternLib/pattern_stages/baseStage.js";
+import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
 import SewingSketch from "../../../PatternLib/sewing_sketch.js";
-import { Vector, triangle_data, rotation_fun, vec_angle_clockwise , vec_angle, deg_to_rad} from "../../../StoffLib/geometry.js";
-import Point from "../../../StoffLib/point.js";
-import { spline , arc} from "../../../StoffLib/curves.js";
-import ConnectedComponent from "../../../StoffLib/connected_component.js";
-import assert from "../../../StoffLib/assert.js";
+import { Vector, triangle_data, rotation_fun, vec_angle_clockwise , vec_angle, deg_to_rad} from "../../../Core/StoffLib/geometry.js";
+import Point from "../../../Core/StoffLib/point.js";
+import { spline , arc} from "../../../Core/StoffLib/curves.js";
+import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import assert from "../../../Core/assert.js";
 import DartData from "./dart_data.js";
-import { EPS } from "../../../StoffLib/geometry.js";
+import { EPS } from "../../../Core/StoffLib/geometry.js";
 
 
 // To be ported
 // import NecklineSideHalf from "../../Patterns/parts/neckline/neckline_side_half.js"
 
-export default class BasicPatternStage extends PatternStage{
+export default class BasicBaseStage extends BaseStage{
     constructor(t){
         super();
     }
@@ -61,12 +61,12 @@ export default class BasicPatternStage extends PatternStage{
             "belly": ["belly_front", "belly_back"],
         }
 
-        this.sh = { ... this.measurements };
+        this.sh = { ... this.wd.measurements };
         for (const key of Object.keys(shorthand_map)) {
             if (typeof shorthand_map[key] == "string") {
-                this.sh[key] = this.measurements[shorthand_map[key]];
+                this.sh[key] = this.wd.measurements[shorthand_map[key]];
             } else {
-                this.sh[key] = this.side == "front" ? this.measurements[shorthand_map[key][0]] : this.measurements[shorthand_map[key][1]];
+                this.sh[key] = this.side == "front" ? this.wd.measurements[shorthand_map[key][0]] : this.wd.measurements[shorthand_map[key][1]];
             }
         }
     }

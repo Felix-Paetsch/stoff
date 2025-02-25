@@ -1,5 +1,5 @@
 import pictures from '../Pictures/main_pictures.js';
-import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../StoffLib/Config/exports.js";
+import { Config, cContainer, cBoolean, cNumber, cSelection, cOption, cStatic } from "../Core/StoffLib/Config/exports.js";
 
 
 

@@ -1,6 +1,6 @@
 import { Vector } from './geometry.js';
 import ConnectedComponent from './connected_component.js';
-import assert from './assert.js';
+import assert from '../assert.js';
 import register_collection_methods from "./collection_methods/index.js";
 
 class Point extends Vector{

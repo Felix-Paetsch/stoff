@@ -1,10 +1,11 @@
-import assert from "../../StoffLib/assert.js";
+import assert from "../../assert.js";
 
-export default class PatternStage{
+export default class BaseStage{
     constructor(){
+        this.state = "unentered"; // active, exited
+
         // Will be set before on_enter;
-        this.pattern_constructor = null;
-        this.measurements = null; 
+        this.parent = null;
         this.wd = null;
 
         // May overwrite in subclass
@@ -29,7 +30,7 @@ export default class PatternStage{
 
     // Methods to call on stage
     advance_stage(){
-        this.pattern_constructor.__advance_stage();
+        this.parent.__advance_stage();
     }
 
     remove_exposed(key){
@@ -43,9 +44,17 @@ export default class PatternStage{
         return this;
     }
 
-    on_enter(){}
-    on_exit(){}
+    on_enter(){
+        this.state = "active";
+    }
+    on_exit(){
+        this.state = "exited";
+    }  
     finish(){
         assert.THROW("Stage doesn't implement finish.");
+    }
+
+    set_working_data(data){
+        this.wd = data
     }
 }

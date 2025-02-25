@@ -5,7 +5,7 @@ import lengthen from '../lengthen/top.js';
 import seam from '../seam_allowance/simple_seam.js';
 
 
-import { Vector, rotation_fun, triangle_data } from '../../../StoffLib/geometry.js';
+import { Vector, rotation_fun, triangle_data } from '../../../Core/StoffLib/geometry.js';
 
 import PatternComponent from "../base/pattern_component.js";
 

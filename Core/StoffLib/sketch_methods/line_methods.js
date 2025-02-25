@@ -3,7 +3,7 @@ import { intersect_lines, intersection_positions } from '../unicorns/intersect_l
 import { default_data_callback, copy_data_callback, copy_sketch_obj_data } from '../copy.js';
 import { StraightLine, Line } from '../line.js';
 import Point from '../point.js';
-import assert from '../assert.js';
+import assert from '../../assert.js';
 import { interpolate_colors } from '../colors.js';
 import line_with_length from '../unicorns/line_with_length.js';
 import CONF from '../config.json' with {type: "json"};
