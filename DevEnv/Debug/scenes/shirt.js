@@ -4,6 +4,7 @@ import DartBaseStage from "../../../Patterns_new/stages/basic_pattern_stages/dar
 import CurveLinesStage from "../../../Patterns_new/stages/annotation_stages/curve_stage.js";
 import DartAnnotationStage from "../../../Patterns_new/stages/annotation_stages/dart_annotation_stage.js";
 import SeamAllowanceStage from "../../../Patterns_new/stages/annotation_stages/seam_allowance_stage.js";
+import Sketch from "../../../Core/StoffLib/sketch.js";
 //import EasyPatternFrontBackStages from "../../../Patterns_new/stages/easy_base_stages/easy_pattern_stage_front_and_back.js";
 /*
 let measurements = { // Puppe mit lustigen Maßen
@@ -148,9 +149,7 @@ let measurements = {
 
 
 export default function(){
-    
-    const shirt = new StageProcess();
-    shirt.set_working_data({
+    const shirt = new StageProcess({
         measurements: calculate_measurements(measurements),
         ease: 2
     });
@@ -159,6 +158,7 @@ export default function(){
     shirt.add_stage(DartBaseStage);
     shirt.add_stage(CurveLinesStage);
     shirt.add_stage(DartAnnotationStage);
+
     shirt.add_stage(SeamAllowanceStage)
     shirt.two_waistline_darts();
    // shirt.move_dart("fold", 0.2);

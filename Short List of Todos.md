@@ -34,6 +34,8 @@ A lot to write down..
 [bigger_projects]
 - ID / reference system (see proposal)
 - Which methods should be recorded and which not? (& how to set that)
+- fix recording system
+- Rendering: Only render snapshots once (?) maybe as a new "rendered_snapshot"
 
 ## PatternLib
 - Sewing Sketch Updates
@@ -52,8 +54,12 @@ A lot to write down..
     - Sequential stage
     - push stages
 - Move stages to a new directory (getting rid of pattern-relatedness)
+
 - Stage Debug utilities
-- first call on_exit and then (potentially) finish
+  - enter/exit/call
+
+- first call on_exit and then (potentially) finish [for sequential stages]
+- build parallel stage (?)
 
 [methods(ish)]
 - adding stages

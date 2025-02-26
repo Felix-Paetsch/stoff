@@ -13,6 +13,18 @@ export default class BaseStage{
 
         this.exposed_removed = ["on_enter", "on_exit", "finish", "remove_exposed", "add_exposed"];
         this.exposed_added = {};
+
+        const old_on_enter = this.on_enter.bind(this);
+        const old_on_exit  = this.on_exit.bind(this);
+        this.on_enter = ((...args) => {
+            this.state = "active"
+            return old_on_enter(...args);
+        });
+        this.on_exit = ((...args) => {
+            const res = old_on_exit(...args);
+            this.state = "exited"
+            return res;
+        });
     }
 
     // For pattern constructor
@@ -30,7 +42,7 @@ export default class BaseStage{
 
     // Methods to call on stage
     advance_stage(){
-        this.parent.__advance_stage();
+        this.parent.advance_stage();
     }
 
     remove_exposed(key){
@@ -44,17 +56,25 @@ export default class BaseStage{
         return this;
     }
 
-    on_enter(){
-        this.state = "active";
-    }
-    on_exit(){
-        this.state = "exited";
-    }  
+    on_enter(){}
+    on_exit(){}
     finish(){
         assert.THROW("Stage doesn't implement finish.");
     }
 
     set_working_data(data){
-        this.wd = data
+        this.wd = data;
+    }
+
+    get_working_data(){
+        return this.wd;
+    }
+
+    log_string(){
+        return `${ this.constructor.name }${ this.name ? ": " + this.name + " " : ""}[${ this.state }]`;
+    }
+
+    log(){
+        console.log(this.log_string());
     }
 }
