@@ -175,7 +175,10 @@ class Recorder {
 
         post.request = (function(){
             if (currently_live) {
-                return { live: true };
+                return {
+                    live: true,
+                    type: "recording"
+                };
             }
 
             const r = new Recording(this.snapshots);
@@ -183,6 +186,7 @@ class Recorder {
             currently_live = true;
             return {
                 live: false,
+                type: "recording",
                 render_data: r.render_processed_snapshots
             };
         }).bind(this);

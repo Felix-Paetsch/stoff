@@ -74,6 +74,17 @@ class Point extends Vector{
         return this.adjacent_lines;
     }
 
+    get_adjacent_point() {
+        const adjacent = this.get_adjacent_points();
+        assert(adjacent.length < 2, "Point has more than one adjacent points.");
+        return adjacent[0]
+    }
+
+    get_adjacent_points() {
+        const pt = this.adjacent_lines.map(l => l.other_endpoint(this));
+        return pt.filter((p, i) => pt.indexOf(p) == i);
+    }
+
     get_lines(){
         return this.adjacent_lines;
     }
@@ -96,6 +107,16 @@ class Point extends Vector{
     other_adjacent_lines(...lines){
         assert.HAS_LINES(this, ...lines);
         return this.adjacent_lines.filter(l => lines.indexOf(l) < 0);
+    }
+
+    other_adjacent_point(...pts) {
+        const other = this.other_adjacent_points(...pts);
+        assert(other.length < 2, "Point has more than one other adjacent points.");
+        return other[0] || null;
+    }
+
+    other_adjacent_points(...pts) {
+        return this.get_adjacent_points().filter(p => pts.indexOf(p) < 0);
     }
 
     common_line(point){

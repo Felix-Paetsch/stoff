@@ -133,6 +133,10 @@ export class Vector {
         return this.x * this.x + this.y * this.y;
     }
 
+    distance_squared(vec) {
+        return this.subtract(vec).length_squared();
+    }
+
     normalize() {
         return this.scale(1 / this.length());
     }

@@ -67,6 +67,10 @@ export default class StageProcess {
         return this.stages.length == 0 || this.stages[this.stages.length - 1].state === "exited";
     }
 
+    call_stage_method(method_name, args = []){
+        return this[method_name](...args);
+    }
+
     advance_stage(){
         this.__mark_current_stage_exited();
     }
@@ -132,7 +136,15 @@ export default class StageProcess {
         return res;
     }
 
+    process_log_string(){
+        return this.log_string();
+    }
+
     log(){
         console.log(this.log_string());
+    }
+
+    process_log(){
+        this.log();
     }
 }

@@ -5,7 +5,7 @@ export default (Sketch, app) => {
     Sketch.dev._register_route = function (route) {
 
         if (["/", "/pattern", "/reset", "/at_url", "/self_intersects"].includes(route.url)){
-            if (route.overwrite === false){
+            if (route.overwrite === null){
                 return;
             } else {
                 throw new Error("Route '" + route.url + "' already exists!");
@@ -23,7 +23,10 @@ export default (Sketch, app) => {
         if (foundIndex !== -1) {
             if (route.overwrite) {
                 routes.splice(foundIndex, 1);
-            } else {
+            } else if (route.overwrite === null){
+                return;
+            }
+            else {
                 throw new Error("Route '" + route.url + "' already exists!");
             }
         }
@@ -46,7 +49,7 @@ export default (Sketch, app) => {
     });
 
     Sketch.dev._serve_get = function (url, html){
-        if (!overwrite && ["/", "/pattern", "/reset", "/at_url", "/self_intersects"].concat(routes).includes(url)){
+        if (overwrite === false && ["/", "/pattern", "/reset", "/at_url", "/self_intersects"].concat(routes).includes(url)){
             throw new Error(`Route ${url} is already taken!`);
         }
 

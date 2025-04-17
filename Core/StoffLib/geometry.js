@@ -30,7 +30,8 @@ import {
     line_segments_intersect,
     polygon_contains_point,
     orientation,
-    polygon_orientation
+    polygon_orientation,
+    polygon_orientation_v2
 } from "./geometry/algorithms.js";
 
 function mirror_type(el, vec2 = null){
@@ -61,6 +62,7 @@ export {
     polygon_contains_point,
     orientation,
     polygon_orientation,
+    polygon_orientation_v2,
     ZERO,
     UP,
     DOWN,

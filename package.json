@@ -20,6 +20,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon DevEnv/DevServer/index.js",
+    "andromeda": "nodemon DevEnv/Andromeda/index.js",
     "dev_cold": "node DevEnv/DevServer/index.js",
     "measure": "node Tools/Measurements/index.js",
     "web": "nodemon Website/index.js",

@@ -76,7 +76,9 @@ export default class CurveLinesStage extends BaseStage {
 
     curve_side() {
         let lines = [];
-        lines.push(this.sketch.get_typed_line("side"));
+        //lines.push(this.sketch.get_typed_line("side"));
+        let f = this.sketch.get_typed_point("f");
+        lines.push(f.get_adjacent_lines().filter(line => {return line.data.type == "side"})[0]);
         lines.push(this.sketch.get_typed_line("f_to_o"));
         lines.push(this.sketch.get_typed_line("o_to_n"));
 

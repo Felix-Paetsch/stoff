@@ -27,8 +27,9 @@ import { EPS } from "../../../Core/StoffLib/geometry.js";
 // import NecklineSideHalf from "../../Patterns/parts/neckline/neckline_side_half.js"
 
 export default class BasicBaseStage extends BaseStage{
-    constructor(t){
+    constructor(one_w_dart = true){
         super();
+        this.one_w_dart = one_w_dart;
     }
 
     on_enter(){
@@ -69,6 +70,7 @@ export default class BasicBaseStage extends BaseStage{
                 this.sh[key] = this.side == "front" ? this.wd.measurements[shorthand_map[key][0]] : this.wd.measurements[shorthand_map[key][1]];
             }
         }
+        this.wd.sh = this.sh;
     }
 
     #construct_neckline(){
@@ -264,8 +266,12 @@ export default class BasicBaseStage extends BaseStage{
         this.#construct_armpit();
         this.#merge_to_dart();
         //this.draw_round_neckline();
-        this.#construct_neckline();
+     //   this.#construct_neckline();
         this.sketch.get_typed_line("m_to_n").data.type = "bottom";
+        pts2.a.move_to(lns.e_to_f.get_line_vector().normalize().scale(3).add(pts2.a));
+        this.wd.measurements.distance_armpit = pts2.a.subtract(pts.c).length();
+        this.wd.measurements.armpit_length = this.sketch.get_typed_line("armpit").get_length();
+
         /*
     */
         /*
@@ -323,7 +329,9 @@ export default class BasicBaseStage extends BaseStage{
 */
 
     #ease_new() {
-        let ease = 1; // das hier sollte noch von Aussen gesteuert werden 
+        let percentage = this.sh.belly / (this.wd.measurements.belly_front + this.wd.measurements.belly_back);
+
+        let ease = this.wd.ease * percentage / 2; // das hier sollte noch von Aussen gesteuert werden 
         // und ggf. fuer beide Punkte einzelnd die Groesse bestimmt werden
         let e = this.sketch.get_typed_point("e");
         let f = this.sketch.get_typed_point("f");
@@ -339,7 +347,7 @@ export default class BasicBaseStage extends BaseStage{
         
 
             let shoulder = this.sketch.get_typed_line("shoulder");
-            let temp = this.sketch.split_line_at_fraction(shoulder, 0.5); // TODO: das hier ggf. ändern
+            let temp = this.sketch.split_line_at_fraction(shoulder, 0.9); // TODO: das hier ggf. ändern
             let k = temp.point;
             k.data.type = "k";
             let l = this.sketch.add_point(k.copy());
@@ -353,16 +361,18 @@ export default class BasicBaseStage extends BaseStage{
             this.sketch.line_between_points(this.sketch.get_typed_line("h_to_g").p1, k).data.type = "h_to_k";
             this.sketch.line_between_points(this.sketch.get_typed_line("h_to_i").p1, l).data.type = "h_to_l";
             let h = this.sketch.get_typed_point("h");
-            let angle = vec_angle_clockwise(this.sketch.get_typed_line("h_to_g").get_line_vector(), this.sketch.get_typed_line("h_to_i").get_line_vector());
+            //let angle = vec_angle_clockwise(this.sketch.get_typed_line("h_to_g").get_line_vector(), this.sketch.get_typed_line("h_to_i").get_line_vector());
 
-            let i = this.sketch.get_typed_point("i");
             let f = this.sketch.get_typed_point("f");
+            let g = this.sketch.get_typed_point("g");
 
-            let angle2 = vec_angle_clockwise(h.subtract(i), f.subtract(i)) + deg_to_rad(90);
-            let fun = rotation_fun(h, -angle - angle2);
             
+        let angle2 = vec_angle_clockwise(f.subtract(h), g.subtract(h)) - deg_to_rad(90);
+        let fun = rotation_fun(h, deg_to_rad(180) -angle2 );
+          
             let comp = new ConnectedComponent(l);
             comp.transform(p => p.move_to(fun(p)));
+     
             
             this.sketch.merge_points(pts[0], pts[1]);
             
@@ -436,16 +446,20 @@ export default class BasicBaseStage extends BaseStage{
         i = ln.p1;
         ln = i.other_adjacent_line(ln);
         ln.data.type = "h_to_i";
+        ln.data.sub_type = "dart";
         ln = this.sketch.get_typed_line("b_to_g");
         let g = ln.p2;
         g.data.type = "g";
         ln = g.other_adjacent_line(ln);
         ln.data.type = "h_to_g";
+        ln.data.sub_type = "dart";
         
         ln = this.sketch.line_between_points(j, g);
         ln.data.type = "j_to_g";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(j, i);
         ln.data.type = "j_to_i";
+        ln.data.sub_type = "dart";
         /*
 
         */
@@ -491,21 +505,29 @@ export default class BasicBaseStage extends BaseStage{
         
         let ln = this.sketch.line_between_points(h, g);
         ln.data.type = "h_to_g";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(h, i);
         ln.data.type = "h_to_i";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(j, g);
         ln.data.type = "j_to_g";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(j, i);
         ln.data.type = "j_to_i";
+        ln.data.sub_type = "dart";
 
         ln = this.sketch.line_between_points(p, r);
         ln.data.type = "p_to_r";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(p, s);
         ln.data.type = "p_to_s";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(q, r);
         ln.data.type = "q_to_r";
+        ln.data.sub_type = "dart";
         ln = this.sketch.line_between_points(q, s);
         ln.data.type = "q_to_s";
+        ln.data.sub_type = "dart";
 
         let f = this.sketch.get_typed_point("f");
         let b = this.sketch.get_typed_point("b");
@@ -517,13 +539,23 @@ export default class BasicBaseStage extends BaseStage{
         ln.data.type = "s_to_f";
     }
 
+    draw_waitline_darts(){
+        if(this.one_w_dart){
+            this.one_waistline_dart();
+        } else{
+            this.two_waistline_darts();
+        }
+    }
+
 
     #construct_armpit() {
         let pt = this.sketch.get_typed_point("armpit_point1");
         let pt2 = this.sketch.get_typed_point("armpit_point2");
         let c = this.sketch.get_typed_point("c");
         let e = this.sketch.get_typed_point("e");
-        let vec = this.sketch.get_typed_line("side").get_line_vector().get_orthonormal().scale(5).add(e);
+        let side_vec = this.sketch.get_typed_line("side").get_line_vector();
+        let vec = side_vec.get_orthonormal().scale(7).add(e).add(side_vec.normalize().scale(-2));
+
 
         let l = this.sketch.line_from_function_graph(c, e, spline.bezier(
             [c, pt, vec, e]

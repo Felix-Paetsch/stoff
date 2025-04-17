@@ -141,7 +141,7 @@ class ConnectedComponent{
     }
 
     to_sketch = function(position = null){
-        const s = new Sketch();
+        const s = new this.root_el.sketch.constructor();
         copy_connected_component(this, s, position);
         return s;
     };
