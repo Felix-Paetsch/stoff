@@ -25,3 +25,6 @@ _docs
 .vscode
 
 !StoffLib/_calculations/**/*.jpg
+
+!stoffbilder/**.svg
+stoffbilder/svg_files
