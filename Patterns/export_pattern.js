@@ -4,7 +4,7 @@ import adjusted_measurements from './adjust_measurements.js';
 import config_compiler from "./config_compiler.js";
 
 import { Config, cContainer, cBoolean, cNumber, cOption } from "../Core/Config/exports.js";
-import construct_shirt from './shirt/construct_shirt.js';
+import {main_pattern_construction, main_sleeve_construction} from './main_standard_pattern.js';
 
 export default {
     design_config: new Config(
@@ -13,7 +13,7 @@ export default {
           cOption(
             "für",
             ...Object.keys(people_measurements),
-            3
+            2
           )
         ),
         cContainer(
@@ -23,30 +23,47 @@ export default {
               "without dart",
               "single dart",
               "double dart",
+              "multiple darts",
               "styleline",
-              "added fullness",
+              //"added fullness",
               1
             ),
+            cBoolean("single waistline dart", true),
+
             cOption(
               "position",
               "waistline",
-              "side middle",
+              "side",
               "french",
               "shoulder",
-              "waistline and side middle",
+              "neckline",
+              "armpit",
+              "waistline and side",
               "waistline and french",
               "waistline and shoulder",
-              "side middle and shoulder",
-              "french and shoulder",
+              "waistline and armpit",
+              "waistline and neckline",
+              "shoulder and side",
+              "shoulder and french",
+              "shoulder and neckline",
+              "shoulder and armpit",
               0
             ),
+            cNumber(
+              "number of multiple darts", {
+              default: 2,
+              min: 2,
+              max: 3,
+              step_size: 1
+            }
+           ),
             cOption(
               "styleline",
               "classic princess",
               "panel",
               1
             ),
-            cBoolean("closed", false),
+       //     cBoolean("closed", false),
             cOption(
               "dartstyle",
               "normal",
@@ -76,6 +93,7 @@ export default {
             "type",
             "round",
             "round wide",
+            "round deep",
             "V-Line",
             "V-Line deep",
             "V-Line wide",
@@ -96,8 +114,9 @@ export default {
             "puffy top",
             "puffy bottom",
             "flared",
-            "cap",
+    //        "cap",
             "ruffles",
+            "latern",
             0
           ),
           cNumber(
@@ -113,6 +132,10 @@ export default {
     create_design: (design_config) => {
       let fuer = design_config.Schnittmuster["für"];
       let measurements = adjusted_measurements(people_measurements[fuer], design_config);
-      return construct_shirt(measurements, config_compiler(design_config));
+     // console.log(measurements.waist_width_front)
+     // console.log(measurements.waist_width_back)
+      let wd = main_pattern_construction(measurements, config_compiler(design_config));
+      return main_sleeve_construction(wd, design_config).sketch//.paste_sketch(wd.sketch);
+    // return wd.sketch
     }
 }

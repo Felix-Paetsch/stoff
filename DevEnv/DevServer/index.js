@@ -9,7 +9,7 @@ import create_app from "./app.js";
 const app = create_app();
 
 import Sketch from "../../Core/StoffLib/sketch.js";
-import pattern_data from '../../Patterns_new/export_pattern.js';
+import pattern_data from '../../Patterns/export_pattern.js';
 //import pattern_data from '../../Patterns/export_pattern.js';
 //import pattern_data from '../Pictures/entry.js';
 const { design_config, create_design } = pattern_data;

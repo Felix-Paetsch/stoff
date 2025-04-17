@@ -11,9 +11,18 @@ export default function adjusted_measurements(mea, design_config){
         measurements.ratio = measurements.bust_width_front/measurements.bust_width_back;
     }
 
-    measurements.belly += design_config["top designs"].ease;
-    measurements.bottom_width_back += design_config["top designs"].ease / 2;
-    measurements.bottom_width_front += design_config["top designs"].ease / 2;
+    //measurements.belly += design_config["top designs"].ease;
+    if(design_config["top designs"].type == "without dart"){
+        measurements.belly_front += design_config["top designs"].ease ;
+        measurements.belly_back += design_config["top designs"].ease ;
+        measurements.bottom_width_back += design_config["top designs"].ease ;
+        measurements.bottom_width_front += design_config["top designs"].ease ;
+    } else {
+        measurements.belly_front += design_config["top designs"].ease * 2 / 3;
+        measurements.belly_back += design_config["top designs"].ease *2/3;
+        measurements.bottom_width_back += design_config["top designs"].ease *2/ 3;
+        measurements.bottom_width_front += design_config["top designs"].ease *2/3;
+    }
 
     measurements["arm"] += 2;
     measurements["arm length"] += 4;

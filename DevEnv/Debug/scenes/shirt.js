@@ -1,14 +1,14 @@
 import StageProcess from "../../../Core/Stages/stageProcess.js";
-import BasicBaseStage from "../../../Patterns_new/stages/basic_pattern_stages/basic_pattern_stage.js";
-import DartBaseStage from "../../../Patterns_new/stages/basic_pattern_stages/dart_pattern_stage.js";
-import CurveLinesStage from "../../../Patterns_new/stages/annotation_stages/curve_stage.js";
-import DartAnnotationStage from "../../../Patterns_new/stages/annotation_stages/dart_annotation_stage.js";
-import SeamAllowanceStage from "../../../Patterns_new/stages/annotation_stages/seam_allowance_stage.js";
+import BasicBaseStage from "../../../Patterns/stages/basic_pattern_stages/basic_pattern_stage.js";
+import DartBaseStage from "../../../Patterns/stages/basic_pattern_stages/dart_pattern_stage.js";
+import CurveLinesStage from "../../../Patterns/stages/annotation_stages/curve_stage.js";
+import DartAnnotationStage from "../../../Patterns/stages/annotation_stages/dart_annotation_stage.js";
+import SeamAllowanceStage from "../../../Patterns/stages/annotation_stages/seam_allowance_stage.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
-import EasyPatternMainCorpusStage from "../../../Patterns_new/stages/easy_pattern_stages/easy_pattern_stage_front_and_back.js";
-import NecklineBaseStage from "../../../Patterns_new/stages/basic_pattern_stages/neckline_pattern_stage.js";
-import EasyPatternNecklineStage from "../../../Patterns_new/stages/easy_pattern_stages/easy_pattern_stage_neckline.js";
-//import EasyPatternFrontBackStages from "../../../Patterns_new/stages/easy_base_stages/easy_pattern_stage_front_and_back.js";
+import EasyPatternMainCorpusStage from "../../../Patterns/stages/easy_pattern_stages/easy_pattern_stage_front_and_back.js";
+import NecklineBaseStage from "../../../Patterns/stages/basic_pattern_stages/neckline_pattern_stage.js";
+import EasyPatternNecklineStage from "../../../Patterns/stages/easy_pattern_stages/easy_pattern_stage_neckline.js";
+//import EasyPatternFrontBackStages from "../../../Patterns/stages/easy_base_stages/easy_pattern_stage_front_and_back.js";
 /*
 let measurements = { // Puppe mit lustigen Maßen
     "shoulder_length": 13,
