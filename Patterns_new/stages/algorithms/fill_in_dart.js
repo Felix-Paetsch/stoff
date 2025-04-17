@@ -41,7 +41,7 @@ export default function fill_in_dart(sketch, dart_number, reverse){
         inner_line_other,
         common
     );
-    const half_line_at_angle = sketch.line_at_angle(common, dart_full_angle / 2, 100, outer_line_other);
+    const half_line_at_angle = sketch.line_at_angle(common, dart_full_angle / 2, 100, outer_line_other, true);
 
     const most_outer_position = extension_sample_points[extension_sample_points.length - 1];
     const most_outer_pt_mirrored = sketch.add(most_outer_position.mirror_at(outer_line.get_endpoints()));

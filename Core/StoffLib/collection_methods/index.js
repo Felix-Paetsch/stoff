@@ -44,4 +44,4 @@ function set_if_not_exists(Class, key, value){
 }
 
 // To fix import dependencies
-let SketchElementCollection;
+var SketchElementCollection;

@@ -5,6 +5,9 @@ import CurveLinesStage from "../../../Patterns_new/stages/annotation_stages/curv
 import DartAnnotationStage from "../../../Patterns_new/stages/annotation_stages/dart_annotation_stage.js";
 import SeamAllowanceStage from "../../../Patterns_new/stages/annotation_stages/seam_allowance_stage.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
+import EasyPatternMainCorpusStage from "../../../Patterns_new/stages/easy_pattern_stages/easy_pattern_stage_front_and_back.js";
+import NecklineBaseStage from "../../../Patterns_new/stages/basic_pattern_stages/neckline_pattern_stage.js";
+import EasyPatternNecklineStage from "../../../Patterns_new/stages/easy_pattern_stages/easy_pattern_stage_neckline.js";
 //import EasyPatternFrontBackStages from "../../../Patterns_new/stages/easy_base_stages/easy_pattern_stage_front_and_back.js";
 /*
 let measurements = { // Puppe mit lustigen Maßen
@@ -153,21 +156,31 @@ export default function(){
         measurements: calculate_measurements(measurements),
         ease: 2
     });
-
-    shirt.add_stage(BasicBaseStage);
-    shirt.add_stage(DartBaseStage);
+    shirt.add_stage(EasyPatternNecklineStage);
+    shirt.add_stage(EasyPatternMainCorpusStage);
     shirt.add_stage(CurveLinesStage);
     shirt.add_stage(DartAnnotationStage);
+    
+    shirt.add_stage(SeamAllowanceStage);
+    shirt.deepen_neckline(0.5)
+    //shirt.widen_neckline(1)
+    shirt.neckline("square");
+    shirt.multiple_dart_one_location("shoulder", 2);
+    shirt.remove_waistline_dart("both");
+    
 
-    shirt.add_stage(SeamAllowanceStage)
-    shirt.two_waistline_darts();
+  //  shirt.waistline_dart("none");
+
+
+   // shirt.styleline("shoulder", false);
+    
    // shirt.move_dart("fold", 0.2);
    // shirt.move_dart_to_outer_waistline_dart()
     //  shirt.remove_outer_waistline_dart();
     // shirt.correct_second_dart();
-    shirt.split_up_dart(["shoulder", 0.9, 1]);
+   // shirt.split_up_dart(["shoulder", 0.9, 1]);
    // shirt.move_dart_number_to_darttip(1)
-   shirt.remove_waistline_darts();
+  // shirt.remove_waistline_darts();
     shirt.curve_side();
     shirt.complete_fold();
 /*
@@ -199,16 +212,22 @@ export default function(){
    */
    //shirt.set_seam_allowance("neckline", 0.5);
    //shirt.set_all_seam_allowance();
-    shirt.set_seam_allowance("armpit", 0.5);
-    shirt.set_seam_allowance("neckline", 0.5);
-    shirt.set_seam_allowance("bottom", 2.5);
+   // shirt.set_seam_allowance("armpit", 0.5);
+   // shirt.set_seam_allowance("neckline", 0.5);
+   // shirt.set_seam_allowance("bottom", 2.5);
     
  //  shirt.mirror();
 
-    //shirt.fill_in_dart(3);
+   //shirt.fill_in_dart(3);
     //shirt.fill_in_dart(4);
-    //shirt.fill_in_dart(1);
+
+/*
+    shirt.fill_in_dart(1);
+    shirt.move_dart_outside(1, 4);
+    shirt.dart_annotation(1, 3);
+    
     shirt.seam_allowance_temp();
+    */
 
     return shirt.finish();
     

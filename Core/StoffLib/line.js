@@ -331,6 +331,14 @@ class Line{
         return this;
     }
 
+    set_orientation(p1, p2 = null){
+        if (p1 == this.p2){
+            this.swap_orientation();
+        }
+
+        return this;
+    }
+
     swap_orientation(){
         const t = this.p1;
         this.p1 = this.p2;

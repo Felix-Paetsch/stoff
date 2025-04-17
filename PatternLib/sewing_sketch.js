@@ -10,6 +10,8 @@ import Point from "../Core/StoffLib/point.js";
 import ConnectedComponent from "../Core/StoffLib/connected_component.js";
 import { default_data_callback } from "../Core/StoffLib/copy.js";
 
+import { EPS } from "../Core/StoffLib/geometry.js";
+
 /*
 
     The sewing sketch implements methods that are usefull in the more specific context of sewing patterns.
@@ -373,7 +375,7 @@ export default class SewingSketch extends Sketch{
             return abs;
         }));
 
-        if (!polygon_orientation(polygon)) {
+        if (!polygon_orientation(polygon)){
             lines_with_orientation.reverse();
             lines_with_orientation.forEach(l => l.orientation = !l.orientation);
         }
@@ -382,12 +384,16 @@ export default class SewingSketch extends Sketch{
             return l.orientation ? l.line.p1 : l.line.p2; // Den Anfangspunkt im Kreis
         });
         
-        const ret_lines = lines_with_orientation.map(l => l.line);
+
+        let orientations = lines_with_orientation.map(l => l.orientation);
+        let ret_lines = lines_with_orientation.map(l => l.line);
+        ret_lines = this.make_sketch_element_collection(ret_lines);
+        ret_lines.orientations = orientations;
 
         return this.object_to_sketch_element_collection({
-            lines: this.make_sketch_element_collection(ret_lines),
+            lines: ret_lines,
             points: this.make_sketch_element_collection(points),
-            orientations: lines_with_orientation.map(l => l.orientation)
+            orientations: orientations
         });
     }
 

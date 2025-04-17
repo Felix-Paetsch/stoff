@@ -20,6 +20,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon DevEnv/DevServer/index.js",
+    "andromeda": "nodemon DevEnv/Andromeda/index.js",
     "dev_cold": "node DevEnv/DevServer/index.js",
     "dev_sel_server": "nodemon DevEnv/SelectionDevServer/index.js",
     "dev_sel_proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/SelectionDevServer/**\" --port 3009 --no-open",

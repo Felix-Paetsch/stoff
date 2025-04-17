@@ -27,10 +27,12 @@ export default (Sketch) => {
         return line_with_length(this, ...args);
     };
 
-    Sketch.prototype.line_at_angle = function(point, angle, length, reference_vec = UP){
+    Sketch.prototype.line_at_angle = function (point, angle, length, reference_direction = UP, absolute = false){
       // Rotes the vector point -> reference_vec by `angle` clockwise and creates a line in that direction
 
-      const reference_direction = reference_vec.subtract(point)
+      if (absolute){
+        reference_direction = reference_direction.subtract(point);
+      }
       const vec = reference_direction.to_len(length).rotate(angle);
 
       const new_pt = this.add_point(point.add(vec));

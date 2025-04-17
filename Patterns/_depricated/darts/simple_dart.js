@@ -112,7 +112,7 @@ function fill_in_dart(s, inner_line, outer_line){
 
   // Create Half Line
   const dart_full_angle = vec_angle_clockwise(outer_pt, inner_line.other_endpoint(center_pt), center_pt);
-  const half_line_at_angle = s.line_at_angle(center_pt, dart_full_angle/2, 100, outer_pt);
+  const half_line_at_angle = s.line_at_angle(center_pt, dart_full_angle/2, 100, outer_pt, true);
 
   const mirror_center_vec = half_line_at_angle.line.closest_position(most_outer_pt);
   const most_outer_pt_mirrored = s.add(most_outer_pt.mirror_at(mirror_center_vec));

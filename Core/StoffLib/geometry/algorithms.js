@@ -143,9 +143,16 @@ function vec_angle_clockwise(vec1, vec2, reference = ZERO, offset_range = false)
 
     const dot = vec1.dot(vec2);
     const cross = vec1.x * vec2.y - vec1.y * vec2.x; // 2D cross product
-    let angle = Math.acos(dot / (vec1.length() * vec2.length()));
+    let angle = Math.acos(
+        Math.min(
+            Math.max(dot / (vec1.length() * vec2.length()), -1),
+            1
+        )
+    );
 
     if (isNaN(angle)){
+        console.log("isNaN");
+        console.log("isNaN", vec1, vec2);
         return Math.PI;
     }
 
@@ -272,7 +279,35 @@ function polygon_contains_point(polygon_points, point){
     return ctr % 2 == 1;
 }
 
-function polygon_orientation(points, eps = EPS.FINE, n = 1){
+function polygon_orientation(points, eps = EPS.COARSE_SQUARED) {
+    let new_points = [points[0]];
+    points.forEach(p => {
+        if (new_points[new_points.length - 1].distance_squared(p) > eps){
+            new_points.push(p);
+        }
+    });
+    if (
+        new_points[0].distance_squared(new_points[new_points.length - 1]) < eps
+    ){
+        new_points.pop();
+    }
+
+    let total = 0;
+    const n = new_points.length;
+    for (let i = 0; i < n; i++) {
+        const prev = new_points[(i + n - 1) % n];
+        const curr = new_points[i];
+        const next = new_points[(i + 1) % n];
+
+        total += vec_angle_clockwise(next.subtract(curr), curr.subtract(prev))
+    }
+
+    const rotations = total/(2*Math.PI);
+    return rotations > 0;
+}
+
+
+function polygon_orientation_v2(points, eps = EPS.COARSE, n = 1){
     // Returns true if oriented clockwise, falso otherwise
     // We assume the polygon is given in order and doesnt have self-intersections
 
@@ -320,6 +355,7 @@ export {
     random_vec,
     polygon_contains_point,
     polygon_orientation,
+    polygon_orientation_v2,
     orientation,
     is_convex
 };

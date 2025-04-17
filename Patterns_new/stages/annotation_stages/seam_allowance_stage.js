@@ -19,7 +19,7 @@ export default class SeamAllowanceStage extends BaseStage{
     }
 
     finish() {
-        return this.wd.sketch;
+        return this.wd;
     }
 
 
@@ -44,48 +44,41 @@ export default class SeamAllowanceStage extends BaseStage{
         this.seam_allowance(new ConnectedComponent(d));
       //  let e_arr = this.sketch.get_typed_points("e");
      //   this.seam_allowance(new ConnectedComponent(e_arr[0]));
-   //     this.seam_allowance(new ConnectedComponent(e_arr[1]), true);
+    //    this.seam_allowance(new ConnectedComponent(e_arr[1]), true);
     }
 
 
-    seam_allowance(comp, direction = false) {
-
+    seam_allowance(comp) {
         let lines = comp.get_lines();
         let distance;
         let allowance = [];
-        const oriented = this.sketch.oriented_lines(lines);
-        oriented.forEach((line, i) => {
-            line.data.line_i = i;
-            line.data.orientation = oriented.orientations[i];
-            
+
+        const oriented_lines = this.sketch.oriented_component(comp).lines;
+        oriented_lines.forEach((line, i) => {
+            // Strange for shoulder
+            // Other direction w/ neckline
+
+            line.data.orientation = oriented_lines.orientations[i];
+
             //line.set_color("red")
             distance = line.data.seam_allowance;
             if (!distance) {
                 distance = 1.5;
             }
-            if (direction) {
-                allowance.push(this.sketch.line_with_offset(line, distance, line.data.orientation).line);
-            } else {
-                allowance.push(this.sketch.line_with_offset(line, distance, !line.data.orientation).line);
-            }
+            allowance.push(this.sketch.line_with_offset(line, distance, line.data.orientation).line);
+
             allowance[i].data.orientation = line.data.orientation;
-            allowance[i].data.line_i = i;
 
             if (i != 0) {
                 let temp = this.#close_lines(allowance[i - 1], allowance[i]);
                 allowance[i - 1] = temp.ln1;
                 allowance[i] = temp.ln2;
             }
-
-            /*
-            */
         });
-
 
         this.#close_lines(allowance[lines.length - 1], allowance[0]);
 
     }
-
 
 
     #close_lines(ln1, ln2) {
@@ -145,7 +138,6 @@ export default class SeamAllowanceStage extends BaseStage{
         */
     }
 
-
     #merge_fill_in() {
         let lines = this.sketch.get_typed_lines("fill in");
         let adjacent;
@@ -156,5 +148,13 @@ export default class SeamAllowanceStage extends BaseStage{
             this.sketch.merge_lines(temp, adjacent[1]);
         });
     }
+
+
+    styleline_seam_allowance() {
+        let e = this.sketch.get_typed_points("e");
+        this.seam_allowance(new ConnectedComponent(e[0]));
+        this.seam_allowance(new ConnectedComponent(e[1]));
+    }
+
 
 }

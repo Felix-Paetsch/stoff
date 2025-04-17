@@ -93,16 +93,16 @@ export default class SequentialStage extends BaseStage{
     #mark_current_stage_exited(){
         const stage = this.#current_stage();
         assert.THROW(!!stage, "There is no current stage");
-        let new_wd = stage.on_exit(this.working_data);
-        this.working_data = new_wd || stage.wd || this.working_data;
+        let new_wd = stage.on_exit(this.wd);
+        this.wd = new_wd || stage.wd || this.wd;
     }
 
     #current_stage(){
         for (const stage of this.substages){
             if (stage.state == "active") return stage;
             if (stage.state == "unentered") {
-                stage.set_working_data(this.working_data);
-                stage.on_enter(this.working_data);
+                stage.set_working_data(this.wd);
+                stage.on_enter(this.wd);
                 return stage;
             }
         }
@@ -127,5 +127,10 @@ export default class SequentialStage extends BaseStage{
 
         res = res.slice(0, res.length - 1);
         return res;
+    }
+
+    call_substage_method(...args) {
+        assert(this._exposes(args[0]), `Substage method '${args[0]}' doesn't exist!`);
+        super.call_stage_method(...args);
     }
 }

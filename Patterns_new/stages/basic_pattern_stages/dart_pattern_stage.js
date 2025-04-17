@@ -32,6 +32,10 @@ export default class DartBaseStage extends BaseStage{
         let ln = this.sketch.get_typed_line("q_to_r");
         let ln2 = this.sketch.get_typed_line("p_to_s");
 
+        if (!ln) {
+            return;
+        }
+
         this.sketch.remove(ln.p1, ln.p2, ln2.p2);
         ln = this.sketch.line_between_points(i, f);
         ln.data.type = "i_to_f";
@@ -48,6 +52,10 @@ export default class DartBaseStage extends BaseStage{
 
         let i = this.sketch.get_typed_point("i");
         let ln = this.sketch.get_typed_line("j_to_g");
+
+        if(!i){
+            return;
+        }
 
         this.sketch.remove(ln.p1, ln.p2, i);
 
@@ -384,8 +392,8 @@ export default class DartBaseStage extends BaseStage{
 
 
         const fixed = h;
-        const s_to_f = this.sketch.get_typed_line("s_to_f");
-        const f_pt = this.sketch.get_typed_points("f").filter(p => !s_to_f.is_adjacent(p))[0];
+        const f_to_o = this.sketch.get_typed_line("f_to_o");
+        const f_pt = this.sketch.get_typed_points("f").filter(p => !f_to_o.is_adjacent(p))[0];
         const b_pt = this.sketch.get_typed_point("b");
         const dir_line = this.sketch.get_adjacent_line(f_pt, "side");
         const path = this.sketch.path_between_points(f_pt, b_pt, dir_line);
@@ -398,6 +406,7 @@ export default class DartBaseStage extends BaseStage{
         }
         const cut_points_with_left_line = points_with_left_line.filter(d => d.pt.data.dart == "cut_point");
         cut_points_with_left_line.reverse(); // From b to f; so we dont need to keep track of total rotation (although a bit more computation)
+        
         cut_points_with_left_line.forEach(({ pt, left_line }) => {
             const { rotation } = pt.data;
             const cut_res = this.sketch.cut([pt, fixed], fixed);
@@ -418,10 +427,12 @@ export default class DartBaseStage extends BaseStage{
             })
         });
 
+        
         let f_pts = this.sketch.get_typed_points("f");
         let vec = f_pts[0].vector().subtract(f_pts[1].vector());
-        if (vec.x < EPS.TINY && vec.y < EPS.TINY) {
+        if (vec.x < EPS.COARSE && vec.y < EPS.COARSE) {
             this.sketch.remove(temp_cut.cut_parts[0].line, temp_cut.cut_parts[1].line);
+            f_pts[1].move_to(f_pts[0]);
             this.sketch.merge_points(f_pts[0], f_pts[1]);
         }
         this.sketch.points_by_key("dart").cut_point.forEach(p => {
@@ -436,7 +447,7 @@ export default class DartBaseStage extends BaseStage{
     // Länge vom einer der beiden Abnäherlinien. Dadurch wird mindestens eine weitere Linie 
     // minimal im Winkel verändert. 
     // Daher bitte nicht zu oft hin und her verändern.
-    move_dart_number_to_darttip(number, new_darttip = "p") {
+    move_dart_number_to_darttip(number, new_darttip = "p", correct_lines = true) {
         //     let pts = this.sketch.points_by_key("dart_number")[number];
         let lns = this.sketch.lines_by_key("dart_number")[number];
         let old_darttip = lns[0].data.darttip;
@@ -452,8 +463,10 @@ export default class DartBaseStage extends BaseStage{
         lns[1].replace_endpoint(old_p, new_p);
         let len = Math.max(lns[0].get_length(), lns[1].get_length());
 
-        lns[0].p2.move_to(lns[0].get_line_vector().normalize().scale(len).add(new_p));
-        lns[1].p2.move_to(lns[1].get_line_vector().normalize().scale(len).add(new_p));
+        if(correct_lines){
+            lns[0].p2.move_to(lns[0].get_line_vector().normalize().scale(len).add(new_p));
+            lns[1].p2.move_to(lns[1].get_line_vector().normalize().scale(len).add(new_p));
+        }
     }
 
     // Ich gehe davon aus, dass beide Taillenabnäher nur einmal mit hilfe eines Abnähers aufgespalten werden können
@@ -504,7 +517,7 @@ export default class DartBaseStage extends BaseStage{
             if (temp_ln.data.type == "neckline" || temp_ln.data.type == "fold") {
                 h_to_i = this.sketch.get_typed_line("h_to_i");
             } else {
-                h_to_i = this.sketch.get_typed_line("h_to_g");
+                h_to_i = this.sketch.get_typed_line("h_to_i");
             }
             lines.push(this.sketch.get_typed_line("h_to_g"));
             lines.push(this.sketch.get_typed_line("h_to_i"))
@@ -571,4 +584,43 @@ export default class DartBaseStage extends BaseStage{
         /*
 */
     }
+
+
+    // WICHTIG! die Folgenden beiden Funktionen sollen nur intern von EasyPatternMainCorpusStage verwendet werden!
+
+
+    // nachdem split_dart_number_to_bottom genutzt wurde
+    merge_to_waistline_dart(number, outer = true){
+        this.wd.split = false;
+        let lns = this.sketch.lines_by_key("dart_number")[number];
+
+        this.sketch.glue(lns[0], lns[1]);
+        lns = this.sketch.get_typed_lines("side");
+        let ln = this.sketch.merge_lines(lns[0], lns[1], true);
+        if(outer){
+            let side = this.sketch.line_between_points(ln.p1, ln.p2);
+            side.data.type = "side";
+            this.sketch.remove(ln);
+        }
+    };
+
+
+
+    shirt_without_dart(){
+        this.split_up_dart(["armpit",1, 1]);
+        let side = this.sketch.get_typed_line("side");
+        let armpit = this.sketch.get_typed_line("armpit");
+        let shoulder = this.sketch.get_typed_line("shoulder");
+        let p = armpit.p2;
+        armpit.replace_endpoint(armpit.p2, side.p1);
+
+        let dart_lines = this.sketch.get_typed_lines("dart");
+        this.sketch.remove(p, dart_lines[0], dart_lines[1]);
+
+        let vec = shoulder.get_line_vector().normalize().scale(shoulder.get_length() + 2);
+
+        shoulder.p2.move_to(shoulder.p1.add(vec));
+    };
+
+
 }

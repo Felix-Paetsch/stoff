@@ -58,6 +58,7 @@ export default class BaseStage{
 
     on_enter(){}
     on_exit(){}
+
     finish(){
         assert.THROW("Stage doesn't implement finish.");
     }
@@ -70,11 +71,23 @@ export default class BaseStage{
         return this.wd;
     }
 
+    process_log_string(){
+        return this.parent.process_log_string();
+    }
+
     log_string(){
         return `${ this.constructor.name }${ this.name ? ": " + this.name + " " : ""}[${ this.state }]`;
     }
 
     log(){
         console.log(this.log_string());
+    }
+
+    process_log(){
+        console.log(this.process_log_string());
+    }
+
+    call_stage_method(method_name, args = []){
+        return this.parent.call_stage_method(method_name, args);
     }
 }
