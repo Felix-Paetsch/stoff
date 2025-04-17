@@ -26,5 +26,5 @@ _docs
 
 !StoffLib/_calculations/**/*.jpg
 
-!stoffbilder/**.svg
+!stoffbilder/**/*.svg
 stoffbilder/svg_files
