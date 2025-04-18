@@ -1,40 +1,38 @@
-function add_svg_hover_events(){
-    const old_hover_elements = document.querySelectorAll('.hover_data');
-    old_hover_elements.forEach(e => {
+function add_svg_hover_events() {
+    const old_hover_elements = document.querySelectorAll(".hover_data");
+    old_hover_elements.forEach((e) => {
         e.remove();
     });
 
     const svg_children = document.querySelectorAll("#sketch_display svg > *");
 
     for (const c of svg_children) {
-        if (!c.hasAttribute("hover_area")){
+        if (!c.hasAttribute("hover_area")) {
             c.style.pointerEvents = "none";
             continue;
         }
 
         c.style.cursor = "crosshair";
-        const tooltip = document.createElement('pre');
-        tooltip.classList.add('hover_data');
+        const tooltip = document.createElement("pre");
+        tooltip.classList.add("hover_data");
         tooltip.innerHTML = calculateTooltipContent(
-            JSON.parse(
-                c.getAttribute("x-data")
-            )
+            JSON.parse(c.getAttribute("x-data")),
         );
         document.body.appendChild(tooltip);
-        
-        c.addEventListener('mouseover', (event) => {
-            tooltip.style.top = event.clientY + 'px';
+
+        c.addEventListener("mouseover", (event) => {
+            tooltip.style.top = event.clientY + "px";
             tooltip.style.left = `${event.clientX}px`;
             tooltip.style.opacity = 1;
         });
 
-        c.addEventListener('mousemove', (event) => {
-            tooltip.style.top = event.clientY + 'px';
+        c.addEventListener("mousemove", (event) => {
+            tooltip.style.top = event.clientY + "px";
             tooltip.style.left = `${event.clientX}px`;
             tooltip.style.opacity = 1;
         });
 
-        c.addEventListener('mouseout', (event) => {
+        c.addEventListener("mouseout", (event) => {
             tooltip.style.opacity = 0;
         });
 
@@ -48,8 +46,8 @@ function add_svg_hover_events(){
     }
 }
 
-function calculateTooltipContent(data){
+function calculateTooltipContent(data) {
     return JSON.stringify(data, true, 2)
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 }

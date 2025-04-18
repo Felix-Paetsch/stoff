@@ -1,0 +1,12 @@
+<div id="preview" class="w-80 h-80 overflow-hidden" hx-swap-oob="outerHTML">
+  <div class="relative w-80 h-80 overflow-hidden">
+    <% for (let i = 0; i < pictureParts.length; i++) {
+         const picture = pictureParts[i].choices[state.current_choices[i]];
+    %>
+      <div class="absolute top-0 left-0 w-full h-full">
+        <img src="/partial_pictures/<%= pictureParts[i].name %>/<%= picture %>?width=10"
+             class="w-full h-full object-cover object-center scale-[1.5]" />
+      </div>
+    <% } %>
+  </div>
+</div>

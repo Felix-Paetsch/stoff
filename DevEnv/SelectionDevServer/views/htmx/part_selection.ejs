@@ -1,0 +1,18 @@
+<div class="overflow-y-auto border-r-2 border-default-dark w-min flex-col pt-10" id="partSelection">
+    <% for (const i in pictureParts){ %>
+        <div class="
+            p-4 pt-2 pb-2 cursor-pointer text-whit <% if (i == state.current_part_selected){ %> bg-emerald-100 <%} else {%> bg-emerald-300 <%} %>
+            border-t-4 last:border-b-4 border-default-dark text-center"
+            hx-post="/htmx/parts/"
+            hx-vals='{"select_current_part": <%= i %>}'
+            hx-include="#application_state"
+            hx-target="#partSelection"
+            hx-swap="outerHTML"
+            >
+            <span class="text-nowrap"><%- pictureParts[i].name %></span>
+        </div>
+    <% } %>
+</div>
+
+<%- include("./picture_selection"); %>
+<%- include("./state"); %>

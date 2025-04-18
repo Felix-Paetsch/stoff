@@ -1,0 +1,5 @@
+<% if (typeof state.___already_rendered == "undefined"){ %>
+    <input type="hidden" name="application_state" id="application_state" value="<%= JSON.stringify(state) %>" hx-swap="outerHTML" hx-swap-oob="outerHTML"/>
+<% 
+    state.___already_rendered = true;
+} %>

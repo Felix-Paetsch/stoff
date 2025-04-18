@@ -1,15 +1,9 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import SewingSketch from "../../../PatternLib/sewing_sketch.js";
-import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../Core/StoffLib/geometry.js";
-import Point from "../../../Core/StoffLib/point.js";
-import { spline, arc } from "../../../Core/StoffLib/curves.js";
+import { Vector, vec_angle_clockwise } from "../../../Core/StoffLib/geometry.js";
 import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
 import assert from "../../../Core/assert.js";
 import DartData from "./dart_data.js";
 import { EPS } from "../../../Core/StoffLib/geometry.js";
-
-
-
 
 export default class DartBaseStage extends BaseStage{
 

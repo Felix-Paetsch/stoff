@@ -24,6 +24,7 @@ secrets.md
 _docs
 
 .vscode
+.prettierrc
 
 !StoffLib/_calculations/**/*.jpg
 
