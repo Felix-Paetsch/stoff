@@ -1,4 +1,6 @@
 const EPS = {
+    EXACT: 0,
+
     MINY: 1e-16,
     TINY: 1e-14,
 
@@ -21,7 +23,7 @@ const EPS = {
     LOOSE: 1e-4,
     LOOSE_SQUARED: 1e-8,
 
-    VISUAL: 1e-3
-}
+    VISUAL: 1e-3,
+};
 
 export default EPS;

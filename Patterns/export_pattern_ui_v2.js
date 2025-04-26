@@ -1,4 +1,4 @@
-import SewingSketch from "../PatternLib/sewing_sketch.js";
+import SewingSketch from "../Core/PatternLib/sewing_sketch.js";
 
 export default (design_config) => {
     const s = new SewingSketch();

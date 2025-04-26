@@ -7,7 +7,10 @@ import Sketch from "../../../Core/StoffLib/sketch.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const picturePartsPath = path.join(__dirname, "../../../stoffbilder/Breit");
+const picturePartsPath = path.join(
+    __dirname,
+    "../../../Data/PreviewPictures/Breit",
+);
 const pictureParts = [];
 
 fs.readdirSync(picturePartsPath, { withFileTypes: true }).forEach((dirent) => {
@@ -86,7 +89,7 @@ export default (app) => {
         const width = req.query.width;
         const filePath = path.join(
             __dirname,
-            "../../../stoffbilder/Breit",
+            "../../../Data/PreviewPictures/Breit",
             folder,
             file,
         );

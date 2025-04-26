@@ -1,29 +1,17 @@
-import StageProcess from "../../../Core/Stages/stageManager.js";
+import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
 
-import SingleSideStage from "./PatternDev/heart/stages/single_side_stage.js";
-import DoubleSideStage from "./PatternDev/heart/stages/double_side_stage.js";
-import CutStage from "./PatternDev/heart/stages/cut_stage.js";
-import Sketch from "../../../Core/StoffLib/sketch.js";
+export default function () {
+    const r = new SewingSketch();
+    const points = [r.add(0, 0), r.add(0, 1), r.add(1, 0), r.add(1, 1)];
 
-export default function() {
-    const r = Sketch.dev.global_recording();
+    for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+            r.line_between_points(points[i], points[j]);
+        }
+    }
 
-    const heart = new StageProcess();
+    const b = r.get_boundary();
+    b.forEach((l) => l.set_color("red"));
 
-    heart.add_stage(SingleSideStage);
-    heart.add_stage(DoubleSideStage);
-    heart.add_stage(CutStage);
-    heart.add_stage(new CutStage());
-
-    heart.set_length(1);
-    
-    // const hs = heart.get_general_heartside();
-    // const hs = heart.get_right_heartside();
-    // const hs = heart.get_left_heartside();
-    // hs.wing(0.2);
-
-    heart.add_right_wing(.7);
-
-    r.at_url("/test");
-    return heart.finish();
+    return r;
 }

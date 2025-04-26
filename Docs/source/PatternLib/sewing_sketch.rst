@@ -6,7 +6,7 @@ You most likely will prefer a ``SewingSketch`` over the normal ``Sketch`` when w
 Also it is a bit more oppinionated, as some methods only work well when :doc:`Points <../Core/StoffLib/point>` or :doc:`Lines <../Core/StoffLib/line>`
 have the ``type`` key set in their ``data`` attribute.
 
-**Source File**: ./PatternLib/sewing_sketch.js
+**Source File**: ./../PatternLib/sewing_sketch.js
 
 .. _init_stage:
 
