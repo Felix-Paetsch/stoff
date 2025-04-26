@@ -26,6 +26,4 @@ _docs
 .vscode
 .prettierrc
 
-!StoffLib/_calculations/**/*.jpg
-
-!Data/PreviewPictures/*.svg
+!Data/PreviewPictures/**/*.svg
