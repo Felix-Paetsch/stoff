@@ -1,6 +1,5 @@
 import { assert } from 'console';
 import ConnectedComponent from '../connected_component.js';
-import { copy_connected_component } from '../copy.js';
 
 export default (Sketch) => {
     Sketch.prototype.connected_component = function (sketch_el = null){
@@ -38,10 +37,6 @@ export default (Sketch) => {
         }
 
         return components;
-    }
-
-    Sketch.prototype.paste_connected_component = function(cc, position = null){
-        return copy_connected_component(cc, this, position);
     }
 
     Sketch.ConnectedComponent = ConnectedComponent;

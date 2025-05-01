@@ -1,14 +1,17 @@
+import fs from 'fs';
+
 import { Vector } from './geometry.js';
 import Point from './point.js';
 import Line from './line.js';
 import { copy_sketch, default_data_callback, copy_data_callback, copy_sketch_obj_data } from './copy.js';
 import CONF from './config.json' with {type: "json"};
+import ConnectedComponent from './connected_component.js';
 import SketchElementCollection from './sketch_element_collection.js';
 
 import register_rendering_functions from "./sketch_methods/rendering_methods/register.js";
-import register_CC_functions from "./sketch_methods/connected_components_methods.js";
 import register_line_functions from "./sketch_methods/line_methods.js";
 import register_collection_methods from "./collection_methods/index.js"
+import register_CC_functions from "./sketch_methods/connected_components_methods.js";
 
 import assert from '../assert.js';
 import register_assert from "./assert_methods/register.js";
@@ -210,33 +213,6 @@ class Sketch{
         this.data = {};
     }
 
-    has_points(...pt){
-        for (let i = 0; i < pt.length; i++){
-            assert.IS_POINT(pt[i]);
-            if (!this.points.includes(pt[i])) return false;
-        }
-        return true;
-    }
-
-    has_lines(...ls){
-        for (let i = 0; i < ls.length; i++){
-            assert.IS_LINE(ls[i]);
-            if (!this.lines.includes(ls[i])) return false;
-        }
-        return true;
-    }
-
-    has_sketch_elements(...se){
-        for (let i = 0; i < se.length; i++){
-            if (!this.has_lines(se[i]) && !this.has_points(se[i])) return false;
-        }
-        return true;
-    }
-
-    has(...se){
-        return this.has_sketch_elements(...se);
-    }
-
     // ===============
 
     merge_points(pt1, pt2, data_callback = default_data_callback){
@@ -300,9 +276,10 @@ Sketch.prototype.validate = function(){
 };
 
 register_rendering_functions(Sketch);
-register_CC_functions(Sketch);
 register_line_functions(Sketch);
 register_collection_methods(Sketch);
+register_CC_functions(Sketch);
+
 
 Sketch.graphical_non_pure_methods = [
     "add",
@@ -321,7 +298,6 @@ Sketch.graphical_non_pure_methods = [
     "line_with_offset",
     "merge_lines",
     "merge_points",
-    "paste_connected_component",
     "paste_sketch",
     "plot",
     "point",
@@ -356,8 +332,6 @@ Sketch.Point = Point;
 Sketch.SketchElementCollection = SketchElementCollection;
 
 // Add Dev Obj
-import fs from 'fs';
-import ConnectedComponent from './connected_component.js';
 if (fs.existsSync("./Core/StoffLib/dev/sketch_dev/index.js")) {
     try {
         const sketch_dev = await import("./dev/sketch_dev/index.js");

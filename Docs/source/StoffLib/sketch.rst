@@ -600,17 +600,6 @@ merge them together.
   **Returns**:
     - *[]ConnectedComponent*
 
- .. js:function:: paste_connected_component(cc, position = new Vector(0,0))
-     
-  Copies the connected component (from this or a different sketch) into this sketch and then returns it.
-
-  **Parameters**:
-    - cc (*ConnectedComponent*)
-    - position (*Vector*): Offset of the connected component when pasting
-  
-  **Returns**:
-    - *ConnectedComponent*
-
  .. js:function:: to_svg(width = null, height = null)
      
   Returns the sketch rendered to an svg string.

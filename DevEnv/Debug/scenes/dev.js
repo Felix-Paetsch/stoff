@@ -11,7 +11,6 @@ export default function () {
     }
 
     const b = r.get_boundary();
-    const res = b.to_subsketch();
 
-    return res;
+    return r;
 }
