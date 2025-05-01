@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Testing</title>
+    <link rel="stylesheet" href="<%= CONF.website_path %>/fonts/fontawesome/main.css">
+    <link rel="stylesheet" href="<%= CONF.website_path %>/css/main.css">
+    <link rel="stylesheet" href="<%= CONF.website_path %>/css/side_selection.css">
+    <link rel="stylesheet" href="<%= CONF.website_path %>/css/main_area.css">
+</head>
+<body>
+    <main id="ui">
+        <div id="current_spline_wrapper">
+            <div id="svg_wrapper"><svg id="main_svg"></svg></div>
+            <h2>We love Unicorns! 🦄❤️</h2>
+        </div>
+        <div id="side_selection">
+            <div class="spline_list_wrapper base_spline_wrapper">
+                <div class="spline_list_wrapper_title">Basic Splines</div>
+                <div class="spline_list"></div>
+            </div>
+            <div class="spline_list_wrapper custom_spline_wrapper">
+                <div class="spline_list_wrapper_title" id="custom_spline_title">Custom Splines</div>
+                <div class="spline_list">
+                    <div id="add_new_spline"><i class="fa-solid fa-plus"></i> Add Spline</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="<%= CONF.website_path %>/js/terminal/geometry.js"></script>
+    <script src="<%= CONF.website_path %>/js/terminal/svg.js"></script>
+    <script src="<%= CONF.website_path %>/js/terminal/event_handler.js"></script>
+    <script src="<%= CONF.website_path %>/js/terminal/svg_elements.js"></script>
+    <script src="<%= CONF.website_path %>/js/terminal/debugging.js"></script>
+
+    <script src="<%= CONF.website_path %>/js/point.js"></script>
+    <script src="<%= CONF.website_path %>/js/spline.js"></script>
+    <script src="<%= CONF.website_path %>/js/subspline.js"></script>
+    <script src="<%= CONF.website_path %>/js/spline_preview.js"></script>
+    <script src="<%= CONF.website_path %>/js/spline_list.js"></script>
+    <script src="<%= CONF.website_path %>/js/base_splines.js"></script>
+    <script src="<%= CONF.website_path %>/js/main_canvas.js"></script>
+
+    <script src="<%= CONF.website_path %>/js/main.js"></script>
+</body>
+</html>

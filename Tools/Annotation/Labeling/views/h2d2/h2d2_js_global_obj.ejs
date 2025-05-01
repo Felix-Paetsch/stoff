@@ -1,0 +1,8 @@
+<%- `<script>
+    CONF = {
+        website_path: "${CONF.website_path}",
+        abs_path: (str) => {
+            return "${CONF.website_path}" + "/" + str;
+        }        
+    }
+</script>` %>

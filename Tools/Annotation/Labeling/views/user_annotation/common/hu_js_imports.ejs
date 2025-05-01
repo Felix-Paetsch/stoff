@@ -1,0 +1,68 @@
+<!----- Self Contained ------->
+<script src="/js/annotation/self_contained/config.js"></script>
+<script src="/js/annotation/self_contained/event_handler.js"></script>
+<script src="/js/annotation/self_contained/utils.js"></script>
+<script src="/js/annotation/self_contained/guard_editing_enabled.js"></script>
+<script src="/js/annotation/self_contained/ex_img_slides.js"></script>
+<!----- Other          ------->
+<script src="/js/annotation/img_point.js"></script>
+<script src="/js/annotation/img_joint.js"></script>
+<script src="/js/annotation/img.js"></script>
+<script src="/js/annotation/keypoint_toolbar.js"></script>
+<script src="/js/annotation/frame_toolbar.js"></script>
+
+<%- "<script>" %>
+    swiper_objects = {};
+    
+    frontend_vars = {
+        point_data: JSON.parse(`<%- JSON.stringify(point_data) %>`),
+        joint_data: JSON.parse(`<%- JSON.stringify(joint_data) %>`),
+        img_data: <%- JSON.stringify(img_data).replace(/\\\\/g, "/") %>,
+        project_id: "<%= project_data.id %>",
+        point_radius: 6,
+        upload_interval_in_s: 60*5,
+        current_user_check_interval_s: 60,
+        img_batch_id: "<%= img_batch_data.id %>",
+        upload_func_min_interval_in_s: 1,
+        mode: "<%- mode %>"
+    };
+    
+    keypoint_toolbar = new KeypointToolbar();
+    frame_toolbar = new FrameToolbar();
+    images = frontend_vars.img_data.map(i => new Img(
+        i,
+        JSON.parse(JSON.stringify(frontend_vars.point_data)),
+        JSON.parse(JSON.stringify(frontend_vars.joint_data))
+    ));
+
+    $(function() {
+        $(".resizable").resizable({
+            handles: 's',  // Only south handle (bottom)
+            minHeight: 140
+        });
+    });
+
+
+<%- "</script>" %>
+
+<script>
+    {
+        const elements = document.querySelectorAll('shopicon-regular-arrowdropup');
+        for (const el of elements) {
+            el.outerHTML = `
+                <shopicon-regular-arrowdropup data-shopicon="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="M24 18l10 10H14l10-10z"></path></svg>
+                </shopicon-regular-arrowdropup>
+            `;
+        }
+    }
+</script>
+
+<script src="/js/annotation/communication.js"></script>
+<script src="/js/annotation/active_elements.js"></script>
+<script src="/js/annotation/resizeEventListener.js"></script>
+<script src="/js/annotation/swiper_eventlistener.js"></script>
+<script src="/js/annotation/main.js"></script>
+<script src="/js/annotation/preview_img_points.js"></script>
+
+<script src="/js/annotation/key_event_map.js"></script>

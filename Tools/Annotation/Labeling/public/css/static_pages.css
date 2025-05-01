@@ -1,0 +1,10 @@
+/* Restore styles for header after importing from annotation */
+
+#annotation_header .g-container{
+    width: 100%;
+    max-width: 861px;
+}
+
+#annotation_header .l-header-row{
+    height: 140px;
+}

@@ -1,0 +1,23 @@
+#current_spline_wrapper{
+    position: relative;
+}
+
+#current_spline_wrapper h2{
+    margin-left: 2rem;
+    position: relative;
+    width: min-content;
+    white-space: nowrap;
+}
+
+#svg_wrapper{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#main_svg{
+    width: 100%;
+    height: 100%;
+}

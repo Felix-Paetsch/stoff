@@ -1,0 +1,126 @@
+{
+    "predator": [{
+        "file": "../data/config.json",
+        "data": {
+            "json_limit": "50mb",
+            "port": 3005,
+            "catch_errors": false,
+            "error_logging": false,
+            "website_path": "http://localhost:3005",
+            "single_person_editing_timeout_min": 30,
+            "enable_edit_guard": false,
+            "auth": "Auth",
+            "auth_pw": "BrombeereNotFound"
+        }
+    },{
+        "file": "../database_handling/db_config.json",
+        "data": {
+            "catch_errors": false,
+        
+            "pg_user": "postgres",
+            "pg_port": 5432,
+            "pg_host": "localhost",
+            "pg_password": "Folimero",
+            "pg_database": "annotation_db",
+            "pg_ssl": false,
+          
+            "pg_main_database": "postgres"
+        }
+    }, {
+        "file": "../public/css/h2d2/main.css", 
+        "replacement": "../public/css/h2d2/h2d2_main_modified_wo_screen_size_error.css"
+    }],
+    "ideapad": [{
+        "file": "../data/config.json",
+        "data": {
+            "json_limit": "50mb",
+            "port": 3005,
+            "catch_errors": false,
+            "error_logging": false,
+            "website_path": "http://localhost:3005",
+            "single_person_editing_timeout_min": 30,
+            "enable_edit_guard": false,
+            "auth": "Auth",
+            "auth_pw": "BrombeereNotFound"
+        }
+    },{
+        "file": "../database_handling/db_config.json",
+        "data": {
+            "catch_errors": false,
+        
+            "pg_user": "postgres",
+            "pg_port": 5432,
+            "pg_host": "localhost",
+            "pg_password": "Folimero",
+            "pg_database": "annotation_db",
+            "pg_ssl": false,
+          
+            "pg_main_database": "postgres"
+        }
+    }, {
+        "file": "../public/css/h2d2/main.css", 
+        "replacement": "../public/css/h2d2/h2d2_main_modified_wo_screen_size_error.css"
+    }],
+    "server": [{
+        "file": "../data/config.json",
+        "data": {
+            "json_limit": "50mb",
+            "port": 3005,
+            "catch_errors": true,
+            "error_logging": true,
+            "website_path": "http://92.205.29.54:3005",
+            "single_person_editing_timeout_min": 30,
+            "enable_edit_guard": true,
+            "auth": "Auth",
+            "auth_pw": "BrombeereNotFound"
+        }
+    },{
+        "file": "../database_handling/db_config.json",
+        "data": {
+            "catch_errors": false,
+        
+            "pg_user": "postgres",
+            "pg_port": 5432,
+            "pg_host": "localhost",
+            "pg_password": "12345",
+            "pg_database": "annotation_db",
+            "pg_ssl": false,
+          
+            "pg_main_database": "postgres"
+        }
+    }, {
+        "file": "../public/css/h2d2/main.css", 
+        "replacement": "../public/css/h2d2/h2d2_main.css"
+    }],
+    "server_intern": [{
+        "file": "../data/config.json",
+        "data": {
+            "json_limit": "50mb",
+            "port": 3005,
+            "catch_errors": true,
+            "error_logging": true,
+            "website_path": "http://localhost:3005",
+            "single_person_editing_timeout_min": 30,
+            "enable_edit_guard": true,
+            "auth": "Auth",
+            "auth_pw": "BrombeereNotFound"
+        }
+    },{
+        "file": "../database_handling/db_config.json",
+        "data": {
+            "catch_errors": false,
+        
+            "pg_user": "postgres",
+            "pg_port": 5432,
+            "pg_host": "localhost",
+            "pg_password": "12345",
+            "pg_database": "annotation_db",
+            "pg_ssl": false,
+          
+            "pg_main_database": "postgres"
+        }
+    }, {
+        "file": "../public/css/h2d2/main.css", 
+        "replacement": "../public/css/h2d2/h2d2_main.css"
+    }]
+}

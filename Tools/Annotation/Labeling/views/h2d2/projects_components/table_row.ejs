@@ -1,0 +1,15 @@
+<tr onclick="window.location.href = '/p/<%= project_id %>'" style="cursor: pointer;">
+    <td><div class="l-fb-panel-table-td-clamp <%= disabled ? "disable" : ""%>"><a href="/p/<%= project_id %>"><%= project_name %></a></div></td>
+    <td><%= unannotated == 0 ? "-" : unannotated %></td>
+    <td><%= annotated == 0 ? "-" : annotated %></td>
+    <td>
+        <div class="l-fb-panel-edit" style="display: none;">
+            <div class="l-fb-panel-edit-tool l-fb-panel-edit-tool-edit" tooltip="Edit" data-project-name="<%= project_name %>" data-project-id="<%= project_id %>">
+                <shopicon-regular-edit></shopicon-regular-edit>
+            </div>
+            <div class="l-fb-panel-edit-tool l-fb-panel-edit-tool-delete" tooltip="Delete" data-project-name="<%= project_name %>" data-project-id="<%= project_id %>">
+                <shopicon-regular-trash></shopicon-regular-trash>
+            </div>
+        </div>
+    </td>
+</tr>

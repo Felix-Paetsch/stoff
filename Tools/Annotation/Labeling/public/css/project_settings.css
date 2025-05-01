@@ -1,0 +1,84 @@
+main{
+    display: flex;
+    flex-direction: column;
+}
+
+#animal_project_img_preview{
+    position: fixed;
+    left: calc((var(--main_content_width) + 2rem + 2rem) / 2);
+    width: calc((var(--main_content_width) - 2rem)/2);
+    top: 50vh;
+    transform: translateY(-50%);
+
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+#editable_cards_wrapper{
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0 0 var(--main_content_margin_left);
+    width: calc((var(--main_content_width) - 2rem)/2);
+}
+
+.editable_card, #new_project{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    min-width: 20rem;
+    padding: 1rem;
+    background-color: var(--highlight_bg);
+    border-radius: .5rem;
+    box-sizing: border-box;
+    margin: .5rem 0 .5rem 0;
+    cursor: pointer;
+}
+
+.editable_card > a{
+    text-decoration: none;
+}
+
+#new_project i{
+    margin-right: .5rem;
+    display: inline-block;
+    color: var(--highlight_color)
+}
+
+#new_project:hover span{
+    text-decoration: underline solid var(--highlight_color);
+}
+
+.editable_card .toolbar{
+    display: flex;
+    padding-left: .5rem;
+}
+
+.editable_card .toolbar i{
+    transition-duration: .3s;
+    margin-left: .2rem;
+}
+
+.editable_card .toolbar i:hover{
+    color: var(--highlight_color);
+    cursor: pointer;
+}
+
+.editable_card > a:nth-child(1){
+    min-width: 10rem;
+}
+
+.editable_card:hover > a:nth-child(1){
+    text-decoration: underline solid var(--highlight_color);
+}
+
+#example_img{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#project_img_wrapper img{
+    border: .2rem solid var(--dark_theme_color);
+    width: 100%;
+    height: auto;
+}

@@ -42,31 +42,27 @@ A lot to write down..
     - Cutting along several lines..
         w/wo fixed point (maybe a new method)
     - Throw errors correctly in typed methdos
-- QoL features on stages
-    - See where we currently are
-    - Call history
-    - Error dict
-    - Good Asserts
 - Higher Level Validation
     - Wenn ein einfacher Abnaeher einen bestimmten Winkel überschreitet, sollte eine Warung ausgegeben
     - Gewisse zu spezifizierende Linien am Schnittmuster sollen bestimmte Länge haben
-- More default stages:
-    - Sequential stage
-    - push stages
-- Move stages to a new directory (getting rid of pattern-relatedness)
 
-- Stage Debug utilities
-  - enter/exit/call
 
-- first call on_exit and then (potentially) finish [for sequential stages]
-- build parallel stage (?)
-
+## Stages
 [methods(ish)]
 - adding stages
     - customly from another stage
     - at a specific - somehow specified - position, not just the end
 - callback:
     - do this thing ones that method is exposed
+- build parallel stage (?)
+- Stage Debug utilities
+  - enter/exit/call
+- push stages better
+- QoL features on stages
+    - Call history
+    - Error dict
+    - Good Asserts
+
 
 ## Other
 - Make things work stand-alone w/o (or minimal) foreign exports

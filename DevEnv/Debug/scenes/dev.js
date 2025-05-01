@@ -11,7 +11,7 @@ export default function () {
     }
 
     const b = r.get_boundary();
-    b.forEach((l) => l.set_color("red"));
+    const res = b.to_subsketch();
 
-    return r;
+    return res;
 }

@@ -1,0 +1,225 @@
+main{
+    padding: .2rem 0 .2rem var(--main_content_margin_left);
+}
+
+main > h6{
+    margin: 1rem 0 1rem 0;
+    font-size: 1rem;
+    border-left: .2rem solid var(--highlight_color);
+    padding: .3rem 0 .3rem .5rem;
+    width: min-content;
+    white-space: nowrap;
+}
+
+#specify_points_h6{
+    margin-top: 2rem;
+}
+
+#point_specification{
+    display: flex;
+    flex-direction: row;
+}
+
+.points_that_exist{
+    display: flex;
+    flex-direction: column;
+}
+
+#point_specification .points_that_exist{
+    width: min(15rem, calc((var(--main_content_width) - 2rem)/2));
+}
+
+.point_card{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    padding: .2rem .5rem;
+    border: .1rem solid var(--highlight_color);
+    font-weight: 700;
+    font-size: .9rem;
+    margin: 0 0 .4rem 0;
+    border-radius: .3rem;
+}
+
+.point_card > div:nth-child(1){
+    display: flex;
+    flex-direction: row;
+}
+
+.point_card .point_color{
+    width: 1rem;
+    height: 1rem;
+    border-radius: 1rem;
+    margin: .03rem .4rem 0 0;
+    border: .1rem solid var(--dark_theme_color);
+    cursor: pointer;
+    user-select: none;
+}
+
+.point_card .toolbar i{
+    transition-duration: .3s;
+    margin-left: .2rem;
+}
+
+.point_card .toolbar i:hover{
+    color: var(--highlight_color);
+    cursor: pointer;
+}
+
+.add_point{
+    margin-top: .6rem;
+    cursor: pointer;
+}
+
+#points_matched{
+    display: flex;
+    flex-direction: column;
+    margin-left: 3rem;
+    max-width: 50rem;
+    border-left: .2rem solid var(--dark_theme_color);
+    padding: 1rem 0 0 1.2rem;
+    margin-top: -1rem;
+}
+
+#point_match_flex{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.point_match_card, #add_match{
+    margin-bottom: .5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    border: .2rem solid var(--dark_theme_color);
+    border-radius: .5rem;
+    padding: .3rem .7rem;
+    line-height: 1.5rem;
+    margin-right: .5rem;
+}
+
+.point_match_card .toolbar i{
+    cursor: pointer;
+    transition-duration: .3s;
+}
+
+.point_match_card .toolbar i:hover{
+    color: var(--highlight_color);
+}
+
+#add_match{
+    color: var(--dark_theme_color);
+    border: .2rem solid var(--dark_theme_color);
+    background-color: unset;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+}
+
+#add_match div:nth-child(1){
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    font-size: 1.5rem;
+    margin-right: .5rem;
+}
+
+.point_match_card_name{
+    display: flex;
+    flex-direction: row;
+}
+
+.point_match_sep_div{
+    padding: 0 .5rem;
+}
+
+#draw_point_h6{
+    margin-top: 5rem;
+}
+
+#point_setting_flex{
+    display: flex;
+    flex-direction: row;
+}
+
+#point_bottom_specification{
+    margin-left: 1rem;
+    width: min(15rem, calc((var(--main_content_width) - 2rem)/2));
+}
+
+#add_new_image{
+    margin: .8rem 0 1rem 0;
+    font-size: 1.1rem;
+    cursor: default;
+}
+
+#add_new_image i {
+    display: inline-block;
+    margin-right: .5rem;
+    color: var(--highlight_color)
+}
+
+#img_upload_wrapper{
+    margin: .5rem 0 2rem 0;
+}
+
+#img_upload_wrapper input{
+    color: var(--dark_theme_color);
+    border: none;
+    cursor: pointer;
+}
+
+#img_upload_wrapper input[type="submit"]{
+    padding: .5rem 1rem .5rem 1rem;
+    background-color: var(--dark_theme_color);
+    color: var(--highlight_bg);
+    border-radius: 2rem;
+}
+
+input[type="file"] {
+    padding: .5rem 1rem .5rem 0rem;
+}
+
+#missing_project_image{
+    width:  20rem;
+    max-width: 20rem;
+    height: auto;
+    border-radius: 2rem;
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+
+    padding: 4rem 1rem 4rem 1rem;
+}
+
+#missing_project_image > div{
+    color: var(--dark_theme_color);
+    text-align: center;
+}
+
+#image_inner_wrapper{
+    max-width: 60rem;
+    border: .2rem solid var(--dark_theme_color);
+    position: relative;
+    box-sizing: content-box;
+}
+
+#image_inner_wrapper img{
+    width: 100%;
+    height: 100%;
+}
+
+.point_placable_in_img{
+    border-left-width: .5rem;
+}
+
+.img_point{
+    border: solid white;
+    position: absolute;
+}
