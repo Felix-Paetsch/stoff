@@ -287,8 +287,6 @@ Sketch.graphical_non_pure_methods = [
     "clear",
     "copy_line",
     "delete_component",
-    "get_lines",
-    "get_points",
     "intersect_lines",
     "interpolate_lines",
     "line_between_points",
