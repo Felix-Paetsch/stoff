@@ -1,0 +1,182 @@
+<style>
+    .instructions h1{
+        font-size: 1.75rem;
+    }
+
+    .instructions h2{
+        font-size: 1rem;
+    }
+
+    .instructions .edit_all_frames_notification{
+        font-size: 1rem;
+    }
+
+    .instructions li{
+        margin-bottom: 0;
+    }
+    
+    .instructions ul {
+        list-style: none; /* Removes default bullet points */
+        padding-left: 1.5em; /* Add left padding to make space for custom bullets */
+    }
+
+    .instructions ul li {
+        position: relative; /* Needed for the custom bullet positioning */
+    }
+
+    .instructions ul li::before {
+        content: "•"; /* Custom bullet point */
+        font-size: 0.8em; /* Smaller bullet */
+        position: absolute;
+        left: -1.2em; /* Adjust to align bullets properly */
+        top: 1.1em; /* Start in the middle of the line */
+        transform: translateY(-50%); /* Center align vertically */
+        color: black; /* Set bullet color, can be adjusted */
+    }
+
+    .instructions span{
+        display: inline-block;
+    }
+
+    .instructions span > *{
+        transform: translateY(.4em);
+    }
+
+    .instructions .table {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .instructions .table-header,
+    .instructions .table-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .instructions .table-row {
+        display: flex;
+        width: 100%;
+        padding: 1.3em 1em 1.3em 0;
+        border-bottom: .1em solid #D3D3D3;
+    }
+
+    .instructions .table-cell {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+
+</style>
+
+
+<section class="l-instructions instructions">
+    <div class="g-container">
+        <div class="g-row g-gutter-y g-justify-content-center">
+            <div class="g-col-8 g-gap-y">
+                <div class="l-instructions-wrapper">
+                    <h1>Quick instructions</h1>
+                    <ul class="quick_instuction_ul">
+                        <li>Click in the image to set a key point</li>
+                        <li>Press the mark-as-occluded button (<span><shopicon-regular-show></shopicon-regular-show></span>) in the keypoint pallet when the keypoint is in the image but occluded</li>
+                        <li>Press the skip icon in the key point palette (<span><shopicon-regular-angledoubleleftsmall></shopicon-regular-angledoubleleftsmall></span>) when a key point is outside of image </li>
+                        <li>To delete a key point press (k)</li>
+                    </ul>
+
+                    <div class="edit_all_frames_notification l-fb-panel-notification l-fb-panel-notification-purple">
+                        <div class="l-fb-panel-notification-wrapper">
+                            <div class="l-fb-panel-notification-icon">
+                                <shopicon-regular-info data-shopicon="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="M0 0h48v48H0z" fill="none"></path><path d="M24 4C12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20S35.046 4 24 4zm0 36c-8.822 0-16-7.178-16-16S15.178 8 24 8s16 7.178 16 16-7.178 16-16 16z"></path><path d="M22 20h4v16h-4z"></path><circle cx="24" cy="14" r="2"></circle></svg></shopicon-regular-info>
+                            </div>
+                            <div class="l-fb-panel-notification-message">
+                                <b>Important:</b> Please edit all frames, not just one.
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1>Keyboard Shortcuts</h1>
+
+                    <div class="instructions table">
+                        <div class="table-header">
+                          <div class="table-row">
+                            <div class="table-cell"><b>Shortcut</b></div>
+                            <div class="table-cell"><b>Action</b></div>
+                          </div>
+                        </div>
+                        <div class="table-body">
+                          <% [
+                            ["Press Command-Plus Sign (+)", "Zoom current image in"],
+                            ["Press Command-Minus Sign (-)", "Zoom current image out"],
+                            ["Hover image and scroll", "Zoom current image"],
+                            ["U", "Reset zoom and position"],
+                            ["M", "Move the image (only possible if zoomed in)"],
+                            ["C", "Copy points from previous image"],
+                            ["Z", "Copy zoom from previous imgage"],
+                            ["Q", "Go to the previous image"],
+                            ["W", "Go to the next image"],
+                            ["F", "Skip the current image"],
+                            ["H", "Mark current point as occluded or visible"],
+                            ["G", "Mark previous point as occluded or visible"],
+                            ["N", "Go to the next point"],
+                            ["P", "Go to the previous point"],
+                            ["J", "Set a point (same as left click)"],
+                            ["T", "Go to next unannotated point"],
+                            ["O", "Toggle keypoint visibility"],
+                            ["Y", "Undo"],
+                            ["X", "Redo"],
+                            ["R", "Remove points from current image"],
+                            ["Press the arrow keys", "Move current point"],
+                            ["Press the number keys", "Go to the i'th point"],
+                            ["A", "Annotate & move to the next unfinished keypoint"],
+                            ["E", "Annotate & move to the next key point"],
+                            ["D", "Activate image drag mode"],
+                            ["K", "Remove current point"],
+                            ["S", "Skip current point"],
+                            ["1 ... 9", "Active the nth point"],
+                            ["B", "Toggle visibility of toolbar next to keypoint pallet"]
+                          ].forEach(function(item) { %>
+                            <div class="table-row">
+                              <div class="table-cell"><%= item[0] %></div>
+                              <div class="table-cell"><%= item[1] %></div>
+                            </div>
+                          <% }); %>
+                        </div>
+                    </div>
+                      
+                      
+
+                    <h1>Detailed Instructions</h1>
+                    <h2>SOFTWARE OBJECTIVE</h2>
+
+                    <p>This annotation task aims for pin-pointing anatomical and appearance based landmark locations on animals. This will be done on video-material (extracted frames) or photos.</p>
+
+                    <h2>SCOPE OF THE TAST</h2>
+                    <p>If your submission is a video, usually not every frame needs to be annotated, quite often there are sequences where the interpolated positions between two key frames is still accurate enough.
+                        A key frame is a frame in which you have manually annotated the animal landmarks. All other frames will either be empty or contained interpolated landmark positions (marked in grey). A frame will be turned into a key frame, once you manipulate it, e.g. by dragging on the interpolated nodes. (You´ll find an example for video-annotation below.)
+
+                        If you work with photos (instead of a video), please, annotate all frames, not just one.
+                    </p>
+
+                    <h2>WORK FLOW</h2>
+                    <p>
+                        Possibly the best work-flow is to start annotating the first and the last frame of the given sequence. Then you should move the slider from either of these frames away to the other. Once a visible positional deviation is observable, correct the interpolated landmarks in that respective frame -- turning that frame into a key frame. Continue doing so until all frames are either manually pin-pointed or interpolated, correctly.
+                    </p>
+
+                    <h1>Hints:</h1>
+                    <ul>
+                        <li>The current landmark to be clicked is highlighted on the Navigator on the left-hand side</li>
+                        <li>Always pin-point landmarks which are in the image, even if occluded (<span><shopicon-regular-show></shopicon-regular-show></span>)</li>
+                        <li>Press the skip icon in the key point palette (<span><shopicon-regular-angledoubleleftsmall></shopicon-regular-angledoubleleftsmall></span>) when a key point is outside of image</li>
+                        <li>You can also click on the landmark list</li>
+                        <li>If landmarks are close to each other, click some place nearby and drag the landmark to its position</li>
+                        <li>Start with first frame, then go to last frame. Whenever the interpolated positions in between deviate, correct the respective landmarks' positions</li>
+                        <li>Sometimes a sequence may contain frames of multiple animals. Only annotate the animal in the foreground</li>
+                        <li>If a landmark disappears or becomes invisible within consecutive frames, insert respective key frames to correct for this status</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

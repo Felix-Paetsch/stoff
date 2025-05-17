@@ -1,0 +1,38 @@
+<div class="l-toolbar l-toolbar-keypoints">
+    <div class="l-toolbar-panel">
+        <div class="l-toolbar-dots-wrapper">
+            <div class="l-toolbar-dots"></div>
+        </div>
+        <div class="l-toolbar-panel-content">
+            <div class="l-toolbar-panel-key-points">
+                <div class="l-toolbar-panel-accordion-arrow">
+                    <shopicon-regular-arrowdropup></shopicon-regular-arrowdropup>
+                </div>
+                <label>Key points</label>
+                <div class="l-toolbar-panel-accordion">
+                    <p class="annotate_all_keypoints_text">Annotate all the keypoints in the <br>list:</p>
+                    <div class="resizable" style="height: 140px; padding-bottom: 5px;">
+
+                        <div class="l-toolbar-panel-key-points-wrapper">
+                            <ul class="l-toolbar-panel-key-points-list">
+                                <% for (let point of point_data) { %>
+                                    <%- include(
+                                        edit_enabled ? "../edit_enabled/keypoints_point_element"
+                                                        : "../edit_disabled/keypoints_point_element"
+                                    , {
+                                        "name": point.name,
+                                        "extra_classlist": "",
+                                        "id": point.id,
+                                        "color": point.color
+                                    }) %>
+                                <% } %>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include("../common/annotation_toolbar") %>
+</div>

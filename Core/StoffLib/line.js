@@ -8,6 +8,7 @@ import add_self_intersection_test from './unicorns/self_intersects.js';
 import CONF from './config.json' with {type: "json"};
 import SketchElementCollection from './sketch_element_collection.js';
 import register_line_manipulation_functions from "./line_methods/line_manipulation.js"
+import { copy_sketch_element_collection } from "./copy.js"
 
 class Line{
     constructor(endpoint_1, endpoint_2, sample_points){
@@ -506,6 +507,11 @@ class Line{
             sample_points: this.sample_points
         }
     }
+
+    paste_to_sketch(target, position = null){
+        const res = copy_sketch_element_collection(this, target, position);
+        return res.get_corresponding_sketch_element(this)
+    };
 }
 
 add_self_intersection_test(Line);

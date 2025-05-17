@@ -38,9 +38,34 @@ export default class SketchElementCollection extends Array{
         );
     }
 
+    concat(...args){
+        return SketchElementCollection.from_array(
+            super.concat(...args), this.sketch
+        );
+    }
+
+    remove(...args){
+        return this.filter(a => !args.includes(a));
+    }
+
     static get [Symbol.species]() {
         return Array;
+    }
+
+    toString(){
+        return "[SketchElementCollection]"
+    }
+
+    equals(se){
+        return se.length == this.length && !se.some(el => !this.includes(el));
     }
 }
 
 register_collection_methods(SketchElementCollection);
+
+Object.keys(SketchElementCollection.prototype)
+    .filter(k => k.startsWith("get") && (k !== "get_bounding_box")).forEach(key => {
+        SketchElementCollection.prototype["remove" + key.slice(3)] = function(...args){
+            return this.remove(this[key](...args));
+        }
+});

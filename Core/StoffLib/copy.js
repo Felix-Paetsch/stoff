@@ -80,13 +80,13 @@ function copy_sketch(source, target, data_callback = copy_data_callback, positio
     return target.data;
 }
 
-function copy_connected_component(source, target, position = null){
-    // Source: ConnectedComponent
+function copy_sketch_element_collection(source, target, position = null){
+    // Source: SketchElementCollection-like
     // Target: Sketch
 
     const {
         points, lines, bounding_box
-    } = source.obj();
+    } = source.endpoint_hull().obj();
 
     let offset;
     if (position instanceof Vector){
@@ -97,15 +97,13 @@ function copy_connected_component(source, target, position = null){
     }
 
     const {
-        corresponding_point,
-        corresponding_line
+        new_sketch_elements,
+        corresponding_sketch_element
     } = copy_points_lines(points, lines, target, offset);
 
-    if (source.root() instanceof Point){
-        return corresponding_point(source.root()).connected_component();
-    }
-
-    return corresponding_line(source.root()).connected_component();
+    const res = target.make_sketch_element_collection(new_sketch_elements);
+    res.get_corresponding_sketch_element = corresponding_sketch_element;
+    return res;
 }
 
 function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0)){
@@ -124,23 +122,23 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
         ]);
     });
 
-    function get_corresponding_sketch_point(pt){
+    function get_corresponding_sketch_element(el){
         for (let i = 0; i < reference_array.length; i++){
-            if (reference_array[i][0] === pt){
+            if (reference_array[i][0] === el){
                 return reference_array[i][1];
             }
         }
 
-        if (target_sketch.get_points().includes(pt)){
-            return pt;
+        if (target_sketch.get_sketch_elements().includes(el)){
+            return el;
         }
 
-        throw new Error("Data attribute contains point not in the sketch")
+        throw new Error("Requested sketch element not in the sketch")
     }
 
     lines.forEach(line => {
-        const endpoint_1 = get_corresponding_sketch_point(line.p1);
-        const endpoint_2 = get_corresponding_sketch_point(line.p2);
+        const endpoint_1 = get_corresponding_sketch_element(line.p1);
+        const endpoint_2 = get_corresponding_sketch_element(line.p2);
         const new_line = target_sketch._line_between_points_from_sample_points(
             endpoint_1,
             endpoint_2,
@@ -153,39 +151,24 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
         ]);
     });
 
-    function get_corresponding_sketch_line(line){
-        for (let i = 0; i < reference_array.length; i++){
-            if (reference_array[i][0] === line){
-                return reference_array[i][1];
-            }
-        }
-
-        if (target_sketch.get_lines().includes(line)){
-            return line;
-        }
-
-        throw new Error("Data attribute contains line not in the sketch")
-    }
-
     for (const [original, copy] of reference_array){
         const data_copy = dublicate_data(
             original.data,
-            get_corresponding_sketch_point,
-            get_corresponding_sketch_line
+            get_corresponding_sketch_element
         );
 
         Object.assign(copy.data, data_copy);
     }
 
     return {
-        corresponding_point: get_corresponding_sketch_point,
-        corresponding_line: get_corresponding_sketch_line
+        corresponding_sketch_element: get_corresponding_sketch_element,
+        new_sketch_elements: reference_array.map(el => el[1]) 
     }
 }
 
 export {
     copy_sketch_obj_data,
-    copy_connected_component,
+    copy_sketch_element_collection,
     copy_sketch,
 
     default_data_callback,
@@ -193,7 +176,7 @@ export {
     dublicate_data
 }
 
-function dublicate_data(data, get_point_reference = (pt) => pt, get_line_reference = (ln) => ln){
+function dublicate_data(data, get_sketch_element_reference = (st) => st){
     let nesting = 0;    return nesting_buffer(data);
     function nesting_buffer(data){
         nesting++;
@@ -235,9 +218,9 @@ function dublicate_data(data, get_point_reference = (pt) => pt, get_line_referen
         }
 
         // Points
-        if (data instanceof Point){
+        if (data instanceof Point || data instanceof Line){
             nesting--;
-            return get_point_reference(data);
+            return get_sketch_element_reference(data);
         }
 
         // Vectors
@@ -246,22 +229,10 @@ function dublicate_data(data, get_point_reference = (pt) => pt, get_line_referen
             return data;
         }
 
-        // Lines
-        if (data instanceof Line){
-            nesting--;
-            return get_line_reference(data);
-        }
-
         if (data instanceof ConnectedComponent){
             const root = data.root_el;
-            if (root instanceof Point){
-                return new ConnectedComponent(
-                    get_point_reference(root)
-                );
-            }
-
             return new ConnectedComponent(
-                get_line_reference(root)
+                get_sketch_element_reference(root)
             );
         }
 

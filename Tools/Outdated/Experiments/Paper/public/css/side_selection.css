@@ -1,0 +1,57 @@
+
+#side_selection{
+    border-left: .2rem solid var(--theme_color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+.spline_list_wrapper_title{
+    background-color: var(--grey);
+    text-align: center;
+    padding: .3rem 0 .3rem 0;
+    border-bottom: .1rem solid var(--default_color);
+    width: 100%;
+}
+
+#custom_spline_title{
+    border-top: .1rem solid var(--default_color);
+    margin-top: 2rem;
+}
+
+.spline_list_wrapper .spline_preview{
+    position: relative;
+    width: 100%;
+    height: 6rem;
+    border-bottom: .2rem solid var(--grey);
+}
+
+.spline_list_wrapper .spline_preview .spline_preview_svg_wrapper{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.spline_list_wrapper .spline_preview svg{
+    height: 100%;
+    width: auto;
+}
+
+.spline_list_wrapper .spline_preview .spline_preview_spline_name{
+    position: absolute;
+    right: 0;
+    padding: .5rem;
+    bottom: 0;
+    text-align: right;
+    background-color: #0aa3;
+}
+
+#add_new_spline{
+    padding: 1rem 2rem;
+    background-color: #0aa3;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}

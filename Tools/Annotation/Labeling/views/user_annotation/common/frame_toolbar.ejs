@@ -1,0 +1,36 @@
+<div class="l-toolbar l-toolbar-frames">
+    <div class="l-toolbar-panel">
+        <div class="l-toolbar-dots-wrapper">
+            <div class="l-toolbar-dots"></div>
+        </div>
+        <div class="l-toolbar-panel-content" style="position: relative;">
+            <div class="l-toolbar-panel-accordion-arrow">
+                <shopicon-regular-arrowdropup></shopicon-regular-arrowdropup>
+            </div>
+            <label>Frames</label>
+            <div class="l-toolbar-panel-accordion">
+                <div class="resizable" style="height: 420px; padding-bottom: 5px;">
+                    <div class="l-toolbar-panel-frames-wrapper">
+                        <ul class="l-toolbar-panel-frames-list">
+                            <!--
+                                Possible classes: success, crossed, active disable
+
+                                success
+                                crossed
+                                active
+                                disable
+                            -->
+                            <% img_data.forEach((img, index) => { %>
+                                <%- include("../common/frame_element", {
+                                  "name": `Frame ${ index + 1 }`,
+                                  "extra_classlist": "disable",
+                                  "id": img.id
+                                }) %>
+                              <% }); %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

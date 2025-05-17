@@ -11,7 +11,6 @@ export default function () {
     }
 
     const b = r.get_boundary();
-    b.forEach((l) => l.set_color("red"));
 
     return r;
 }

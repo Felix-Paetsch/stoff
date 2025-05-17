@@ -1,6 +1,5 @@
 import { Vector, ZERO, mirror_type } from './geometry.js';
-import { copy_connected_component } from './copy.js';
-import Sketch from "./sketch.js";
+import {} from './copy.js'; // Hopefully Temporary: Imports are otherwise broken
 import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js"
 
@@ -126,13 +125,13 @@ class ConnectedComponent{
             visited_points.push(currently_visiting_point);
         }
 
-        return {
-            points: visited_points,
-            lines: visited_lines,
-            bounding_box: _calculate_bb_from_points_and_lines(
-              visited_points, visited_lines
-            )
-        }
+        const res = visited_points.concat(visited_lines);
+        res.points = visited_points;
+        res.lines  = visited_lines;
+        res.bounding_box = _calculate_bb_from_points_and_lines(
+            visited_points, visited_lines
+        );
+        return res;
     }
 
     self_intersecting(){
@@ -140,14 +139,23 @@ class ConnectedComponent{
         throw new Error("Unimplemented!")
     }
 
-    to_sketch = function(position = null){
-        const s = new this.root_el.sketch.constructor();
-        copy_connected_component(this, s, position);
-        return s;
-    };
-
     toString(){
         return "[ConnectedComponent]"
+    }
+
+    paste_to_sketch(target, position = null){
+        const res = copy_sketch_element_collection(this, target, position);
+        return new ConnectedComponent(
+            res.get_corresponding_sketch_element(this.root())
+        )
+    };
+
+    connected_component(){
+        return this;
+    }
+
+    get_connected_components(){
+        return [this];
     }
 }
 

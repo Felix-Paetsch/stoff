@@ -1,0 +1,226 @@
+<div class="l-toolbar l-toolbar-navigation">
+    <div class="l-toolbar-panel" id="ex_img_toolbar_panel">
+        <div class="l-toolbar-dots-wrapper">
+            <div class="l-toolbar-dots"></div>
+        </div>
+        <div class="l-toolbar-panel-content">
+            <div class="l-toolbar-panel-navigator">
+                <div class="l-toolbar-panel-accordion-arrow">
+                    <shopicon-regular-arrowdropup></shopicon-regular-arrowdropup>
+                </div>
+                <label>Navigator</label>
+                <div class="l-toolbar-panel-accordion">
+                    <div id="ex_img_resizable_outer" class="resizable">
+                        <div id="ex_img_resizable_wrapper">
+                            <div class="swiper-navigator">
+                                <div class="_hu_ex_img_wrapper">
+                                    <%
+                                        nav_img_point_radius = "6px";
+                                        nav_img_point_boder = "solid white .1rem";
+
+                                        const ex_img_arr = example_images.map(im => {
+                                            const ret = {
+                                                "img_path": im.path,
+                                                "title": im.title ? im.title : ""
+                                            };
+
+                                            try {
+                                                ret.points = JSON.parse(im.points);
+                                            } catch {
+                                                ret.points = [];
+                                            }
+
+                                            return ret;
+                                        });
+
+                                        for (img_obj of ex_img_arr) {
+                                    %>
+                                        <div class="_hu_navigator_img_wrapper" data-title="<%= img_obj.title %>">
+                                            <img src="<%= img_obj.img_path %>" alt="" style="max-height: 350px; max-width: 100%; width: auto; height: auto;" id="ex_img_<%= ex_img_arr.indexOf(img_obj) %>">
+                                            <script>
+                                                {
+                                                    const position = +"<%= ex_img_arr.indexOf(img_obj) %>";
+                                                    const img = document.getElementById("ex_img_<%= ex_img_arr.indexOf(img_obj) %>");
+                                        
+                                                    function resize_parent(){
+                                                        const w = img.offsetWidth;
+                                                        const h = img.offsetHeight;
+
+                                                        img.parentElement.parentElement.computed_width = Math.max(
+                                                            img.parentElement.parentElement.computed_width || 0,
+                                                            w
+                                                        );
+
+                                                        img.parentElement.parentElement.computed_height = Math.max(
+                                                            img.parentElement.parentElement.computed_height || 0,
+                                                            h
+                                                        );
+
+                                                        img.parentElement.parentElement.style.width  = String(img.parentElement.parentElement.computed_width)  + "px";
+                                                        img.parentElement.parentElement.style.height = String(img.parentElement.parentElement.computed_height) + "px";
+
+                                                        img.parentElement.style.width = `${ w }px`;
+                                                        img.parentElement.style.height = `${ h }px`;
+
+                                                        img.set_initial_hidden_state();
+                                                    }
+
+                                                    if (position > 0){
+                                                        img.set_initial_hidden_state = () => {
+                                                            img.parentElement.classList.add("hidden");
+                                                        }
+                                                    }
+                                                    else {
+                                                        img.set_initial_hidden_state = () => {
+                                                            document.getElementById("slide_title").textContent = img.parentElement.getAttribute("data-title");
+                                                            img.resize_lines();
+                                                        }
+                                                    }
+
+
+                                                    // Check if the image is already loaded
+                                                    if (img.complete) {
+                                                        setTimeout(resize_parent, 200);
+                                                    } else {
+                                                        // If the image is not loaded yet, listen for the load event
+                                                        img.addEventListener("load", () => {
+                                                            setTimeout(resize_parent, 200);
+                                                        });
+                                                    }
+                                                }
+                                            </script>
+                                            <% 
+                                                function find_point_with_id(id){
+                                                    for (p of point_data){
+                                                        if (p.id == id) return p;
+                                                    }
+
+                                                    throw new Error(`Point with ID <${ id }> was not found.`);
+                                                }
+
+                                                function calc_top_offset(point){
+                                                    return `calc(${ point.heightPercent }% - ${ nav_img_point_radius })`;
+                                                }
+
+                                                function calc_left_offset(point){
+                                                    return `calc(${ point.widthPercent }% - ${ nav_img_point_radius })`;
+                                                }
+
+                                                function get_joint_enpoints(j){
+                                                    const endpoints = img_obj.points.filter(p => p.point_id == j.point_id || p.point_id == j.connected_point_id)
+                                                    if (endpoints.length == 2){
+                                                        return endpoints;
+                                                    }
+                                                    return false;
+                                                }
+
+                                                try {
+                                                    for (j of joint_data){
+                                                        const joint_endpoints = get_joint_enpoints(j);
+                                                        if (!joint_endpoints){
+                                                            continue;
+                                                        }
+
+                                                        %><%- create_line_script_tag(...joint_endpoints, ex_img_arr.indexOf(img_obj)) -%><%
+                                                    }
+
+                                                    if (img_obj.points){
+                                                        for (point of img_obj.points) {
+                                                            for (pt of point_data){
+                                                                // Making sure the point does actually belong to the project
+                                                                if (pt.id == point.point_id){
+                                                                    %>
+                                                                        <div <%- `style="width: calc(2*${ nav_img_point_radius }); height: calc(2*${ nav_img_point_radius }); top: ${calc_top_offset(point)}; left: ${calc_left_offset(point)};" `%> _point_id="<%= point.point_id%>" class="_hu_navigator_img_point" tooltip="<%= pt.name %>"></div>
+                                                                    <% 
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } catch (err){
+                                                    // Points ill-formatted
+                                                }
+                                            %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul id="ex_img_nav">
+                        <li id="ex_img_back_btn">
+                            <shopicon-regular-arrowback></shopicon-regular-arrowback>
+                        </li>
+                        <li id="slide_title">
+                            &lt; Title &gt;
+                        </li>
+                        <li id="ex_img_forward_btn">
+                            <shopicon-regular-arrowforward></shopicon-regular-arrowforward>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%
+
+function create_line_script_tag(p1,p2, index){
+    const script_id = "joint_script" + p1.point_id + "_" + p2.point_id + "_" + index;
+    return `
+    <script class="${ script_id }">
+        {
+            const img = document.querySelectorAll('.${script_id}')[0].parentElement.firstElementChild;
+
+            // Check if the image is already loaded
+            if (img.complete) {
+                setTimeout(resize_lines_${ script_id }, 250);
+            } else {
+                // If the image is not loaded yet, listen for the load event
+                img.addEventListener("load", () => {
+                    setTimeout(resize_lines_${ script_id }, 250);
+                });
+            }
+
+            const parentElement = document.querySelectorAll('.${ script_id }')[0].parentElement;
+            const scriptTag = document.querySelectorAll('.${ script_id }')[0];
+            const line = document.createElement('div');
+
+            
+            line.classList.add("navigation_joint_line");
+            scriptTag.parentNode.replaceChild(line, scriptTag);
+
+            function resize_lines_${ script_id }(){
+                const parentWidth = parentElement.offsetWidth;
+                const parentHeight = parentElement.offsetHeight;
+            
+                const x1 = parentWidth * ${p1.widthPercent} / 100;
+                const y1 = parentHeight * ${p1.heightPercent} / 100;
+                const x2 = parentWidth * ${p2.widthPercent} / 100;
+                const y2 = parentHeight * ${p2.heightPercent} / 100;
+            
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            
+                
+                line.style.left = \`\${x1 + 1}px\`;
+                line.style.top = \`\${y1}px\`;
+                line.style.width = \`\${length}px\`;
+                line.style.height = '1.5px';
+                line.style.transform = \`rotate(\${angle}deg)\`;
+                line.style.transformOrigin = '0 0';
+            }
+
+            const old_resize_lines = img.resize_lines ? img.resize_lines : () => {};
+            img.resize_lines = () => {
+                resize_lines_${ script_id }();
+                old_resize_lines();
+            }
+        }
+      </script>`
+}
+
+%>

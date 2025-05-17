@@ -1,0 +1,30 @@
+{
+  "name": "annotation-keypoints",
+  "version": "1.0.0",
+  "dependencies": {
+    "basic-auth-connect": "^1.0.0",
+    "compression": "^1.7.4",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "htmlentities": "^1.0.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.10.0"
+  },
+  "scripts": {
+    "start": "node annotation_index.js",
+    "dev": "nodemon annotation_index.js",
+    "background": "nohup node annotation_index.js &",
+
+    "backup": "cd api_handling && python ./backup_management/download_everything.py",
+    "restore": "npm run __init_db && npm run use_backup",
+    "use_backup": "cd api_handling && python ./backup_management/upload_everything.py",
+
+    "_activate_server": "cd scripts && python change_settings.py server",
+    "_activate_server_intern": "cd scripts && python change_settings.py server_intern",
+    "_activate_ideapad": "cd scripts && python change_settings.py ideapad",
+    "_activate_predator": "cd scripts && python change_settings.py predator",
+
+    "dummy_project": "cd api_handling && python dummy_project.py",
+    "__init_db": "node database_handling/init_db.js"
+  }
+}

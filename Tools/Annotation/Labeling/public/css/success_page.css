@@ -1,0 +1,26 @@
+h1 > i{
+    width: 3rem;
+    display: inline-block;
+}
+
+.btn,
+.l-modal-header label,
+a.btn {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 21px;
+    letter-spacing: 0.01em;
+}
+.btn,
+a.btn {
+    display: inline-block;
+    padding: 8px 25px;
+    height: 37px;
+    border-radius: 46px;
+    cursor: pointer;
+}
+.btn-success,
+a.btn-success {
+    background-color: #34c749;
+    color: #fff;
+}

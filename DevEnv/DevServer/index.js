@@ -46,6 +46,7 @@ app.post('/pattern', async (req, res) => {
             error: false
         });
 
+
     } catch (error){
         console.error(error.stack);
         res.status(422).json({

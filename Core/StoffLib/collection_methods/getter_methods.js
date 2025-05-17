@@ -1,5 +1,6 @@
 import Point from "../point.js";
 import Line from "../line.js";
+import { assert } from "../dev/validation.js";
 
 export default (Class, set_if_not_exists) => {
     // Not typed
@@ -193,6 +194,21 @@ export default (Class, set_if_not_exists) => {
         );
     });
 
+    set_if_not_exists(Class, "get_common_sketch_elements", function(sec){
+        const sec_se = sec.get_sketch_elements()
+        return this.get_sketch_elements().filter(el => sec_se.includes(el));
+    });
+
+    set_if_not_exists(Class, "get_common_lines", function(sec){
+        const sec_se = sec.get_lines()
+        return this.get_lines().filter(el => sec_se.includes(el));
+    });
+
+    set_if_not_exists(Class, "get_common_points", function(sec){
+        const sec_se = sec.get_points()
+        return this.get_points().filter(el => sec_se.includes(el));
+    });
+
     set_if_not_exists(Class, "lines_by_key", function(key){
         return this.get_lines().reduce((acc, line) => {
             const groupKey = line.data[key] !== undefined ? line.data[key] : "_";
@@ -214,4 +230,38 @@ export default (Class, set_if_not_exists) => {
             return acc;
         }, {});
     });
+
+    set_if_not_exists(Class, "has_points", function(...pt){
+        for (let i = 0; i < pt.length; i++){
+            assert.IS_POINT(pt[i]);
+        }
+        return this.has_sketch_elements(...pt);
+    });
+    
+    set_if_not_exists(Class, "has_lines", function(...ls){
+        for (let i = 0; i < ls.length; i++){
+            assert.IS_LINE(ls[i]);
+        }
+        return this.has_sketch_elements(...ls);
+    });
+    
+    set_if_not_exists(Class, "has_sketch_elements", function(...se){
+        const obj = this.get_sketch_elements();
+        const pts = obj.get_points();
+        const lns = obj.get_lines();
+
+        for (let i = 0; i < se.length; i++){
+            if (se[i] instanceof Point){
+                if (!pts.includes(se[i])) return false;
+            } else {
+                if (!lns.includes(se[i])) return false;
+            }
+        }
+        return true;
+    });
+    
+    set_if_not_exists(Class, "has", function(...se){
+        return this.has_sketch_elements(...se);
+    });
+    
 }

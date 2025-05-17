@@ -35,6 +35,7 @@ export default (Sketch) => {
         l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
         this.lines.push(l);
         l.set_sketch(this);
+
         return l;
     };
 
