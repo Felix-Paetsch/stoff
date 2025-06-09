@@ -21,7 +21,7 @@
             <div id="preview">Loading...</div>
             <div id="render_message">[No render message]</div>
         </div>
-        <div id="pattern_preview">Loading...</div>        
+        <div id="pattern_preview">Loading...</div>
     </div>
 
     <style>
@@ -46,18 +46,22 @@
         }
     </style>
     <script src="/DevServer/main/add_svg_hover_events.js"></script>
-    <div hx-post="/hot_relaod_req"
-        hx-trigger="every 200ms"
-        hx-include="#application_state"
-        hx-swap="none">
-    </div>
     <script>
+        getTimeoutSetting = () => 200;
+
         document.body.addEventListener('htmx:afterSwap', function (evt) {
             if (evt.detail.elt.id === 'pattern_preview') {
                 add_svg_hover_events();
             }
         });
-    </script>  
+    </script>
+    <div hx-post="/hot_relaod_req"
+        hx-trigger="every 200ms"
+        hx-include="#application_state"
+        hx-request='js: timeout:getTimeoutSetting() '
+        hx-swap="none">
+    </div>
+    <div id="junk"></div>
 </body>
 
 </html>

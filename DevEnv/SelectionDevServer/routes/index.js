@@ -49,14 +49,20 @@ export default (app) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
-        Sketch.dev._reset_routes();
-
         res.render("htmx/hot_reload_res", {
+            state
+        });
+    });
+
+    app.post("/hot_relaod_req_res", (req, res) => {
+        const state = JSON.parse(req.body.application_state);
+        Sketch.dev._reset_routes();
+        res.render("htmx/hot_reload_req_res", {
             pictureParts,
             state,
             render_data: render_img(pictureParts, state),
         });
-    });
+    })
 
     app.post(`/htmx/pictures`, (req, res) => {
         const state = JSON.parse(req.body.application_state);

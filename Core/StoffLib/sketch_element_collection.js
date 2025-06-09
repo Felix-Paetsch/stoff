@@ -22,10 +22,6 @@ export default class SketchElementCollection extends Array{
         return this.filter(l => l instanceof Line);
     }
 
-    get_sketch_elements(){
-        return this;
-    }
-
     get_sketch(ignore_error = false){
         if (this.sketch) return this.sketch;
         if (ignore_error) return null;

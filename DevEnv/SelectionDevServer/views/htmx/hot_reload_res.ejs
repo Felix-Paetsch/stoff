@@ -1,2 +1,8 @@
-<%- include("./sewing_pattern"); %>
 <%- include("./state"); %>
+<div hx-post="/hot_relaod_req_res"
+    id="junk"
+    hx-trigger="load"
+    hx-include="#application_state"
+    hx-swap-oob="outerHTML"
+  >
+</div>

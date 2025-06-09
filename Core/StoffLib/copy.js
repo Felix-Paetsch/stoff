@@ -162,7 +162,7 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
 
     return {
         corresponding_sketch_element: get_corresponding_sketch_element,
-        new_sketch_elements: reference_array.map(el => el[1]) 
+        new_sketch_elements: reference_array.map(el => el[1])
     }
 }
 
