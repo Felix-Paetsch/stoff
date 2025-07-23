@@ -4,26 +4,20 @@
 **.mp4
 node_modules
 **node_modules
-renders
-Server/public/tailwind.css
 **.blend**
 **__pycache__/
 **.py[cod]
 **.fbx
-Tools/Blender/assets
-___frames_**
-Docs/site
-**/TWoutput.css
-
-// Needed by ??
-**Leonie
-Patterns/_example
-
-secrets.md
-**/secrets.md
-_docs
-
 .vscode
 .prettierrc
+
+Tools/Blender/assets
+___frames_**
+**/TWoutput.css
+
+renders
+notes
+**/secrets.md
+**Leonie
 
 !Data/PreviewPictures/**/*.svg

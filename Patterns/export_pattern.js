@@ -19,7 +19,7 @@ export default {
     design_config: new Config(
         cContainer(
             "Schnittmuster",
-            cOption("für", ...Object.keys(people_measurements), 2),
+            cOption("für", ...Object.keys(people_measurements), 2)
         ),
         cContainer(
             "top designs",
@@ -31,7 +31,7 @@ export default {
                 "multiple darts",
                 "styleline",
                 //"added fullness",
-                1,
+                1
             ),
             cBoolean("single waistline dart", true),
 
@@ -52,7 +52,7 @@ export default {
                 "shoulder and french",
                 "shoulder and neckline",
                 "shoulder and armpit",
-                0,
+                0
             ),
             cNumber("number of multiple darts", {
                 default: 2,
@@ -74,7 +74,7 @@ export default {
                 min: 0,
                 max: 20,
                 step_size: 0.25,
-            }),
+            })
         ),
         cContainer(
             "neckline",
@@ -88,8 +88,8 @@ export default {
                 "V-Line wide",
                 "square",
                 "boat",
-                0,
-            ),
+                0
+            )
         ),
         cContainer(
             "sleeve",
@@ -106,27 +106,27 @@ export default {
                 //        "cap",
                 "ruffles",
                 "latern",
-                0,
+                0
             ),
             cNumber("length", {
                 default: 0.5,
                 min: 0,
                 max: 1,
                 step_size: 0.01,
-            }),
-        ),
+            })
+        )
     ),
     create_design: (design_config) => {
         let fuer = design_config.Schnittmuster["für"];
         let measurements = adjusted_measurements(
             people_measurements[fuer],
-            design_config,
+            design_config
         );
         // console.log(measurements.waist_width_front)
         // console.log(measurements.waist_width_back)
         let wd = main_pattern_construction(
             measurements,
-            config_compiler(design_config),
+            config_compiler(design_config)
         );
         return main_sleeve_construction(wd, design_config).sketch; //.paste_sketch(wd.sketch);
         // return wd.sketch

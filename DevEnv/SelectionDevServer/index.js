@@ -10,18 +10,16 @@ const app = express();
 
 import Sketch from "../../Core/StoffLib/sketch.js";
 import register_dev_serve from "../DevServer/dev_serve.js";
-register_dev_serve(Sketch, app);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
 app.use(express.static(path.join(__dirname, "public")));
-app.use(
-    "/DevServer",
-    express.static(path.join(__dirname, "../DevServer/public")),
-);
+app.use(express.static(path.join(__dirname, "../DevServer/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+register_dev_serve(Sketch, app);
 register_routes(app);
 
 app.listen(3008, () => {

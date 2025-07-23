@@ -87,21 +87,21 @@ export default (design_config) => {
 
         // Set the color
         lines[i].set_color(
-            `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`,
+            `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
         );
     }
 
-    s.dev.at_url("/test");
-
-    for (let i = 1; i < 8; i++) {
+    for (let i = 1; i < Math.random() * lines.length; i++) {
         const new_lines = [];
         for (let j = 0; j < lines.length - 1; j++) {
             new_lines.push(
-                s.interpolate_lines(lines[j], lines[(j + 1) % lines.length], 0),
+                s.interpolate_lines(lines[j], lines[(j + 1) % lines.length], 0)
             );
         }
         lines = new_lines;
     }
+    s.dev.start_recording("/wha");
+    s.dev.at_url("/test");
 
     s.data = design_config;
     return s;

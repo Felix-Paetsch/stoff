@@ -1,4 +1,4 @@
-import create_design from "../../Patterns/export_pattern_ui_v2.js";
+import create_design from "../../Patterns/export_pattern_ui_leo.js";
 
 export default function (pictureParts, input_state) {
     try {
@@ -6,7 +6,7 @@ export default function (pictureParts, input_state) {
         for (let i = 0; i < pictureParts.length; i++) {
             design_config[pictureParts[i].name] =
                 pictureParts[i].choices[input_state.current_choices[i]].split(
-                    ".",
+                    "."
                 )[0];
         }
 
