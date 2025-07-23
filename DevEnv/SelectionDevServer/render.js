@@ -1,4 +1,4 @@
-import create_design from "../../Patterns/export_pattern_ui_leo.js";
+import create_design from "../../Patterns/export_pattern_ui_v2.js";
 
 export default function (pictureParts, input_state) {
     try {
