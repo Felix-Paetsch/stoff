@@ -126,7 +126,7 @@ export default (Class, set_if_not_exists) => {
 
     set_if_not_exists(Class, "get_lines_between_points", function(check1, check2){
         const this_lines = this.get_lines();
-        
+
         if (typeof check1 == "string"){
             const type = check1;
             check1 = (pt) => pt.data.type === type || (type == "_" && typeof pt.data.type == "undefined")
@@ -226,6 +226,7 @@ export default (Class, set_if_not_exists) => {
             if (!acc[groupKey]) {
                 acc[groupKey] = this.new_sketch_element_collection();
             }
+            
             acc[groupKey].push(pt);
             return acc;
         }, {});
@@ -237,14 +238,14 @@ export default (Class, set_if_not_exists) => {
         }
         return this.has_sketch_elements(...pt);
     });
-    
+
     set_if_not_exists(Class, "has_lines", function(...ls){
         for (let i = 0; i < ls.length; i++){
             assert.IS_LINE(ls[i]);
         }
         return this.has_sketch_elements(...ls);
     });
-    
+
     set_if_not_exists(Class, "has_sketch_elements", function(...se){
         const obj = this.get_sketch_elements();
         const pts = obj.get_points();
@@ -259,9 +260,9 @@ export default (Class, set_if_not_exists) => {
         }
         return true;
     });
-    
+
     set_if_not_exists(Class, "has", function(...se){
         return this.has_sketch_elements(...se);
     });
-    
+
 }

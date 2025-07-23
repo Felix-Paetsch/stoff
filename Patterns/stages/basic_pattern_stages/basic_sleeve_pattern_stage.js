@@ -590,7 +590,6 @@ export default class BasicSleeveBaseStage extends BaseStage {
         comp.transform((p) => {
             p.move_to(p.add(new Vector(0, -10)));
         });
-
         this.wd.sketch = comp.to_sketch();
         this.wd.sketch2 = comp2.to_sketch();
         this.sketch = this.wd.sketch;
@@ -604,13 +603,13 @@ export default class BasicSleeveBaseStage extends BaseStage {
         this.connect_sleeve_bottom(1);
         const sk = this.sketch;
         this.sketch = this.wd.sketch2;
-        this.wd.sketch = this.wd.sketch2;
+    //    this.wd.sketch2 = this.wd.sketch3;
         this.cut_sleeve_stripes(10);
         this.flare_top_sleeve(flare);
         this.connect_sleeve_top(1);
         /*
          */
-        this.sketch.paste_sketch(sk);
+        this.wd.sketch.paste_sketch(this.sketch);
     }
 
     slim_sleeve(sum_reduction = 2) {

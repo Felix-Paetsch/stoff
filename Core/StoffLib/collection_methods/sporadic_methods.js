@@ -2,7 +2,6 @@ import { Vector, convex_hull } from '../geometry.js';
 import { copy_sketch_element_collection } from "../copy.js";
 
 export default (Class, set_if_not_exists) => {
-    console.log(Class);
     set_if_not_exists(Class, "get_bounding_box", function(min_bb = [0,0]){
         // min_bb sets minimal required width and height for a bb
         // the bb will be made bigger to hit these limits if needed

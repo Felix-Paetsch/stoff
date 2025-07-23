@@ -13,9 +13,9 @@ import fill_in_dart from "../algorithms/fill_in_dart.js";
     funktionen:
     - annotate dart
     - linie bei Abnähern (vergessen wie es heißt)
-    - anpassen Abstand Nahtzugabe 
+    - anpassen Abstand Nahtzugabe
     - Beschreibung von Linien oder so?
-    
+
 
 */
 
@@ -40,7 +40,7 @@ export default class DartAnnotationStage extends BaseStage {
         return this.wd.sketch;
     }
 
-   
+
     #mirror(){
         let line = this.sketch.get_typed_line("fold");
         this.sketch.unfold(line);
@@ -55,22 +55,90 @@ export default class DartAnnotationStage extends BaseStage {
 
 
 
+      manipulate_darts(config){
+        const len = config.additional.manipulation_distance;
+
+        const h = this.sketch.get_typed_point("h");
+        if(!h){
+          return;
+        }
+
+        const lines = h.get_adjacent_lines();
+        let pts = [];
+        if(config.additional.top_dart_manipulation){
+            lines.filter((ln) => ln.data.type == "dart").forEach((ln, i) => {
+              ln.data.manipilated = true;
+              pts.push(this.sketch.split_line_at_length(ln, len).point);
+            });
+        }
+
+
+        if(config.additional.waistline_dart_manipulation){
+          lines.filter((ln) => ln.data.sub_type == "dart").forEach((ln, i) => {
+            ln.data.manipilated = true;
+            pts.push(this.sketch.split_line_at_length(ln, len).point);
+          });
+        }
+
+        let distance;
+        pts.forEach((pt, i) => {
+          if (i % 2 == 0){
+            distance = pt.subtract(pts[i+1]);
+            pt.move_to(pt.add(distance.scale(0.3)))
+          } else {
+            pt.move_to(pt.subtract(distance.scale(0.3)))
+          }
+          pt.data.type = "to_merge";
+        });
+
+
+
+         // ich bin mir unsicher, ob ich das fuer den Rücken auch brauche
+
+      }
+
+
+
+
     move_dart_outside(dart_number, distance = 3){
         let lines = this.sketch.lines_by_key("dart_number")[dart_number];
         let pt;
-    
+        let merge = false;
+        if (lines.length > 2){
+          lines = lines.filter(ln => ln.p1.data.type == ln.data.darttip);
+          merge = true;
+        }
+
+
+
         if(lines[0].p1.other_adjacent_lines(lines[0]).length <= 1){
             pt = lines[0].p1;
+            delete pt.data.type;
         } else {
             pt = this.sketch.add_point(lines[0].p1.copy());
             lines[0].replace_endpoint(lines[0].p1, pt);
             lines[1].replace_endpoint(lines[1].p1, pt);
         }
-        
+
+
         let vec = lines[0].p2.subtract(lines[1].p2).scale(0.5).add(lines[1].p2);
         vec = pt.subtract(vec).normalize().scale(-distance);
 
         pt.move_to(pt.add(vec));
+
+
+        if (merge){
+          this.#merge_manipulated_dart(lines[0].p2, lines[1].p2);
+        }
+
+    }
+
+    #merge_manipulated_dart(p1, p2){
+      let lns = p1.get_adjacent_lines();
+      this.sketch.merge_lines(lns[0], lns[1], true);
+      lns = p2.get_adjacent_lines();
+      this.sketch.merge_lines(lns[0], lns[1], true);
+
     }
 
     // erst alle anderen Abnäher verschieben und von h und p lösen
@@ -86,11 +154,24 @@ export default class DartAnnotationStage extends BaseStage {
         if(h){
             h.move_to(h.add(vec));
         }
+
+        let pts = this.sketch.get_typed_points("to_merge");
+
+        if(pts.length > 2){
+          // kann maximal 4 sein
+          this.#merge_manipulated_dart(pts[0], pts[1]);
+          this.#merge_manipulated_dart(pts[2], pts[3]);
+        } else if (pts.length > 0){
+          this.#merge_manipulated_dart(pts[0], pts[1]);
+        }
+
+
     }
 
 
     fill_in_dart(dart_number, reverse = false) {
         fill_in_dart(this.sketch, dart_number, reverse);
+
     }
 
 
@@ -99,14 +180,14 @@ export default class DartAnnotationStage extends BaseStage {
         let dart_lines = this.sketch.get_typed_lines("dart").filter(line => {
             return line.data.dart_number == dart_number;
         });
-        
+
         assert.CALLBACK("Abnähernummer"+ dart_number + "existiert nicht", () =>{
             return dart_lines.length > 0;
         })
 
         let vec = dart_lines[0].p1.subtract(dart_lines[1].p1).scale(0.5).add(dart_lines[1].p1);
         let pt = this.sketch.add_point(vec);
-        
+
         vec = dart_lines[0].p2.subtract(dart_lines[1].p2).scale(0.5).add(dart_lines[1].p2);
         let pt2 = this.sketch.add_point(vec);
         pt2.data.dart_side_distance = dart_lines[0].p2.subtract(dart_lines[1].p2).length() / 2;

@@ -31,21 +31,34 @@ function validate_sketch(s){
                         l.data.SELF_INTERSECTS = true;
                     }
                     s.dev.at_url("/self_intersects", null, true);
-                    
+
                     Error.stackTraceLimit = Infinity;
                     throw new Error("A line self intersected! \nYou may visit /self_intersects to see the problem.\n");
                 } // Callback before the assert
             );
         }
     });
+    no_dublicates(s.lines, "The sketch contains a line twice");
 
     s.points.forEach(p => {
         pt_has_lines_only_in_sketch(s, p);
         data_object_valid(p.data, s);
     });
+    no_dublicates(s.points, "The sketch contains a point twice");
 
     data_object_valid(s.data, s);
     currently_validating = false;
+}
+
+// TEST CASES COMMON
+function no_dublicates(arr, msg){
+  const seen = new Set();
+  for (const item of arr) {
+    if (seen.has(item)) {
+      throw new Error(msg);
+    }
+    seen.add(item);
+  }
 }
 
 // TEST CASES LINES

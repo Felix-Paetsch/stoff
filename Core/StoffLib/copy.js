@@ -50,6 +50,9 @@ function copy_sketch_obj_data(source, target, data_callback = copy_data_callback
 function copy_sketch(source, target, data_callback = copy_data_callback, position = null){
     // Source: Sketch
     // Target: Sketch
+    if (data_callback === null){
+        data_callback = copy_data_callback
+    }
 
     let offset;
     if (position instanceof Vector){
@@ -114,7 +117,9 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
     points.forEach(pt => {
         const new_pt = target_sketch.add_point(
             pt.add(offset) // Vector
-        ).set_color(pt.get_color());
+        );
+
+        new_pt.attributes = JSON.parse(JSON.stringify(pt.attributes))
 
         reference_array.push([
             pt,
@@ -143,7 +148,8 @@ function copy_points_lines(points, lines, target_sketch, offset = new Vector(0,0
             endpoint_1,
             endpoint_2,
             line.copy_sample_points()
-        ).set_color(line.get_color());
+        )
+        new_line.attributes = JSON.parse(JSON.stringify(line.attributes))
 
         reference_array.push([
             line,

@@ -133,9 +133,9 @@ export default class DartBaseStage extends BaseStage{
             let h = this.sketch.get_typed_point("h");
             let h_to_k = this.sketch.get_typed_line("h_to_k");
             let h_to_l = this.sketch.get_typed_line("h_to_l");
-    
-    
-     
+
+
+
             let splitted_line;
             if (side == "side"){
                 let ln = this.sketch.get_typed_line("side");
@@ -182,25 +182,25 @@ export default class DartBaseStage extends BaseStage{
             let pt = splitted_line.point;
             splitted_line.line_segments[0].data.point = "k";
             splitted_line.line_segments[1].data.point = "l";
-            
+
             this.sketch.cut([h, pt], h);
-            
+
             if(rotation){
                 this.sketch.glue(h_to_k, h_to_l, {point:"delete"});
             } else {
                 this.sketch.glue(h_to_l, h_to_k, { point: "delete" });
             }
-            
+
             // neu benennen der Linien
             splitted_line.line_segments[0].p2.data.type = splitted_line.line_segments[0].data.point;
             delete splitted_line.line_segments[0].data.point;
-            
+
             splitted_line.line_segments[1].p1.data.type = splitted_line.line_segments[1].data.point;
             delete splitted_line.line_segments[1].data.point;
-            
+
             splitted_line.line_segments[0].p2.other_adjacent_line(splitted_line.line_segments[0]).data.type = "h_to_k";
             splitted_line.line_segments[1].p1.other_adjacent_line(splitted_line.line_segments[1]).data.type = "h_to_l";
-    
+
             if(side == "shoulder"){
                 if(percent < 0.5){
                     this.sketch.merge_lines(this.sketch.get_typed_line("l_to_c"), splitted_line.line_segments[1], true).data.type = "l_to_c";
@@ -210,9 +210,9 @@ export default class DartBaseStage extends BaseStage{
             } else {
                 this.sketch.merge_lines(this.sketch.get_typed_line("d_to_k"), this.sketch.get_typed_line("l_to_c"), true).data.type = "d_to_c";
             }
-           
+
         }
-    
+
         // Verwenden, wenn der Abnäher durch den aeusseren Abnaeher geht
         // zu unallgemein
         correct_second_dart(shift = true){
@@ -235,10 +235,10 @@ export default class DartBaseStage extends BaseStage{
                 temp = this.sketch.split_line_at_length(p_to_r, p_to_r.get_length() - len);
                 temp.point.data.type = "pr";
                 this.sketch.remove(p);
-                
+
             }
         }
-    
+
         split_at_dart(){
             this.wd.split = true;
             let h_to_k = this.sketch.get_typed_line("h_to_k");
@@ -248,14 +248,14 @@ export default class DartBaseStage extends BaseStage{
             let h_to_i;
             let h_to_l;
             let j_to_i;
-    
+
             if(h_to_k){ // dann ist der Abnäher am inneren Taillenabnäher
                 h = this.sketch.get_typed_point("h");
                 j = this.sketch.get_typed_point("j");
                 assert.IS_POINT(j);
-    
+
                 h_to_i = this.sketch.get_typed_line("h_to_i");
-                j_to_i = this.sketch.get_typed_line("j_to_i"); 
+                j_to_i = this.sketch.get_typed_line("j_to_i");
                 if (this.wd.direction_swap_of_k_l) {
                     h_to_l = this.sketch.get_typed_line("h_to_k");
                 } else {
@@ -264,9 +264,9 @@ export default class DartBaseStage extends BaseStage{
             } else {
                 h = this.sketch.get_typed_point("p");
                 j = this.sketch.get_typed_point("q");
-    
+
                 assert.IS_POINT(j);
-                    
+
                 h_to_i = this.sketch.get_typed_line("p_to_s");
                 j_to_i = this.sketch.get_typed_line("q_to_s");
                 if (this.wd.direction_swap_of_k_l) {
@@ -275,41 +275,41 @@ export default class DartBaseStage extends BaseStage{
                     h_to_l = this.sketch.get_typed_line("p_to_l");
                 }
             }
-    
+
             let vec = m.add(new Vector(j.x, 0));
-            
+
             let split_line = this.sketch.split_line_at_length(this.sketch.get_typed_line("m_to_n"), vec.subtract(m).length());
             let u = split_line.point;
             let t = this.sketch.add_point(u.copy());
             u.data.type = "t";
             t.data.type = "t";
-    
+
             split_line.line_segments[1].replace_endpoint(t, u);
             let j2 = this.sketch.add_point(j.copy());
             j2.data.type = j.data.type;
             j_to_i.replace_endpoint(j, j2);
-            
+
             this.sketch.line_between_points(t, j2);
             this.sketch.line_between_points(u, j);
-    
+
             let h2 = this.sketch.add_point(h.copy());
             h2.data.type = h.data.type;
             h_to_i.replace_endpoint(h, h2);
             h_to_l.replace_endpoint(h, h2);
-    
+
             let comp = new ConnectedComponent(h2);
             comp.transform(p => p.move_to(p.add(new Vector(-20, 0))));
-    
+
         }
-    
+
         */
 
 
     // bis hier "einfache Funktionen" die untereinander auch kompatibel sind
 
     // nimmt an, dass der Abnäher noch nicht verschoben wurde
-    // Ich gehe davon aus, das niemand auf die Idee kommt, solche Faxen zu machen wie 
-    // "shoulder" 0; "neckline" 0, da dies der selbe, bereits vorhandene Punkt ist 
+    // Ich gehe davon aus, das niemand auf die Idee kommt, solche Faxen zu machen wie
+    // "shoulder" 0; "neckline" 0, da dies der selbe, bereits vorhandene Punkt ist
     split_up_dart(...dart_data) {
         // ...[[line_type, fraction_along_line, dart_amount]]
         let data = new DartData(dart_data);
@@ -325,7 +325,6 @@ export default class DartBaseStage extends BaseStage{
 
         let ln2 = this.sketch.get_typed_line("side");
         let grp2 = f.other_adjacent_lines(ln2);
-
         let temp_cut = this.sketch.cut([f, h], h, [ln2], grp2);
         let temp_glue = this.sketch.glue(this.sketch.get_typed_line("h_to_k"), this.sketch.get_typed_line("h_to_l"));
         let temp_lines = temp_glue.point.get_adjacent_lines();
@@ -400,7 +399,7 @@ export default class DartBaseStage extends BaseStage{
         }
         const cut_points_with_left_line = points_with_left_line.filter(d => d.pt.data.dart == "cut_point");
         cut_points_with_left_line.reverse(); // From b to f; so we dont need to keep track of total rotation (although a bit more computation)
-        
+
         cut_points_with_left_line.forEach(({ pt, left_line }) => {
             const { rotation } = pt.data;
             const cut_res = this.sketch.cut([pt, fixed], fixed);
@@ -421,7 +420,7 @@ export default class DartBaseStage extends BaseStage{
             })
         });
 
-        
+
         let f_pts = this.sketch.get_typed_points("f");
         let vec = f_pts[0].vector().subtract(f_pts[1].vector());
         if (vec.x < EPS.COARSE && vec.y < EPS.COARSE) {
@@ -437,9 +436,9 @@ export default class DartBaseStage extends BaseStage{
     }
 
 
-    // Das verschieben zur anderen Abnäherspitze führt zur Korrektur in der ein oder anderen 
-    // Länge vom einer der beiden Abnäherlinien. Dadurch wird mindestens eine weitere Linie 
-    // minimal im Winkel verändert. 
+    // Das verschieben zur anderen Abnäherspitze führt zur Korrektur in der ein oder anderen
+    // Länge vom einer der beiden Abnäherlinien. Dadurch wird mindestens eine weitere Linie
+    // minimal im Winkel verändert.
     // Daher bitte nicht zu oft hin und her verändern.
     move_dart_number_to_darttip(number, new_darttip = "p", correct_lines = true) {
         //     let pts = this.sketch.points_by_key("dart_number")[number];
@@ -467,6 +466,7 @@ export default class DartBaseStage extends BaseStage{
 
     split_dart_number_to_bottom(number, darts_left = []) {
         this.wd.split = true;
+        this.sketch.dev.at_url("/blubb")
         let lns = this.sketch.lines_by_key("dart_number")[number];
 
         let dart_lines_left = [];
@@ -489,7 +489,7 @@ export default class DartBaseStage extends BaseStage{
             }
         } else {
             if (lns[0].p2.data.p == "p2") {
-                
+
                 lns.reverse();
             }
         }

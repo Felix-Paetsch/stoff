@@ -24,7 +24,7 @@ const PRINT_WIDTH_WITH_PADDING = PRINT_WIDTH_PX - 2*PRINT_PADDING_PX;
 const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2*PRINT_PADDING_PX;
 
 function toA4printable(sketch, folder) {
-    folder = path.join(__dirname, ".../.../", folder);
+    folder = path.join(__dirname, "../../../", folder);
     createOrEmptyFolderSync(folder);
 
     // Get the bounding box of the sketch

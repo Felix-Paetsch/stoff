@@ -12,7 +12,7 @@ class Point extends Vector{
         this.sketch = null;
         this.attributes = {
             fill: "black",
-            radius: 1,
+            radius: 2,
             stroke: "black",
             strokeWidth: 1,
             opacity: 1
