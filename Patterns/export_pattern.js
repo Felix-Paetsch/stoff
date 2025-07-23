@@ -1,4 +1,4 @@
-import { people_measurements } from "../Data/measurements/measurements.js";
+import { people_measurements } from "../Data/measurements.js";
 import adjusted_measurements from "./adjust_measurements.js";
 
 import config_compiler from "./config_compiler.js";
