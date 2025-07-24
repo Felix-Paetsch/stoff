@@ -4,7 +4,7 @@ import BaseStage from "./baseStage.js";
 export default class SequentialStage extends BaseStage{
     constructor(pure = true, stages = []){
         super();
-        
+
         this.substages = [];
         for (const s of stages){
             this.add_stage(s);
@@ -87,7 +87,7 @@ export default class SequentialStage extends BaseStage{
     }
 
     get_working_data(){
-        return this.#after_last_stage() ? this.wd : this.#current_stage().get_working_data(data) || this.wd;
+        return this.#after_last_stage() ? this.wd : this.#current_stage().get_working_data() || this.wd;
     }
 
     #mark_current_stage_exited(){

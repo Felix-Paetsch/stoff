@@ -88,12 +88,12 @@ function copy_sketch_element_collection(source, target, position = null){
     // Target: Sketch
 
     const {
-        points, lines, bounding_box
+        points, lines
     } = source.endpoint_hull().obj();
 
     let offset;
     if (position instanceof Vector){
-        const src_top_left = bounding_box.top_left;
+        const src_top_left = source.get_bounding_box().top_left;
         offset = position.subtract(src_top_left)
     } else {
         offset = new Vector(0, 0);
