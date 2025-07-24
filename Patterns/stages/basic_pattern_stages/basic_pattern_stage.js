@@ -44,10 +44,12 @@ export default class BasicBaseStage extends BaseStage {
     on_enter() {
         const s = new SewingSketch();
         this.wd.sketch = s;
+    //    this.wd.side = this.side;
 
         this.sketch = s;
     //    this.side = "front";
         this.#initialize_shorthands();
+
         this.#main_construction();
 
         this.#add_pattern_type(); // ändert Schnittmuster von fitted zu normal oder oversize

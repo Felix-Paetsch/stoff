@@ -10,6 +10,8 @@ import Sketch from "../Core/StoffLib/sketch.js";
 import CutLengthStage from "./stages/annotation_stages/cut_length_stage.js";
 import BasicSleeveBaseStage from "./stages/basic_pattern_stages/basic_sleeve_pattern_stage.js";
 
+import {fancy_main_pattern_construction, fancy_main_sleeve_pattern_construction} from "./stages/fancyPattern/main_fancy_pattern.js"
+
 let measurements = {
     "over_bust_front": 48.5,
     "over_bust_back": 41.5,
@@ -46,7 +48,7 @@ let measurements = {
 }
 
 
-export function main_pattern_construction(mea, design_data, side){
+export function main_pattern_start(mea, design_data, side){
     //Sketch.dev.global_recording().hot_at_url("/hot");
     const shirt = new StageProcess({
         measurements: mea,
@@ -70,14 +72,7 @@ export function main_pattern_construction(mea, design_data, side){
 
     shirt.add_stage(new EasyPatternNecklineStage(design_data.basic.one_waistline_dart, design_data.basic, side, needed_base_type));
     shirt.add_stage(EasyPatternMainCorpusStage);
-    shirt.add_stage(CurveBottomCutStage);
 
-    shirt.add_stage(CurveLinesStage);
-    shirt.add_stage(DartAnnotationStage);
-
-    shirt.add_stage(CutLengthStage);
-
-    shirt.add_stage(SeamAllowanceStage);
 
 //console.log(design_data)
 
@@ -230,64 +225,93 @@ export function main_pattern_construction(mea, design_data, side){
 
     shirt.draw_darts(design_data);
 
-    shirt.curve_side();
-    shirt.complete_fold();
-
-
-    // shirt.cut_length(design_data.length);
-    // TODO: Spezialfälle!!!
-
-    let number_of_darts;
-    let config;
-    if(side == "front"){
-      number_of_darts = design_data.front.darts.length;
-      config = design_data.front;
-    } else {
-      number_of_darts = design_data.back.darts.length;
-      config = design_data.back;
-    }
-
-    shirt.manipulate_darts(config)
-
-    for (let i = 1; i <= number_of_darts; i++) {
-
-      shirt.move_dart_outside(i, 3);
-      shirt.fill_in_dart(i);
-    //    shirt.dart_annotation(i, 3);
-    }
-
-    shirt.move_waistline_dart(4.5);
-
-
-/*
-    shirt.fill_in_dart(1);
-    shirt.move_dart_outside(1, 4);
-    shirt.dart_annotation(1, 3);
-
-    shirt.set_seam_allowance("shoulder", 0.5)
-    shirt.set_seam_allowance("bottom", 5)
-    */
-
-/*
-    if (design_data.dartAllocation.type == "styleline"){
-
-        if (design_data.dartAllocation.styleline_type == "panel"){
-            shirt.styleline_seam_allowance();
-        } else {
-            shirt.styleline_seam_allowance();
-        }
-
-    }
-
-    shirt.seam_allowance_temp(swap_orientation);
-*/
-    return shirt.finish();
-
+    return shirt;
 }
 
 
+export function main_pattern_finish(shirt, side, design_data){
+  // shirt as StageProcess
 
-export function main_sleeve_construction(wd, design_data){
+
+  shirt.add_stage(CurveBottomCutStage);
+
+  shirt.add_stage(CurveLinesStage);
+  shirt.add_stage(DartAnnotationStage);
+
+  shirt.add_stage(CutLengthStage);
+
+  shirt.add_stage(SeamAllowanceStage);
+
+  shirt.get_working_data().sketch.dev.at_url("/bla")
+  shirt.curve_side();
+  shirt.complete_fold();
+
+
+  // shirt.cut_length(design_data.length);
+  // TODO: Spezialfälle!!!
+
+
+
+  let number_of_darts;
+  let config;
+  if(side == "front"){
+    number_of_darts = design_data.front.darts.length;
+    config = design_data.front;
+  } else {
+    number_of_darts = design_data.back.darts.length;
+    config = design_data.back;
+  }
+
+  shirt.manipulate_darts(config)
+
+  for (let i = 1; i <= number_of_darts; i++) {
+
+    shirt.move_dart_outside(i, 5);
+    shirt.fill_in_dart(i);
+     shirt.dart_annotation(i, 3);
+  }
+
+  shirt.move_waistline_dart(4.5);
+
+
+
+/*
+  shirt.fill_in_dart(1);
+  shirt.move_dart_outside(1, 4);
+  shirt.dart_annotation(1, 3);
+
+  shirt.set_seam_allowance("shoulder", 0.5)
+  shirt.set_seam_allowance("bottom", 5)
+  */
+
+/*
+  if (design_data.dartAllocation.type == "styleline"){
+
+      if (design_data.dartAllocation.styleline_type == "panel"){
+          shirt.styleline_seam_allowance();
+      } else {
+          shirt.styleline_seam_allowance();
+      }
+
+  }
+
+  shirt.seam_allowance_temp(swap_orientation);
+  */
+  return shirt.finish();
+}
+
+export function main_pattern_construction(mea, design_data, side){
+  const shirt = main_pattern_start(mea, design_data, side);
+
+  if(design_data.basic.additional.fancy){
+    return fancy_main_pattern_construction(shirt, design_data);
+  } else {
+    return main_pattern_finish(shirt, side, design_data);
+  }
+}
+
+
+export function main_sleeve_pattern_start(wd, design_data){
     const sleeve = new StageProcess({
         measurements: wd.measurements,
         ease: wd.ease
@@ -382,10 +406,18 @@ export function main_sleeve_construction(wd, design_data){
     sleeve.flare_top_sleeve(1);
     sleeve.connect_sleeve_top(1);
 */
-    return sleeve.finish();
+    return sleeve;
 };
 
+export function main_sleeve_construction(wd, design_data){
+  const sleeve = main_sleeve_pattern_start(wd, design_data);
 
+  if(design_data.sleeve.additional.fancy){
+    return fancy_main_sleeve_pattern_construction(sleeve);
+  } else {
+    return sleeve.finish();
+  }
+}
 
 function calculate_measurements(mea) {
     let half = mea.under_bust / 2;
