@@ -48,7 +48,7 @@ export default (Sketch) => {
         angle,
         length,
         reference_direction = UP,
-        absolute = false,
+        absolute = false
     ) {
         // Rotes the vector point -> reference_vec by `angle` clockwise and creates a line in that direction
 
@@ -69,7 +69,7 @@ export default (Sketch) => {
         pt1,
         pt2,
         f_1,
-        f_2 = null,
+        f_2 = null
     ) {
         // if one function is given:
         //     if it returns float: draw its graph
@@ -98,7 +98,7 @@ export default (Sketch) => {
 
         const sample_points = Array.from(
             { length: n + 1 },
-            (_, i) => new Vector(...f(i / n)),
+            (_, i) => new Vector(...f(i / n))
         );
 
         const transform_src = [
@@ -110,13 +110,13 @@ export default (Sketch) => {
 
         const transform = affine_transform_from_input_output(
             transform_src,
-            transform_target,
+            transform_target
         );
 
         return this._line_between_points_from_sample_points(
             pt1,
             pt2,
-            sample_points.map(transform),
+            sample_points.map(transform)
         );
     };
 
@@ -127,7 +127,7 @@ export default (Sketch) => {
     Sketch.prototype._line_between_points_from_sample_points = function (
         pt1,
         pt2,
-        sp,
+        sp
     ) {
         [pt1, pt2].forEach((p) => {
             assert.IS_POINT(p);
@@ -136,7 +136,7 @@ export default (Sketch) => {
 
         const to_rel_fun = affine_transform_from_input_output(
             [sp[0], sp[sp.length - 1]],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
 
         const l = new Line(pt1, pt2, sp.map(to_rel_fun));
@@ -151,7 +151,7 @@ export default (Sketch) => {
         direction = 0,
         f = (x) => x,
         p1 = (x) => x,
-        p2 = (x) => x,
+        p2 = (x) => x
     ) {
         // Interpoliert line1 und line2.
         // p1 und p2 geben zu jedem Zeitpunkt t an, wo wir uns auf den jeweiligen Linien befinden
@@ -210,7 +210,7 @@ export default (Sketch) => {
         // Precompute transformation from absolute coords to relative [0,1] coordinates along start-end
         const abs_to_rel = affine_transform_from_input_output(
             [start, end],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
 
         // Precompute n, k
@@ -274,6 +274,15 @@ export default (Sketch) => {
             sample_points[i] = new Vector(x, y);
         }
 
+        // Create the new line
+        const new_line = this._line_between_points_from_sample_points(
+            start,
+            end,
+            sample_points
+        );
+
+        new_line.set_handedness(line1.right_handed);
+
         // Restore line orientation if changed
         if (flippedLine1) {
             line1.swap_orientation();
@@ -282,16 +291,6 @@ export default (Sketch) => {
             line2.swap_orientation();
         }
 
-        // Create the new line
-        const new_line = this._line_between_points_from_sample_points(
-            start,
-            end,
-            sample_points,
-        );
-
-        new_line.set_color(
-            interpolate_colors(line1.get_color(), line2.get_color(), 0.5),
-        );
         return new_line;
     };
 
@@ -299,7 +298,7 @@ export default (Sketch) => {
         line1,
         line2,
         delete_join = false,
-        data_callback = default_data_callback,
+        data_callback = default_data_callback
     ) {
         [line1, line2].forEach((l) => {
             assert.IS_LINE(l);
@@ -330,19 +329,20 @@ export default (Sketch) => {
 
         const t_fun = affine_transform_from_input_output(
             [line1.p1, line2.p2],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
 
         const relative_points = abs_total.map((p) => t_fun(p));
         const new_line = this._line_between_points_from_sample_points(
             line1.p1,
             line2.p2,
-            relative_points,
+            relative_points
         );
 
         new_line.set_color(
-            interpolate_colors(line1.get_color(), line2.get_color(), 0.5),
+            interpolate_colors(line1.get_color(), line2.get_color(), 0.5)
         );
+        new_line.set_handedness(line1.right_handed);
         new_line.data = data_callback(line1.data, line2.data, line1, line2);
 
         if (delete_join) {
@@ -362,7 +362,7 @@ export default (Sketch) => {
     Sketch.prototype.point_on_line = function (
         pt,
         line,
-        data_callback = copy_data_callback,
+        data_callback = copy_data_callback
     ) {
         if (!(pt instanceof Point)) {
             pt = this.add(pt);
@@ -374,7 +374,7 @@ export default (Sketch) => {
         for (let i = 0; i < abs.length - 1; i++) {
             const new_dist = distance_from_line_segment(
                 [abs[i], abs[i + 1]],
-                pt,
+                pt
             );
             if (closest_distance > new_dist) {
                 closest_distance = new_dist;
@@ -387,7 +387,7 @@ export default (Sketch) => {
         }
 
         const line_vector = abs[closest_line_segment_first_index + 1].subtract(
-            abs[closest_line_segment_first_index],
+            abs[closest_line_segment_first_index]
         );
         const offset_vector = line_vector
             .get_orthonormal()
@@ -403,30 +403,31 @@ export default (Sketch) => {
 
         const left_to_rel_fun = affine_transform_from_input_output(
             [line.p1, splitting_pt],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
 
         const right_to_rel_fun = affine_transform_from_input_output(
             [splitting_pt, line.p2],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
 
         const line_segments = [
             this._line_between_points_from_sample_points(
                 line.p1,
                 pt,
-                left_part.map(left_to_rel_fun),
+                left_part.map(left_to_rel_fun)
             ),
             this._line_between_points_from_sample_points(
                 pt,
                 line.p2,
-                right_part.map(right_to_rel_fun),
+                right_part.map(right_to_rel_fun)
             ),
         ];
 
-        line_segments.forEach((ls) =>
-            copy_sketch_obj_data(line, ls, data_callback),
-        );
+        line_segments.forEach((ls) => {
+            copy_sketch_obj_data(line, ls, data_callback);
+            ls.set_handedness(line.right_handed);
+        });
         this.remove_line(line);
 
         return this.object_to_sketch_element_collection(
@@ -437,7 +438,7 @@ export default (Sketch) => {
             },
             [pt],
             line_segments,
-            this,
+            this
         );
     };
 
@@ -445,7 +446,7 @@ export default (Sketch) => {
         line,
         length,
         data_callback = copy_data_callback,
-        reversed = false,
+        reversed = false
     ) {
         const position = line.position_at_length(length, reversed);
         const pt = this.add(position);
@@ -456,7 +457,7 @@ export default (Sketch) => {
         line,
         fraction,
         data_callback = copy_data_callback,
-        reversed = false,
+        reversed = false
     ) {
         const position = line.position_at_fraction(fraction, reversed);
         const pt = this.add(position);
@@ -491,7 +492,7 @@ export default (Sketch) => {
             },
             intersection_points,
             l1_segments.concat(l2_segments),
-            this,
+            this
         );
     };
 
@@ -499,14 +500,15 @@ export default (Sketch) => {
         const abs_sample_points = line.offset_sample_points(offset, direction);
         const p1 = this.add_point(Point.from_vector(abs_sample_points[0]));
         const p2 = this.add_point(
-            Point.from_vector(abs_sample_points[abs_sample_points.length - 1]),
+            Point.from_vector(abs_sample_points[abs_sample_points.length - 1])
         );
 
         const ret_line = this._line_between_points_from_sample_points(
             p1,
             p2,
-            abs_sample_points,
+            abs_sample_points
         );
+        ret_line.set_handedness(line.right_handed);
         return {
             p1,
             p2,
@@ -541,7 +543,7 @@ export default (Sketch) => {
         line,
         from = null,
         to = null,
-        data_callback = copy_data_callback,
+        data_callback = copy_data_callback
     ) {
         if (from == null) {
             from = line.p1;
@@ -551,14 +553,11 @@ export default (Sketch) => {
             assert.IS_POINT(p);
             assert.HAS_SKETCH(p, this);
         });
-        const l = new Line(
-            from,
-            to,
-            line.copy_sample_points(),
-            line.get_color(),
-        );
+        const l = new Line(from, to, line.copy_sample_points());
         this.lines.push(l);
         l.set_sketch(this);
+        l.attributes = { ...line.attributes };
+        l.set_handedness(line.right_handed);
         copy_sketch_obj_data(line, l, data_callback);
         return l;
     };

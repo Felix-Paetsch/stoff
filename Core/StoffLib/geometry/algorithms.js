@@ -29,7 +29,7 @@ function closest_vec_on_line_segment(endpoints, vec) {
         // Perpendicular distance to the line segment
         const closestPoint = new Vector(
             vec1.x + projection * vec1ToVec2.x,
-            vec1.y + projection * vec1ToVec2.y,
+            vec1.y + projection * vec1ToVec2.y
         );
         return closestPoint;
     }
@@ -93,7 +93,7 @@ function orthogonal_transform_from_input_output(v1, v2) {
     // v1 gets rotated and stretched to v2
     return affine_transform_from_input_output(
         [new Vector(0, 0), v1],
-        [new Vector(0, 0), v2],
+        [new Vector(0, 0), v2]
     );
 }
 
@@ -103,17 +103,23 @@ function rotation_fun(rotation_vec, angle) {
     if (Array.isArray(angle)) {
         return rotation_fun(
             rotation_vec,
-            vec_angle_clockwise(angle[0], angle[1], rotation_vec),
+            vec_angle_clockwise(angle[0], angle[1], rotation_vec)
         );
     }
 
     const rotMatrix = new Matrix(
         new Vector(Math.cos(angle), Math.sin(angle)),
-        new Vector(-1 * Math.sin(angle), Math.cos(angle)),
+        new Vector(-1 * Math.sin(angle), Math.cos(angle))
     );
     return (v) => {
         return rotMatrix.mult(v.subtract(rotation_vec)).add(rotation_vec);
     };
+}
+
+function orientation(vec1, vec2, reference = ZERO) {
+    vec1 = vec1.subtract(reference);
+    vec2 = vec2.subtract(reference);
+    return vec1.cross(vec2) > 0;
 }
 
 function vec_angle(vec1, vec2, reference = ZERO) {
@@ -133,7 +139,7 @@ function vec_angle_clockwise(
     vec1,
     vec2,
     reference = ZERO,
-    offset_range = false,
+    offset_range = false
 ) {
     if (typeof reference == "boolean") {
         offset_range = reference;
@@ -146,7 +152,7 @@ function vec_angle_clockwise(
     const dot = vec1.dot(vec2);
     const cross = vec1.x * vec2.y - vec1.y * vec2.x; // 2D cross product
     let angle = Math.acos(
-        Math.min(Math.max(dot / (vec1.length() * vec2.length()), -1), 1),
+        Math.min(Math.max(dot / (vec1.length() * vec2.length()), -1), 1)
     );
 
     if (isNaN(angle)) {
@@ -162,12 +168,6 @@ function vec_angle_clockwise(
     if (angle > Math.PI && !offset_range) angle = angle - 2 * Math.PI;
 
     return angle;
-}
-
-function orientation(vec1, vec2, vec3) {
-    const a = vec_angle_clockwise(vec1, vec2, vec3);
-    assert(a !== 0 && a !== Math.PI && a !== -Math.PI, "Vectors are colinear");
-    return a > 0 ? 1 : -1;
 }
 
 function bounding_box(points) {

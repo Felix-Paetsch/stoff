@@ -25,7 +25,7 @@ function intersect_lines(sketch, line1, line2) {
     const int_color = interpolate_colors(
         line1.get_color(),
         line2.get_color(),
-        0.5,
+        0.5
     );
     const l1_rel_points = line1.get_sample_points();
     for (let i = 0; i < intersections.length; i++) {
@@ -56,7 +56,7 @@ function intersect_lines(sketch, line1, line2) {
 
         const to_rel_fn = affine_transform_from_input_output(
             [new_first_pt, new_last_pt],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
         const sample_points = new Array(sl_len);
         for (let sp_i = 0; sp_i < sl_len; sp_i++) {
@@ -66,9 +66,10 @@ function intersect_lines(sketch, line1, line2) {
         const l = sketch._line_between_points_from_sample_points(
             intersections[i][4],
             intersections[i + 1][4],
-            sample_points,
+            sample_points
         );
         copy_sketch_obj_data(line1, l);
+        l.set_handedness(line1.right_handed);
         l1_segments.push(l);
     }
 
@@ -102,7 +103,7 @@ function intersect_lines(sketch, line1, line2) {
 
         const to_rel_fn = affine_transform_from_input_output(
             [new_first_pt, new_last_pt],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
         const sample_points = new Array(sl_len);
         for (let sp_i = 0; sp_i < sl_len; sp_i++) {
@@ -112,9 +113,10 @@ function intersect_lines(sketch, line1, line2) {
         const l = sketch._line_between_points_from_sample_points(
             intersections[i][4],
             intersections[i + 1][4],
-            sample_points,
+            sample_points
         );
         copy_sketch_obj_data(line2, l);
+        l.set_handedness(line2.right_handed);
         l2_segments.push(l);
     }
 
@@ -149,7 +151,7 @@ function intersection_positions(line1, line2) {
 function plainLine_intersection_positions(
     line,
     plainLine,
-    fineness = EPS.MODERATE,
+    fineness = EPS.MODERATE
 ) {
     const abs = line.get_absolute_sample_points();
     const intp = [];
@@ -178,11 +180,11 @@ function plainLine_intersection_positions(
 function _calculate_intersections(line1, line2, filter = true) {
     const l2_to_abs = affine_transform_from_input_output(
         [new Vector(0, 0), new Vector(1, 0)],
-        [line2.p1, line2.p2],
+        [line2.p1, line2.p2]
     );
     const abs_to_l1 = affine_transform_from_input_output(
         [line1.p1, line1.p2],
-        [new Vector(0, 0), new Vector(1, 0)],
+        [new Vector(0, 0), new Vector(1, 0)]
     );
     const l2_to_l1 = (v) => abs_to_l1(l2_to_abs(v));
 
@@ -206,7 +208,7 @@ function _calculate_intersections(line1, line2, filter = true) {
         for (let j = 0; j < L2_monotone_segments.length; j++) {
             const ip = _find_monotone_intersection_positions(
                 L1_monotone_segments[i],
-                L2_monotone_segments[j],
+                L2_monotone_segments[j]
             );
             if (ip.length > 0) {
                 intersection_positions = intersection_positions.concat(ip);
@@ -216,7 +218,7 @@ function _calculate_intersections(line1, line2, filter = true) {
 
     const cleaned_ip = _clean_intersection_positions(
         intersection_positions,
-        line1,
+        line1
     );
     if (!filter) return cleaned_ip;
     return _filter_intersection_positions(cleaned_ip, line1, line2);
@@ -225,7 +227,7 @@ function _calculate_intersections(line1, line2, filter = true) {
 function _clean_intersection_positions(intersection_positions, line1) {
     const l1_to_abs = affine_transform_from_input_output(
         [new Vector(0, 0), new Vector(1, 0)],
-        [line1.p1, line1.p2],
+        [line1.p1, line1.p2]
     );
 
     const l1_rel_points = line1.get_sample_points();
@@ -267,7 +269,7 @@ function _filter_intersection_positions(cleaned_ip, line1, line2) {
         const ip = cleaned_ip[i];
         if (filtered_ip0.length > 0) {
             const dist = filtered_ip0[filtered_ip0.length - 1][4].distance(
-                ip[4],
+                ip[4]
             );
             if (dist < EPS.LOOSE) continue;
         }
@@ -316,7 +318,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
 
         const closest_start = closest_vec_on_line_segment(
             [start2, end2],
-            start1,
+            start1
         );
         const closest_end = closest_vec_on_line_segment([start2, end2], end1);
         if (start1.distance(closest_start) < EPS.MODERATE) {
@@ -329,7 +331,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
     } else if (d_start2_end2 < EPS.MODERATE) {
         const closest_start = closest_vec_on_line_segment(
             [start1, end1],
-            start2,
+            start2
         );
         const closest_end = closest_vec_on_line_segment([start1, end1], end2);
         const d_s1e1 = d_start1_end1;
@@ -345,7 +347,7 @@ function _line_segments_intersect(start1, end1, start2, end2) {
     if (Math.abs(denominator) < EPS.FINE) {
         const normalize = affine_transform_from_input_output(
             [start1, end1],
-            [new Vector(0, 0), new Vector(1, 0)],
+            [new Vector(0, 0), new Vector(1, 0)]
         );
         const s2_normal = normalize(start2);
         if (Math.abs(s2_normal.y) > EPS.MODERATE) return [false];
@@ -414,7 +416,7 @@ function _find_monotone_intersection_positions(s1, s2) {
                 s1[s1_index][0],
                 s1[s1_index + 1][0],
                 s2[s2_index][0],
-                s2[s2_index + 1][0],
+                s2[s2_index + 1][0]
             );
             if (intersection_res[0]) {
                 ip.push([
@@ -424,11 +426,11 @@ function _find_monotone_intersection_positions(s1, s2) {
                     s2[s2_index + 1][1],
                     Math.min(
                         1 - EPS.MODERATE_SQUARED,
-                        Math.max(intersection_res[1], EPS.MODERATE_SQUARED),
+                        Math.max(intersection_res[1], EPS.MODERATE_SQUARED)
                     ),
                     Math.min(
                         1 - EPS.MODERATE_SQUARED,
-                        Math.max(intersection_res[2], EPS.MODERATE_SQUARED),
+                        Math.max(intersection_res[2], EPS.MODERATE_SQUARED)
                     ),
                 ]);
             }
