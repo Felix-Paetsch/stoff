@@ -1,5 +1,5 @@
 
-
+import parse_fancy from "./parse_fancy_design_config.js"
 
 
 
@@ -15,7 +15,8 @@ export default function parse_config(design_config, fabric){
       ease: 0, // sollte bald abgeschafft werden
       lenght: 0.8,
       one_waistline_dart: true,
-      fabric: fabric
+      fabric: fabric,
+      additional: {}
     },
     sleeve: {
       type: "0_standard_kurz",
@@ -44,6 +45,62 @@ export default function parse_config(design_config, fabric){
       additional: {}
     }
   };
+
+  if(fabric == "jersey"){
+
+    switch (design_config["Main_Body"]) {
+      case "oversize":
+      new_config.basic.width.bust = 6;
+      new_config.basic.width.waistline = 10;
+      new_config.basic.width.bottom = 15;
+      new_config.basic.length = 1;
+      break;
+      case "standard":
+      new_config.basic.width.bust = 5;
+      new_config.basic.width.waistline = 8;
+      new_config.basic.width.bottom = 8;
+      new_config.basic.length = 0.8;
+      break;
+      case "fitted":
+      new_config.basic.width.bust = 4;
+      new_config.basic.width.waistline = 4;
+      new_config.basic.width.bottom = 4;
+      new_config.basic.length = 0.8;
+      break;
+
+      default:
+
+    }
+  } else if (fabric == "cotton"){
+    switch (design_config["Main_Body"]) {
+      case "oversize":
+        new_config.basic.width.bust = 15;
+        new_config.basic.width.waistline = 15;
+        new_config.basic.width.bottom = 20;
+        new_config.basic.length = 1;
+        break;
+      case "standard":
+        new_config.basic.width.bust = 10;
+        new_config.basic.width.waistline = 10;
+        new_config.basic.width.bottom = 13;
+        new_config.basic.length = 0.8;
+        break;
+      case "fitted":
+        new_config.basic.width.bust = 5;
+        new_config.basic.width.waistline = 8;
+        new_config.basic.width.bottom = 8;
+        new_config.basic.length = 0.8;
+        break;
+
+      default:
+    }
+  }
+
+
+  if(design_config["Fancy"] != "0_none"){
+    parse_fancy(design_config, new_config);
+    return new_config;
+  }
 
   switch (design_config["Darts fitted"]) {
     case "0_nothing":
@@ -160,55 +217,7 @@ export default function parse_config(design_config, fabric){
 
   }
 
-  if(fabric == "jersey"){
 
-    switch (design_config["Main_Body"]) {
-      case "oversize":
-      new_config.basic.width.bust = 6;
-      new_config.basic.width.waistline = 10;
-      new_config.basic.width.bottom = 15;
-      new_config.basic.length = 1;
-      break;
-      case "standard":
-      new_config.basic.width.bust = 5;
-      new_config.basic.width.waistline = 8;
-      new_config.basic.width.bottom = 8;
-      new_config.basic.length = 0.8;
-      break;
-      case "fitted":
-      new_config.basic.width.bust = 4;
-      new_config.basic.width.waistline = 4;
-      new_config.basic.width.bottom = 4;
-      new_config.basic.length = 0.8;
-      break;
-
-      default:
-
-    }
-  } else if (fabric == "cotton"){
-    switch (design_config["Main_Body"]) {
-      case "oversize":
-        new_config.basic.width.bust = 15;
-        new_config.basic.width.waistline = 15;
-        new_config.basic.width.bottom = 20;
-        new_config.basic.length = 1;
-        break;
-      case "standard":
-        new_config.basic.width.bust = 10;
-        new_config.basic.width.waistline = 10;
-        new_config.basic.width.bottom = 13;
-        new_config.basic.length = 0.8;
-        break;
-      case "fitted":
-        new_config.basic.width.bust = 5;
-        new_config.basic.width.waistline = 8;
-        new_config.basic.width.bottom = 8;
-        new_config.basic.length = 0.8;
-        break;
-
-      default:
-    }
-  }
 
   new_config.front.neckline = design_config["Neckline"];
 

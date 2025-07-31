@@ -2,6 +2,8 @@ import { Vector, ZERO, mirror_type } from './geometry.js';
 import {} from './copy.js'; // Hopefully Temporary: Imports are otherwise broken
 import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js"
+import { copy_sketch_element_collection } from "./copy.js";
+import { calculate_bounding_box } from "./collection_methods/sporadic_methods.js";
 
 class ConnectedComponent{
     constructor(element){
@@ -128,9 +130,7 @@ class ConnectedComponent{
         const res = visited_points.concat(visited_lines);
         res.points = visited_points;
         res.lines  = visited_lines;
-        res.bounding_box = _calculate_bb_from_points_and_lines(
-            visited_points, visited_lines
-        );
+        res.bounding_box = calculate_bounding_box([...visited_points, ...visited_lines]);
         return res;
     }
 
@@ -161,35 +161,3 @@ class ConnectedComponent{
 
 register_collection_methods(ConnectedComponent);
 export default ConnectedComponent;
-
-function _calculate_bb_from_points_and_lines(points, lines){
-    let _min_x = Infinity;
-    let _min_y = Infinity;
-    let _max_x = - Infinity;
-    let _max_y = - Infinity;
-
-    lines.forEach(l => {
-        const { top_left, bottom_right } = l.get_bounding_box();
-
-        _min_x = Math.min(top_left.x, _min_x);
-        _max_x = Math.max(bottom_right.x, _max_x);
-        _min_y = Math.min(top_left.y, _min_y);
-        _max_y = Math.max(bottom_right.y, _max_y);
-    });
-
-    points.forEach(p => {
-        _min_x = Math.min(p.x, _min_x);
-        _max_x = Math.max(p.x, _max_x);
-        _min_y = Math.min(p.y, _min_y);
-        _max_y = Math.max(p.y, _max_y);
-    });
-
-    return {
-        width:  _max_x - _min_x,
-        height: _max_y - _min_y,
-        top_left:  new Vector(_min_x, _min_y),
-        top_right: new Vector(_max_x, _min_y),
-        bottom_left:  new Vector(_min_x, _max_y),
-        bottom_right: new Vector(_max_x, _max_y)
-    }
-}

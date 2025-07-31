@@ -37,6 +37,7 @@ export default class DartAnnotationStage extends BaseStage {
 
 
     finish() {
+        
         return this.wd.sketch;
     }
 
@@ -84,9 +85,9 @@ export default class DartAnnotationStage extends BaseStage {
         pts.forEach((pt, i) => {
           if (i % 2 == 0){
             distance = pt.subtract(pts[i+1]);
-            pt.move_to(pt.add(distance.scale(0.3)))
+            pt.move_to(pt.add(distance.scale(0.2)))
           } else {
-            pt.move_to(pt.subtract(distance.scale(0.3)))
+            pt.move_to(pt.subtract(distance.scale(0.2)))
           }
           pt.data.type = "to_merge";
         });
