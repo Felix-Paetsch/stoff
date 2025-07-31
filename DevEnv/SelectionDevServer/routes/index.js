@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const picturePartsPath = path.join(
     __dirname,
-    "../../../Data/PreviewPictures/Breit",
+    "../../../Data/PreviewPictures/Breit"
 );
 const pictureParts = [];
 
@@ -50,7 +50,7 @@ export default (app) => {
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
         res.render("htmx/hot_reload_res", {
-            state
+            state,
         });
     });
 
@@ -62,7 +62,7 @@ export default (app) => {
             state,
             render_data: render_img(pictureParts, state),
         });
-    })
+    });
 
     app.post(`/htmx/pictures`, (req, res) => {
         const state = JSON.parse(req.body.application_state);
@@ -97,7 +97,7 @@ export default (app) => {
             __dirname,
             "../../../Data/PreviewPictures/Breit",
             folder,
-            file,
+            file
         );
 
         fs.readFile(filePath, "utf8", (err, data) => {
@@ -105,7 +105,7 @@ export default (app) => {
             if (width) {
                 data = data.replace(
                     /stroke-width="[^"]*"/g,
-                    `stroke-width="${width}"`,
+                    `stroke-width="${width}"`
                 );
             }
             res.set("Content-Type", "image/svg+xml");
@@ -113,7 +113,7 @@ export default (app) => {
         });
     });
 
-    app.get("*", (req, res) => {
+    app.get(/.*/, (req, res) => {
         // console.log(req.originalUrl);
         res.sendStatus(404);
     });

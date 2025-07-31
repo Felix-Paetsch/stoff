@@ -1,5 +1,5 @@
-import { SewingLine } from "./sewingLine.js";
-import { Line } from "../../StoffLib/line.js";
+import { SewingLine } from "./sewingLine.ts";
+import { Line } from "../StoffLib/line.js";
 import { SewingPoint } from "./sewingPoint.js";
 
 export class Sewing {
@@ -64,15 +64,15 @@ export class Sewing {
         return unique_lines;
     }
 
-    fold(fold_line, left_boundary, right_boundary, orientation) { }
+    fold(fold_line, left_boundary, right_boundary, orientation) {}
 
-    iron(line, layers_left, layers_right, orientation) { }
+    iron(line, layers_left, layers_right, orientation) {}
 
-    stack(linesWithOptionalConfig) { }
+    stack(linesWithOptionalConfig) {}
 
-    sew(lines, attributes) { }
+    sew(lines, attributes) {}
 
-    stack_sew() { }
+    stack_sew() {}
     // Helpful with argument passing
 }
 
