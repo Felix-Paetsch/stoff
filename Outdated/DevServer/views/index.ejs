@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stoff Dev</title>
+    <link rel="stylesheet" href="/main/index.css">
+    <link rel="stylesheet" href="/main/settings_components.css">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+</head>
+<body class="<%- is_debug ? 'debug_page' : '' %>">
+    <% if (!is_debug) { %>
+        <div id="left_bar">
+            <div id="params_selection">
+                <%- design_config.render(config_components) %>
+            </div>
+            <div id="left_bar_addition_info">
+                <h3>Links</h3>
+                <div>
+                    <a href="/at_url" target="_blank">Debug Routes</a>
+                </div>
+            </div>
+        </div>
+        <div id="resizer"></div>
+        <div id="toggle_button"><i class="fas fa-arrow-left"></i></div>
+        <script src="/main/resizable.js"></script>
+    <% } %>
+
+    <div <% if (!is_debug) { %> style="margin-left: var(--left-bar-width);" <% } %>>
+        <div id="sketch_display"></div>
+        <pre id="sketch_data"></pre>
+    </div>
+    
+    <%- `
+        <script type="module">
+            import { Config } from './conf/exports.js';
+        
+            const design_config_serialized = ${ JSON.stringify(design_config.serialize()) };
+            window.design_config = Config.deserialize(design_config_serialized);
+
+            const is_debug = ${is_debug};
+
+            document.addEventListener("DOMContentLoaded", () => {
+                ${ !is_debug ? 'window.design_config.on_dom_load();' : '' }
+                request_img();
+            });
+        </script>
+    ` %>
+
+    <script src="/main/add_svg_hover_events.js"></script>
+    <script src="/main/request_pattern.js"></script>
+    <script src="/main/monitor_server_reset.js"></script>
+</body>
+</html>

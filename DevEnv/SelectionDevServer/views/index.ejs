@@ -1,67 +1,58 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>StoffStoff</title>
+        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <link href="/TWoutput.css" rel="stylesheet" />
+        <link href="/index.css" rel="stylesheet" />
+    </head>
 
-<head>
-    <title>StoffStoff</title>
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <link href="/TWoutput.css" rel="stylesheet" />
-</head>
-
-<body class="bg-gray-100">
-    <%- include("./htmx/state"); %>
-    <div class="grid h-screen grid-rows-[auto_1fr] grid-cols-[auto_auto_auto_1fr]">
-        <div class="p-4 col-span-4 bg-default-dark">
-            <h1 class="text-2xl font-bold text-emerald-300 text-center">StoffStoff</h1>
+    <body class="bg-gray-100">
+        <%- include("./htmx/state"); %>
+        <div
+            class="grid h-screen grid-rows-[auto_1fr] grid-cols-[auto_auto_auto_1fr]"
+        >
+            <div class="p-4 col-span-4 bg-default-dark">
+                <h1 class="text-2xl font-bold text-emerald-300 text-center">
+                    StoffStoff
+                </h1>
+            </div>
+            <div
+                hx-post="/htmx/parts"
+                hx-include="#application_state"
+                hx-trigger="load"
+                hx-swap="outerHTML"
+                id="partSelection"
+            >
+                Loading...
+            </div>
+            <div id="featureSelection">Loading...</div>
+            <div
+                class="overflow-y-auto flex flex-col border-r-2 border-default-dark"
+            >
+                <div id="preview">Loading...</div>
+                <div id="render_message">[No render message]</div>
+            </div>
+            <div id="pattern_preview">Loading...</div>
         </div>
-        <div hx-post="/htmx/parts" hx-include="#application_state" hx-trigger="load" hx-swap="outerHTML" id="partSelection">
-            Loading...
-        </div>
-        <div id="featureSelection">Loading...</div>
-        <div class="overflow-y-auto flex flex-col border-r-2 border-default-dark">
-            <div id="preview">Loading...</div>
-            <div id="render_message">[No render message]</div>
-        </div>
-        <div id="pattern_preview">Loading...</div>
-    </div>
 
-    <style>
-        .hover_data {
-            position: fixed;
-            background-color: var(--color-emerald-300);
-            color: var(--default_on_black_text_color);
-            padding: 0.5em .8em .5em .5em;
-            border-radius: 0.2em;
-            opacity: 0;
-            cursor: crosshair;
-            transition: opacity 0.5s;
-            pointer-events: none;
-            z-index: 98;
-            margin-right: .8rem;
-            max-width: 20em;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            font-size: 1em;
-            text-align: left;
-        }
-    </style>
-    <script src="/main/add_svg_hover_events.js"></script>
-    <script>
-        getTimeoutSetting = () => 200;
+        <script src="/main/add_svg_hover_events.js"></script>
+        <script>
+            getTimeoutSetting = () => 200;
 
-        document.body.addEventListener('htmx:afterSwap', function (evt) {
-            if (evt.detail.elt.id === 'pattern_preview') {
-                add_svg_hover_events();
-            }
-        });
-    </script>
-    <div hx-post="/hot_relaod_req"
-        hx-trigger="every 200ms"
-        hx-include="#application_state"
-        hx-request='js: timeout:getTimeoutSetting() '
-        hx-swap="none">
-    </div>
-    <div id="junk"></div>
-</body>
-
+            document.body.addEventListener("htmx:afterSwap", function (evt) {
+                if (evt.detail.elt.id === "pattern_preview") {
+                    add_svg_hover_events();
+                }
+            });
+        </script>
+        <div
+            hx-post="/hot_reload_req"
+            hx-trigger="every 200ms"
+            hx-include="#application_state"
+            hx-request="js: timeout:getTimeoutSetting() "
+            hx-swap="none"
+        ></div>
+        <div id="junk"></div>
+    </body>
 </html>

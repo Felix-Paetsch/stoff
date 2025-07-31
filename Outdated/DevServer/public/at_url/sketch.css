@@ -1,0 +1,42 @@
+*{
+    --color: palevioletred;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body{
+    margin: 0;
+    padding: 3em;
+}
+
+body h2, body h2 a{
+    color: var(--color);
+}
+
+#doesnt_exist{
+    margin-top: 1em;
+    display: none;
+    color: var(--color);
+}
+
+#sketch_display svg{
+    border: .1em solid black;
+}
+
+.hover_data {
+    position: fixed;
+    background-color: var(--color);
+    color: var(--default_on_black_text_color);
+    padding: 0.5em .8em .5em .5em;
+    border-radius: 0.2em;
+    opacity: 0;
+    font-size: .95em;
+    cursor: crosshair;
+    transition: opacity 0.5s;
+    pointer-events: none;
+    z-index: 98;
+    margin-right: .8rem;
+    max-width: 20em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}

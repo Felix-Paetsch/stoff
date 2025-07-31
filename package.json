@@ -1,23 +1,24 @@
 {
   "type": "module",
   "scripts": {
-    "dev::dev_server": "nodemon DevEnv/DevServer/index.js",
-    "dev::dev_server_cold": "node DevEnv/DevServer/index.js",
-    "dev::sel_server": "nodemon DevEnv/SelectionDevServer/index.js",
+    "dev::dev_server": "tsx --watch DevEnv/DevServer/index.js",
+
+    "dev::sel": "tsx --watch DevEnv/SelectionDevServer/index.js",
     "dev::sel_proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/SelectionDevServer/**\" --port 3009 --no-open",
     "dev::sel_tw": "npx @tailwindcss/cli -i ./DevEnv/SelectionDevServer/src/input.css -o ./DevEnv/SelectionDevServer/public/TWoutput.css --watch",
-    "dev::sel": "concurrently \"npm run dev_sel_server\" \"npm run dev_sel_tw\" \"npm run dev_sel_proxy\"",
-    "web::dev": "nodemon Website/index.js",
-    "web::hot": "concurrently \"nodemon Website/index.js\" \"browser-sync start --proxy http://localhost:3003 --files ',Website/public/**,Website/views/**,Website/**/*.js' --no-notify --no-open --port 3004\"",
+    "dev::sel:dev": "concurrently \"npm run dev::sel\" \"npm run dev::sel_tw\" \"npm run dev::sel_proxy\"",
+    
+    "dev::standalone": "tsx DevEnv/StandAlone/index.js",
+
     "tools::go": "(cd ./Tools/StoffGo && go run .)",
     "tools::measure": "node Tools/Measurements/index.js",
+    
     "tools::mvp_dev": "cd Tools/MVPwebsite && npm run dev",
     "tools::mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot",
     "tools::mvp_host": "cd Tools/MVPwebsite && npm run host",
-    "docs::build": "cd Docs && make html",
-    "docs::hot": "sphinx-autobuild Docs/source Docs/build/html",
 
-    "dev::standalone": "tsx DevEnv/StandAlone/index.js"
+    "docs::build": "cd Docs && make html",
+    "docs::hot": "sphinx-autobuild Docs/source Docs/build/html"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.11",

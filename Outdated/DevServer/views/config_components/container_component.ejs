@@ -1,0 +1,8 @@
+<div class="design_config_component" x-value="null" x-component-path="<%- serialized_path %>">
+    <h3><%= name.name %></h3>
+    <div class="parameter_box">
+        <% children.forEach((c, i) => { %>
+            <%- c.render(dir, [...own_path, i]); %>
+        <% }) %>
+    </div>
+</div>

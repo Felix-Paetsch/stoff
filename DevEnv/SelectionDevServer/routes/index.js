@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import render_img from "../render.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
+import debug_create_design from "../../Debug/debug_create_design.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +40,7 @@ export default (app) => {
         });
     });
 
-    app.post("/hot_relaod_req", (req, res) => {
+    app.post("/hot_reload_req", (req, res) => {
         const state = JSON.parse(req.body.application_state);
         if (hot_reload_timestamps.includes(state.start_ts)) {
             return res.send("");
@@ -54,7 +55,7 @@ export default (app) => {
         });
     });
 
-    app.post("/hot_relaod_req_res", (req, res) => {
+    app.post("/hot_reload_req_res", (req, res) => {
         const state = JSON.parse(req.body.application_state);
         Sketch.dev._reset_routes();
         res.render("htmx/hot_reload_req_res", {
@@ -62,6 +63,49 @@ export default (app) => {
             state,
             render_data: render_img(pictureParts, state),
         });
+    });
+
+    app.get("/debug/:file", (req, res) => {
+        const file = req.params.file;
+        res.render("debug", {
+            file,
+        });
+    });
+
+    app.post("/debug/:file/hot_reload_req", async (req, res) => {
+        const state = JSON.parse(req.body.application_state);
+        if (hot_reload_timestamps.includes(state.start_ts)) {
+            return res.send("");
+        }
+
+        hot_reload_timestamps.push(Date.now());
+        state.start_ts =
+            hot_reload_timestamps[hot_reload_timestamps.length - 1];
+
+        try {
+            const s = await debug_create_design(req.params.file);
+            const svg = s.to_dev_svg(500, 500);
+
+            res.render("htmx/debug/hot_reload_res", {
+                state,
+                file: req.params.file,
+                render_data: {
+                    svg,
+                    rendering_data: JSON.stringify(s.data, true, 2),
+                    error: false,
+                },
+            });
+        } catch (error) {
+            res.render("htmx/debug/hot_reload_res", {
+                state,
+                file: req.params.file,
+                render_data: {
+                    svg: null,
+                    rendering_data: error.stack,
+                    error: true,
+                },
+            });
+        }
     });
 
     app.post(`/htmx/pictures`, (req, res) => {
