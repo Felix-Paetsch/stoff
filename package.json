@@ -1,12 +1,10 @@
 {
   "type": "module",
   "scripts": {
-    "dev::dev_server": "tsx --watch DevEnv/DevServer/index.js",
-
-    "dev::sel": "tsx --watch DevEnv/DevServer/index.js",
-    "dev::sel_proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/DevServer/**\" --port 3009 --no-open",
-    "dev::sel_tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
-    "dev::sel:dev": "concurrently \"npm run dev::sel\" \"npm run dev::sel_tw\" \"npm run dev::sel_proxy\"",
+    "dev::server": "tsx --watch DevEnv/DevServer/index.js",
+    "dev::server::proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/DevServer/**\" --port 3009 --no-open",
+    "dev::server::tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
+    "dev::server::development": "concurrently \"npm run dev::server\" \"npm run dev::server::tw\" \"npm run dev::server::proxy\"",
     
     "dev::standalone": "tsx DevEnv/StandAlone/index.js",
 
