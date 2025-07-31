@@ -1,5 +1,0 @@
-<div class="condition_component <%- t.is_valid() ? "" : "hidden" %>" x-value="null" x-component-path="<%- serialized_path %>">
-    <% children.forEach((c, i) => { %>
-        <%- c.render(dir, [...own_path, i]); %>
-    <% }) %>
-</div>

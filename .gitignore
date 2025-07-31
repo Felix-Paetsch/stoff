@@ -10,6 +10,7 @@ node_modules
 **.fbx
 .vscode
 .prettierrc
+**fontawesome**
 
 Tools/Blender/assets
 ___frames_**

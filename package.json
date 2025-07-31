@@ -3,9 +3,9 @@
   "scripts": {
     "dev::dev_server": "tsx --watch DevEnv/DevServer/index.js",
 
-    "dev::sel": "tsx --watch DevEnv/SelectionDevServer/index.js",
-    "dev::sel_proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/SelectionDevServer/**\" --port 3009 --no-open",
-    "dev::sel_tw": "npx @tailwindcss/cli -i ./DevEnv/SelectionDevServer/src/input.css -o ./DevEnv/SelectionDevServer/public/TWoutput.css --watch",
+    "dev::sel": "tsx --watch DevEnv/DevServer/index.js",
+    "dev::sel_proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/DevServer/**\" --port 3009 --no-open",
+    "dev::sel_tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
     "dev::sel:dev": "concurrently \"npm run dev::sel\" \"npm run dev::sel_tw\" \"npm run dev::sel_proxy\"",
     
     "dev::standalone": "tsx DevEnv/StandAlone/index.js",

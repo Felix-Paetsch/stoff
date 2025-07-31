@@ -1,54 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stoff Dev</title>
-    <link rel="stylesheet" href="/main/index.css">
-    <link rel="stylesheet" href="/main/settings_components.css">
-    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
-</head>
-<body class="<%- is_debug ? 'debug_page' : '' %>">
-    <% if (!is_debug) { %>
-        <div id="left_bar">
-            <div id="params_selection">
-                <%- design_config.render(config_components) %>
+<html>
+    <head>
+        <title>StoffStoff</title>
+        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <link href="/TWoutput.css" rel="stylesheet" />
+        <link href="/index.css" rel="stylesheet" />
+    </head>
+
+    <body class="bg-gray-100">
+        <%- include("./htmx/state"); %>
+        <div
+            class="grid h-screen grid-rows-[auto_1fr] grid-cols-[auto_auto_auto_1fr]"
+        >
+            <div class="p-4 col-span-4 bg-default-dark">
+                <h1 class="text-2xl font-bold text-emerald-300 text-center">
+                    StoffStoff
+                </h1>
             </div>
-            <div id="left_bar_addition_info">
-                <h3>Links</h3>
-                <div>
-                    <a href="/at_url" target="_blank">Debug Routes</a>
-                </div>
+            <div
+                hx-post="/htmx/parts"
+                hx-include="#application_state"
+                hx-trigger="load"
+                hx-swap="outerHTML"
+                id="partSelection"
+            >
+                Loading...
             </div>
+            <div id="featureSelection">Loading...</div>
+            <div
+                class="overflow-y-auto flex flex-col border-r-2 border-default-dark"
+            >
+                <div id="preview">Loading...</div>
+                <div id="render_message">[No render message]</div>
+            </div>
+            <div id="pattern_preview">Loading...</div>
         </div>
-        <div id="resizer"></div>
-        <div id="toggle_button"><i class="fas fa-arrow-left"></i></div>
-        <script src="/main/resizable.js"></script>
-    <% } %>
 
-    <div <% if (!is_debug) { %> style="margin-left: var(--left-bar-width);" <% } %>>
-        <div id="sketch_display"></div>
-        <pre id="sketch_data"></pre>
-    </div>
-    
-    <%- `
-        <script type="module">
-            import { Config } from './conf/exports.js';
-        
-            const design_config_serialized = ${ JSON.stringify(design_config.serialize()) };
-            window.design_config = Config.deserialize(design_config_serialized);
+        <script src="/main/add_svg_hover_events.js"></script>
+        <script>
+            getTimeoutSetting = () => 200;
 
-            const is_debug = ${is_debug};
-
-            document.addEventListener("DOMContentLoaded", () => {
-                ${ !is_debug ? 'window.design_config.on_dom_load();' : '' }
-                request_img();
+            document.body.addEventListener("htmx:afterSwap", function (evt) {
+                if (evt.detail.elt.id === "pattern_preview") {
+                    add_svg_hover_events();
+                }
             });
         </script>
-    ` %>
-
-    <script src="/main/add_svg_hover_events.js"></script>
-    <script src="/main/request_pattern.js"></script>
-    <script src="/main/monitor_server_reset.js"></script>
-</body>
+        <div
+            hx-post="/hot_reload_req"
+            hx-trigger="every 200ms"
+            hx-include="#application_state"
+            hx-request="js: timeout:getTimeoutSetting() "
+            hx-swap="none"
+        ></div>
+        <div id="junk"></div>
+    </body>
 </html>

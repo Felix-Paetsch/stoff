@@ -50,15 +50,8 @@ export default (app) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
-        res.render("htmx/hot_reload_res", {
-            state,
-        });
-    });
-
-    app.post("/hot_reload_req_res", (req, res) => {
-        const state = JSON.parse(req.body.application_state);
         Sketch.dev._reset_routes();
-        res.render("htmx/hot_reload_req_res", {
+        res.render("htmx/hot_reload_req", {
             pictureParts,
             state,
             render_data: render_img(pictureParts, state),
