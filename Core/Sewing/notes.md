@@ -7,6 +7,7 @@ Make JS, TS interoperable
 - add a ?debug=... to the new server
 - change the return types from setOrientation/swapOrientation, etc (should be the new boolean)
 - also for sewing check return types. Maybe introduce "with" keyword to return a modified thing
+- update (replace) some methods working with cycles (PatternLib::Boundary)
 
 Continue SewingLine/SewingPoint & co discussion
 

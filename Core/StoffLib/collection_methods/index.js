@@ -4,6 +4,7 @@ import register_sporadic_methods, {
 } from "./sporadic_methods.js";
 import register_element_wise_methods from "./element_wise_methods.js";
 import register_connected_components_methods from "./connected_components_methods.js";
+import register_non_interesect_methods from "./non_interesect_methods.js";
 
 export default function register_collection_methods(Class) {
     // We assume the class exposes the following:
@@ -46,6 +47,7 @@ export default function register_collection_methods(Class) {
     register_sporadic_methods(Class, set_if_not_exists);
     register_element_wise_methods(Class, set_if_not_exists);
     register_connected_components_methods(Class, set_if_not_exists);
+    register_non_interesect_methods(Class, set_if_not_exists);
 }
 
 export function set_if_not_exists(Class, key, value) {

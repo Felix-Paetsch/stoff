@@ -4,6 +4,7 @@ import { SewingPoint } from "./sewingPoint.ts";
 import Point from "../StoffLib/point.js";
 import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
 import { EPS } from "../StoffLib/geometry.js";
+import { FaceCarousel } from "./faceCarousel.ts";
 
 export type SewingLineComponent = {
     line: Line,
@@ -12,7 +13,6 @@ export type SewingLineComponent = {
 }
 
 export type PartialSewingLineComponent = {
-    line: Line,
     position: number | [number, number] // from the Line orientation;
     // -1 < x < 0 or 0 < x <= 1; 0 <= x < y <= 1
 } & SewingLineComponent;
@@ -24,6 +24,7 @@ export class SewingLine {
         readonly sewing: Sewing,
         readonly primary_component: SewingLineComponent[],
         readonly other_components: PartialSewingLineComponent[] = [],
+        readonly face_carousel: FaceCarousel
     ) {
         this.outdated = false;
     }
@@ -114,52 +115,26 @@ export class SewingLine {
         }
 
         for (const component of this.other_components) {
+            let includeP1 = false;
+            let includeP2 = false;
+
             if (typeof component.position === "number") {
-                if (component.position > 0) {
-                    points.push(
-                        component.line.endpoint_from_orientation(
-                            component.has_sewing_line_orientation
-                        )
-                    );
-                    if (1 - component.position < EPS.COARSE) {
-                        points.push(
-                            component.line.endpoint_from_orientation(
-                                !component.has_sewing_line_orientation
-                            )
-                        );
-                    }
+                const pos = component.position;
+                if (pos > 0) {
+                    includeP1 = true;
+                    includeP2 = 1 - pos < EPS.COARSE;
                 } else {
-                    points.push(
-                        component.line.endpoint_from_orientation(
-                            !component.has_sewing_line_orientation
-                        )
-                    );
-                    if (component.position + 1 < EPS.COARSE) {
-                        points.push(
-                            component.line.endpoint_from_orientation(
-                                component.has_sewing_line_orientation
-                            )
-                        );
-                    }
+                    includeP2 = true;
+                    includeP1 = pos + 1 < EPS.COARSE;
                 }
             } else {
                 const [x, y] = component.position;
-                if (x < EPS.COARSE) {
-                    points.push(
-                        component.line.endpoint_from_orientation(
-                            component.has_sewing_line_orientation
-                        )
-                    );
-                }
-
-                if (y > 1 - EPS.COARSE) {
-                    points.push(
-                        component.line.endpoint_from_orientation(
-                            !component.has_sewing_line_orientation
-                        )
-                    );
-                }
+                includeP1 = x < EPS.COARSE;
+                includeP2 = y > 1 - EPS.COARSE;
             }
+
+            includeP1 && points.push(component.line.p1);
+            includeP2 && points.push(component.line.p2);
         }
         return (points as any).unique();
     }
