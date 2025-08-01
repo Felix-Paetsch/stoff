@@ -51,7 +51,6 @@ export default class Face {
         return orientations;
     }
 
-
     boundary_handedness(): boolean[] {
         // True means inwards
         const clockwise = this.is_clockwise_oriented();
@@ -81,7 +80,7 @@ export default class Face {
     contains(thing: Point | Vector | Line | Face | RogueChain, only_interior: boolean = false): boolean {
         if (thing instanceof Face) {
             if (this == thing) return !only_interior;
-            return this.contains(thing.boundary[0], true);
+            return thing.boundary.every(l => this.contains(l, only_interior));
         }
         if (thing instanceof Line) {
             if (this.boundary.includes(thing)) {

@@ -7,6 +7,7 @@ import {
     EPS,
     is_convex,
     orientation,
+    BoundingBox,
 } from "./geometry.js";
 import Point from "./point.js";
 import ConnectedComponent from "./connected_component.js";
@@ -510,26 +511,7 @@ class Line {
     }
 
     get_bounding_box() {
-        let _min_x = Infinity;
-        let _min_y = Infinity;
-        let _max_x = -Infinity;
-        let _max_y = -Infinity;
-
-        this.get_absolute_sample_points().forEach((p) => {
-            _min_x = Math.min(p.x, _min_x);
-            _max_x = Math.max(p.x, _max_x);
-            _min_y = Math.min(p.y, _min_y);
-            _max_y = Math.max(p.y, _max_y);
-        });
-
-        return {
-            width: _max_x - _min_x,
-            height: _max_y - _min_y,
-            top_left: new Vector(_min_x, _min_y),
-            top_right: new Vector(_max_x, _min_y),
-            bottom_left: new Vector(_min_x, _max_y),
-            bottom_right: new Vector(_max_x, _max_y),
-        };
+        return BoundingBox.from_points(this.get_absolute_sample_points());
     }
 
     convex_hull() {
@@ -658,6 +640,82 @@ class Line {
     paste_to_sketch(target, position = null) {
         const res = copy_sketch_element_collection(this, target, position);
         return res.get_corresponding_sketch_element(this);
+    }
+
+    static order_by_endpoints(...lines) {
+        if (Array.isArray(lines[0])) {
+            lines = [...lines[0]];
+        }
+        if (lines.length <= 1) return lines;
+        if (lines.length == 2) return set_two_line_orientations(lines);
+
+        const res = [];
+        res.push(lines.pop());
+        res.orientations = [true];
+        res.points = [res[0].p1, res[0].p2];
+
+        let smth_found = null;
+        while (lines.length > 0) {
+            for (let i = lines.length - 1; i >= 0; i--) {
+                if (res[0].common_endpoint(lines[i])) {
+                    // Prepend
+                    smth_found = true;
+                    res.unshift(...lines.splice(i, 1));
+                    if (res.length == 2) {
+                        set_two_line_orientations(res);
+                    } else {
+                        const next_orientation = res.orientations[0];
+                        res.orientations.unshift(
+                            res[1][next_orientation ? "p1" : "p2"] == res[0].p2
+                        );
+                        res.points.unshift(
+                            res[0].other_endpoint(res.points[0])
+                        );
+                    }
+                } else if (res[res.length - 1].common_endpoint(lines[i])) {
+                    // Append
+                    smth_found = true;
+                    res.push(...lines.splice(i, 1));
+                    if (res.length == 2) {
+                        set_two_line_orientations(res);
+                    } else {
+                        const prev_orientation =
+                            res.orientations[res.orientations.length - 1];
+                        res.orientations.push(
+                            res[res.length - 2][
+                                prev_orientation ? "p2" : "p1"
+                            ] == res[res.length - 1].p1
+                        );
+                        res.points.push(
+                            res[res.length - 1].other_endpoint(
+                                res.points[res.points.length - 1]
+                            )
+                        );
+                    }
+                }
+            }
+
+            if (!smth_found)
+                throw new Error("Lines dont form a connected segment");
+        }
+
+        function set_two_line_orientations(lines) {
+            if (lines[1].has_endpoint(lines[0].p2)) {
+                lines.orientations = [true, lines[1].p1 == lines[0].p2];
+                lines.points = [lines[0].p1, lines[0].p2, lines[1].p2];
+            } else if (lines[1].has_endpoint(lines[0].p1)) {
+                lines.orientations = [false, lines[1].p1 == lines[0].p1];
+                lines.points = [
+                    lines[0].p2,
+                    lines[0].p1,
+                    lines[1].other_endpoint(lines[0].p1),
+                ];
+            } else throw new Error("Lines dont form a connected segment");
+            return lines;
+        }
+
+        res.lines = lines;
+        return res;
     }
 }
 

@@ -5,14 +5,13 @@ import {
     Matrix,
     Ray,
     Line,
-
     ZERO,
     UP,
     DOWN,
     LEFT,
     RIGHT,
     VERTICAL,
-    HORIZONTAL
+    HORIZONTAL,
 } from "./geometry/classes.js";
 import {
     affine_transform_from_input_output,
@@ -31,10 +30,11 @@ import {
     polygon_contains_point,
     orientation,
     polygon_orientation,
-    polygon_orientation_v2
+    polygon_orientation_v2,
 } from "./geometry/algorithms.js";
+import { BoundingBox } from "./geometry/bounding_box.js";
 
-function mirror_type(el, vec2 = null){
+function mirror_type(el, vec2 = null) {
     if (el instanceof Line) return "Line";
     if (el instanceof Array) return mirror_type(...el);
     if (vec2 instanceof Vector) return "Line";
@@ -72,5 +72,6 @@ export {
     HORIZONTAL,
     Line as PlainLine,
     Ray,
-    EPS
+    EPS,
+    BoundingBox,
 };

@@ -11,6 +11,7 @@ import {
 } from "../../../Core/StoffLib/geometry.js";
 import { spline, arc } from "../../../Core/StoffLib/curves.js";
 import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import Line from "../../../Core/StoffLib/line.js";
 
 // To be ported
 // import NecklineSideHalf from "../../Patterns/parts/neckline/neckline_side_half.js"
@@ -47,22 +48,22 @@ export default class BasicSleeveBaseStage extends BaseStage {
         pts.a = this.sketch.point(0, 0);
         pts.b = new Vector(
             0,
-            this.wd.measurements.distance_armpit * this.wd.mult_vector,
+            this.wd.measurements.distance_armpit * this.wd.mult_vector
         );
         pts.c = pts.b.add(new Vector(0, this.wd.measurements["arm length"]));
 
         pts.d = this.sketch.point(
-            pts.b.add(new Vector(this.wd.measurements["arm"] / 2, 0)),
+            pts.b.add(new Vector(this.wd.measurements["arm"] / 2, 0))
         );
         pts.e = this.sketch.point(
-            pts.b.add(new Vector(-this.wd.measurements["arm"] / 2, 0)),
+            pts.b.add(new Vector(-this.wd.measurements["arm"] / 2, 0))
         );
 
         pts.f = this.sketch.point(
-            pts.c.add(new Vector(this.wd.measurements["arm"] / 2, 0)),
+            pts.c.add(new Vector(this.wd.measurements["arm"] / 2, 0))
         );
         pts.g = this.sketch.point(
-            pts.c.add(new Vector(-this.wd.measurements["arm"] / 2, 0)),
+            pts.c.add(new Vector(-this.wd.measurements["arm"] / 2, 0))
         );
 
         pts.a.data.type = "a";
@@ -79,7 +80,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         lns.a_to_d = this.sketch.line_with_length(
             pts.a,
             pts.d,
-            pts.a.subtract(pts.d).length() + 1,
+            pts.a.subtract(pts.d).length() + 1
         );
         lns.a_to_e = this.sketch
             .line_with_length(pts.e, pts.a, pts.a.subtract(pts.e).length() + 2)
@@ -125,8 +126,8 @@ export default class BasicSleeveBaseStage extends BaseStage {
                 this.sketch.line_at_angle(
                     temp.point,
                     deg_to_rad(0),
-                    vec.length(),
-                ).line,
+                    vec.length()
+                ).line
             );
             lns[i].data.type = "dart";
             lns[i].data.dart_number = i + 1;
@@ -139,7 +140,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
             if (i < number_of_stripes - 2) {
                 temp = this.sketch.split_line_at_length(
                     temp.line_segments[1],
-                    len,
+                    len
                 );
             }
         }
@@ -189,13 +190,13 @@ export default class BasicSleeveBaseStage extends BaseStage {
             const bottom_right_corner = top_right_corner.other_adjacent_point(
                 top_left_corner,
                 prev_top_right_corner,
-                prev_bottom_left_corner,
+                prev_bottom_left_corner
             );
             //this.sketch.dev.at_new_url("/wah")
             const cut_res = this.sketch.cut(l, l.p1);
             const bottom_left_corner = cut_res.points.get_point_between_lines(
                 (l) => l.has_endpoint(bottom_right_corner),
-                (l) => l.has_endpoint(top_left_corner),
+                (l) => l.has_endpoint(top_left_corner)
             );
 
             // The new entry in dart_lines[i] is the right side of the split dart
@@ -238,7 +239,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
 
         const rot_correction_fun = rotation_fun(
             correction_pivot,
-            correction_angle,
+            correction_angle
         );
         this.sketch.transform((p) => p.move_to(rot_correction_fun(p)));
     }
@@ -290,7 +291,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
             },
             (l) => {
                 return l.data.type == "bottom" && l.p1.data.type == "f";
-            },
+            }
         );
 
         dart_lines.forEach((l, index) => {
@@ -299,12 +300,12 @@ export default class BasicSleeveBaseStage extends BaseStage {
             let top_right_corner = bottom_right_corner.other_adjacent_point(
                 bottom_left_corner,
                 prev_bottom_right_corner,
-                prev_top_left_corner,
+                prev_top_left_corner
             );
             const cut_res = this.sketch.cut(l, l.p2);
             const top_left_corner = cut_res.points.get_point_between_lines(
                 (l) => l.has_endpoint(bottom_left_corner),
-                (l) => l.has_endpoint(top_right_corner),
+                (l) => l.has_endpoint(top_right_corner)
             );
 
             // The new entry in dart_lines[i] is the right side of the split dart
@@ -347,7 +348,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
 
         const rot_correction_fun = rotation_fun(
             correction_pivot,
-            correction_angle,
+            correction_angle
         );
         this.sketch.transform((p) => p.move_to(rot_correction_fun(p)));
     }
@@ -411,7 +412,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         const curve = this.sketch.line_from_function_graph(
             pts[0],
             pts[pts.length - 1],
-            spline.catmull_rom_spline(pts),
+            spline.catmull_rom_spline(pts)
         );
         /*
          */
@@ -479,7 +480,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         const curve = this.sketch.line_from_function_graph(
             pts[0],
             pts[pts.length - 1],
-            spline.catmull_rom_spline(pts),
+            spline.catmull_rom_spline(pts)
         );
         /*
          */
@@ -493,7 +494,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
 
     #merge_parts(type) {
         let lns = this.sketch.get_typed_lines(type);
-        lns = this.sketch.order_by_endpoints(lns);
+        lns = Line.order_by_endpoints(lns);
         let temp = lns[0];
         for (let i = 1; i < lns.length; i++) {
             const ln = lns[i];
@@ -502,7 +503,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         }
     }
     #curve_lines(lines) {
-        lines = this.sketch.order_by_endpoints(...lines);
+        lines = Line.order_by_endpoints(...lines);
 
         const target_endpoints = [
             lines.points[0],
@@ -513,7 +514,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         for (let i = 0; i < lines.length; i++) {
             intp_pts.push(
                 lines[i].position_at_fraction(0.2, !lines.orientations[i]),
-                lines[i].position_at_fraction(0.8, !lines.orientations[i]),
+                lines[i].position_at_fraction(0.8, !lines.orientations[i])
             );
         }
 
@@ -522,7 +523,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         lines.points.slice(1, -1).forEach((p) => p.remove());
         return this.sketch.plot(
             ...target_endpoints,
-            spline.catmull_rom_spline(intp_pts),
+            spline.catmull_rom_spline(intp_pts)
         );
     }
 
@@ -554,11 +555,11 @@ export default class BasicSleeveBaseStage extends BaseStage {
 
         const p1 = this.sketch.split_line_at_length(
             bottom.p1.other_adjacent_line(bottom),
-            len,
+            len
         );
         const p2 = this.sketch.split_line_at_length(
             bottom.p2.other_adjacent_line(bottom),
-            len,
+            len
         );
         const ln = this.sketch.line_between_points(p1.point, p2.point);
         ln.data.type = "cut";
@@ -603,7 +604,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         this.connect_sleeve_bottom(1);
         const sk = this.sketch;
         this.sketch = this.wd.sketch2;
-    //    this.wd.sketch2 = this.wd.sketch3;
+        //    this.wd.sketch2 = this.wd.sketch3;
         this.cut_sleeve_stripes(10);
         this.flare_top_sleeve(flare);
         this.connect_sleeve_top(1);
@@ -662,8 +663,8 @@ export default class BasicSleeveBaseStage extends BaseStage {
                 this.sketch.line_at_angle(
                     temp.point,
                     deg_to_rad(0),
-                    vec.length(),
-                ).line,
+                    vec.length()
+                ).line
             );
             lns[i].data.type = "dart";
             lns[i].data.dart_number = i + 1;
@@ -682,7 +683,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
             if (i < number_of_stripes - 2) {
                 temp = this.sketch.split_line_at_length(
                     temp.line_segments[1],
-                    len,
+                    len
                 );
             }
         }
@@ -705,7 +706,7 @@ export default class BasicSleeveBaseStage extends BaseStage {
         const curve = this.sketch.line_from_function_graph(
             pts[0],
             pts[pts.length - 1],
-            spline.catmull_rom_spline(pts),
+            spline.catmull_rom_spline(pts)
         );
         curve.data.type = "armpit";
         const f = this.sketch.get_typed_point("f");

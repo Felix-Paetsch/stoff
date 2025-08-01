@@ -28,92 +28,14 @@ export default class SewingSketch extends Sketch {
         super();
     }
 
-    order_by_endpoints(...lines) {
-        if (Array.isArray(lines[0])) {
-            lines = [...lines[0]];
-        }
-        if (lines.length <= 1) return lines;
-        if (lines.length == 2) return set_two_line_orientations(lines);
-
-        const res = this.new_sketch_element_collection();
-        res.push(lines.pop());
-        res.orientations = [true];
-        res.points = this.make_sketch_element_collection([
-            res[0].p1,
-            res[0].p2,
-        ]);
-        let smth_found = null;
-        while (lines.length > 0) {
-            for (let i = lines.length - 1; i >= 0; i--) {
-                if (res[0].common_endpoint(lines[i])) {
-                    // Prepend
-                    smth_found = true;
-                    res.unshift(...lines.splice(i, 1));
-                    if (res.length == 2) {
-                        set_two_line_orientations(res);
-                    } else {
-                        const next_orientation = res.orientations[0];
-                        res.orientations.unshift(
-                            res[1][next_orientation ? "p1" : "p2"] == res[0].p2,
-                        );
-                        res.points.unshift(
-                            res[0].other_endpoint(res.points[0]),
-                        );
-                    }
-                } else if (res[res.length - 1].common_endpoint(lines[i])) {
-                    // Append
-                    smth_found = true;
-                    res.push(...lines.splice(i, 1));
-                    if (res.length == 2) {
-                        set_two_line_orientations(res);
-                    } else {
-                        const prev_orientation =
-                            res.orientations[res.orientations.length - 1];
-                        res.orientations.push(
-                            res[res.length - 2][
-                                prev_orientation ? "p2" : "p1"
-                            ] == res[res.length - 1].p1,
-                        );
-                        res.points.push(
-                            res[res.length - 1].other_endpoint(
-                                res.points[res.points.length - 1],
-                            ),
-                        );
-                    }
-                }
-            }
-
-            if (!smth_found)
-                throw new Error("Lines dont form a connected segment");
-        }
-
-        function set_two_line_orientations(lines) {
-            if (lines[1].has_endpoint(lines[0].p2)) {
-                lines.orientations = [true, lines[1].p1 == lines[0].p2];
-                lines.points = [lines[0].p1, lines[0].p2, lines[1].p2];
-            } else if (lines[1].has_endpoint(lines[0].p1)) {
-                lines.orientations = [false, lines[1].p1 == lines[0].p1];
-                lines.points = [
-                    lines[0].p2,
-                    lines[0].p1,
-                    lines[1].other_endpoint(lines[0].p1),
-                ];
-            } else throw new Error("Lines dont form a connected segment");
-            return lines;
-        }
-
-        res.lines = lines;
-        return res;
-    }
-
     oriented_lines(...lines) {
         if (Array.isArray(lines[0])) {
             lines = lines[0];
         }
-        lines = this.order_by_endpoints(...lines);
+        lines = Line.order_by_endpoints(...lines);
         assert(
             lines[0].common_endpoint(lines[lines.length - 1]),
-            "Lines dont form a cycle.",
+            "Lines dont form a cycle."
         );
 
         let polygon = [];
@@ -166,10 +88,10 @@ export default class SewingSketch extends Sketch {
             if (line[0] instanceof Line) {
                 return cut_along_line_path(
                     this,
-                    this.order_by_endpoints(...line),
+                    Line.order_by_endpoints(...line),
                     fixed_pt,
                     grp1,
-                    grp2,
+                    grp2
                 );
             }
             // The line is given by the two endpoints
@@ -187,7 +109,7 @@ export default class SewingSketch extends Sketch {
 
         if (line.p1.common_lines(line.p2) > 1)
             throw new Error(
-                "Endpoints of cut line have another line between them!",
+                "Endpoints of cut line have another line between them!"
             );
 
         // We are in case (5) or (6)
@@ -298,7 +220,7 @@ export default class SewingSketch extends Sketch {
         }
 
         let connected_components = this.get_connected_components().map((c) =>
-            c.obj(),
+            c.obj()
         );
         if (objects.length > 0) {
             connected_components = connected_components.filter((c) => {
@@ -314,7 +236,7 @@ export default class SewingSketch extends Sketch {
         for (let i = 1; i < connected_components.length; i++) {
             const a = this.line_between_points(
                 connected_components[0].points[0],
-                connected_components[i].points[0],
+                connected_components[i].points[0]
             );
 
             a.data = {
@@ -364,7 +286,7 @@ export default class SewingSketch extends Sketch {
 
             assert(
                 lines[0].common_endpoint(lines[lines.length - 1]),
-                "Component lines don't form cycle.",
+                "Component lines don't form cycle."
             );
         } else {
             if (el instanceof Line) lines = [el];
@@ -376,7 +298,7 @@ export default class SewingSketch extends Sketch {
             while (true) {
                 assert(
                     current_ep.get_adjacent_lines().length == 2,
-                    "Component lines don't form cycle.",
+                    "Component lines don't form cycle."
                 );
                 const next_line = current_ep.other_adjacent_line(current_line);
                 if (next_line == lines[0]) {
@@ -422,13 +344,13 @@ export default class SewingSketch extends Sketch {
                     abs.reverse();
                 }
                 return abs;
-            }),
+            })
         );
 
         if (!polygon_orientation(polygon)) {
             lines_with_orientation.reverse();
             lines_with_orientation.forEach(
-                (l) => (l.orientation = !l.orientation),
+                (l) => (l.orientation = !l.orientation)
             );
         }
 
@@ -465,7 +387,7 @@ export default class SewingSketch extends Sketch {
         while (last_line_p2 !== p2) {
             points.push(last_line_p2);
             const new_line = last_line_p2.other_adjacent_line(
-                lines[lines.length - 1],
+                lines[lines.length - 1]
             );
             lines.push(new_line);
 
@@ -512,12 +434,12 @@ export default class SewingSketch extends Sketch {
     unfold(
         along_line,
         callback = (_element, _type, _original) => {},
-        in_place = true,
+        in_place = true
     ) {
         if (!(along_line instanceof Line)) {
             assert(
                 along_line instanceof Array && along_line.length == 2,
-                "Unfold data has wrong format.",
+                "Unfold data has wrong format."
             );
 
             assert.HAS_SKETCH(along_line[0], this);
@@ -526,7 +448,7 @@ export default class SewingSketch extends Sketch {
             const common = along_line[0].common_lines(along_line[1]);
             assert(
                 common.length < 2,
-                "Expected at most one glue line between glue points",
+                "Expected at most one glue line between glue points"
             );
 
             along_line = this.line_between_points(...along_line);
@@ -540,7 +462,7 @@ export default class SewingSketch extends Sketch {
             if (along_line.data.__temp) this.remove(along_line);
             return copy.unfold(
                 copy.lines_by_key("__unfold_line")[true][0],
-                false,
+                false
             );
         }
 
@@ -562,7 +484,7 @@ export default class SewingSketch extends Sketch {
 
         this.lines.forEach((l) => {
             const ref = old_lines.filter(
-                (l) => l.data.__unfoldUID == l.data.__unfoldUID,
+                (l) => l.data.__unfoldUID == l.data.__unfoldUID
             )[0];
             if (ref == l) callback(l, "original", l);
             else callback(l, "mirror", ref);
@@ -570,7 +492,7 @@ export default class SewingSketch extends Sketch {
 
         this.points.forEach((l) => {
             const ref = old_pts.filter(
-                (l) => l.data.__unfoldUID == l.data.__unfoldUID,
+                (l) => l.data.__unfoldUID == l.data.__unfoldUID
             )[0];
             if (ref == l) callback(l, "original", l);
             else callback(l, "mirror", ref);
