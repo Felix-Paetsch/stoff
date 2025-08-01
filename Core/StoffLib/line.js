@@ -319,9 +319,11 @@ class Line {
             .filter((l) => l !== this);
     }
 
-    orientation(...args) {
-        return !!(2 * (this.same_orientation(...args) - 0.5));
-    }
+    /*
+        orientation(...args) {
+            return 2 * (this.same_orientation(...args) - 0.5);
+        }
+    */
 
     same_orientation(...args) {
         if (args[0] instanceof Line) {
