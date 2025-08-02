@@ -1,67 +1,112 @@
+import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 import { Line } from "../../../line";
 import Face from "../face";
-import FaceAtlas from "../faceAtlas";
+import ConnectedComponent from "@/Core/StoffLib/connected_component";
+import FaceAtlas, { ConnectedComponentFaceData } from "../faceAtlas";
 
-export default function findFaces(lines: Line[]): FaceAtlas {
-    const prefaces: any[] = [];
-    const to_visit: Line[] = lines.map(l => l);
+export default function findFaces(lines: Line[]) {
+    const connected_components = (new SketchElementCollection(lines) as any).connected_components();
+    const CC_faces = connected_components.map(cc => findConnectedComponentFaces(cc));
+
+    return new FaceAtlas(CC_faces);
+}
+
+export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedComponentFaceData {
+    const boundaries: {
+        lines: Line[];
+        orientation: boolean[];
+    }[] = [];
     const rogue_lines: Line[] = [];
 
-    while (to_visit.length > 0) {
-        const boundary: Line[] = [];
+    const lines = cc.get_lines();
+    const lines_map = new Map<Line, {
+        with_orientation: boolean;
+        against_orientation: boolean;
+    }>();
 
-        let current_line = to_visit.pop();
-        boundary.push(current_line);
-        let current_endpoint = current_line.p1;
+    for (const line of lines) {
+        lines_map.set(line, {
+            with_orientation: false,
+            against_orientation: false,
+        })
+    }
 
+    outerLoop: for (const line of lines) {
+        const visited = lines_map.get(line);
+        if (visited.with_orientation && visited.against_orientation) continue;
+
+        const visited_lines = [];
+        const orientations = [];
+        let latest_line = line;
+        let latest_endpoint = line.get_endpoint_for_orientation(visited.with_orientation); // The one after current line, before next line
         while (true) {
-            // CurrentLine - CurrentEndpoint - NextLine
-            current_endpoint = current_line.other_endpoint(current_endpoint);
-            let possible_next_lines = to_visit.filter((l) => l.has_endpoint(current_endpoint))
-            possible_next_lines.sort(
-                (l1, l2) => l1.get_tangent_vector(current_endpoint).dot(current_line.get_tangent_vector(current_endpoint))
-                    - l2.get_tangent_vector(current_endpoint).dot(current_line.get_tangent_vector(current_endpoint))
+            for (let i = 0; i < visited_lines.length; i++) {
+                if (visited_lines[i].get_endpoint_for_orientation(orientations[i]) == latest_endpoint) {
+                    visited_lines.push(latest_line);
+                    const latest_orientation = latest_line.p2 == latest_endpoint;
+                    orientations.push(latest_orientation);
+                    lines_map.get(latest_line)[latest_orientation ? "with_orientation" : "against_orientation"] = true;
+                    boundaries.push({
+                        lines: visited_lines.slice(i),
+                        orientation: orientations.slice(i),
+                    });
+                    if (visited_lines.length == 0) {
+                        continue outerLoop;
+                    }
+                    break;
+                }
+            }
+
+            const possible_next_lines = lines.filter(
+                l => l.has_endpoint(latest_endpoint)
+                    && lines_map.has(l)
+                    && !lines_map.get(l)[l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
+            ).sort((l1, l2) => l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))
+                - l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))
             );
 
             if (possible_next_lines.length == 0) {
-                rogue_lines.push(current_line);
-
-                if (boundary.length === 0) {
+                rogue_lines.push(latest_line);
+                const obj = lines_map.get(latest_line);
+                obj.with_orientation = true;
+                obj.against_orientation = true;
+                if (visited_lines.length == 0) {
                     break;
                 }
-
-                const old_boundary_line = boundary.pop();
-
-                current_endpoint = current_line.other_endpoint(current_endpoint);
-                current_line = old_boundary_line;
+                orientations.pop();
+                latest_endpoint = latest_line.other_endpoint(latest_endpoint);
+                latest_line = visited_lines.pop();
                 continue;
+            } else {
+                visited_lines.push(latest_line);
+                const latest_orientation = latest_line.p2 == latest_endpoint;
+                orientations.push(latest_orientation);
+                lines_map.get(latest_line)[latest_orientation ? "with_orientation" : "against_orientation"] = true;
+                latest_line = possible_next_lines[0];
+                latest_endpoint = latest_line.other_endpoint(latest_endpoint);
             }
-
-            const other_endpoint = current_line.other_endpoint(current_endpoint);
-            if (
-                boundary[0].has_endpoint(other_endpoint) && !(boundary[1]?.has_endpoint(other_endpoint))
-            ) {
-                boundary.push(current_line);
-                prefaces.push(boundary);
-                break;
-            }
-
-            for (let i = 0; i < boundary.length - 1; i++) {
-                if (boundary[i].has_endpoint(other_endpoint) && boundary[i + 1].has_endpoint(other_endpoint)) {
-                    boundary.push(current_line);
-                    const non_in_boundary = boundary.splice(i, 0, current_line);
-                    to_visit.push(...non_in_boundary);
-                    prefaces.push(boundary);
-                    break;
-                }
-            }
-
-            current_line = to_visit.pop();
-            current_endpoint = current_line.p1;
         }
-
-        return new FaceAtlas(prefaces.map(p => new Face(p, null as any)), FaceAtlas.rogue_lines_to_chains(rogue_lines));
     }
 
-
+    const res = [];
+    let outer_face = {
+        area: 0,
+        face: null,
+    };
+    for (const boundary of boundaries) {
+        const face = new Face(boundary.lines, boundary.orientation);
+        const area = face.area();
+        if (area > outer_face.area) {
+            outer_face.face && res.push(outer_face.face);
+            outer_face.area = area;
+            outer_face.face = face;
+        } else {
+            res.push(face);
+        }
+    }
+    return {
+        faces: res,
+        outer_face: outer_face.face,
+        chains: FaceAtlas.rogue_lines_to_chains(rogue_lines),
+    };
 }

@@ -2,11 +2,13 @@ import { polygon_contains_point } from "../../geometry.js";
 import { Line } from "../../line.js";
 import FaceAtlas from "./faceAtlas.js";
 import RogueChain from "./rogue.js";
+import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
 
 export default class Face {
     constructor(
         readonly boundary: Line[],
-        readonly faceAtlas: FaceAtlas
+        readonly orientation: boolean[],
+        readonly faceAtlas?: FaceAtlas
     ) { }
     // The first line orientation is always the boundary orientation
 
@@ -33,6 +35,10 @@ export default class Face {
             area += p1.x * p2.y - p2.x * p1.y;
         }
         return area / 2;
+    }
+
+    area(): number {
+        return Math.abs(this.signed_area());
     }
 
     is_clockwise_oriented(): boolean {
@@ -100,4 +106,34 @@ export default class Face {
         }
         return polygon_contains_point(this.point_hull(), thing);
     }
+
+    static from_boundary(boundary: Line[], faceAtlas: FaceAtlas): Face {
+        return new Face(boundary, Line.order_by_endpoints(boundary).orientations, faceAtlas);
+    }
+
+    static oriented_lines(lines: Line[]): Line[];
+    static oriented_lines(...lines: Line[]): Line[];
+    static oriented_lines(..._lines: Line[] | [Line[]]): Line[] {
+        if (Array.isArray(_lines[0])) {
+            _lines = _lines[0];
+        }
+        const lines: any = Line.order_by_endpoints(...(_lines as any));
+        const polygon: Vector[] = [];
+        for (let i = 0; i < lines.length; i++) {
+            const abs = lines[i].get_absolute_sample_points();
+            if (!lines.orientations[i]) {
+                abs.reverse();
+            }
+            polygon.push(...abs);
+        }
+
+        if (!polygon_orientation(polygon)) {
+            lines.reverse();
+            lines.orientations.reverse();
+            lines.orientations = lines.orientations.map((o) => !o);
+        }
+
+        return lines;
+    }
 }
+

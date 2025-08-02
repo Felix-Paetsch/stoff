@@ -5,6 +5,12 @@ import findFaces from "./algorithms/findFaces.js";
 import Face from "./face.js";
 import RogueChain from "./rogue.js";
 
+export type ConnectedComponentFaceData = {
+    faces: Face[];
+    outer_face: Face | null;
+    chains: RogueChain[];
+}
+
 export default class FaceAtlas {
     readonly faceMap: ReturnType<typeof buildFaceMap>;
     readonly topLevelFaces: Face[];
@@ -12,7 +18,19 @@ export default class FaceAtlas {
 
     readonly components: Face[];
 
-    constructor(public faces: Face[], public chains: RogueChain[] = []) {
+    constructor(public cc_data: ConnectedComponentFaceData[]) {
+        cc_data.forEach(data => {
+            data.faces.forEach(face => {
+                (face as any).faceAtlas = this;
+            });
+            data.chains.forEach(chain => {
+                (chain as any).faceAtlas = this;
+            });
+            if (data.outer_face) {
+                (data.outer_face as any).faceAtlas = this;
+            }
+        });
+
         for (const face of faces) {
             (face as any).faceAtlas = this;
         }
@@ -52,7 +70,7 @@ export default class FaceAtlas {
                 }
             }
         }
-        return chains.map(c => new RogueChain(c));
+        return chains.map(c => new RogueChain(c, null as any));
     }
 
     static from_lines(lines: Line[]): FaceAtlas {

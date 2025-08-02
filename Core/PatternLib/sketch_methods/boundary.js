@@ -1,4 +1,5 @@
 import { Ray, UP, DOWN, vec_angle_clockwise } from "../../StoffLib/geometry.js";
+import Face from "../../StoffLib/unicorns/faces/face";
 
 export default function get_boundary(s) {
     // Later if we get problems maybe shift pivot to not lie directly above another point
@@ -10,7 +11,7 @@ export default function get_boundary(s) {
     const lines_intp = [];
     for (let i = 0; i < lines.length; i++) {
         s.intersection_positions(lines[i], ray).forEach((p) =>
-            lines_intp.push([lines[i], p]),
+            lines_intp.push([lines[i], p])
         );
     }
 
@@ -41,7 +42,7 @@ export default function get_boundary(s) {
         }
     }
 
-    return s.oriented_lines(ret);
+    return Face(ret);
 }
 
 function calculate_boundary_assuming_direction(line, direction) {

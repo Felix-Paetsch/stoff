@@ -1,7 +1,8 @@
 import { Line } from "../../line.js";
+import FaceAtlas from "./faceAtlas.js";
 
 export default class RogueChain {
-    constructor(readonly lines: Line[]) { }
+    constructor(readonly lines: Line[], readonly faceAtlas?: FaceAtlas) { }
 
     get p1(): Point {
         if (this.lines.length == 1) return this.lines[0].p1;

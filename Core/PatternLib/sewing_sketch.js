@@ -28,34 +28,6 @@ export default class SewingSketch extends Sketch {
         super();
     }
 
-    oriented_lines(...lines) {
-        if (Array.isArray(lines[0])) {
-            lines = lines[0];
-        }
-        lines = Line.order_by_endpoints(...lines);
-        assert(
-            lines[0].common_endpoint(lines[lines.length - 1]),
-            "Lines dont form a cycle."
-        );
-
-        let polygon = [];
-        for (let i = 0; i < lines.length; i++) {
-            const abs = lines[i].get_absolute_sample_points();
-            if (!lines.orientations[i]) {
-                abs.reverse();
-            }
-            polygon = polygon.concat(abs);
-        }
-
-        if (!polygon_orientation(polygon)) {
-            lines.reverse();
-            lines.orientations.reverse();
-            lines.orientations = lines.orientations.map((o) => !o);
-        }
-
-        return lines;
-    }
-
     cut(line, fixed_pt = null, grp1 = "smart", grp2 = "smart") {
         /*
             Cuts a Sketch at a given line (i.e. copying it and some of its endpoints and attatch the other lines correctly)

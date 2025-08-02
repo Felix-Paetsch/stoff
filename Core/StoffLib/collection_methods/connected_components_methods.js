@@ -51,6 +51,6 @@ export default (Class, set_if_not_exists) => {
             points = points.filter((p) => !visited_points.includes(p));
         }
 
-        return components.map((c) => c.get_common_sketch_elements(this_se));
+        return components.map((c) => new ConnectedComponent(c[0]));
     });
 };
