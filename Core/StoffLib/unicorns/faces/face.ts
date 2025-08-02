@@ -1,5 +1,7 @@
 import { polygon_contains_point } from "../../geometry.js";
 import { Line } from "../../line.js";
+import Point from "../../point.js";
+import { ConnectedFaceComponent } from "./algorithms/buildConnectedComponentMap.js";
 import FaceAtlas from "./faceAtlas.js";
 import RogueChain from "./rogue.js";
 import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
@@ -10,7 +12,23 @@ export default class Face {
         readonly orientation: boolean[],
         readonly faceAtlas?: FaceAtlas
     ) { }
-    // The first line orientation is always the boundary orientation
+
+    get_lines(): Line[] {
+        return this.boundary;
+    }
+
+    get_points(): Point[] {
+        return Array.from(new Set(this.boundary.flatMap(l => l.get_endpoints())));
+    }
+
+    component(): ConnectedFaceComponent {
+        return this.faceAtlas ?
+            this.own_component() : this.faceAtlas.connectedComponents.find(c => c.faces.includes(this) || c.component == this)!;
+    }
+
+    is_boundary(): boolean {
+        return !this.component().faces.includes(this);
+    }
 
     point_hull(): Vector[] {
         const points: Vector[] = [];
@@ -70,6 +88,12 @@ export default class Face {
         return handedness;
     }
 
+    line_handedness(l: Line): boolean {
+        // Whether the handedness of the line points to the face
+        const hand = this.boundary_handedness()[this.boundary.indexOf(l)] || false;
+        return hand === !this.is_boundary();
+    }
+
     is_adjacent(other: Face | Line | Point | RogueChain): boolean {
         if (other instanceof RogueChain) {
             return this.is_adjacent(other.p1) || this.is_adjacent(other.p2);
@@ -105,6 +129,18 @@ export default class Face {
             return true;
         }
         return polygon_contains_point(this.point_hull(), thing);
+    }
+
+    own_component(): ConnectedFaceComponent {
+        return {
+            parent_face: null,
+            parent_component: null,
+            faces: [this],
+            component: this,
+            outer_chains: [],
+            inner_chains: [],
+            subcomponents: []
+        }
     }
 
     static from_boundary(boundary: Line[], faceAtlas: FaceAtlas): Face {

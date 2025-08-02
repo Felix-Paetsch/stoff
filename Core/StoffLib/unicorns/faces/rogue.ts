@@ -1,8 +1,28 @@
 import { Line } from "../../line.js";
 import FaceAtlas from "./faceAtlas.js";
+import Point from "../../point.js";
+import { ConnectedFaceComponent } from "./algorithms/buildConnectedComponentMap.js";
+import Face from "./face.js";
 
 export default class RogueChain {
     constructor(readonly lines: Line[], readonly faceAtlas?: FaceAtlas) { }
+
+    get_lines(): Line[] {
+        return this.lines;
+    }
+
+    get_points(): Point[] {
+        return Array.from(new Set(this.lines.flatMap(l => l.get_endpoints())));
+    }
+
+    component(): ConnectedFaceComponent {
+        return this.faceAtlas ? this.own_component() : this.faceAtlas.connectedComponents.find(c => c.outer_chains.includes(this))!;
+    }
+
+    face(): Face | null {
+        const component = this.component();
+        return component.faces.find(f => f.contains(this)) || component.component;
+    }
 
     get p1(): Point {
         if (this.lines.length == 1) return this.lines[0].p1;
@@ -43,5 +63,17 @@ export default class RogueChain {
             );
         }
         return handedness;
+    }
+
+    own_component(): ConnectedFaceComponent {
+        return {
+            parent_face: null,
+            parent_component: null,
+            faces: [],
+            component: null,
+            outer_chains: [this],
+            inner_chains: [],
+            subcomponents: []
+        }
     }
 }
