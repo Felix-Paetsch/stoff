@@ -2,7 +2,15 @@ import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 import { Line } from "../../../line";
 import Face from "../face";
 import ConnectedComponent from "@/Core/StoffLib/connected_component";
-import FaceAtlas, { ConnectedComponentFaceData } from "../faceAtlas";
+import FaceAtlas from "../faceAtlas";
+import RogueChain from "../rogue";
+
+export type ConnectedComponentFaceData = {
+    faces: Face[];
+    outer_face: Face | null;
+    chains: RogueChain[];
+}
+
 
 export default function findFaces(lines: Line[]) {
     const connected_components = (new SketchElementCollection(lines) as any).connected_components();
