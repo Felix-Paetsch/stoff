@@ -5,6 +5,8 @@ import Point from "../StoffLib/point.js";
 import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
 import { EPS } from "../StoffLib/geometry.js";
 import { FaceCarousel } from "./faceCarousel.ts";
+import { FaceEdge, PartialFaceEdgeComponent } from "./faceEdge.ts";
+import Face from "../PatternLib/faces/face.ts";
 
 export type SewingLineComponent = {
     line: Line,
@@ -23,7 +25,7 @@ export class SewingLine {
     constructor(
         readonly sewing: Sewing,
         readonly primary_component: SewingLineComponent[],
-        readonly other_components: PartialSewingLineComponent[] = [],
+        readonly other_components: PartialSewingLineComponent[],
         readonly face_carousel: FaceCarousel
     ) {
         this.outdated = false;
@@ -248,7 +250,7 @@ export class SewingLine {
     updated(): SewingLine {
         return this.sewing.sewing_lines.find((l) => l.contains(
             this.primary_component[0].line
-        ));
+        ))!;
     }
 
     contains(things: Line | Point | SewingLine | SewingPoint): boolean;
@@ -296,5 +298,63 @@ export class SewingLine {
 
     is_convex(): boolean {
         throw new Error("Not implemented");
+    }
+
+    static from_line(sewing: Sewing, line: Line): SewingLine {
+        const sLine = new SewingLine(
+            sewing,
+            [{
+                line: line,
+                has_sewing_line_orientation: true,
+                has_sewing_line_handedness: true
+            }],
+            [],
+            null as any
+        );
+
+        const faces = sewing.adjacent_faces(line);
+        const edges: PartialFaceEdgeComponent[][] = [];
+
+        if (!faces) throw new Error("Sketch of line doesnt belong to sewing.");
+        if (faces[0] instanceof Face) {
+            if (!faces[0].is_boundary()) {
+                edges.push([{
+                    line: line,
+                    position: 1,
+                    standard_handedness: true
+                }]);
+            }
+            if (!(faces[1] as Face).is_boundary()) {
+                edges.push([{
+                    line: line,
+                    position: 1,
+                    standard_handedness: true
+                }]);
+            }
+        } else {
+            const face = faces[1];
+            // Possible but strange case
+            // A rogue chain that overlaps with two different components; or out in the wild
+            if (!face) throw new Error("Sketch of line doesnt have a face.");
+            if (face.is_boundary()) throw new Error("Line is not contained inside fabric.");
+            edges.push([{
+                line: line,
+                position: 1,
+                standard_handedness: true
+            }, {
+                line: line,
+                position: 1,
+                standard_handedness: false
+            }
+            ]);
+        }
+        if (!line.right_handed) edges.reverse(); // First face always is to the right
+
+        const faceEdges = edges.map(e => new FaceEdge(null as any, e));
+        const carousel = new FaceCarousel(sLine, faceEdges);
+        faceEdges.forEach(e => (e as any).face_carousel = carousel);
+        (sLine as any).face_carousel = carousel;
+
+        return sLine;
     }
 }

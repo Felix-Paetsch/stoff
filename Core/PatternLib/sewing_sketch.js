@@ -13,7 +13,6 @@ import { glue_with_fixed_point, glue } from "./sketch_methods/glue.js";
 import Point from "../StoffLib/point.js";
 import ConnectedComponent from "../StoffLib/connected_component.js";
 import { default_data_callback } from "../StoffLib/copy.js";
-import get_boundary from "./sketch_methods/boundary.js";
 
 /*
 
@@ -488,10 +487,6 @@ export default class SewingSketch extends Sketch {
         });
 
         return this;
-    }
-
-    get_boundary() {
-        return get_boundary(this);
     }
 
     delete_with_underscore_attributes(...attr) {

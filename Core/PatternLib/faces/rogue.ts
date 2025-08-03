@@ -1,8 +1,8 @@
-import { Line } from "../../line.js";
+import { Line } from "../../StoffLib/line.js";
 import FaceAtlas from "./faceAtlas.js";
-import Point from "../../point.js";
-import { ConnectedFaceComponent } from "./algorithms/buildConnectedComponentMap.js";
+import Point from "../../StoffLib/point.js";
 import Face from "./face.js";
+import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 
 export default class RogueChain {
     constructor(readonly lines: Line[], readonly faceAtlas?: FaceAtlas) { }

@@ -1,7 +1,7 @@
-import { polygon_contains_point } from "../../geometry.js";
-import { Line } from "../../line.js";
-import Point from "../../point.js";
-import { ConnectedFaceComponent } from "./algorithms/buildConnectedComponentMap.js";
+import { polygon_contains_point } from "../../StoffLib/geometry.js";
+import { Line } from "../../StoffLib/line.js";
+import Point from "../../StoffLib/point.js";
+import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 import FaceAtlas from "./faceAtlas.js";
 import RogueChain from "./rogue.js";
 import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
@@ -9,7 +9,7 @@ import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
 export default class Face {
     constructor(
         readonly boundary: Line[],
-        readonly orientation: boolean[],
+        public orientation: boolean[],
         readonly faceAtlas?: FaceAtlas
     ) { }
 
@@ -63,16 +63,14 @@ export default class Face {
         return this.signed_area() > 0;
     }
 
-    boundary_orientations(): boolean[] {
-        const clockwise = this.is_clockwise_oriented();
-        const orientations: boolean[] = [];
-        let last_point = this.boundary[0].p1;
+    swap_orientation(): void {
+        this.boundary.reverse();
+        this.orientation.reverse();
+        this.orientation = this.orientation.map(o => !o);
+    }
 
-        for (const line of this.boundary) {
-            orientations.push(line.p1 === last_point ? clockwise : !clockwise);
-            last_point = line.other_endpoint(last_point);
-        }
-        return orientations;
+    boundary_orientations(): boolean[] {
+        return this.orientation;
     }
 
     boundary_handedness(): boolean[] {

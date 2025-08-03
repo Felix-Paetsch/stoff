@@ -10,7 +10,5 @@ export default function () {
         }
     }
 
-    const b = r.get_boundary();
-
     return r;
 }

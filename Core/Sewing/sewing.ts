@@ -3,42 +3,21 @@ import { Line } from "../StoffLib/line.js";
 import Point from "../StoffLib/point.js";
 import Sketch from "../StoffLib/sketch.js";
 import { SewingPoint } from "./sewingPoint";
+import FaceAtlas from "../PatternLib/faces/faceAtlas.js";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
-    private sewing_points: SewingPoint[];
+    public sewing_points: SewingPoint[];
+    private faceAtlases: Map<Sketch, FaceAtlas> = new Map();
 
     constructor(
         private sketches: Sketch[]
     ) {
         this.sewing_lines = [];
         this.sewing_points = [];
-    }
-
-    // Steps
-    cut(line: Line): SewingLine;
-    cut(lines: Line[]): SewingLine[];
-    cut(lines: Line | Line[]) {
-        if (!Array.isArray(lines)) {
-            return this.primitive_sewing_line(lines);
+        for (const sketch of this.sketches) {
+            this.faceAtlases.set(sketch, FaceAtlas.from_lines(sketch.get_lines(), sketch));
         }
-        return lines.map((l) => this.primitive_sewing_line(l));
-    }
-
-    primitive_sewing_line(line: Line): SewingLine {
-        // assuming it doesnt exist already
-        const sewingLine = new SewingLine(
-            this,
-            [{
-                line: line,
-                has_sewing_line_orientation: true,
-                has_sewing_line_handedness: true
-            }],
-        );
-
-        this.sewing_lines.push(sewingLine);
-        line.get_endpoints().forEach((p) => p.sewingLines.push(sewingLine));
-        return sewingLine;
     }
 
     sewing_point(point: Point | SewingPoint): SewingPoint {
@@ -121,9 +100,9 @@ export class Sewing {
         return newSewingLine;
     }
 
-    sewing_line(lines: Line): SewingLine {
-        const existingLine = this.sewing_lines.find((l) => l.contains(lines));
-        return existingLine || this.primitive_sewing_line(lines);
+    sewing_line(line: Line): SewingLine {
+        const existingLine = this.sewing_lines.find((l) => l.contains(line));
+        return existingLine || SewingLine.from_line(this, line);
     }
 
     get_lines() {
@@ -142,7 +121,22 @@ export class Sewing {
         return this.sewing_points
     }
 
+    // Faces
+    adjacent_faces(line: Line): ReturnType<FaceAtlas["adjacent_faces"]> {
+        const atlas = this.faceAtlases.get(line.get_sketch())!;
+        return atlas.adjacent_faces(line);
+    }
+
     // Operations
+    cut(line: Line): SewingLine;
+    cut(lines: Line[]): SewingLine[];
+    cut(line: Line | Line[]) {
+        if (Array.isArray(line)) {
+            return line.map((l) => this.cut(l));
+        }
+        return SewingLine.from_line(this, line);
+    }
+
     fold(fold_line: Line, left_boundary: Line[], right_boundary: Line[], orientation: boolean): void {
         // Implementation to be added
     }

@@ -9,6 +9,10 @@ Make JS, TS interoperable
 - also for sewing check return types. Maybe introduce "with" keyword to return a modified thing
 - update (replace) some methods working with cycles (PatternLib::Boundary)
 - get connected components optionally as lines... or: very good proxy behaviour
+- improved cut and glue methods using faces
+- in general more methods for faces
+    - merge
+    -
 
 Continue SewingLine/SewingPoint & co discussion
 
