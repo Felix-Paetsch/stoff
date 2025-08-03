@@ -4,6 +4,7 @@ import Point from "../StoffLib/point.js";
 import Sketch from "../StoffLib/sketch.js";
 import { SewingPoint } from "./sewingPoint";
 import FaceAtlas from "../PatternLib/faces/faceAtlas.js";
+import { FaceCarousel } from "./faceCarousel.js";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
@@ -58,40 +59,65 @@ export class Sewing {
     merge_lines(line1: SewingLine, line2: SewingLine): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine {
-        const sewingLines: SewingLine[] = lines.map((l) => l instanceof Line ? this.sewing_line(l) : l);
-        let primary = [...sewingLines[0].primary_component];
-        let other = [...sewingLines[0].other_components];
-        let lastLine = sewingLines[0];
-        let lineHasCorrectOrientation = true;
-        let lineHasCorrectHandedness = true;
-
-        for (const line of sewingLines) {
-            line.outdated = true;
-            lineHasCorrectOrientation = lastLine.same_orientation(line) === lineHasCorrectOrientation;
-            lineHasCorrectHandedness = lastLine.same_handedness(line) === lineHasCorrectHandedness;
-            !lineHasCorrectOrientation && line.set_orientation(lastLine.p1, lastLine.p2);
-            !lineHasCorrectHandedness && line.set_handedness(lastLine.right_handed);
-
-            primary = primary.concat(line.primary_component);
-            other = other.concat(line.other_components);
-
-            !lineHasCorrectOrientation && line.set_orientation(lastLine.p1, lastLine.p2);
-            !lineHasCorrectHandedness && line.set_handedness(lastLine.right_handed);
-
-            const index = this.sewing_lines.indexOf(line);
-            if (index > -1) {
-                this.sewing_lines.splice(index, 1);
-            }
-
-            line.get_endpoints().forEach((endpoint) => {
-                const lineIndex = endpoint.sewingLines.indexOf(line);
-                if (lineIndex > -1) {
-                    endpoint.sewingLines.splice(lineIndex, 1);
-                }
-            });
+        if (lines.length === 1) {
+            return lines[0] instanceof SewingLine ? lines[0] : this.sewing_line(lines[0]);
         }
 
-        const newSewingLine = new SewingLine(this, primary, other);
+        if (lines.length > 2) {
+            return this.merge_lines(
+                this.merge_lines(lines[0], lines[1]),
+                ...lines.slice(2)
+            );
+        }
+
+        const line1: SewingLine = lines[0] instanceof Line ? this.sewing_line(lines[0]) : lines[0];
+        const line2: SewingLine = lines[1] instanceof Line ? this.sewing_line(lines[1]) : lines[1];
+
+        line1.outdated = true;
+        line2.outdated = true;
+
+        line2.set_orientation(line1);
+        line2.set_handedness(line1);
+
+        // Combine components
+        const primary = line1.primary_component.concat(line2.primary_component);
+        const other = line1.other_components.concat(line2.other_components);
+
+        const newSewingLine = new SewingLine(
+            this,
+            primary,
+            other,
+            null as any
+        );
+
+        (newSewingLine as any).face_carousel = FaceCarousel.merge_horizontally(newSewingLine, line1.face_carousel, line2.face_carousel);
+
+        // Remove lines from sewing_lines array
+        const line1Index = this.sewing_lines.indexOf(line1);
+        if (line1Index > -1) {
+            this.sewing_lines.splice(line1Index, 1);
+        }
+
+        const line2Index = this.sewing_lines.indexOf(line2);
+        if (line2Index > -1) {
+            this.sewing_lines.splice(line2Index, 1);
+        }
+
+        // Remove lines from their endpoints
+        line1.get_endpoints().forEach((endpoint) => {
+            const lineIndex = endpoint.sewingLines.indexOf(line1);
+            if (lineIndex > -1) {
+                endpoint.sewingLines.splice(lineIndex, 1);
+            }
+        });
+
+        line2.get_endpoints().forEach((endpoint) => {
+            const lineIndex = endpoint.sewingLines.indexOf(line2);
+            if (lineIndex > -1) {
+                endpoint.sewingLines.splice(lineIndex, 1);
+            }
+        });
+
         // This is non-circular
         newSewingLine.get_endpoints().forEach((endpoint) => {
             endpoint.sewingLines.push(newSewingLine);

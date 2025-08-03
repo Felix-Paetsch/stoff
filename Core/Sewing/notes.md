@@ -2,6 +2,11 @@ Todo:
 
 Make JS, TS interoperable
 
+Do next:
+
+- Make sure the relative/absolute numbers check out correctly
+- Merge Face Carousels
+
 - first using the stand-alone debug environment
 - then using the old and new debug servers; the old one mostly only with ?debug=...
 - add a ?debug=... to the new server

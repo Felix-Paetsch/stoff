@@ -2,25 +2,21 @@ import { Line } from "../StoffLib/line.js";
 import Point from "../StoffLib/point.js";
 import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
 import { EPS } from "../StoffLib/geometry.js";
-import { SewingLine } from "./sewingLine.ts";
 import { FaceCarousel } from "./faceCarousel.ts";
 
 export type FaceEdgeComponent = {
     line: Line,
     standard_handedness: boolean,
-}
-
-export type PartialFaceEdgeComponent = {
-    position: number | [number, number] // from the Line orientation;
+    position: number | [number, number] // from the SewingLine orientation;
     // -1 < x < 0 or 0 < x <= 1; 0 <= x < y <= 1
-} & FaceEdgeComponent;
+};
 
 export class FaceEdge {
     public outdated: boolean;
 
     constructor(
         readonly face_carousel: FaceCarousel,
-        readonly lines: PartialFaceEdgeComponent[],
+        readonly lines: FaceEdgeComponent[],
     ) {
         this.outdated = false;
     }
@@ -58,12 +54,13 @@ export class FaceEdge {
 
     updated(): FaceEdge {
         const updated_carousel = this.face_carousel.updated();
-        return updated_carousel.faceEdges.filter((fe) => fe.contains(this))[0];
+        return updated_carousel.faceEdges.filter((fe) => fe.edge.contains(this))[0].edge;
     }
 
     contains(things: Line | Point | FaceEdge): boolean;
     contains(things: (Line | Point | FaceEdge)[]): boolean;
     contains(things: Line | Point | FaceEdge | (Line | Point | FaceEdge)[]): boolean {
+        // Maybe for a face edge we want to check the ranges. But then we need to translate them to absolutes.
         const own_lines = this.get_lines();
         const own_points = this.get_points();
 

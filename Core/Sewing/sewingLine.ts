@@ -5,17 +5,19 @@ import Point from "../StoffLib/point.js";
 import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
 import { EPS } from "../StoffLib/geometry.js";
 import { FaceCarousel } from "./faceCarousel.ts";
-import { FaceEdge, PartialFaceEdgeComponent } from "./faceEdge.ts";
+import { FaceEdge, FaceEdgeComponent } from "./faceEdge.ts";
 import Face from "../PatternLib/faces/face.ts";
 
 export type SewingLineComponent = {
     line: Line,
     has_sewing_line_orientation: boolean,
     has_sewing_line_handedness: boolean,
+    start_position_at_sewing_line: number,
+    end_position_at_sewing_line: number
 }
 
 export type PartialSewingLineComponent = {
-    position: number | [number, number] // from the Line orientation;
+    sewn_range: number | [number, number] // from the Line orientation;
     // -1 < x < 0 or 0 < x <= 1; 0 <= x < y <= 1
 } & SewingLineComponent;
 
@@ -120,8 +122,8 @@ export class SewingLine {
             let includeP1 = false;
             let includeP2 = false;
 
-            if (typeof component.position === "number") {
-                const pos = component.position;
+            if (typeof component.sewn_range === "number") {
+                const pos = component.sewn_range;
                 if (pos > 0) {
                     includeP1 = true;
                     includeP2 = 1 - pos < EPS.COARSE;
@@ -130,7 +132,7 @@ export class SewingLine {
                     includeP1 = pos + 1 < EPS.COARSE;
                 }
             } else {
-                const [x, y] = component.position;
+                const [x, y] = component.sewn_range;
                 includeP1 = x < EPS.COARSE;
                 includeP2 = y > 1 - EPS.COARSE;
             }
@@ -150,6 +152,7 @@ export class SewingLine {
         this.primary_component.forEach((l) => l.has_sewing_line_orientation = !l.has_sewing_line_orientation);
         this.other_components.forEach((l) => l.has_sewing_line_orientation = !l.has_sewing_line_orientation);
         this.primary_component.reverse();
+        this.face_carousel._swap_orientation();
         return this;
     }
 
@@ -225,10 +228,17 @@ export class SewingLine {
         return false;
     }
 
-    set_orientation(p1: SewingPoint, p2?: SewingPoint) {
+    set_orientation(thing: SewingLine | Line | SewingPoint | Point) {
+        if (thing instanceof Line || thing instanceof SewingLine) {
+            if (this.same_orientation(thing)) {
+                return;
+            }
+            return this.swap_orientation();
+        }
+
         const endpoints = this.get_endpoints();
-        if (endpoints[0].is(p1)) {
-            return this;
+        if (endpoints[0].is(thing)) {
+            return;
         }
         return this.swap_orientation();
     }
@@ -306,14 +316,16 @@ export class SewingLine {
             [{
                 line: line,
                 has_sewing_line_orientation: true,
-                has_sewing_line_handedness: true
+                has_sewing_line_handedness: true,
+                start_position_at_sewing_line: 0,
+                end_position_at_sewing_line: 1
             }],
             [],
             null as any
         );
 
         const faces = sewing.adjacent_faces(line);
-        const edges: PartialFaceEdgeComponent[][] = [];
+        const edges: FaceEdgeComponent[][] = [];
 
         if (!faces) throw new Error("Sketch of line doesnt belong to sewing.");
         if (faces[0] instanceof Face) {
@@ -351,7 +363,11 @@ export class SewingLine {
         if (!line.right_handed) edges.reverse(); // First face always is to the right
 
         const faceEdges = edges.map(e => new FaceEdge(null as any, e));
-        const carousel = new FaceCarousel(sLine, faceEdges);
+        const carousel = new FaceCarousel(sLine, faceEdges.map(e => ({
+            edge: e,
+            start_position_at_sewing_line: 0,
+            end_position_at_sewing_line: 1
+        })));
         faceEdges.forEach(e => (e as any).face_carousel = carousel);
         (sLine as any).face_carousel = carousel;
 
