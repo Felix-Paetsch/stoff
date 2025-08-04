@@ -26,4 +26,8 @@ const EPS = {
     VISUAL: 1e-3,
 };
 
+export function eps_equal(a, b, eps = EPS.EQUAL) {
+    return Math.abs(a - b) <= eps;
+}
+
 export default EPS;

@@ -1,4 +1,4 @@
-import EPS from "./geometry/eps.js";
+import EPS, { eps_equal } from "./geometry/eps.js";
 import triangle_data from "./geometry/triangle_data.js";
 import {
     Vector,
@@ -73,5 +73,6 @@ export {
     Line as PlainLine,
     Ray,
     EPS,
+    eps_equal,
     BoundingBox,
 };

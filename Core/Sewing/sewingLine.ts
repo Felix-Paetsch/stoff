@@ -17,7 +17,7 @@ export type SewingLineComponent = {
 }
 
 export type PartialSewingLineComponent = {
-    sewn_range: number | [number, number] // from the Line orientation;
+    sewn_range: number | [number, number] // from the Line orientation of the component;
     // -1 < x < 0 or 0 < x <= 1; 0 <= x < y <= 1
 } & SewingLineComponent;
 
@@ -332,15 +332,15 @@ export class SewingLine {
             if (!faces[0].is_boundary()) {
                 edges.push([{
                     line: line,
-                    position: 1,
+                    position: [0, 1],
                     standard_handedness: true
                 }]);
             }
             if (!(faces[1] as Face).is_boundary()) {
                 edges.push([{
                     line: line,
-                    position: 1,
-                    standard_handedness: true
+                    position: [0, 1],
+                    standard_handedness: false
                 }]);
             }
         } else {
@@ -351,11 +351,11 @@ export class SewingLine {
             if (face.is_boundary()) throw new Error("Line is not contained inside fabric.");
             edges.push([{
                 line: line,
-                position: 1,
+                position: [0, 1],
                 standard_handedness: true
             }, {
                 line: line,
-                position: 1,
+                position: [0, 1],
                 standard_handedness: false
             }
             ]);
@@ -366,11 +366,25 @@ export class SewingLine {
         const carousel = new FaceCarousel(sLine, faceEdges.map(e => ({
             edge: e,
             start_position_at_sewing_line: 0,
-            end_position_at_sewing_line: 1
+            end_position_at_sewing_line: 1,
+            folded_right: e.lines[0].standard_handedness === line.right_handed
         })));
         faceEdges.forEach(e => (e as any).face_carousel = carousel);
         (sLine as any).face_carousel = carousel;
 
         return sLine;
+    }
+
+    static position_at_merged_sewing_line(sl1: SewingLine, sl2: SewingLine, from_first_line: boolean, position: number) {
+        // Assuming sl1 and sl2 have the same orientation
+        // Returns the new position at the merged sewing line
+        const length1 = sl1.get_length();
+        const length2 = sl2.get_length();
+        const total_length = length1 + length2;
+
+        if (from_first_line) {
+            return position * length1 / total_length;
+        }
+        return (1 - position) * length2 / total_length;
     }
 }

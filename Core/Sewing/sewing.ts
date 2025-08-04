@@ -21,6 +21,14 @@ export class Sewing {
         }
     }
 
+    is_sewing_point(point: Point | SewingPoint): boolean {
+        return this.sewing_points.some((p) => p.is(point));
+    }
+
+    has_sewing_line(line: Line | SewingLine): boolean {
+        return this.sewing_lines.some((l) => l.contains(line));
+    }
+
     sewing_point(point: Point | SewingPoint): SewingPoint {
         if (point instanceof SewingPoint) {
             return point;
@@ -73,15 +81,24 @@ export class Sewing {
         const line1: SewingLine = lines[0] instanceof Line ? this.sewing_line(lines[0]) : lines[0];
         const line2: SewingLine = lines[1] instanceof Line ? this.sewing_line(lines[1]) : lines[1];
 
-        line1.outdated = true;
-        line2.outdated = true;
-
         line2.set_orientation(line1);
         line2.set_handedness(line1);
 
         // Combine components
-        const primary = line1.primary_component.concat(line2.primary_component);
-        const other = line1.other_components.concat(line2.other_components);
+        const primary = line1.primary_component.concat(line2.primary_component).map(
+            (component) => ({
+                ...component,
+                start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, true, component.start_position_at_sewing_line),
+                end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, true, component.end_position_at_sewing_line)
+            })
+        );
+        const other = line1.other_components.concat(line2.other_components).map(
+            (component) => ({
+                ...component,
+                start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, false, component.start_position_at_sewing_line),
+                end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, false, component.end_position_at_sewing_line)
+            })
+        );
 
         const newSewingLine = new SewingLine(
             this,
@@ -93,11 +110,13 @@ export class Sewing {
         (newSewingLine as any).face_carousel = FaceCarousel.merge_horizontally(newSewingLine, line1.face_carousel, line2.face_carousel);
 
         // Remove lines from sewing_lines array
+        line1.outdated = true;
         const line1Index = this.sewing_lines.indexOf(line1);
         if (line1Index > -1) {
             this.sewing_lines.splice(line1Index, 1);
         }
 
+        line2.outdated = true;
         const line2Index = this.sewing_lines.indexOf(line2);
         if (line2Index > -1) {
             this.sewing_lines.splice(line2Index, 1);
