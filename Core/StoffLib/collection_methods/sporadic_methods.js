@@ -1,4 +1,4 @@
-import { Vector, convex_hull } from "../geometry.js";
+import { Vector, convex_hull, BoundingBox } from "../geometry.js";
 import { copy_sketch_element_collection } from "../copy.js";
 
 export default (Class, set_if_not_exists) => {

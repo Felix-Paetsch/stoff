@@ -9,13 +9,14 @@ import { Sewing } from "./sewing.ts";
 export type FaceEdgeComponent = {
     line: Line,
     standard_handedness: boolean,
-    position: [number, number] // 0 <= x < y <= 1, relative to the Line orientation
+    standard_orientation: boolean,
+    position: [number, number] // 0 <= x < y <= 1
 };
 
 export class FaceEdge {
     constructor(
         readonly face_carousel: FaceCarousel,
-        readonly lines: FaceEdgeComponent[],
+        readonly lines: FaceEdgeComponent[], // We assume they are consecutive (or at least could be)
     ) { }
 
     get outdated(): boolean {
@@ -86,8 +87,37 @@ export class FaceEdge {
         return true;
     }
 
-    get_length() {
-        return this.get_lines().reduce((acc, l) => acc + l.get_length(), 0);
+    get_length(): number {
+        let res = 0;
+        this.lines.forEach(l => {
+            res += l.line.get_length() * (l.position[1] - l.position[0]);
+        })
+        return res;
+    }
+
+    static get_length(fpc: FaceEdgeComponent): number {
+        return fpc.line.get_length() * (fpc.position[1] - fpc.position[0]);
+    }
+
+    position(fec: FaceEdgeComponent): [number, number] {
+        let start_position = 0;
+        for (const l of this.lines) {
+            if (l !== fec) {
+                start_position += l.line.get_length() * (l.position[1] - l.position[0]);
+                continue;
+            }
+
+            const start = fec.standard_orientation ? fec.position[0] : 1 - fec.position[1];
+            const fec_length = fec.line.get_length() * (fec.position[1] - fec.position[0]);
+            const this_length = this.get_length();
+            const start_pos = (start_position + start * fec_length) / this_length;
+
+            return [
+                start_pos,
+                start_pos + fec_length / this_length
+            ];
+        }
+        throw new Error("FaceEdgeComponent not found in FaceEdge");
     }
 
     connected_horizontally(other: FaceEdge, at?: SewingPoint): boolean {
@@ -151,6 +181,6 @@ function lines_vertically_adjacent(sewing: Sewing, l1: Line, l2: Line, p1: Point
 
     const l1_component = sewing_line.primary_component.concat(sewing_line.other_components).find((c) => c.line == l1)!;
     const l2_component = sewing_line.primary_component.concat(sewing_line.other_components).find((c) => c.line == l2)!;
-    return eps_equal(l1_component.start_position_at_sewing_line, l2_component.end_position_at_sewing_line, EPS.COARSE)
-        || eps_equal(l1_component.end_position_at_sewing_line, l2_component.start_position_at_sewing_line, EPS.COARSE);
+    return eps_equal(l1_component.position_at_sewing_line[0], l2_component.position_at_sewing_line[1], EPS.COARSE)
+        || eps_equal(l1_component.position_at_sewing_line[1], l2_component.position_at_sewing_line[0], EPS.COARSE);
 }

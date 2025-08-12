@@ -1,3 +1,5 @@
+import { Vector } from "./classes.js";
+
 export class BoundingBox {
     constructor(
         readonly min_x: number,

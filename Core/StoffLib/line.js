@@ -303,6 +303,46 @@ class Line {
         });
     }
 
+    get_relative_sample_points_from_to(fromFraction, toFraction) {
+        let current_len = 0;
+        let start;
+        let end;
+        const length = this.get_length() / this.endpoint_distance();
+        for (let i = 1; i < this.sample_points.length; i++) {
+            current_len += this.sample_points[i].distance(
+                this.sample_points[i - 1]
+            );
+            if (start === undefined && current_len >= fromFraction * length) {
+                start = i;
+            }
+            if (
+                start !== undefined &&
+                end === undefined &&
+                current_len >= interval[1] * length
+            ) {
+                end = i;
+            }
+        }
+
+        const points = abs_points.slice(
+            start || end || Infinity,
+            end || Infinity
+        );
+        points.push(line.position_at_fraction(interval[1]));
+        points.unshift(line.position_at_fraction(interval[0]));
+        return points;
+    }
+
+    get_absolute_sample_points_from_to(fromFraction, toFraction) {
+        const to_absolute = this.get_to_absolute_function();
+        return this.get_relative_sample_points_from_to(
+            fromFraction,
+            toFraction
+        ).map((p) => {
+            return to_absolute(p);
+        });
+    }
+
     get_line_vector() {
         return this.p2.subtract(this.p1);
     }

@@ -1,11 +1,9 @@
-import Face from "../PatternLib/faces/face.ts";
 import { FaceEdge } from "./faceEdge.ts";
 import { SewingLine } from "./sewingLine.ts";
 
-type FaceEdgeWithPosition = {
-    edge: FaceEdge,
-    start_position_at_sewing_line: number, // Between 0 and 1 in line direction, beginning of edge
-    end_position_at_sewing_line: number, // Between 0 and 1 in line direction, end of edge
+export type FaceEdgeWithPosition = {
+    readonly edge: FaceEdge,
+    position_at_sewing_line: [number, number]
     folded_right: boolean;
 }
 
@@ -14,6 +12,28 @@ export class FaceCarousel {
         readonly sewingLine: SewingLine,
         readonly faceEdges: FaceEdgeWithPosition[]
     ) { }
+
+    fold(left: FaceEdge[], right: FaceEdge[]): void {
+        // With p1 bottom and p2 top; which things to put at the left or right when looking from the front side
+        // Later we will test that is can be folded
+        this.faceEdges.forEach((edge) => {
+            if (left.includes(edge.edge)) {
+                edge.folded_right = false;
+            } else if (right.includes(edge.edge)) {
+                edge.folded_right = true;
+            } else {
+                throw new Error("Didn't specify what should happen with a faceEdge");
+            }
+        });
+    }
+
+    left_edges(): FaceEdge[] {
+        return this.faceEdges.filter((edge) => !edge.folded_right).map((edge) => edge.edge);
+    }
+
+    right_edges(): FaceEdge[] {
+        return this.faceEdges.filter((edge) => edge.folded_right).map((edge) => edge.edge);
+    }
 
     get outdated(): boolean {
         return this.sewingLine.outdated;
@@ -39,9 +59,11 @@ export class FaceCarousel {
 
     _swap_orientation(): FaceCarousel {
         this.faceEdges.forEach((edge) => {
-            const start_position = edge.start_position_at_sewing_line;
-            edge.start_position_at_sewing_line = 1 - edge.end_position_at_sewing_line;
-            edge.end_position_at_sewing_line = 1 - start_position;
+            const old_position = edge.position_at_sewing_line;
+            edge.position_at_sewing_line = [1 - old_position[1], 1 - old_position[0]];
+            edge.edge.lines.forEach((line) => {
+                line.standard_orientation = !line.standard_orientation;
+            });
         });
         this.faceEdges.reverse();
         return this;
@@ -134,18 +156,20 @@ function merge_face_edges_horizontally(sewingLine1: SewingLine, sewingLine2: Sew
 
     return {
         edge: new FaceEdge(null as any, new_edge_lines),
-        start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(
-            sewingLine1,
-            sewingLine2,
-            true,
-            edge1.start_position_at_sewing_line
-        ),
-        end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(
-            sewingLine1,
-            sewingLine2,
-            false,
-            edge2.end_position_at_sewing_line
-        ),
+        position_at_sewing_line: [
+            SewingLine.position_at_horizontally_merged_sewing_line(
+                sewingLine1,
+                sewingLine2,
+                true,
+                edge1.position_at_sewing_line[0]
+            ),
+            SewingLine.position_at_horizontally_merged_sewing_line(
+                sewingLine1,
+                sewingLine2,
+                false,
+                edge2.position_at_sewing_line[1]
+            )
+        ],
         folded_right: edge1.folded_right
     };
 }
@@ -153,18 +177,20 @@ function merge_face_edges_horizontally(sewingLine1: SewingLine, sewingLine2: Sew
 function rescaled_face_edge(sewingLine1: SewingLine, sewingLine2: SewingLine, edge1: FaceEdgeWithPosition): FaceEdgeWithPosition {
     return {
         edge: new FaceEdge(null as any, edge1.edge.lines),
-        start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(
-            sewingLine1,
-            sewingLine2,
-            true,
-            edge1.start_position_at_sewing_line
-        ),
-        end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(
-            sewingLine1,
-            sewingLine2,
-            false,
-            edge1.end_position_at_sewing_line
-        ),
+        position_at_sewing_line: [
+            SewingLine.position_at_horizontally_merged_sewing_line(
+                sewingLine1,
+                sewingLine2,
+                true,
+                edge1.position_at_sewing_line[0]
+            ),
+            SewingLine.position_at_horizontally_merged_sewing_line(
+                sewingLine1,
+                sewingLine2,
+                false,
+                edge1.position_at_sewing_line[1]
+            )
+        ],
         folded_right: edge1.folded_right
     }
 }

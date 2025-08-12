@@ -61,4 +61,6 @@ export class SewingPoint {
     get_sewing_lines(): SewingLine[] {
         return this.sewingLines;
     }
+
+    mark_as_inaccessible() { }
 }

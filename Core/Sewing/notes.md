@@ -4,6 +4,13 @@ Make JS, TS interoperable
 
 Do next:
 
+- Thinl about (getting) face edges
+- Think about orientation
+- Bring in handedness (basically the same area as ^^)
+- unify names (handedness and so on. And make them clear)
+- use consistent set of flags
+- structure methods
+
 - Make sure the relative/absolute numbers check out correctly
 - Merge Face Carousels
 

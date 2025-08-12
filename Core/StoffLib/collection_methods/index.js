@@ -1,9 +1,7 @@
 import register_getter_methods from "./getter_methods.js";
-import register_sporadic_methods, {
-    calculate_bounding_box,
-} from "./sporadic_methods.js";
 import register_element_wise_methods from "./element_wise_methods.js";
 import register_connected_components_methods from "./connected_components_methods.js";
+import register_sporadic_methods from "./sporadic_methods.js";
 
 export default function register_collection_methods(Class) {
     // We assume the class exposes the following:

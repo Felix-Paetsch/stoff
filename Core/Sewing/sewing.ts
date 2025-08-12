@@ -4,7 +4,10 @@ import Point from "../StoffLib/point.js";
 import Sketch from "../StoffLib/sketch.js";
 import { SewingPoint } from "./sewingPoint";
 import FaceAtlas from "../PatternLib/faces/faceAtlas.js";
-import { FaceCarousel } from "./faceCarousel.js";
+import { merge_lines_vertically } from "./mergeLines/vertically.js";
+import { FaceEdge } from "./faceEdge.js";
+import { merge_lines_horizontally } from "./mergeLines/horizontally.js";
+import { StackLine } from "./mergeLines/stackLine.js";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
@@ -12,7 +15,7 @@ export class Sewing {
     private faceAtlases: Map<Sketch, FaceAtlas> = new Map();
 
     constructor(
-        private sketches: Sketch[]
+        readonly sketches: Sketch[]
     ) {
         this.sewing_lines = [];
         this.sewing_points = [];
@@ -67,82 +70,7 @@ export class Sewing {
     merge_lines(line1: SewingLine, line2: SewingLine): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine {
-        if (lines.length === 1) {
-            return lines[0] instanceof SewingLine ? lines[0] : this.sewing_line(lines[0]);
-        }
-
-        if (lines.length > 2) {
-            return this.merge_lines(
-                this.merge_lines(lines[0], lines[1]),
-                ...lines.slice(2)
-            );
-        }
-
-        const line1: SewingLine = lines[0] instanceof Line ? this.sewing_line(lines[0]) : lines[0];
-        const line2: SewingLine = lines[1] instanceof Line ? this.sewing_line(lines[1]) : lines[1];
-
-        line2.set_orientation(line1);
-        line2.set_handedness(line1);
-
-        // Combine components
-        const primary = line1.primary_component.concat(line2.primary_component).map(
-            (component) => ({
-                ...component,
-                start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, true, component.start_position_at_sewing_line),
-                end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, true, component.end_position_at_sewing_line)
-            })
-        );
-        const other = line1.other_components.concat(line2.other_components).map(
-            (component) => ({
-                ...component,
-                start_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, false, component.start_position_at_sewing_line),
-                end_position_at_sewing_line: SewingLine.position_at_merged_sewing_line(line1, line2, false, component.end_position_at_sewing_line)
-            })
-        );
-
-        const newSewingLine = new SewingLine(
-            this,
-            primary,
-            other,
-            null as any
-        );
-
-        (newSewingLine as any).face_carousel = FaceCarousel.merge_horizontally(newSewingLine, line1.face_carousel, line2.face_carousel);
-
-        // Remove lines from sewing_lines array
-        line1.outdated = true;
-        const line1Index = this.sewing_lines.indexOf(line1);
-        if (line1Index > -1) {
-            this.sewing_lines.splice(line1Index, 1);
-        }
-
-        line2.outdated = true;
-        const line2Index = this.sewing_lines.indexOf(line2);
-        if (line2Index > -1) {
-            this.sewing_lines.splice(line2Index, 1);
-        }
-
-        // Remove lines from their endpoints
-        line1.get_endpoints().forEach((endpoint) => {
-            const lineIndex = endpoint.sewingLines.indexOf(line1);
-            if (lineIndex > -1) {
-                endpoint.sewingLines.splice(lineIndex, 1);
-            }
-        });
-
-        line2.get_endpoints().forEach((endpoint) => {
-            const lineIndex = endpoint.sewingLines.indexOf(line2);
-            if (lineIndex > -1) {
-                endpoint.sewingLines.splice(lineIndex, 1);
-            }
-        });
-
-        // This is non-circular
-        newSewingLine.get_endpoints().forEach((endpoint) => {
-            endpoint.sewingLines.push(newSewingLine);
-        });
-        this.sewing_lines.push(newSewingLine);
-        return newSewingLine;
+        return merge_lines_horizontally(this, ...this.order_by_endpoints(lines));
     }
 
     sewing_line(line: Line): SewingLine {
@@ -166,6 +94,38 @@ export class Sewing {
         return this.sewing_points
     }
 
+    order_by_endpoints(lines: (SewingLine | Line)[]) {
+        // Removing dublicates
+        const sl: SewingLine[] = [];
+        for (const l of lines) {
+            const ln = l instanceof SewingLine ? l : this.sewing_line(l);
+            if (sl.includes(ln)) continue;
+            sl.push(ln);
+        }
+
+        if (sl.length == 0) return [];
+        const ordered_lines = [sl.pop()!];
+        const endpoints = ordered_lines[0].get_endpoints();
+        while (sl.length > 0) {
+            for (let i = 0; i < sl.length; i++) {
+                if (sl[i].has_endpoint(endpoints[1])) {
+                    ordered_lines.push(sl[i]);
+                    sl.slice(i, 1);
+                    endpoints[1] = sl[i].other_endpoint(endpoints[endpoints.length - 1]);
+                    break
+                }
+                if (sl[i].has_endpoint(endpoints[0])) {
+                    ordered_lines.unshift(sl[i]);
+                    sl.slice(i, 1);
+                    endpoints[0] = sl[i].other_endpoint(endpoints[0])
+                }
+            }
+            throw new Error("Lines can not be ordered.");
+        }
+
+        return ordered_lines
+    }
+
     // Faces
     adjacent_faces(line: Line): ReturnType<FaceAtlas["adjacent_faces"]> {
         const atlas = this.faceAtlases.get(line.get_sketch())!;
@@ -182,24 +142,23 @@ export class Sewing {
         return SewingLine.from_line(this, line);
     }
 
-    fold(fold_line: Line, left_boundary: Line[], right_boundary: Line[], orientation: boolean): void {
-        // Implementation to be added
+    fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false): void {
+        const line: SewingLine = fold_line instanceof SewingLine ? fold_line : this.sewing_line(fold_line);
+        const left = line.face_carousel.left_edges();
+        const right = line.face_carousel.right_edges();
+        if (rightOnLeft) return line.face_carousel.fold(left.concat(right), []);
+        return line.face_carousel.fold([], right.concat(left));
     }
 
-    iron(line: Line, layers_left: number, layers_right: number, orientation: boolean): void {
-        // Implementation to be added
+    iron(line: SewingLine, left: FaceEdge[], right: FaceEdge[]): void {
+        return line.face_carousel.fold(left, right);
     }
 
-    stack(linesWithOptionalConfig: any): void {
-        // Implementation to be added
+    stack(guide: SewingLine, sewOn: StackLine[]): void {
+        // Display and logging implementation
     }
 
-    sew(lines: Line[], attributes: any): void {
-        // Implementation to be added
+    sew(guide: SewingLine, sewOn: StackLine[]): void {
+        merge_lines_vertically(this, guide, sewOn);
     }
-
-    stack_sew(): void {
-        // Implementation to be added
-    }
-    // Helpful with argument passing
 }
