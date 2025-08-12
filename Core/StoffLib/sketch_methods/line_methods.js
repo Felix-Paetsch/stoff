@@ -496,8 +496,15 @@ export default (Sketch) => {
         );
     };
 
-    Sketch.prototype.line_with_offset = function (line, offset, direction = 0) {
-        const abs_sample_points = line.offset_sample_points(offset, direction);
+    Sketch.prototype.line_with_offset = function (
+        line,
+        offset,
+        withHandedness = true
+    ) {
+        const abs_sample_points = line.offset_sample_points(
+            offset,
+            withHandedness
+        );
         const p1 = this.add_point(Point.from_vector(abs_sample_points[0]));
         const p2 = this.add_point(
             Point.from_vector(abs_sample_points[abs_sample_points.length - 1])

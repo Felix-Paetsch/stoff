@@ -93,11 +93,11 @@ class Line {
         }
     }
 
-    offset_sample_points(radius, direction = 0) {
+    offset_sample_points(radius, withHandedness = true) {
         return offset_sample_points(
-            this,
+            this.get_absolute_sample_points(),
             radius,
-            Boolean(!direction) ^ Boolean(this.right_handed)
+            withHandedness ? this.right_handed : !this.right_handed
         );
     }
 
@@ -304,6 +304,11 @@ class Line {
     }
 
     get_relative_sample_points_from_to(fromFraction, toFraction) {
+        if (fromFraction > toFraction)
+            return this.get_relative_sample_points_from_to(
+                toFraction,
+                fromFraction
+            );
         let current_len = 0;
         let start;
         let end;

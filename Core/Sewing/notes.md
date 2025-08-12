@@ -10,6 +10,7 @@ Do next:
 - unify names (handedness and so on. And make them clear)
 - use consistent set of flags
 - structure methods
+- better names.. faceedgecomponents as lines somewhere
 
 - Make sure the relative/absolute numbers check out correctly
 - Merge Face Carousels

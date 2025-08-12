@@ -8,11 +8,17 @@ import { merge_lines_vertically } from "./mergeLines/vertically.js";
 import { FaceEdge } from "./faceEdge.js";
 import { merge_lines_horizontally } from "./mergeLines/horizontally.js";
 import { StackLine } from "./mergeLines/stackLine.js";
+import Renderer from "./rendering/renderer";
+import cutRenderer from "./rendering/render_step/cut";
+import foldRenderer from "./rendering/render_step/fold.js";
+import ironRenderer from "./rendering/render_step/iron.js";
+import sewRenderer from "./rendering/render_step/sew.js";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
     public sewing_points: SewingPoint[];
     private faceAtlases: Map<Sketch, FaceAtlas> = new Map();
+    public renderers: Renderer[] = [];
 
     constructor(
         readonly sketches: Sketch[]
@@ -139,6 +145,13 @@ export class Sewing {
         if (Array.isArray(line)) {
             return line.map((l) => this.cut(l));
         }
+        if (this.renderers.length > 0 && this.renderers[this.renderers.length - 1].render_step == "cut") {
+            (this.renderers[this.renderers.length - 1] as ReturnType<typeof cutRenderer>).add_cut_line(
+                line
+            );
+        } else {
+            this.renderers.push(cutRenderer(this, [line] as Line[]));
+        }
         return SewingLine.from_line(this, line);
     }
 
@@ -146,19 +159,22 @@ export class Sewing {
         const line: SewingLine = fold_line instanceof SewingLine ? fold_line : this.sewing_line(fold_line);
         const left = line.face_carousel.left_edges();
         const right = line.face_carousel.right_edges();
-        if (rightOnLeft) return line.face_carousel.fold(left.concat(right), []);
-        return line.face_carousel.fold([], right.concat(left));
+        if (rightOnLeft) {
+            line.face_carousel.fold(left.concat(right), []);
+        } else {
+            line.face_carousel.fold([], right.concat(left));
+        }
+
+        this.renderers.push(foldRenderer(this, line));
     }
 
     iron(line: SewingLine, left: FaceEdge[], right: FaceEdge[]): void {
-        return line.face_carousel.fold(left, right);
-    }
-
-    stack(guide: SewingLine, sewOn: StackLine[]): void {
-        // Display and logging implementation
+        line.face_carousel.fold(left, right);
+        this.renderers.push(ironRenderer(this, line));
     }
 
     sew(guide: SewingLine, sewOn: StackLine[]): void {
-        merge_lines_vertically(this, guide, sewOn);
+        const res = merge_lines_vertically(this, guide, sewOn);
+        this.renderers.push(sewRenderer(this, res));
     }
 }

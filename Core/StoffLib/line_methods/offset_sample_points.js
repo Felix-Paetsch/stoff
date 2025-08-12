@@ -1,47 +1,63 @@
-import { line_segments_intersect, vec_angle_clockwise, EPS } from '../geometry.js';
+import {
+    line_segments_intersect,
+    vec_angle_clockwise,
+    EPS,
+} from "../geometry.js";
 
-export default function offset_sample_points(line, radius, direction = 0){
-    if (radius < 0){
+export default function offset_sample_points(
+    sample_points,
+    radius,
+    toRight = true
+) {
+    if (radius < 0) {
         radius *= -1;
-        direction = 1 - direction;
+        toRight = !toRight;
     }
 
-    if (direction == 1){
-        line.swap_orientation();
+    if (!toRight) {
+        sample_points.reverse();
     }
 
     const abs_sample_points = [];
-    const sp = line.get_absolute_sample_points();
 
     let prev_left = null; // For angles
     let left = 0;
 
-    while (left < sp.length){
+    while (left < sample_points.length) {
         let right = left + 1;
-        while (right < sp.length && sp[left].equals(sp[right], EPS.FINE)){
+        while (
+            right < sample_points.length &&
+            sample_points[left].equals(sample_points[right], EPS.FINE)
+        ) {
             right++;
         }
 
-        if (right > sp.length - 1){
+        if (right > sample_points.length - 1) {
             break;
         }
 
-        if (prev_left === null){
+        if (prev_left === null) {
             // 0.
-            const orth = sp[right].subtract(sp[left]).get_orthogonal().to_len(radius);
-            abs_sample_points.push(sp[left].add(orth));
+            const orth = sample_points[right]
+                .subtract(sample_points[left])
+                .get_orthogonal()
+                .to_len(radius);
+            abs_sample_points.push(sample_points[left].add(orth));
         } else {
             // 1a)
-            const vec1 = sp[prev_left].subtract(sp[left]);
-            const vec2 = sp[right].subtract(sp[left]);
+            const vec1 = sample_points[prev_left].subtract(sample_points[left]);
+            const vec2 = sample_points[right].subtract(sample_points[left]);
             let angle = vec_angle_clockwise(vec1, vec2, true);
-            const center_vec = vec1.rotate(angle/2).to_len(radius);
-            abs_sample_points.push(sp[left].add(center_vec));
+            const center_vec = vec1.rotate(angle / 2).to_len(radius);
+            abs_sample_points.push(sample_points[left].add(center_vec));
         }
 
         // 1b)
-        const cp = sp[left].add(sp[right]).scale(0.5);
-        const orth = sp[right].subtract(sp[left]).get_orthogonal().to_len(radius);
+        const cp = sample_points[left].add(sample_points[right]).scale(0.5);
+        const orth = sample_points[right]
+            .subtract(sample_points[left])
+            .get_orthogonal()
+            .to_len(radius);
         abs_sample_points.push(cp.add(orth));
 
         prev_left = left;
@@ -49,11 +65,19 @@ export default function offset_sample_points(line, radius, direction = 0){
     }
 
     // 2.
-    if (sp[left].equals(sp[sp.length - 1], EPS.FINE)){
+    if (
+        sample_points[left].equals(
+            sample_points[sample_points.length - 1],
+            EPS.FINE
+        )
+    ) {
         left = prev_left;
     }
-    const orth = sp[sp.length - 1].subtract(sp[left]).get_orthogonal().to_len(radius);
-    abs_sample_points.push(sp[sp.length - 1].add(orth));
+    const orth = sample_points[sample_points.length - 1]
+        .subtract(sample_points[left])
+        .get_orthogonal()
+        .to_len(radius);
+    abs_sample_points.push(sample_points[sample_points.length - 1].add(orth));
 
     // 3.
     remove_spikes(abs_sample_points, sp);
@@ -61,8 +85,8 @@ export default function offset_sample_points(line, radius, direction = 0){
     // 4.
     filter_out_cycles(abs_sample_points);
 
-    if (direction == 1){
-        line.swap_orientation();
+    if (!toRight) {
+        sample_points.reverse();
         abs_sample_points.reverse();
     }
 
@@ -87,8 +111,14 @@ function filter_out_cycles(abs_sample_points) {
         const currentSegment = [abs_sample_points[i], abs_sample_points[i + 1]];
 
         for (let j = i + 2; j < abs_sample_points.length - 1; j++) {
-            const nextSegment = [abs_sample_points[j], abs_sample_points[j + 1]];
-            const [intersects, intersectionPoint] = line_segments_intersect(currentSegment, nextSegment);
+            const nextSegment = [
+                abs_sample_points[j],
+                abs_sample_points[j + 1],
+            ];
+            const [intersects, intersectionPoint] = line_segments_intersect(
+                currentSegment,
+                nextSegment
+            );
 
             if (intersects) {
                 abs_sample_points.splice(i + 1, j - i, intersectionPoint);
@@ -108,7 +138,10 @@ function remove_spikes(abs_sample_points, sp) {
     let may_have_spike = true;
     while (may_have_spike && abs_sample_points.length > 2) {
         may_have_spike = false;
-        const endSeg = [abs_sample_points[abs_sample_points.length - 1], sp[sp.length - 1]];
+        const endSeg = [
+            abs_sample_points[abs_sample_points.length - 1],
+            sp[sp.length - 1],
+        ];
         for (let i = 0; i < abs_sample_points.length - 2; i++) {
             const seg = [abs_sample_points[i], abs_sample_points[i + 1]];
             const [intersects] = line_segments_intersect(endSeg, seg);

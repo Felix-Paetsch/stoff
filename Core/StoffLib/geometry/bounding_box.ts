@@ -32,6 +32,10 @@ export class BoundingBox {
         );
     }
 
+    center() {
+        return new Vector((this.min_x + this.max_x) / 2, (this.min_y + this.max_y) / 2);
+    }
+
     with_min_bb(min_bb: [number, number]) {
         return new BoundingBox(this.min_x, this.min_y, this.max_x, this.max_y, min_bb);
     }
