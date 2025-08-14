@@ -8,15 +8,15 @@
     </head>
 
     <body class="bg-gray-100">
-        <div id="pattern_preview">Loading...</div>
-        <div id="render_message">[No render message]</div>
+        <div id="canvas">Loading...</div>
         <%- include("htmx/state.ejs", { state: { start_ts: Date.now() } }) %>
         <script src="/main/add_svg_hover_events.js"></script>
         <script>
             getTimeoutSetting = () => 200;
 
             document.body.addEventListener("htmx:afterSwap", function (evt) {
-                if (evt.detail.elt.id === "pattern_preview") {
+                console.log(evt);
+                if (evt.detail.elt.id === "canvas") {
                     add_svg_hover_events();
                 }
             });

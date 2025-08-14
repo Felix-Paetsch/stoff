@@ -13,8 +13,8 @@ export type ConnectedComponentFaceData = {
 
 
 export default function findFaces(lines: Line[]) {
-    const connected_components = (new SketchElementCollection(lines) as any).connected_components();
-    const CC_faces = connected_components.map(cc => findConnectedComponentFaces(cc));
+    const connected_components = (new SketchElementCollection(lines) as any).get_connected_components();
+    const CC_faces = connected_components.map((cc: ConnectedComponent) => findConnectedComponentFaces(cc));
 
     return new FaceAtlas(CC_faces);
 }
@@ -26,7 +26,7 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     }[] = [];
     const rogue_lines: Line[] = [];
 
-    const lines = cc.get_lines();
+    const lines: Line[] = cc.get_lines();
     const lines_map = new Map<Line, {
         with_orientation: boolean;
         against_orientation: boolean;
@@ -40,20 +40,20 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     }
 
     outerLoop: for (const line of lines) {
-        const visited = lines_map.get(line);
+        const visited = lines_map.get(line)!;
         if (visited.with_orientation && visited.against_orientation) continue;
 
         const visited_lines = [];
         const orientations = [];
         let latest_line = line;
-        let latest_endpoint = line.get_endpoint_for_orientation(visited.with_orientation); // The one after current line, before next line
+        let latest_endpoint = line.endpoint_from_orientation(visited.with_orientation); // The one after current line, before next line
         while (true) {
             for (let i = 0; i < visited_lines.length; i++) {
-                if (visited_lines[i].get_endpoint_for_orientation(orientations[i]) == latest_endpoint) {
+                if (visited_lines[i].endpoint_from_orientation(orientations[i]) == latest_endpoint) {
                     visited_lines.push(latest_line);
                     const latest_orientation = latest_line.p2 == latest_endpoint;
                     orientations.push(latest_orientation);
-                    lines_map.get(latest_line)[latest_orientation ? "with_orientation" : "against_orientation"] = true;
+                    lines_map.get(latest_line)![latest_orientation ? "with_orientation" : "against_orientation"] = true;
                     boundaries.push({
                         lines: visited_lines.slice(i),
                         orientation: orientations.slice(i),
@@ -68,14 +68,14 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
             const possible_next_lines = lines.filter(
                 l => l.has_endpoint(latest_endpoint)
                     && lines_map.has(l)
-                    && !lines_map.get(l)[l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
+                    && !lines_map.get(l)![l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
             ).sort((l1, l2) => l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))
                 - l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))
             );
 
             if (possible_next_lines.length == 0) {
                 rogue_lines.push(latest_line);
-                const obj = lines_map.get(latest_line);
+                const obj = lines_map.get(latest_line)!;
                 obj.with_orientation = true;
                 obj.against_orientation = true;
                 if (visited_lines.length == 0) {
@@ -83,13 +83,13 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                 }
                 orientations.pop();
                 latest_endpoint = latest_line.other_endpoint(latest_endpoint);
-                latest_line = visited_lines.pop();
+                latest_line = visited_lines.pop()!;
                 continue;
             } else {
                 visited_lines.push(latest_line);
                 const latest_orientation = latest_line.p2 == latest_endpoint;
                 orientations.push(latest_orientation);
-                lines_map.get(latest_line)[latest_orientation ? "with_orientation" : "against_orientation"] = true;
+                lines_map.get(latest_line)![latest_orientation ? "with_orientation" : "against_orientation"] = true;
                 latest_line = possible_next_lines[0];
                 latest_endpoint = latest_line.other_endpoint(latest_endpoint);
             }
@@ -97,7 +97,10 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     }
 
     const res = [];
-    let outer_face = {
+    let outer_face: {
+        area: number;
+        face: Face | null;
+    } = {
         area: 0,
         face: null,
     };
@@ -114,7 +117,7 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     }
     return {
         faces: res,
-        outer_face: outer_face.face,
+        outer_face: outer_face.face as Face,
         chains: FaceAtlas.rogue_lines_to_chains(rogue_lines),
     };
 }

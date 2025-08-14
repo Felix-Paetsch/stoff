@@ -4,27 +4,35 @@ Make JS, TS interoperable
 
 Do next:
 
-- Thinl about (getting) face edges
-- Think about orientation
-- Bring in handedness (basically the same area as ^^)
-- unify names (handedness and so on. And make them clear)
-- use consistent set of flags
-- structure methods
-- better names.. faceedgecomponents as lines somewhere
+create debug env
+#################
 
-- Make sure the relative/absolute numbers check out correctly
-- Merge Face Carousels
+- expect to return a sewing instead of a sketch
+- a slider with annotations going through (similar to recordings)
+- create sewing recordings
+-
 
-- asserts for faces and face caroussels for testing
-- first using the stand-alone debug environment
-- then using the old and new debug servers; the old one mostly only with ?debug=...
-- add a ?debug=... to the new server
-- change the return types from setOrientation/swapOrientation, etc (should be the new boolean)
-- also for sewing check return types. Maybe introduce "with" keyword to return a modified thing
-- update (replace) some methods working with cycles (PatternLib::Boundary)
-- get connected components optionally as lines... or: very good proxy behaviour
-- improved cut and glue methods using faces
-- in general more methods for faces
+* Thinl about (getting) face edges
+* Think about orientation
+* Bring in handedness (basically the same area as ^^)
+* unify names (handedness and so on. And make them clear)
+* use consistent set of flags
+* structure methods
+* better names.. faceedgecomponents as lines somewhere
+
+* Make sure the relative/absolute numbers check out correctly
+* Merge Face Carousels
+
+* asserts for faces and face caroussels for testing
+* first using the stand-alone debug environment
+* then using the old and new debug servers; the old one mostly only with ?debug=...
+* add a ?debug=... to the new server
+* change the return types from setOrientation/swapOrientation, etc (should be the new boolean)
+* also for sewing check return types. Maybe introduce "with" keyword to return a modified thing
+* update (replace) some methods working with cycles (PatternLib::Boundary)
+* get connected components optionally as lines... or: very good proxy behaviour
+* improved cut and glue methods using faces
+* in general more methods for faces
     - merge
     -
 

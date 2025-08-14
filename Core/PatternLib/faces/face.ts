@@ -23,7 +23,8 @@ export default class Face {
 
     component(): ConnectedFaceComponent {
         return this.faceAtlas ?
-            this.own_component() : this.faceAtlas.connectedComponents.find(c => c.faces.includes(this) || c.component == this)!;
+            this.faceAtlas.connectedComponents.find(c => c.faces.includes(this) || c.component == this)!
+            : this.own_component();
     }
 
     is_boundary(): boolean {

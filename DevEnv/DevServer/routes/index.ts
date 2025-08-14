@@ -1,9 +1,11 @@
 import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
+import { Express, Request, Response } from "express";
 import render_img from "../render.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
 import debug_create_design from "../../Debug/debug_create_design.js";
+import SewingSketch from "@/Core/PatternLib/sewing_sketch.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +14,7 @@ const picturePartsPath = path.join(
     __dirname,
     "../../../Data/PreviewPictures/Breit"
 );
-const pictureParts = [];
+const pictureParts: { name: string; choices: string[] }[] = [];
 
 fs.readdirSync(picturePartsPath, { withFileTypes: true }).forEach((dirent) => {
     if (dirent.isDirectory()) {
@@ -24,13 +26,14 @@ fs.readdirSync(picturePartsPath, { withFileTypes: true }).forEach((dirent) => {
     }
 });
 
-export default (app) => {
-    let hot_reload_timestamps = []; // These dont have to be reloaded
+export default (app: Express) => {
+    let hot_reload_timestamps: number[] = []; // These dont have to be reloaded
 
-    app.get("/", (req, res) => {
+    // Start Page
+    app.get("/", (req: Request, res: Response) => {
         const state = {
             current_part_selected: 0,
-            current_choices: Array(Object.keys(pictureParts).length).fill(0),
+            current_choices: Array(pictureParts.length).fill(0),
             start_ts: null,
         };
 
@@ -40,7 +43,8 @@ export default (app) => {
         });
     });
 
-    app.post("/hot_reload_req", (req, res) => {
+    // Send to figure out if we have the current version
+    app.post("/hot_reload_req", (req: Request, res: Response) => {
         const state = JSON.parse(req.body.application_state);
         if (hot_reload_timestamps.includes(state.start_ts)) {
             return res.send("");
@@ -50,7 +54,7 @@ export default (app) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
-        Sketch.dev._reset_routes();
+        (Sketch as any).dev._reset_routes();
         res.render("htmx/hot_reload_req", {
             pictureParts,
             state,
@@ -58,14 +62,16 @@ export default (app) => {
         });
     });
 
-    app.get("/debug/:file", (req, res) => {
+    // Debug Page for file
+    app.get("/debug/:file", (req: Request, res: Response) => {
         const file = req.params.file;
         res.render("debug", {
             file,
         });
     });
 
-    app.post("/debug/:file/hot_reload_req", async (req, res) => {
+    // Check if we have the current version of the file
+    app.post("/debug/:file/hot_reload_req", async (req: Request, res: Response) => {
         const state = JSON.parse(req.body.application_state);
         if (hot_reload_timestamps.includes(state.start_ts)) {
             return res.send("");
@@ -77,33 +83,27 @@ export default (app) => {
 
         try {
             const s = await debug_create_design(req.params.file);
-            const svg = s.to_dev_svg(500, 500);
-
             res.render("htmx/debug/hot_reload_res", {
                 state,
                 file: req.params.file,
-                render_data: {
-                    svg,
-                    rendering_data: JSON.stringify(s.data, true, 2),
-                    error: false,
-                },
+                to_render: s,
+                render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
+                error: false
             });
-        } catch (error) {
+        } catch (error: any) {
             res.render("htmx/debug/hot_reload_res", {
                 state,
                 file: req.params.file,
-                render_data: {
-                    svg: null,
-                    rendering_data: error.stack,
-                    error: true,
-                },
+                error: true,
+                msg: error.toString()
             });
         }
     });
 
-    app.post(`/htmx/pictures`, (req, res) => {
+    // Picture Selection (with composed image preview)
+    app.post(`/htmx/pictures`, (req: Request, res: Response) => {
         const state = JSON.parse(req.body.application_state);
-        const ret = {
+        const ret: any = {
             pictureParts,
             state,
         };
@@ -116,7 +116,8 @@ export default (app) => {
         res.render("htmx/picture_selection", ret);
     });
 
-    app.post(`/htmx/parts`, (req, res) => {
+    // Get the pictures for a specific part, update part selection
+    app.post(`/htmx/parts`, (req: Request, res: Response) => {
         const state = JSON.parse(req.body.application_state);
         if (typeof req.body.select_current_part !== "undefined") {
             state.current_part_selected = +req.body.select_current_part;
@@ -127,7 +128,8 @@ export default (app) => {
         });
     });
 
-    app.get("/partial_pictures/:folder/:file", (req, res) => {
+    // Get partial pictures
+    app.get("/partial_pictures/:folder/:file", (req: Request, res: Response) => {
         const { folder, file } = req.params;
         const width = req.query.width;
         const filePath = path.join(
@@ -150,7 +152,7 @@ export default (app) => {
         });
     });
 
-    app.get(/.*/, (req, res) => {
+    app.get(/.*/, (req: Request, res: Response) => {
         // console.log(req.originalUrl);
         res.sendStatus(404);
     });

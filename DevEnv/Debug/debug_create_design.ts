@@ -1,4 +1,7 @@
-export default async function (debug_scene) {
+import { Sewing } from "@/Core/Sewing/sewing";
+import Sketch from "@/Core/StoffLib/sketch";
+
+export default async function (debug_scene: string) {
     debug_scene = debug_scene || "index";
 
     // Try to import .ts file first, then fall back to .js
@@ -15,11 +18,12 @@ export default async function (debug_scene) {
             modulePath = `./scenes/${debug_scene}.js`;
             sceneModule = await import(modulePath);
         } catch (jsError) {
+            console.log(jsError);
             throw new Error(
                 `Could not find scene module: ${debug_scene}.ts or ${debug_scene}.js`
             );
         }
     }
 
-    return sceneModule.default();
+    return sceneModule.default() as Sketch | Sewing;
 }

@@ -1,18 +1,14 @@
+import ConnectedComponent from "../connected_component.js";
+
 // Usefull for points, lines and SketchElementCollections
 export default (Class, set_if_not_exists) => {
-    set_if_not_exists(
-        Class,
-        "connected_component",
-        function (sketch_el = null) {
-            const cc = this.get_connected_components();
-            for (let i = 0; i < cc.length; i++) {
-                if (cc[i].includes(sketch_el)) return cc[i];
-            }
-            throw new Error(
-                "Element doesn't belong to SketchElementCollection"
-            );
+    set_if_not_exists(Class, "connected_component", function (sketch_el) {
+        const cc = this.get_connected_components();
+        for (let i = 0; i < cc.length; i++) {
+            if (cc[i].includes(sketch_el)) return cc[i];
         }
-    );
+        throw new Error("Element doesn't belong to SketchElementCollection");
+    });
 
     set_if_not_exists(Class, "delete_component", function (sketch_el) {
         return this.connected_component(sketch_el).delete_sketch_elements();

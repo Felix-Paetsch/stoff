@@ -1,19 +1,53 @@
 <%- include("../state"); %>
 
-<div id="pattern_preview" class="border-2 border-default-dark w-min" style="margin:20px" hx-swap-oob="outerHTML">
-    <% if (render_data.svg) { %>
-        <div id="sketch_display">
-            <%- render_data.svg %>
+<% if (error){ %>
+    <div id="canvas" hx-swap-oob="outerHTML">
+        <div id="pattern_preview" class="border-2 border-default-dark w-min m-5">
+            <div class="w-[500px] h-[500px] text-center flex items-center justify-center">
+                An Error Occured
+            </div>
         </div>
-    <% } else { %>
-        <div style="width: 500px; height: 500px; text-align: center; display: flex; align-items: center; justify-content: center;">
-            Image couldn't be rendered.
+        
+        <div id="render_message" class="overflow-auto m-5 bg-gray-300 min-w-[504px] w-min">
+            <pre
+                class="text-left p-5 leading-[1.3rem]"
+        ><%= msg %></pre>
         </div>
-    <% } %>
-</div>
-  
-<div id="render_message" class="overflow-auto" style="margin:20px; background-color: #ddd; min-width: 504px; width: min-content" hx-swap-oob="outerHTML">
-    <pre
-        class="text-left p-5 leading-[1.3rem]"
-><%= render_data.rendering_data %></pre>
-</div>
+    </div>
+<% } else if (render_type === "sketch"){ %>
+    <div id="canvas" hx-swap-oob="outerHTML">
+        <%- include("./card", { svg: to_render.to_dev_svg(500, 500), data: to_render.data }); %>
+    </div>
+<% } else if (render_type === "sewing"){ %>
+    <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
+        <div class="flex items-center gap-6 bg-zinc-800 rounded-xl px-6 py-4 text-white mb-4 w-fit">
+            <input 
+                type="range" 
+                min="1" 
+                max="40" 
+                value="5" 
+                class="w-48 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-none [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-none"
+            />
+            <span class="text-xl font-medium flex items-center -translate-y-0.5">Step: Cut | 5/40</span>
+        </div>
+        <div class="render-step" data-step="0">
+            <div class="flex flex-row flex-wrap gap-4 justify-start">
+                <% for (const sketch of to_render.sketches){ %>
+                    <%- include("./card", { svg: sketch.to_dev_svg(500, 500), data: sketch.data }); %>
+                <% } %>
+            </div>
+        </div>
+        <% for (let i = 0; i < to_render.renderers.length; i++){ %>
+            <div class="render-step" data-step="<%= i + 1 %>">
+                <div class="flex flex-row flex-wrap gap-4 justify-start">
+                    <% for (const sketch of to_render.sketches){ %>
+                        <%- include("./card", {
+                            svg: to_render.renderers[i].render_sketch(sketch, 500, 500, 20),
+                            data: sketch.data
+                        }); %>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+<% } %>
