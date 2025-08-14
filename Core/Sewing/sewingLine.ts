@@ -376,13 +376,13 @@ export class SewingLine {
                 position: [0, 1],
                 standard_handedness: true,
                 standard_orientation: true
-            }, {
+            }], [{
                 line: line,
                 position: [0, 1],
                 standard_handedness: false,
                 standard_orientation: true
-            }
-            ]);
+            }]);
+
         }
         if (!line.right_handed) edges.reverse(); // First face always is to the right
 

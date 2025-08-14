@@ -49,7 +49,7 @@ export class FaceCarousel {
                 end_edge = this.faceEdges.findIndex((edge) => edge === end_edge) || 0;
             }
         } else {
-            end_edge = (start_edge - 1 + this.faceEdges.length) % this.faceEdges.length;
+            end_edge = start_edge + this.faceEdges.length
         }
 
         for (let j = start_edge; j < end_edge; j++) {

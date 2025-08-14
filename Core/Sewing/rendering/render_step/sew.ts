@@ -16,6 +16,7 @@ const sew_face_attributes: Partial<FaceRenderAttributes> = {
 
 export default function sewRenderer(sewing: Sewing, line: SewingLine): Renderer {
     const renderer = new Renderer(sewing, "sew");
+    renderer.render_sketches();
     renderer.render_face_carousel(line.face_carousel, sew_face_attributes);
     renderer.render_sewing_line(line, sew_line_attributes_primary, sew_line_attributes_other);
     return renderer;

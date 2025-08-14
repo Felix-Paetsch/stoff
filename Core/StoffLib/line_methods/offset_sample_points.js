@@ -80,7 +80,7 @@ export default function offset_sample_points(
     abs_sample_points.push(sample_points[sample_points.length - 1].add(orth));
 
     // 3.
-    remove_spikes(abs_sample_points, sp);
+    remove_spikes(abs_sample_points, sample_points);
 
     // 4.
     filter_out_cycles(abs_sample_points);

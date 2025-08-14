@@ -13,7 +13,7 @@ export default class FaceAtlas {
     // Doesnt automatically update with sketch changes
     // (Mostly because things currently are to expensive)
 
-    readonly faces: Face[] = [];
+    readonly faces: Face[] = []; // Primitive faces
     readonly lines: Line[] = [];
     readonly outsideRougeChains: RogueChain[] = [];
     readonly rogueChains: RogueChain[] = [];
@@ -60,22 +60,35 @@ export default class FaceAtlas {
 
     adjacent_faces(line: Line): [Face, Face] | [RogueChain, Face | null] | null {
         if (!this.lines.includes(line)) return null;
-        const faces = this.faces.filter(f => f.get_lines().includes(line));
-        if (faces.length > 1) {
-            if (faces[0].line_handedness(line)) {
-                return [faces[0], faces[1]];
-            } else {
-                return [faces[1], faces[0]];
-            }
-        }
+
+
         const chain = this.rogueChains.find(c => c.get_lines().includes(line))!;
-        return [
+        if (chain) return [
             chain,
             chain.face()
             || chain.component().parent_face
             || chain.component().parent_component
             || null
         ]
+
+        const faces = this.faces.filter(f => f.get_lines().includes(line));
+
+        // The other face is an outside face
+        if (faces.length === 1) {
+            faces.push(this.component_from_face(faces[0]).component);
+        }
+        if (faces[0].line_handedness(line)) {
+            return [faces[0], faces[1]];
+        } else {
+            return [faces[1], faces[0]];
+        }
+    }
+
+    component_from_face(face: Face) {
+        const comp = this.connectedComponents.filter((c) => c.faces.includes(face))[0]!
+        return comp as ConnectedFaceComponent & {
+            component: Face
+        }
     }
 
     is_boundary_line(line: Line): boolean {
@@ -98,6 +111,8 @@ export default class FaceAtlas {
                     break;
                 }
             }
+
+            chains.push([current_line]);
         }
         return chains.map(c => new RogueChain(c));
     }

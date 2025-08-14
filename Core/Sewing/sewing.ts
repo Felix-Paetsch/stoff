@@ -155,7 +155,7 @@ export class Sewing {
         return SewingLine.from_line(this, line);
     }
 
-    fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false): void {
+    fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false) {
         const line: SewingLine = fold_line instanceof SewingLine ? fold_line : this.sewing_line(fold_line);
         const left = line.face_carousel.left_edges();
         const right = line.face_carousel.right_edges();
@@ -166,6 +166,7 @@ export class Sewing {
         }
 
         this.renderers.push(foldRenderer(this, line));
+        return line;
     }
 
     iron(line: SewingLine, left: FaceEdge[], right: FaceEdge[]): void {
@@ -173,8 +174,9 @@ export class Sewing {
         this.renderers.push(ironRenderer(this, line));
     }
 
-    sew(guide: SewingLine, sewOn: StackLine[]): void {
+    sew(guide: SewingLine, sewOn: StackLine[]) {
         const res = merge_lines_vertically(this, guide, sewOn);
         this.renderers.push(sewRenderer(this, res));
+        return res;
     }
 }

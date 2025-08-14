@@ -278,11 +278,19 @@ class Line {
         return res;
     }
 
+    to_relative_position(vec) {
+        return this.get_to_relative_function()(vec);
+    }
+
     get_to_relative_function() {
         return affine_transform_from_input_output(
             [this.p1, this.p2],
             [new Vector(0, 0), new Vector(1, 0)]
         );
+    }
+
+    to_absolute_position(vec) {
+        return this.get_to_absolute_function()(vec);
     }
 
     get_to_absolute_function() {
@@ -323,18 +331,23 @@ class Line {
             if (
                 start !== undefined &&
                 end === undefined &&
-                current_len >= interval[1] * length
+                current_len >= toFraction * length
             ) {
-                end = i;
+                end = i - 1;
+                break;
             }
         }
 
-        const points = abs_points.slice(
+        const points = this.sample_points.slice(
             start || end || Infinity,
             end || Infinity
         );
-        points.push(line.position_at_fraction(interval[1]));
-        points.unshift(line.position_at_fraction(interval[0]));
+        points.push(
+            this.to_relative_position(this.position_at_fraction(toFraction))
+        );
+        points.unshift(
+            this.to_relative_position(this.position_at_fraction(fromFraction))
+        );
         return points;
     }
 

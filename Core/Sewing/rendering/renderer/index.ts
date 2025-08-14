@@ -3,8 +3,8 @@ import Sketch from "../../../StoffLib/sketch.js";
 import Point from "../../../StoffLib/point.js";
 import Line from "../../../StoffLib/line.js";
 import { data_to_serializable } from "@/Core/StoffLib/sketch_methods/rendering_methods/to_dev_svg.js";
-import { BoundingBox, Vector } from "../../../StoffLib/geometry.js";
-import { FaceEdge, FaceEdgeComponent } from "../../faceEdge.js";
+import { BoundingBox, EPS, Vector } from "../../../StoffLib/geometry.js";
+import { FaceEdgeComponent } from "../../faceEdge.js";
 import offset_sample_points from "@/Core/StoffLib/line_methods/offset_sample_points.js";
 import { SewingLine } from "../../sewingLine.js";
 import { default_point_attributes, default_sewing_line_other_attributes, default_sewing_line_primary_attributes, default_sewing_point_attributes } from "./defaults.js";
@@ -58,7 +58,7 @@ export default class Renderer {
     render_sketch(sketch: Sketch, width: number, height: number, padding: number) {
         padding = Math.max(padding, 2);
         const _bb: BoundingBox = (sketch as any).get_bounding_box();
-        const bb = _bb.with_min_bb([padding, padding]);
+        const bb = _bb.with_min_bb([EPS.COARSE, EPS.COARSE]);
 
         // Compute centered, aspect-ratio-preserving transform with padding
         const usableWidth = Math.max(0, width - 2 * padding);
@@ -85,7 +85,7 @@ export default class Renderer {
             },
         }
 
-        const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
+        const items = this.svgMap.get(sketch)!.sort((a, b) => b.priority - a.priority).map(
             (instruction: RenderInstruction) => instruction.do(ctx)
         ).join("\n");
         return `
@@ -107,7 +107,7 @@ export default class Renderer {
         );
     }
 
-    render_point(pt: Point, attributes: Partial<PointRenderAttributes>, data: any = null) {
+    render_point(pt: Point, attributes: Partial<PointRenderAttributes> = {}, data: any = null) {
         this.svgMap.get(pt.sketch)!.push(
             {
                 do: (ctx: RenderContext) => {
@@ -117,9 +117,9 @@ export default class Renderer {
                         ...attributes
                     };
                     const [x, y] = ctx.relative_to_absolute(pt.x, pt.y);
-                    const point_data = data ? this.data_to_string(data) : this.point_data_to_serializable(pt);
+                    const point_data = data || this.point_data_to_serializable(pt);
                     return `<circle cx="${x}" cy="${y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>` +
-                        `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${point_data}" hover_area/>`;
+                        `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${this.data_to_string(point_data)}" hover_area="true"/>`;
                 },
                 priority: 0
             }
@@ -134,9 +134,9 @@ export default class Renderer {
                         ...default_line_attributes,
                         ...attributes
                     };
-                    const line_data = data ? this.data_to_string(data) : this.line_data_to_serializable(line);
+                    const line_data = data || this.line_data_to_serializable(line);
 
-                    const points = line.get_relative_sample_points_from_to(interval[0], interval[1]);
+                    const points = line.get_absolute_sample_points_from_to(interval[0], interval[1]);
                     const pointsString = points.map(
                         (point: Vector) => {
                             const [x, y] = ctx.relative_to_absolute(point.x, point.y);
@@ -145,7 +145,7 @@ export default class Renderer {
                     ).join(" ");
 
                     return `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`
-                        + `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.min(strokeWidth, 8)}" opacity="${opacity}" x-data="${line_data}" hover_area/>`;
+                        + `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
                 },
                 priority: 50
             }
@@ -182,11 +182,11 @@ export default class Renderer {
                 do: (ctx: RenderContext) => {
                     const { fill, opacity, width } = { ...default_face_attributes, ...attributes };
 
-                    const points = faceEdgeComponent.line.get_relative_sample_points_from_to(...faceEdgeComponent.position);
+                    const points = faceEdgeComponent.line.get_absolute_sample_points_from_to(...faceEdgeComponent.position);
                     const offset_points = offset_sample_points(
                         points,
                         width,
-                        faceEdgeComponent.line.right_handed
+                        faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
                     );
 
                     const path = points.concat(
@@ -201,12 +201,16 @@ export default class Renderer {
                     if (!data) { data = {} }
                     if (typeof data === "object") {
                         data = Object.assign({}, data, {
-                            handedness: faceEdgeComponent.line.right_handed ? "right" : "left",
-                            upside_down: upside_down
+                            _standard_handedness: faceEdgeComponent.standard_handedness,
+                            _standard_orientation: faceEdgeComponent.standard_orientation,
+                            _position: "[" + faceEdgeComponent.position.toString() + "]",
+                            _upside_down: upside_down
                         });
                     }
 
-                    return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}"/>`;
+                    const fill2 = upside_down ? "red" : "green";
+
+                    return `<polygon points="${pointsString}" style="fill: ${fill2}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
                 },
                 priority: 100
             }
@@ -240,7 +244,11 @@ export default class Renderer {
     line_data_to_serializable(line: Line) {
         const line_data = data_to_serializable(line.data);
         if (typeof line_data === "object") {
-            line_data._length = Math.round(line.get_length() * 1000) / 1000;
+            return {
+                _length: Math.round(line.get_length() * 1000) / 1000,
+                _right_handed: line.right_handed,
+                ...line_data
+            }
         }
         return line_data;
     }

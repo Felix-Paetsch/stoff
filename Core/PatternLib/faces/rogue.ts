@@ -16,7 +16,9 @@ export default class RogueChain {
     }
 
     component(): ConnectedFaceComponent {
-        return this.faceAtlas ? this.own_component() : this.faceAtlas.connectedComponents.find(c => c.outer_chains.includes(this))!;
+        return this.faceAtlas?.connectedComponents.find(c => c.outer_chains.includes(this))
+            || this.faceAtlas?.connectedComponents.find(c => c.component?.contains(this))
+            || this.own_component()
     }
 
     face(): Face | null {

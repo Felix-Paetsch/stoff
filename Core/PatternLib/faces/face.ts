@@ -33,7 +33,9 @@ export default class Face {
 
     point_hull(): Vector[] {
         const points: Vector[] = [];
-        let last_point = this.boundary[0].p1;
+        let last_point = this.boundary[0].other_endpoint(
+            this.boundary[0].common_endpoint(this.boundary[1])
+        );
         for (const line of this.boundary) {
             const sample_points = line.get_absolute_sample_points();
             if (line.p2 == last_point) {
@@ -77,12 +79,17 @@ export default class Face {
     boundary_handedness(): boolean[] {
         // True means inwards
         const clockwise = this.is_clockwise_oriented();
-        const handedness: boolean[] = [];
-        let last_point = this.boundary[0].p1;
+        const orientations = this.boundary_orientations();
 
-        for (const line of this.boundary) {
-            handedness.push(line.right_handed === clockwise);
-            last_point = line.other_endpoint(last_point);
+        const handedness: boolean[] = [];
+        for (let i = 0; i < this.boundary.length; i++) {
+            const total = Number(
+                this.boundary[i].right_handed,
+            ) + Number(clockwise) + Number(
+                orientations[i]
+            );
+
+            handedness.push(total % 2 == 0)
         }
         return handedness;
     }
@@ -143,7 +150,8 @@ export default class Face {
     }
 
     static from_boundary(boundary: Line[], faceAtlas: FaceAtlas): Face {
-        return new Face(boundary, Line.order_by_endpoints(boundary).orientations, faceAtlas);
+        const ordered = Line.order_by_endpoints(boundary);
+        return new Face(ordered, ordered.orientations, faceAtlas);
     }
 
     static oriented_lines(lines: Line[]): Line[];
@@ -165,7 +173,7 @@ export default class Face {
         if (!polygon_orientation(polygon)) {
             lines.reverse();
             lines.orientations.reverse();
-            lines.orientations = lines.orientations.map((o) => !o);
+            lines.orientations = lines.orientations.map((o: boolean) => !o);
         }
 
         return lines;

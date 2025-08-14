@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Stoff :: <%= file.toUpperCase() %></title>
-        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <script src="/htmx.js"></script>
         <link href="/TWoutput.css" rel="stylesheet" />
         <link href="/index.css" rel="stylesheet" />
     </head>
@@ -11,12 +11,13 @@
         <div id="canvas">Loading...</div>
         <%- include("htmx/state.ejs", { state: { start_ts: Date.now() } }) %>
         <script src="/main/add_svg_hover_events.js"></script>
+        <script src="/main/slider.js"></script>
         <script>
             getTimeoutSetting = () => 200;
 
             document.body.addEventListener("htmx:afterSwap", function (evt) {
-                console.log(evt);
                 if (evt.detail.elt.id === "canvas") {
+                    setSliderCallback();
                     add_svg_hover_events();
                 }
             });

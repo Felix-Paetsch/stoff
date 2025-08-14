@@ -4,13 +4,17 @@ Make JS, TS interoperable
 
 Do next:
 
+Dedub render
 create debug env
 #################
 
 - expect to return a sewing instead of a sketch
 - a slider with annotations going through (similar to recordings)
 - create sewing recordings
--
+- optional prerender anleitung => correct variable state
+- method to see which things currently belong together (?)
+- unify other rendering method with this one
+- make for standard debug env
 
 * Thinl about (getting) face edges
 * Think about orientation

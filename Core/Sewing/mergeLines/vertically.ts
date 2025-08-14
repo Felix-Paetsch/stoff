@@ -20,6 +20,8 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
     )
 
     const left_right_building_blocks: [FaceEdgeBuildingBlock[], FaceEdgeBuildingBlock[]][] = [[[], []]];
+    console.log(guide.face_carousel);
+
     for (const fe of guide.face_carousel.face_edges()) {
         const febb: FaceEdgeBuildingBlock = {
             lines: fe.edge.lines,
@@ -179,7 +181,7 @@ function single_edge_building_block(
             Math.max(old_position_at_edge[0], new_edge_range_at_edge[0]),
             Math.min(old_position_at_edge[1], new_edge_range_at_edge[1])
         ];
-        const edgePosition_toLineOfEdgePosition = liner_transform_position_at_interval(
+        const edgePosition_toLineOfEdgePosition = linear_transform_position_at_interval(
             oldEdgeComponents[i].position, old_position_at_edge, oldEdgeComponents[i].standard_orientation
         );
         faceEdgeComponents.push({
@@ -199,24 +201,27 @@ type LinearTransform = ((position_at_source: number) => number) & {
     inverse: LinearTransform
 }
 
-function liner_transform_position_at_interval(interval_at_target: [number, number], interval_at_source: [number, number], sameOrientation = true): LinearTransform {
+function linear_transform_position_at_interval(interval_at_target: [number, number], interval_at_source: [number, number], sameOrientation = true): LinearTransform {
     const [x, y] = interval_at_source;
     let [fx, fy] = interval_at_target;
     if (!sameOrientation) {
         [fx, fy] = [fy, fx];
     }
 
-    const fn = (a: number) => {
+    const fn = ((a: number) => {
         const m = (fx - fy) / (x - y);
         return m * a + fy - m * y;
-    }
+    }) as LinearTransform;
 
-    return Object.assign(
-        fn, {
-        get inverse() {
-            return liner_transform_position_at_interval(interval_at_target, interval_at_source, sameOrientation)
-        }
-    })
+    Object.defineProperty(fn, 'inverse', {
+        get() {
+            return linear_transform_position_at_interval(interval_at_source, interval_at_target, sameOrientation);
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    return fn;
 }
 
 function get_clamp_merged_intervals(
@@ -227,10 +232,10 @@ function get_clamp_merged_intervals(
     interval2_at_FINAL_source: [number, number],
     same_orientation2: boolean
 ) {
-    const position_mid_to_final = liner_transform_position_at_interval(
+    const position_mid_to_final = linear_transform_position_at_interval(
         interval1_at_FINAL_target, interval1_at_MID, same_orientation1
     );
-    const position_source_to_mid = liner_transform_position_at_interval(
+    const position_source_to_mid = linear_transform_position_at_interval(
         interval2_at_MID, interval2_at_FINAL_source, same_orientation2
     );
 
