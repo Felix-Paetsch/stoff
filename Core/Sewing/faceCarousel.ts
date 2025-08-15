@@ -146,7 +146,6 @@ function merge_face_edges_horizontally(sewingLine1: SewingLine, sewingLine2: Sew
     if (
         new_edge_lines.length > 0 && new_edge_lines[new_edge_lines.length - 1].line === edge2.edge.lines[0].line
     ) {
-        new_edge_lines[new_edge_lines.length - 1].position[1] = edge2.edge.lines[0].position[1];
         new_edge_lines.push(...edge2.edge.lines.slice(1));
     } else {
         new_edge_lines.push(...edge2.edge.lines);

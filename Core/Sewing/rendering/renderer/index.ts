@@ -182,7 +182,7 @@ export default class Renderer {
                 do: (ctx: RenderContext) => {
                     const { fill, opacity, width } = { ...default_face_attributes, ...attributes };
 
-                    const points = faceEdgeComponent.line.get_absolute_sample_points_from_to(...faceEdgeComponent.position);
+                    const points = faceEdgeComponent.line.get_absolute_sample_points();
                     const offset_points = offset_sample_points(
                         points,
                         width,
@@ -203,7 +203,6 @@ export default class Renderer {
                         data = Object.assign({}, data, {
                             _standard_handedness: faceEdgeComponent.standard_handedness,
                             _standard_orientation: faceEdgeComponent.standard_orientation,
-                            _position: "[" + faceEdgeComponent.position.toString() + "]",
                             _upside_down: upside_down
                         });
                     }

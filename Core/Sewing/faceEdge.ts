@@ -9,8 +9,7 @@ import { Sewing } from "./sewing.ts";
 export type FaceEdgeComponent = {
     line: Line,
     standard_handedness: boolean,
-    standard_orientation: boolean,
-    position: [number, number] // 0 <= x < y <= 1
+    standard_orientation: boolean
 };
 
 export class FaceEdge {
@@ -28,30 +27,7 @@ export class FaceEdge {
     }
 
     get_points(): Point[] {
-        const points = new SketchElementCollection();
-        for (const component of this.lines) {
-            let includeP1 = false;
-            let includeP2 = false;
-
-            if (typeof component.position === "number") {
-                const pos = component.position;
-                if (pos > 0) {
-                    includeP1 = true;
-                    includeP2 = 1 - pos < EPS.COARSE;
-                } else {
-                    includeP2 = true;
-                    includeP1 = pos + 1 < EPS.COARSE;
-                }
-            } else {
-                const [x, y] = component.position;
-                includeP1 = x < EPS.COARSE;
-                includeP2 = y > 1 - EPS.COARSE;
-            }
-
-            includeP1 && points.push(component.line.p1);
-            includeP2 && points.push(component.line.p2);
-        }
-        return (points as any).unique();
+        return Array.from(new Set(this.lines.flatMap(l => l.line.get_endpoints())));
     }
 
     updated(): FaceEdge {
@@ -90,27 +66,26 @@ export class FaceEdge {
     get_length(): number {
         let res = 0;
         this.lines.forEach(l => {
-            res += l.line.get_length() * (l.position[1] - l.position[0]);
+            res += l.line.get_length();
         })
         return res;
     }
 
     static get_length(fpc: FaceEdgeComponent): number {
-        return fpc.line.get_length() * (fpc.position[1] - fpc.position[0]);
+        return fpc.line.get_length();
     }
 
     position(fec: FaceEdgeComponent): [number, number] {
         let start_position = 0;
         for (const l of this.lines) {
             if (l !== fec) {
-                start_position += l.line.get_length() * (l.position[1] - l.position[0]);
+                start_position += l.line.get_length();
                 continue;
             }
 
-            const start = fec.standard_orientation ? fec.position[0] : 1 - fec.position[1];
-            const fec_length = fec.line.get_length() * (fec.position[1] - fec.position[0]);
+            const fec_length = fec.line.get_length();
             const this_length = this.get_length();
-            const start_pos = (start_position + start * fec_length) / this_length;
+            const start_pos = start_position / this_length;
 
             return [
                 start_pos,
@@ -126,42 +101,50 @@ export class FaceEdge {
             [this.lines[0], other.lines[1]],
             [this.lines[1], other.lines[0]],
             [this.lines[1], other.lines[1]],
-        ].some(([c1, c2]) => face_edge_component_connected_to_horizontally(this.face_carousel.sewingLine.sewing, c1, c2, at));
+        ].some(([c1, c2]) => face_edge_component_connected_to_horizontally(
+            this.face_carousel.sewingLine.sewing, this, c1, other, c2, at
+        ));
     }
 }
 
-function face_edge_component_connected_to_horizontally(sewing: Sewing, component: FaceEdgeComponent, other: FaceEdgeComponent, at?: SewingPoint): boolean {
-    if (!at) {
-        const line1 = component.line;
-        const line2 = other.line;
+function face_edge_component_connected_to_horizontally(
+    sewing: Sewing,
+    edge: FaceEdge,
+    component: FaceEdgeComponent,
+    other_edge: FaceEdge,
+    other: FaceEdgeComponent,
+    at?: SewingPoint
+): boolean {
+    const pos1 = edge.position(component);
+    const pos2 = edge.position(other);
 
-        if (component.line == other.line) {
-            return eps_equal(component.position[0], other.position[1], EPS.COARSE)
-                || eps_equal(component.position[1], other.position[0], EPS.COARSE);
+    if (!at) {
+        if (edge == other_edge) {
+            return eps_equal(pos1[0], pos2[1], EPS.COARSE) || eps_equal(pos1[1], pos2[0], EPS.COARSE);
         }
     }
 
     if (component.line == other.line) return false;
-    if (!at) return face_edge_component_connected_to_horizontally(sewing, component, other, sewing.sewing_point(component.line.p1))
-        || face_edge_component_connected_to_horizontally(sewing, component, other, sewing.sewing_point(component.line.p2));
+    if (!at) return face_edge_component_connected_to_horizontally(
+        sewing, edge, component, other_edge, other, sewing.sewing_point(component.line.p1)
+    ) || face_edge_component_connected_to_horizontally(
+        sewing, edge, component, other_edge, other, sewing.sewing_point(component.line.p2)
+    );
 
     const p1s = at.points.filter((p) => component.line.has_endpoint(p));
     const p2s = at.points.filter((p) => other.line.has_endpoint(p));
 
-    for (const p1 of p1s) {
-        for (const p2 of p2s) {
+    for (const point1 of p1s) {
+        for (const point2 of p2s) {
             if (
-                (p1 == component.line.p1 && component.position[0] > 0)
-                || (p1 == component.line.p2 && component.position[1] < 1)
-            ) continue;
-            if (
-                (p2 == other.line.p1 && other.position[0] > 0)
-                || (p2 == other.line.p2 && other.position[1] < 1)
-            ) continue;
-
-            for (const l1 of p1.get_lines()) {
-                for (const l2 of p2.get_lines()) {
-                    if (lines_vertically_adjacent(sewing, l1, l2, p1, p2)) return true;
+                component.line.has_endpoint(point1)
+                &&
+                other.line.has_endpoint(point2)
+            ) {
+                for (const l1 of point1.get_lines()) {
+                    for (const l2 of point2.get_lines()) {
+                        if (lines_vertically_adjacent(sewing, l1, l2, point1, point2)) return true;
+                    }
                 }
             }
         }

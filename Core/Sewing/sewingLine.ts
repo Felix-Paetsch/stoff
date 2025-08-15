@@ -15,18 +15,13 @@ export type SewingLineComponent = {
     position_at_sewing_line: [number, number]
 }
 
-export type PartialSewingLineComponent = {
-    edge_sewn_range: [number, number] // from the Line orientation of the component;
-    // -1 < x < 0 or 0 < x <= 1; 0 <= x < y <= 1
-} & SewingLineComponent;
-
 export class SewingLine {
     public outdated: boolean;
 
     constructor(
         readonly sewing: Sewing,
         readonly primary_component: SewingLineComponent[],
-        readonly other_components: PartialSewingLineComponent[],
+        readonly other_components: SewingLineComponent[],
         readonly face_carousel: FaceCarousel
     ) {
         this.outdated = false;
@@ -93,53 +88,14 @@ export class SewingLine {
         );
     }
 
-    get_lines(include_partial_components: boolean = false): Line[] {
-        if (include_partial_components) {
-            return this.primary_component
-                .concat(this.other_components)
-                .map((l) => l.line);
-        }
-        return this.primary_component.map((l) => l.line);
+    get_lines(): Line[] {
+        return this.primary_component
+            .concat(this.other_components)
+            .map((l) => l.line);
     }
 
-    get_points(include_partial_components: boolean = false): Point[] {
-        const points = new SketchElementCollection(
-            this.primary_component.flatMap((l) => {
-                if (l.has_sewing_line_orientation) {
-                    return [l.line.p1, l.line.p2];
-                } else {
-                    return [l.line.p2, l.line.p1];
-                }
-            })
-        )
-
-        if (!include_partial_components) {
-            return (points as any).unique();
-        }
-
-        for (const component of this.other_components) {
-            let includeP1 = false;
-            let includeP2 = false;
-
-            if (typeof component.edge_sewn_range === "number") {
-                const pos = component.edge_sewn_range;
-                if (pos > 0) {
-                    includeP1 = true;
-                    includeP2 = 1 - pos < EPS.COARSE;
-                } else {
-                    includeP2 = true;
-                    includeP1 = pos + 1 < EPS.COARSE;
-                }
-            } else {
-                const [x, y] = component.edge_sewn_range;
-                includeP1 = x < EPS.COARSE;
-                includeP2 = y > 1 - EPS.COARSE;
-            }
-
-            includeP1 && points.push(component.line.p1);
-            includeP2 && points.push(component.line.p2);
-        }
-        return (points as any).unique();
+    get_points(): Point[] {
+        return Array.from(new Set(this.get_lines().flatMap(l => l.get_endpoints())));
     }
 
     face_edges(): FaceEdge[] {
@@ -352,7 +308,6 @@ export class SewingLine {
             if (!faces[0].is_boundary()) {
                 edges.push([{
                     line: line,
-                    position: [0, 1],
                     standard_handedness: true,
                     standard_orientation: true
                 }]);
@@ -360,7 +315,6 @@ export class SewingLine {
             if (!(faces[1] as Face).is_boundary()) {
                 edges.push([{
                     line: line,
-                    position: [0, 1],
                     standard_handedness: false,
                     standard_orientation: true
                 }]);
@@ -373,12 +327,10 @@ export class SewingLine {
             if (face.is_boundary()) throw new Error("Line is not contained inside fabric.");
             edges.push([{
                 line: line,
-                position: [0, 1],
                 standard_handedness: true,
                 standard_orientation: true
             }], [{
                 line: line,
-                position: [0, 1],
                 standard_handedness: false,
                 standard_orientation: true
             }]);
