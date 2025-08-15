@@ -1,10 +1,10 @@
 import { Line } from "../StoffLib/line.js";
 import Point from "../StoffLib/point.js";
-import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
 import { EPS, eps_equal } from "../StoffLib/geometry.js";
 import { FaceCarousel } from "./faceCarousel.ts";
 import { SewingPoint } from "./sewingPoint.ts";
 import { Sewing } from "./sewing.ts";
+import { interval_overlap } from "../StoffLib/geometry/1d.ts";
 
 export type FaceEdgeComponent = {
     line: Line,
@@ -143,7 +143,7 @@ function face_edge_component_connected_to_horizontally(
             ) {
                 for (const l1 of point1.get_lines()) {
                     for (const l2 of point2.get_lines()) {
-                        if (lines_vertically_adjacent(sewing, l1, l2, point1, point2)) return true;
+                        if (lines_vertically_adjacent(sewing, l1, l2)) return true;
                     }
                 }
             }
@@ -153,17 +153,13 @@ function face_edge_component_connected_to_horizontally(
     return false;
 }
 
-function lines_vertically_adjacent(sewing: Sewing, l1: Line, l2: Line, p1: Point, p2: Point): boolean {
-    if (!sewing.is_sewing_point(p1)) return false;
-    const sp1 = sewing.sewing_point(p1);
-    if (!sp1.is(p2)) return false;
+function lines_vertically_adjacent(sewing: Sewing, l1: Line, l2: Line): boolean {
     if (!sewing.has_sewing_line(l1)) return false;
-
     const sewing_line = sewing.sewing_line(l1);
     if (!sewing.sewing_line(l1).get_lines().includes(l2)) return false;
 
-    const l1_component = sewing_line.primary_component.concat(sewing_line.other_components).find((c) => c.line == l1)!;
-    const l2_component = sewing_line.primary_component.concat(sewing_line.other_components).find((c) => c.line == l2)!;
-    return eps_equal(l1_component.position_at_sewing_line[0], l2_component.position_at_sewing_line[1], EPS.COARSE)
-        || eps_equal(l1_component.position_at_sewing_line[1], l2_component.position_at_sewing_line[0], EPS.COARSE);
+    const pos1 = sewing_line.position(l1);
+    const pos2 = sewing_line.position(l2);
+    const i = interval_overlap(pos1, pos2);
+    return (i[1] - i[0]) > EPS.COARSE
 }

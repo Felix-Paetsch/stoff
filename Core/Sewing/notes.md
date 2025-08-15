@@ -8,6 +8,8 @@ Dedub render
 create debug env
 #################
 
+SewingLine->Position calculation currently doesnt work correctly
+
 - expect to return a sewing instead of a sketch
 - a slider with annotations going through (similar to recordings)
 - create sewing recordings

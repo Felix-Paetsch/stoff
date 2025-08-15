@@ -25,24 +25,8 @@ export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine |
     line2.set_handedness(line1);
 
     // Combine components
-    const primary = line1.primary_component.concat(line2.primary_component).map(
-        (component) => ({
-            ...component,
-            position_at_sewing_line: [
-                SewingLine.position_at_horizontally_merged_sewing_line(line1, line2, true, component.position_at_sewing_line[0]),
-                SewingLine.position_at_horizontally_merged_sewing_line(line1, line2, true, component.position_at_sewing_line[1])
-            ] as [number, number]
-        })
-    );
-    const other = line1.other_components.concat(line2.other_components).map(
-        (component) => ({
-            ...component,
-            position_at_sewing_line: [
-                SewingLine.position_at_horizontally_merged_sewing_line(line1, line2, false, component.position_at_sewing_line[0]),
-                SewingLine.position_at_horizontally_merged_sewing_line(line1, line2, false, component.position_at_sewing_line[1])
-            ] as [number, number]
-        })
-    );
+    const primary = line1.primary_component.concat(line2.primary_component)
+    const other = line1.other_components.concat(line2.other_components)
 
     const newSewingLine = new SewingLine(
         sewing,

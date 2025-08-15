@@ -2,17 +2,19 @@ import { Line } from "../StoffLib/line.js";
 import { Sewing } from "./sewing.ts";
 import { SewingPoint } from "./sewingPoint.ts";
 import Point from "../StoffLib/point.js";
-import SketchElementCollection from "../StoffLib/sketch_element_collection.js";
-import { EPS } from "../StoffLib/geometry.js";
 import { FaceCarousel } from "./faceCarousel.ts";
 import { FaceEdge, FaceEdgeComponent } from "./faceEdge.ts";
 import Face from "../PatternLib/faces/face.ts";
+import { merge_intervals } from "../StoffLib/geometry.js";
 
 export type SewingLineComponent = {
     line: Line,
     has_sewing_line_orientation: boolean,
-    has_sewing_line_handedness: boolean,
-    position_at_sewing_line: [number, number]
+    has_sewing_line_handedness: boolean
+}
+
+export type PartialSewingLineComponent = SewingLineComponent & {
+    sewTo: Line[]
 }
 
 export class SewingLine {
@@ -21,7 +23,7 @@ export class SewingLine {
     constructor(
         readonly sewing: Sewing,
         readonly primary_component: SewingLineComponent[],
-        readonly other_components: SewingLineComponent[],
+        readonly other_components: PartialSewingLineComponent[],
         readonly face_carousel: FaceCarousel
     ) {
         this.outdated = false;
@@ -255,7 +257,7 @@ export class SewingLine {
     }
 
     get_length() {
-        return this.get_lines().reduce((acc, l) => acc + l.get_length(), 0);
+        return this.primary_component.reduce((acc, l) => acc + l.line.get_length(), 0);
     }
 
     is_circular(): boolean {
@@ -285,7 +287,43 @@ export class SewingLine {
         });
     }
 
-    mark_as_partially_sewn() { }
+    position(lin: Line): [number, number] {
+        let start_position = 0;
+
+        const component = this.other_components.find(c => c.line === lin);
+        if (component) {
+            return merge_intervals(
+                ...component.sewTo.map(l => this.position(l))
+            )
+        }
+
+        for (const l of this.primary_component.map(c => c.line)) {
+            if (l !== lin) {
+                start_position += l.get_length();
+                continue;
+            }
+
+            const lin_length = lin.get_length();
+            const this_length = this.get_length();
+            const start_pos = start_position / this_length;
+
+            return [
+                start_pos,
+                start_pos + lin_length / this_length
+            ];
+        }
+
+        throw new Error("Line not found in SewingLine");
+    }
+
+    structured_sublines(lin: Line[]) {
+        return lin.map(l => ({
+            line: l,
+            position: this.position(l),
+            orientation: this.same_orientation(l),
+            handedness: this.same_handedness(l)
+        })).sort((a, b) => a.position[0] - b.position[0]);
+    }
 
     static from_line(sewing: Sewing, line: Line): SewingLine {
         const sLine = new SewingLine(
@@ -293,8 +331,7 @@ export class SewingLine {
             [{
                 line: line,
                 has_sewing_line_orientation: true,
-                has_sewing_line_handedness: true,
-                position_at_sewing_line: [0, 1]
+                has_sewing_line_handedness: true
             }],
             [],
             null as any
@@ -341,7 +378,7 @@ export class SewingLine {
         const faceEdges = edges.map(e => new FaceEdge(null as any, e));
         const carousel = new FaceCarousel(sLine, faceEdges.map(e => ({
             edge: e,
-            position_at_sewing_line: [0, 1],
+            sewOn: [line],
             folded_right: e.lines[0].standard_handedness === line.right_handed
         })));
         faceEdges.forEach(e => (e as any).face_carousel = carousel);

@@ -33,6 +33,7 @@ import {
     polygon_orientation_v2,
 } from "./geometry/algorithms.js";
 import { BoundingBox } from "./geometry/bounding_box.js";
+import { merge_intervals, interval_overlap } from "./geometry/1d.js";
 
 function mirror_type(el, vec2 = null) {
     if (el instanceof Line) return "Line";
@@ -75,4 +76,6 @@ export {
     EPS,
     eps_equal,
     BoundingBox,
+    merge_intervals,
+    interval_overlap,
 };

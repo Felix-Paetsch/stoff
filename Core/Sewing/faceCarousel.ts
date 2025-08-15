@@ -1,9 +1,10 @@
 import { FaceEdge } from "./faceEdge.ts";
 import { SewingLine } from "./sewingLine.ts";
+import { Line } from "../StoffLib/line.js";
 
 export type FaceEdgeWithPosition = {
     readonly edge: FaceEdge,
-    position_at_sewing_line: [number, number]
+    sewOn: Line[],
     folded_right: boolean;
 }
 
@@ -59,8 +60,6 @@ export class FaceCarousel {
 
     _swap_orientation(): FaceCarousel {
         this.faceEdges.forEach((edge) => {
-            const old_position = edge.position_at_sewing_line;
-            edge.position_at_sewing_line = [1 - old_position[1], 1 - old_position[0]];
             edge.edge.lines.forEach((line) => {
                 line.standard_orientation = !line.standard_orientation;
             });
@@ -100,7 +99,7 @@ export class FaceCarousel {
         start_edge && first_carousel_edges.next();
         if (!other_start_edge) {
             other_start_edge = carousel2.faceEdges[0];
-            new_edges.push(rescaled_face_edge(carousel1.sewingLine, carousel2.sewingLine, other_start_edge));
+            new_edges.push(other_start_edge);
         }
 
         let last_used_edge: FaceEdgeWithPosition = other_start_edge!;
@@ -113,7 +112,7 @@ export class FaceCarousel {
                     const update_edges_iterator = carousel1.face_edges(last_used_edge, other_edge);
                     update_edges_iterator.next();
                     for (const edge of update_edges_iterator) {
-                        new_edges.push(rescaled_face_edge(carousel1.sewingLine, carousel2.sewingLine, edge));
+                        new_edges.push(edge);
                     }
 
                     new_edges.push(merge_face_edges_horizontally(
@@ -125,13 +124,13 @@ export class FaceCarousel {
                     last_used_edge = other_edge;
                 }
             }
-            new_edges.push(rescaled_face_edge(carousel1.sewingLine, carousel2.sewingLine, edge));
+            new_edges.push(edge);
         }
 
         const update_edges_iterator = carousel1.face_edges(last_used_edge, other_start_edge);
         update_edges_iterator.next();
         for (const edge of update_edges_iterator) {
-            new_edges.push(rescaled_face_edge(carousel1.sewingLine, carousel2.sewingLine, edge));
+            new_edges.push(edge);
         }
 
         const fc = new FaceCarousel(sewingLine, new_edges);
@@ -155,41 +154,7 @@ function merge_face_edges_horizontally(sewingLine1: SewingLine, sewingLine2: Sew
 
     return {
         edge: new FaceEdge(null as any, new_edge_lines),
-        position_at_sewing_line: [
-            SewingLine.position_at_horizontally_merged_sewing_line(
-                sewingLine1,
-                sewingLine2,
-                true,
-                edge1.position_at_sewing_line[0]
-            ),
-            SewingLine.position_at_horizontally_merged_sewing_line(
-                sewingLine1,
-                sewingLine2,
-                false,
-                edge2.position_at_sewing_line[1]
-            )
-        ],
+        sewOn: edge1.sewOn.concat(edge2.sewOn),
         folded_right: edge1.folded_right
     };
-}
-
-function rescaled_face_edge(sewingLine1: SewingLine, sewingLine2: SewingLine, edge1: FaceEdgeWithPosition): FaceEdgeWithPosition {
-    return {
-        edge: new FaceEdge(null as any, edge1.edge.lines),
-        position_at_sewing_line: [
-            SewingLine.position_at_horizontally_merged_sewing_line(
-                sewingLine1,
-                sewingLine2,
-                true,
-                edge1.position_at_sewing_line[0]
-            ),
-            SewingLine.position_at_horizontally_merged_sewing_line(
-                sewingLine1,
-                sewingLine2,
-                false,
-                edge1.position_at_sewing_line[1]
-            )
-        ],
-        folded_right: edge1.folded_right
-    }
 }

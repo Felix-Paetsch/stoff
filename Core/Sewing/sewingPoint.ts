@@ -46,7 +46,7 @@ export class SewingPoint {
         return !this.is(thing) && this.adjacent_lines().some(l => l.has_endpoint(thing));
     }
 
-    merge(point: SewingPoint): SewingPoint {
+    merge(point: SewingPoint | Point): SewingPoint {
         return this.sewing.merge_points(this, point);
     }
 

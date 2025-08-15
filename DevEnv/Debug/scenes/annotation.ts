@@ -1,5 +1,4 @@
 import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
-import FaceAtlas from "@/Core/PatternLib/faces/faceAtlas.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
 
 export default function () {
@@ -22,10 +21,6 @@ export default function () {
     const T = s.cut(lt);
     const B = s.cut(lb);
     const l1 = s.fold(l);
-    console.log(l1.face_carousel);
-    for (const e of l1.face_carousel.face_edges()) {
-        console.log("WE ARE HERE ", e);
-    }
     const r2 = s.sew(T, [{
         line: B,
         same_orientation: true,

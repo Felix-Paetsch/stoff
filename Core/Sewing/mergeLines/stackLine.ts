@@ -1,4 +1,5 @@
 import { SewingLine } from "../sewingLine";
+import { Line } from "../../StoffLib/line.js";
 
 export type FullStackLine = {
     line: SewingLine,
@@ -7,8 +8,7 @@ export type FullStackLine = {
 }
 
 export type PartialStackLine = FullStackLine & {
-    guideLineRange: [number, number],
-    stackLineRange: [number, number]
+    sewTo: Line[]
 }
 
 export type StackLine = FullStackLine | PartialStackLine;

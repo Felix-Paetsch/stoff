@@ -91,11 +91,12 @@ export default (app: Express) => {
                 error: false
             });
         } catch (error: any) {
+            console.log(error);
             res.render("htmx/debug/hot_reload_res", {
                 state,
                 file: req.params.file,
                 error: true,
-                msg: error.toString()
+                msg: error.stack || error.toString()
             });
         }
     });
