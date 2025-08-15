@@ -3,18 +3,6 @@ export default (Sketch, app) => {
 
     const routes = [];
     Sketch.dev._register_route = function (route) {
-        if (
-            ["/", "/pattern", "/reset", "/at_url", "/self_intersects"].includes(
-                route.url
-            )
-        ) {
-            if (route.overwrite === null) {
-                return;
-            } else {
-                throw new Error("Route '" + route.url + "' already exists!");
-            }
-        }
-
         let foundIndex = -1;
         for (let i = 0; i < routes.length; i++) {
             if (
@@ -49,41 +37,9 @@ export default (Sketch, app) => {
         );
 
         if (route) {
-            res.send(route.request(req));
+            route.request(req, res);
         } else {
             next();
         }
-    });
-
-    Sketch.dev._serve_get = function (url, html) {
-        if (
-            overwrite === false &&
-            ["/", "/pattern", "/reset", "/at_url", "/self_intersects"]
-                .concat(routes)
-                .includes(url)
-        ) {
-            throw new Error(`Route ${url} is already taken!`);
-        }
-
-        routes.push(url);
-        app.get(url, (req, res) => {
-            res.send(html);
-        });
-    };
-
-    app.get("/at_url", (req, res) => {
-        res.render("at_url/at_url.ejs", {
-            routes: routes
-                .filter((route) => route.method == "GET")
-                .map((route) => route.url),
-        });
-    });
-
-    app.post("/at_url", (req, res) => {
-        res.render("at_url/list.ejs", {
-            routes: routes
-                .filter((route) => route.method == "POST")
-                .map((route) => route.url),
-        });
     });
 };

@@ -172,7 +172,7 @@ export default (app: Express) => {
     });
 
     app.get(/.*/, (req: Request, res: Response) => {
-        // console.log(req.originalUrl);
+        // console.log("404", req.originalUrl);
         res.sendStatus(404);
     });
 };

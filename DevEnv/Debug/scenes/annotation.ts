@@ -1,3 +1,4 @@
+import render_at from "@/Core/Debug/render_at.js";
 import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
 
@@ -26,7 +27,9 @@ export default function () {
         same_orientation: true,
         same_handedness: true,
     }]);
-    s.cut(u)
+    s.cut(u);
+    render_at(r, "/wha");
+    render_at(s, "/wha2");
     //console.log(r2.face_carousel);
     return s;
 }
