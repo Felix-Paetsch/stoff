@@ -46,10 +46,17 @@ type RenderInstruction = {
 
 export default class Renderer {
     private svgMap: Map<Sketch, RenderInstruction[]> = new Map();
+    private sewing: Sewing;
     constructor(
-        private sewing: Sewing,
+        s: Sewing | Sketch,
         public render_step: string | null = null
     ) {
+        if (s instanceof Sewing) {
+            this.sewing = s;
+        } else {
+            this.sewing = new Sewing([s]);
+        }
+
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
         )
@@ -244,9 +251,9 @@ export default class Renderer {
         const line_data = data_to_serializable(line.data);
         if (typeof line_data === "object") {
             return {
+                ...line_data,
                 _length: Math.round(line.get_length() * 1000) / 1000,
-                _right_handed: line.right_handed,
-                ...line_data
+                _right_handed: line.right_handed
             }
         }
         return line_data;

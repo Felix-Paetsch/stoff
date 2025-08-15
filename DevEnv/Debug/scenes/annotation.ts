@@ -15,7 +15,7 @@ export default function () {
     r.line_between_points(points[0], points[3]);
     const lb = r.line_between_points(points[3], points[4]);
     const l = r.line_between_points(points[2], points[0]);
-
+    const u = r.line_between_points(points[2], points[3]);
     // console.log(FaceAtlas.from_lines(r.get_lines()));
     const s = new Sewing([r, r.copy(), r.copy()])
     const T = s.cut(lt);
@@ -26,6 +26,7 @@ export default function () {
         same_orientation: true,
         same_handedness: true,
     }]);
+    s.cut(u)
     //console.log(r2.face_carousel);
     return s;
 }

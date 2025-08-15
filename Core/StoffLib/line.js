@@ -623,8 +623,8 @@ class Line {
             );
 
             if (
-                sum <= adjusted_length &&
-                sum + next_length >= adjusted_length
+                sum <= adjusted_length + EPS.COARSE &&
+                sum + next_length >= adjusted_length - EPS.COARSE
             ) {
                 const left_to_walk = adjusted_length - sum;
                 const fraction_left = left_to_walk / next_length;

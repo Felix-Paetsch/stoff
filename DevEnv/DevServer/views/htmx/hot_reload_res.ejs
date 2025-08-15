@@ -17,7 +17,15 @@
 <% } else if (render_type === "sketch"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
         <div class="flex flex-row flex-wrap gap-4 justify-start">
-            <%- include("./card", { svg: to_render.to_dev_svg(500, 500), data: to_render.data }); %>
+            <% 
+                const r = new RenderClass(to_render);
+                r.render_sketches();
+                const svg = r.render_sketch(to_render, 500, 500, 20);
+            %>
+            <%- include("./card", {
+                svg,
+                data: to_render.data
+            }); %>
         </div>
     </div>
 <% } else if (render_type === "sewing"){ %>
@@ -36,8 +44,16 @@
         </div>
         <div class="render-step" data-step="0" data-type="pattern">
             <div class="flex flex-row flex-wrap gap-4 justify-start">
-                <% for (const sketch of to_render.sketches){ %>
-                    <%- include("./card", { svg: sketch.to_dev_svg(500, 500), data: sketch.data }); %>
+                <% 
+                    for (const sketch of to_render.sketches){
+                        const r = new RenderClass(sketch);
+                        r.render_sketches();
+                        const svg = r.render_sketch(sketch, 500, 500, 20);
+                %>
+                    <%- include("./card", {
+                        svg,
+                        data: sketch.data
+                    }); %>
                 <% } %>
             </div>
         </div>

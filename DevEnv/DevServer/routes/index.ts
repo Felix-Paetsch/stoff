@@ -2,11 +2,10 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
 import { Express, Request, Response } from "express";
-import render_img from "../render.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
 import debug_create_design from "../../Debug/debug_create_design.js";
-import SewingSketch from "@/Core/PatternLib/sewing_sketch.js";
 import create_design from "../../../Patterns/export_pattern_ui_v2.js";
+import Renderer from "@/Core/Sewing/rendering/renderer/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,6 +68,7 @@ export default (app: Express) => {
             res.render("htmx/hot_reload_res", {
                 state,
                 to_render: s,
+                RenderClass: Renderer,
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });
@@ -106,6 +106,7 @@ export default (app: Express) => {
             res.render("htmx/hot_reload_res", {
                 state,
                 to_render: s,
+                RenderClass: Renderer,
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });

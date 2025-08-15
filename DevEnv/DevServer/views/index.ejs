@@ -12,7 +12,7 @@
         <div
             class="grid h-screen grid-rows-[auto_1fr] grid-cols-[auto_auto_auto_1fr]"
         >
-            <div class="p-4 col-span-4 bg-default-dark" onclick="toggle_hide_config()">
+            <div class="p-4 col-span-4 bg-default-dark cursor-pointer" onclick="toggle_hide_config()">
                 <h1 class="text-2xl font-bold text-emerald-300 text-center select-none">
                     StoffStoff
                 </h1>
@@ -40,7 +40,8 @@
             getTimeoutSetting = () => 200;
 
             document.body.addEventListener("htmx:afterSwap", function (evt) {
-                if (evt.detail.elt.id === "pattern_preview") {
+                if (evt.detail.elt.id === "canvas") {
+                    setSliderCallback();
                     add_svg_hover_events();
                 }
             });
