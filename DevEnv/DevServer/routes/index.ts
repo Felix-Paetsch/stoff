@@ -6,6 +6,7 @@ import render_img from "../render.js";
 import Sketch from "../../../Core/StoffLib/sketch.js";
 import debug_create_design from "../../Debug/debug_create_design.js";
 import SewingSketch from "@/Core/PatternLib/sewing_sketch.js";
+import create_design from "../../../Patterns/export_pattern_ui_v2.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,11 +56,29 @@ export default (app: Express) => {
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
         (Sketch as any).dev._reset_routes();
-        res.render("htmx/hot_reload_req", {
-            pictureParts,
-            state,
-            render_data: render_img(pictureParts, state),
-        });
+        try {
+            let design_config: Record<string, string> = {};
+            for (let i = 0; i < pictureParts.length; i++) {
+                design_config[pictureParts[i].name] =
+                    pictureParts[i]
+                        .choices[state.current_choices[i]]
+                        .split(".")[0];
+            }
+
+            const s = create_design(design_config);
+            res.render("htmx/hot_reload_res", {
+                state,
+                to_render: s,
+                render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
+                error: false
+            });
+        } catch (error: any) {
+            res.render("htmx/hot_reload_res", {
+                state,
+                error: true,
+                msg: error.stack || error.toString()
+            });
+        }
     });
 
     // Debug Page for file
@@ -81,20 +100,19 @@ export default (app: Express) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
+        (Sketch as any).dev._reset_routes();
         try {
             const s = await debug_create_design(req.params.file);
-            res.render("htmx/debug/hot_reload_res", {
+            res.render("htmx/hot_reload_res", {
                 state,
-                file: req.params.file,
                 to_render: s,
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });
         } catch (error: any) {
             console.log(error);
-            res.render("htmx/debug/hot_reload_res", {
+            res.render("htmx/hot_reload_res", {
                 state,
-                file: req.params.file,
                 error: true,
                 msg: error.stack || error.toString()
             });
@@ -111,8 +129,7 @@ export default (app: Express) => {
         if (typeof req.body.choice_at_current_part !== "undefined") {
             state.current_choices[state.current_part_selected] =
                 +req.body.choice_at_current_part;
-
-            ret.render_data = render_img(pictureParts, state);
+            state.start_ts = Date.now();
         }
         res.render("htmx/picture_selection", ret);
     });

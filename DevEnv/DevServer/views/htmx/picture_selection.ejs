@@ -1,4 +1,4 @@
-<div class="overflow-y-auto p-4 pl-6 border-r-2 w-sm" id="featureSelection" hx-swap-oob="outerHTML">
+<div class="overflow-y-auto p-4 pl-6 w-sm" id="featureSelection" hx-swap-oob="outerHTML">
     <h3 class="text-xl p-5 pl-0 text-left"><%= pictureParts[state.current_part_selected].name %></h3>
     <div class="flex flex-wrap gap-2 flex-row h-min">
       <% 
@@ -20,9 +20,6 @@
     </div>
   </div>
   
-  <% if (typeof render_data !== "undefined") { %>        
-    <%- include("./sewing_pattern"); %>
-  <% } %>
   <%- include("./preview"); %>
   <%- include("./state"); %>
   

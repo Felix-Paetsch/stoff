@@ -12,9 +12,8 @@
         <%- include("htmx/state.ejs", { state: { start_ts: Date.now() } }) %>
         <script src="/main/add_svg_hover_events.js"></script>
         <script src="/main/slider.js"></script>
+        <script src="/main/htmx_exponential_backoff.js"></script>
         <script>
-            getTimeoutSetting = () => 200;
-
             document.body.addEventListener("htmx:afterSwap", function (evt) {
                 if (evt.detail.elt.id === "canvas") {
                     setSliderCallback();
@@ -23,8 +22,9 @@
             });
         </script>
         <div
+            id="hot-reload-poller"
             hx-post="/debug/<%- file %>/hot_reload_req"
-            hx-trigger="every 200ms"
+            hx-trigger="poll"
             hx-include="#application_state"
             hx-request="js: timeout:getTimeoutSetting() "
             hx-swap="none"

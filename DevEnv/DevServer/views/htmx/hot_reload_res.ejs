@@ -1,7 +1,7 @@
-<%- include("../state"); %>
+<%- include("./state"); %>
 
 <% if (error){ %>
-    <div id="canvas" hx-swap-oob="outerHTML">
+    <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
         <div id="pattern_preview" class="border-2 border-default-dark w-min m-5">
             <div class="w-[500px] h-[500px] text-center flex items-center justify-center">
                 An Error Occured
@@ -15,8 +15,10 @@
         </div>
     </div>
 <% } else if (render_type === "sketch"){ %>
-    <div id="canvas" hx-swap-oob="outerHTML">
-        <%- include("./card", { svg: to_render.to_dev_svg(500, 500), data: to_render.data }); %>
+    <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
+        <div class="flex flex-row flex-wrap gap-4 justify-start">
+            <%- include("./card", { svg: to_render.to_dev_svg(500, 500), data: to_render.data }); %>
+        </div>
     </div>
 <% } else if (render_type === "sewing"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">

@@ -4,8 +4,7 @@ function add_svg_hover_events() {
         e.remove();
     });
 
-    const svg_children = document.querySelectorAll("#sketch_display svg > *");
-
+    const svg_children = document.querySelectorAll(".sketch_display svg > *");
     for (const c of svg_children) {
         if (!c.hasAttribute("hover_area")) {
             c.style.pointerEvents = "none";
@@ -16,7 +15,7 @@ function add_svg_hover_events() {
         const tooltip = document.createElement("pre");
         tooltip.classList.add("hover_data");
         tooltip.innerHTML = calculateTooltipContent(
-            JSON.parse(c.getAttribute("x-data")),
+            JSON.parse(c.getAttribute("x-data"))
         );
         document.body.appendChild(tooltip);
 
