@@ -1,10 +1,12 @@
-import render_at from "@/Core/Debug/render_at.js";
+import { at_url, hot_at_url } from "@/Core/Debug/render_at.js";
 import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
 
 export default function () {
     const r = new SewingSketch();
 
+    at_url(r, "/wha");
+    //hot_at_url(r, "/wha2");
     const points = [
         r.add(0, 0), r.add(100, 0),
         r.add(50, 50),
@@ -28,8 +30,6 @@ export default function () {
         same_handedness: true,
     }]);
     s.cut(u);
-    render_at(r, "/wha");
-    render_at(s, "/wha2");
     //console.log(r2.face_carousel);
     return s;
 }

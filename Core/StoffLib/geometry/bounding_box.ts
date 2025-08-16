@@ -1,6 +1,7 @@
 import { Vector } from "./classes.js";
 
 export class BoundingBox {
+    public is_empty: boolean = false;
     constructor(
         readonly min_x: number,
         readonly min_y: number,
@@ -10,7 +11,9 @@ export class BoundingBox {
     ) { }
 
     static empty(min_bb: [number, number] = [0, 0]) {
-        return new BoundingBox(0, 0, 0, 0, min_bb);
+        const bb = new BoundingBox(0, 0, 0, 0, min_bb);
+        bb.is_empty = true;
+        return bb;
     }
 
     static from_points(points: Vector[], min_bb: [number, number] = [0, 0]) {
@@ -18,6 +21,9 @@ export class BoundingBox {
         const min_y = Math.min(...points.map(p => p.y));
         const max_x = Math.max(...points.map(p => p.x));
         const max_y = Math.max(...points.map(p => p.y));
+        if (points.length === 0) {
+            return BoundingBox.empty(min_bb);
+        }
         return new BoundingBox(min_x, min_y, max_x, max_y, min_bb);
     }
 
@@ -27,9 +33,7 @@ export class BoundingBox {
     }
 
     merge(...others: BoundingBox[]) {
-        return BoundingBox.from_points(
-            [...others, this].flatMap(b => [b.top_left, b.top_right, b.bottom_left, b.bottom_right])
-        );
+        return BoundingBox.merge(this, ...others);
     }
 
     center() {
@@ -42,8 +46,8 @@ export class BoundingBox {
 
     static merge(...boxes: BoundingBox[]) {
         return BoundingBox.from_points(
-            boxes.flatMap(b => [b.top_left, b.top_right, b.bottom_left, b.bottom_right]),
-            boxes[0].min_bb
+            boxes.filter(b => !b.is_empty).flatMap(b => [b.actual_top_left, b.actual_top_right, b.actual_bottom_left, b.actual_bottom_right]),
+            boxes[0]?.min_bb || BoundingBox.empty().min_bb
         );
     }
 
