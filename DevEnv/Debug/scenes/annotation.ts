@@ -14,6 +14,8 @@ export default function () {
     ];
 
     const lt = r.line_between_points(points[0], points[1]);
+    lt.p1.data = "P1";
+    lt.p2.data = "P2";
     r.line_between_points(points[1], points[4]);
     r.line_between_points(points[0], points[3]);
     const lb = r.line_between_points(points[3], points[4]);

@@ -6,7 +6,7 @@ import { LineRenderAttributes } from "../renderer";
 import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 
 const cut_line_attributes: Partial<LineRenderAttributes> = {
-    stroke: "red"
+    stroke: ["#fcc", "red"]
 }
 
 const cut_point_attributes: Partial<PointRenderAttributes> = {

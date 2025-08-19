@@ -3,11 +3,11 @@ import { SewingLine } from "../../sewingLine";
 import Renderer, { FaceRenderAttributes, LineRenderAttributes } from "../renderer";
 
 const sew_line_attributes_primary: Partial<LineRenderAttributes> = {
-    stroke: "red"
+    stroke: ["#ccf", "blue"]
 }
 
 const sew_line_attributes_other: Partial<LineRenderAttributes> = {
-    stroke: "purple"
+    stroke: ["#cfc", "green"]
 }
 
 const sew_face_attributes: Partial<FaceRenderAttributes> = {

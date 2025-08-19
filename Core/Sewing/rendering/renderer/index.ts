@@ -22,7 +22,7 @@ export type PointRenderAttributes = {
 };
 
 export type LineRenderAttributes = {
-    stroke: string;
+    stroke: string | [string, string];
     strokeWidth: number;
     opacity: number;
 };
@@ -151,8 +151,32 @@ export default class Renderer {
                         }
                     ).join(" ");
 
-                    return `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`
-                        + `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
+                    let res = "";
+                    if (typeof stroke === "string") {
+                        res = `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`;
+                    } else {
+                        const [stroke1, stroke2] = stroke;
+                        const [[x1, y1], [x2, y2]] = line.get_endpoints().map(e =>
+                            ctx.relative_to_absolute(e.x, e.y)
+                        );
+                        const gradient_id = `gradient_${Math.random().toString(36).substring(2, 15)}`;
+                        res = `<defs>
+                            <linearGradient id="${gradient_id}" 
+                                x1="${x1}"
+                                y1="${y1}"
+                                x2="${x2}"
+                                y2="${y2}"
+                                gradientUnits="userSpaceOnUse"
+                                >
+                                <stop offset="0%" stop-color="${stroke1}" />
+                                <stop offset="100%" stop-color="${stroke2}" />
+                            </linearGradient>
+                        </defs>
+                        <polyline points="${pointsString}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${strokeWidth}" opacity="${opacity}"/>`
+                    }
+
+                    res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
+                    return res;
                 },
                 priority: 50
             }

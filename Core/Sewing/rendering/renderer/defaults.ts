@@ -5,19 +5,19 @@ export const default_point_attributes: PointRenderAttributes = {
     strokeWidth: 1,
     fill: "white",
     opacity: 1,
-    radius: 1,
+    radius: 2,
 };
 
 export const default_line_attributes: LineRenderAttributes = {
-    stroke: "black",
-    strokeWidth: 1,
+    stroke: ["#ccc", "black"],
+    strokeWidth: 3,
     opacity: 1,
 };
 
 export const default_face_attributes: FaceRenderAttributes = {
     fill: "blue",
     opacity: 1,
-    width: 5,
+    width: 6,
     style: "fill"
 };
 
@@ -30,13 +30,13 @@ export const default_sewing_point_attributes: PointRenderAttributes = {
 }
 
 export const default_sewing_line_primary_attributes: LineRenderAttributes = {
-    stroke: "black",
-    strokeWidth: 2,
+    stroke: ["#f88", "red"],
+    strokeWidth: 3,
     opacity: 1,
 }
 
 export const default_sewing_line_other_attributes: LineRenderAttributes = {
-    stroke: "black",
-    strokeWidth: 2,
+    stroke: ["#88f", "blue"],
+    strokeWidth: 3,
     opacity: 1,
 }

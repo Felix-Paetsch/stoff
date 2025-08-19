@@ -4,7 +4,7 @@ import { FaceRenderAttributes, LineRenderAttributes } from "../renderer";
 import Renderer from "../renderer";
 
 const fold_line_attributes: Partial<LineRenderAttributes> = {
-    stroke: "blue"
+    stroke: ["#ccf", "blue"]
 }
 
 const fold_face_attributes: Partial<FaceRenderAttributes> = {

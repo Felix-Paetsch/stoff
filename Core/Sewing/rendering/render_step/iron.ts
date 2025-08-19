@@ -4,11 +4,11 @@ import { FaceRenderAttributes, LineRenderAttributes } from "../renderer";
 import Renderer from "../renderer";
 
 const iron_line_attributes_primary: Partial<LineRenderAttributes> = {
-    stroke: "blue"
+    stroke: ["#ccf", "blue"]
 }
 
 const iron_line_attributes_other: Partial<LineRenderAttributes> = {
-    stroke: "blue",
+    stroke: ["#cfc", "green"],
     opacity: 0.5
 }
 
