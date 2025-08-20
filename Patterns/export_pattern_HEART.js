@@ -1,4 +1,5 @@
 import SewingSketch from "../Core/PatternLib/sewing_sketch.js";
+import { at_url } from "../Core/Debug/render_at.js";
 
 export default (design_config) => {
     const s = new SewingSketch();
@@ -101,7 +102,7 @@ export default (design_config) => {
         lines = new_lines;
     }
     s.dev.start_recording("/wha");
-    s.dev.at_url("/test");
+    at_url(s, "/test");
 
     s.data = design_config;
     return s;

@@ -1,19 +1,19 @@
-import Point from '../point.js';
-import Line from '../line.js';
-import { Vector, EPS } from '../geometry.js';
-import ConnectedComponent from '../connected_component.js';
+import Point from "../point.js";
+import Line from "../line.js";
+import { Vector, EPS } from "../geometry.js";
+import ConnectedComponent from "../connected_component.js";
 import assert from "../../assert.js";
+// import { at_url } from "../../Debug/render_at.js";
 
-
-import CONF from '../config.json' with {type: "json"};
+import CONF from "../config.json" with { type: "json" };
 const error_margin = EPS.MODERATE;
 let currently_validating = false;
 
-function validate_sketch(s){
+function validate_sketch(s) {
     if (currently_validating) return;
     currently_validating = true;
 
-    s.lines.forEach(l => {
+    s.lines.forEach((l) => {
         relative_endpoints_are_correct(l);
         sketch_points_as_enpoints(s, l);
         points_are_in_sketch(s, l);
@@ -21,26 +21,28 @@ function validate_sketch(s){
         data_object_valid(l.data, s);
         endpoints_have_line(l);
 
-        if (CONF.ASSERT_NON_SELFINTERSECTING){
+        if (CONF.ASSERT_NON_SELFINTERSECTING) {
             line_doesnt_self_intersect(
                 l,
                 () => {
                     l.attributes.stroke = "red";
                     l.attributes.opacity = 0.9;
-                    if (l.data){
+                    if (l.data) {
                         l.data.SELF_INTERSECTS = true;
                     }
-                    s.dev.at_url("/self_intersects", null, true);
+                    at_url(s, "/self_intersects", null, true);
 
                     Error.stackTraceLimit = Infinity;
-                    throw new Error("A line self intersected! \nYou may visit /self_intersects to see the problem.\n");
+                    throw new Error(
+                        "A line self intersected! \nYou may visit /self_intersects to see the problem.\n"
+                    );
                 } // Callback before the assert
             );
         }
     });
     no_dublicates(s.lines, "The sketch contains a line twice");
 
-    s.points.forEach(p => {
+    s.points.forEach((p) => {
         pt_has_lines_only_in_sketch(s, p);
         data_object_valid(p.data, s);
     });
@@ -51,35 +53,35 @@ function validate_sketch(s){
 }
 
 // TEST CASES COMMON
-function no_dublicates(arr, msg){
-  const seen = new Set();
-  for (const item of arr) {
-    if (seen.has(item)) {
-      throw new Error(msg);
+function no_dublicates(arr, msg) {
+    const seen = new Set();
+    for (const item of arr) {
+        if (seen.has(item)) {
+            throw new Error(msg);
+        }
+        seen.add(item);
     }
-    seen.add(item);
-  }
 }
 
 // TEST CASES LINES
 
-function relative_endpoints_are_correct(l){
+function relative_endpoints_are_correct(l) {
     // First sample point is (0,0)
     // Last  sample point is (1,0)
     assert(
-        approx_eq(l.sample_points[0].x, 0)
-        && approx_eq(l.sample_points[0].y, 0),
+        approx_eq(l.sample_points[0].x, 0) &&
+            approx_eq(l.sample_points[0].y, 0),
         "Test Failed: Line starts with (0,0)"
     );
 
     assert(
-        approx_eq(l.sample_points[l.sample_points.length - 1].x, 1)
-        && approx_eq(l.sample_points[l.sample_points.length - 1].y, 0),
+        approx_eq(l.sample_points[l.sample_points.length - 1].x, 1) &&
+            approx_eq(l.sample_points[l.sample_points.length - 1].y, 0),
         "Test Failed: Line ends with (1,0)"
     );
 }
 
-function sketch_points_as_enpoints(s, l){
+function sketch_points_as_enpoints(s, l) {
     assert(
         l.p1 instanceof Point && l.p2 instanceof Point,
         "Test Failed: Line should have points as endpoints"
@@ -91,21 +93,24 @@ function sketch_points_as_enpoints(s, l){
     );
 }
 
-function no_nan_values(l){
-    l.get_sample_points().forEach(p => {
-        assert(!isNaN(p.x) && !isNaN(p.y), "Test Failed: Some line sample points are NaN")
+function no_nan_values(l) {
+    l.get_sample_points().forEach((p) => {
+        assert(
+            !isNaN(p.x) && !isNaN(p.y),
+            "Test Failed: Some line sample points are NaN"
+        );
     });
 }
 
-function points_are_in_sketch(s, l){
+function points_are_in_sketch(s, l) {
     assert(
         s.has_points(...l.get_endpoints()),
         "Test failed: Line endpoints are not in sketch"
     );
 }
 
-function line_doesnt_self_intersect(l, callback = () => {}){
-    if (l.self_intersects()){
+function line_doesnt_self_intersect(l, callback = () => {}) {
+    if (l.self_intersects()) {
         callback();
         throw new Error("Test failed: Line heuristically self intersects");
     }
@@ -129,93 +134,105 @@ function line_doesnt_self_intersect(l){
 }
 */
 
-function endpoints_have_line(l){
+function endpoints_have_line(l) {
     assert(
-        l.p1.get_adjacent_lines().includes(l)
-        && l.p2.get_adjacent_lines().includes(l),
+        l.p1.get_adjacent_lines().includes(l) &&
+            l.p2.get_adjacent_lines().includes(l),
         "Line endpoints adjacent to line"
     );
 }
 
 // TEST CASES POINTS
 
-function pt_has_lines_only_in_sketch(s, pt){
+function pt_has_lines_only_in_sketch(s, pt) {
     assert(
         s.has_lines(...pt.get_adjacent_lines()),
         "Test failed: Point has lines not in sketch"
     );
 }
 
-
 // TEST CASES SKETCH
-function data_object_valid(data, s){
+function data_object_valid(data, s) {
     let nesting = 0;
     nesting_buffer(data);
 
-    function nesting_buffer(data){
+    function nesting_buffer(data) {
         nesting++;
-        if (nesting > 50){
+        if (nesting > 50) {
             throw new Error("Data nesting to deep! Circular data structure?");
         }
 
         // Basic Stuff
-        if ([
-            "undefined",
-            "boolean",
-            "number",
-            "bigint",
-            "string",
-            "symbol"
-        ].includes(typeof data)){
+        if (
+            [
+                "undefined",
+                "boolean",
+                "number",
+                "bigint",
+                "string",
+                "symbol",
+            ].includes(typeof data)
+        ) {
             return nesting--;
         }
 
-        if (data == null){
+        if (data == null) {
             return nesting--;
         }
 
         // Arrays
-        if (data instanceof Array){
+        if (data instanceof Array) {
             nesting--;
             return data.map(nesting_buffer);
         }
 
         // Basic dicts
-        if (data.constructor === Object){
-            for (const key in data){
-                nesting_buffer(data[key])
+        if (data.constructor === Object) {
+            for (const key in data) {
+                nesting_buffer(data[key]);
             }
             return nesting--;
         }
 
         // Points
-        if (data instanceof Point){
-            assert(s.has_points(data), "Object data references point not in sketch");
+        if (data instanceof Point) {
+            assert(
+                s.has_points(data),
+                "Object data references point not in sketch"
+            );
             return nesting--;
         }
 
         // Vectors
-        if (data instanceof Vector){
+        if (data instanceof Vector) {
             return nesting--;
         }
 
         // Lines
-        if (data instanceof Line){
-            assert(s.has_lines(data), "Object data references line not in sketch");
+        if (data instanceof Line) {
+            assert(
+                s.has_lines(data),
+                "Object data references line not in sketch"
+            );
             return nesting--;
         }
 
-        if (data instanceof ConnectedComponent){
-            assert(s.has(data.root_el), "Root element of ConnectedCompoonent doesnt belong to sketch");
+        if (data instanceof ConnectedComponent) {
+            assert(
+                s.has(data.root_el),
+                "Root element of ConnectedCompoonent doesnt belong to sketch"
+            );
             return nesting--;
         }
 
-        throw new Error("Object data somewhere has object of unhandled datatype (Invalid data type)");
+        throw new Error(
+            "Object data somewhere has object of unhandled datatype (Invalid data type)"
+        );
     }
 }
 
-function approx_eq(a,b = 0){
-    return Math.abs(a-b) < error_margin
+function approx_eq(a, b = 0) {
+    return Math.abs(a - b) < error_margin;
 }
 
 export { assert, validate_sketch };

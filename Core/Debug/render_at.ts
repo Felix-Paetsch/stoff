@@ -1,5 +1,5 @@
 import Renderer from "../Sewing/rendering/renderer/index.js";
-import Sketch from "../StoffLib/sketch.js";
+import type { Sketch } from "../StoffLib/sketch.js";
 import { Sewing } from "../Sewing/sewing.js";
 import { Request, Response } from "express";
 
@@ -10,7 +10,7 @@ export function at_url(s: Sketch | Sewing, url: `/${string}`, overwrite: boolean
 
     let hot_reload_timestamps: string[] = [];
 
-    const to_render = s instanceof Sketch ? s.copy() : s;
+    const to_render = s instanceof Sewing ? s : s.copy();
     get.request = function (req: Request, res: Response) {
         return res.render("hot", {
             path: `${url}`,
@@ -32,7 +32,7 @@ export function at_url(s: Sketch | Sewing, url: `/${string}`, overwrite: boolean
                 state,
                 to_render: to_render,
                 RenderClass: Renderer,
-                render_type: to_render instanceof Sketch ? "sketch" : "sewing",
+                render_type: to_render instanceof Sewing ? "sewing" : "sketch",
                 error: false,
             });
         } catch (error: any) {
@@ -73,7 +73,7 @@ export function hot_at_url(s: Sketch | Sewing, url: `/${string}`, overwrite = nu
                 state,
                 to_render: s,
                 RenderClass: Renderer,
-                render_type: s instanceof Sketch ? "sketch" : "sewing",
+                render_type: s instanceof Sewing ? "sewing" : "sketch",
                 error: false,
             });
         } catch (error: any) {
