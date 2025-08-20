@@ -342,6 +342,7 @@ class Line {
             start || end || Infinity,
             end || Infinity
         );
+
         points.push(
             this.to_relative_position(this.position_at_fraction(toFraction))
         );
@@ -611,16 +612,21 @@ class Line {
 
         let sum = 0;
         for (let i = 0; i < this.sample_points.length - 1; i++) {
-            const next_length = Math.sqrt(
-                Math.pow(
-                    this.sample_points[i][1] - this.sample_points[i + 1][1],
-                    2
-                ) +
-                    Math.pow(
-                        this.sample_points[i][0] - this.sample_points[i + 1][0],
-                        2
-                    )
-            );
+            let START_I = i;
+            let next_length = 0;
+            while (true) {
+                next_length = this.sample_points[i + 1].distance(
+                    this.sample_points[START_I]
+                );
+                if (next_length > EPS.FINE) {
+                    break;
+                }
+                if (i + 1 < this.sample_points.length) {
+                    i++;
+                } else {
+                    START_I--;
+                }
+            }
 
             if (
                 sum <= adjusted_length + EPS.COARSE &&
