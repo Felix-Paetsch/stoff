@@ -391,7 +391,7 @@ export default (Sketch) => {
         );
         const offset_vector = line_vector
             .get_orthonormal()
-            .scale(-1 * closest_distance); // evt. *-1;
+            .scale(closest_distance);
 
         const splitting_pt = pt.subtract(offset_vector);
 

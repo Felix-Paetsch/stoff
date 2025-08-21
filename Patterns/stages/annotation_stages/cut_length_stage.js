@@ -42,7 +42,7 @@ export default class CutLengthStage extends BaseStage {
             (0.6 * (this.wd.sh.center + this.wd.sh.waist_height));
 
         lns.forEach((ln) => {
-            let vec_length = ln.get_line_vector().get_orthonormal().scale(len);
+            let vec_length = ln.get_line_vector().get_orthonormal().scale(-len);
             if (vec_length.y > 0) {
                 vec_length = vec_length.scale(-1);
             }

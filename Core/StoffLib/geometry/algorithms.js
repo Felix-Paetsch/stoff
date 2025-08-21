@@ -320,8 +320,8 @@ function polygon_orientation_v2(points, eps = EPS.COARSE, n = 1) {
 
         const test_vec = mid.add(dir.get_orthogonal().scale(eps));
         polygon_contains_point(points, test_vec)
-            ? current_test_res++
-            : current_test_res--;
+            ? current_test_res--
+            : current_test_res++;
     }
 
     return current_test_res > 0;

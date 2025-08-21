@@ -314,7 +314,7 @@ export default class Renderer {
         )
     }
 
-    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes>, data: any = null) {
+    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes> = {}, data: any = null) {
         faceCarousel.faceEdges.forEach((edge: FaceEdgeWithPosition) => {
             edge.edge.lines.forEach((fec) => {
                 const p = Number(fec.standard_handedness) + Number(edge.folded_right) + Number(fec.line.right_handed);

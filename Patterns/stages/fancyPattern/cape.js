@@ -53,7 +53,7 @@ export default class CapeStage extends SequentialStage {
         const vec = ln
             .get_line_vector()
             .get_orthonormal()
-            .scale(ln.get_length() * 4);
+            .scale(-ln.get_length() * 4);
         const p1 = this.sketch.add_point(pt.add(vec));
         const p2 = this.sketch.add_point(pt.subtract(vec));
         const h_ln = this.sketch.line_between_points(p1, p2);

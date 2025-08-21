@@ -48,7 +48,7 @@ export default function offset_sample_points(
             const vec1 = sample_points[prev_left].subtract(sample_points[left]);
             const vec2 = sample_points[right].subtract(sample_points[left]);
             let angle = vec_angle_clockwise(vec1, vec2, true);
-            const center_vec = vec1.rotate(angle / 2).to_len(radius);
+            const center_vec = vec1.rotate(-angle / 2).to_len(radius);
             abs_sample_points.push(sample_points[left].add(center_vec));
         }
 

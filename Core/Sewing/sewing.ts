@@ -13,6 +13,7 @@ import cutRenderer from "./rendering/render_step/cut";
 import foldRenderer from "./rendering/render_step/fold.js";
 import ironRenderer from "./rendering/render_step/iron.js";
 import sewRenderer from "./rendering/render_step/sew.js";
+import { at_url } from "../Debug/render_at.js";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
@@ -157,6 +158,14 @@ export class Sewing {
 
     fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false) {
         const line: SewingLine = fold_line instanceof SewingLine ? fold_line : this.sewing_line(fold_line);
+
+        if (fold_line instanceof Line) {
+            const renderer = new Renderer(this, "test");
+            renderer.render_sketches();
+            renderer.render_face_carousel(line.face_carousel);
+            this.renderers.push(renderer);
+        }
+
         const left = line.face_carousel.left_edges();
         const right = line.face_carousel.right_edges();
         if (rightOnLeft) {

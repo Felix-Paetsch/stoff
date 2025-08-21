@@ -53,7 +53,7 @@ export class Vector {
     distance(el) {
         if (el instanceof Line || el instanceof Ray) return el.distance(this);
         return Math.sqrt(
-            Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2),
+            Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2)
         );
     }
 
@@ -73,7 +73,7 @@ export class Vector {
             if (this.is_column && el.is_row) {
                 return new Matrix(
                     new Vector(this[0] * el[0], this[1] * el[0]),
-                    new Vector(this[0] * el[1], this[1] * el[1]),
+                    new Vector(this[0] * el[1], this[1] * el[1])
                 );
             }
             // Both are the same, mult piecewise
@@ -143,11 +143,11 @@ export class Vector {
     }
 
     get_orthogonal() {
-        return new Vector(this.y, -1 * this.x);
+        return new Vector(-this.y, this.x);
     }
 
     get_orthonormal() {
-        return new Vector(this.y, -1 * this.x).normalize();
+        return new Vector(-this.y, this.x).normalize();
     }
 
     toString() {
@@ -207,7 +207,7 @@ export class Matrix {
     transpose() {
         return new Matrix(
             new Vector(this.row1[0], this.row2[0]),
-            new Vector(this.row1[1], this.row2[1]),
+            new Vector(this.row1[1], this.row2[1])
         );
     }
 
@@ -218,8 +218,8 @@ export class Matrix {
 
         console.log(
             `| ${fmt(this.row1[0])} ${fmt(this.row1[1])} |\n| ${fmt(
-                this.row2[0],
-            )} ${fmt(this.row2[1])} |`,
+                this.row2[0]
+            )} ${fmt(this.row2[1])} |`
         );
 
         return this;
@@ -236,7 +236,7 @@ export class Matrix {
     invert() {
         const pre_scaled = new Matrix(
             new Vector(this.row2[1], this.row1[1] * -1),
-            new Vector(this.row2[0] * -1, this.row1[0]),
+            new Vector(this.row2[0] * -1, this.row1[0])
         );
         return pre_scaled.scale(1 / this.det());
     }
@@ -278,7 +278,7 @@ export class Line {
     get_orthogonal(at = ZERO) {
         return Line.from_direction(
             at,
-            this.points[0].subtract(this.points[1]).get_orthogonal(),
+            this.points[0].subtract(this.points[1]).get_orthogonal()
         );
     }
 
@@ -298,7 +298,7 @@ export class Line {
         // Calculate the closest point on the line
         return new Vector(
             vec1.x + projection * vec1ToVec2.x,
-            vec1.y + projection * vec1ToVec2.y,
+            vec1.y + projection * vec1ToVec2.y
         );
     }
 
@@ -409,7 +409,7 @@ export class Ray {
     mirror_at(...data) {
         return Ray.from_points(
             this.src.mirror_at(...data),
-            this.src.add(this.direction).mirror_at(...data),
+            this.src.add(this.direction).mirror_at(...data)
         );
     }
 
