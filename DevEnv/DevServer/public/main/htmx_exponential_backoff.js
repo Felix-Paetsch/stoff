@@ -33,9 +33,9 @@ function onFailedResponse() {
         maxInterval
     );
     if (currentPollingInterval >= maxInterval) {
-        // document.getElementById("no-connection")?.classList.remove("hidden");
+        document.getElementById("no-connection")?.classList.remove("hidden");
     } else {
-        // document.getElementById("no-connection")?.classList.add("hidden");
+        document.getElementById("no-connection")?.classList.add("hidden");
     }
     scheduleNextPoll();
 }
