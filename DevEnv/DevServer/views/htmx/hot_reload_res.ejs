@@ -13,6 +13,9 @@
                 class="text-left p-5 leading-[1.3rem]"
         ><%= msg %></pre>
         </div>
+        <div id="no-connection" class="m-5 min-w-[504px] w-min hidden" style="background-color: lightcoral;">
+            <pre class="text-left p-5 leading-[1.3rem]">!! No connection to server</pre>
+        </div>
     </div>
 <% } else if (render_type === "sketch"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
@@ -26,6 +29,9 @@
                 svg,
                 data: to_render.data
             }); %>
+        </div>
+        <div id="no-connection" class="m-5 min-w-[504px] w-min hidden" style="background-color: lightcoral;">
+            <pre class="text-left p-5 leading-[1.3rem]">!! No connection to server</pre>
         </div>
     </div>
     
@@ -73,6 +79,9 @@
                 </div>
             </div>
         <% } %>
+        <div id="no-connection" class="m-5 min-w-[504px] w-min hidden" style="background-color: lightcoral;">
+            <pre class="text-left p-5 leading-[1.3rem]">!! No connection to server</pre>
+        </div>
     </div>
 <% } else if (render_type === "sewing"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
@@ -115,5 +124,8 @@
                 </div>
             </div>
         <% } %>
+        <div id="no-connection" class="m-5 min-w-[504px] w-min hidden" style="background-color: lightcoral;">
+            <pre class="text-left p-5 leading-[1.3rem]">!! No connection to server</pre>
+        </div>
     </div>
 <% } %>

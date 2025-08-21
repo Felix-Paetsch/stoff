@@ -1,5 +1,5 @@
 import Face from "./face";
-import RogueChain from "./rogue";
+import RogueComponent from "./rogue";
 
 export type ConnectedFaceComponent = {
     parent_face: Face | null;
@@ -8,8 +8,8 @@ export type ConnectedFaceComponent = {
     faces: Face[];
     component: Face | null;
 
-    outer_chains: RogueChain[];
-    inner_chains: RogueChain[];
+    outer_chains: RogueComponent[];
+    inner_chains: RogueComponent[];
 
     subcomponents: ConnectedFaceComponent[];
 }

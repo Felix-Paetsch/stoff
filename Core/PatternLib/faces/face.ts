@@ -4,7 +4,7 @@ import { Vector } from "@/Core/StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 import FaceAtlas from "./faceAtlas.js";
-import RogueChain from "./rogue.js";
+import RogueComponent from "./rogue.js";
 import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
 
 export default class Face {
@@ -101,9 +101,9 @@ export default class Face {
         return hand === !this.is_boundary();
     }
 
-    is_adjacent(other: Face | Line | Point | RogueChain): boolean {
-        if (other instanceof RogueChain) {
-            return this.is_adjacent(other.p1) || this.is_adjacent(other.p2);
+    is_adjacent(other: Face | Line | Point | RogueComponent): boolean {
+        if (other instanceof RogueComponent) {
+            return other.get_points().some(p => this.is_adjacent(p));
         }
         if (other instanceof Point) {
             return this.boundary.some(l => l.has_endpoint(other));
@@ -114,7 +114,7 @@ export default class Face {
         return this !== other && other.boundary.some(l => this.is_adjacent(l));
     }
 
-    contains(thing: Point | Vector | Line | Face | RogueChain, only_interior: boolean = false): boolean {
+    contains(thing: Point | Vector | Line | Face | RogueComponent, only_interior: boolean = false): boolean {
         if (thing instanceof Face) {
             if (this == thing) return !only_interior;
             return thing.boundary.every(l => this.contains(l, only_interior));
@@ -126,7 +126,7 @@ export default class Face {
 
             return this.contains(thing.position_at_fraction(0.5), true);
         }
-        if (thing instanceof RogueChain) {
+        if (thing instanceof RogueComponent) {
             return this.contains(thing.lines[0].position_at_fraction(0.5), true);
         }
         if (

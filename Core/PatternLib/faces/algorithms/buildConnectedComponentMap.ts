@@ -62,12 +62,11 @@ export function parseFaceComponents(data: ConnectedComponentFaceData[]): Connect
 
     for (let i = 0; i < components.length; i++) {
         const component = components[i];
-        const chains = data[i].chains;
-
-        for (const chain of chains) {
-            let isInner = component.component?.contains(chain);
-            isInner && component.inner_chains.push(chain);
-            !isInner && component.outer_chains.push(chain);
+        const rogue = data[i].rogue;
+        for (const r of rogue) {
+            let isInner = component.component?.contains(r);
+            isInner && component.inner_chains.push(r);
+            !isInner && component.outer_chains.push(r);
         }
     }
 

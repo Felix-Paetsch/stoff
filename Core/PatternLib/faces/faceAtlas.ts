@@ -2,7 +2,7 @@ import { Line } from "../../StoffLib/line.js";
 import { parseFaceComponents } from "./algorithms/buildConnectedComponentMap.js";
 import findFaces from "./algorithms/findFaces.js";
 import Face from "./face.js";
-import RogueChain from "./rogue.js";
+import RogueComponent from "./rogue.js";
 import { ConnectedComponentFaceData } from "./algorithms/findFaces.js";
 import Sketch from "../../StoffLib/sketch.js";
 import register_collection_methods from "../../StoffLib/collection_methods/index.js";
@@ -15,8 +15,8 @@ export default class FaceAtlas {
 
     readonly faces: Face[] = []; // Primitive faces
     readonly lines: Line[] = [];
-    readonly outsideRougeChains: RogueChain[] = [];
-    readonly rogueChains: RogueChain[] = [];
+    readonly outsideRougeChains: RogueComponent[] = [];
+    readonly rogueChains: RogueComponent[] = [];
 
     readonly connectedComponents: ConnectedFaceComponent[];
     readonly maximalComponents: ConnectedFaceComponent[];
@@ -27,9 +27,9 @@ export default class FaceAtlas {
                 (face as any).faceAtlas = this;
                 this.faces.push(face);
             });
-            data.chains.forEach(chain => {
-                (chain as any).faceAtlas = this;
-                this.rogueChains.push(chain);
+            data.rogue.forEach(r => {
+                (r as any).faceAtlas = this;
+                this.rogueChains.push(r);
             });
             if (data.outer_face) {
                 (data.outer_face as any).faceAtlas = this;
@@ -58,7 +58,7 @@ export default class FaceAtlas {
         return this.sketch || null;
     }
 
-    adjacent_faces(line: Line): [Face, Face] | [RogueChain, Face | null] | null {
+    adjacent_faces(line: Line): [Face, Face] | [RogueComponent, Face | null] | null {
         if (!this.lines.includes(line)) return null;
 
 
@@ -95,26 +95,26 @@ export default class FaceAtlas {
         return this.maximalComponents.some(c => c.component?.get_lines().includes(line));
     }
 
-    static rogue_lines_to_chains(lines: Line[]): RogueChain[] {
-        const chains: Line[][] = [];
-        const to_visit: Line[] = lines.map(l => l);
+    static rogue_lines_to_components(lines: Line[]): RogueComponent[] {
+        const components = lines.map(l => ({
+            points: new Set(l.get_endpoints()),
+            lines: [l]
+        }));
 
-        let current_line: Line | undefined;
-        while (current_line = to_visit.pop()) {
-            for (const chain of chains) {
-                if (chain[0].common_endpoint(current_line)) {
-                    chain.unshift(current_line);
-                    break;
-                }
-                if (chain[chain.length - 1].common_endpoint(current_line)) {
-                    chain.push(current_line);
+        for (let i = components.length - 1; i > 0; i--) {
+            const component = components[i];
+            for (let j = i - 1; j >= 0; j--) {
+                const other = components[j];
+                if ([...other.points].some(v => component.points.has(v))) {
+                    component.lines.push(...other.lines);
+                    other.points.forEach(p => component.points.add(p));
+                    components.splice(j, 1);
                     break;
                 }
             }
-
-            chains.push([current_line]);
         }
-        return chains.map(c => new RogueChain(c));
+
+        return components.map(c => new RogueComponent(c.lines));
     }
 
     static from_lines(lines: Line[], _sketch?: Sketch): FaceAtlas {

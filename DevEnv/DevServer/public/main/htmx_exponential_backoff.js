@@ -32,6 +32,11 @@ function onFailedResponse() {
         currentPollingInterval * backoffMultiplier,
         maxInterval
     );
+    if (currentPollingInterval >= maxInterval) {
+        // document.getElementById("no-connection")?.classList.remove("hidden");
+    } else {
+        // document.getElementById("no-connection")?.classList.add("hidden");
+    }
     scheduleNextPoll();
 }
 
