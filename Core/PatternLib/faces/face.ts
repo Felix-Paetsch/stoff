@@ -1,5 +1,6 @@
 import { polygon_contains_point } from "../../StoffLib/geometry.js";
 import { Line } from "../../StoffLib/line.js";
+import { Vector } from "@/Core/StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 import FaceAtlas from "./faceAtlas.js";

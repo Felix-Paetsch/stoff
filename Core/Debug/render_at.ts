@@ -3,14 +3,14 @@ import type { Sketch } from "../StoffLib/sketch.js";
 import { Sewing } from "../Sewing/sewing.js";
 import { Request, Response } from "express";
 
-import Route from "../StoffLib/dev/sketch_dev/request_routing.js";
-export function at_url(s: Sketch | Sewing, url: `/${string}`, overwrite: boolean | null = null) {
-    const get = new Route(url, "get", overwrite as any);
-    const post = new Route(url, "post", overwrite as any);
+import Route from "./route.js";
+export function at_url(s: Sketch | Sewing | Sketch[], url: `/${string}`, overwrite: boolean | null = null) {
+    const get = new Route(url, "GET", overwrite as any);
+    const post = new Route(url, "POST", overwrite as any);
 
     let hot_reload_timestamps: string[] = [];
 
-    const to_render = s instanceof Sewing ? s : s.copy();
+    const to_render = s instanceof Sewing ? s : Array.isArray(s) ? s.map(s => s.copy()) : s.copy();
     get.request = function (req: Request, res: Response) {
         return res.render("hot", {
             path: `${url}`,
@@ -32,7 +32,7 @@ export function at_url(s: Sketch | Sewing, url: `/${string}`, overwrite: boolean
                 state,
                 to_render: to_render,
                 RenderClass: Renderer,
-                render_type: to_render instanceof Sewing ? "sewing" : "sketch",
+                render_type: to_render instanceof Sewing ? "sewing" : Array.isArray(to_render) ? "sketch_array" : "sketch",
                 error: false,
             });
         } catch (error: any) {
@@ -45,10 +45,9 @@ export function at_url(s: Sketch | Sewing, url: `/${string}`, overwrite: boolean
     };
 };
 
-export function hot_at_url(s: Sketch | Sewing, url: `/${string}`, overwrite = null, data = null) {
-
-    const get = new Route(url, "get", overwrite as any);
-    const post = new Route(url, "post", overwrite as any);
+export function hot_at_url(s: Sketch | Sewing | Sketch[], url: `/${string}`, overwrite: boolean | null = null, data = null) {
+    const get = new Route(url, "GET", overwrite as any);
+    const post = new Route(url, "POST", overwrite as any);
 
     let hot_reload_timestamps: string[] = [];
 
@@ -73,7 +72,7 @@ export function hot_at_url(s: Sketch | Sewing, url: `/${string}`, overwrite = nu
                 state,
                 to_render: s,
                 RenderClass: Renderer,
-                render_type: s instanceof Sewing ? "sewing" : "sketch",
+                render_type: s instanceof Sewing ? "sewing" : Array.isArray(s) ? "sketch_array" : "sketch",
                 error: false,
             });
         } catch (error: any) {

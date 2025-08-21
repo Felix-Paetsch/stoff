@@ -81,6 +81,7 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
             const possible_next_lines = lines.filter(
                 l => l.has_endpoint(latest_endpoint)
                     && lines_map.has(l)
+                    && l !== latest_line
                     && !lines_map.get(l)![l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
             ).sort((l1, l2) => l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))
                 - l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint))

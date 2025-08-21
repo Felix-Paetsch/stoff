@@ -25,7 +25,11 @@ function activateRenderStep(n) {
     renderSteps[current_step].classList.remove("hidden");
 
     const sliderDisplay = document.getElementById("sliderDisplay");
-    sliderDisplay.innerHTML = `Step: [${renderSteps[current_step].dataset.type}] | ${current_step}/${max - 1}`;
+    if (renderSteps[current_step].dataset.type) {
+        sliderDisplay.innerHTML = `Step: [${renderSteps[current_step].dataset.type}] | ${current_step}/${max - 1}`;
+    } else {
+        sliderDisplay.innerHTML = `Step: ${current_step}/${max - 1}`;
+    }
 
     current_step = n;
 }

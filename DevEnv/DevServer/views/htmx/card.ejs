@@ -8,6 +8,6 @@
     <div id="render_message" class="overflow-auto m-5 mt-0 bg-gray-300 min-w-[500px] w-min">
         <pre
             class="text-left p-5 leading-[1.3rem]"
-        ><%= JSON.stringify(data, true, 2) %></pre>
+        ><%= JSON.stringify(data, true, 2).replace(/<br>/g, "\" \n      + \"") %></pre>
     </div>
 </div>

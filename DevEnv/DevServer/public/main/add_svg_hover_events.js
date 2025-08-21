@@ -1,5 +1,4 @@
 function add_svg_hover_events() {
-    console.log("CALLED ADD HOVER");
     const old_hover_elements = document.querySelectorAll(".hover_data");
     old_hover_elements.forEach((e) => {
         e.remove();

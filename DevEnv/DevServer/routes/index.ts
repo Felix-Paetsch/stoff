@@ -6,6 +6,7 @@ import Sketch from "../../../Core/StoffLib/sketch.js";
 import debug_create_design from "../../Debug/debug_create_design.js";
 import create_design from "../../../Patterns/export_pattern_ui_v2.js";
 import Renderer from "@/Core/Sewing/rendering/renderer/index.js";
+import Route from "@/Core/Debug/route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,7 +55,7 @@ export default (app: Express) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
-        (Sketch as any).dev._reset_routes();
+        Route.reset();
         try {
             let design_config: Record<string, string> = {};
             for (let i = 0; i < pictureParts.length; i++) {
@@ -100,7 +101,7 @@ export default (app: Express) => {
         state.start_ts =
             hot_reload_timestamps[hot_reload_timestamps.length - 1];
 
-        (Sketch as any).dev._reset_routes();
+        Route.reset();
         try {
             const s = await debug_create_design(req.params.file);
             res.render("htmx/hot_reload_res", {
@@ -170,6 +171,8 @@ export default (app: Express) => {
             res.send(data);
         });
     });
+
+    app.use(Route.middleware);
 
     app.get(/.*/, (req: Request, res: Response) => {
         // console.log("404", req.originalUrl);

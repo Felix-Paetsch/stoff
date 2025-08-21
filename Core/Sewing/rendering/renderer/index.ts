@@ -7,11 +7,11 @@ import { BoundingBox, EPS, Vector } from "../../../StoffLib/geometry.js";
 import { FaceEdgeComponent } from "../../faceEdge.js";
 import offset_sample_points from "@/Core/StoffLib/line_methods/offset_sample_points.js";
 import { SewingLine } from "../../sewingLine.js";
-import { default_point_attributes, default_sewing_line_other_attributes, default_sewing_line_primary_attributes, default_sewing_point_attributes } from "./defaults.js";
-import { default_line_attributes } from "./defaults.js";
-import { default_face_attributes } from "./defaults.js";
+import { default_point_attributes, default_sewing_line_other_attributes, default_sewing_line_primary_attributes, default_sewing_point_attributes, default_line_attributes, default_face_edge_attributes, default_face_render_attributes } from "./defaults.js";
 import { SewingPoint } from "../../sewingPoint.js";
 import { FaceCarousel, FaceEdgeWithPosition } from "../../faceCarousel.js";
+import Face from "@/Core/PatternLib/faces/face.js";
+import FaceAtlas from "@/Core/PatternLib/faces/faceAtlas.js";
 
 export type PointRenderAttributes = {
     stroke: string;
@@ -27,10 +27,16 @@ export type LineRenderAttributes = {
     opacity: number;
 };
 
-export type FaceRenderAttributes = {
+export type FaceEdgeRenderAttributes = {
     fill: string;
     opacity: number;
     width: number;
+    style: string;
+};
+
+export type FaceRenderAttributes = {
+    fill: string;
+    opacity: number;
     style: string;
 };
 
@@ -46,6 +52,7 @@ type RenderInstruction = {
 
 export default class Renderer {
     private svgMap: Map<Sketch, RenderInstruction[]> = new Map();
+    private faceAtlas: Map<Sketch, FaceAtlas> = new Map();
     private sewing: Sewing;
     constructor(
         s: Sewing | Sketch,
@@ -60,6 +67,13 @@ export default class Renderer {
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
         )
+    }
+
+    get_face_atlas(sketch: Sketch) {
+        if (!this.faceAtlas.has(sketch)) {
+            this.faceAtlas.set(sketch, FaceAtlas.from_lines(sketch.get_lines(), sketch));
+        }
+        return this.faceAtlas.get(sketch)!;
     }
 
     render_sketch(sketch: Sketch, width: number, height: number, padding: number) {
@@ -92,7 +106,7 @@ export default class Renderer {
             },
         }
 
-        const items = this.svgMap.get(sketch)!.sort((a, b) => b.priority - a.priority).map(
+        const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
             (instruction: RenderInstruction) => instruction.do(ctx)
         ).join("\n");
         return `
@@ -128,7 +142,7 @@ export default class Renderer {
                     return `<circle cx="${x}" cy="${y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>` +
                         `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${this.data_to_string(point_data)}" hover_area="true"/>`;
                 },
-                priority: 0
+                priority: 1000
             }
         )
     }
@@ -178,7 +192,7 @@ export default class Renderer {
                     res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
                     return res;
                 },
-                priority: 50
+                priority: 700
             }
         )
     }
@@ -207,11 +221,11 @@ export default class Renderer {
         })
     }
 
-    render_face_edge_component(faceEdgeComponent: FaceEdgeComponent, attributes: Partial<FaceRenderAttributes>, upside_down: boolean, data: any = null) {
+    render_face_edge_component(faceEdgeComponent: FaceEdgeComponent, attributes: Partial<FaceEdgeRenderAttributes>, upside_down: boolean, data: any = null) {
         this.svgMap.get(faceEdgeComponent.line.sketch)!.push(
             {
                 do: (ctx: RenderContext) => {
-                    const { fill, opacity, width } = { ...default_face_attributes, ...attributes };
+                    const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
 
                     const points = faceEdgeComponent.line.get_absolute_sample_points();
                     const offset_points = offset_sample_points(
@@ -242,12 +256,65 @@ export default class Renderer {
 
                     return `<polygon points="${pointsString}" style="fill: ${fill2}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
                 },
-                priority: 100
+                priority: 300
             }
         )
     }
 
-    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceRenderAttributes>, data: any = null) {
+    render_face(face_edge_component: {
+        line: Line;
+        standard_handedness: boolean
+    } | Face, attributes: Partial<FaceRenderAttributes> = {}, data: any = null): void {
+        if (face_edge_component instanceof Face) {
+            return this.render_face({
+                line: face_edge_component.get_lines()[0],
+                standard_handedness: face_edge_component.line_handedness(face_edge_component.get_lines()[0])
+            }, attributes, data);
+        }
+        const sketch = face_edge_component.line.sketch;
+        this.svgMap.get(sketch)!.push(
+            {
+                do: (ctx: RenderContext) => {
+                    const { fill, opacity, style } = { ...default_face_render_attributes, ...attributes };
+                    const fa = this.get_face_atlas(sketch);
+                    const adjacent = fa.adjacent_faces(face_edge_component.line);
+                    let face: Face;
+                    if (!adjacent || !adjacent[1]) return "";
+                    if (
+                        adjacent[0] instanceof Face &&
+                        adjacent[0].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
+                        !adjacent[0].is_boundary()
+                    ) {
+                        face = adjacent[0];
+                    } else if (
+                        adjacent[1] instanceof Face &&
+                        adjacent[1].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
+                        !adjacent[1].is_boundary()
+                    ) {
+                        face = adjacent[1];
+                    } else return "";
+
+                    const points = face.point_hull();
+                    const pointsString = points.map((point: Vector) => {
+                        const [x, y] = ctx.relative_to_absolute(point.x, point.y);
+                        return `${x},${y}`;
+                    }).join(" ");
+
+                    if (!data) { data = {} }
+                    if (typeof data === "object") {
+                        const bb = BoundingBox.from_points(points);
+                        data = Object.assign({}, data, {
+                            bb: `[${bb.width}, ${bb.height}]`
+                        });
+                    }
+                    return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
+                },
+                priority: 0
+            }
+        )
+    }
+
+    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes>, data: any = null) {
         faceCarousel.faceEdges.forEach((edge: FaceEdgeWithPosition) => {
             edge.edge.lines.forEach((fec) => {
                 const p = Number(fec.standard_handedness) + Number(edge.folded_right) + Number(fec.line.right_handed);
@@ -297,6 +364,9 @@ export default class Renderer {
                     ...default_line_attributes,
                     ...line_attributes
                 });
+            });
+            this.get_face_atlas(sketch).faces.forEach(face => {
+                this.render_face(face)
             })
             sketch.get_points().forEach((point: Point) => {
                 this.render_point(point, {

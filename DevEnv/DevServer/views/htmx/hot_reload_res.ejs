@@ -28,6 +28,52 @@
             }); %>
         </div>
     </div>
+    
+<% } else if (render_type === "sketch_array"){ %>
+    <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
+        <div class="flex items-center gap-6 bg-zinc-800 rounded-xl px-6 py-4 text-white mb-4 w-fit">
+            <input
+                id="slider"
+                type="range" 
+                min="0" 
+                max="<%= to_render.length %>" 
+                step="1"
+                value="0" 
+                class="w-48 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-none [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-none"
+            />
+            <span id="sliderDisplay" class="text-xl font-medium flex items-center -translate-y-0.5">Step: 0/<%= to_render.length %></span>
+        </div>
+        <div class="render-step" data-step="0">
+            <div class="flex flex-row flex-wrap gap-4 justify-start">
+                <% 
+                    if (to_render[0]){
+                        const r = new RenderClass(to_render[0]);
+                        r.render_sketches();
+                        const svg = r.render_sketch(to_render[0], 500, 500, 20);
+                %>
+                        <%- include("./card", {
+                            svg,
+                            data: to_render[0].data
+                        }); %>
+                <% } %>
+            </div>
+        </div>
+        <% for (let i = 1; i < to_render.length; i++){ %>
+            <div class="render-step hidden" data-step="<%= i + 1 %>">
+                <div class="flex flex-row flex-wrap gap-4 justify-start">
+                    <% 
+                        const r = new RenderClass(to_render[i]);
+                        r.render_sketches();
+                        const svg = r.render_sketch(to_render[i], 500, 500, 20);
+                    %>
+                    <%- include("./card", {
+                        svg,
+                        data: to_render[i].data
+                    }); %>
+                </div>
+            </div>
+        <% } %>
+    </div>
 <% } else if (render_type === "sewing"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
         <div class="flex items-center gap-6 bg-zinc-800 rounded-xl px-6 py-4 text-white mb-4 w-fit">
