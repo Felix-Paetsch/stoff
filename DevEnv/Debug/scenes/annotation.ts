@@ -1,10 +1,5 @@
 import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
-import { start_recording, stop_recording } from "@/Core/Debug/recording.js";
-import { at_url, hot_at_url } from "@/Core/Debug/render_at.js";
-import Renderer from "@/Core/Sewing/rendering/renderer/index.js";
-import FaceAtlas from "@/Core/PatternLib/faces/faceAtlas.js";
-import { RIGHT, UP, Vector, vec_angle_clockwise } from "@/Core/StoffLib/geometry";
 
 export default function () {
     const r = new SewingSketch();

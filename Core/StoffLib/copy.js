@@ -154,6 +154,7 @@ function copy_points_lines(
             line.copy_sample_points()
         );
         new_line.attributes = JSON.parse(JSON.stringify(line.attributes));
+        new_line.right_handed = line.right_handed;
 
         reference_array.push([line, new_line]);
     });

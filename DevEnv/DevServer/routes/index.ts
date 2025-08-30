@@ -47,15 +47,16 @@ export default (app: Express) => {
     // Send to figure out if we have the current version
     app.post("/hot_reload_req", (req: Request, res: Response) => {
         const state = JSON.parse(req.body.application_state);
+
         if (hot_reload_timestamps.includes(state.start_ts)) {
             return res.send("");
         }
 
-        hot_reload_timestamps.push(Date.now());
-        state.start_ts =
-            hot_reload_timestamps[hot_reload_timestamps.length - 1];
-
         Route.reset();
+        // hot_reload_timestamps = [];
+        hot_reload_timestamps.push(Date.now());
+        state.start_ts = hot_reload_timestamps[hot_reload_timestamps.length - 1];
+
         try {
             let design_config: Record<string, string> = {};
             for (let i = 0; i < pictureParts.length; i++) {

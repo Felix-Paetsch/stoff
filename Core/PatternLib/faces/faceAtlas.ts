@@ -61,7 +61,6 @@ export default class FaceAtlas {
     adjacent_faces(line: Line): [Face, Face] | [RogueComponent, Face | null] | null {
         if (!this.lines.includes(line)) return null;
 
-
         const chain = this.rogueChains.find(c => c.get_lines().includes(line))!;
         if (chain) return [
             chain,
@@ -77,6 +76,7 @@ export default class FaceAtlas {
         if (faces.length === 1) {
             faces.push(this.component_from_face(faces[0]).component);
         }
+
         if (faces[0].line_handedness(line)) {
             return [faces[0], faces[1]];
         } else {

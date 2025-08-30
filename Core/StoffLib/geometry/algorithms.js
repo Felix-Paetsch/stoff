@@ -251,27 +251,27 @@ function random_vec() {
 }
 
 function polygon_contains_point(polygon_points, point) {
-    // On the edge is seen as not inside.
-    let ray = new Ray(point, UP);
-    if (polygon_points.length < 2)
-        throw new Error("Polygon has to few points!");
-    while (polygon_points.some((p) => ray.contains(p))) {
-        ray = new Ray(point, random_vec());
+    if (polygon_points.length < 3) {
+        throw new Error("Polygon must have at least 3 points!");
     }
-
-    let ctr = 0;
+    let totalAngle = 0;
     for (let i = 0; i < polygon_points.length; i++) {
-        if (
-            ray.intersect([
-                polygon_points[i],
-                polygon_points[(i + 1) % polygon_points.length],
-            ])
-        ) {
-            ctr++;
+        const v1 = polygon_points[i].subtract(point);
+        const v2 =
+            polygon_points[(i + 1) % polygon_points.length].subtract(point);
+
+        if (v1.equals(new Vector(0, 0), EPS.MINY)) {
+            return false;
         }
+
+        if (Math.abs(v1.cross(v2)) < EPS.MINY && v1.dot(v2) <= 0) {
+            return false;
+        }
+
+        totalAngle += vec_angle(v1, v2);
     }
 
-    return ctr % 2 == 1;
+    return Math.abs(Math.abs(totalAngle) - 2 * Math.PI) < EPS.COARSE;
 }
 
 function polygon_orientation(points, eps = EPS.COARSE_SQUARED) {

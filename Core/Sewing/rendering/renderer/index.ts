@@ -107,7 +107,9 @@ export default class Renderer {
         }
 
         const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
-            (instruction: RenderInstruction) => instruction.do(ctx)
+            (instruction: RenderInstruction) => {
+                return instruction.do(ctx);
+            }
         ).join("\n");
         return `
             <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">

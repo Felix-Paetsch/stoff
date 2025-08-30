@@ -4,6 +4,7 @@ import Face from "../face";
 import ConnectedComponent from "@/Core/StoffLib/connected_component";
 import FaceAtlas from "../faceAtlas";
 import RogueComponent from "../rogue";
+import Point from "@/Core/StoffLib/point";
 
 export type ConnectedComponentFaceData = {
     faces: Face[];
@@ -83,17 +84,25 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                     }
                 }
 
+                let lines_are_orderable = true;
                 const possible_next_lines = lines.filter(
                     l => l.has_endpoint(latest_endpoint)
                         && lines_map.has(l)
                         && l !== latest_line
                         && !lines_map.get(l)![l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
                 ).sort((l1, l2) => {
-                    const dot1 = l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
-                    const dot2 = l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
-                    const diff = dot2 - dot1;
-                    return searching_with_orientation ? diff : -diff;
+                    const order = compare_lines_at_endpoint(l1, l2, latest_line, latest_endpoint);
+                    if (order === 0) lines_are_orderable = false;
+                    return searching_with_orientation ? order : -order;
                 });
+
+                if (!lines_are_orderable) {
+                    return {
+                        faces: [],
+                        outer_face: null,
+                        rogue: FaceAtlas.rogue_lines_to_components(cc.get_lines()),
+                    }
+                }
 
                 if (possible_next_lines.length == 0) {
                     rogue_lines.push(latest_line);
@@ -145,4 +154,35 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
         outer_face: outer_face.face as Face,
         rogue: FaceAtlas.rogue_lines_to_components(rogue_lines),
     };
+}
+
+function compare_lines_at_endpoint(l1: Line, l2: Line, latest_line: Line, latest_endpoint: Point) {
+    {
+        const dot1 = l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
+        const dot2 = l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
+        const diff = dot2 - dot1;
+        if (diff !== 0) {
+            return diff;
+        }
+    }
+
+    let p1 = l1.get_tangent_vector(
+        l1.position_at_fraction(0.05)
+    );
+    if (latest_endpoint == l1.p2) {
+        p1 = p1.scale(-1);
+    }
+    const dot1 = p1.dot(latest_line.get_tangent_vector(latest_endpoint));
+
+    let p2 = l2.get_tangent_vector(
+        l2.position_at_fraction(0.05)
+    );
+    if (latest_endpoint == l2.p2) {
+        p2 = p2.scale(-1);
+    }
+    const dot2 = p2.dot(latest_line.get_tangent_vector(latest_endpoint));
+
+    const diff = dot2 - dot1;
+    // if (diff === 0) console.log("Two lines are on top of each other");
+    return diff;
 }

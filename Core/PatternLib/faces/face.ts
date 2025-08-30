@@ -1,4 +1,4 @@
-import { polygon_contains_point } from "../../StoffLib/geometry.js";
+import { BoundingBox, DOWN, LEFT, polygon_contains_point, RIGHT, UP } from "../../StoffLib/geometry.js";
 import { Line } from "../../StoffLib/line.js";
 import { Vector } from "@/Core/StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
@@ -33,19 +33,28 @@ export default class Face {
     }
 
     point_hull(): Vector[] {
-        const points: Vector[] = [];
-        let last_point = this.boundary[0].other_endpoint(
-            this.boundary[0].common_endpoint(this.boundary[1])
-        );
-        for (const line of this.boundary) {
-            const sample_points = line.get_absolute_sample_points();
-            if (line.p2 == last_point) {
-                sample_points.reverse();
+        try {
+            const points: Vector[] = [];
+            let last_point = this.boundary[0].other_endpoint(
+                this.boundary[0].common_endpoint(this.boundary[1])
+            );
+            for (const line of this.boundary) {
+                const sample_points = line.get_absolute_sample_points();
+                if (line.p2 == last_point) {
+                    sample_points.reverse();
+                }
+                points.push(...sample_points);
+                last_point = line.other_endpoint(last_point);
             }
-            points.push(...sample_points);
-            last_point = line.other_endpoint(last_point);
+            return points;
         }
-        return points;
+        catch (e) {
+            return [this.boundary[0].p1, this.boundary[0].p1, this.boundary[0].p1];
+        }
+    }
+
+    get_bounding_box(): BoundingBox {
+        return BoundingBox.from_points(this.point_hull());
     }
 
     signed_area(): number {
@@ -135,7 +144,9 @@ export default class Face {
         ) {
             return true;
         }
-        return polygon_contains_point(this.point_hull(), thing);
+
+        const r = polygon_contains_point(this.point_hull(), thing);
+        return r;
     }
 
     own_component(): ConnectedFaceComponent {

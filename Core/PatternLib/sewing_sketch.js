@@ -437,6 +437,8 @@ export default class SewingSketch extends Sketch {
             );
         }
 
+        this.validate();
+
         // In Place, along Line is a line;
         this.anchor();
         this.mirror(VERTICAL); // The "orignal" lines should keep orientation

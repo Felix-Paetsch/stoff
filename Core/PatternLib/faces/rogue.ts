@@ -23,7 +23,8 @@ export default class RogueComponent {
 
     face(): Face | null {
         const component = this.component();
-        return component.faces.find(f => f.contains(this)) || component.component;
+        const r = component.faces.find(f => f.contains(this)) || component.component;
+        return r;
     }
 
     own_component(): ConnectedFaceComponent {
