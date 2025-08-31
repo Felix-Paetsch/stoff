@@ -19,14 +19,17 @@ export default function () {
     const u = r.line_between_points(points[2], points[3]);
     // console.log(FaceAtlas.from_lines(r.get_lines()));
     const s = new Sewing([r, r.copy(), r.copy()])
-    // const T = s.cut(lt);
-    // const B = s.cut(lb);
+    const T = s.cut(lt);
+    const B = s.cut(lb);
     const l1 = s.fold(l);
-    /*const r2 = s.sew(T, [{
+
+
+    s.sewing_lines
+    const r2 = s.sew(T, [{
         line: B,
         same_orientation: true,
         same_handedness: true,
-    }]);*/
+    }]);
     s.cut(u);
     return s;
 }

@@ -156,8 +156,6 @@ function vec_angle_clockwise(
     );
 
     if (isNaN(angle)) {
-        console.log("isNaN");
-        console.log("isNaN", vec1, vec2);
         return Math.PI;
     }
 
