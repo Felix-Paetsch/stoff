@@ -5,6 +5,7 @@ import ConnectedComponent from "@/Core/StoffLib/connected_component";
 import FaceAtlas from "../faceAtlas";
 import RogueComponent from "../rogue";
 import Point from "@/Core/StoffLib/point";
+import { vec_angle_clockwise, ZERO } from "@/Core/StoffLib/geometry";
 
 export type ConnectedComponentFaceData = {
     faces: Face[];
@@ -27,6 +28,13 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     const rogue_lines: Line[] = [];
 
     const lines: Line[] = cc.get_lines();
+    /*
+      console.log("====================FF=============", lines.length);
+      for (let i = 0; i < lines.length; i++){
+        lines[i].ident = i;
+        lines[i].data = i;
+      }
+    */
     const lines_map = new Map<Line, {
         with_orientation: boolean;
         against_orientation: boolean;
@@ -56,29 +64,29 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                 if (visited_lines.length > lines.length) {
                     throw new Error("Visited to many");
                 }
+
                 for (let i = 0; i < visited_lines.length; i++) {
                     if (
                         visited_lines[i].endpoint_from_orientation(orientations[i]) == latest_endpoint
                     ) {
-                        if (visited_lines[i] == latest_line) {
-                            orientations.pop();
-                            rogue_lines.push(visited_lines.pop()!);
-                            const obj = lines_map.get(latest_line)!;
-                            obj.with_orientation = true;
-                            obj.against_orientation = true;
-                        } else {
                             visited_lines.push(latest_line);
                             const latest_orientation = latest_line.p2 == latest_endpoint;
                             orientations.push(latest_orientation);
-                            lines_map.get(latest_line)![latest_orientation ? "with_orientation" : "against_orientation"] = true;
                             boundaries.push({
                                 lines: visited_lines.splice(i),
                                 orientation: orientations.splice(i),
                             });
-                        }
 
+                            const b = boundaries[boundaries.length - 1];
+                            for (let i = 0; i < b.lines.length; i++){
+                                lines_map.get(b.lines[i])![b.orientation[i] ? "with_orientation" : "against_orientation"] = true;
+                            }
+                            // console.log(` Formed boundary | ${ b.lines.map(l => l.data) }`)
                         if (visited_lines.length == 0) {
                             continue outerLoop;
+                        } else {
+                            orientations.pop();
+                            latest_line = visited_lines.pop();
                         }
                         break;
                     }
@@ -88,13 +96,16 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                 const possible_next_lines = lines.filter(
                     l => l.has_endpoint(latest_endpoint)
                         && lines_map.has(l)
-                        && l !== latest_line
+                        && !visited_lines.includes(l)
+                        && latest_line !== l
                         && !lines_map.get(l)![l.p1 == latest_endpoint ? "with_orientation" : "against_orientation"]
                 ).sort((l1, l2) => {
                     const order = compare_lines_at_endpoint(l1, l2, latest_line, latest_endpoint);
                     if (order === 0) lines_are_orderable = false;
-                    return searching_with_orientation ? order : -order;
+                    return order
                 });
+
+                // console.log(` LOOKINT AT LINE: ${ latest_line.data }  |  ${ possible_next_lines.map(l => l.data) }`);
 
                 if (!lines_are_orderable) {
                     return {
@@ -120,7 +131,6 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                     visited_lines.push(latest_line);
                     const latest_orientation = latest_line.p2 == latest_endpoint;
                     orientations.push(latest_orientation);
-                    lines_map.get(latest_line)![latest_orientation ? "with_orientation" : "against_orientation"] = true;
                     latest_line = possible_next_lines[0];
                     latest_endpoint = latest_line.other_endpoint(latest_endpoint);
                 }
@@ -157,32 +167,31 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
 }
 
 function compare_lines_at_endpoint(l1: Line, l2: Line, latest_line: Line, latest_endpoint: Point) {
+    const rel_to = latest_line.get_tangent_vector(latest_endpoint).scale(-1);
     {
-        const dot1 = l1.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
-        const dot2 = l2.get_tangent_vector(latest_endpoint).dot(latest_line.get_tangent_vector(latest_endpoint));
-        const diff = dot2 - dot1;
+        const vec1 = l1.get_tangent_vector(latest_endpoint).scale(-1);
+        const vec2 = l2.get_tangent_vector(latest_endpoint).scale(-1);
+        const a1 = vec_angle_clockwise(rel_to, vec1, ZERO, true);
+        const a2 = vec_angle_clockwise(rel_to, vec2, ZERO, true);
+        const diff = a1 - a2;
         if (diff !== 0) {
             return diff;
         }
     }
 
-    let p1 = l1.get_tangent_vector(
+    let vec1 = l1.get_tangent_vector(
         l1.position_at_fraction(0.05)
-    );
+    ).scale(-1);
     if (latest_endpoint == l1.p2) {
-        p1 = p1.scale(-1);
+        vec1 = vec1.scale(-1);
     }
-    const dot1 = p1.dot(latest_line.get_tangent_vector(latest_endpoint));
-
-    let p2 = l2.get_tangent_vector(
+    let vec2 = l2.get_tangent_vector(
         l2.position_at_fraction(0.05)
-    );
+    ).scale(-1);
     if (latest_endpoint == l2.p2) {
-        p2 = p2.scale(-1);
+        vec2 = vec2.scale(-1);
     }
-    const dot2 = p2.dot(latest_line.get_tangent_vector(latest_endpoint));
 
-    const diff = dot2 - dot1;
-    // if (diff === 0) console.log("Two lines are on top of each other");
-    return diff;
+    const diff = vec_angle_clockwise(rel_to, vec1, ZERO, true) - vec_angle_clockwise(rel_to, vec2, ZERO, true);
+    return diff
 }

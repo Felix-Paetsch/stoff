@@ -277,6 +277,7 @@ export function main_pattern_finish(shirt, side, design_data) {
     }
 
     shirt.move_waistline_dart(4.5);
+    shirt.annotate_waistline_dart();
 
     /*
   shirt.fill_in_dart(1);
