@@ -97,23 +97,8 @@
             />
             <span id="sliderDisplay" class="text-xl font-medium flex items-center -translate-y-0.5">Step: [Pattern] | 0/<%= to_render.renderers.length %></span>
         </div>
-        <div class="render-step" data-step="0" data-type="pattern">
-            <div class="flex flex-row flex-wrap gap-4 justify-start">
-                <% 
-                    for (const sketch of to_render.sketches){
-                        const r = new RenderClass(sketch);
-                        r.render_sketches();
-                        const svg = r.render_sketch(sketch, 500, 500, 20);
-                %>
-                    <%- include("./card", {
-                        svg,
-                        data: sketch.data
-                    }); %>
-                <% } %>
-            </div>
-        </div>
         <% for (let i = 0; i < to_render.renderers.length; i++){ %>
-            <div class="render-step hidden" data-step="<%= i + 1 %>" data-type="<%= to_render.renderers[i].render_step %>">
+            <div class="render-step <%= i === 0 ? "" : "hidden" %>" data-step="<%= i %>" data-type="<%= to_render.renderers[i].render_step %>">
                 <div class="flex flex-row flex-wrap gap-4 justify-start">
                     <% for (const sketch of to_render.sketches){ %>
                         <%- include("./card", {

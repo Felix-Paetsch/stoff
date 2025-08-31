@@ -72,7 +72,6 @@ export default (app: Express) => {
             const s = create_design(design_config);
             // console.timeEnd("CREATE DESIGN");
 
-            console.time("RENDER");
             res.render("htmx/hot_reload_res", {
                 state,
                 to_render: s,
@@ -80,7 +79,6 @@ export default (app: Express) => {
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });
-            console.timeEnd("RENDER");
             // console.timeEnd("RECIEVE REQUEST");
         } catch (error: any) {
             // console.timeEnd("RECIEVE REQUEST");

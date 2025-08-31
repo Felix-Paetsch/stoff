@@ -13,8 +13,8 @@ import cutRenderer from "./rendering/render_step/cut";
 import foldRenderer from "./rendering/render_step/fold";
 import ironRenderer from "./rendering/render_step/iron";
 import sewRenderer from "./rendering/render_step/sew";
-import { at_url } from "../Debug/render_at";
 import RendererCache from "./rendering/renderer/cache";
+import baseRenderer from "./rendering/render_step/base";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
@@ -31,6 +31,7 @@ export class Sewing {
         for (const sketch of this.sketches) {
             this.faceAtlases.set(sketch, FaceAtlas.from_lines(sketch.get_lines(), sketch));
         }
+        this.renderers.push(baseRenderer(this));
     }
 
     is_sewing_point(point: Point | SewingPoint): boolean {

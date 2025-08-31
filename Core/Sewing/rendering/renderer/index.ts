@@ -120,14 +120,12 @@ export default class Renderer {
             padding: padding,
         }
 
-        console.time("Render Sketch");
         const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
             (instruction: RenderInstruction) => {
                 const r = instruction.do(ctx);
                 return r;
             }
         ).join("\n");
-        console.timeEnd("Render Sketch");
 
         return `
             <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
