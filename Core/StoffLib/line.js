@@ -192,17 +192,7 @@ class Line {
         Object.setPrototypeOf(this, StraightLine.prototype);
         this.constructor = StraightLine; // Change constructor reference
 
-        const density =
-            this.sample_points.length > 1
-                ? 1 / (this.sample_points.length - 1)
-                : CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-
-        const n = Math.ceil(1 / density);
-        this.sample_points = Array.from(
-            { length: n + 1 },
-            (_v, i) => new Vector(i / n, 0)
-        );
-
+        this.sample_points = [new Vector(0, 0), new Vector(1, 0)];
         return this;
     }
 
@@ -787,22 +777,16 @@ add_self_intersection_test(Line);
 register_line_manipulation_functions(Line);
 
 class StraightLine extends Line {
-    constructor(
-        endpoint_1,
-        endpoint_2,
-        density = CONF.DEFAULT_SAMPLE_POINT_DENSITY
-    ) {
-        const n = Math.ceil(1 / density);
-
-        super(
-            endpoint_1,
-            endpoint_2,
-            Array.from({ length: n + 1 }, (_v, i) => new Vector(i / n, 0))
-        );
+    constructor(endpoint_1, endpoint_2) {
+        super(endpoint_1, endpoint_2, [new Vector(0, 0), new Vector(1, 0)]);
     }
 
     get_length() {
         return this.endpoint_distance();
+    }
+
+    is_straight() {
+        return true;
     }
 
     position_at_length(d, reversed = false) {
@@ -825,6 +809,17 @@ class StraightLine extends Line {
     position_at_fraction(f, reversed = false) {
         assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
         return this.position_at_length(this.get_length() * f, reversed);
+    }
+
+    offset_sample_points(radius, withHandedness = true) {
+        let offset_vector = this.get_line_vector()
+            .get_orthogonal()
+            .to_len(radius);
+        if (!withHandedness) {
+            offset_vector = offset_vector.scale(-1);
+        }
+        const abs = this.get_absolute_sample_points();
+        return abs.map((p) => p.add(offset_vector));
     }
 
     closest_position(vec) {

@@ -120,13 +120,15 @@ export default class Renderer {
             padding: padding,
         }
 
-        //console.time("Do Render Instructions");
+        console.time("Render Sketch");
         const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
             (instruction: RenderInstruction) => {
-                return instruction.do(ctx);
+                const r = instruction.do(ctx);
+                return r;
             }
         ).join("\n");
-        //console.timeEnd("Do Render Instructions");
+        console.timeEnd("Render Sketch");
+
         return `
             <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -258,8 +260,7 @@ export default class Renderer {
                 const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
 
                 const points = faceEdgeComponent.line.get_absolute_sample_points();
-                const offset_points = offset_sample_points(
-                    points,
+                const offset_points = faceEdgeComponent.line.offset_sample_points(
                     width,
                     faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
                 );

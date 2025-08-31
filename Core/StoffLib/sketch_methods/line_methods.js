@@ -31,7 +31,7 @@ export default (Sketch) => {
             assert.HAS_SKETCH(p, this);
         });
 
-        const l = new StraightLine(pt1, pt2, this.sample_density);
+        const l = new StraightLine(pt1, pt2);
         l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
         this.lines.push(l);
         l.set_sketch(this);
