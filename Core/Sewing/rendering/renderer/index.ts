@@ -171,18 +171,16 @@ export default class Renderer {
     }
 
     render_partial_line(line: Line, interval: [number, number], attributes: Partial<LineRenderAttributes>, data: any = null) {
-        this.svgMap.get(line.sketch)!.push({
+        this.add_render_instruction(line.sketch, {
             do: (ctx: RenderContext) => {
-                const res_string = this.renderCache.lazy("render_partial_line", {
+                const [
+                    pointsString,
+                    dataString
+                ] = this.renderCache.lazy("render_partial_line_strings", {
                     line: this.renderCache.tag(line),
                     interval: interval,
-                    attributes: attributes,
                     data: data,
                 }, () => {
-                    const { stroke, strokeWidth, opacity } = {
-                        ...default_line_attributes,
-                        ...attributes
-                    };
                     const line_data = data || this.line_data_to_serializable(line);
 
                     const points = line.get_absolute_sample_points_from_to(interval[0], interval[1]);
@@ -193,38 +191,53 @@ export default class Renderer {
                         }
                     ).join(" ");
 
-                    let res = "";
-                    if (typeof stroke === "string") {
-                        res = `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`;
-                    } else {
-                        const [stroke1, stroke2] = stroke;
-                        const [[x1, y1], [x2, y2]] = line.get_endpoints().map(e =>
-                            ctx.relative_to_absolute(e.x, e.y)
-                        );
-
-                        const gradient_id = `$$gradient$$`;
-                        res = `<defs>
-                            <linearGradient id="${gradient_id}" 
-                                x1="${x1}"
-                                y1="${y1}"
-                                x2="${x2}"
-                                y2="${y2}"
-                                gradientUnits="userSpaceOnUse"
-                                >
-                                <stop offset="0%" stop-color="${stroke1}" />
-                                <stop offset="100%" stop-color="${stroke2}" />
-                            </linearGradient>
-                        </defs>
-                        <polyline points="${pointsString}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${strokeWidth}" opacity="${opacity}"/>`
-                    }
-
-                    res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
-                    return res;
+                    return [
+                        pointsString,
+                        this.data_to_string(line_data)
+                    ]
                 });
 
-                return res_string.replace(/\$\$gradient\$\$/g, `gradient_${Math.random().toString(36).substring(2, 15)}`);
+                const { stroke, strokeWidth, opacity } = {
+                    ...default_line_attributes,
+                    ...attributes
+                };
+
+                let res: string;
+                if (typeof stroke === "string") {
+                    res = `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`;
+                } else {
+                    const [stroke1, stroke2] = stroke;
+                    const [[x1, y1], [x2, y2]] = line.get_endpoints().map(e =>
+                        ctx.relative_to_absolute(e.x, e.y)
+                    );
+
+                    const gradient_id = `gradient_${Math.random().toString(36).substring(2, 15)}`;
+                    res = `<defs>
+                        <linearGradient id="${gradient_id}" 
+                            x1="${x1}"
+                            y1="${y1}"
+                            x2="${x2}"
+                            y2="${y2}"
+                            gradientUnits="userSpaceOnUse"
+                            >
+                            <stop offset="0%" stop-color="${stroke1}" />
+                            <stop offset="100%" stop-color="${stroke2}" />
+                        </linearGradient>
+                    </defs>
+                    <polyline points="${pointsString}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${strokeWidth}" opacity="${opacity}"/>`
+                }
+
+                res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${dataString}" hover_area="true"/>`;
+                return res;
             },
             priority: 700
+        }, (ctx: RenderContext) => {
+            return {
+                ctx: this.renderCache.serialize_context(ctx),
+                attributes: attributes,
+                data: data,
+                line: this.renderCache.tag(line),
+            }
         });
     }
 
@@ -257,20 +270,24 @@ export default class Renderer {
             do: (ctx: RenderContext) => {
                 const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
 
-                const points = faceEdgeComponent.line.get_absolute_sample_points();
-                const offset_points = faceEdgeComponent.line.offset_sample_points(
-                    width,
-                    faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
-                );
+                const pointsString = this.renderCache.lazy("face_edge_component", {
+                    line: this.renderCache.tag(faceEdgeComponent.line),
+                    radius: width,
+                }, () => {
+                    const points = faceEdgeComponent.line.get_absolute_sample_points();
+                    const offset_points = faceEdgeComponent.line.offset_sample_points(
+                        width,
+                        faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
+                    );
 
-                const path = points.concat(
-                    offset_points.reverse()
-                );
-
-                const pointsString = path.map((point: Vector) => {
-                    const [x, y] = ctx.relative_to_absolute(point.x, point.y);
-                    return `${x},${y}`;
-                }).join(" ");
+                    const path = points.concat(
+                        offset_points.reverse()
+                    );
+                    return path.map((point: Vector) => {
+                        const [x, y] = ctx.relative_to_absolute(point.x, point.y);
+                        return `${x},${y}`;
+                    }).join(" ")
+                });
 
                 if (!data) { data = {} }
                 if (typeof data === "object") {
