@@ -1,25 +1,27 @@
 import { SewingLine } from "./sewingLine";
-import { Line } from "../StoffLib/line.js";
-import Point from "../StoffLib/point.js";
-import Sketch from "../StoffLib/sketch.js";
+import { Line } from "../StoffLib/line";
+import Point from "../StoffLib/point";
+import Sketch from "../StoffLib/sketch";
 import { SewingPoint } from "./sewingPoint";
-import FaceAtlas from "../PatternLib/faces/faceAtlas.js";
-import { merge_lines_vertically } from "./mergeLines/vertically.js";
-import { FaceEdge } from "./faceEdge.js";
-import { merge_lines_horizontally } from "./mergeLines/horizontally.js";
-import { StackLine } from "./mergeLines/stackLine.js";
+import FaceAtlas from "../PatternLib/faces/faceAtlas";
+import { merge_lines_vertically } from "./mergeLines/vertically";
+import { FaceEdge } from "./faceEdge";
+import { merge_lines_horizontally } from "./mergeLines/horizontally";
+import { StackLine } from "./mergeLines/stackLine";
 import Renderer from "./rendering/renderer";
 import cutRenderer from "./rendering/render_step/cut";
-import foldRenderer from "./rendering/render_step/fold.js";
-import ironRenderer from "./rendering/render_step/iron.js";
-import sewRenderer from "./rendering/render_step/sew.js";
-import { at_url } from "../Debug/render_at.js";
+import foldRenderer from "./rendering/render_step/fold";
+import ironRenderer from "./rendering/render_step/iron";
+import sewRenderer from "./rendering/render_step/sew";
+import { at_url } from "../Debug/render_at";
+import RendererCache from "./rendering/renderer/cache";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
     public sewing_points: SewingPoint[];
-    private faceAtlases: Map<Sketch, FaceAtlas> = new Map();
+    readonly faceAtlases: Map<Sketch, FaceAtlas> = new Map();
     public renderers: Renderer[] = [];
+    readonly renderCache = new RendererCache();
 
     constructor(
         readonly sketches: Sketch[]
@@ -158,13 +160,6 @@ export class Sewing {
 
     fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false) {
         const line: SewingLine = fold_line instanceof SewingLine ? fold_line : this.sewing_line(fold_line);
-
-        if (fold_line instanceof Line) {
-            const renderer = new Renderer(this, "test");
-            renderer.render_sketches();
-            renderer.render_face_carousel(line.face_carousel);
-            this.renderers.push(renderer);
-        }
 
         const left = line.face_carousel.left_edges();
         const right = line.face_carousel.right_edges();

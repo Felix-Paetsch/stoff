@@ -46,6 +46,8 @@ export default (app: Express) => {
 
     // Send to figure out if we have the current version
     app.post("/hot_reload_req", (req: Request, res: Response) => {
+        // console.time("RECIEVE REQUEST");
+
         const state = JSON.parse(req.body.application_state);
 
         if (hot_reload_timestamps.includes(state.start_ts)) {
@@ -66,7 +68,11 @@ export default (app: Express) => {
                         .split(".")[0];
             }
 
+            // console.time("CREATE DESIGN");
             const s = create_design(design_config);
+            // console.timeEnd("CREATE DESIGN");
+
+            // console.time("RENDER");
             res.render("htmx/hot_reload_res", {
                 state,
                 to_render: s,
@@ -74,7 +80,10 @@ export default (app: Express) => {
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });
+            // console.timeEnd("RENDER");
+            // console.timeEnd("RECIEVE REQUEST");
         } catch (error: any) {
+            // console.timeEnd("RECIEVE REQUEST");
             res.render("htmx/hot_reload_res", {
                 state,
                 error: true,

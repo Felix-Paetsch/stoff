@@ -12,6 +12,8 @@ import { SewingPoint } from "../../sewingPoint.js";
 import { FaceCarousel, FaceEdgeWithPosition } from "../../faceCarousel.js";
 import Face from "@/Core/PatternLib/faces/face.js";
 import FaceAtlas from "@/Core/PatternLib/faces/faceAtlas.js";
+import RendererCache from "./cache.js";
+import { Json } from "@/Core/utils/json.js";
 
 export type PointRenderAttributes = {
     stroke: string;
@@ -40,10 +42,13 @@ export type FaceRenderAttributes = {
     style: string;
 };
 
-type RenderContext = {
+export type RenderContext = {
     // SketchNumbers => ViewportNumbers
     relative_to_absolute: (x: number, y: number) => [number, number],
     absolute_to_relative: (x: number, y: number) => [number, number],
+    width: number,
+    height: number,
+    padding: number,
 }
 type RenderInstruction = {
     do: (context: RenderContext) => string;
@@ -54,6 +59,8 @@ export default class Renderer {
     private svgMap: Map<Sketch, RenderInstruction[]> = new Map();
     private faceAtlas: Map<Sketch, FaceAtlas> = new Map();
     private sewing: Sewing;
+    private renderCache: RendererCache;
+
     constructor(
         s: Sewing | Sketch,
         public render_step: string | null = null
@@ -66,12 +73,16 @@ export default class Renderer {
 
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
-        )
+        );
+        this.renderCache = this.sewing.renderCache;
     }
 
     get_face_atlas(sketch: Sketch) {
         if (!this.faceAtlas.has(sketch)) {
-            this.faceAtlas.set(sketch, FaceAtlas.from_lines(sketch.get_lines(), sketch));
+            this.faceAtlas.set(
+                sketch,
+                this.sewing.faceAtlases.get(sketch) || FaceAtlas.from_lines(sketch.get_lines(), sketch)
+            );
         }
         return this.faceAtlas.get(sketch)!;
     }
@@ -93,7 +104,7 @@ export default class Renderer {
         const targetCenterX = padding + usableWidth / 2;
         const targetCenterY = padding + usableHeight / 2;
 
-        const ctx = {
+        const ctx: RenderContext = {
             relative_to_absolute: (x: number, y: number): [number, number] => {
                 const X = targetCenterX + (x - bbCenter.x) * safeScale;
                 const Y = targetCenterY + (y - bbCenter.y) * safeScale;
@@ -104,13 +115,18 @@ export default class Renderer {
                 const y = bbCenter.y + (Y - targetCenterY) / safeScale;
                 return [x, y];
             },
+            width: width,
+            height: height,
+            padding: padding,
         }
 
+        //console.time("Do Render Instructions");
         const items = this.svgMap.get(sketch)!.sort((a, b) => a.priority - b.priority).map(
             (instruction: RenderInstruction) => {
                 return instruction.do(ctx);
             }
         ).join("\n");
+        //console.timeEnd("Do Render Instructions");
         return `
             <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -131,28 +147,38 @@ export default class Renderer {
     }
 
     render_point(pt: Point, attributes: Partial<PointRenderAttributes> = {}, data: any = null) {
-        this.svgMap.get(pt.sketch)!.push(
-            {
-                do: (ctx: RenderContext) => {
-                    const { stroke, strokeWidth, fill, opacity, radius } = {
-                        ...default_point_attributes,
-                        // ...pt.attributes,
-                        ...attributes
-                    };
-                    const [x, y] = ctx.relative_to_absolute(pt.x, pt.y);
-                    const point_data = data || this.point_data_to_serializable(pt);
-                    return `<circle cx="${x}" cy="${y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>` +
-                        `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${this.data_to_string(point_data)}" hover_area="true"/>`;
-                },
-                priority: 1000
+        this.add_render_instruction(pt.sketch, {
+            do: (ctx: RenderContext) => {
+                const { stroke, strokeWidth, fill, opacity, radius } = {
+                    ...default_point_attributes,
+                    // ...pt.attributes,
+                    ...attributes
+                };
+                const [x, y] = ctx.relative_to_absolute(pt.x, pt.y);
+                const point_data = data || this.point_data_to_serializable(pt);
+                return `<circle cx="${x}" cy="${y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>` +
+                    `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${this.data_to_string(point_data)}" hover_area="true"/>`;
+            },
+            priority: 1000
+        }, (ctx: RenderContext) => {
+            return {
+                ctx: this.renderCache.serialize_context(ctx),
+                attributes: attributes,
+                data: data,
+                point: this.renderCache.tag(pt),
             }
-        )
+        });
     }
 
     render_partial_line(line: Line, interval: [number, number], attributes: Partial<LineRenderAttributes>, data: any = null) {
-        this.svgMap.get(line.sketch)!.push(
-            {
-                do: (ctx: RenderContext) => {
+        this.svgMap.get(line.sketch)!.push({
+            do: (ctx: RenderContext) => {
+                const res_string = this.renderCache.lazy("render_partial_line", {
+                    line: this.renderCache.tag(line),
+                    interval: interval,
+                    attributes: attributes,
+                    data: data,
+                }, () => {
                     const { stroke, strokeWidth, opacity } = {
                         ...default_line_attributes,
                         ...attributes
@@ -175,7 +201,8 @@ export default class Renderer {
                         const [[x1, y1], [x2, y2]] = line.get_endpoints().map(e =>
                             ctx.relative_to_absolute(e.x, e.y)
                         );
-                        const gradient_id = `gradient_${Math.random().toString(36).substring(2, 15)}`;
+
+                        const gradient_id = `$$gradient$$`;
                         res = `<defs>
                             <linearGradient id="${gradient_id}" 
                                 x1="${x1}"
@@ -193,10 +220,12 @@ export default class Renderer {
 
                     res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(strokeWidth, 8)}" opacity="${opacity}" x-data="${this.data_to_string(line_data)}" hover_area="true"/>`;
                     return res;
-                },
-                priority: 700
-            }
-        )
+                });
+
+                return res_string.replace(/\$\$gradient\$\$/g, `gradient_${Math.random().toString(36).substring(2, 15)}`);
+            },
+            priority: 700
+        });
     }
 
     render_line(line: Line, attributes: Partial<LineRenderAttributes>, data: any = null) {
@@ -224,43 +253,50 @@ export default class Renderer {
     }
 
     render_face_edge_component(faceEdgeComponent: FaceEdgeComponent, attributes: Partial<FaceEdgeRenderAttributes>, upside_down: boolean, data: any = null) {
-        this.svgMap.get(faceEdgeComponent.line.sketch)!.push(
-            {
-                do: (ctx: RenderContext) => {
-                    const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
+        this.add_render_instruction(faceEdgeComponent.line.sketch, {
+            do: (ctx: RenderContext) => {
+                const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
 
-                    const points = faceEdgeComponent.line.get_absolute_sample_points();
-                    const offset_points = offset_sample_points(
-                        points,
-                        width,
-                        faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
-                    );
+                const points = faceEdgeComponent.line.get_absolute_sample_points();
+                const offset_points = offset_sample_points(
+                    points,
+                    width,
+                    faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
+                );
 
-                    const path = points.concat(
-                        offset_points.reverse()
-                    );
+                const path = points.concat(
+                    offset_points.reverse()
+                );
 
-                    const pointsString = path.map((point: Vector) => {
-                        const [x, y] = ctx.relative_to_absolute(point.x, point.y);
-                        return `${x},${y}`;
-                    }).join(" ");
+                const pointsString = path.map((point: Vector) => {
+                    const [x, y] = ctx.relative_to_absolute(point.x, point.y);
+                    return `${x},${y}`;
+                }).join(" ");
 
-                    if (!data) { data = {} }
-                    if (typeof data === "object") {
-                        data = Object.assign({}, data, {
-                            _standard_handedness: faceEdgeComponent.standard_handedness,
-                            _standard_orientation: faceEdgeComponent.standard_orientation,
-                            _upside_down: upside_down
-                        });
-                    }
+                if (!data) { data = {} }
+                if (typeof data === "object") {
+                    data = Object.assign({}, data, {
+                        _standard_handedness: faceEdgeComponent.standard_handedness,
+                        _standard_orientation: faceEdgeComponent.standard_orientation,
+                        _upside_down: upside_down
+                    });
+                }
 
-                    const fill2 = upside_down ? "red" : "green";
+                const fill2 = upside_down ? "red" : "green";
 
-                    return `<polygon points="${pointsString}" style="fill: ${fill2}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
-                },
-                priority: 300
+                return `<polygon points="${pointsString}" style="fill: ${fill2}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
+            },
+            priority: 300
+        }, (ctx: RenderContext) => {
+            return {
+                ctx: this.renderCache.serialize_context(ctx),
+                attributes: attributes,
+                data: data,
+                line: this.renderCache.tag(faceEdgeComponent.line),
+                handedness: faceEdgeComponent.standard_handedness,
+                orientation: faceEdgeComponent.standard_orientation,
             }
-        )
+        });
     }
 
     render_face(face_edge_component: {
@@ -273,47 +309,55 @@ export default class Renderer {
                 standard_handedness: face_edge_component.line_handedness(face_edge_component.get_lines()[0])
             }, attributes, data);
         }
+
         const sketch = face_edge_component.line.sketch;
-        this.svgMap.get(sketch)!.push(
-            {
-                do: (ctx: RenderContext) => {
-                    const { fill, opacity, style } = { ...default_face_render_attributes, ...attributes };
-                    const fa = this.get_face_atlas(sketch);
-                    const adjacent = fa.adjacent_faces(face_edge_component.line);
-                    let face: Face;
-                    if (!adjacent || !adjacent[1]) return "";
-                    if (
-                        adjacent[0] instanceof Face &&
-                        adjacent[0].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
-                        !adjacent[0].is_boundary()
-                    ) {
-                        face = adjacent[0];
-                    } else if (
-                        adjacent[1] instanceof Face &&
-                        adjacent[1].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
-                        !adjacent[1].is_boundary()
-                    ) {
-                        face = adjacent[1];
-                    } else return "";
 
-                    const points = face.point_hull();
-                    const pointsString = points.map((point: Vector) => {
-                        const [x, y] = ctx.relative_to_absolute(point.x, point.y);
-                        return `${x},${y}`;
-                    }).join(" ");
+        this.add_render_instruction(sketch, {
+            do: (ctx: RenderContext) => {
+                const { fill, opacity, style } = { ...default_face_render_attributes, ...attributes };
+                const fa = this.get_face_atlas(sketch);
+                const adjacent = fa.adjacent_faces(face_edge_component.line);
+                let face: Face;
+                if (!adjacent || !adjacent[1]) return "";
+                if (
+                    adjacent[0] instanceof Face &&
+                    adjacent[0].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
+                    !adjacent[0].is_boundary()
+                ) {
+                    face = adjacent[0];
+                } else if (
+                    adjacent[1] instanceof Face &&
+                    adjacent[1].line_handedness(face_edge_component.line) == face_edge_component.standard_handedness &&
+                    !adjacent[1].is_boundary()
+                ) {
+                    face = adjacent[1];
+                } else return "";
 
-                    if (!data) { data = {} }
-                    if (typeof data === "object") {
-                        const bb = BoundingBox.from_points(points);
-                        data = Object.assign({}, data, {
-                            bb: `[${bb.width}, ${bb.height}]`
-                        });
-                    }
-                    return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
-                },
-                priority: 0
+                const points = face.point_hull();
+                const pointsString = points.map((point: Vector) => {
+                    const [x, y] = ctx.relative_to_absolute(point.x, point.y);
+                    return `${x},${y}`;
+                }).join(" ")
+
+                if (!data) { data = {} }
+                if (typeof data === "object") {
+                    const bb = face.get_bounding_box();
+                    data = Object.assign({}, data, {
+                        bb: `[${bb.width}, ${bb.height}]`
+                    });
+                }
+                return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
+            },
+            priority: 0
+        }, (ctx: RenderContext) => {
+            return {
+                ctx: this.renderCache.serialize_context(ctx),
+                attributes: attributes,
+                data: data,
+                handedness: face_edge_component.standard_handedness,
+                line: this.renderCache.tag(face_edge_component.line),
             }
-        )
+        });
     }
 
     render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes> = {}, data: any = null) {
@@ -399,5 +443,24 @@ export default class Renderer {
                 ...point_attributes
             });
         })
+    }
+
+    add_render_instruction(sketch: Sketch, instruction: RenderInstruction, key?: Json | undefined | ((context: RenderContext) => Json)) {
+        this.svgMap.get(sketch)!.push({
+            priority: instruction.priority,
+            do: (ctx: RenderContext) => {
+                let _key: Json;
+                if (!key) { _key = null; } else if (typeof key === "function") {
+                    _key = key(ctx);
+                } else {
+                    _key = key;
+                }
+                return this.renderCache.lazy(
+                    "render_instruction",
+                    _key,
+                    () => instruction.do(ctx)
+                );
+            }
+        });
     }
 }
