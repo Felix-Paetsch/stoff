@@ -3,6 +3,7 @@ import { Vector } from "../Core/StoffLib/geometry.js";
 
 import { people_measurements } from "../Data/measurements.js";
 import adjusted_measurements from "./adjust_measurements.js";
+import {construct_maual} from "./manual_construction.ts";
 
 import config_compiler from "./config_compiler.js";
 import {
@@ -28,9 +29,12 @@ export default (design_config) => {
     let wd = main_pattern_construction(measurements, design_config, "back");
     let wd2 = main_pattern_construction(measurements, design_config, "front");
     wd.sketch.data = design_config;
-    return main_sleeve_construction(wd, design_config)
-        .sketch.paste_sketch(wd.sketch, null, new Vector(-81, -12.5))
-        .paste_sketch(wd2.sketch);
+    const wd_sleeve =  main_sleeve_construction(wd, design_config)
+    const arr = [wd.sketch, wd2.sketch, wd_sleeve.sketch];
+    return construct_maual(arr);
+
+      //  .sketch.paste_sketch(wd.sketch, null, new Vector(-81, -12.5))
+      //  .paste_sketch(wd2.sketch);
     //    const s = wd.sketch.paste_sketch(wd2.sketch, null, new Vector(-78,-2));
     //    const s = wd.sketch.paste_sketch(wd2.sketch, null, new Vector(-31, -75));
     //   s.save_on_A4("output")

@@ -37,7 +37,7 @@ export default class DartAnnotationStage extends BaseStage {
 
 
     finish() {
-        
+
         return this.wd.sketch;
     }
 
@@ -68,7 +68,7 @@ export default class DartAnnotationStage extends BaseStage {
         let pts = [];
         if(config.additional.top_dart_manipulation){
             lines.filter((ln) => ln.data.type == "dart").forEach((ln, i) => {
-              ln.data.manipilated = true;
+              ln.data.manipulated = true;
               pts.push(this.sketch.split_line_at_length(ln, len).point);
             });
         }
@@ -76,7 +76,7 @@ export default class DartAnnotationStage extends BaseStage {
 
         if(config.additional.waistline_dart_manipulation){
           lines.filter((ln) => ln.data.sub_type == "dart").forEach((ln, i) => {
-            ln.data.manipilated = true;
+            ln.data.manipulated = true;
             pts.push(this.sketch.split_line_at_length(ln, len).point);
           });
         }
@@ -136,9 +136,40 @@ export default class DartAnnotationStage extends BaseStage {
 
     #merge_manipulated_dart(p1, p2){
       let lns = p1.get_adjacent_lines();
-      this.sketch.merge_lines(lns[0], lns[1], true);
+      let data = lns[0].data;
+      let points = [lns[1].p1, lns[0].p2];
+      let intp_pts = [points[0]];
+      intp_pts.push(lns[1].position_at_fraction(0.8));
+      intp_pts.push(lns[0].position_at_fraction(0.2));
+
+      intp_pts.push(points[1]);
+
+      let ln = this.sketch.plot(
+          ...points,
+          spline.catmull_rom_spline(intp_pts)
+      );
+      ln.data = data;
+
+      this.sketch.remove(lns[1].p2)
+  //    console.log(intp_pts)
+  //    this.sketch.merge_lines(lns[0], lns[1], true);
       lns = p2.get_adjacent_lines();
-      this.sketch.merge_lines(lns[0], lns[1], true);
+      data = lns[0].data;
+      points = [lns[1].p1, lns[0].p2];
+      intp_pts = [points[0]];
+      intp_pts.push(lns[1].position_at_fraction(0.8));
+      intp_pts.push(lns[0].position_at_fraction(0.2));
+
+      intp_pts.push(points[1]);
+
+      ln = this.sketch.plot(
+          ...points,
+          spline.catmull_rom_spline(intp_pts)
+      );
+      ln.data = data;
+
+      this.sketch.remove(lns[1].p2)
+  //    this.sketch.merge_lines(lns[0], lns[1], true);
 
     }
 
@@ -158,6 +189,7 @@ export default class DartAnnotationStage extends BaseStage {
 
         let pts = this.sketch.get_typed_points("to_merge");
 
+/*
         if(pts.length > 2){
           // kann maximal 4 sein
           this.#merge_manipulated_dart(pts[0], pts[1]);
@@ -166,7 +198,7 @@ export default class DartAnnotationStage extends BaseStage {
           this.#merge_manipulated_dart(pts[0], pts[1]);
         }
 
-
+*/
     }
 
 
@@ -186,6 +218,9 @@ export default class DartAnnotationStage extends BaseStage {
             return dart_lines.length > 0;
         })
 
+        let fill_in = this.sketch.get_typed_lines("fill in").filter(ln => ln.data.dart_number == dart_number)[0];
+
+/*
         let vec = dart_lines[0].p1.subtract(dart_lines[1].p1).scale(0.5).add(dart_lines[1].p1);
         let pt = this.sketch.add_point(vec);
 
@@ -194,22 +229,147 @@ export default class DartAnnotationStage extends BaseStage {
         pt2.data.dart_side_distance = dart_lines[0].p2.subtract(dart_lines[1].p2).length() / 2;
 
         pt.data.dart_lenghen = shift_length;
+*/
+        let pt = dart_lines[0].p1;
+      //  console.log(fill_in)
 
-        let line = this.sketch.line_between_points(pt, pt2);
+        let split = this.sketch.split_line_at_fraction(fill_in, 0.5);
+        let line = this.sketch.line_between_points(pt, split.point);
         line.data.type = "annotation";
         line.data.dart_number = dart_number;
+        line.data.sewing = "close_dart"
 
-        this.sketch.remove(dart_lines[0].p1);
+      //  this.sketch.remove(dart_lines[0].p1);
+        this.remove_dart_lines_from_outline(dart_lines[0].p1)
 
-        pt.move_to(line.get_line_vector().normalize().scale(shift_length).add(pt));
+    //    pt.move_to(line.get_line_vector().normalize().scale(shift_length).add(pt));
         return line;
     }
 
-    annotate_inner_waistline_dart(){
+    remove_dart_lines_from_outline(point){
+      const lines = point.get_adjacent_lines();
+/*
+      let p = lines[0].p2;
+      let p_n = this.sketch.add_point(p.copy())
+      lines[0].replace_endpoint(p, p_n);
+
+      p = lines[1].p2;
+      p_n = this.sketch.add_point(p.copy())
+      lines[1].replace_endpoint(p, p_n);
+*/
+      lines[0].data.sewing = "close_dart"
+      lines[1].data.sewing = "close_dart"
+    }
+
+
+    annotate_inner_waistline_dart(type = "h", position = "inner"){
+      const p = this.sketch.get_typed_point(type);
+      if (p){
+        const lines = p.get_adjacent_lines();
+        if (lines[0].data.manipulated){
+          let lns = lines[0].p2.get_adjacent_lines();
+          let ln = lns[1].p2.other_adjacent_line(lns[1]);
+          lns.push(ln)
+          let l = this.curve_manipulated_dart(lns)
+          lns = lines[1].p2.get_adjacent_lines();
+          ln = lns[1].p2.other_adjacent_line(lns[1]);
+          lns.push(ln)
+          let l2 = this.curve_manipulated_dart(lns);
+          console.log("Try validate");
+          this.sketch.validate();
+          console.log("Validated");
+          this.sketch.remove(lns[1].p1, lns[1].p2)
+          l.data.type = "dart"
+          l.data.position = position
+          l.data.sewing = "close_waistline_dart"
+          l2.data.type = "dart"
+          l2.data.position = position
+          l2.data.sewing = "close_waistline_dart"
+          let ln_ann = this.sketch.line_between_points(l.p1, l.p2);
+          ln_ann.data.sewing = "close_waistline_dart"
+          ln_ann.data.position = position
+          ln_ann.data.type = "annotation"
+
+      //    this.sketch.remove(lines[0].p2)
+          //ToDo: What happened here?!?
+        } else {
+          let ln = this.curve_dart(lines[0].p2.get_adjacent_lines());
+          ln.data.type = "dart"
+          ln.data.position = position
+          ln.data.sewing = "close_waistline_dart"
+          ln = this.curve_dart(lines[1].p2.get_adjacent_lines());
+          ln.data.type = "dart"
+          ln.data.position = position
+          ln.data.sewing = "close_waistline_dart"
+          this.sketch.remove(lines[0].p2, lines[1].p2)
+          let ln_ann = this.sketch.line_between_points(ln.p1, ln.p2);
+          ln_ann.data.sewing = "close_waistline_dart"
+          ln_ann.data.position = position
+          ln_ann.data.type = "annotation"
+        }
+      }
 
     }
 
-    annotate_outer_waistline_dart(){
+    curve_dart(lines){
+      const target_endpoints = [lines[0].p1, lines[1].p1]
 
+      const intp_pts = [target_endpoints[0]];
+      intp_pts.push(lines[0].position_at_fraction(0.8));
+      intp_pts.push(lines[1].position_at_fraction(0.8));
+
+      intp_pts.push(target_endpoints[1]);
+
+      return this.sketch.plot(
+          ...target_endpoints,
+          spline.catmull_rom_spline(intp_pts)
+      );
+    }
+
+    curve_manipulated_dart(lines){
+      const target_endpoints = [lines[0].p1, lines[2].p1]
+
+      const intp_pts = [target_endpoints[0]];
+      intp_pts.push(lines[0].position_at_fraction(0.8));
+      intp_pts.push(lines[1].position_at_fraction(0.2));
+      intp_pts.push(lines[1].position_at_fraction(0.8));
+      intp_pts.push(lines[2].position_at_fraction(0.8));
+      intp_pts.push(target_endpoints[1]);
+
+      return this.sketch.plot(
+          ...target_endpoints,
+          spline.catmull_rom_spline(intp_pts)
+      );
+    }
+
+/*
+    annotate_outer_waistline_dart(){
+      const p = this.sketch.get_typed_point("p");
+      if (p){
+        const lines = p.get_adjacent_lines();
+        let ln = this.curve_dart(lines[0].p2.get_adjacent_lines());
+        ln.data.sub_type = "dart"
+        ln.data.position = "outer"
+        ln.data.sewing = "close_waistline_dart"
+        ln = this.curve_dart(lines[1].p2.get_adjacent_lines());
+        ln.data.sub_type = "dart"
+        ln.data.position = "outer"
+        ln.data.sewing = "close_waistline_dart"
+        this.sketch.remove(lines[0].p2, lines[1].p2)
+        let ln_ann = this.sketch.line_between_points(ln.p1, ln.p2);
+        ln_ann.data.sewing = "close_waistline_dart"
+        ln_ann.data.position = "outer"
+        ln_ann.data.sub_type = "annotation"
+      }
+
+    }
+*/
+    annotate_waistline_dart(){
+      const ln = this.sketch.get_typed_line("i_to_r")
+      if (ln){
+        this.sketch.remove(ln)
+      }
+      this.annotate_inner_waistline_dart()
+      this.annotate_inner_waistline_dart("p", "outer")
     }
 }
