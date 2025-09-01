@@ -6,7 +6,7 @@ export default defineConfig({
         port: 3009,
         host: true,
         fs: {
-            allow: ['../../']
+            allow: ['../../../']
         }
     },
     resolve: {

@@ -6,6 +6,7 @@
         "dev::server::tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
         "dev::server::development": "concurrently \"npm run dev::server\" \"npm run dev::server::tw\" \"npm run dev::server::proxy\"",
         "dev::standalone": "tsx --watch DevEnv/StandAlone/index.js",
+        "dev::browser": "cd DevEnv/Profiling && npm run dev",
         "tools::go": "(cd ./Tools/StoffGo && go run .)",
         "tools::measure": "node Tools/Measurements/index.js",
         "tools::mvp_dev": "cd Tools/MVPwebsite && npm run dev",

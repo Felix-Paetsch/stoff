@@ -586,13 +586,13 @@ class Line {
                 for (let i = 0; i < this.sample_points.length - 1; i++) {
                     sum += Math.sqrt(
                         Math.pow(
-                            this.sample_points[i][1] -
-                                this.sample_points[i + 1][1],
+                            this.sample_points[i].y -
+                                this.sample_points[i + 1].y,
                             2
                         ) +
                             Math.pow(
-                                this.sample_points[i][0] -
-                                    this.sample_points[i + 1][0],
+                                this.sample_points[i].x -
+                                    this.sample_points[i + 1].x,
                                 2
                             )
                     );
