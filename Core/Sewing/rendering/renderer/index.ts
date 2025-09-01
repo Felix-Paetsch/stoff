@@ -171,7 +171,7 @@ export default class Renderer {
     }
 
     render_partial_line(line: Line, interval: [number, number], attributes: Partial<LineRenderAttributes>, data: any = null) {
-        this.add_render_instruction(line.sketch, {
+        this.svgMap.get(line.sketch)!.push({
             do: (ctx: RenderContext) => {
                 const [
                     pointsString,
@@ -231,13 +231,6 @@ export default class Renderer {
                 return res;
             },
             priority: 700
-        }, (ctx: RenderContext) => {
-            return {
-                ctx: this.renderCache.serialize_context(ctx),
-                attributes: attributes,
-                data: data,
-                line: this.renderCache.tag(line),
-            }
         });
     }
 
@@ -359,7 +352,7 @@ export default class Renderer {
                 if (typeof data === "object") {
                     const bb = face.get_bounding_box();
                     data = Object.assign({}, data, {
-                        bb: `[${bb.width}, ${bb.height}]`
+                        bb: `[${Math.round(bb.width * 100) / 100}, ${Math.round(bb.height * 100) / 100}]`
                     });
                 }
                 return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
