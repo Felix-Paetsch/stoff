@@ -1,0 +1,17 @@
+{
+    "name": "profiling",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "@types/node": "^24.3.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.2",
+        "vite": "^7.1.4"
+    }
+}

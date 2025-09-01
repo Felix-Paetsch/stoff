@@ -68,7 +68,11 @@ export default (app: Express) => {
                     pictureParts[i]
                         .choices[state.current_choices[i]]
                         .split(".")[0];
+
             }
+            try {
+                fs.writeFileSync("./DevEnv/Profiling/latest_design_config.json", JSON.stringify(design_config, null, 2));
+            } catch (e: any) { }
 
             console.time("CREATE DESIGN");
             const s: Sketch | Sewing | Sketch[] = create_design(design_config);

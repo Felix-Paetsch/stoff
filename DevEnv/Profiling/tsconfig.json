@@ -1,0 +1,24 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "../../",
+        "baseUrl": "../../",
+        "outDir": "./dist",
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": false,
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "paths": {
+            "@/*": ["../../*"]
+        }
+    },
+    "include": [
+        "../../**/*.json",
+        "../../**/*.ts",
+        "../../**/*.js",
+        "../../**/*.d.ts"
+    ],
+    "exclude": ["node_modules", "dist"]
+}

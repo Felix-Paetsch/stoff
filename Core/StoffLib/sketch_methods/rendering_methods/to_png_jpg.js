@@ -1,19 +1,22 @@
-import { createCanvas } from 'canvas';
-import { writeFileSync } from 'fs';
-import { sketch_to_renderable, calculate_correct_width_height } from './sketch_to_renderable.js';
+import { createCanvas } from "canvas";
+import fs from "fs";
+import {
+    sketch_to_renderable,
+    calculate_correct_width_height,
+} from "./sketch_to_renderable.js";
 
-function create_canvas_from_sketch(s , width, height){
-    const correct_dimensions = calculate_correct_width_height(s, width, height);  
-    const {
-        bb,
-        points,
-        lines
-    } = sketch_to_renderable(s, correct_dimensions.width, correct_dimensions.height);
+function create_canvas_from_sketch(s, width, height) {
+    const correct_dimensions = calculate_correct_width_height(s, width, height);
+    const { bb, points, lines } = sketch_to_renderable(
+        s,
+        correct_dimensions.width,
+        correct_dimensions.height
+    );
 
     const canvas = createCanvas(bb.width, bb.height);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
-    ctx.fillStyle = 'white'; // Set background color
+    ctx.fillStyle = "white"; // Set background color
     ctx.fillRect(0, 0, bb.width, bb.height);
 
     const drawCircle = (point) => {
@@ -57,21 +60,27 @@ function create_canvas_from_sketch(s , width, height){
     return canvas;
 }
 
-function create_png_from_sketch(s , width, height){
+function create_png_from_sketch(s, width, height) {
     return create_canvas_from_sketch(s, width, height).toBuffer();
 }
 
-function create_jpg_from_sketch(s , width, height){
-    return create_canvas_from_sketch(s, width, height).toBuffer('image/jpeg');
+function create_jpg_from_sketch(s, width, height) {
+    return create_canvas_from_sketch(s, width, height).toBuffer("image/jpeg");
 }
 
-export { create_png_from_sketch, save_as_png, create_jpg_from_sketch, save_as_jpg, create_canvas_from_sketch  };
+export {
+    create_png_from_sketch,
+    save_as_png,
+    create_jpg_from_sketch,
+    save_as_jpg,
+    create_canvas_from_sketch,
+};
 
 function save_as_png(sketch, save_to, width, height) {
     const pngBuffer = create_png_from_sketch(sketch, width, height);
-    writeFileSync(save_to, pngBuffer, (err) => {
+    fs.writeFileSync(save_to, pngBuffer, (err) => {
         if (err) throw err;
-        console.log('PNG file saved!');
+        console.log("PNG file saved!");
     });
 }
 
@@ -79,6 +88,6 @@ function save_as_jpg(sketch, save_to, width, height) {
     const jpgBuffer = create_jpg_from_sketch(sketch, width, height);
     writeFileSync(save_to, jpgBuffer, (err) => {
         if (err) throw err;
-        console.log('JPG file saved!');
+        console.log("JPG file saved!");
     });
 }

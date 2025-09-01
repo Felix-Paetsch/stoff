@@ -1,29 +1,28 @@
-import fs from 'fs';
-import path from 'path';
-import { createCanvas } from 'canvas';
-import { sketch_to_renderable } from './sketch_to_renderable.js';
-import CONF from '../../config.json' with {type: "json"};
-import { interpolate_colors } from '../../colors.js';
-
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import fs from "fs";
+import path from "path";
+import { createCanvas } from "canvas";
+import { sketch_to_renderable } from "./sketch_to_renderable.js";
+import CONF from "../../config.json" with { type: "json" };
+import { interpolate_colors } from "../../colors.js";
+import url from "url";
 
 // Define constants
-const PX_PER_CM =           CONF.PX_PER_CM; // Pixels per centimeter
-const PRINTABLE_WIDTH_CM =  CONF.PRINTABLE_WIDTH_CM; // A4 width in centimeters
+const PX_PER_CM = CONF.PX_PER_CM; // Pixels per centimeter
+const PRINTABLE_WIDTH_CM = CONF.PRINTABLE_WIDTH_CM; // A4 width in centimeters
 const PRINTABLE_HEIGHT_CM = CONF.PRINTABLE_HEIGHT_CM; // A4 height in centimeters
-const PRINT_PADDING_CM =    CONF.PRINT_PADDING_CM; // Padding for each page in centimeters
+const PRINT_PADDING_CM = CONF.PRINT_PADDING_CM; // Padding for each page in centimeters
 
 const PRINT_WIDTH_PX = PRINTABLE_WIDTH_CM * PX_PER_CM;
 const PRINT_HEIGHT_PX = PRINTABLE_HEIGHT_CM * PX_PER_CM;
 const PRINT_PADDING_PX = PRINT_PADDING_CM * PX_PER_CM;
 
-const PRINT_WIDTH_WITH_PADDING = PRINT_WIDTH_PX - 2*PRINT_PADDING_PX;
-const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2*PRINT_PADDING_PX;
+const PRINT_WIDTH_WITH_PADDING = PRINT_WIDTH_PX - 2 * PRINT_PADDING_PX;
+const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2 * PRINT_PADDING_PX;
 
 function toA4printable(sketch, folder) {
+    const __filename = url.fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
     folder = path.join(__dirname, "../../../", folder);
     createOrEmptyFolderSync(folder);
 
@@ -33,7 +32,12 @@ function toA4printable(sketch, folder) {
     const height = bb_height * PX_PER_CM;
 
     // Prepare the sketch for rendering
-    const { points, lines } = sketch_to_renderable(sketch, width, height, false);
+    const { points, lines } = sketch_to_renderable(
+        sketch,
+        width,
+        height,
+        false
+    );
 
     // Calculate the number of A4 pages needed
     const pagesX = Math.ceil(width / PRINT_WIDTH_WITH_PADDING);
@@ -44,21 +48,39 @@ function toA4printable(sketch, folder) {
         for (let y = 0; y < pagesY; y++) {
             const topLeftX = x * PRINT_WIDTH_WITH_PADDING;
             const topLeftY = y * PRINT_HEIGHT_WITH_PADDING;
-            const bottomRightX = Math.min((x + 1) * PRINT_WIDTH_WITH_PADDING, width);
-            const bottomRightY = Math.min((y + 1) * PRINT_HEIGHT_WITH_PADDING, height);
+            const bottomRightX = Math.min(
+                (x + 1) * PRINT_WIDTH_WITH_PADDING,
+                width
+            );
+            const bottomRightY = Math.min(
+                (y + 1) * PRINT_HEIGHT_WITH_PADDING,
+                height
+            );
 
-            drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRightY }, {x, y}, folder);
+            drawA4Page(
+                points,
+                lines,
+                { topLeftX, topLeftY, bottomRightX, bottomRightY },
+                { x, y },
+                folder
+            );
         }
     }
 }
 
-function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRightY }, { x, y }, folder) {
+function drawA4Page(
+    points,
+    lines,
+    { topLeftX, topLeftY, bottomRightX, bottomRightY },
+    { x, y },
+    folder
+) {
     // Create canvas for A4 size
     const canvas = createCanvas(PRINT_WIDTH_PX, PRINT_HEIGHT_PX);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     // Fill background
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, PRINT_WIDTH_PX, PRINT_HEIGHT_PX);
 
     // Function to draw a circle, shifted by topLeftX and topLeftY
@@ -68,8 +90,13 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
         const shiftedY = point.y - topLeftY + PRINT_PADDING_PX;
         ctx.arc(shiftedX, shiftedY, 4, 0, 2 * Math.PI);
         ctx.stroke();
-        const fill = interpolate_colors(point.attributes.color, point.attributes.color) == "rgb(0,0,0)"
-            ? "white" : point.attributes.color;
+        const fill =
+            interpolate_colors(
+                point.attributes.color,
+                point.attributes.color
+            ) == "rgb(0,0,0)"
+                ? "white"
+                : point.attributes.color;
         ctx.fillStyle = fill;
         ctx.fill();
     };
@@ -93,19 +120,27 @@ function drawA4Page(points, lines, { topLeftX, topLeftY, bottomRightX, bottomRig
     points.forEach(drawCircle);
 
     // Draw gray rectangle as border
-    ctx.strokeStyle = 'gray';
+    ctx.strokeStyle = "gray";
     ctx.lineWidth = 2;
-    ctx.strokeRect(PRINT_PADDING_PX, PRINT_PADDING_PX, PRINT_WIDTH_PX - 2 * PRINT_PADDING_PX, PRINT_HEIGHT_PX - 2 * PRINT_PADDING_PX);
+    ctx.strokeRect(
+        PRINT_PADDING_PX,
+        PRINT_PADDING_PX,
+        PRINT_WIDTH_PX - 2 * PRINT_PADDING_PX,
+        PRINT_HEIGHT_PX - 2 * PRINT_PADDING_PX
+    );
 
     // Print x and y values at the top right
-    ctx.fillStyle = 'black';
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'right';
-    ctx.fillText(`x: ${x + 1}, y: ${y + 1}`, PRINT_WIDTH_PX - PRINT_PADDING_PX - 10, PRINT_PADDING_PX + 20);
-
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(
+        `x: ${x + 1}, y: ${y + 1}`,
+        PRINT_WIDTH_PX - PRINT_PADDING_PX - 10,
+        PRINT_PADDING_PX + 20
+    );
 
     // Save the canvas as an image
-    const buffer = canvas.toBuffer('image/png');
+    const buffer = canvas.toBuffer("image/png");
     fs.writeFileSync(`${folder}/page_x_${x + 1}__y_${y + 1}.png`, buffer);
 }
 
