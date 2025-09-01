@@ -7,6 +7,8 @@ import debug_create_design from "../../Debug/debug_create_design.js";
 import create_design from "../../../Patterns/export_pattern_ui_v2.js";
 import Renderer from "@/Core/Sewing/rendering/renderer/index.js";
 import Route from "@/Core/Debug/route.js";
+import { Sewing } from "@/Core/Sewing/sewing.js";
+Error.stackTraceLimit = 100;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,9 +71,10 @@ export default (app: Express) => {
             }
 
             // console.time("CREATE DESIGN");
-            const s = create_design(design_config);
+            const s: Sketch | Sewing | Sketch[] = create_design(design_config);
             // console.timeEnd("CREATE DESIGN");
 
+            console.time("RENDER");
             res.render("htmx/hot_reload_res", {
                 state,
                 to_render: s,
@@ -79,6 +82,7 @@ export default (app: Express) => {
                 render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
                 error: false
             });
+            console.timeEnd("RENDER");
             // console.timeEnd("RECIEVE REQUEST");
         } catch (error: any) {
             // console.timeEnd("RECIEVE REQUEST");

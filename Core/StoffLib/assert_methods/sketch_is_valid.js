@@ -78,6 +78,7 @@ export default function register_sketch_valid(Sketch) {
 
                 const res = [
                     pt_has_lines_only_in_sketch(s, p),
+                    only_line_has_endpoints(p),
                     data_object_valid(p.data, s),
                 ];
 
@@ -148,6 +149,13 @@ export default function register_sketch_valid(Sketch) {
         assert(
             s.has_lines(...pt.get_adjacent_lines()),
             "Point has lines not in sketch"
+        );
+    }
+
+    function only_line_has_endpoints(pt) {
+        assert(
+            pt.get_adjacent_lines().every((l) => l.has_endpoint(pt)),
+            "A point has a line registered that shouldn't be there"
         );
     }
 

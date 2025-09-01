@@ -2,6 +2,7 @@ import { BoundingBox, Vector } from "./geometry.js";
 import ConnectedComponent from "./connected_component.js";
 import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js";
+import SketchElementCollection from "./sketch_element_collection.js";
 
 class Point extends Vector {
     constructor(x, y) {
@@ -74,7 +75,7 @@ class Point extends Vector {
     }
 
     get_adjacent_lines() {
-        return this.adjacent_lines;
+        return new SketchElementCollection(this.adjacent_lines, this.sketch);
     }
 
     get_adjacent_point() {

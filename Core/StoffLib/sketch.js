@@ -1,5 +1,3 @@
-import fs from "fs";
-
 import { Vector } from "./geometry.js";
 import Point from "./point.js";
 import Line from "./line.js";
@@ -126,7 +124,6 @@ export class Sketch {
             line.p2 = null;
             line.sketch = null;
         }
-
         this.lines = this.lines.filter((l) => !lines.includes(l));
     }
 
@@ -310,10 +307,7 @@ Sketch.graphical_non_pure_methods = [
     "plot",
     "point",
     "point_on_line",
-    "remove",
-    "remove_line",
     "remove_lines",
-    "remove_point",
     "remove_points",
 ];
 
@@ -337,16 +331,6 @@ Sketch.graphical_non_pure_methods.forEach((methodName) => {
 Sketch.Line = Line;
 Sketch.Point = Point;
 Sketch.SketchElementCollection = SketchElementCollection;
-
-// Add Dev Obj
-if (fs.existsSync("./Core/StoffLib/dev/sketch_dev/index.js")) {
-    try {
-        const sketch_dev = await import("./dev/sketch_dev/index.js");
-        sketch_dev.default(Sketch);
-    } catch (err) {
-        throw err;
-    }
-}
 
 // Initializations
 register_assert(Sketch);
