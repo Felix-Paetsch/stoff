@@ -2,7 +2,7 @@ import { FaceCarousel, FaceEdgeWithPosition } from "../faceCarousel";
 import { FaceEdge, FaceEdgeComponent } from "../faceEdge";
 import { Sewing } from "../sewing";
 import { PartialSewingLineComponent, SewingLine, SewingLineComponent } from "../sewingLine";
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 
 export type FaceEdgeBuildingBlock = {
     lines: FaceEdgeComponent[],

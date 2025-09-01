@@ -16,7 +16,7 @@ import {
     copy_data_callback,
     copy_sketch_obj_data,
 } from "../copy.js";
-import { StraightLine, Line } from "../line.js";
+import Line from "../line.js";
 import Point from "../point.js";
 import assert from "../../assert.js";
 import { interpolate_colors } from "../colors.js";
@@ -31,7 +31,7 @@ export default (Sketch) => {
             assert.HAS_SKETCH(p, this);
         });
 
-        const l = new StraightLine(pt1, pt2);
+        const l = Line.straight(pt1, pt2);
         l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
         this.lines.push(l);
         l.set_sketch(this);

@@ -1,5 +1,5 @@
 import { SewingLine } from "./sewingLine";
-import { Line } from "../StoffLib/line";
+import Line from "../StoffLib/line";
 import Point from "../StoffLib/point";
 import Sketch from "../StoffLib/sketch";
 import { SewingPoint } from "./sewingPoint";

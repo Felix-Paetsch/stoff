@@ -139,6 +139,11 @@ class Point extends Vector {
         );
     }
 
+    set(x, y) {
+        this.adjacent_lines?.forEach((l) => l.cache_update("endpoints"));
+        return super.set(x, y);
+    }
+
     move_to(x, y) {
         return this.set(x, y);
     }

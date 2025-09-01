@@ -1,4 +1,4 @@
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 import { parseFaceComponents } from "./algorithms/buildConnectedComponentMap.js";
 import findFaces from "./algorithms/findFaces.js";
 import Face from "./face.js";

@@ -70,9 +70,9 @@ export default (app: Express) => {
                         .split(".")[0];
             }
 
-            // console.time("CREATE DESIGN");
+            console.time("CREATE DESIGN");
             const s: Sketch | Sewing | Sketch[] = create_design(design_config);
-            // console.timeEnd("CREATE DESIGN");
+            console.timeEnd("CREATE DESIGN");
 
             console.time("RENDER");
             res.render("htmx/hot_reload_res", {

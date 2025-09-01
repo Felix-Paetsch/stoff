@@ -1,8 +1,11 @@
+import { hot_at_url } from "@/Core/Debug/render_at.js";
 import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
+import { start_recording } from "@/Core/Debug/recording.js";
 
 export default function () {
     const r = new SewingSketch();
+    start_recording(r, "/dev");
     const points = [
         r.add(0, 0), r.add(100, 0),
         r.add(50, 50),

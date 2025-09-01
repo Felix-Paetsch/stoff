@@ -1,4 +1,4 @@
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 import FaceAtlas from "./faceAtlas.js";
 import Point from "../../StoffLib/point.js";
 import Face from "./face.js";

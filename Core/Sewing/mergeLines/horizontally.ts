@@ -1,6 +1,6 @@
 import { SewingLine } from "../sewingLine.js";
 import { Sewing } from "../sewing.js";
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 import { FaceCarousel } from "../faceCarousel.js";
 
 export function merge_lines_horizontally(sewing: Sewing, line1: SewingLine, line2: SewingLine): SewingLine;

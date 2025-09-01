@@ -1,5 +1,5 @@
 import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
-import { Line } from "../../../StoffLib/line";
+import Line from "../../../StoffLib/line";
 import Face from "../face";
 import ConnectedComponent from "@/Core/StoffLib/connected_component";
 import FaceAtlas from "../faceAtlas";
@@ -69,19 +69,19 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                     if (
                         visited_lines[i].endpoint_from_orientation(orientations[i]) == latest_endpoint
                     ) {
-                            visited_lines.push(latest_line);
-                            const latest_orientation = latest_line.p2 == latest_endpoint;
-                            orientations.push(latest_orientation);
-                            boundaries.push({
-                                lines: visited_lines.splice(i),
-                                orientation: orientations.splice(i),
-                            });
+                        visited_lines.push(latest_line);
+                        const latest_orientation = latest_line.p2 == latest_endpoint;
+                        orientations.push(latest_orientation);
+                        boundaries.push({
+                            lines: visited_lines.splice(i),
+                            orientation: orientations.splice(i),
+                        });
 
-                            const b = boundaries[boundaries.length - 1];
-                            for (let i = 0; i < b.lines.length; i++){
-                                lines_map.get(b.lines[i])![b.orientation[i] ? "with_orientation" : "against_orientation"] = true;
-                            }
-                            // console.log(` Formed boundary | ${ b.lines.map(l => l.data) }`)
+                        const b = boundaries[boundaries.length - 1];
+                        for (let i = 0; i < b.lines.length; i++) {
+                            lines_map.get(b.lines[i])![b.orientation[i] ? "with_orientation" : "against_orientation"] = true;
+                        }
+                        // console.log(` Formed boundary | ${ b.lines.map(l => l.data) }`)
                         if (visited_lines.length == 0) {
                             continue outerLoop;
                         } else {

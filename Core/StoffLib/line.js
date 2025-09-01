@@ -19,6 +19,7 @@ import CONF from "./config.json" with { type: "json" };
 import SketchElementCollection from "./sketch_element_collection.js";
 import register_line_manipulation_functions from "./line_methods/line_manipulation.js";
 import { copy_sketch_element_collection } from "./copy.js";
+import Cache from "../utils/cache.js";
 
 class Line {
     constructor(endpoint_1, endpoint_2, sample_points) {
@@ -38,8 +39,8 @@ class Line {
         this.data = {};
         this.sketch = null;
 
-        this.p1 = endpoint_1;
-        this.p2 = endpoint_2;
+        this._p1 = endpoint_1;
+        this._p2 = endpoint_2;
         this.right_handed = true;
         // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
 
@@ -55,7 +56,16 @@ class Line {
 
         */
 
-        this.sample_points = sample_points;
+        this._sample_points = sample_points;
+
+        this.cache = new Cache();
+        this.cache.new_dependency("endpoints");
+        this.cache.new_dependency("sample_points", []);
+        this.cache.new_dependency("absolute_sample_points", [
+            "endpoints",
+            "sample_points",
+        ]);
+
         this.self_intersection_cache = {
             sp: null,
             self_intersects: null,
@@ -91,6 +101,32 @@ class Line {
         if (typeof this._init !== "undefined") {
             this._init();
         }
+    }
+
+    get p1() {
+        return this._p1;
+    }
+    set p1(p) {
+        this._p1 = p;
+        this.cache_update("endpoints");
+    }
+    get p2() {
+        return this._p2;
+    }
+    set p2(p) {
+        this._p2 = p;
+        this.cache_update("endpoints");
+    }
+    get sample_points() {
+        return this._sample_points;
+    }
+    set sample_points(points) {
+        this._sample_points = points;
+        this.cache_update("sample_points");
+    }
+
+    cache_update(...what) {
+        this.cache.dependency_changed(...what);
     }
 
     offset_sample_points(radius, withHandedness = true) {
@@ -184,16 +220,6 @@ class Line {
 
     is_straight() {
         return !this.sample_points.some((p) => p.y !== 0);
-    }
-
-    convert_to_straight_line() {
-        if (!this.is_straight()) return false;
-
-        Object.setPrototypeOf(this, StraightLine.prototype);
-        this.constructor = StraightLine; // Change constructor reference
-
-        this.sample_points = [new Vector(0, 0), new Vector(1, 0)];
-        return this;
     }
 
     is_convex(allow_overflow = false) {
@@ -295,10 +321,17 @@ class Line {
     }
 
     get_absolute_sample_points() {
-        const to_absolute = this.get_to_absolute_function();
-        return this.sample_points.map((p) => {
-            return to_absolute(p);
-        });
+        const r = this.cache.compute_dependent(
+            "get_absolute_sample_points",
+            ["endpoints", "sample_points"],
+            () => {
+                const to_absolute = this.get_to_absolute_function();
+                return this.sample_points.map((p) => {
+                    return to_absolute(p);
+                });
+            }
+        );
+        return [...r];
     }
 
     get_relative_sample_points_from_to(fromFraction, toFraction) {
@@ -480,6 +513,7 @@ class Line {
         }
         this.right_handed = !this.right_handed;
         this.sample_points.forEach((p) => p.set(p.x, -p.y));
+        this.cache_update("sample_points");
         return this;
     }
 
@@ -497,6 +531,7 @@ class Line {
         this.p2 = t;
         this.sample_points.reverse();
         this.sample_points.forEach((p) => p.set(1 - p.x, -p.y));
+        this.cache_update("sample_points");
         this.right_handed = !this.right_handed;
 
         return this;
@@ -532,6 +567,7 @@ class Line {
 
     stretch(factor = 1) {
         this.sample_points.forEach((p) => p.set(p.x, factor * p.y));
+        this.cache_update("sample_points");
         return this;
     }
 
@@ -540,31 +576,53 @@ class Line {
     }
 
     get_length() {
-        const endpoint_distance = this.endpoint_distance();
-        let sum = 0;
+        return this.cache.compute_dependent(
+            "get_length",
+            ["endpoints", "sample_points"],
+            () => {
+                const endpoint_distance = this.endpoint_distance();
+                let sum = 0;
 
-        for (let i = 0; i < this.sample_points.length - 1; i++) {
-            sum += Math.sqrt(
-                Math.pow(
-                    this.sample_points[i][1] - this.sample_points[i + 1][1],
-                    2
-                ) +
-                    Math.pow(
-                        this.sample_points[i][0] - this.sample_points[i + 1][0],
-                        2
-                    )
-            );
-        }
+                for (let i = 0; i < this.sample_points.length - 1; i++) {
+                    sum += Math.sqrt(
+                        Math.pow(
+                            this.sample_points[i][1] -
+                                this.sample_points[i + 1][1],
+                            2
+                        ) +
+                            Math.pow(
+                                this.sample_points[i][0] -
+                                    this.sample_points[i + 1][0],
+                                2
+                            )
+                    );
+                }
 
-        return sum * endpoint_distance;
+                return sum * endpoint_distance;
+            }
+        );
     }
 
     get_bounding_box() {
-        return BoundingBox.from_points(this.get_absolute_sample_points());
+        return this.cache.compute_dependent(
+            "bounding_box",
+            ["absolute_sample_points"],
+            () => {
+                return BoundingBox.from_points(
+                    this.get_absolute_sample_points()
+                );
+            }
+        );
     }
 
     convex_hull() {
-        return convex_hull(this.get_absolute_sample_points());
+        return this.cache.compute_dependent(
+            "convex_hull",
+            ["absolute_sample_points"],
+            () => {
+                return convex_hull(this.get_absolute_sample_points());
+            }
+        );
     }
 
     is_adjacent(thing) {
@@ -771,72 +829,16 @@ class Line {
         res.lines = lines;
         return res;
     }
+
+    static straight(endpoint_1, endpoint_2) {
+        return new Line(endpoint_1, endpoint_2, [
+            new Vector(0, 0),
+            new Vector(1, 0),
+        ]);
+    }
 }
 
 add_self_intersection_test(Line);
 register_line_manipulation_functions(Line);
 
-class StraightLine extends Line {
-    constructor(endpoint_1, endpoint_2) {
-        super(endpoint_1, endpoint_2, [new Vector(0, 0), new Vector(1, 0)]);
-    }
-
-    get_length() {
-        return this.endpoint_distance();
-    }
-
-    is_straight() {
-        return true;
-    }
-
-    position_at_length(d, reversed = false) {
-        assert.CALLBACK("Specified length longer than line.", () => {
-            return this.endpoint_distance() - Math.abs(d) >= 0;
-        });
-
-        if (d < 0) {
-            d = -d;
-            reversed = !reversed;
-        }
-
-        if (reversed) {
-            d = this.endpoint_distance() - d;
-        }
-
-        return this.p1.add(this.get_line_vector().normalize().scale(d));
-    }
-
-    position_at_fraction(f, reversed = false) {
-        assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
-        return this.position_at_length(this.get_length() * f, reversed);
-    }
-
-    offset_sample_points(radius, withHandedness = true) {
-        let offset_vector = this.get_line_vector()
-            .get_orthogonal()
-            .to_len(radius);
-        if (!withHandedness) {
-            offset_vector = offset_vector.scale(-1);
-        }
-        const abs = this.get_absolute_sample_points();
-        return abs.map((p) => p.add(offset_vector));
-    }
-
-    closest_position(vec) {
-        const rel = this.get_to_relative_function()(vec);
-        if (rel.x < 0) return this.p1;
-        if (rel.x > 1) return this.p2;
-        return this.get_to_absolute_function()(new Vector(rel.x, 0));
-    }
-
-    self_intersects() {
-        return false;
-    }
-
-    smooth_out() {
-        return this;
-    }
-}
-
-export { StraightLine, Line };
 export default Line;

@@ -1,5 +1,5 @@
 import { SewingLine } from "../sewingLine";
-import { Line } from "../../StoffLib/line.js";
+import Line from "../../StoffLib/line.js";
 
 export type FullStackLine = {
     line: SewingLine,

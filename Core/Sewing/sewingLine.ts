@@ -1,4 +1,4 @@
-import { Line } from "../StoffLib/line.js";
+import Line from "../StoffLib/line.js";
 import { Sewing } from "./sewing.ts";
 import { SewingPoint } from "./sewingPoint.ts";
 import Point from "../StoffLib/point.js";

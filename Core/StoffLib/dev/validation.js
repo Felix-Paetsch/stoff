@@ -3,7 +3,6 @@ import Line from "../line.js";
 import { Vector, EPS } from "../geometry.js";
 import ConnectedComponent from "../connected_component.js";
 import assert from "../../assert.js";
-// import { at_url } from "../../Debug/render_at.js";
 
 import CONF from "../config.json" with { type: "json" };
 const error_margin = EPS.MODERATE;

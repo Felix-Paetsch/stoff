@@ -1,7 +1,7 @@
 import Point from "../StoffLib/point.js";
 import { Sewing } from "./sewing.ts";
 import { SewingLine } from "./sewingLine.ts";
-import { Line } from "../StoffLib/line.js";
+import Line from "../StoffLib/line.js";
 
 export class SewingPoint {
     public outdated: boolean;

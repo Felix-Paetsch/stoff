@@ -1,6 +1,6 @@
 import { FaceEdge } from "./faceEdge.ts";
 import { SewingLine } from "./sewingLine.ts";
-import { Line } from "../StoffLib/line.js";
+import Line from "../StoffLib/line.js";
 
 export type FaceEdgeWithPosition = {
     readonly edge: FaceEdge,

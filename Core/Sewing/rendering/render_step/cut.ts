@@ -1,6 +1,6 @@
 import Renderer, { PointRenderAttributes } from "../renderer";
 import { Sewing } from "../../sewing";
-import { Line } from "../../../StoffLib/line";
+import Line from "../../../StoffLib/line";
 import Point from "../../../StoffLib/point";
 import { LineRenderAttributes } from "../renderer";
 import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
