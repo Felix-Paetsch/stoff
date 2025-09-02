@@ -14,7 +14,7 @@ export default function register_collection_methods(Class) {
     }
 
     Class.prototype.make_sketch_element_collection = function (arr) {
-        return SketchElementCollection.from_array(arr, this.get_sketch(true));
+        return new SketchElementCollection(arr, this.get_sketch(true));
     };
 
     Class.prototype.new_sketch_element_collection = function () {

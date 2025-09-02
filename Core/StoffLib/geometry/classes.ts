@@ -11,7 +11,7 @@ export class Vector {
     public is_column: boolean;
 
     constructor(
-        x: number | Vector = 0,
+        x: number | Vector,
         y: number = 0,
         column: boolean = true
     ) {
@@ -40,7 +40,9 @@ export class Vector {
         return [this.x, this.y];
     }
 
-    set(x: number | Vector, y: number): Vector {
+    set(x: number, y: number): Vector;
+    set(x: Vector): Vector;
+    set(x: number | Vector, y: number = 0): Vector {
         if (x instanceof Vector) {
             return this.set(x.x, x.y);
         }

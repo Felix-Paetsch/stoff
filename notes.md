@@ -3,6 +3,10 @@ Debug Performance!!
 Main Problem currently:
 ... has_sketch_elements (50ms)
 ... Sketch Element collection ~> Everything abt it (50ms)
+... assert / check sketch is valid
+
+unfold, glue
+merge lines
 
 Todo:
 Dedub render

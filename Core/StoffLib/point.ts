@@ -3,12 +3,34 @@ import ConnectedComponent from "./connected_component.js";
 import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js";
 import SketchElementCollection from "./sketch_element_collection.js";
+import Sketch from "./sketch.js";
+import { Json } from "../utils/json.js";
+import Line from "./line.js";
+
+type PointRenderAttributes = {
+    fill: string;
+    radius: number;
+    stroke: string;
+    strokeWidth: number;
+    opacity: number;
+}
 
 class Point extends Vector {
-    constructor(x, y) {
-        super(x, y);
+    private adjacent_lines: Line[] = [];
+    public data: Json;
+    private sketch: Sketch | null = null;
+    private attributes: PointRenderAttributes = {
+        fill: "black",
+        radius: 2,
+        stroke: "black",
+        strokeWidth: 1,
+        opacity: 1,
+    };
 
-        this.adjacent_lines = this.new_sketch_element_collection();
+    constructor(...args: ConstructorParameters<typeof Vector>) {
+        super(...args);
+
+        this.adjacent_lines = [];
         this.data = {};
         this.sketch = null;
         this.attributes = {
@@ -19,8 +41,8 @@ class Point extends Vector {
             opacity: 1,
         };
 
-        if (typeof this._init !== "undefined") {
-            this._init();
+        if (typeof (this as any)._init !== "undefined") {
+            (this as any)._init();
         }
     }
 
@@ -32,7 +54,7 @@ class Point extends Vector {
         return new ConnectedComponent(this);
     }
 
-    set_color(color) {
+    set_color(color: string) {
         this.attributes.fill = color;
         return this;
     }
@@ -41,12 +63,12 @@ class Point extends Vector {
         return this.attributes.fill;
     }
 
-    set_attribute(attr, value) {
+    set_attribute<Key extends keyof PointRenderAttributes>(attr: Key, value: PointRenderAttributes[Key]) {
         this.attributes[attr] = value;
         return this;
     }
 
-    get_attribute(attr) {
+    get_attribute(attr: keyof PointRenderAttributes) {
         return this.attributes[attr];
     }
 
@@ -56,12 +78,12 @@ class Point extends Vector {
         return r;
     }
 
-    get_tangent_vector(line) {
-        assert.HAS_LINES(this, line);
+    get_tangent_vector(line: Line) {
+        (assert as any).HAS_LINES(this, line);
         return line.get_tangent_vector(this);
     }
 
-    add_adjacent_line(line) {
+    add_adjacent_line(line: Line) {
         this.adjacent_lines.push(line);
         return this;
     }
@@ -102,7 +124,7 @@ class Point extends Vector {
         return this.sketch;
     }
 
-    other_adjacent_line(...lines) {
+    other_adjacent_line(...lines: Line[]) {
         const other = this.other_adjacent_lines(...lines);
         assert(
             other.length < 2,
@@ -111,12 +133,12 @@ class Point extends Vector {
         return other[0] || null;
     }
 
-    other_adjacent_lines(...lines) {
-        assert.HAS_LINES(this, ...lines);
+    other_adjacent_lines(...lines: Line[]) {
+        (assert as any).HAS_LINES(this, ...lines);
         return this.adjacent_lines.filter((l) => lines.indexOf(l) < 0);
     }
 
-    other_adjacent_point(...pts) {
+    other_adjacent_point(...pts: Point[]) {
         const other = this.other_adjacent_points(...pts);
         assert(
             other.length < 2,
@@ -125,30 +147,36 @@ class Point extends Vector {
         return other[0] || null;
     }
 
-    other_adjacent_points(...pts) {
+    other_adjacent_points(...pts: Point[]) {
         return this.get_adjacent_points().filter((p) => pts.indexOf(p) < 0);
     }
 
-    common_line(point) {
+    common_line(point: Point) {
         return this.common_lines(point)[0] || null;
     }
 
-    common_lines(point) {
+    common_lines(point: Point) {
         return this.adjacent_lines.filter((l) =>
             point.get_adjacent_lines().includes(l)
         );
     }
 
-    set(x, y) {
+    set(x: number, y: number): Point;
+    set(x: Vector): Point;
+    set(x: number | Vector, y: number = 0) {
         this.adjacent_lines?.forEach((l) => l.cache_update("endpoints"));
-        return super.set(x, y);
+        return (super.set as any)(x, y);
     }
 
-    move_to(x, y) {
-        return this.set(x, y);
+    move_to(x: number, y: number): Point;
+    move_to(x: Vector): Point;
+    move_to(x: number | Vector, y: number = 0) {
+        return (this.set as any)(x, y);
     }
 
-    offset_by(x, y) {
+    offset_by(x: number, y: number): Point;
+    offset_by(x: Vector): Point;
+    offset_by(x: number | Vector, y: number = 0) {
         if (x instanceof Vector) {
             return this.move_to(this.add(x));
         }
@@ -156,27 +184,27 @@ class Point extends Vector {
         return this.move_to(this.x + x, this.y + y);
     }
 
-    remove_line(l, ignore_not_present = false) {
+    remove_line(l: Line, ignore_not_present: boolean = false) {
         if (!ignore_not_present) {
-            assert.HAS_LINES(this, l);
+            (assert as any).HAS_LINES(this, l);
         }
         this.adjacent_lines = this.adjacent_lines.filter((line) => line != l);
         return this;
     }
 
     remove() {
-        assert.HAS_SKETCH(this);
-        this.sketch.remove(this);
+        (assert as any).HAS_SKETCH(this);
+        this.sketch!.remove(this);
     }
 
-    has_lines(...ls) {
+    has_lines(...ls: Line[]) {
         for (let i = 0; i < ls.length; i++) {
             if (!this.adjacent_lines.includes(ls[i])) return false;
         }
         return true;
     }
 
-    set_sketch(s) {
+    set_sketch(s: Sketch) {
         if (this.sketch == null || s == null) {
             this.sketch = s;
             return this;
@@ -187,7 +215,7 @@ class Point extends Vector {
         return new BoundingBox(this.x, this.y, this.x, this.y);
     }
 
-    static from_vector(vec) {
+    static from_vector(vec: Vector) {
         return new Point(vec.x, vec.y);
     }
 }

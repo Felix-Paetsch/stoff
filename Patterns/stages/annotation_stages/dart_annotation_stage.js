@@ -254,17 +254,15 @@ export default class DartAnnotationStage extends BaseStage {
         if (p) {
             const lines = p.get_adjacent_lines();
             if (lines[0].data.manipulated) {
-                let lns = lines[0].p2.get_adjacent_lines();
+                let lns = lines[0].p2.get_adjacent_lines().copy();
                 let ln = lns[1].p2.other_adjacent_line(lns[1]);
                 lns.push(ln);
 
                 let l = this.curve_manipulated_dart(lns);
-                lns = lines[1].p2.get_adjacent_lines();
+                lns = lines[1].p2.get_adjacent_lines().copy();
                 ln = lns[1].p2.other_adjacent_line(lns[1]);
                 lns.push(ln);
-                this.sketch.validate();
                 let l2 = this.curve_manipulated_dart(lns);
-                this.sketch.validate();
 
                 const p1 = lns[1].p1;
                 this.sketch.remove(lns[1].p1, lns[1].p2);
