@@ -257,8 +257,10 @@ export default class DartAnnotationStage extends BaseStage {
                 let lns = lines[0].p2.get_adjacent_lines().copy();
                 let ln = lns[1].p2.other_adjacent_line(lns[1]);
                 lns.push(ln);
-
                 let l = this.curve_manipulated_dart(lns);
+                this.sketch.remove(lns[1].p1, lns[1].p2);
+
+
                 lns = lines[1].p2.get_adjacent_lines().copy();
                 ln = lns[1].p2.other_adjacent_line(lns[1]);
                 lns.push(ln);
@@ -316,10 +318,10 @@ export default class DartAnnotationStage extends BaseStage {
         const target_endpoints = [lines[0].p1, lines[2].p1];
 
         const intp_pts = [target_endpoints[0]];
-        intp_pts.push(lines[0].position_at_fraction(0.8));
-        intp_pts.push(lines[1].position_at_fraction(0.2));
-        intp_pts.push(lines[1].position_at_fraction(0.8));
-        intp_pts.push(lines[2].position_at_fraction(0.8));
+        intp_pts.push(lines[0].position_at_fraction(0.75));
+        intp_pts.push(lines[1].position_at_fraction(0.25));
+        intp_pts.push(lines[1].position_at_fraction(0.75));
+        intp_pts.push(lines[2].position_at_fraction(0.75));
         intp_pts.push(target_endpoints[1]);
 
         return this.sketch.plot(

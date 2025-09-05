@@ -1,4 +1,4 @@
-import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
+import SewingSketch from "../Core/PatternLib/sewing_sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
 import { start_recording, stop_recording } from "@/Core/Debug/recording.js";
 import { at_url, hot_at_url } from "@/Core/Debug/render_at.js";
@@ -12,7 +12,7 @@ export function construct_maual(sketches) {
 
 
   close_darts(sketches, s);
-//  close_waistline_darts(sketches, s);
+  close_waistline_darts(sketches, s);
 
 
   return s;
@@ -41,7 +41,7 @@ function close_darts(sketches, s){
 }
 
 function close_dart(s, lines){
-  if(lines){
+  if(lines.length > 0){
 
     let ln = lines.filter(ln => ln.data.type == "annotation");
     let lns = lines.filter(ln => ln.data.type == "dart");
