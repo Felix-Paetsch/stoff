@@ -505,9 +505,9 @@ export default (Sketch) => {
             offset,
             withHandedness
         );
-        const p1 = this.add_point(Point.from_vector(abs_sample_points[0]));
+        const p1 = this.add_point(abs_sample_points[0]);
         const p2 = this.add_point(
-            Point.from_vector(abs_sample_points[abs_sample_points.length - 1])
+            abs_sample_points[abs_sample_points.length - 1]
         );
 
         const ret_line = this._line_between_points_from_sample_points(

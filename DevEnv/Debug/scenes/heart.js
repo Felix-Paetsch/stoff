@@ -1,25 +1,25 @@
 import Sketch from "../../../Core/StoffLib/sketch.js";
 import Point from "../../../Core/StoffLib/point.js";
 
-export default function(){
+export default function () {
     const s = new Sketch();
 
-    const p1 = s.add_point(new Point(0,0));
-    const p2 = s.add_point(new Point(-10,-10));
-    const p3 = s.add_point(new Point(-21,-11));
-    const p4 = s.add_point(new Point(-30,-5));
-    const p5 = s.add_point(new Point(-35,5));
-    const p6 = s.add_point(new Point(-30,20));
+    const p1 = s.add_point(new Vector(0, 0));
+    const p2 = s.add_point(new Vector(-10, -10));
+    const p3 = s.add_point(new Vector(-21, -11));
+    const p4 = s.add_point(new Vector(-30, -5));
+    const p5 = s.add_point(new Vector(-35, 5));
+    const p6 = s.add_point(new Vector(-30, 20));
 
-    const p65 = s.add_point(new Point(-10,40));
-    const p7 = s.add_point(new Point(0,50));
-    const p75 = s.add_point(new Point(10,40));
+    const p65 = s.add_point(new Vector(-10, 40));
+    const p7 = s.add_point(new Vector(0, 50));
+    const p75 = s.add_point(new Vector(10, 40));
 
-    const p8 = s.add_point(new Point(30,20));
-    const p9 = s.add_point(new Point(35,5));
-    const p10 = s.add_point(new Point(30,-5));
-    const p11 = s.add_point(new Point(21,-11));
-    const p12 = s.add_point(new Point(10,-10));
+    const p8 = s.add_point(new Vector(30, 20));
+    const p9 = s.add_point(new Vector(35, 5));
+    const p10 = s.add_point(new Vector(30, -5));
+    const p11 = s.add_point(new Vector(21, -11));
+    const p12 = s.add_point(new Vector(10, -10));
 
     let lines = [
         s.line_between_points(p1, p2),
@@ -35,13 +35,13 @@ export default function(){
         s.line_between_points(p9, p10),
         s.line_between_points(p10, p11),
         s.line_between_points(p11, p12),
-        s.line_between_points(p12, p1)
+        s.line_between_points(p12, p1),
     ];
 
     for (let i = 0; i < lines.length; i++) {
         let fraction = i / lines.length;
         fraction += 0.2;
-        if (fraction >= 1){
+        if (fraction >= 1) {
             fraction -= 1;
         }
 
@@ -80,19 +80,23 @@ export default function(){
         }
 
         const total_sum = r + g + b;
-        const scale_factor = 255/total_sum;
+        const scale_factor = 255 / total_sum;
         r *= scale_factor;
         g *= scale_factor;
         b *= scale_factor;
 
         // Set the color
-        lines[i].set_color(`rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`);
+        lines[i].set_color(
+            `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
+        );
     }
 
-    for (let i = 1; i < 8; i++){
+    for (let i = 1; i < 8; i++) {
         const new_lines = [];
-        for (let j = 0; j < lines.length - 1; j++){
-            new_lines.push(s.interpolate_lines(lines[j], lines[(j+1) % lines.length], 0));
+        for (let j = 0; j < lines.length - 1; j++) {
+            new_lines.push(
+                s.interpolate_lines(lines[j], lines[(j + 1) % lines.length], 0)
+            );
         }
         lines = new_lines;
     }

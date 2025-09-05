@@ -85,7 +85,7 @@ export default class FaceAtlas {
     }
 
     component_from_face(face: Face) {
-        const comp = this.connectedComponents.filter((c) => c.faces.includes(face))[0]!
+        const comp = this.connectedComponents.filter((c) => c.faces.includes(face) || c.component == face)[0]!
         return comp as ConnectedFaceComponent & {
             component: Face
         }

@@ -183,7 +183,7 @@ export default class BasicBaseStage extends BaseStage {
         let vec_h = pts.b.subtract(
             new Vector(this.sh.point_width / 2, this.sh.point_height)
         );
-        pts.h = this.sketch.add_point(new Point(vec_h.x, vec_h.y));
+        pts.h = this.sketch.add_point(new Vector(vec_h.x, vec_h.y));
         pts.h.data.type = "h";
 
         let angle = 0;
@@ -896,14 +896,14 @@ export default class BasicBaseStage extends BaseStage {
         let q = this.sketch.add_point(j.add(vec));
         q.data.type = "q";
 
-        let r = this.sketch.add_point(new Point(p.x + diff / 4, h_to_i.p2.y));
+        let r = this.sketch.add_point(new Vector(p.x + diff / 4, h_to_i.p2.y));
         r.data.type = "r";
-        let s = this.sketch.add_point(new Point(p.x - diff / 4, h_to_i.p2.y));
+        let s = this.sketch.add_point(new Vector(p.x - diff / 4, h_to_i.p2.y));
         s.data.type = "s";
 
-        let g = this.sketch.add_point(new Point(j.x + diff / 4, h_to_g.p2.y));
+        let g = this.sketch.add_point(new Vector(j.x + diff / 4, h_to_g.p2.y));
         g.data.type = "g";
-        let i = this.sketch.add_point(new Point(j.x - diff / 4, h_to_g.p2.y));
+        let i = this.sketch.add_point(new Vector(j.x - diff / 4, h_to_g.p2.y));
         i.data.type = "i";
 
         if (this.sketch.data.base_type == 2 && this.sketch.initial_type != 2) {

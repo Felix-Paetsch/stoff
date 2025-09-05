@@ -1,9 +1,7 @@
 import { rotation_fun, vec_angle } from "./algorithms.js";
 import assert from "../../assert.js";
 import EPS from "./eps.js";
-
-export type radians = number;
-export type degrees = number;
+import { radians } from "./types.js";
 
 export class Vector {
     public x!: number;

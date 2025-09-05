@@ -18,7 +18,6 @@ type PointRenderAttributes = {
 class Point extends Vector {
     private adjacent_lines: Line[] = [];
     public data: Json;
-    private sketch: Sketch | null = null;
     private attributes: PointRenderAttributes = {
         fill: "black",
         radius: 2,
@@ -27,12 +26,14 @@ class Point extends Vector {
         opacity: 1,
     };
 
-    constructor(...args: ConstructorParameters<typeof Vector>) {
+    constructor(
+        private sketch: Sketch,
+        ...args: ConstructorParameters<typeof Vector>
+    ) {
         super(...args);
 
         this.adjacent_lines = [];
         this.data = {};
-        this.sketch = null;
         this.attributes = {
             fill: "black",
             radius: 2,
@@ -72,10 +73,15 @@ class Point extends Vector {
         return this.attributes[attr];
     }
 
-    copy() {
-        const r = new Point(this.x, this.y);
-        r.attributes = JSON.parse(JSON.stringify(r.attributes));
-        return r;
+    copy(): Vector;
+    copy(sketch: Sketch): Point;
+    copy(sketch?: Sketch) {
+        if (sketch) {
+            const r = new Point(sketch, this.x, this.y);
+            r.attributes = JSON.parse(JSON.stringify(r.attributes));
+            return r;
+        }
+        return new Vector(this);
     }
 
     get_tangent_vector(line: Line) {
@@ -205,18 +211,12 @@ class Point extends Vector {
     }
 
     set_sketch(s: Sketch) {
-        if (this.sketch == null || s == null) {
-            this.sketch = s;
-            return this;
-        }
+        this.sketch = s;
+        return this;
     }
 
     get_bounding_box() {
         return new BoundingBox(this.x, this.y, this.x, this.y);
-    }
-
-    static from_vector(vec: Vector) {
-        return new Point(vec.x, vec.y);
     }
 }
 

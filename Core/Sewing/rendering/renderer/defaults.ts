@@ -17,7 +17,7 @@ export const default_line_attributes: LineRenderAttributes = {
 export const default_face_edge_attributes: FaceEdgeRenderAttributes = {
     fill: "blue",
     opacity: 1,
-    width: 6,
+    width: 2,
     style: "fill"
 };
 

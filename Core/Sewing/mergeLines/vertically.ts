@@ -14,17 +14,12 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
     const primary_component = guide.primary_component;
     const other_components = guide.other_components.concat(
         sewOnComponents.flatMap(sl => {
-            return sl.line.primary_component.map(c => ({
+            return sl.line.primary_component.concat(sl.line.other_components).map(c => ({
                 line: c.line,
                 has_sewing_line_orientation: c.has_sewing_line_orientation == sl.same_orientation,
                 has_sewing_line_handedness: c.has_sewing_line_handedness == sl.same_handedness,
                 sewTo: sl.sewTo
-            })).concat(sl.line.other_components.map(c => ({
-                line: c.line,
-                has_sewing_line_orientation: c.has_sewing_line_orientation == sl.same_orientation,
-                has_sewing_line_handedness: c.has_sewing_line_handedness == sl.same_handedness,
-                sewTo: sl.sewTo
-            })))
+            }))
         })
     )
 
@@ -46,7 +41,7 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
 
     left_right_building_blocks.push(...sewOnComponents.map(so => edge_buidling_blocks(
         guide, so
-    )))
+    )));
 
     const edges = left_right_building_blocks.flatMap(([l, r]) => l);
     left_right_building_blocks.reverse().forEach(([l, r]) => {

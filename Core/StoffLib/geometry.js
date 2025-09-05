@@ -29,7 +29,6 @@ import {
     polygon_contains_point,
     orientation,
     polygon_orientation,
-    polygon_orientation_v2,
 } from "./geometry/algorithms.js";
 import { BoundingBox } from "./geometry/bounding_box.js";
 import { merge_intervals, interval_overlap } from "./geometry/1d.js";
@@ -61,7 +60,6 @@ export {
     polygon_contains_point,
     orientation,
     polygon_orientation,
-    polygon_orientation_v2,
     ZERO,
     UP,
     DOWN,

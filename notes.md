@@ -21,5 +21,4 @@ tRPC
 Next
 Zod (validation)
 
-Look into:
-GraphQL
+(For point algorithms: https://github.com/w8r/martinez/blob/master/src/segment_intersection.js#L29)

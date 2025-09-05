@@ -814,7 +814,11 @@ class Line {
         function set_two_line_orientations(lines) {
             if (lines[1].has_endpoint(lines[0].p2)) {
                 lines.orientations = [true, lines[1].p1 == lines[0].p2];
-                lines.points = [lines[0].p1, lines[0].p2, lines[1].p2];
+                lines.points = [
+                    lines[0].p1,
+                    lines[0].p2,
+                    lines[1].other_endpoint(lines[0].p2),
+                ];
             } else if (lines[1].has_endpoint(lines[0].p1)) {
                 lines.orientations = [false, lines[1].p1 == lines[0].p1];
                 lines.points = [

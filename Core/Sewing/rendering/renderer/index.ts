@@ -60,6 +60,7 @@ export default class Renderer {
     private faceAtlas: Map<Sketch, FaceAtlas> = new Map();
     private sewing: Sewing;
     private renderCache: RendererCache;
+    readonly stack: string;
 
     constructor(
         s: Sewing | Sketch,
@@ -71,6 +72,7 @@ export default class Renderer {
             this.sewing = new Sewing([s]);
         }
 
+        this.stack = (new Error().stack as string).split("\n").slice(2).map((s) => s.trim()).join("\n");
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
         );
@@ -147,7 +149,7 @@ export default class Renderer {
     }
 
     render_point(pt: Point, attributes: Partial<PointRenderAttributes> = {}, data: any = null) {
-        this.add_render_instruction(pt.sketch, {
+        this.add_render_instruction(pt.get_sketch()!, {
             do: (ctx: RenderContext) => {
                 const { stroke, strokeWidth, fill, opacity, radius } = {
                     ...default_point_attributes,
@@ -207,7 +209,7 @@ export default class Renderer {
                     res = `<polyline points="${pointsString}" style="fill:none; stroke: ${stroke}; stroke-width: ${strokeWidth}" opacity="${opacity}"/>`;
                 } else {
                     const [stroke1, stroke2] = stroke;
-                    const [[x1, y1], [x2, y2]] = line.get_endpoints().map(e =>
+                    const [[x1, y1], [x2, y2]] = (line.get_endpoints() as any).map((e: Point) =>
                         ctx.relative_to_absolute(e.x, e.y)
                     );
 
@@ -266,6 +268,7 @@ export default class Renderer {
                 const pointsString = this.renderCache.lazy("face_edge_component", {
                     line: this.renderCache.tag(faceEdgeComponent.line),
                     radius: width,
+                    handedness: faceEdgeComponent.standard_handedness,
                 }, () => {
                     const points = faceEdgeComponent.line.get_absolute_sample_points();
                     const offset_points = faceEdgeComponent.line.offset_sample_points(
@@ -352,7 +355,9 @@ export default class Renderer {
                 if (typeof data === "object") {
                     const bb = face.get_bounding_box();
                     data = Object.assign({}, data, {
-                        bb: `[${Math.round(bb.width * 100) / 100}, ${Math.round(bb.height * 100) / 100}]`
+                        bb: `[${Math.round(bb.width * 100) / 100}, ${Math.round(bb.height * 100) / 100}]`,
+                        area: Math.round(face.area() * 100) / 100,
+                        // clockwise: face.is_clockwise_oriented()
                     });
                 }
                 return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;

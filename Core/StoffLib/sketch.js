@@ -33,7 +33,7 @@ export class Sketch {
     }
 
     point(x, y) {
-        const pt = new Point(x, y);
+        const pt = new Point(this, x, y);
         return this.add_point(pt);
     }
 
@@ -45,11 +45,11 @@ export class Sketch {
         }
 
         if (args[0] instanceof Vector) {
-            return this.add_point(Point.from_vector(args[0]));
+            return this.add_point(new Point(this, args[0]));
         }
 
         if (typeof args[0] == "number" && typeof args[1] == "number") {
-            return this.add_point(new Point(args[0], args[1]));
+            return this.add_point(new Point(this, args[0], args[1]));
         }
 
         throw new Error("Invalid arguments given!");

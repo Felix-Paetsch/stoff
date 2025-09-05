@@ -348,13 +348,35 @@ export class SewingLine {
                     standard_handedness: true,
                     standard_orientation: true
                 }]);
+            } else {
+                const atlas = sewing.faceAtlases.get(line.get_sketch())!;
+                const comp = atlas.component_from_face(faces[0]);
+                const parent_face = comp.parent_face;
+                if (parent_face) {
+                    edges.push([{
+                        line: line,
+                        standard_handedness: true,
+                        standard_orientation: true
+                    }]);
+                }
             }
-            if (!(faces[1] as Face).is_boundary()) {
+            if (!(faces[1] as Face)?.is_boundary()) {
                 edges.push([{
                     line: line,
                     standard_handedness: false,
                     standard_orientation: true
                 }]);
+            } else if (faces[1]) {
+                const atlas = sewing.faceAtlases.get(line.get_sketch())!;
+                const comp = atlas.component_from_face(faces[1]);
+                const parent_face = comp.parent_face;
+                if (parent_face) {
+                    edges.push([{
+                        line: line,
+                        standard_handedness: false,
+                        standard_orientation: true
+                    }]);
+                }
             }
         } else {
             const face = faces[1];

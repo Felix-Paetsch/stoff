@@ -1,11 +1,12 @@
 import { Vector, Matrix, Ray, ZERO, UP } from "./classes.js";
 import EPS from "./eps.js";
+import { Polygon, LineSegment, radians, degrees } from "./types.js";
 
-function distance_from_line_segment(endpoints, vec) {
+function distance_from_line_segment(endpoints: LineSegment, vec: Vector) {
     return closest_vec_on_line_segment(endpoints, vec).distance(vec);
 }
 
-function closest_vec_on_line_segment(endpoints, vec) {
+function closest_vec_on_line_segment(endpoints: LineSegment, vec: Vector) {
     const [vec1, vec2] = endpoints;
 
     const vec1ToVec = vec.subtract(vec1);
@@ -35,7 +36,7 @@ function closest_vec_on_line_segment(endpoints, vec) {
     }
 }
 
-function line_segments_intersect(l1, l2) {
+function line_segments_intersect(l1: LineSegment, l2: LineSegment) {
     const [p, r] = [l1[0], l1[1].subtract(l1[0])];
     const [q, s] = [l2[0], l2[1].subtract(l2[0])];
 
@@ -56,7 +57,7 @@ function line_segments_intersect(l1, l2) {
     return [false, null];
 }
 
-function matrix_from_input_output(f_in, f_out) {
+function matrix_from_input_output(f_in: [Vector, Vector], f_out: [Vector, Vector]) {
     // Expect Col Vectors
     // f_in  = [vec1, vec2]
     // f_out = [A*vec1, A*vec2]
@@ -68,7 +69,7 @@ function matrix_from_input_output(f_in, f_out) {
     return out_matrix.mult(inp_matrix.invert());
 }
 
-function affine_transform_from_input_output(f_in, f_out) {
+function affine_transform_from_input_output(f_in: [Vector, Vector], f_out: [Vector, Vector]) {
     // f_in --- f ---> f_out
     // f_in  = [vec1, vec2]
     // f_out = [f(vec1), f(vec2)]
@@ -84,12 +85,12 @@ function affine_transform_from_input_output(f_in, f_out) {
     const A = matrix_from_input_output([A_inp1, A_inp2], [A_out1, A_out2]);
     const b = f_out[0].subtract(A.mult(f_in[0])); // f(x) - Ax;
 
-    return (vec) => {
+    return (vec: Vector) => {
         return A.mult(vec).add(b);
     };
 }
 
-function orthogonal_transform_from_input_output(v1, v2) {
+function orthogonal_transform_from_input_output(v1: Vector, v2: Vector) {
     // v1 gets rotated and stretched to v2
     return affine_transform_from_input_output(
         [new Vector(0, 0), v1],
@@ -97,7 +98,7 @@ function orthogonal_transform_from_input_output(v1, v2) {
     );
 }
 
-function rotation_fun(rotation_vec, angle) {
+function rotation_fun(rotation_vec: Vector, angle: radians) {
     // Returns function that takes in a vector and rotates it `angle` around rotation_vec
     // if angle is an array [v1, v2] it rotates the ray to v1 to the ray to v2
     if (Array.isArray(angle)) {
@@ -111,18 +112,18 @@ function rotation_fun(rotation_vec, angle) {
         new Vector(Math.cos(angle), Math.sin(angle)),
         new Vector(-1 * Math.sin(angle), Math.cos(angle))
     );
-    return (v) => {
+    return (v: Vector) => {
         return rotMatrix.mult(v.subtract(rotation_vec)).add(rotation_vec);
     };
 }
 
-function orientation(vec1, vec2, reference = ZERO) {
+function orientation(vec1: Vector, vec2: Vector, reference: Vector = ZERO) {
     vec1 = vec1.subtract(reference);
     vec2 = vec2.subtract(reference);
     return vec1.cross(vec2) > 0;
 }
 
-function vec_angle(vec1, vec2, reference = ZERO) {
+function vec_angle(vec1: Vector, vec2: Vector, reference: Vector = ZERO) {
     vec1 = vec1.subtract(reference);
     vec2 = vec2.subtract(reference);
 
@@ -136,10 +137,10 @@ function vec_angle(vec1, vec2, reference = ZERO) {
 }
 
 function vec_angle_clockwise(
-    vec1,
-    vec2,
-    reference = ZERO,
-    offset_range = false
+    vec1: Vector,
+    vec2: Vector,
+    reference: Vector = ZERO,
+    offset_range: boolean = false
 ) {
     if (typeof reference == "boolean") {
         offset_range = reference;
@@ -168,7 +169,7 @@ function vec_angle_clockwise(
     return angle;
 }
 
-function _convex_hull(points) {
+function _convex_hull(points: Vector[]) {
     if (points.length <= 1) return points;
 
     // Sort points lexicographically by x, then by y
@@ -209,15 +210,18 @@ function _convex_hull(points) {
     return lower.concat(upper);
 }
 
-function convex_hull(points) {
+function convex_hull(points: Vector[]): Polygon & { contains: (pt: Vector) => boolean } {
     const h = _convex_hull(points);
-    h.contains = (pt) => {
-        return polygon_contains_point(h, pt);
-    };
-    return h;
+    Object.assign(h, {
+        contains: (pt: Vector) => {
+            return polygon_contains_point(h, pt);
+        }
+    });
+
+    return h as any;
 }
 
-function is_convex(pts, eps = EPS.TINY) {
+function is_convex(pts: Polygon, eps = EPS.TINY): boolean {
     const n = pts.length;
     if (n < 3) return true;
 
@@ -248,7 +252,7 @@ function random_vec() {
     return UP.rotate(r1);
 }
 
-function polygon_contains_point(polygon_points, point) {
+function polygon_contains_point(polygon_points: Polygon, point: Vector) {
     if (polygon_points.length < 3) {
         throw new Error("Polygon must have at least 3 points!");
     }
@@ -269,10 +273,12 @@ function polygon_contains_point(polygon_points, point) {
         totalAngle += vec_angle(v1, v2);
     }
 
-    return Math.abs(Math.abs(totalAngle) - 2 * Math.PI) < EPS.COARSE;
+    const revolutions = Math.abs(totalAngle / (2 * Math.PI));
+    const rrevolutions = Math.round(revolutions);
+    return rrevolutions % 2 != 0;
 }
 
-function polygon_orientation(points, eps = EPS.COARSE_SQUARED) {
+function polygon_orientation(points: Polygon, eps = EPS.COARSE_SQUARED): boolean {
     let new_points = [points[0]];
     points.forEach((p) => {
         if (new_points[new_points.length - 1].distance_squared(p) > eps) {
@@ -296,40 +302,14 @@ function polygon_orientation(points, eps = EPS.COARSE_SQUARED) {
     }
 
     const rotations = total / (2 * Math.PI);
-    return rotations > 0;
+    return rotations < 0;
 }
 
-function polygon_orientation_v2(points, eps = EPS.COARSE, n = 1) {
-    // Returns true if oriented clockwise, falso otherwise
-    // We assume the polygon is given in order and doesnt have self-intersections
-
-    let current_test_pt = -1;
-    let current_test_res = 0;
-
-    while (current_test_pt < points.length && Math.abs(current_test_res) < n) {
-        current_test_pt++;
-        const current = points[current_test_pt];
-        const next = points[(current_test_pt + 1) % points.length];
-        if (next.distance(current) < EPS.FINE) {
-            continue;
-        }
-        const mid = current.add(next).scale(0.5);
-        const dir = next.subtract(current);
-
-        const test_vec = mid.add(dir.get_orthogonal().scale(eps));
-        polygon_contains_point(points, test_vec)
-            ? current_test_res--
-            : current_test_res++;
-    }
-
-    return current_test_res > 0;
-}
-
-function deg_to_rad(d) {
+function deg_to_rad(d: degrees): radians {
     return (Math.PI * d) / 180;
 }
 
-function rad_to_deg(r) {
+function rad_to_deg(r: radians): degrees {
     return (180 / Math.PI) * r;
 }
 
@@ -348,7 +328,6 @@ export {
     random_vec,
     polygon_contains_point,
     polygon_orientation,
-    polygon_orientation_v2,
     orientation,
     is_convex,
 };

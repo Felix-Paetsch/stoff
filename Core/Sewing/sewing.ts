@@ -113,6 +113,10 @@ export class Sewing {
             sl.push(ln);
         }
 
+        if (sl.length < 3) {
+            return sl;
+        }
+
         if (sl.length == 0) return [];
         const ordered_lines = [sl.pop()!];
         const endpoints = ordered_lines[0].get_endpoints();

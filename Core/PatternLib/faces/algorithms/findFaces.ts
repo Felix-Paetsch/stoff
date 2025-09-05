@@ -28,13 +28,13 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     const rogue_lines: Line[] = [];
 
     const lines: Line[] = cc.get_lines();
-    /*
-      console.log("====================FF=============", lines.length);
-      for (let i = 0; i < lines.length; i++){
+
+    /*console.log("====================FF=============", lines.length);
+    for (let i = 0; i < lines.length; i++) {
         lines[i].ident = i;
-        lines[i].data = i;
-      }
-    */
+        lines[i].data["CIDENT"] = i;
+    }*/
+
     const lines_map = new Map<Line, {
         with_orientation: boolean;
         against_orientation: boolean;
@@ -81,12 +81,14 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                         for (let i = 0; i < b.lines.length; i++) {
                             lines_map.get(b.lines[i])![b.orientation[i] ? "with_orientation" : "against_orientation"] = true;
                         }
-                        // console.log(` Formed boundary | ${ b.lines.map(l => l.data) }`)
+
+                        // console.log(` Formed boundary | ${b.lines.map(l => l.data.CIDENT)}`)
+                        // con	sole.log(` Orientations | ${b.orientation.toString()}`)
                         if (visited_lines.length == 0) {
                             continue outerLoop;
                         } else {
                             orientations.pop();
-                            latest_line = visited_lines.pop();
+                            latest_line = visited_lines.pop()!;
                         }
                         break;
                     }
@@ -148,7 +150,7 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
     };
 
     for (const boundary of boundaries) {
-        const face = new Face(boundary.lines, boundary.orientation);
+        const face = Face.from_boundary(boundary.lines);
         const area = face.area();
         if (area > outer_face.area) {
             outer_face.face && res.push(outer_face.face);

@@ -35,9 +35,14 @@ export default class Face {
     point_hull(): Vector[] {
         try {
             const points: Vector[] = [];
-            let last_point = this.boundary[0].other_endpoint(
-                this.boundary[0].common_endpoint(this.boundary[1])
-            );
+            let last_point: Point;
+            if (this.boundary.length > 2) {
+                last_point = this.boundary[0].other_endpoint(
+                    this.boundary[0].common_endpoint(this.boundary[1])
+                );
+            } else {
+                last_point = this.boundary[0].p1;
+            }
             for (const line of this.boundary) {
                 const sample_points = line.get_absolute_sample_points();
                 if (line.p2 == last_point) {
@@ -99,7 +104,7 @@ export default class Face {
                 orientations[i]
             );
 
-            handedness.push(total % 2 == 0)
+            handedness.push(total % 2 == 1)
         }
         return handedness;
     }
@@ -133,10 +138,10 @@ export default class Face {
                 return !only_interior;
             }
 
-            return this.contains(thing.position_at_fraction(0.5), true);
+            return this.contains(thing.position_at_fraction(0.5)!, true);
         }
         if (thing instanceof RogueComponent) {
-            return this.contains(thing.lines[0].position_at_fraction(0.5), true);
+            return this.contains(thing.lines[0].position_at_fraction(0.5)!, true);
         }
         if (
             thing instanceof Point && !only_interior
@@ -161,7 +166,7 @@ export default class Face {
         }
     }
 
-    static from_boundary(boundary: Line[], faceAtlas: FaceAtlas): Face {
+    static from_boundary(boundary: Line[], faceAtlas?: FaceAtlas): Face {
         const ordered = Line.order_by_endpoints(boundary);
         return new Face(ordered, ordered.orientations, faceAtlas);
     }
@@ -180,12 +185,6 @@ export default class Face {
                 abs.reverse();
             }
             polygon.push(...abs);
-        }
-
-        if (!polygon_orientation(polygon)) {
-            lines.reverse();
-            lines.orientations.reverse();
-            lines.orientations = lines.orientations.map((o: boolean) => !o);
         }
 
         return lines;
