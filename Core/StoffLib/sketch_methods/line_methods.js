@@ -31,10 +31,9 @@ export default (Sketch) => {
             assert.HAS_SKETCH(p, this);
         });
 
-        const l = Line.straight(pt1, pt2);
+        const l = Line.straight(this, [pt1, pt2]);
         l.set_color(interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5));
         this.lines.push(l);
-        l.set_sketch(this);
 
         return l;
     };
@@ -139,9 +138,8 @@ export default (Sketch) => {
             [new Vector(0, 0), new Vector(1, 0)]
         );
 
-        const l = new Line(pt1, pt2, sp.map(to_rel_fun));
+        const l = new Line(this, [pt1, pt2], sp.map(to_rel_fun));
         this.lines.push(l);
-        l.set_sketch(this);
         return l;
     };
 
@@ -560,9 +558,8 @@ export default (Sketch) => {
             assert.IS_POINT(p);
             assert.HAS_SKETCH(p, this);
         });
-        const l = new Line(from, to, line.copy_sample_points());
+        const l = new Line(this, [from, to], line.copy_sample_points());
         this.lines.push(l);
-        l.set_sketch(this);
         l.attributes = { ...line.attributes };
         l.set_handedness(line.right_handed);
         copy_sketch_obj_data(line, l, data_callback);

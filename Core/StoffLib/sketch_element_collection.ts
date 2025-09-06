@@ -4,6 +4,9 @@ import Line from "./line.js";
 import Point from "./point.js";
 import Sketch from "./sketch.js";
 
+export type LineSketchElementCollection = SketchElementCollection & Line[];
+export type PointSketchElementCollection = SketchElementCollection & Point[];
+
 export default class SketchElementCollection extends Array<SketchElement> {
     constructor(
         arr: SketchElement[],

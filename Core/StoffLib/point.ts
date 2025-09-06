@@ -200,7 +200,8 @@ class Point extends Vector {
 
     remove() {
         (assert as any).HAS_SKETCH(this);
-        this.sketch!.remove(this);
+        this.sketch.remove(this);
+        this.sketch = null as any;
     }
 
     has_lines(...ls: Line[]) {

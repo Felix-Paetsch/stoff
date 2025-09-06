@@ -1,4 +1,5 @@
-type Interval = [number, number];
+export type Interval = [number, number];
+export type Fraction = number;
 
 export function merge_intervals(...intervals: Interval[]): Interval {
     const [x, y] = intervals.reduce(([x, y], [x2, y2]) => [Math.min(x, x2), Math.max(y, y2)], [Infinity, -Infinity]);

@@ -33,9 +33,14 @@ import {
 import { BoundingBox } from "./geometry/bounding_box.js";
 import { merge_intervals, interval_overlap } from "./geometry/1d.js";
 
-function mirror_type(el, vec2 = null) {
+export function mirror_type(el: Line): "Line";
+export function mirror_type(el: Vector, vec2: Vector): "Line";
+export function mirror_type(el: [Vector, Vector]): "Line";
+export function mirror_type(el: [Vector]): "Line";
+export function mirror_type(el: Vector): "Point";
+export function mirror_type(el: any | any[], vec2: any = null): "Line" | "Point" {
     if (el instanceof Line) return "Line";
-    if (el instanceof Array) return mirror_type(...el);
+    if (el instanceof Array) return mirror_type(...el as [any, any]);
     if (vec2 instanceof Vector) return "Line";
     return "Point";
 }
@@ -55,7 +60,6 @@ export {
     vec_angle_clockwise,
     rotation_fun,
     triangle_data,
-    mirror_type,
     line_segments_intersect,
     polygon_contains_point,
     orientation,

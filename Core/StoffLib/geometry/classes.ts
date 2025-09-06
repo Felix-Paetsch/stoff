@@ -69,6 +69,9 @@ export class Vector {
         return this.distance(vec) <= eps;
     }
 
+    mult(el: number): Vector;
+    mult(el: Vector): number | Matrix;
+    mult(el: Matrix): Matrix;
     mult(el: number | Vector | Matrix) {
         if (typeof el == "number") {
             return this.scale(el);
@@ -88,9 +91,7 @@ export class Vector {
             return new Vector(this.x * el.x, this.y * el.y, this.is_column);
         }
 
-        if (el instanceof Matrix) {
-            return el.transpose().mult(this.transpose()).transpose();
-        }
+        return el.transpose().mult(this.transpose()).transpose();
     }
 
     transpose() {

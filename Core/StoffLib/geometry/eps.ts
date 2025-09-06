@@ -26,7 +26,7 @@ const EPS = {
     VISUAL: 1e-3,
 };
 
-export function eps_equal(a, b, eps = EPS.EQUAL) {
+export function eps_equal(a: number, b: number, eps: number = EPS.EQUAL) {
     return Math.abs(a - b) <= eps;
 }
 
