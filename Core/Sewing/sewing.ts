@@ -15,6 +15,7 @@ import ironRenderer from "./rendering/render_step/iron";
 import sewRenderer from "./rendering/render_step/sew";
 import RendererCache from "./rendering/renderer/cache";
 import baseRenderer from "./rendering/render_step/base";
+import highlightRenderer from "./rendering/render_step/highlight";
 
 export class Sewing {
     public sewing_lines: SewingLine[];
@@ -187,5 +188,9 @@ export class Sewing {
         const res = merge_lines_vertically(this, guide, sewOn);
         this.renderers.push(sewRenderer(this, res));
         return res;
+    }
+
+    hightlight(...objects: (SewingLine | SewingPoint)[]) {
+        this.renderers.push(highlightRenderer(this, objects));
     }
 }

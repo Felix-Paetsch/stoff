@@ -1,5 +1,5 @@
 import register_collection_methods from "./collection_methods/index.js"
-import { SketchElement } from "./types/sketch_elements.js";
+import { SketchElement } from "./types.js";
 import Line from "./line.js";
 import Point from "./point.js";
 import Sketch from "./sketch.js";

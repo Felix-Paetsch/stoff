@@ -5,7 +5,6 @@ import Line from "../../../StoffLib/line.js";
 import { data_to_serializable } from "@/Core/StoffLib/sketch_methods/rendering_methods/to_dev_svg.js";
 import { BoundingBox, EPS, Vector } from "../../../StoffLib/geometry.js";
 import { FaceEdgeComponent } from "../../faceEdge.js";
-import offset_sample_points from "@/Core/StoffLib/line_methods/offset_sample_points.js";
 import { SewingLine } from "../../sewingLine.js";
 import { default_point_attributes, default_sewing_line_other_attributes, default_sewing_line_primary_attributes, default_sewing_point_attributes, default_line_attributes, default_face_edge_attributes, default_face_render_attributes } from "./defaults.js";
 import { SewingPoint } from "../../sewingPoint.js";
@@ -14,32 +13,37 @@ import Face from "@/Core/PatternLib/faces/face.js";
 import FaceAtlas from "@/Core/PatternLib/faces/faceAtlas.js";
 import RendererCache from "./cache.js";
 import { Json } from "@/Core/utils/json.js";
+import { Color } from "@/Core/StoffLib/colors.js";
 
 export type PointRenderAttributes = {
-    stroke: string;
+    stroke: Color;
     strokeWidth: number;
-    fill: string;
+    fill: Color;
     opacity: number;
     radius: number;
+    extra_data?: { [key: string]: Json };
 };
 
 export type LineRenderAttributes = {
-    stroke: string | [string, string];
+    stroke: Color | [Color, Color];
     strokeWidth: number;
     opacity: number;
+    extra_data?: { [key: string]: Json };
 };
 
 export type FaceEdgeRenderAttributes = {
-    fill: string;
+    fill: Color;
     opacity: number;
     width: number;
     style: string;
+    extra_data?: { [key: string]: Json };
 };
 
 export type FaceRenderAttributes = {
-    fill: string;
+    fill: Color;
     opacity: number;
     style: string;
+    extra_data?: { [key: string]: Json };
 };
 
 export type RenderContext = {
@@ -157,7 +161,7 @@ export default class Renderer {
                     ...attributes
                 };
                 const [x, y] = ctx.relative_to_absolute(pt.x, pt.y);
-                const point_data = data || this.point_data_to_serializable(pt);
+                const point_data = data || this.point_data_to_serializable(pt, attributes.extra_data || {});
                 return `<circle cx="${x}" cy="${y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>` +
                     `<circle cx="${x}" cy="${y}" r="${Math.max(radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${strokeWidth}" x-data="${this.data_to_string(point_data)}" hover_area="true"/>`;
             },
@@ -172,19 +176,14 @@ export default class Renderer {
         });
     }
 
-    render_partial_line(line: Line, interval: [number, number], attributes: Partial<LineRenderAttributes>, data: any = null) {
-        this.svgMap.get(line.sketch)!.push({
+    render_partial_line(line: Line, interval: [number, number], attributes: Partial<LineRenderAttributes>) {
+        this.svgMap.get(line.get_sketch())!.push({
             do: (ctx: RenderContext) => {
-                const [
-                    pointsString,
-                    dataString
-                ] = this.renderCache.lazy("render_partial_line_strings", {
+                const pointsString = this.renderCache.lazy("render_partial_line_strings", {
                     line: this.renderCache.tag(line),
                     interval: interval,
-                    data: data,
+                    data: attributes.extra_data || {},
                 }, () => {
-                    const line_data = data || this.line_data_to_serializable(line);
-
                     const points = line.get_absolute_sample_points_from_to(interval[0], interval[1]);
                     const pointsString = points.map(
                         (point: Vector) => {
@@ -193,11 +192,18 @@ export default class Renderer {
                         }
                     ).join(" ");
 
-                    return [
-                        pointsString,
-                        this.data_to_string(line_data)
-                    ]
+                    return pointsString;
                 });
+
+                let line_data = line.data;
+                if (typeof line_data === "object") {
+                    line_data = Object.assign({}, line_data, {
+                        ...(attributes.extra_data || {}),
+                        _length: Math.round(line.get_length() * 1000) / 1000,
+                        _right_handed: line.right_handed,
+                    });
+                }
+                const dataString = this.data_to_string(line_data);
 
                 const { stroke, strokeWidth, opacity } = {
                     ...default_line_attributes,
@@ -236,21 +242,20 @@ export default class Renderer {
         });
     }
 
-    render_line(line: Line, attributes: Partial<LineRenderAttributes>, data: any = null) {
-        this.render_partial_line(line, [0, 1], attributes, data);
+    render_line(line: Line, attributes: Partial<LineRenderAttributes>) {
+        this.render_partial_line(line, [0, 1], attributes);
     }
 
     render_sewing_line(
         line: SewingLine,
         primary_attributes: Partial<LineRenderAttributes>,
-        other_attributes: Partial<LineRenderAttributes>,
-        data: any = null
+        other_attributes: Partial<LineRenderAttributes>
     ) {
         line.primary_component.forEach(component => {
-            this.render_line(component.line, primary_attributes, data);
+            this.render_line(component.line, primary_attributes);
         });
         line.other_components.forEach(component => {
-            this.render_line(component.line, other_attributes, data);
+            this.render_line(component.line, other_attributes);
         });
     }
 
@@ -260,8 +265,8 @@ export default class Renderer {
         })
     }
 
-    render_face_edge_component(faceEdgeComponent: FaceEdgeComponent, attributes: Partial<FaceEdgeRenderAttributes>, upside_down: boolean, data: any = null) {
-        this.add_render_instruction(faceEdgeComponent.line.sketch, {
+    render_face_edge_component(faceEdgeComponent: FaceEdgeComponent, attributes: Partial<FaceEdgeRenderAttributes>, upside_down: boolean) {
+        this.add_render_instruction(faceEdgeComponent.line.get_sketch(), {
             do: (ctx: RenderContext) => {
                 const { fill, opacity, width } = { ...default_face_edge_attributes, ...attributes };
 
@@ -285,14 +290,12 @@ export default class Renderer {
                     }).join(" ")
                 });
 
-                if (!data) { data = {} }
-                if (typeof data === "object") {
-                    data = Object.assign({}, data, {
-                        _standard_handedness: faceEdgeComponent.standard_handedness,
-                        _standard_orientation: faceEdgeComponent.standard_orientation,
-                        _upside_down: upside_down
-                    });
-                }
+                const data = {
+                    _standard_handedness: faceEdgeComponent.standard_handedness,
+                    _standard_orientation: faceEdgeComponent.standard_orientation,
+                    _upside_down: upside_down,
+                    ...(attributes.extra_data || {}),
+                };
 
                 const fill2 = upside_down ? "red" : "green";
 
@@ -303,7 +306,6 @@ export default class Renderer {
             return {
                 ctx: this.renderCache.serialize_context(ctx),
                 attributes: attributes,
-                data: data,
                 line: this.renderCache.tag(faceEdgeComponent.line),
                 handedness: faceEdgeComponent.standard_handedness,
                 orientation: faceEdgeComponent.standard_orientation,
@@ -314,15 +316,15 @@ export default class Renderer {
     render_face(face_edge_component: {
         line: Line;
         standard_handedness: boolean
-    } | Face, attributes: Partial<FaceRenderAttributes> = {}, data: any = null): void {
+    } | Face, attributes: Partial<FaceRenderAttributes> = {}): void {
         if (face_edge_component instanceof Face) {
             return this.render_face({
                 line: face_edge_component.get_lines()[0],
                 standard_handedness: face_edge_component.line_handedness(face_edge_component.get_lines()[0])
-            }, attributes, data);
+            }, attributes);
         }
 
-        const sketch = face_edge_component.line.sketch;
+        const sketch = face_edge_component.line.get_sketch();
 
         this.add_render_instruction(sketch, {
             do: (ctx: RenderContext) => {
@@ -351,15 +353,13 @@ export default class Renderer {
                     return `${x},${y}`;
                 }).join(" ")
 
-                if (!data) { data = {} }
-                if (typeof data === "object") {
-                    const bb = face.get_bounding_box();
-                    data = Object.assign({}, data, {
-                        bb: `[${Math.round(bb.width * 100) / 100}, ${Math.round(bb.height * 100) / 100}]`,
-                        area: Math.round(face.area() * 100) / 100,
-                        // clockwise: face.is_clockwise_oriented()
-                    });
-                }
+                const bb = face.get_bounding_box();
+                const data = {
+                    ...(attributes.extra_data || {}),
+                    bb: `[${Math.round(bb.width * 100) / 100}, ${Math.round(bb.height * 100) / 100}]`,
+                    area: Math.round(face.area() * 100) / 100,
+                    // clockwise: face.is_clockwise_oriented()
+                };
                 return `<polygon points="${pointsString}" style="fill: ${fill}; stroke: none; stroke-width: 0; opacity: ${opacity}" x-data="${this.data_to_string(data)}" hover_area="true"/>`;
             },
             priority: 0
@@ -367,14 +367,13 @@ export default class Renderer {
             return {
                 ctx: this.renderCache.serialize_context(ctx),
                 attributes: attributes,
-                data: data,
                 handedness: face_edge_component.standard_handedness,
                 line: this.renderCache.tag(face_edge_component.line),
             }
         });
     }
 
-    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes> = {}, data: any = null) {
+    render_face_carousel(faceCarousel: FaceCarousel, attributes: Partial<FaceEdgeRenderAttributes> = {}) {
         faceCarousel.faceEdges.forEach((edge: FaceEdgeWithPosition) => {
             edge.edge.lines.forEach((fec) => {
                 const p = Number(fec.standard_handedness) + Number(edge.folded_right) + Number(fec.line.right_handed);
@@ -382,32 +381,23 @@ export default class Renderer {
                 this.render_face_edge_component(
                     fec,
                     attributes,
-                    p % 2 === 1,
-                    data
+                    p % 2 === 1
                 );
             })
         })
     }
 
-    point_data_to_serializable(point: Point) {
+    point_data_to_serializable(point: Point, extra_data: { [key: string]: Json }) {
         const point_data = data_to_serializable(point.data);
         if (typeof point_data === "object") {
-            point_data._x = Math.round(point.x * 1000) / 1000;
-            point_data._y = Math.round(point.y * 1000) / 1000;
+            return {
+                _x: Math.round(point.x * 1000) / 1000,
+                _y: Math.round(point.y * 1000) / 1000,
+                ...extra_data,
+                ...point_data,
+            };
         }
         return point_data;
-    }
-
-    line_data_to_serializable(line: Line) {
-        const line_data = data_to_serializable(line.data);
-        if (typeof line_data === "object") {
-            return {
-                ...line_data,
-                _length: Math.round(line.get_length() * 1000) / 1000,
-                _right_handed: line.right_handed
-            }
-        }
-        return line_data;
     }
 
     data_to_string(data: any) {

@@ -3,7 +3,7 @@ getTimeoutSetting = () => {
     return currentPollingInterval;
 };
 
-const minInterval = 400;
+const minInterval = 800;
 let currentPollingInterval = minInterval;
 const maxInterval = 5000; // Max 5 seconds
 const backoffMultiplier = 1.5;
