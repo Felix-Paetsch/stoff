@@ -226,6 +226,9 @@ export default class DartAnnotationStage extends BaseStage {
         line.data.type = "annotation";
         line.data.dart_number = dart_number;
         line.data.sewing = "close_dart";
+        line.set_handedness(true)
+        dart_lines[0].set_handedness(true)
+        dart_lines[1].set_handedness(true)
 
         //  this.sketch.remove(dart_lines[0].p1);
         this.remove_dart_lines_from_outline(dart_lines[0].p1);
@@ -251,6 +254,7 @@ export default class DartAnnotationStage extends BaseStage {
 
     annotate_inner_waistline_dart(type = "h", position = "inner") {
         const p = this.sketch.get_typed_point(type);
+
         if (p) {
             const lines = p.get_adjacent_lines();
             if (lines[0].data.manipulated) {
