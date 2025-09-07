@@ -101,5 +101,5 @@ function close_shoulder(sketches, s){
         const l_right = lines.filter((ln) => !ln.right_handed);
     //    lns2.push(s.merge_lines(l_right));
       }
-  }
+  })
 }
