@@ -14,6 +14,16 @@ import {
 export function construct_maual(sketches) {
     const s = new Sewing(sketches);
 
+    const data = {
+      side: "overlock",
+      shoulder: "knappnaht",
+      neckline: "",
+      hem: "",
+      back: "",
+      darts: "",
+
+    }
+
     close_darts(sketches, s);
     close_waistline_darts(sketches, s);
 
@@ -25,11 +35,19 @@ export function construct_maual(sketches) {
 
     close_shoulder(sketches, s);
 
+    sew_neckline(sketches, s);
+
+    close_back(sketches, s);
+
+    close_side(sketches, s);
+
 
     return s;
 }
 
 function close_darts(sketches, s) {
+    hot_at_url(s, "/wha");
+
     sketches.forEach((sketch) => {
         const lines_map = sketch.lines_by_key("sewing");
         if (Object.keys(lines_map).includes("close_dart")) {
@@ -65,6 +83,8 @@ function close_dart(s, lines) {
                 same_handedness: false,
             },
         ]);
+
+        s.hightlight(...s.sewing_points)
     }
 }
 
@@ -93,13 +113,77 @@ function close_waistline_darts(sketches, s) {
 function close_shoulder(sketches, s){
   let lns1 = [];
   let lns2 = [];
-  sketches.forEach((sketch) => {
+  sketches.forEach((sketch, i) => {
       const lines = sketch.get_typed_lines("shoulder");
       if (lines) {
         const l_left = lines.filter((ln) => ln.right_handed);
-      //  lns1.push(s.merge_lines(l_left));
         const l_right = lines.filter((ln) => !ln.right_handed);
-    //    lns2.push(s.merge_lines(l_right));
+        s.hightlight(...l_left.map(l => s.sewing_line(l)));
+        s.hightlight(...l_right.map(l => s.sewing_line(l)));
+        if (i == 0){
+            lns1.push(s.merge_lines(...l_left));
+            lns2.push(s.merge_lines(...l_right));
+        } else {
+            lns2.push(s.merge_lines(...l_left));
+            lns1.push(s.merge_lines(...l_right));
+        }
       }
-  })
+  });
+  //s.sew(lns1[0], lns1[1]);
+  //s.sew(lns2[0], lns2[1]);
+}
+
+function close_side(sketches, s){
+  let lns1 = [];
+  let lns2 = [];
+  sketches.forEach((sketch, i) => {
+      const lines = sketch.get_typed_lines("side");
+      if (lines) {
+        const l_left = lines.filter((ln) => ln.right_handed);
+        const l_right = lines.filter((ln) => !ln.right_handed);
+        if (i == 0){
+          //  lns1.push(s.merge_lines(l_left));
+          //    lns2.push(s.merge_lines(l_right));
+        } else {
+          //  lns2.push(s.merge_lines(l_left));
+          //    lns1.push(s.merge_lines(l_right));
+        }
+      }
+  });
+  //s.sew(lns1[0], lns1[1]);
+  //s.sew(lns2[0], lns2[1]);
+}
+
+// Wird aktuell nicht verwendet
+function close_back(sketches, s){
+  let lns1 = [];
+  let lns2 = [];
+  sketches.forEach((sketch, i) => {
+      const lines = sketch.get_typed_lines("back_cut");
+      if (lines) {
+        const l_left = lines.filter((ln) => ln.right_handed);
+        const l_right = lines.filter((ln) => !ln.right_handed);
+        if (i == 0){
+          //  lns1.push(s.merge_lines(l_left));
+          //    lns2.push(s.merge_lines(l_right));
+        } else {
+          //  lns2.push(s.merge_lines(l_left));
+          //    lns1.push(s.merge_lines(l_right));
+        }
+      }
+  });
+  //s.sew(lns1[0], lns1[1]);
+  //s.sew(lns2[0], lns2[1]);
+}
+
+function sew_neckline(sketches, s){
+  let lns1 = [];
+  let lns2 = [];
+  sketches.forEach((sketch, i) => {
+      const lines = sketch.get_typed_lines("back_cut");
+      if (lines) {
+      }
+
+  });
+
 }
