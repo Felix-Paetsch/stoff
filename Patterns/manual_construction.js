@@ -17,6 +17,15 @@ export function construct_maual(sketches) {
     close_darts(sketches, s);
     close_waistline_darts(sketches, s);
 
+// noch keine Raglan aermel, sonst erst seite, dann ärmel, dann halsausschnitt
+// wenn fancy knopfleiste o.ä. dann ggf. vor schulter
+// wenn vortlaufender besatz (keine Besatzversäuberung), dann ärmel und halsausschnitt gleichzeitig
+
+    // schulter, halsausschnitt, hinten, seite, armausschnitt, saum
+
+    close_shoulder(sketches, s);
+
+
     return s;
 }
 
@@ -79,4 +88,18 @@ function close_waistline_darts(sketches, s) {
             close_dart(s, lns);
         }
     });
+}
+
+function close_shoulder(sketches, s){
+  let lns1 = [];
+  let lns2 = [];
+  sketches.forEach((sketch) => {
+      const lines = sketch.get_typed_lines("shoulder");
+      if (lines) {
+        const l_left = lines.filter((ln) => ln.right_handed);
+      //  lns1.push(s.merge_lines(l_left));
+        const l_right = lines.filter((ln) => !ln.right_handed);
+    //    lns2.push(s.merge_lines(l_right));
+      }
+  }
 }

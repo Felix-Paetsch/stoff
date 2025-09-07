@@ -5,8 +5,7 @@ import DartAnnotationStage from "../annotation_stages/dart_annotation_stage.js";
 import SeamAllowanceStage from "../annotation_stages/seam_allowance_stage.js";*/
 import BasicBaseStage from "../basic_pattern_stages/basic_pattern_stage.js";
 import DartBaseStage from "../basic_pattern_stages/dart_pattern_stage.js";
-
-
+import { start_recording } from "../../../Core/Debug/recording.ts";
 
 
 export default class EasyPatternMainCorpusStage extends SequentialStage{
@@ -25,7 +24,7 @@ export default class EasyPatternMainCorpusStage extends SequentialStage{
 
 
     draw_darts(data){
-      
+      start_recording(this.wd.sketch, "/hot");
       let side;
       if (this.wd.side == "front"){
         side = data.front
