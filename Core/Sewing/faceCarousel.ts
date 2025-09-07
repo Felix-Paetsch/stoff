@@ -134,7 +134,7 @@ export class FaceCarousel {
         }
 
         const fc = new FaceCarousel(sewingLine, new_edges);
-        new_edges.forEach((edge) => (edge as any).face_carousel = fc);
+        new_edges.forEach((edge) => (edge.edge as any).face_carousel = fc);
         return fc;
     }
 }

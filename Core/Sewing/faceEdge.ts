@@ -96,11 +96,13 @@ export class FaceEdge {
     }
 
     connected_horizontally(other: FaceEdge, at?: SewingPoint): boolean {
+        // For each outer line of the face edges, check if they are horizontally
+        // connected at that position
         return [
             [this.lines[0], other.lines[0]],
-            [this.lines[0], other.lines[1]],
-            [this.lines[1], other.lines[0]],
-            [this.lines[1], other.lines[1]],
+            [this.lines[0], other.lines[other.lines.length - 1]],
+            [this.lines[this.lines.length - 1], other.lines[0]],
+            [this.lines[this.lines.length - 1], other.lines[other.lines.length - 1]],
         ].some(([c1, c2]) => face_edge_component_connected_to_horizontally(
             this.face_carousel.sewingLine.sewing, this, c1, other, c2, at
         ));
@@ -116,7 +118,7 @@ function face_edge_component_connected_to_horizontally(
     at?: SewingPoint
 ): boolean {
     const pos1 = edge.position(component);
-    const pos2 = edge.position(other);
+    const pos2 = other_edge.position(other);
 
     if (!at) {
         if (edge == other_edge) {

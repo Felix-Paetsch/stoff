@@ -18,6 +18,10 @@ export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine |
         );
     }
 
+    if (lines.length === 0) {
+        throw new Error("No lines to merge");
+    }
+
     const line1: SewingLine = lines[0] instanceof Line ? sewing.sewing_line(lines[0]) : lines[0];
     const line2: SewingLine = lines[1] instanceof Line ? sewing.sewing_line(lines[1]) : lines[1];
 

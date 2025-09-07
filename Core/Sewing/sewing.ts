@@ -86,10 +86,7 @@ export class Sewing {
 
     sewing_line(line: Line): SewingLine {
         const existingLine = this.sewing_lines.find((l) => l.contains(line));
-        if (existingLine) { return existingLine; }
-        const new_line = SewingLine.from_line(this, line);
-        this.highlight(new_line);
-        return new_line;
+        return existingLine || SewingLine.from_line(this, line);
     }
 
     get_lines() {
@@ -121,21 +118,21 @@ export class Sewing {
             return sl;
         }
 
-        if (sl.length == 0) return [];
         const ordered_lines = [sl.pop()!];
         const endpoints = ordered_lines[0].get_endpoints();
-        while (sl.length > 0) {
+        outer: while (sl.length > 0) {
             for (let i = 0; i < sl.length; i++) {
                 if (sl[i].has_endpoint(endpoints[1])) {
                     ordered_lines.push(sl[i]);
-                    sl.slice(i, 1);
                     endpoints[1] = sl[i].other_endpoint(endpoints[endpoints.length - 1]);
-                    break
+                    sl.splice(i, 1);
+                    continue outer
                 }
                 if (sl[i].has_endpoint(endpoints[0])) {
                     ordered_lines.unshift(sl[i]);
-                    sl.slice(i, 1);
-                    endpoints[0] = sl[i].other_endpoint(endpoints[0])
+                    endpoints[0] = sl[i].other_endpoint(endpoints[0]);
+                    sl.splice(i, 1);
+                    continue outer
                 }
             }
             throw new Error("Lines can not be ordered.");
