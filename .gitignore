@@ -22,3 +22,5 @@ notes
 **Leonie
 
 !Data/PreviewPictures/**/*.svg
+dist
+**/*.pdf

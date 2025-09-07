@@ -60,9 +60,8 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
             structured_guide_sublines[0].orientation
         );
         const second_guide_point: Point = structured_guide_sublines[structured_guide_sublines.length - 1].line.endpoint_from_orientation(
-            structured_guide_sublines[structured_guide_sublines.length - 1].orientation
+            !structured_guide_sublines[structured_guide_sublines.length - 1].orientation
         );
-
         firstPointInGuideOrientation.merge(first_guide_point);
         secondPointInGuideOrientation.merge(second_guide_point);
 
