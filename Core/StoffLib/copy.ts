@@ -3,21 +3,33 @@ import Point from "./point.js";
 import Line from "./line.js";
 import Sketch from "./sketch.js";
 import ConnectedComponent from "./connected_component.js";
+import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types.js";
 
-function default_data_callback(...data) {
-    data = data.filter((d) => {
-        return !(
-            d instanceof Line ||
-            d instanceof Point ||
-            d instanceof ConnectedComponent ||
-            d instanceof Sketch
-        );
-    });
-    return Object.assign({}, ...data);
+export type CopySketchDataCallback = {
+    (
+        target_data: SketchElementData,
+        source_data: SketchElementData,
+        target: Line,
+        source: Line
+    ): SketchElementData | undefined;
+
+    (
+        target_data: SketchElementData,
+        source_data: SketchElementData,
+        target: Point,
+        source: Point
+    ): SketchElementData | undefined;
+
+    (
+        target_data: SketchElementData,
+        source_data: SketchElementData,
+        target: Sketch,
+        source: Sketch
+    ): SketchElementData | undefined;
 }
 
-function copy_data_callback(...data) {
-    data = data.filter((d) => {
+export const default_data_callback: CopySketchDataCallback = function default_data_callback(...data) {
+    const objs: any[] = data.filter((d) => {
         return !(
             d instanceof Line ||
             d instanceof Point ||
@@ -25,53 +37,63 @@ function copy_data_callback(...data) {
             d instanceof Sketch
         );
     });
-    return Object.assign({}, ...data.map((d) => dublicate_data(d)));
+    return Object.assign({}, ...objs);
+}
+
+export const copy_data_callback: CopySketchDataCallback = function copy_data_callback(...data) {
+    const objs: any[] = data.filter((d) => {
+        return !(
+            d instanceof Line ||
+            d instanceof Point ||
+            d instanceof ConnectedComponent ||
+            d instanceof Sketch
+        );
+    });
+    return Object.assign({}, ...objs.map((d) => dublicate_data(d)));
 }
 
 function copy_sketch_obj_data(
-    source,
-    target,
+    source: SketchElement,
+    target: SketchElement,
     data_callback = copy_data_callback,
-    include_appearance = true
+    include_appearance: boolean = true
 ) {
-    // Source: Line | Point
-    // Target: Line | Point
-
     if (include_appearance) {
         if (
             (source instanceof Line && target instanceof Line) ||
             (source instanceof Point && target instanceof Point)
         ) {
-            target.attributes = dublicate_data(source.attributes);
+            const sa = source.get_attributes();
+            for (const key in sa) {
+                (target as any).set_attribute(key, (sa as any)[key]);
+            }
         }
     }
     const data_copy = dublicate_data(source.data);
     target.data =
-        data_callback(target.data, source.data, target, source) || data_copy;
+        data_callback(target.data, source.data, target as any, source as any) || data_copy;
     return target.data;
 }
 
 function copy_sketch(
-    source,
-    target,
+    source: Sketch,
+    target: Sketch,
     data_callback = copy_data_callback,
-    position = null
+    position: Vector | null = null
 ) {
-    // Source: Sketch
-    // Target: Sketch
     if (data_callback === null) {
         data_callback = copy_data_callback;
     }
 
     let offset;
     if (position instanceof Vector) {
-        const src_top_left = source.get_bounding_box().top_left;
+        const src_top_left: Vector = (source as any).get_bounding_box().top_left;
         offset = position.subtract(src_top_left);
     } else {
         offset = new Vector(0, 0);
     }
 
-    const { corresponding_point, corresponding_line } = copy_points_lines(
+    const { corresponding_sketch_element } = copy_points_lines(
         source.get_points(),
         source.get_lines(),
         target,
@@ -80,8 +102,7 @@ function copy_sketch(
 
     const data_copy = dublicate_data(
         source.data,
-        corresponding_point,
-        corresponding_line
+        corresponding_sketch_element as any
     );
 
     target.data =
@@ -89,15 +110,22 @@ function copy_sketch(
     return target.data;
 }
 
-function copy_sketch_element_collection(source, target, position = null) {
-    // Source: SketchElementCollection-like
-    // Target: Sketch
-
-    const { points, lines } = source.endpoint_hull().obj();
+function copy_sketch_element_collection(
+    source: SketchElementCollectionLike,
+    target: Sketch,
+    position: Vector | null = null
+) {
+    const {
+        points,
+        lines
+    }: {
+        points: Point[],
+        lines: Line[]
+    } = (source as any).endpoint_hull().obj();
 
     let offset;
     if (position instanceof Vector) {
-        const src_top_left = source.get_bounding_box().top_left;
+        const src_top_left: Vector = (source as any).get_bounding_box().top_left;
         offset = position.subtract(src_top_left);
     } else {
         offset = new Vector(0, 0);
@@ -106,39 +134,39 @@ function copy_sketch_element_collection(source, target, position = null) {
     const { new_sketch_elements, corresponding_sketch_element } =
         copy_points_lines(points, lines, target, offset);
 
-    const res = target.make_sketch_element_collection(new_sketch_elements);
+    const res = (target as any).make_sketch_element_collection(new_sketch_elements);
     res.get_corresponding_sketch_element = corresponding_sketch_element;
     return res;
 }
 
 function copy_points_lines(
-    points,
-    lines,
-    target_sketch,
+    points: Point[],
+    lines: Line[],
+    target_sketch: Sketch,
     offset = new Vector(0, 0)
 ) {
     // Offset will be added to all points
-
-    const reference_array = [];
+    const reference_array: ([Point, Point] | [Line, Line])[] = [];
 
     points.forEach((pt) => {
         const new_pt = target_sketch.add_point(
             pt.add(offset) // Vector
         );
 
-        new_pt.attributes = JSON.parse(JSON.stringify(pt.attributes));
-
+        new_pt.set_attributes(pt.get_attributes());
         reference_array.push([pt, new_pt]);
     });
 
-    function get_corresponding_sketch_element(el) {
+    function get_corresponding_sketch_element(el: Point): Point;
+    function get_corresponding_sketch_element(el: Line): Line;
+    function get_corresponding_sketch_element(el: SketchElement) {
         for (let i = 0; i < reference_array.length; i++) {
             if (reference_array[i][0] === el) {
                 return reference_array[i][1];
             }
         }
 
-        if (target_sketch.get_sketch_elements().includes(el)) {
+        if ((target_sketch as any).get_sketch_elements().includes(el)) {
             return el;
         }
 
@@ -148,12 +176,12 @@ function copy_points_lines(
     lines.forEach((line) => {
         const endpoint_1 = get_corresponding_sketch_element(line.p1);
         const endpoint_2 = get_corresponding_sketch_element(line.p2);
-        const new_line = target_sketch._line_between_points_from_sample_points(
+        const new_line = (target_sketch as any)._line_between_points_from_sample_points(
             endpoint_1,
             endpoint_2,
             line.copy_sample_points()
         );
-        new_line.attributes = JSON.parse(JSON.stringify(line.attributes));
+        new_line.set_attributes(line.get_attributes());
         new_line.right_handed = line.right_handed;
 
         reference_array.push([line, new_line]);
@@ -162,7 +190,7 @@ function copy_points_lines(
     for (const [original, copy] of reference_array) {
         const data_copy = dublicate_data(
             original.data,
-            get_corresponding_sketch_element
+            get_corresponding_sketch_element as (st: SketchElement) => SketchElement
         );
 
         Object.assign(copy.data, data_copy);
@@ -178,21 +206,28 @@ export {
     copy_sketch_obj_data,
     copy_sketch_element_collection,
     copy_sketch,
-    default_data_callback,
-    copy_data_callback,
     dublicate_data,
 };
 
-function dublicate_data(data, get_sketch_element_reference = (st) => st) {
+
+function dublicate_data(data: any, get_sketch_element_reference: (st: SketchElement) => SketchElement = (st: SketchElement) => st) {
+    try {
+        return JSON.parse(JSON.stringify(data));
+    } catch {
+        return custom_dublicate_data(data, get_sketch_element_reference);
+    }
+}
+
+function custom_dublicate_data(data: any, get_sketch_element_reference: (st: SketchElement) => SketchElement = (st: SketchElement) => st) {
     let nesting = 0;
     return nesting_buffer(data);
-    function nesting_buffer(data) {
+    function nesting_buffer(data: any): any {
         nesting++;
         if (nesting > 50) {
             throw new Error(
                 "Can't create deep copy of data for source sketch! (Nesting > " +
-                    50 +
-                    ")"
+                50 +
+                ")"
             );
         }
 
@@ -223,7 +258,7 @@ function dublicate_data(data, get_sketch_element_reference = (st) => st) {
 
         // Basic dicts
         if (data.constructor === Object) {
-            const new_data = {};
+            const new_data: any = {};
             for (const key in data) {
                 new_data[key] = nesting_buffer(data[key]);
             }

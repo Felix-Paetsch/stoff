@@ -4,8 +4,8 @@ import assert from "../assert.js";
 import register_collection_methods from "./collection_methods/index.js";
 import SketchElementCollection from "./sketch_element_collection.js";
 import Sketch from "./sketch.js";
-import { Json } from "../utils/json.js";
 import Line from "./line.js";
+import { SketchElementData } from "./types.js";
 
 type PointRenderAttributes = {
     fill: string;
@@ -17,7 +17,7 @@ type PointRenderAttributes = {
 
 class Point extends Vector {
     private adjacent_lines: Line[] = [];
-    public data: Json;
+    public data: SketchElementData = {};
     private attributes: PointRenderAttributes = {
         fill: "black",
         radius: 2,
@@ -71,6 +71,20 @@ class Point extends Vector {
 
     get_attribute(attr: keyof PointRenderAttributes) {
         return this.attributes[attr];
+    }
+
+    set_attributes(attrs: Partial<PointRenderAttributes>) {
+        this.attributes = {
+            ...this.attributes,
+            ...attrs,
+        };
+        return this;
+    }
+
+    get_attributes(): PointRenderAttributes {
+        return {
+            ...this.attributes,
+        };
     }
 
     copy(): Vector;

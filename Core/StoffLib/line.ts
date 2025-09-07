@@ -7,8 +7,7 @@ import {
     EPS,
     is_convex,
     orientation,
-    BoundingBox,
-    eps_equal,
+    BoundingBox
 } from "./geometry.js";
 import Point from "./point.js";
 import ConnectedComponent from "./connected_component.js";
@@ -23,7 +22,7 @@ import Cache from "../utils/cache.js";
 import Sketch from "./sketch.js";
 import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
-import { SketchElement } from "./types/sketch_elements.js";
+import { SketchElement, SketchElementData } from "./types";
 
 type LineAttributes = {
     stroke: Color;
@@ -37,7 +36,7 @@ class Line {
         strokeWidth: 1,
         opacity: 1,
     }
-    public data: any = {};
+    public data: SketchElementData = {};
     private cache: Cache = new Cache();
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
@@ -191,6 +190,20 @@ class Line {
 
     get_attribute<K extends keyof LineAttributes>(attr: K): LineAttributes[K] {
         return this.attributes[attr];
+    }
+
+    get_attributes(): LineAttributes {
+        return {
+            ...this.attributes,
+        };
+    }
+
+    set_attributes(attrs: Partial<LineAttributes>) {
+        this.attributes = {
+            ...this.attributes,
+            ...attrs,
+        };
+        return this;
     }
 
     get_sample_points() {
