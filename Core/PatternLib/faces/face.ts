@@ -38,7 +38,7 @@ export default class Face {
             let last_point: Point;
             if (this.boundary.length > 2) {
                 last_point = this.boundary[0].other_endpoint(
-                    this.boundary[0].common_endpoint(this.boundary[1])
+                    this.boundary[0].common_endpoint(this.boundary[1])!
                 );
             } else {
                 last_point = this.boundary[0].p1;
@@ -115,6 +115,11 @@ export default class Face {
         return hand === !this.is_boundary();
     }
 
+    line_orientation(l: Line): boolean {
+        // Whether the handedness of the line points to the face
+        return this.boundary_orientations()[this.boundary.indexOf(l)] || false;
+    }
+
     is_adjacent(other: Face | Line | Point | RogueComponent): boolean {
         if (other instanceof RogueComponent) {
             return other.get_points().some(p => this.is_adjacent(p));
@@ -167,7 +172,7 @@ export default class Face {
     }
 
     static from_boundary(boundary: Line[], faceAtlas?: FaceAtlas): Face {
-        const ordered = Line.order_by_endpoints(boundary);
+        const ordered = Line.order_by_endpoints(...boundary);
         return new Face(ordered, ordered.orientations, faceAtlas);
     }
 

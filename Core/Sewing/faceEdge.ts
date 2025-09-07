@@ -8,7 +8,7 @@ import { interval_overlap } from "../StoffLib/geometry/1d.ts";
 
 export type FaceEdgeComponent = {
     line: Line,
-    standard_handedness: boolean,
+    standard_handedness: boolean, // The line handedness points to the face
     standard_orientation: boolean
 };
 

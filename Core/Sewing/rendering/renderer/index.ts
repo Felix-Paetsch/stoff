@@ -294,7 +294,7 @@ export default class Renderer {
                     const points = faceEdgeComponent.line.get_absolute_sample_points();
                     const offset_points = faceEdgeComponent.line.offset_sample_points(
                         width,
-                        faceEdgeComponent.line.right_handed == faceEdgeComponent.standard_handedness
+                        faceEdgeComponent.standard_handedness
                     );
 
                     const path = points.concat(

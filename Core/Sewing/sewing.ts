@@ -86,7 +86,10 @@ export class Sewing {
 
     sewing_line(line: Line): SewingLine {
         const existingLine = this.sewing_lines.find((l) => l.contains(line));
-        return existingLine || SewingLine.from_line(this, line);
+        if (existingLine) { return existingLine; }
+        const new_line = SewingLine.from_line(this, line);
+        this.highlight(new_line);
+        return new_line;
     }
 
     get_lines() {
@@ -190,7 +193,9 @@ export class Sewing {
         return res;
     }
 
-    hightlight(...objects: (SewingLine | SewingPoint)[]) {
+    highlight(...objects: (SewingLine | SewingPoint)[]) {
         this.renderers.push(highlightRenderer(this, objects));
     }
+
+    todo(what: string, args: any) { }
 }

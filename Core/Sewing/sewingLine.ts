@@ -341,6 +341,7 @@ export class SewingLine {
         const edges: FaceEdgeComponent[][] = [];
 
         if (!faces) throw new Error("Sketch of line doesnt belong to sewing.");
+        // console.log(faces);
         if (faces[0] instanceof Face) {
             if (!faces[0].is_boundary()) {
                 edges.push([{

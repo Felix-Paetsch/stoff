@@ -8,6 +8,7 @@ import Sketch from "../../StoffLib/sketch.js";
 import register_collection_methods from "../../StoffLib/collection_methods/index.js";
 import Point from "../../StoffLib/point.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
+import { eps_equal } from "@/Core/StoffLib/geometry.js";
 
 export default class FaceAtlas {
     // Doesnt automatically update with sketch changes
