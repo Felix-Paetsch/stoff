@@ -252,7 +252,15 @@ export default class Renderer {
         other_attributes: Partial<LineRenderAttributes>
     ) {
         line.primary_component.forEach(component => {
-            this.render_line(component.line, primary_attributes);
+            this.render_line(component.line, {
+                ...primary_attributes,
+                extra_data: {
+                    ...primary_attributes.extra_data || {},
+                    "sewing_line_handedness": component.has_sewing_line_handedness,
+                    "sewing_line_orientation": component.has_sewing_line_orientation,
+                    ...component.line.data
+                }
+            });
         });
         line.other_components.forEach(component => {
             this.render_line(component.line, {
