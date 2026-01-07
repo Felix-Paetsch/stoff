@@ -1,3 +1,16 @@
+Felix Todo Right now:
+- What exactly are each command for? (How is it with hot reloading?)
+- What to do with "lines cannot be ordered"
+- Transform more to TS
+- Figure stuff out
+- Typecheck
+
+What I want:
+a) How reload
+b) Typecheck & console for watch
+
+
+
 Debug Performance!!
 
 Main Problem currently:

@@ -1,7 +1,7 @@
 import { Vector } from "./geometry.js";
 import Point from "./point.js";
 import Line from "./line.js";
-import Sketch from "./sketch.js";
+import Sketch from "./sketch";
 import ConnectedComponent from "./connected_component.js";
 import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types.js";
 
@@ -279,7 +279,7 @@ function custom_dublicate_data(data: any, get_sketch_element_reference: (st: Ske
         }
 
         if (data instanceof ConnectedComponent) {
-            const root = data.root_el;
+            const root = data.root();
             return new ConnectedComponent(get_sketch_element_reference(root));
         }
 

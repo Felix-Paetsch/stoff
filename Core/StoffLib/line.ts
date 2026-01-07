@@ -19,10 +19,10 @@ import SketchElementCollection, { LineSketchElementCollection } from "./sketch_e
 import register_line_manipulation_functions from "./line_methods/line_manipulation.js";
 import { copy_sketch_element_collection } from "./copy.js";
 import Cache from "../utils/cache.js";
-import Sketch from "./sketch.js";
+import Sketch from "./sketch";
 import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
-import { SketchElement, SketchElementData } from "./types";
+import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types";
 
 type LineAttributes = {
     stroke: Color;
@@ -30,8 +30,8 @@ type LineAttributes = {
     opacity: number;
 }
 
-class Line {
-    private attributes: LineAttributes = {
+class Line implements SketchElementCollectionLike {
+    public attributes: LineAttributes = {
         stroke: "rgb(0, 0, 0)",
         strokeWidth: 1,
         opacity: 1,
@@ -41,9 +41,9 @@ class Line {
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
     public right_handed: boolean = true;
+    private _sketch: Sketch;
 
     constructor(
-        private sketch: Sketch,
         private endpoints: [Point, Point],
         private _sample_points: Vector[],
     ) {
@@ -80,10 +80,18 @@ class Line {
 
         this.endpoints[0].add_adjacent_line(this);
         this.endpoints[1].add_adjacent_line(this);
+        assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
+        assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
+        this._sketch = this.endpoints[0].sketch;
+
 
         if (typeof (this as any)._init !== "undefined") {
             (this as any)._init();
         }
+    }
+
+    get sketch() {
+        return this._sketch;
     }
 
     get p1() {
@@ -106,6 +114,14 @@ class Line {
     set sample_points(points) {
         this._sample_points = points;
         this.cache_update("sample_points");
+    }
+
+    get_points() {
+        return new SketchElementCollection(this.endpoints);
+    }
+
+    get_lines(): SketchElementCollection<Line> {
+        return this.get_lines()
     }
 
     cache_update(...what: string[]) {
@@ -392,7 +408,7 @@ class Line {
         return this.p2.subtract(this.p1);
     }
 
-    get_endpoints(): SketchElementCollection & [Point, Point] {
+    get_endpoints(): SketchElementCollection<Point> & [Point, Point] {
         return new SketchElementCollection([this.p1, this.p2], this.sketch) as any;
     }
 
@@ -732,7 +748,7 @@ class Line {
     }
 
     set_sketch(s: Sketch) {
-        this.sketch = s;
+        this._sketch = s;
         return this;
     }
 
@@ -845,8 +861,8 @@ class Line {
         return res;
     }
 
-    static straight(sketch: Sketch, endpoints: [Point, Point]) {
-        return new Line(sketch, endpoints, [
+    static straight(endpoints: [Point, Point]) {
+        return new Line(endpoints, [
             new Vector(0, 0),
             new Vector(1, 0),
         ]);

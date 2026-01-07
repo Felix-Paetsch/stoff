@@ -1,5 +1,11 @@
 import CONF from "../../config.json" with { type: "json" };
 import { interpolate_colors } from "../../colors.js";
+import { Sketch } from "../../sketch.js";
+import Point from "../../point";
+import Line from "../../line";
+import { Vector } from "../../geometry.js";
+import { get_bounding_box } from "../../collection_methods/index.js";
+import { LineRenderAttributes, PointRenderAttributes } from "@/Core/Sewing/rendering/renderer/index.js";
 
 export {
     sketch_to_renderable,
@@ -7,8 +13,30 @@ export {
     calculate_correct_width_height,
 };
 
-function sketch_to_renderable(sketch, width, height, use_padding = true) {
-    const sketch_bb = sketch.get_bounding_box([1, 1]);
+export type RenderablePoint = {
+    x: number,
+    y: number,
+    original_point: Point,
+    attributes: PointRenderAttributes
+};
+
+export type RenderableLine = {
+    sample_points: {
+        x: number,
+        y: number,
+        original_point: Vector
+    }[],
+    original_line: Line,
+    attributes: LineRenderAttributes
+};
+
+function sketch_to_renderable(
+    sketch: Sketch,
+    width: number,
+    height: number,
+    use_padding: boolean = true
+) {
+    const sketch_bb = get_bounding_box(sketch, [1, 1]);
     const padding = use_padding ? CONF.DEFAULT_SAVE_PX_PADDING : 0;
     const usable_width = width - padding * 2;
     const usable_height = height - padding * 2;
@@ -27,7 +55,7 @@ function sketch_to_renderable(sketch, width, height, use_padding = true) {
     const offsetY = (usable_height - scaledHeight) / 2 + padding;
 
     // Function to scale and translate a point
-    const transformPoint = (point) => {
+    const transformVector = (point: Vector) => {
         return {
             x: (point.x - sketch_bb.top_left.x) * scaleFactor + offsetX,
             y: (point.y - sketch_bb.top_left.y) * scaleFactor + offsetY,
@@ -41,24 +69,25 @@ function sketch_to_renderable(sketch, width, height, use_padding = true) {
             height,
         },
         padding,
-        points: sketch.points.map((p) => {
-            const r = transformPoint(p);
+        points: sketch.get_points().map((p: Point) => {
+            const r: RenderablePoint = transformVector(p) as any;
             r.attributes = clean_point_attributes(p.attributes);
             return r;
         }),
-        lines: sketch.lines.map((l) => {
+        lines: sketch.get_lines().map((l) => {
             const polyline = l.get_absolute_sample_points();
             const red = reduce_polyline_sample_points(polyline);
-            return {
-                sample_points: red.map((point) => transformPoint(point)),
+            const res: RenderableLine = {
+                sample_points: red.map((point) => transformVector(point)),
                 original_line: l,
                 attributes: clean_line_attributes(l.attributes),
             };
+            return res
         }),
     };
 }
 
-function reduce_polyline_sample_points(polyline) {
+function reduce_polyline_sample_points(polyline: Vector[]) {
     const max_pts_per_line = CONF.RENDER_MAX_SAMPLE_POINTS_PER_LINE;
     if (polyline.length <= max_pts_per_line) return polyline;
 
@@ -72,13 +101,17 @@ function reduce_polyline_sample_points(polyline) {
     return reduced;
 }
 
-function calculate_correct_width_height(s, width = null, height = null) {
+function calculate_correct_width_height(
+    s: Sketch,
+    width: number | null = null,
+    height: number | null = null
+) {
     /*
         If you only give width: Scale Height using aspect ratio
         If you only give height (width = null): Scale Width using aspect ratio
     */
 
-    const sketch_bb = s.get_bounding_box([1, 1]);
+    const sketch_bb = get_bounding_box(s, [1, 1]);
     if (sketch_bb.width == 0 || sketch_bb.height == 0) {
         throw new Error("Sketch has width or height 0.");
     }
@@ -99,12 +132,12 @@ function calculate_correct_width_height(s, width = null, height = null) {
     }
 
     return {
-        width,
-        height,
+        width: width!,
+        height: height!,
     };
 }
 
-function clean_point_attributes(attributes) {
+function clean_point_attributes(attributes: PointRenderAttributes) {
     attributes.fill =
         interpolate_colors(attributes.fill, attributes.fill) == "rgb(0,0,0)"
             ? "white"
@@ -133,12 +166,7 @@ function clean_point_attributes(attributes) {
     return attributes;
 }
 
-function clean_line_attributes(attributes) {
-    attributes.stroke =
-        interpolate_colors(attributes.stroke, attributes.stroke) == "rgb(0,0,0)"
-            ? "black"
-            : attributes.stroke;
-
+function clean_line_attributes(attributes: LineRenderAttributes) {
     const sw = Number(attributes.strokeWidth);
     if (isNaN(sw) || sw < 0) {
         attributes.strokeWidth = 1;

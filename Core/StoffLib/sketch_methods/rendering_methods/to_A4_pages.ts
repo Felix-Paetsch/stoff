@@ -1,10 +1,12 @@
 import fs from "fs";
 import path from "path";
 import { createCanvas } from "canvas";
-import { sketch_to_renderable } from "./sketch_to_renderable.js";
+import { RenderableLine, RenderablePoint, sketch_to_renderable } from "./sketch_to_renderable.js";
 import CONF from "../../config.json" with { type: "json" };
 import { interpolate_colors } from "../../colors.js";
 import url from "url";
+import { Sketch } from "../../sketch.js";
+import { get_bounding_box } from "../../collection_methods/index.js";
 
 // Define constants
 const PX_PER_CM = CONF.PX_PER_CM; // Pixels per centimeter
@@ -19,7 +21,10 @@ const PRINT_PADDING_PX = PRINT_PADDING_CM * PX_PER_CM;
 const PRINT_WIDTH_WITH_PADDING = PRINT_WIDTH_PX - 2 * PRINT_PADDING_PX;
 const PRINT_HEIGHT_WITH_PADDING = PRINT_HEIGHT_PX - 2 * PRINT_PADDING_PX;
 
-function toA4printable(sketch, folder) {
+function toA4printable(
+    sketch: Sketch,
+    folder: string
+) {
     const __filename = url.fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
@@ -27,7 +32,7 @@ function toA4printable(sketch, folder) {
     createOrEmptyFolderSync(folder);
 
     // Get the bounding box of the sketch
-    const { width: bb_width, height: bb_height } = sketch.get_bounding_box();
+    const { width: bb_width, height: bb_height } = get_bounding_box(sketch);
     const width = bb_width * PX_PER_CM;
     const height = bb_height * PX_PER_CM;
 
@@ -69,11 +74,16 @@ function toA4printable(sketch, folder) {
 }
 
 function drawA4Page(
-    points,
-    lines,
-    { topLeftX, topLeftY, bottomRightX, bottomRightY },
-    { x, y },
-    folder
+    points: RenderablePoint[],
+    lines: RenderableLine[],
+    { topLeftX, topLeftY, bottomRightX, bottomRightY }: {
+        topLeftX: number,
+        topLeftY: number,
+        bottomRightX: number,
+        bottomRightY: number
+    },
+    { x, y }: { x: number, y: number },
+    folder: string
 ) {
     // Create canvas for A4 size
     const canvas = createCanvas(PRINT_WIDTH_PX, PRINT_HEIGHT_PX);
@@ -84,25 +94,19 @@ function drawA4Page(
     ctx.fillRect(0, 0, PRINT_WIDTH_PX, PRINT_HEIGHT_PX);
 
     // Function to draw a circle, shifted by topLeftX and topLeftY
-    const drawCircle = (point) => {
+    const drawCircle = (point: RenderablePoint) => {
         ctx.beginPath();
         const shiftedX = point.x - topLeftX + PRINT_PADDING_PX;
         const shiftedY = point.y - topLeftY + PRINT_PADDING_PX;
         ctx.arc(shiftedX, shiftedY, 4, 0, 2 * Math.PI);
         ctx.stroke();
-        const fill =
-            interpolate_colors(
-                point.attributes.color,
-                point.attributes.color
-            ) == "rgb(0,0,0)"
-                ? "white"
-                : point.attributes.color;
+        const fill = point.attributes.fill;
         ctx.fillStyle = fill;
         ctx.fill();
     };
 
     // Function to draw a polyline, shifted by topLeftX and topLeftY
-    const drawPolyline = (polyline) => {
+    const drawPolyline = (polyline: RenderableLine) => {
         ctx.beginPath();
         polyline.sample_points.forEach((point, index) => {
             const shiftedX = point.x - topLeftX + PRINT_PADDING_PX;
@@ -110,8 +114,25 @@ function drawA4Page(
             if (index === 0) ctx.moveTo(shiftedX, shiftedY);
             else ctx.lineTo(shiftedX, shiftedY);
         });
-        ctx.strokeStyle = polyline.attributes.color;
-        ctx.strokeWidth = 1;
+
+        const stroke = polyline.attributes.stroke;
+        if (typeof stroke == "string") {
+            ctx.strokeStyle = stroke;
+        } else {
+            const grad = ctx.createLinearGradient(
+                polyline.original_line.p1.x,
+                polyline.original_line.p1.y,
+                polyline.original_line.p2.x,
+                polyline.original_line.p2.y
+            );
+
+            grad.addColorStop(0, stroke[0]);
+            grad.addColorStop(1, stroke[0]);
+
+            ctx.strokeStyle = grad;
+        }
+
+        ctx.lineWidth = polyline.attributes.strokeWidth;
         ctx.stroke();
     };
 
@@ -145,29 +166,24 @@ function drawA4Page(
 }
 
 export { toA4printable };
-function createOrEmptyFolderSync(folderPath) {
-    try {
-        // Check if folder exists
-        if (fs.existsSync(folderPath)) {
-            // Read all the files in the folder
-            const files = fs.readdirSync(folderPath);
+function createOrEmptyFolderSync(folderPath: string) {
+    if (fs.existsSync(folderPath)) {
+        // Read all the files in the folder
+        const files = fs.readdirSync(folderPath);
 
-            // Remove each file in the folder
-            for (const file of files) {
-                const filePath = path.join(folderPath, file);
+        // Remove each file in the folder
+        for (const file of files) {
+            const filePath = path.join(folderPath, file);
 
-                // Remove file or directory
-                if (fs.statSync(filePath).isDirectory()) {
-                    fs.rmdirSync(filePath, { recursive: true });
-                } else {
-                    fs.unlinkSync(filePath);
-                }
+            // Remove file or directory
+            if (fs.statSync(filePath).isDirectory()) {
+                fs.rmdirSync(filePath, { recursive: true });
+            } else {
+                fs.unlinkSync(filePath);
             }
-        } else {
-            // Create the folder if it doesn't exist
-            fs.mkdirSync(folderPath);
         }
-    } catch (error) {
-        console.error(`Error handling folder '${folderPath}':`, error);
+    } else {
+        // Create the folder if it doesn't exist
+        fs.mkdirSync(folderPath);
     }
 }

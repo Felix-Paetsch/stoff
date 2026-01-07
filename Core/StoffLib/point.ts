@@ -1,24 +1,24 @@
 import { BoundingBox, Vector } from "./geometry.js";
 import ConnectedComponent from "./connected_component.js";
 import assert from "../assert.js";
-import register_collection_methods from "./collection_methods/index.js";
 import SketchElementCollection from "./sketch_element_collection.js";
-import Sketch from "./sketch.js";
+import { Sketch } from "./sketch";
 import Line from "./line.js";
-import { SketchElementData } from "./types.js";
+import { SketchElementCollectionLike, SketchElementData } from "./types.js";
+import { Color } from "./colors.js";
 
 type PointRenderAttributes = {
-    fill: string;
+    fill: Color;
     radius: number;
-    stroke: string;
+    stroke: Color;
     strokeWidth: number;
     opacity: number;
 }
 
-class Point extends Vector {
+class Point extends Vector implements SketchElementCollectionLike {
     private adjacent_lines: Line[] = [];
     public data: SketchElementData = {};
-    private attributes: PointRenderAttributes = {
+    public attributes: PointRenderAttributes = {
         fill: "black",
         radius: 2,
         stroke: "black",
@@ -27,7 +27,7 @@ class Point extends Vector {
     };
 
     constructor(
-        private sketch: Sketch,
+        private _sketch: Sketch | null,
         ...args: ConstructorParameters<typeof Vector>
     ) {
         super(...args);
@@ -47,6 +47,10 @@ class Point extends Vector {
         }
     }
 
+    get sketch() {
+        return this._sketch;
+    }
+
     vector() {
         return new Vector(this);
     }
@@ -55,7 +59,7 @@ class Point extends Vector {
         return new ConnectedComponent(this);
     }
 
-    set_color(color: string) {
+    set_color(color: Color) {
         this.attributes.fill = color;
         return this;
     }
@@ -132,12 +136,12 @@ class Point extends Vector {
     }
 
     get_lines() {
-        return this.adjacent_lines;
+        return new SketchElementCollection(this.adjacent_lines);
     }
 
     // Used in Collection Elements
     get_points() {
-        return [this];
+        return new SketchElementCollection([this]);
     }
 
     get_sketch() {
@@ -214,8 +218,8 @@ class Point extends Vector {
 
     remove() {
         (assert as any).HAS_SKETCH(this);
-        this.sketch.remove(this);
-        this.sketch = null as any;
+        this._sketch!.remove(this);
+        this._sketch = null as any;
     }
 
     has_lines(...ls: Line[]) {
@@ -226,7 +230,7 @@ class Point extends Vector {
     }
 
     set_sketch(s: Sketch) {
-        this.sketch = s;
+        this._sketch = s;
         return this;
     }
 
@@ -235,5 +239,4 @@ class Point extends Vector {
     }
 }
 
-register_collection_methods(Point);
 export default Point;

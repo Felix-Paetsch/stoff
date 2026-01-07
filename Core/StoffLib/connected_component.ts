@@ -1,49 +1,51 @@
-import { Vector, ZERO, mirror_type } from "./geometry.js";
-import {} from "./copy.js"; // Hopefully Temporary: Imports are otherwise broken
-import assert from "../assert.js";
-import register_collection_methods from "./collection_methods/index.js";
+import { Vector, mirror_type } from "./geometry.js";
+import { } from "./copy.js"; // Hopefully Temporary: Imports are otherwise broken
 import { copy_sketch_element_collection } from "./copy.js";
 import { BoundingBox } from "./geometry/bounding_box.js";
+import * as Assert from "./assert_methods/exports.js";
+import { SketchElement, SketchElementCollectionLike } from "./types.js";
+import { MirrorData } from "./geometry/types.js";
+import Point from "./point";
+import Line from "./line";
+import Sketch from "./sketch.js";
+import SketchElementCollection from "./sketch_element_collection.js";
 
-class ConnectedComponent {
-    constructor(element) {
-        assert.HAS_SKETCH(element);
-        this.root_el = element;
+class ConnectedComponent implements SketchElementCollectionLike {
+    constructor(
+        private root_el: SketchElement
+    ) {
+        Assert.has_sketch(root_el);
     }
 
     root() {
         return this.root_el;
     }
 
-    mirror(...args) {
+    mirror(md: MirrorData = null) {
         const { points, lines } = this.obj();
 
-        if (args.length == 0) {
-            args = [ZERO];
-        }
-
-        points.forEach((pt) => pt.move_to(pt.mirror_at(...args)));
-        if (mirror_type(...args) == "Line") {
+        points.forEach((pt) => pt.move_to(pt.mirror_at(md)));
+        if (mirror_type(md) == "Line") {
             lines.forEach((l) => l.mirror());
         }
     }
 
-    group_by_key(key) {
+    group_by_key(key: string) {
         const { points, lines } = this.obj();
-        const groupedPoints = points.reduce((acc, pt) => {
+        const groupedPoints: Record<string, Point[]> = points.reduce((acc: Record<string, Point[]>, pt: Point) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = this.new_sketch_element_collection();
+                acc[groupKey] = (this as any).new_sketch_element_collection();
             }
             acc[groupKey].push(pt);
             return acc;
         }, {});
 
-        const groupedLines = lines.reduce((acc, line) => {
+        const groupedLines: Record<string, Line[]> = lines.reduce((acc: Record<string, Line[]>, line: Line) => {
             const groupKey =
                 line.data[key] !== undefined ? line.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = this.new_sketch_element_collection();
+                acc[groupKey] = (this as any).new_sketch_element_collection();
             }
             acc[groupKey].push(line);
             return acc;
@@ -55,11 +57,11 @@ class ConnectedComponent {
         };
     }
 
-    lines_by_key(key) {
+    lines_by_key(key: string) {
         return this.group_by_key(key).lines;
     }
 
-    points_by_key(key) {
+    points_by_key(key: string) {
         return this.group_by_key(key).points;
     }
 
@@ -71,9 +73,9 @@ class ConnectedComponent {
         return this.obj().lines;
     }
 
-    get_sketch_elements() {
+    get_sketch_elements(): SketchElement[] {
         const r = this.obj();
-        return r.points.concat(r.lines);
+        return (r.points as SketchElement[]).concat(r.lines);
     }
 
     get_sketch() {
@@ -84,40 +86,47 @@ class ConnectedComponent {
         return this.obj().bounding_box;
     }
 
-    contains(el) {
-        assert.IS_SKETCH_ELEMENT(el);
+    contains(el: SketchElement | ConnectedComponent): boolean {
+        if (el instanceof ConnectedComponent) {
+            return this.contains(el.root());
+        }
 
         const { points, lines } = this.obj();
-
-        return points.includes(el) || lines.includes(el);
+        if (el instanceof Point) {
+            return points.includes(el);
+        }
+        return lines.includes(el);
     }
 
-    equals(component) {
-        assert.IS_CONNECTED_COMPONENT(component);
+    equals(component: ConnectedComponent): boolean {
         return this.contains(component.root());
     }
 
-    obj() {
+    obj(): {
+        points: SketchElementCollection<Point>,
+        lines: SketchElementCollection<Line>,
+        bounding_box: BoundingBox
+    } {
         let currently_visiting_point;
-        if (this.root_el.constructor.name === "Point") {
+        if (this.root_el instanceof Point) {
             currently_visiting_point = this.root_el;
         } else {
             currently_visiting_point = this.root_el.p1;
         }
 
-        const visited_points = this.new_sketch_element_collection();
-        const visited_lines = this.new_sketch_element_collection();
+        const visited_points = (this as any).new_sketch_element_collection();
+        const visited_lines = (this as any).new_sketch_element_collection();
         const to_visit_points = [currently_visiting_point];
 
         while (to_visit_points.length > 0) {
-            currently_visiting_point = to_visit_points.pop();
+            currently_visiting_point = to_visit_points.pop()!;
             if (visited_points.includes(currently_visiting_point)) {
                 continue;
             }
             for (const line of currently_visiting_point.get_adjacent_lines()) {
                 if (!visited_lines.includes(line)) {
                     visited_lines.push(line);
-                    to_visit_points.push(...line.get_endpoints());
+                    to_visit_points.push(...(line as Line).get_endpoints());
                 }
             }
             visited_points.push(currently_visiting_point);
@@ -128,20 +137,20 @@ class ConnectedComponent {
         res.lines = visited_lines;
         res.bounding_box = BoundingBox.from_points(
             visited_points.concat(
-                visited_lines.flatMap((l) => l.get_absolute_sample_points())
-            )
+                visited_lines.flatMap((l: Line) => l.get_absolute_sample_points()),
+            ),
         );
         return res;
     }
 
     toString() {
-        return "[ConnectedComponent]";
+        return "[ConnectedComponent]" as const;
     }
 
-    paste_to_sketch(target, position = null) {
+    paste_to_sketch(target: Sketch, position: Vector | null = null) {
         const res = copy_sketch_element_collection(this, target, position);
         return new ConnectedComponent(
-            res.get_corresponding_sketch_element(this.root())
+            res.get_corresponding_sketch_element(this.root()),
         );
     }
 
@@ -154,5 +163,4 @@ class ConnectedComponent {
     }
 }
 
-register_collection_methods(ConnectedComponent);
 export default ConnectedComponent;

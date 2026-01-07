@@ -22,11 +22,12 @@
             "@/*": ["./*"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Core/StoffLib/cc.dts", "Core/StoffLib/sketch_methods/rendering_methods/to_sewing_data_ts_idk"],
     "exclude": [
         "node_modules",
         "dist",
         "website",
+        "DevEnv/Profiling",
         "Tools/Simulation/StoffGo",
         "Tools/Simulation/StoffPy"
     ],

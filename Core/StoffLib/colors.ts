@@ -162,7 +162,7 @@ export type Color = keyof typeof namedColors
     | `#${string}`
     | `hsl(${number},${number},${number})`;
 
-const interpolateColor_native = (color1: Color, color2: Color, ratio: number = 0.5) => {
+const interpolateColor_native = (color1: Color, color2: Color, ratio: number = 0.5): Color => {
     const hslToRgb = (h: number, s: number, l: number) => {
         s /= 100;
         l /= 100;

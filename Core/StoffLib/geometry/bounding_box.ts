@@ -32,8 +32,8 @@ export class BoundingBox {
             this.min_y <= other.max_y && this.max_y >= other.min_y;
     }
 
-    merge(...others: BoundingBox[]) {
-        return BoundingBox.merge(this, ...others);
+    merge(others: BoundingBox[]) {
+        return BoundingBox.merge([this, ...others]);
     }
 
     center() {
@@ -44,10 +44,22 @@ export class BoundingBox {
         return new BoundingBox(this.min_x, this.min_y, this.max_x, this.max_y, min_bb);
     }
 
-    static merge(...boxes: BoundingBox[]) {
+    static merge(boxes: BoundingBox[], min_bb: [number, number] | null = null) {
+        if (min_bb = null) {
+            min_bb = [0, 0];
+            boxes.forEach(b => {
+                if (b.min_bb[0] > min_bb![0]) {
+                    min_bb![0] = b.min_bb[0]
+                }
+                if (b.min_bb[1] > min_bb![1]) {
+                    min_bb![1] = b.min_bb[1]
+                }
+            });
+        }
+
         return BoundingBox.from_points(
             boxes.filter(b => !b.is_empty).flatMap(b => [b.actual_top_left, b.actual_top_right, b.actual_bottom_left, b.actual_bottom_right]),
-            boxes[0]?.min_bb || BoundingBox.empty().min_bb
+            min_bb!
         );
     }
 

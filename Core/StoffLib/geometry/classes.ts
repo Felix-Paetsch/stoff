@@ -1,7 +1,7 @@
 import { rotation_fun, vec_angle } from "./algorithms.js";
 import assert from "../../assert.js";
 import EPS from "./eps.js";
-import { radians } from "./types.js";
+import { isLineSegment, LineSegment, MirrorData, radians } from "./types.js";
 
 export class Vector {
     public x!: number;
@@ -123,15 +123,15 @@ export class Vector {
     }
 
     mirror_at(
-        el: Line | Ray | Vector | [Vector, Vector],
-        vec2: Vector | null = null
+        md: MirrorData
     ): Vector {
-        if (el instanceof Line || el instanceof Ray)
-            return this.mirror_at(el.project(this));
-        if (el instanceof Array) return this.mirror_at(...el);
-        if (vec2 instanceof Vector) return this.mirror_at(new Line(el, vec2));
-
-        return el.scale(2).subtract(this);
+        if (md instanceof Line || md instanceof Ray)
+            return this.mirror_at(md.project(this));
+        if (isLineSegment(md)) {
+            return this.mirror_at(new Line(md[0], md[1]))
+        }
+        if (md === null) return this.mirror_at(ZERO)
+        return md.add(md.subtract(this));
     }
 
     project_onto(line: Line | Ray) {
@@ -310,9 +310,9 @@ export class Matrix {
 
 export class Line {
     private points!: [Vector, Vector];
-    constructor(points: [Vector, Vector]);
+    constructor(points: LineSegment);
     constructor(p1: Vector, p2: Vector);
-    constructor(p1: Vector | [Vector, Vector], p2?: Vector) {
+    constructor(p1: Vector | LineSegment, p2?: Vector) {
         if (p1 instanceof Array) return new Line(...p1);
         (assert as any).VEC_NOT_EQUAL(p1, p2);
         this.points = [p1, p2!];

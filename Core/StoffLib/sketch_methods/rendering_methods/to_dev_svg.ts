@@ -1,9 +1,15 @@
+import { Sketch } from "../../sketch";
+import { ConnectedComponent } from "../connected_components_methods.js";
 import {
     sketch_to_renderable,
     calculate_correct_width_height,
 } from "./sketch_to_renderable.js";
 
-function create_dev_svg_from_sketch(s, width = null, height = null) {
+function create_dev_svg_from_sketch(
+    s: Sketch,
+    width: number | null = null,
+    height: number | null = null
+) {
     const correct_dimensions = calculate_correct_width_height(s, width, height);
     const { bb, points, lines } = sketch_to_renderable(
         s,
@@ -13,7 +19,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null) {
 
     let svgContent = `<svg width="${bb.width}" height="${bb.height}" xmlns="http://www.w3.org/2000/svg">`;
 
-    const createCircle = (point) => {
+    const createCircle = (point: typeof points[number]) => {
         const stroke = point.attributes.stroke;
         const radius = point.attributes.radius;
         const fill = point.attributes.fill;
@@ -34,7 +40,7 @@ function create_dev_svg_from_sketch(s, width = null, height = null) {
         svgContent += `<circle cx="${point.x}" cy="${point.y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>`;
     };
 
-    const createPolyline = (polyline) => {
+    const createPolyline = (polyline: typeof lines[number]) => {
         const stroke = polyline.attributes.stroke;
         const strokeWidth = polyline.attributes.strokeWidth;
         const opacity = polyline.attributes.opacity;
@@ -69,11 +75,11 @@ function create_dev_svg_from_sketch(s, width = null, height = null) {
 
 export { create_dev_svg_from_sketch };
 
-export function data_to_serializable(data) {
+export function data_to_serializable(data: any) {
     let nesting = 0;
     return nesting_buffer(data);
 
-    function nesting_buffer(data) {
+    function nesting_buffer(data: any): any {
         nesting++;
         if (nesting > 50) {
             throw new Error("Can't serialize data! (Nesting > " + 50 + ")");
@@ -104,6 +110,7 @@ export function data_to_serializable(data) {
         if (data.constructor === Object) {
             const new_data = {};
             for (const key in data) {
+                // @ts-ignore
                 new_data[key] = nesting_buffer(data[key]);
             }
             nesting--;

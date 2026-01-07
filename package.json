@@ -5,15 +5,17 @@
         "dev::server::proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/DevServer/**\" --port 3009 --no-open",
         "dev::server::tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
         "dev::server::development": "concurrently \"npm run dev::server\" \"npm run dev::server::tw\" \"npm run dev::server::proxy\"",
+        "dev::typecheck": "npx tsc -p tsconfig.json --noEmit",
+        "dev::typecheck::watch": "./Tools/Scripts/watch.sh 'npx tsc -p tsconfig.json --noEmit' 5",
+
         "dev::standalone": "tsx --watch DevEnv/StandAlone/index.js",
         "dev::browser": "cd DevEnv/Profiling && npm run dev",
+
         "tools::go": "(cd ./Tools/StoffGo && go run .)",
         "tools::measure": "node Tools/Measurements/index.js",
         "tools::mvp_dev": "cd Tools/MVPwebsite && npm run dev",
         "tools::mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot",
-        "tools::mvp_host": "cd Tools/MVPwebsite && npm run host",
-        "docs::build": "cd Docs && make html",
-        "docs::hot": "sphinx-autobuild Docs/source Docs/build/html"
+        "tools::mvp_host": "cd Tools/MVPwebsite && npm run host"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.1.11",
@@ -43,5 +45,8 @@
         "pdf-lib": "^1.17.1",
         "sass": "^1.89.2",
         "uuid": "^11.1.0"
+    },
+    "prettier": {
+        "tabWidth": 4
     }
 }

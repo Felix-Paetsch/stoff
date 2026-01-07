@@ -32,16 +32,13 @@ import {
 } from "./geometry/algorithms.js";
 import { BoundingBox } from "./geometry/bounding_box.js";
 import { merge_intervals, interval_overlap } from "./geometry/1d.js";
+import { isLineSegment, LineSegment, MirrorData } from "./geometry/types.js";
 
-export function mirror_type(el: Line): "Line";
-export function mirror_type(el: Vector, vec2: Vector): "Line";
-export function mirror_type(el: [Vector, Vector]): "Line";
-export function mirror_type(el: [Vector]): "Line";
-export function mirror_type(el: Vector): "Point";
-export function mirror_type(el: any | any[], vec2: any = null): "Line" | "Point" {
-    if (el instanceof Line) return "Line";
-    if (el instanceof Array) return mirror_type(...el as [any, any]);
-    if (vec2 instanceof Vector) return "Line";
+export function mirror_type(el: Line | Ray | LineSegment): "Line";
+export function mirror_type(el: Vector | null): "Point";
+export function mirror_type(el: MirrorData): "Line" | "Point";
+export function mirror_type(el: MirrorData): "Line" | "Point" {
+    if (el instanceof Line || el instanceof Ray || isLineSegment(el)) return "Line";
     return "Point";
 }
 

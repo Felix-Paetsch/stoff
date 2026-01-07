@@ -5,12 +5,11 @@ import Face from "./face.js";
 import RogueComponent from "./rogue.js";
 import { ConnectedComponentFaceData } from "./algorithms/findFaces.js";
 import Sketch from "../../StoffLib/sketch.js";
-import register_collection_methods from "../../StoffLib/collection_methods/index.js";
-import Point from "../../StoffLib/point.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
-import { eps_equal } from "@/Core/StoffLib/geometry.js";
+import { SketchElementCollectionLike } from "@/Core/StoffLib/types.js";
+import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection.js";
 
-export default class FaceAtlas {
+export default class FaceAtlas implements SketchElementCollectionLike {
     // Doesnt automatically update with sketch changes
     // (Mostly because things currently are to expensive)
 
@@ -47,12 +46,12 @@ export default class FaceAtlas {
         });
     }
 
-    get_lines(): Line[] {
-        return this.lines;
+    get_lines() {
+        return new SketchElementCollection(this.lines);
     }
 
-    get_points(): Point[] {
-        return Array.from(new Set(this.lines.flatMap(l => l.get_endpoints())));
+    get_points() {
+        return new SketchElementCollection(Array.from(new Set(this.lines.flatMap(l => l.get_endpoints()))));
     }
 
     get_sketch(): Sketch | null {
@@ -127,5 +126,3 @@ export default class FaceAtlas {
         return atlas;
     }
 }
-
-register_collection_methods(FaceAtlas);

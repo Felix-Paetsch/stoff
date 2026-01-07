@@ -3,8 +3,13 @@ import {
     sketch_to_renderable,
     calculate_correct_width_height,
 } from "./sketch_to_renderable.js";
+import { Sketch } from "../../sketch.js";
 
-function create_svg_from_sketch(s, width = null, height = null) {
+function create_svg_from_sketch(
+    s: Sketch,
+    width: number | null = null,
+    height: number | null = null
+) {
     const correct_dimensions = calculate_correct_width_height(s, width, height);
     const { bb, points, lines } = sketch_to_renderable(
         s,
@@ -14,7 +19,7 @@ function create_svg_from_sketch(s, width = null, height = null) {
 
     let svgContent = `<svg width="${bb.width}" height="${bb.height}" xmlns="http://www.w3.org/2000/svg">`;
 
-    const createCircle = (point) => {
+    const createCircle = (point: typeof points[number]) => {
         const stroke = point.attributes.stroke;
         const radius = point.attributes.radius;
         const fill = point.attributes.fill;
@@ -24,7 +29,7 @@ function create_svg_from_sketch(s, width = null, height = null) {
         svgContent += `<circle cx="${point.x}" cy="${point.y}" r="${radius}" stroke="${stroke}" fill="${fill}" opacity="${opacity}" stroke-width="${strokeWidth}"/>`;
     };
 
-    const createPolyline = (polyline) => {
+    const createPolyline = (polyline: typeof lines[number]) => {
         const stroke = polyline.attributes.stroke;
         const strokeWidth = polyline.attributes.strokeWidth;
         const opacity = polyline.attributes.opacity;
@@ -46,13 +51,16 @@ function create_svg_from_sketch(s, width = null, height = null) {
 
 export { create_svg_from_sketch, save_as_svg };
 
-function save_as_svg(sketch, save_to, width, height) {
+function save_as_svg(
+    sketch: Sketch,
+    save_to: fs.PathOrFileDescriptor,
+    width: number | null = null,
+    height: number | null = null
+) {
     fs.writeFileSync(
         save_to,
-        create_svg_from_sketch(sketch, width, height),
-        (err) => {
-            if (err) throw err;
-            console.log("SVG file saved!");
-        }
+        create_svg_from_sketch(sketch, width, height)
     );
+
+    console.log("SVG file save!")
 }
