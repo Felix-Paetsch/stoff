@@ -173,6 +173,29 @@ export default class Sketch {
         return this;
     }
 
+    has(...els: (Point | Line | ConnectedComponent)[]) {
+        for (const el of els) {
+            if (
+                el instanceof Point
+                && !this.points.includes(el)
+            ) {
+                return false
+            } else if (
+                el instanceof Line
+                && !this.lines.includes(el)
+            ) {
+                return false
+            } else if (
+                el instanceof ConnectedComponent
+                && !this.has(el.root())
+            ) {
+                return false
+            }
+        }
+
+        return true;
+    }
+
     toString() {
         return "[Sketch]" as const;
     }

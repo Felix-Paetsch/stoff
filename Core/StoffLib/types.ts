@@ -8,7 +8,7 @@ export type SketchElement = Point | Line;
 export interface SketchElementCollectionLike {
     get_points(): SketchElementCollection<Point>;
     get_lines(): SketchElementCollection<Line>;
-    get_sketch(): Sketch | null;
+    get_sketch(): Sketch;
 }
 
 export type SketchElementData = any;

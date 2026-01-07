@@ -2,12 +2,14 @@ import {
     line_segments_intersect,
     vec_angle_clockwise,
     EPS,
+    Vector
 } from "../geometry.js";
+import { LineSegment } from "../geometry/types.js";
 
 export default function offset_sample_points(
-    sample_points,
-    radius,
-    toRight = true
+    sample_points: Vector[],
+    radius: number,
+    toRight: boolean = true
 ) {
     if (radius < 0) {
         radius *= -1;
@@ -71,7 +73,7 @@ export default function offset_sample_points(
             EPS.FINE
         )
     ) {
-        left = prev_left;
+        left = prev_left!;
     }
     const orth = sample_points[sample_points.length - 1]
         .subtract(sample_points[left])
@@ -105,13 +107,13 @@ export default function offset_sample_points(
  *
  */
 
-function filter_out_cycles(abs_sample_points) {
+function filter_out_cycles(abs_sample_points: Vector[]) {
     let i = 0;
     outer: while (i < abs_sample_points.length - 1) {
-        const currentSegment = [abs_sample_points[i], abs_sample_points[i + 1]];
+        const currentSegment: [Vector, Vector] = [abs_sample_points[i], abs_sample_points[i + 1]];
 
         for (let j = i + 2; j < abs_sample_points.length - 1; j++) {
-            const nextSegment = [
+            const nextSegment: [Vector, Vector] = [
                 abs_sample_points[j],
                 abs_sample_points[j + 1],
             ];
@@ -133,17 +135,17 @@ function filter_out_cycles(abs_sample_points) {
     return abs_sample_points;
 }
 
-function remove_spikes(abs_sample_points, sp) {
+function remove_spikes(abs_sample_points: Vector[], sp: Vector[]) {
     // End side
     let may_have_spike = true;
     while (may_have_spike && abs_sample_points.length > 2) {
         may_have_spike = false;
-        const endSeg = [
+        const endSeg: LineSegment = [
             abs_sample_points[abs_sample_points.length - 1],
             sp[sp.length - 1],
         ];
         for (let i = 0; i < abs_sample_points.length - 2; i++) {
-            const seg = [abs_sample_points[i], abs_sample_points[i + 1]];
+            const seg: LineSegment = [abs_sample_points[i], abs_sample_points[i + 1]];
             const [intersects] = line_segments_intersect(endSeg, seg);
             if (intersects) {
                 abs_sample_points.pop();
@@ -157,9 +159,9 @@ function remove_spikes(abs_sample_points, sp) {
     may_have_spike = true;
     while (may_have_spike && abs_sample_points.length > 2) {
         may_have_spike = false;
-        const startSeg = [abs_sample_points[0], sp[0]];
+        const startSeg: LineSegment = [abs_sample_points[0], sp[0]];
         for (let i = 1; i < abs_sample_points.length - 1; i++) {
-            const seg = [abs_sample_points[i], abs_sample_points[i + 1]];
+            const seg: LineSegment = [abs_sample_points[i], abs_sample_points[i + 1]];
             const [intersects] = line_segments_intersect(startSeg, seg);
             if (intersects) {
                 abs_sample_points.shift();

@@ -36,7 +36,7 @@ function closest_vec_on_line_segment(endpoints: LineSegment, vec: Vector) {
     }
 }
 
-function line_segments_intersect(l1: LineSegment, l2: LineSegment) {
+function line_segments_intersect(l1: LineSegment, l2: LineSegment): [false, null] | [true, Vector] {
     const [p, r] = [l1[0], l1[1].subtract(l1[0])];
     const [q, s] = [l2[0], l2[1].subtract(l2[0])];
 
@@ -136,10 +136,15 @@ function vec_angle(vec1: Vector, vec2: Vector, reference: Vector = ZERO) {
     return angle || 0;
 }
 
+
+function vec_angle_clockwise(vec1: Vector, vec2: Vector): radians;
+function vec_angle_clockwise(vec1: Vector, vec2: Vector, reference: Vector): radians;
+function vec_angle_clockwise(vec1: Vector, vec2: Vector, offset_range: boolean): radians;
+function vec_angle_clockwise(vec1: Vector, vec2: Vector, reference: Vector, offset_range: boolean): radians;
 function vec_angle_clockwise(
     vec1: Vector,
     vec2: Vector,
-    reference: Vector = ZERO,
+    reference: Vector | boolean = ZERO,
     offset_range: boolean = false
 ) {
     if (typeof reference == "boolean") {

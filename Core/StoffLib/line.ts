@@ -16,7 +16,7 @@ import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from "./line_methods/offset_sample_points.js";
 import add_self_intersection_test from "./unicorns/self_intersects.js";
 import SketchElementCollection, { LineSketchElementCollection } from "./sketch_element_collection.js";
-import register_line_manipulation_functions from "./line_methods/line_manipulation.js";
+import * as LineManipulation from "./line_methods/line_manipulation";
 import { copy_sketch_element_collection } from "./copy.js";
 import Cache from "../utils/cache.js";
 import Sketch from "./sketch";
@@ -768,6 +768,35 @@ class Line implements SketchElementCollectionLike {
         const res = copy_sketch_element_collection(this, target, position);
         return res.get_corresponding_sketch_element(this);
     }
+
+    self_intersects(): boolean {
+        throw new Error("Unimplemented (at least not efficiently)");
+    }
+
+    _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null) {
+        return LineManipulation.rel_normalized_sample_points(this, rel_approx_sample_spacing);
+    }
+
+    _abs_normalized_sample_points(abs_approx_sample_spacing: number | null = null) {
+        return LineManipulation.abs_normalized_sample_points(this, abs_approx_sample_spacing);
+    }
+
+    _remove_duplicate_points() {
+        return LineManipulation.remove_duplicate_points(this);
+    }
+
+    renormalize(density: number | null = null) {
+        return LineManipulation.renormalize(this, density)
+    }
+
+    smooth_out(ker_size: number = 0.1, ker_size_absolute: boolean = false) {
+        return LineManipulation.smooth_out(this, ker_size, ker_size_absolute);
+    }
+
+    computer_center_point() {
+        return this.to_absolute_position(LineManipulation.compute_center_point(this.sample_points));;
+    }
+
 
     static order_by_endpoints(...lines: Line[]): LineSketchElementCollection & {
         orientations: boolean[], points: Point[]

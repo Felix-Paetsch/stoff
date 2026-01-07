@@ -11,7 +11,7 @@ inconsistent export (default)
 make some boolean args string
 better color utilities (better gradients)
 the drawing section has a lot of redundancy
-
+Sync?
 
 Possible Future types
 
@@ -24,3 +24,5 @@ Possible Future types
 - Todo:
 Move utility methods off thing and let these things be interfaces
 Line/Point sketch element array collection
+
+is deleted

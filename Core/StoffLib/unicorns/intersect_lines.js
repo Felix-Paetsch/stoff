@@ -10,6 +10,8 @@ import {
 } from "../geometry.js";
 import { copy_sketch_obj_data } from "../copy.js";
 import { interpolate_colors } from "../colors.js";
+import Sketch from "../sketch";
+import Line from "../line";
 
 export {
     intersect_lines,
@@ -19,7 +21,11 @@ export {
     _calculate_intersections,
 };
 
-function intersect_lines(sketch, line1, line2) {
+function intersect_lines(
+    sketch: Sketch,
+    line1: Line,
+    line2: Line
+) {
     const intersections = _calculate_intersections(line1, line2);
 
     const int_color = interpolate_colors(
@@ -139,7 +145,7 @@ function intersect_lines(sketch, line1, line2) {
     };
 }
 
-function intersection_positions(line1, line2) {
+function intersection_positions(line1: Line, line2: Line) {
     const intersections = _calculate_intersections(line1, line2);
     const arr = new Array(intersections.length);
     for (let i = 0; i < intersections.length; i++) {
