@@ -23,7 +23,7 @@ import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
 import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects.js";
-import * as SketchElementCollectionMethods from "./collection_methods/index";
+import * as SketchElementCollectionMethods from "./collection_methods/exports";
 
 type LineAttributes = {
     stroke: Color;
@@ -443,7 +443,7 @@ class Line implements SketchElementCollectionLike {
             return this.right_handed == line.right_handed;
         }
 
-        assert(this.common_endpoint(line), "Lines dont have common endpoint");
+        assert(!!this.common_endpoint(line), "Lines dont have common endpoint");
         return this.right_handed != line.right_handed;
     }
 
@@ -743,11 +743,6 @@ class Line implements SketchElementCollectionLike {
     minimal_distance(vec: Vector) {
         const p = this.closest_position(vec);
         return p.distance(vec);
-    }
-
-    set_sketch(s: Sketch) {
-        this._sketch = s;
-        return this;
     }
 
     toString() {

@@ -1,7 +1,8 @@
 {
     "type": "module",
     "scripts": {
-        "dev::server": "tsx watch --include ./ --exclude ./node_modules/ DevEnv/DevServer/index.js",
+        "dev::server_": "tsx watch DevEnv/DevServer/index.js",
+        "dev::server": "tsx watch --include ./ --exclude ./node_modules/ --exclude **/*.json DevEnv/DevServer/index.js",
         "dev::server::proxy": "browser-sync start --proxy http://localhost:3008 --files \"DevEnv/DevServer/**\" --port 3009 --no-open",
         "dev::server::tw": "npx @tailwindcss/cli -i ./DevEnv/DevServer/src/input.css -o ./DevEnv/DevServer/public/TWoutput.css --watch",
         "dev::server::development": "concurrently \"npm run dev::server\" \"npm run dev::server::tw\" \"npm run dev::server::proxy\"",

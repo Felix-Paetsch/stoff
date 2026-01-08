@@ -4,7 +4,7 @@ import Sketch from "../../sketch.js";
 import Point from "../../point";
 import Line from "../../line";
 import { Vector } from "../../geometry.js";
-import { get_bounding_box } from "../../collection_methods/index.js";
+import { get_bounding_box } from "../../collection_methods/exports.js";
 import { LineRenderAttributes, PointRenderAttributes } from "@/Core/Sewing/rendering/renderer/index.js";
 
 export {

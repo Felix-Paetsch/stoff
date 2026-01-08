@@ -8,6 +8,7 @@ import assert from "../../../Core/assert.js";
 import DartData from "./dart_data.js";
 import { EPS } from "../../../Core/StoffLib/geometry.js";
 import { at_url } from "../../../Core/Debug/render_at.js";
+import CollectionMethods from "../../../Core/StoffLib/collection_methods/exports.js";
 
 export default class DartBaseStage extends BaseStage {
     constructor(t) {
@@ -23,11 +24,11 @@ export default class DartBaseStage extends BaseStage {
     }
 
     remove_outer_waistline_dart() {
-        let i = this.sketch.get_typed_point("i");
-        let f = this.sketch.get_typed_point("f");
+        let i = CollectionMethods.get_typed_point(this.sketch, "i");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
 
-        let ln = this.sketch.get_typed_line("q_to_r");
-        let ln2 = this.sketch.get_typed_line("p_to_s");
+        let ln = CollectionMethods.get_typed_line(this.sketch, "q_to_r");
+        let ln2 = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
 
         if (!ln) {
             return;
@@ -37,18 +38,18 @@ export default class DartBaseStage extends BaseStage {
         ln = this.sketch.line_between_points(i, f);
         ln.data.type = "i_to_f";
 
-        let p = this.sketch.get_typed_point("p");
+        let p = CollectionMethods.get_typed_point(this.sketch, "p");
         if (p.get_adjacent_lines().length == 0) {
             this.sketch.remove(p);
         }
     }
 
     remove_inner_waistline_dart() {
-        let r = this.sketch.get_typed_point("r");
-        let b = this.sketch.get_typed_point("b");
+        let r = CollectionMethods.get_typed_point(this.sketch, "r");
+        let b = CollectionMethods.get_typed_point(this.sketch, "b");
 
-        let i = this.sketch.get_typed_point("i");
-        let ln = this.sketch.get_typed_line("j_to_g");
+        let i = CollectionMethods.get_typed_point(this.sketch, "i");
+        let ln = CollectionMethods.get_typed_line(this.sketch, "j_to_g");
 
         if (!i) {
             return;
@@ -58,32 +59,32 @@ export default class DartBaseStage extends BaseStage {
 
         ln = this.sketch.line_between_points(b, r).data.type = "b_to_r";
 
-        let h = this.sketch.get_typed_point("h");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
         if (h.get_adjacent_lines().length == 0) {
             this.sketch.remove(h);
         }
     }
 
     remove_waistline_darts() {
-        let p = this.sketch.get_typed_point("p");
-        let h = this.sketch.get_typed_point("h");
-        let b = this.sketch.get_typed_point("b");
-        let f = this.sketch.get_typed_point("f");
-        let i = this.sketch.get_typed_point("i");
-        let ln1 = this.sketch.get_typed_line("j_to_g");
+        let p = CollectionMethods.get_typed_point(this.sketch, "p");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
+        let b = CollectionMethods.get_typed_point(this.sketch, "b");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
+        let i = CollectionMethods.get_typed_point(this.sketch, "i");
+        let ln1 = CollectionMethods.get_typed_line(this.sketch, "j_to_g");
 
         if (this.wd.split) {
-            if (!this.sketch.get_typed_line("cut p")) {
+            if (!CollectionMethods.get_typed_line(this.sketch, "cut p")) {
                 this.remove_outer_waistline_dart();
-            } else if (!this.sketch.get_typed_line("cut h")) {
+            } else if (!CollectionMethods.get_typed_line(this.sketch, "cut h")) {
                 this.remove_inner_waistline_dart();
             }
             return;
         }
 
-        if (this.sketch.get_typed_line("p_to_r")) {
-            let ln2 = this.sketch.get_typed_line("q_to_r");
-            let s = this.sketch.get_typed_point("s");
+        if (CollectionMethods.get_typed_line(this.sketch, "p_to_r")) {
+            let ln2 = CollectionMethods.get_typed_line(this.sketch, "q_to_r");
+            let s = CollectionMethods.get_typed_point(this.sketch, "s");
 
             if (ln1.get_length() > 0) {
                 this.sketch.remove(ln1.p1, ln1.p2, i, s, ln2.p1, ln2.p2);
@@ -110,16 +111,16 @@ export default class DartBaseStage extends BaseStage {
     }
 
     move_dart_to_outer_waistline_dart() {
-        let p = this.sketch.get_typed_point("p");
-        let ln = this.sketch.get_typed_line("h_to_k");
-        let ln2 = this.sketch.get_typed_line("h_to_l");
+        let p = CollectionMethods.get_typed_point(this.sketch, "p");
+        let ln = CollectionMethods.get_typed_line(this.sketch, "h_to_k");
+        let ln2 = CollectionMethods.get_typed_line(this.sketch, "h_to_l");
 
         this.sketch.line_between_points(p, ln.p2).data.type = "p_to_k";
         this.sketch.line_between_points(p, ln2.p2).data.type = "p_to_l";
 
         this.sketch.remove(ln, ln2);
 
-        let h = this.sketch.get_typed_point("h");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
         if (h.get_adjacent_lines().length == 0) {
             this.sketch.remove(h);
         }
@@ -128,33 +129,33 @@ export default class DartBaseStage extends BaseStage {
     /*
     // erst seite verschieben, dann zu anderem Dart wechseln, wenn gewünscht
         move_dart(side, percent, rotation = false){
-            let h = this.sketch.get_typed_point("h");
-            let h_to_k = this.sketch.get_typed_line("h_to_k");
-            let h_to_l = this.sketch.get_typed_line("h_to_l");
+            let h = CollectionMethods.get_typed_point(this.sketch, "h");
+            let h_to_k = CollectionMethods.get_typed_line(this.sketch, "h_to_k");
+            let h_to_l = CollectionMethods.get_typed_line(this.sketch, "h_to_l");
 
 
 
             let splitted_line;
             if (side == "side"){
-                let ln = this.sketch.get_typed_line("side");
+                let ln = CollectionMethods.get_typed_line(this.sketch, "side");
                 splitted_line = this.sketch.split_line_at_fraction(ln, percent);
                 splitted_line.line_segments[0].data.type = "e_to_k";
                 splitted_line.line_segments[1].data.type = "l_to_f";
                 rotation = !rotation;
             } else if (side == "fold") {
-                let ln = this.sketch.get_typed_line("fold");
+                let ln = CollectionMethods.get_typed_line(this.sketch, "fold");
                 splitted_line = this.sketch.split_line_at_fraction(ln, percent);
                 splitted_line.line_segments[0].data.type = "a_to_k";
                 splitted_line.line_segments[1].data.type = "l_to_b";
                 this.wd.direction_swap_of_k_l = true;
             } else if (side == "armpit"){
-                let ln = this.sketch.get_typed_line("armpit");
+                let ln = CollectionMethods.get_typed_line(this.sketch, "armpit");
                 splitted_line = this.sketch.split_line_at_fraction(ln, percent);
                 splitted_line.line_segments[0].data.type = "c_to_k";
                 splitted_line.line_segments[1].data.type = "l_to_f";
                 rotation = !rotation;
             } else if(side == "neckline"){
-                let ln = this.sketch.get_typed_line("neckline");
+                let ln = CollectionMethods.get_typed_line(this.sketch, "neckline");
                 splitted_line = this.sketch.split_line_at_fraction(ln, percent);
                 splitted_line.line_segments[0].data.type = "d_to_k";
                 splitted_line.line_segments[1].data.type = "l_to_a";
@@ -165,12 +166,12 @@ export default class DartBaseStage extends BaseStage {
                     this.sketch.remove(temp1, temp2);
                     return;
                 } else if (percent < 0.5){
-                    ln = this.sketch.get_typed_line("d_to_k");
+                    ln = CollectionMethods.get_typed_line(this.sketch, "d_to_k");
                     splitted_line = this.sketch.split_line_at_fraction(ln, percent * 2);
                     splitted_line.line_segments[0].data.type = "d_to_k";
                     splitted_line.line_segments[1].data.type = "part";
                 } else {
-                    ln = this.sketch.get_typed_line("l_to_c");
+                    ln = CollectionMethods.get_typed_line(this.sketch, "l_to_c");
                     splitted_line = this.sketch.split_line_at_fraction(ln, (percent - 0.5)* 2);
                     splitted_line.line_segments[0].data.type = "part";
                     splitted_line.line_segments[1].data.type = "l_to_c";
@@ -201,12 +202,12 @@ export default class DartBaseStage extends BaseStage {
 
             if(side == "shoulder"){
                 if(percent < 0.5){
-                    this.sketch.merge_lines(this.sketch.get_typed_line("l_to_c"), splitted_line.line_segments[1], true).data.type = "l_to_c";
+                    this.sketch.merge_lines(CollectionMethods.get_typed_line(this.sketch, "l_to_c"), splitted_line.line_segments[1], true).data.type = "l_to_c";
                 } else {
-                    this.sketch.merge_lines(this.sketch.get_typed_line("d_to_k"), splitted_line.line_segments[0], true).data.type = "d_to_k";
+                    this.sketch.merge_lines(CollectionMethods.get_typed_line(this.sketch, "d_to_k"), splitted_line.line_segments[0], true).data.type = "d_to_k";
                 }
             } else {
-                this.sketch.merge_lines(this.sketch.get_typed_line("d_to_k"), this.sketch.get_typed_line("l_to_c"), true).data.type = "d_to_c";
+                this.sketch.merge_lines(CollectionMethods.get_typed_line(this.sketch, "d_to_k"), CollectionMethods.get_typed_line(this.sketch, "l_to_c"), true).data.type = "d_to_c";
             }
 
         }
@@ -214,17 +215,17 @@ export default class DartBaseStage extends BaseStage {
         // Verwenden, wenn der Abnäher durch den aeusseren Abnaeher geht
         // zu unallgemein
         correct_second_dart(shift = true){
-            let p = this.sketch.get_typed_point("p");
-            let h_to_l = this.sketch.get_typed_line("h_to_l");
+            let p = CollectionMethods.get_typed_point(this.sketch, "p");
+            let h_to_l = CollectionMethods.get_typed_line(this.sketch, "h_to_l");
             if (shift){
-                let q = this.sketch.get_typed_point("q");
+                let q = CollectionMethods.get_typed_point(this.sketch, "q");
                 let ln = this.sketch.line_between_points(p, q);
                 let pt = this.sketch.intersection_positions(ln, h_to_l)[0];
                 p.move_to(pt);
                 this.sketch.remove(ln);
             } else {
-                let p_to_r = this.sketch.get_typed_line("p_to_r");
-                let p_to_s = this.sketch.get_typed_line("p_to_s");
+                let p_to_r = CollectionMethods.get_typed_line(this.sketch, "p_to_r");
+                let p_to_s = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
                 let pt = this.sketch.intersection_positions(p_to_s, h_to_l)[0];
                 let ps = this.sketch.add_point(pt);
                 ps.data.type = "ps";
@@ -239,44 +240,44 @@ export default class DartBaseStage extends BaseStage {
 
         split_at_dart(){
             this.wd.split = true;
-            let h_to_k = this.sketch.get_typed_line("h_to_k");
+            let h_to_k = CollectionMethods.get_typed_line(this.sketch, "h_to_k");
             let h;
             let j;
-            let m = this.sketch.get_typed_point("m");
+            let m = CollectionMethods.get_typed_point(this.sketch, "m");
             let h_to_i;
             let h_to_l;
             let j_to_i;
 
             if(h_to_k){ // dann ist der Abnäher am inneren Taillenabnäher
-                h = this.sketch.get_typed_point("h");
-                j = this.sketch.get_typed_point("j");
+                h = CollectionMethods.get_typed_point(this.sketch, "h");
+                j = CollectionMethods.get_typed_point(this.sketch, "j");
                 assert.IS_POINT(j);
 
-                h_to_i = this.sketch.get_typed_line("h_to_i");
-                j_to_i = this.sketch.get_typed_line("j_to_i");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+                j_to_i = CollectionMethods.get_typed_line(this.sketch, "j_to_i");
                 if (this.wd.direction_swap_of_k_l) {
-                    h_to_l = this.sketch.get_typed_line("h_to_k");
+                    h_to_l = CollectionMethods.get_typed_line(this.sketch, "h_to_k");
                 } else {
-                    h_to_l = this.sketch.get_typed_line("h_to_l");
+                    h_to_l = CollectionMethods.get_typed_line(this.sketch, "h_to_l");
                 }
             } else {
-                h = this.sketch.get_typed_point("p");
-                j = this.sketch.get_typed_point("q");
+                h = CollectionMethods.get_typed_point(this.sketch, "p");
+                j = CollectionMethods.get_typed_point(this.sketch, "q");
 
                 assert.IS_POINT(j);
 
-                h_to_i = this.sketch.get_typed_line("p_to_s");
-                j_to_i = this.sketch.get_typed_line("q_to_s");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
+                j_to_i = CollectionMethods.get_typed_line(this.sketch, "q_to_s");
                 if (this.wd.direction_swap_of_k_l) {
-                    h_to_l = this.sketch.get_typed_line("p_to_k");
+                    h_to_l = CollectionMethods.get_typed_line(this.sketch, "p_to_k");
                 } else {
-                    h_to_l = this.sketch.get_typed_line("p_to_l");
+                    h_to_l = CollectionMethods.get_typed_line(this.sketch, "p_to_l");
                 }
             }
 
             let vec = m.add(new Vector(j.x, 0));
 
-            let split_line = this.sketch.split_line_at_length(this.sketch.get_typed_line("m_to_n"), vec.subtract(m).length());
+            let split_line = this.sketch.split_line_at_length(CollectionMethods.get_typed_line(this.sketch, "m_to_n"), vec.subtract(m).length());
             let u = split_line.point;
             let t = this.sketch.add_point(u.copy());
             u.data.type = "t";
@@ -313,17 +314,17 @@ export default class DartBaseStage extends BaseStage {
         data.check_sum();
         this.wd.dart_number = data.get_number_of_darts();
 
-        let rot_vec = this.sketch.get_typed_line("b_to_m").get_line_vector();
+        let rot_vec = CollectionMethods.get_typed_line(this.sketch, "b_to_m").get_line_vector();
 
-        let h = this.sketch.get_typed_point("h");
-        let f = this.sketch.get_typed_point("f");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
 
-        let ln2 = this.sketch.get_typed_line("side");
+        let ln2 = CollectionMethods.get_typed_line(this.sketch, "side");
         let grp2 = f.other_adjacent_lines(ln2);
         let temp_cut = this.sketch.cut([f, h], h, [ln2], grp2);
         let temp_glue = this.sketch.glue(
-            this.sketch.get_typed_line("h_to_k"),
-            this.sketch.get_typed_line("h_to_l")
+            CollectionMethods.get_typed_line(this.sketch, "h_to_k"),
+            CollectionMethods.get_typed_line(this.sketch, "h_to_l")
         );
         let temp_lines = temp_glue.point.get_adjacent_lines();
         this.sketch.merge_lines(temp_lines[0], temp_lines[1], true).data.type =
@@ -337,7 +338,7 @@ export default class DartBaseStage extends BaseStage {
             let points_temp = [];
             data.sort_line(line);
             let percentages = data.get_fractions_along_line(line);
-            let ln = this.sketch.get_typed_line(line);
+            let ln = CollectionMethods.get_typed_line(this.sketch,(line);
             //  let first = [];
             let last = [];
             percentages.forEach((arr) => {
@@ -387,11 +388,11 @@ export default class DartBaseStage extends BaseStage {
         );
 
         const fixed = h;
-        const f_to_o = this.sketch.get_typed_line("f_to_o");
+        const f_to_o = CollectionMethods.get_typed_line(this.sketch, "f_to_o");
         const f_pt = this.sketch
             .get_typed_points("f")
             .filter((p) => !f_to_o.is_adjacent(p))[0];
-        const b_pt = this.sketch.get_typed_point("b");
+        const b_pt = CollectionMethods.get_typed_point(this.sketch, "b");
         const dir_line = this.sketch.get_adjacent_line(f_pt, "side");
         const path = this.sketch.path_between_points(f_pt, b_pt, dir_line);
         const points_with_left_line = [];
@@ -433,7 +434,7 @@ export default class DartBaseStage extends BaseStage {
             });
         });
 
-        let f_pts = this.sketch.get_typed_points("f");
+        let f_pts = CollectionMethods.get_typed_point(this.sketch,s("f");
         let vec = f_pts[0].vector().subtract(f_pts[1].vector());
         if (vec.x < EPS.COARSE && vec.y < EPS.COARSE) {
             this.sketch.remove(
@@ -464,8 +465,8 @@ export default class DartBaseStage extends BaseStage {
         let old_darttip = lns[0].data.darttip;
         lns[0].data.darttip = new_darttip;
         lns[1].data.darttip = new_darttip;
-        let old_p = this.sketch.get_typed_point(old_darttip);
-        let new_p = this.sketch.get_typed_point(new_darttip);
+        let old_p = CollectionMethods.get_typed_point(this.sketch,(old_darttip);
+        let new_p = CollectionMethods.get_typed_point(this.sketch,(new_darttip);
 
         assert.IS_POINT(old_p);
         assert.IS_POINT(new_p);
@@ -525,44 +526,44 @@ export default class DartBaseStage extends BaseStage {
         let lines = [];
 
         if (lns[0].data.darttip == "h") {
-            h = this.sketch.get_typed_point("h");
-            j = this.sketch.get_typed_point("j");
-            lines.push(this.sketch.get_typed_line("j_to_g"));
-            lines.push(this.sketch.get_typed_line("j_to_i"));
-            j_to_i = this.sketch.get_typed_line("j_to_i");
+            h = CollectionMethods.get_typed_point(this.sketch, "h");
+            j = CollectionMethods.get_typed_point(this.sketch, "j");
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "j_to_g"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "j_to_i"));
+            j_to_i = CollectionMethods.get_typed_line(this.sketch, "j_to_i");
             if (
                 temp_ln.data.type == "neckline" ||
                 temp_ln.data.type == "fold"
             ) {
-                h_to_i = this.sketch.get_typed_line("h_to_i");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
             } else {
-                h_to_i = this.sketch.get_typed_line("h_to_i");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
             }
-            lines.push(this.sketch.get_typed_line("h_to_g"));
-            lines.push(this.sketch.get_typed_line("h_to_i"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "h_to_g"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "h_to_i"));
         } else {
-            h = this.sketch.get_typed_point("p");
-            j = this.sketch.get_typed_point("q");
-            j_to_i = this.sketch.get_typed_line("q_to_s");
-            lines.push(this.sketch.get_typed_line("q_to_r"));
-            lines.push(this.sketch.get_typed_line("q_to_s"));
+            h = CollectionMethods.get_typed_point(this.sketch, "p");
+            j = CollectionMethods.get_typed_point(this.sketch, "q");
+            j_to_i = CollectionMethods.get_typed_line(this.sketch, "q_to_s");
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "q_to_r"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "q_to_s"));
             if (
                 temp_ln.data.type == "neckline" ||
                 temp_ln.data.type == "fold"
             ) {
-                h_to_i = this.sketch.get_typed_line("p_to_s");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
             } else {
-                h_to_i = this.sketch.get_typed_line("p_to_s");
+                h_to_i = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
             }
-            lines.push(this.sketch.get_typed_line("p_to_r"));
-            lines.push(this.sketch.get_typed_line("p_to_s"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "p_to_r"));
+            lines.push(CollectionMethods.get_typed_line(this.sketch, "p_to_s"));
         }
         assert.IS_POINT(j);
         let h2 = this.sketch.add_point(h.copy());
 
         let p_h = this.sketch.add_point(j.subtract(h).scale(5).add(h));
         let ln_h = this.sketch.line_between_points(h, p_h);
-        let bottom_lns = this.sketch.get_typed_lines("bottom");
+        let bottom_lns = CollectionMethods.get_typed_line(this.sketch,s("bottom");
         let positions = this.sketch.intersection_positions(bottom_lns[0], ln_h);
         let bottom_ln;
         if (positions.length > 0) {
@@ -619,7 +620,7 @@ export default class DartBaseStage extends BaseStage {
         let lns = this.sketch.lines_by_key("dart_number")[number];
 
         this.sketch.glue(lns[0], lns[1]);
-        lns = this.sketch.get_typed_lines("side");
+        lns = CollectionMethods.get_typed_line(this.sketch,s("side");
         let ln = this.sketch.merge_lines(lns[0], lns[1], true);
         if (outer) {
             let side = this.sketch.line_between_points(ln.p1, ln.p2);
@@ -630,13 +631,13 @@ export default class DartBaseStage extends BaseStage {
 
     shirt_without_dart() {
         this.split_up_dart(["armpit", 1, 1]);
-        let side = this.sketch.get_typed_line("side");
-        let armpit = this.sketch.get_typed_line("armpit");
-        let shoulder = this.sketch.get_typed_line("shoulder");
+        let side = CollectionMethods.get_typed_line(this.sketch, "side");
+        let armpit = CollectionMethods.get_typed_line(this.sketch, "armpit");
+        let shoulder = CollectionMethods.get_typed_line(this.sketch, "shoulder");
         let p = armpit.p2;
         armpit.replace_endpoint(armpit.p2, side.p1);
 
-        let dart_lines = this.sketch.get_typed_lines("dart");
+        let dart_lines = CollectionMethods.get_typed_line(this.sketch,s("dart");
         this.sketch.remove(p, dart_lines[0], dart_lines[1]);
 
         let vec = shoulder
