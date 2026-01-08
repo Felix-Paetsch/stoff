@@ -3,8 +3,8 @@ import fs from "fs";
 import {
     sketch_to_renderable,
     calculate_correct_width_height,
-} from "./sketch_to_renderable.js";
-import { Sketch } from "../../sketch";
+} from "./sketch_to_renderable";
+import Sketch from "../../sketch";
 
 function create_canvas_from_sketch(
     s: Sketch,

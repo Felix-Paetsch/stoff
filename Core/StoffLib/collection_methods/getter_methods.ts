@@ -270,3 +270,19 @@ export function has(
             : ec.get_lines().includes(el)
     );
 }
+
+export function get_typed_points(se: SketchElementCollectionLike, type: string) {
+    return points_by_key(se, "type")[type] || [];
+}
+
+export function get_typed_lines(se: SketchElementCollectionLike, type: string) {
+    return lines_by_key(se, "type")[type] || [];
+}
+
+export function get_typed_point(se: SketchElementCollectionLike, type: string) {
+    return get_typed_points(se, type)[0] || null;
+}
+
+export function get_typed_line(se: SketchElementCollectionLike, type: string) {
+    return get_typed_lines(se, type)[0] || null;
+}

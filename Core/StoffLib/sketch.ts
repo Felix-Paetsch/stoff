@@ -1,26 +1,26 @@
-import { UP, Vector } from "./geometry.js";
-import Point from "./point.js";
-import Line from "./line.js";
+import { UP, Vector } from "./geometry";
+import Point from "./point";
+import Line from "./line";
 import {
     copy_sketch,
     default_data_callback,
     copy_data_callback,
     copy_sketch_obj_data,
     CopySketchDataCallback,
-} from "./copy.js";
+} from "./copy";
 import CONF from "./config.json";
-import SketchElementCollection from "./sketch_element_collection.js";
+import SketchElementCollection from "./sketch_element_collection";
 
-import assert from "../assert.js";
-import { has_sketch } from "./assert_methods/exports.js";
-import { SketchElementCollectionLike } from "./types.js";
-import auto_validate from "./sketch_methods/auto_validate.js";
+import assert from "../assert";
+import { has_sketch } from "./assert_methods/exports";
+import { SketchElementCollectionLike } from "./types";
+import auto_validate from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
 import * as RenderingMethods from "./sketch_methods/rendering_methods/exports";
-import line_with_length_fn from "./unicorns/line_with_length.js";
-import { radians, length } from "./geometry/types.js";
-import ConnectedComponent from "./connected_component.js";
+import line_with_length_fn from "./unicorns/line_with_length";
+import { radians, length } from "./geometry/types";
+import ConnectedComponent from "./connected_component";
 import path from "path";
 
 export default class Sketch {
@@ -77,7 +77,6 @@ export default class Sketch {
             const rem_line = line as any;
             rem_line.p1 = null;
             rem_line.p2 = null;
-            rem_line.sketch = null;
         }
         this.lines = this.lines.filter((l) => !lines.includes(l));
     }
@@ -148,9 +147,9 @@ export default class Sketch {
         return p;
     };
 
-    static copy(s: Sketch) {
+    copy() {
         const new_s = new Sketch();
-        new_s.paste_sketch(s);
+        return new_s.paste_sketch(this);
     }
 
     paste_sketch(sketch: Sketch): this;
@@ -206,8 +205,17 @@ export default class Sketch {
         return LineMethods.line_between_points(this, pt1, pt2);
     }
 
-    line_with_length(...args: any[]) {
-        return line_with_length_fn(this, ...args);
+    line_with_length(
+        original_p1: Point,
+        original_p2: Point,
+        length: number
+    ) {
+        return line_with_length_fn(
+            this,
+            original_p1,
+            original_p2,
+            length
+        );
     }
 
     line_at_angle(
@@ -263,6 +271,57 @@ export default class Sketch {
         return LineMethods.interpolate_lines(
             this, line1, line2, direction, f, p1, p2
         )
+    }
+
+    copy_line(l: Line, p1: Point, p2: Point) {
+        return LineMethods.copy_line(l, p1, p2);
+    }
+
+    merge_lines(
+        line1: Line,
+        line2: Line,
+        delete_join: boolean = false,
+        data_callback: CopySketchDataCallback = default_data_callback
+    ) {
+        return LineMethods.merge_lines(this, line1, line2, delete_join, data_callback)
+    }
+
+    point_on_line(
+        pt: Point,
+        line: Line,
+        data_callback: CopySketchDataCallback = copy_data_callback
+    ) {
+        return LineMethods.point_on_line(this, pt, line, data_callback)
+    }
+
+    split_line_at_length(
+        line: Line,
+        length: number,
+        data_callback: CopySketchDataCallback = copy_data_callback,
+        reversed: boolean = false
+    ) {
+        return LineMethods.split_line_at_length(this, line, length, data_callback, reversed)
+    };
+
+    split_line_at_fraction(
+        line: Line,
+        fraction: number,
+        data_callback: CopySketchDataCallback = copy_data_callback,
+        reversed = false,
+    ) {
+        return LineMethods.split_line_at_fraction(this, line, fraction, data_callback, reversed);
+    };
+
+    intersect_lines(line1: Line, line2: Line) {
+        return LineMethods.intersect_lines(this, line1, line2);
+    }
+
+    line_with_offset(
+        line: Line,
+        offset: number,
+        withHandedness: boolean = true,
+    ) {
+        return LineMethods.line_with_offset(this, line, offset, withHandedness)
     }
 
     // ==== CC Methods

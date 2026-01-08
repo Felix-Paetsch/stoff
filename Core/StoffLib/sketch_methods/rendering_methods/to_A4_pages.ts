@@ -1,12 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { createCanvas } from "canvas";
-import { RenderableLine, RenderablePoint, sketch_to_renderable } from "./sketch_to_renderable.js";
+import { RenderableLine, RenderablePoint, sketch_to_renderable } from "./sketch_to_renderable";
 import CONF from "../../config.json" with { type: "json" };
-import { interpolate_colors } from "../../colors.js";
 import url from "url";
-import { Sketch } from "../../sketch.js";
-import { get_bounding_box } from "../../collection_methods/index.js";
+import Sketch from "../../sketch";
+import { get_bounding_box } from "../../collection_methods/index";
 
 // Define constants
 const PX_PER_CM = CONF.PX_PER_CM; // Pixels per centimeter

@@ -30,7 +30,7 @@ export function have_sketch(
 }
 
 export function same_sketch(
-    els: SketchElementCollectionLike[],
+    ...els: SketchElementCollectionLike[]
 ) {
     if (els.length == 0) return true;
     return have_sketch(els, els[0]!.get_sketch()!)

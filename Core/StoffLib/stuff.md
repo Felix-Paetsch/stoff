@@ -1,5 +1,8 @@
+Copy Sketch Data Callback
+Better typing often
 Do now: Collection Methods
 Test it still works
+redundant methods (like add_point)
 Get rid of multi possible initialization for stuff
 Get rid of SEC
 Fix asserts
@@ -26,3 +29,5 @@ Move utility methods off thing and let these things be interfaces
 Line/Point sketch element array collection
 
 is deleted
+
+Change around stuff

@@ -1,21 +1,18 @@
-import { Vector, mirror_type } from "./geometry.js";
-import { } from "./copy.js"; // Hopefully Temporary: Imports are otherwise broken
-import { copy_sketch_element_collection } from "./copy.js";
-import { BoundingBox } from "./geometry/bounding_box.js";
-import * as Assert from "./assert_methods/exports.js";
-import { SketchElement, SketchElementCollectionLike } from "./types.js";
-import { MirrorData } from "./geometry/types.js";
+import { Vector, mirror_type } from "./geometry";
+import { } from "./copy"; // Hopefully Temporary: Imports are otherwise broken
+import { copy_sketch_element_collection } from "./copy";
+import { BoundingBox } from "./geometry/bounding_box";
+import { SketchElement, SketchElementCollectionLike } from "./types";
+import { MirrorData } from "./geometry/types";
 import Point from "./point";
 import Line from "./line";
-import Sketch from "./sketch.js";
-import SketchElementCollection from "./sketch_element_collection.js";
+import Sketch from "./sketch";
+import SketchElementCollection from "./sketch_element_collection";
 
 class ConnectedComponent implements SketchElementCollectionLike {
     constructor(
         private root_el: SketchElement
-    ) {
-        Assert.has_sketch(root_el);
-    }
+    ) { }
 
     root() {
         return this.root_el;

@@ -1,9 +1,9 @@
-import { Sketch } from "../../sketch";
-import { ConnectedComponent } from "../connected_components_methods.js";
+import ConnectedComponent from "../../connected_component";
+import Sketch from "../../sketch";
 import {
     sketch_to_renderable,
     calculate_correct_width_height,
-} from "./sketch_to_renderable.js";
+} from "./sketch_to_renderable";
 
 function create_dev_svg_from_sketch(
     s: Sketch,

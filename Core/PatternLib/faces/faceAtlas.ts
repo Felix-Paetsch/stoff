@@ -54,8 +54,8 @@ export default class FaceAtlas implements SketchElementCollectionLike {
         return new SketchElementCollection(Array.from(new Set(this.lines.flatMap(l => l.get_endpoints()))));
     }
 
-    get_sketch(): Sketch | null {
-        return this.sketch || null;
+    get_sketch(): Sketch {
+        return this.sketch || new Sketch();
     }
 
     adjacent_faces(line: Line): [Face, Face] | [RogueComponent, Face | null] | null {

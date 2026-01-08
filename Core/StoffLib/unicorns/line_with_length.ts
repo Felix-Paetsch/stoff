@@ -1,19 +1,25 @@
-import { assert } from '../dev/validation.js';
 import { Vector } from '../geometry.js';
+import Point from "../point";
+import Line from "../line";
+import Sketch from '../sketch';
 
-export default function line_with_length(original_sk, original_p1, original_p2, length, slopeP1 = 0, slopeP2 = 0){
-    assert(slopeP1 == 0 && slopeP2 == 0, "Unimplemented for non-zero slopes!");
-    const sk = new original_sk.constructor();
-    const p1 = sk.add_point(new Vector(0,0));
-    const p2 = sk.add_point(new Vector(1,0));
-    const p3 = sk.add_point(new Vector(2,0));
+export default function line_with_length(
+    original_sk: Sketch,
+    original_p1: Point,
+    original_p2: Point,
+    length: number
+): Line {
+    const sk = new Sketch();
+    const p1 = sk.add_point(new Vector(0, 0));
+    const p2 = sk.add_point(new Vector(1, 0));
+    const p3 = sk.add_point(new Vector(2, 0));
 
 
-    const transfered_length = length/original_p1.distance(original_p2);
+    const transfered_length = length / original_p1.distance(original_p2);
     const a = findControlPoint(transfered_length);
 
-    const ctr_point = sk.point(
-        (new Vector(1,-1)).mult(a)
+    const ctr_point = sk.add_point(
+        (new Vector(1, -1)).mult(a)
     );
 
     const l1 = sk.line_between_points(p1, ctr_point);
@@ -35,14 +41,14 @@ export default function line_with_length(original_sk, original_p1, original_p2, 
         original_p1, original_p2, merged.get_sample_points());
 }
 
-function estimate_length(a, n = 1000) {
-    let old_pt = new Vector(0,0);
+function estimate_length(a: number, n: number = 1000) {
+    let old_pt = new Vector(0, 0);
     let sum = 0;
-    for (let i = 1; i <= n; i++){
-        const t = i/n;
+    for (let i = 1; i <= n; i++) {
+        const t = i / n;
         const new_pt = new Vector(
-            2*a*(1-t)*t + t * t,
-            2*a*(1-t)*t
+            2 * a * (1 - t) * t + t * t,
+            2 * a * (1 - t) * t
         );
 
         sum += old_pt.distance(new_pt);
@@ -52,9 +58,13 @@ function estimate_length(a, n = 1000) {
     return sum;
 }
 
-function findControlPoint(LHS, tolerance = 1e-6, maxIterations = 1000) {
+function findControlPoint(
+    LHS: number,
+    tolerance: number = 1e-6,
+    maxIterations: number = 1000
+) {
     let lowerBound = 0.0;
-    let upperBound = 10.0; // Initial guess range; can be adjusted
+    let upperBound = 10.0; // Initial guess range; could be adjusted
     let iterations = 0;
 
     while (iterations < maxIterations) {

@@ -1,3 +1,5 @@
+import { validate_sketch } from "../assert_methods/sketch_is_valid";
+
 type SketchType = any;
 
 const sketch_graphical_non_pure_methods = [
@@ -34,7 +36,7 @@ export default function auto_validate(Sketch: SketchType) {
 
             const result = originalMethod.apply(this, args);
 
-            if (!was_already_internal) this.validate();
+            if (!was_already_internal) validate_sketch(this);
 
             currently_internal = was_already_internal;
             return result;

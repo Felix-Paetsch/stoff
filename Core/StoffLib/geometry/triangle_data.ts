@@ -1,6 +1,5 @@
-import { EPS } from "../geometry.js";
-import { length, radians } from "./types.js";
-import assert from "../../assert2.js";
+import { EPS } from "../geometry";
+import { length, radians } from "./types";
 
 export type Triangle = {
     a: length;

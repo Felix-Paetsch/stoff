@@ -3,7 +3,7 @@ import CONF from "./StoffLib/config.json" with { type: "json" };
 export type ValidationResult = boolean | string | null | undefined | void
 export type ValidationFunction = () => ValidationResult;
 
-export const assert = (bool: ValidationResult | ValidationFunction, error: string): boolean => {
+export const assert = (bool: ValidationResult | ValidationFunction, error: string = "Assert Failed"): boolean => {
     if (typeof bool == "string") {
         return assert(false, bool);
     }

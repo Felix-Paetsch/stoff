@@ -31,7 +31,7 @@ export default class SketchElementCollection<Type extends SketchElement = Sketch
 
     get_sketch(ignore_error = false) {
         if (this.sketch) return this.sketch;
-        if (ignore_error) return null;
+        if (ignore_error) return new Sketch();
         throw new Error("SketchElementCollection doesn't have an associated sketch.");
     }
 

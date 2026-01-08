@@ -2,7 +2,7 @@ import { BoundingBox, Vector } from "./geometry.js";
 import ConnectedComponent from "./connected_component.js";
 import assert from "../assert.js";
 import SketchElementCollection from "./sketch_element_collection.js";
-import { Sketch } from "./sketch";
+import Sketch from "./sketch";
 import Line from "./line.js";
 import { SketchElementCollectionLike, SketchElementData } from "./types.js";
 import { Color } from "./colors.js";
@@ -27,7 +27,7 @@ class Point extends Vector implements SketchElementCollectionLike {
     };
 
     constructor(
-        private _sketch: Sketch | null,
+        private _sketch: Sketch,
         ...args: ConstructorParameters<typeof Vector>
     ) {
         super(...args);
@@ -103,7 +103,7 @@ class Point extends Vector implements SketchElementCollectionLike {
     }
 
     get_tangent_vector(line: Line) {
-        (assert as any).HAS_LINES(this, line);
+        assert(this.adjacent_lines.includes(line));
         return line.get_tangent_vector(this);
     }
 
@@ -158,7 +158,9 @@ class Point extends Vector implements SketchElementCollectionLike {
     }
 
     other_adjacent_lines(...lines: Line[]) {
-        (assert as any).HAS_LINES(this, ...lines);
+        for (const line of lines) {
+            assert(this.adjacent_lines.includes(line));
+        }
         return this.adjacent_lines.filter((l) => lines.indexOf(l) < 0);
     }
 
@@ -210,14 +212,13 @@ class Point extends Vector implements SketchElementCollectionLike {
 
     remove_line(l: Line, ignore_not_present: boolean = false) {
         if (!ignore_not_present) {
-            (assert as any).HAS_LINES(this, l);
+            assert(this.adjacent_lines.includes(l));
         }
         this.adjacent_lines = this.adjacent_lines.filter((line) => line != l);
         return this;
     }
 
     remove() {
-        (assert as any).HAS_SKETCH(this);
         this._sketch!.remove(this);
         this._sketch = null as any;
     }

@@ -14,7 +14,6 @@ import ConnectedComponent from "./connected_component.js";
 import assert from "../assert.js";
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from "./line_methods/offset_sample_points.js";
-import add_self_intersection_test from "./unicorns/self_intersects.js";
 import SketchElementCollection, { LineSketchElementCollection } from "./sketch_element_collection.js";
 import * as LineManipulation from "./line_methods/line_manipulation";
 import { copy_sketch_element_collection } from "./copy.js";
@@ -23,6 +22,8 @@ import Sketch from "./sketch";
 import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
 import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types";
+import { self_intersects } from "./unicorns/self_intersects.js";
+import * as SketchElementCollectionMethods from "./collection_methods/index";
 
 type LineAttributes = {
     stroke: Color;
@@ -41,7 +42,6 @@ class Line implements SketchElementCollectionLike {
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
     public right_handed: boolean = true;
-    private _sketch: Sketch;
 
     constructor(
         private endpoints: [Point, Point],
@@ -82,8 +82,6 @@ class Line implements SketchElementCollectionLike {
         this.endpoints[1].add_adjacent_line(this);
         assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
         assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
-        this._sketch = this.endpoints[0].sketch;
-
 
         if (typeof (this as any)._init !== "undefined") {
             (this as any)._init();
@@ -91,7 +89,7 @@ class Line implements SketchElementCollectionLike {
     }
 
     get sketch() {
-        return this._sketch;
+        return this.p1.get_sketch();
     }
 
     get p1() {
@@ -121,7 +119,9 @@ class Line implements SketchElementCollectionLike {
     }
 
     get_lines(): SketchElementCollection<Line> {
-        return this.get_lines()
+        return SketchElementCollectionMethods.unique(
+            new SketchElementCollection<Line>([...this.p1.get_lines(), ...this.p2.get_lines()])
+        ) as SketchElementCollection<Line>;
     }
 
     cache_update(...what: string[]) {
@@ -443,9 +443,7 @@ class Line implements SketchElementCollectionLike {
             return this.right_handed == line.right_handed;
         }
 
-        (assert as any).CALLBACK("Lines dont have common endpoint", () => {
-            return !this.common_endpoint(line);
-        });
+        assert(this.common_endpoint(line), "Lines dont have common endpoint");
         return this.right_handed != line.right_handed;
     }
 
@@ -769,10 +767,6 @@ class Line implements SketchElementCollectionLike {
         return res.get_corresponding_sketch_element(this);
     }
 
-    self_intersects(): boolean {
-        throw new Error("Unimplemented (at least not efficiently)");
-    }
-
     _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null) {
         return LineManipulation.rel_normalized_sample_points(this, rel_approx_sample_spacing);
     }
@@ -797,6 +791,9 @@ class Line implements SketchElementCollectionLike {
         return this.to_absolute_position(LineManipulation.compute_center_point(this.sample_points));;
     }
 
+    self_intersects(): boolean {
+        return self_intersects(this);
+    }
 
     static order_by_endpoints(...lines: Line[]): LineSketchElementCollection & {
         orientations: boolean[], points: Point[]
@@ -890,15 +887,12 @@ class Line implements SketchElementCollectionLike {
         return res;
     }
 
-    static straight(endpoints: [Point, Point]) {
+    static straight(...endpoints: [Point, Point]) {
         return new Line(endpoints, [
             new Vector(0, 0),
             new Vector(1, 0),
         ]);
     }
 }
-
-add_self_intersection_test(Line);
-register_line_manipulation_functions(Line);
 
 export default Line;

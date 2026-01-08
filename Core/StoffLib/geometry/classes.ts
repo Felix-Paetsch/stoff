@@ -107,9 +107,7 @@ export class Vector {
     }
 
     to_len(a: number) {
-        (assert as any).CALLBACK("Vector is (almost) 0", () => {
-            return this.length() > EPS.STRICT_EQUAL;
-        });
+        assert(this.length() > EPS.STRICT_EQUAL, "Vector is (almost) 0");
 
         return this.normalize().scale(a);
     }
@@ -314,7 +312,7 @@ export class Line {
     constructor(p1: Vector, p2: Vector);
     constructor(p1: Vector | LineSegment, p2?: Vector) {
         if (p1 instanceof Array) return new Line(...p1);
-        (assert as any).VEC_NOT_EQUAL(p1, p2);
+        assert(!p1.equals(p2!));
         this.points = [p1, p2!];
     }
 

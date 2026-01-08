@@ -1,15 +1,14 @@
-import { hot_at_url } from "@/Core/Debug/render_at.js";
-import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
-import { Sewing } from "@/Core/Sewing/sewing.js";
-import { start_recording } from "@/Core/Debug/recording.js";
+import SewingSketch from "../../../Core/PatternLib/sewing_sketch";
+import { Sewing } from "@/Core/Sewing/sewing";
+import { start_recording } from "@/Core/Debug/recording";
 
 export default function () {
     const r = new SewingSketch();
     start_recording(r, "/dev");
     const points = [
-        r.add(0, 0), r.add(100, 0),
-        r.add(50, 50),
-        r.add(0, 100), r.add(100, 100)
+        r.point(0, 0), r.point(100, 0),
+        r.point(50, 50),
+        r.point(0, 100), r.point(100, 100)
     ];
 
     const lt = r.line_between_points(points[0], points[1]);

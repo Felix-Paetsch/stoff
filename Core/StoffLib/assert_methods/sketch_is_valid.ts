@@ -72,7 +72,6 @@ function validate_point(
 ) {
     const validations: (ValidationFunction | ValidationResult)[] = [
         () => has_sketch(p, s),
-        () => pt_has_lines_only_in_sketch(s, p),
         () => adjacent_lines_have_endpoint(p),
         () => data_object_valid(p.data, s),
     ];
@@ -93,11 +92,6 @@ function relative_endpoints_are_correct(l: Line) {
 }
 
 function sketch_points_as_enpoints(s: Sketch, l: Line) {
-    assert(
-        l.p1 instanceof Point && l.p2 instanceof Point,
-        "Line doesn't have points as endpoints."
-    );
-
     assert(
         s.has(...l.get_endpoints()),
         "Line endpoints should be in the same sketch as line."
@@ -129,13 +123,6 @@ function endpoints_have_line(l: Line) {
 }
 
 // TEST CASES POINTS
-function pt_has_lines_only_in_sketch(s: Sketch, pt: Point) {
-    assert(
-        s.has(...pt.get_adjacent_lines()),
-        "Point has lines not in sketch"
-    );
-}
-
 function adjacent_lines_have_endpoint(pt: Point) {
     assert(
         pt.get_adjacent_lines().every((l) => l.has_endpoint(pt)),

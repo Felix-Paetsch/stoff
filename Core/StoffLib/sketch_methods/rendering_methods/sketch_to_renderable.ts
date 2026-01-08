@@ -1,6 +1,6 @@
 import CONF from "../../config.json" with { type: "json" };
 import { interpolate_colors } from "../../colors.js";
-import { Sketch } from "../../sketch.js";
+import Sketch from "../../sketch.js";
 import Point from "../../point";
 import Line from "../../line";
 import { Vector } from "../../geometry.js";

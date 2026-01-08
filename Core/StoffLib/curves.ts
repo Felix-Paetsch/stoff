@@ -1,10 +1,9 @@
-import { assert } from "./dev/validation.js";
-import { Fraction } from "./geometry/1d.js";
-import { Vector } from "./geometry/classes.js";
-import { radians } from "./geometry/types.js";
-import { Sketch } from "./sketch.js";
-import Line from "./line.js";
-import Point from "./point.js";
+import { Fraction } from "./geometry/1d";
+import { Vector } from "./geometry/classes";
+import { radians } from "./geometry/types";
+import Sketch from "./sketch";
+import Line from "./line";
+import Point from "./point";
 
 export function arc(fill_amt: radians) {
     return (t: number) => {
