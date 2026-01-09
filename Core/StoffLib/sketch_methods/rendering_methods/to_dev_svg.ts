@@ -1,4 +1,4 @@
-import ConnectedComponent from "../../connected_component";
+import { ConnectedComponent } from "../../connected_component";
 import Sketch from "../../sketch";
 import {
     sketch_to_renderable,

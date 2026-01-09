@@ -1,14 +1,18 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
-import { Vector, triangle_data, rotation_fun, vec_angle_clockwise, vec_angle, deg_to_rad } from "../../../Core/StoffLib/geometry.js";
+import {
+    Vector,
+    triangle_data,
+    rotation_fun,
+    vec_angle_clockwise,
+    vec_angle,
+    deg_to_rad,
+} from "../../../Core/StoffLib/geometry.js";
 import assert from "../../../Core/assert.js";
 import fill_in_dart from "../algorithms/fill_in_dart.js";
 
-
-
-export default class SeamAllowanceStage extends BaseStage{
-
+export default class SeamAllowanceStage extends BaseStage {
     constructor() {
         super();
     }
@@ -22,31 +26,28 @@ export default class SeamAllowanceStage extends BaseStage{
         return this.wd;
     }
 
-
-    set_seam_allowance(line_type, distance = 1.5){
-        let lines = this.sketch.get_typed_lines(line_type);
-        lines.forEach(line => {
+    set_seam_allowance(line_type, distance = 1.5) {
+        let lines = CollectionMethods.get_typed_lines(this.sketch, line_type);
+        lines.forEach((line) => {
             line.data.seam_allowance = distance;
         });
     }
 
-    set_all_seam_allowance(distance = 0.5){
+    set_all_seam_allowance(distance = 0.5) {
         let lines = this.sketch.get_lines();
-        lines.forEach(line => {
+        lines.forEach((line) => {
             line.data.seam_allowance = distance;
         });
     }
-
 
     seam_allowance_temp() {
         this.#merge_fill_in();
-        let d = this.sketch.get_typed_point("d");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
         this.seam_allowance(new ConnectedComponent(d));
-      //  let e_arr = this.sketch.get_typed_points("e");
-     //   this.seam_allowance(new ConnectedComponent(e_arr[0]));
-    //    this.seam_allowance(new ConnectedComponent(e_arr[1]), true);
+        //  let e_arr = CollectionMethods.get_typed_points(this.sketch, "e");
+        //   this.seam_allowance(new ConnectedComponent(e_arr[0]));
+        //    this.seam_allowance(new ConnectedComponent(e_arr[1]), true);
     }
-
 
     seam_allowance(comp) {
         let lines = comp.get_lines();
@@ -65,7 +66,13 @@ export default class SeamAllowanceStage extends BaseStage{
             if (!distance) {
                 distance = 1.5;
             }
-            allowance.push(this.sketch.line_with_offset(line, distance, line.data.orientation).line);
+            allowance.push(
+                this.sketch.line_with_offset(
+                    line,
+                    distance,
+                    line.data.orientation,
+                ).line,
+            );
 
             allowance[i].data.orientation = line.data.orientation;
 
@@ -77,9 +84,7 @@ export default class SeamAllowanceStage extends BaseStage{
         });
 
         this.#close_lines(allowance[lines.length - 1], allowance[0]);
-
     }
-
 
     #close_lines(ln1, ln2) {
         let p1;
@@ -132,29 +137,26 @@ export default class SeamAllowanceStage extends BaseStage{
 
         return {
             ln1,
-            ln2
-        }
+            ln2,
+        };
         /*
-        */
+         */
     }
 
     #merge_fill_in() {
-        let lines = this.sketch.get_typed_lines("fill in");
+        let lines = CollectionMethods.get_typed_lines(this.sketch, "fill in");
         let adjacent;
         let temp;
-        lines.forEach(line => {
+        lines.forEach((line) => {
             adjacent = line.get_adjacent_lines();
             temp = this.sketch.merge_lines(line, adjacent[0]);
             this.sketch.merge_lines(temp, adjacent[1]);
         });
     }
 
-
     styleline_seam_allowance() {
-        let e = this.sketch.get_typed_points("e");
+        let e = CollectionMethods.get_typed_points(this.sketch, "e");
         this.seam_allowance(new ConnectedComponent(e[0]));
         this.seam_allowance(new ConnectedComponent(e[1]));
     }
-
-
 }

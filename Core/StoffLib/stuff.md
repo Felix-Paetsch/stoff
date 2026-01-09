@@ -1,6 +1,8 @@
 Copy Sketch Data Callback
+Remove dublicate methods here/there
+Where to really use sketch eleement collection like and where just to use...
+Ordered lines/points => no strange double attributes. (No array with extra fluff, instead object)
 Better typing often
-Do now: Collection Methods
 Test it still works
 redundant methods (like add_point)
 Get rid of multi possible initialization for stuff
@@ -31,3 +33,4 @@ Line/Point sketch element array collection
 is deleted
 
 Change around stuff
+Remove console logs

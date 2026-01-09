@@ -24,8 +24,8 @@ import {
 } from "../../../Core/StoffLib/geometry.js";
 import Point from "../../../Core/StoffLib/point.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
-import CollectionMethods from "../../../Core/StoffLib/collection_methods/exports.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
+import * as CollectionMethods from "../../../Core/StoffLib/collection";
 
 // To be ported
 // import NecklineSideHalf from "../../Patterns/parts/neckline/neckline_side_half.js"
@@ -97,8 +97,8 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #construct_neckline() {
-        let a = CollectionMethods.get_typed_point(this.sketch("a");
-        let d = CollectionMethods.get_typed_point(this.sketch("d");
+        let a = CollectionMethods.get_typed_point(this.sketch, "a");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
         let p = this.sketch.point(d.x, a.y);
         let p2 = this.sketch.point(p.copy());
 
@@ -426,7 +426,7 @@ export default class BasicBaseStage extends BaseStage {
         //    this.#construct_armpit();
         this.#construct_armpit_new();
 
-        let pts_h = CollectionMethods.get_typed_point(this.sketchs("h");
+        let pts_h = CollectionMethods.get_typed_points(this.sketch, "h");
         this.sketch.merge_points(pts_h[0], pts_h[1]);
 
         if (this.needed_base_type == 1) {
@@ -479,11 +479,11 @@ export default class BasicBaseStage extends BaseStage {
     #change_type_1_into_type_2() {
         // ToDo
         this.sketch.data.base_type = 2;
-        let h_to_k = CollectionMethods.get_typed_line(this.sketch("h_to_k");
-        let h_to_l = CollectionMethods.get_typed_line(this.sketch("h_to_l");
+        let h_to_k = CollectionMethods.get_typed_line(this.sketch, "h_to_k");
+        let h_to_l = CollectionMethods.get_typed_line(this.sketch, "h_to_l");
         let h = h_to_k.p1;
 
-        let e = CollectionMethods.get_typed_point(this.sketch("e");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
         let angle = vec_angle_clockwise(
             h_to_k.p2.subtract(h),
             h_to_l.p2.subtract(h),
@@ -495,18 +495,18 @@ export default class BasicBaseStage extends BaseStage {
         let lns = glued.point.get_adjacent_lines();
         this.sketch.merge_lines(lns[0], lns[1], true).data.type = "d_to_c";
 
-        let i_to_f = CollectionMethods.get_typed_line(this.sketch("i_to_f");
+        let i_to_f = CollectionMethods.get_typed_line(this.sketch, "i_to_f");
 
         i_to_f.p1.move_to(fun(i_to_f.p1));
         i_to_f.p2.move_to(fun(i_to_f.p2));
 
-        let h_to_i = CollectionMethods.get_typed_line(this.sketch("h_to_i");
-        let h_to_g = CollectionMethods.get_typed_line(this.sketch("h_to_g");
+        let h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+        let h_to_g = CollectionMethods.get_typed_line(this.sketch, "h_to_g");
 
         // Abnäher um 1/3 der Differenz nach oben gesetzt
         /*
-      let f = CollectionMethods.get_typed_point(this.sketch("f");
-      let b = CollectionMethods.get_typed_point(this.sketch("b");
+      let f = CollectionMethods.get_typed_point(this.sketch, "f");
+      let b = CollectionMethods.get_typed_point(this.sketch, "b");
       let ln = this.sketch.line_between_points(b, f);
 
       let pt = this.sketch.intersection_positions(ln, h_to_g)[0];
@@ -528,9 +528,12 @@ export default class BasicBaseStage extends BaseStage {
     #change_type_2_into_type_1() {
         this.sketch.data.base_type = 1;
 
-        let shoulder = CollectionMethods.get_typed_line(this.sketch("shoulder");
-        let h = CollectionMethods.get_typed_point(this.sketch("h");
-        let e = CollectionMethods.get_typed_point(this.sketch("e");
+        let shoulder = CollectionMethods.get_typed_line(
+            this.sketch,
+            "shoulder",
+        );
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
 
         let pt = this.sketch.split_line_at_fraction(shoulder, 0.8).point;
         let ln = this.sketch.line_between_points(h, pt);
@@ -549,8 +552,8 @@ export default class BasicBaseStage extends BaseStage {
             cuted.cut_parts[1].line,
         ).data.type = "l_to_c";
 
-        let h_to_g = CollectionMethods.get_typed_line(this.sketch("h_to_g");
-        let h_to_i = CollectionMethods.get_typed_line(this.sketch("h_to_i");
+        let h_to_g = CollectionMethods.get_typed_line(this.sketch, "h_to_g");
+        let h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
 
         let angle = vec_angle_clockwise(
             h_to_g.p2.subtract(e),
@@ -562,8 +565,8 @@ export default class BasicBaseStage extends BaseStage {
 
         ln = this.sketch.line_between_points(h, glued.point);
 
-        let b = CollectionMethods.get_typed_point(this.sketch("b");
-        let f = CollectionMethods.get_typed_point(this.sketch("f");
+        let b = CollectionMethods.get_typed_point(this.sketch, "b");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
 
         let distance_vec = new Vector(0, f.subtract(b).y / 2);
 
@@ -572,7 +575,7 @@ export default class BasicBaseStage extends BaseStage {
 
         cuted = this.sketch.cut(ln, h);
 
-        let i_to_f = CollectionMethods.get_typed_line(this.sketch("i_to_f");
+        let i_to_f = CollectionMethods.get_typed_line(this.sketch, "i_to_f");
 
         i_to_f.p1.move_to(fun(i_to_f.p1));
         i_to_f.p2.move_to(fun(i_to_f.p2));
@@ -714,18 +717,21 @@ export default class BasicBaseStage extends BaseStage {
 
         let ease = (this.wd.ease * percentage) / 2; // das hier sollte noch von Aussen gesteuert werden
         // und ggf. fuer beide Punkte einzelnd die Groesse bestimmt werden
-        let e = CollectionMethods.get_typed_point(this.sketch("e");
-        let f = CollectionMethods.get_typed_point(this.sketch("f");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
 
         e.move_to(e.add(new Vector(-ease, 0)));
         f.move_to(f.add(new Vector(-ease, 0)));
     }
 
     #merge_to_dart() {
-        let pts = CollectionMethods.get_typed_point(this.sketchs("h");
+        let pts = CollectionMethods.get_typed_points(this.sketch, "h");
         //this.sketch.merge_points(pts[0], pts[1]);
 
-        let shoulder = CollectionMethods.get_typed_line(this.sketch("shoulder");
+        let shoulder = CollectionMethods.get_typed_line(
+            this.sketch,
+            "shoulder",
+        );
         let temp = this.sketch.split_line_at_fraction(shoulder, 0.9); // TODO: das hier ggf. ändern
         let k = temp.point;
         k.data.type = "k";
@@ -736,18 +742,18 @@ export default class BasicBaseStage extends BaseStage {
         temp.line_segments[1].data.type = "l_to_c";
 
         this.sketch.line_between_points(
-            CollectionMethods.get_typed_line(this.sketch("h_to_g").p1,
+            CollectionMethods.get_typed_line(this.sketch, "h_to_g").p1,
             k,
         ).data.type = "h_to_k";
         this.sketch.line_between_points(
-            CollectionMethods.get_typed_line(this.sketch("h_to_i").p1,
+            CollectionMethods.get_typed_line(this.sketch, "h_to_i").p1,
             l,
         ).data.type = "h_to_l";
-        let h = CollectionMethods.get_typed_point(this.sketch("h");
-        //let angle = vec_angle_clockwise(CollectionMethods.get_typed_line(this.sketch("h_to_g").get_line_vector(), CollectionMethods.get_typed_line(this.sketch("h_to_i").get_line_vector());
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
+        //let angle = vec_angle_clockwise(CollectionMethods.get_typed_line(this.sketch, "h_to_g").get_line_vector(), CollectionMethods.get_typed_line(this.sketch, "h_to_i").get_line_vector());
 
-        let f = CollectionMethods.get_typed_point(this.sketch("f");
-        let g = CollectionMethods.get_typed_point(this.sketch("g");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
+        let g = CollectionMethods.get_typed_point(this.sketch, "g");
 
         let triangle = triangle_data({
             a: g.subtract(h).length(),
@@ -771,8 +777,8 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #draw_bottom_for_type_one_and_two() {
-        let f = CollectionMethods.get_typed_point(this.sketch("f");
-        let b = CollectionMethods.get_typed_point(this.sketch("b");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
+        let b = CollectionMethods.get_typed_point(this.sketch, "b");
         let b_to_m = this.sketch.line_at_angle(
             b,
             deg_to_rad(180),
@@ -821,9 +827,9 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     one_waistline_dart() {
-        let h_to_g = CollectionMethods.get_typed_line(this.sketch("h_to_g");
-        let h_to_i = CollectionMethods.get_typed_line(this.sketch("h_to_i");
-        let h = CollectionMethods.get_typed_point(this.sketch("h");
+        let h_to_g = CollectionMethods.get_typed_line(this.sketch, "h_to_g");
+        let h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
         // hier wird der Abnäher gemalt und vervollständigt
         let len;
         if (this.side == "front") {
@@ -836,17 +842,21 @@ export default class BasicBaseStage extends BaseStage {
         j.data.type = "j";
 
         len = h_to_g.p2.subtract(h_to_i.p2).length() / 2;
-        len = CollectionMethods.get_typed_line(this.sketch("b_to_g").get_length() - len;
+        len =
+            CollectionMethods.get_typed_line(
+                this.sketch,
+                "b_to_g",
+            ).get_length() - len;
         //console.log(len)
         let pt = this.sketch.split_line_at_length(
-            CollectionMethods.get_typed_line(this.sketch("b_to_g"),
+            CollectionMethods.get_typed_line(this.sketch, "b_to_g"),
             len,
         ).point;
         const cut_res = this.sketch.cut([h, pt], h);
 
         this.sketch.glue(h_to_i, h_to_g);
 
-        let i = CollectionMethods.get_typed_line(this.sketch("i_to_f").p1;
+        let i = CollectionMethods.get_typed_line(this.sketch, "i_to_f").p1;
         let lns = i.get_adjacent_lines();
         let ln = this.sketch.merge_lines(lns[0], lns[1], true);
         ln.p1.data.type = "i";
@@ -854,7 +864,7 @@ export default class BasicBaseStage extends BaseStage {
         ln = i.other_adjacent_line(ln);
         ln.data.type = "h_to_i";
         ln.data.sub_type = "dart";
-        ln = CollectionMethods.get_typed_line(this.sketch("b_to_g");
+        ln = CollectionMethods.get_typed_line(this.sketch, "b_to_g");
         let g = ln.p2;
         g.data.type = "g";
         ln = g.other_adjacent_line(ln);
@@ -874,9 +884,9 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     two_waistline_darts() {
-        let h_to_g = CollectionMethods.get_typed_line(this.sketch("h_to_g");
-        let h_to_i = CollectionMethods.get_typed_line(this.sketch("h_to_i");
-        let h = CollectionMethods.get_typed_point(this.sketch("h");
+        let h_to_g = CollectionMethods.get_typed_line(this.sketch, "h_to_g");
+        let h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
         // hier wird der Abnäher gemalt und vervollständigt
         let len;
         if (this.side == "front") {
@@ -890,7 +900,12 @@ export default class BasicBaseStage extends BaseStage {
 
         let diff = h_to_g.p2.subtract(h_to_i.p2).length();
         len =
-            diff + CollectionMethods.get_typed_line(this.sketch("i_to_f").get_length() / 3;
+            diff +
+            CollectionMethods.get_typed_line(
+                this.sketch,
+                "i_to_f",
+            ).get_length() /
+                3;
         vec = new Vector(-len, 0);
 
         let p = this.sketch.add_point(h.add(vec));
@@ -909,7 +924,7 @@ export default class BasicBaseStage extends BaseStage {
         i.data.type = "i";
 
         if (this.sketch.data.base_type == 2 && this.sketch.initial_type != 2) {
-            let f = CollectionMethods.get_typed_point(this.sketch("f");
+            let f = CollectionMethods.get_typed_point(this.sketch, "f");
             vec = new Vector(0, r.subtract(f).y / 2);
             s.move_to(s.subtract(vec));
             r.move_to(r.subtract(vec));
@@ -945,8 +960,8 @@ export default class BasicBaseStage extends BaseStage {
         ln.data.type = "q_to_s";
         ln.data.sub_type = "dart";
 
-        let f = CollectionMethods.get_typed_point(this.sketch("f");
-        let b = CollectionMethods.get_typed_point(this.sketch("b");
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
+        let b = CollectionMethods.get_typed_point(this.sketch, "b");
         ln = this.sketch.line_between_points(b, g);
         ln.data.type = "b_to_g";
         ln = this.sketch.line_between_points(i, r);
@@ -965,12 +980,20 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #construct_armpit() {
-        let pt = CollectionMethods.get_typed_point(this.sketch("armpit_point1");
-        let pt2 = CollectionMethods.get_typed_point(this.sketch("armpit_point2");
-        let c = CollectionMethods.get_typed_point(this.sketch("c");
-        let e = CollectionMethods.get_typed_point(this.sketch("e");
-        let side_vec =
-            CollectionMethods.get_typed_line(this.sketch("side").get_line_vector();
+        let pt = CollectionMethods.get_typed_point(
+            this.sketch,
+            "armpit_point1",
+        );
+        let pt2 = CollectionMethods.get_typed_point(
+            this.sketch,
+            "armpit_point2",
+        );
+        let c = CollectionMethods.get_typed_point(this.sketch, "c");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
+        let side_vec = CollectionMethods.get_typed_line(
+            this.sketch,
+            "side",
+        ).get_line_vector();
         let vec = side_vec
             .get_orthonormal()
             .scale(-7)
@@ -989,8 +1012,8 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #construct_armpit_new() {
-        let c = CollectionMethods.get_typed_point(this.sketch("c");
-        let e = CollectionMethods.get_typed_point(this.sketch("e");
+        let c = CollectionMethods.get_typed_point(this.sketch, "c");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
 
         const tiefe = this.sh.bust / 90;
         const entlang = 0.75;
@@ -1010,15 +1033,15 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #add_pattern_type() {
-        const e = CollectionMethods.get_typed_point(this.sketch("e");
+        const e = CollectionMethods.get_typed_point(this.sketch, "e");
         e.move_to(e.subtract(new Vector(this.basic_config.width.bust / 4, 0)));
 
-        const f = CollectionMethods.get_typed_point(this.sketch("f");
+        const f = CollectionMethods.get_typed_point(this.sketch, "f");
         f.move_to(
             f.subtract(new Vector(this.basic_config.width.waistline / 4, 0)),
         );
 
-        const o = CollectionMethods.get_typed_point(this.sketch("o");
+        const o = CollectionMethods.get_typed_point(this.sketch, "o");
         o.move_to(
             o.subtract(
                 new Vector(
@@ -1030,7 +1053,7 @@ export default class BasicBaseStage extends BaseStage {
             ),
         );
 
-        const n = CollectionMethods.get_typed_point(this.sketch("n");
+        const n = CollectionMethods.get_typed_point(this.sketch, "n");
         n.move_to(
             n.subtract(new Vector(this.basic_config.width.bottom / 4, 0)),
         );
@@ -1041,8 +1064,8 @@ export default class BasicBaseStage extends BaseStage {
             return;
         }
 
-        const m = CollectionMethods.get_typed_point(this.sketch("m");
-        const e = CollectionMethods.get_typed_point(this.sketch("e");
+        const m = CollectionMethods.get_typed_point(this.sketch, "m");
+        const e = CollectionMethods.get_typed_point(this.sketch, "e");
         const len = this.wd.distance;
         if (this.basic_config.fabric == "jersey") {
             m.move_to(m.add(new Vector(0, len / 3)));
@@ -1054,10 +1077,11 @@ export default class BasicBaseStage extends BaseStage {
     }
 
     #widen_armpit() {
-        CollectionMethods.get_typed_line(this.sketch("m_to_n").data.type = "bottom";
-        const e = CollectionMethods.get_typed_point(this.sketch("e");
-        const c = CollectionMethods.get_typed_point(this.sketch("c");
-        const side = CollectionMethods.get_typed_line(this.sketch("side");
+        CollectionMethods.get_typed_line(this.sketch, "m_to_n").data.type =
+            "bottom";
+        const e = CollectionMethods.get_typed_point(this.sketch, "e");
+        const c = CollectionMethods.get_typed_point(this.sketch, "c");
+        const side = CollectionMethods.get_typed_line(this.sketch, "side");
         e.move_to(side.get_line_vector().normalize().scale(3).add(e));
         this.wd.measurements.distance_armpit = e.subtract(c).length();
         this.wd.measurements.armpit_length = this.sketch

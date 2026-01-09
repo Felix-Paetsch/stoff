@@ -1,7 +1,7 @@
 // Wird nach den Curve Stages verwendet, um zu vereifachen, wie viel geschnitten wird
 
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
 import {
     Vector,
@@ -36,7 +36,7 @@ export default class CutLengthStage extends BaseStage {
         if (percent == 1) {
             return;
         }
-        const lns = this.sketch.get_typed_lines("bottom");
+        const lns = CollectionMethods.get_typed_lines(this.sketch, "bottom");
         let len =
             (1 - percent) *
             (0.6 * (this.wd.sh.center + this.wd.sh.waist_height));
@@ -55,26 +55,26 @@ export default class CutLengthStage extends BaseStage {
 
             let temp1 = this.sketch.intersect_lines(
                 ln.p1.other_adjacent_line(ln),
-                ln_h
+                ln_h,
             );
 
             at_url(this.sketch, "/bla");
 
             let temp2 = this.sketch.intersect_lines(
                 ln.p2.other_adjacent_line(ln),
-                temp1.l2_segments[1]
+                temp1.l2_segments[1],
             );
 
             this.sketch.remove(
                 temp1.l2_segments[0].p1,
-                temp2.l2_segments[1].p2
+                temp2.l2_segments[1].p2,
             );
             this.sketch.remove(ln.p1, ln.p2);
         });
     }
 
     #merge_fill_in() {
-        let lines = this.sketch.get_typed_lines("fill in");
+        let lines = CollectionMethods.get_typed_lines(this.sketch, "fill in");
         let adjacent;
         let temp;
         lines.forEach((line) => {

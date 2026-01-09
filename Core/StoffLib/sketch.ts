@@ -12,16 +12,16 @@ import CONF from "./config.json";
 import SketchElementCollection from "./sketch_element_collection";
 
 import assert from "../assert";
-import { has_sketch } from "./assert_methods/exports";
-import { SketchElementCollectionLike } from "./types";
+import { SketchElement, SketchElementCollectionLike } from "./types";
 import auto_validate from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
 import * as RenderingMethods from "./sketch_methods/rendering_methods/exports";
 import line_with_length_fn from "./unicorns/line_with_length";
 import { radians, length } from "./geometry/types";
-import ConnectedComponent from "./connected_component";
+import { AvoidantConnectedComponent, ConnectedComponent } from "./connected_component";
 import path from "path";
+import { same_sketch } from "./assert_methods/exports";
 
 export default class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
@@ -69,7 +69,7 @@ export default class Sketch {
 
     remove_lines(...lines: Line[]) {
         lines.forEach((l) => {
-            assert(has_sketch(l, this));
+            assert(same_sketch(l, this));
         });
 
         for (const line of lines) {
@@ -87,7 +87,7 @@ export default class Sketch {
 
     remove_points(...points: Point[]) {
         points.forEach((p) => {
-            assert(has_sketch(p, this));
+            assert(same_sketch(p, this));
         });
 
         for (const pt of points) {
@@ -238,15 +238,13 @@ export default class Sketch {
     line_from_function_graph(
         pt1: Point,
         pt2: Point,
-        f_1: LineMethods.NumberFunction,
-        f_2: LineMethods.NumberFunction | null = null
+        f_1: LineMethods.NumberFunction | LineMethods.TwoNumberFunction,
     ) {
         return LineMethods.line_from_function_graph(
             this,
             pt1,
             pt2,
-            f_1,
-            f_2
+            f_1
         )
     }
 
@@ -335,6 +333,30 @@ export default class Sketch {
                 const new_component = new ConnectedComponent(p);
                 components.push(new_component);
                 visited_points.push(...new_component.get_points());
+            }
+        }
+
+        return components;
+    }
+
+    get_avoidant_connected_components(se: SketchElement[]) {
+        const components: AvoidantConnectedComponent[] = [];
+        const visited_points: Point[] = [];
+
+        for (const p of this.points) {
+            if (
+                !visited_points.includes(p)
+                && !se.includes(p)
+            ) {
+                const new_component = new AvoidantConnectedComponent(p, se);
+                components.push(new_component);
+                visited_points.push(...new_component.get_points());
+            }
+        }
+
+        for (const l of this.lines) {
+            if (se.includes(l.p1) && se.includes(l.p2)) {
+                components.push(new AvoidantConnectedComponent(l, se));
             }
         }
 

@@ -1,5 +1,5 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline, arc } from "../../../Core/StoffLib/curves.js";
 import {
     Vector,
@@ -25,7 +25,10 @@ export default class NecklineBaseStage extends BaseStage {
     }
 
     v_line() {
-        const neckline = this.sketch.get_typed_line("neckline");
+        const neckline = CollectionMethods.get_typed_line(
+            this.sketch,
+            "neckline",
+        );
         let p1 = neckline.p1;
         let vec = neckline.p2.add(new Vector(0, 3));
         let p4 = neckline.p2;
@@ -37,14 +40,14 @@ export default class NecklineBaseStage extends BaseStage {
         let curve = this.sketch.line_from_function_graph(
             p1,
             p4,
-            spline.bezier([p1, p2, p4])
+            spline.bezier([p1, p2, p4]),
         );
         this.sketch.remove(neckline, p2);
         curve.data.type = "neckline";
     }
 
     wide_neckline(percent) {
-        let d = this.sketch.get_typed_point("d");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
         const shoulder = d.get_adjacent_line();
 
         let vec = shoulder.get_line_vector().scale(percent * 0.95);
@@ -53,7 +56,7 @@ export default class NecklineBaseStage extends BaseStage {
     }
 
     deep_neckline(percent) {
-        let a = this.sketch.get_typed_point("a");
+        let a = CollectionMethods.get_typed_point(this.sketch, "a");
         const fold = a.get_adjacent_line();
 
         let vec = fold
@@ -67,8 +70,8 @@ export default class NecklineBaseStage extends BaseStage {
     // möchte man das tiefer oder weiter haben, sollte man dies vor dem Aufruf dieser
     // Funktion mit den obrigen Funktionen machen!
     round_neckline() {
-        let a = this.sketch.get_typed_point("a");
-        let d = this.sketch.get_typed_point("d");
+        let a = CollectionMethods.get_typed_point(this.sketch, "a");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
         let p = this.sketch.point(d.x, a.y);
         let p2 = this.sketch.point(p.copy());
 
@@ -94,7 +97,7 @@ export default class NecklineBaseStage extends BaseStage {
         let l = this.sketch.line_from_function_graph(
             d,
             a,
-            spline.bezier([d, p, p2, a])
+            spline.bezier([d, p, p2, a]),
         );
         l.data.type = "neckline";
         l.set_color("black");
@@ -104,8 +107,8 @@ export default class NecklineBaseStage extends BaseStage {
     }
 
     square_neckline() {
-        let a = this.sketch.get_typed_point("a");
-        let d = this.sketch.get_typed_point("d");
+        let a = CollectionMethods.get_typed_point(this.sketch, "a");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
         let p = this.sketch.point(d.x, a.y);
 
         let ln1 = this.sketch.line_between_points(p, a);

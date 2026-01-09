@@ -1,7 +1,7 @@
 import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 import Line from "../../../StoffLib/line";
 import Face from "../face";
-import ConnectedComponent from "@/Core/StoffLib/connected_component";
+import { ConnectedComponent } from "@/Core/StoffLib/connected_component";
 import FaceAtlas from "../faceAtlas";
 import RogueComponent from "../rogue";
 import Point from "@/Core/StoffLib/point";

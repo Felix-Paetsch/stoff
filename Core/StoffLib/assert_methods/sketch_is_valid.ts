@@ -5,8 +5,8 @@ import Line from "../line.js";
 import Point from "../point.js";
 import { at_url } from "../../Debug/render_at.js";
 import Sketch from "../sketch";
-import { has_sketch } from "./exports.js";
-import ConnectedComponent from "../connected_component.js";
+import { ConnectedComponent } from "../connected_component.js";
+import { same_sketch } from "./exports.js";
 
 let currently_validating = false;
 
@@ -36,7 +36,7 @@ export function validate_sketch(sk: Sketch) {
 
 function validate_line(l: Line, s: Sketch): ValidationResult {
     const validations: (ValidationFunction | ValidationResult)[] = [
-        () => has_sketch(l, s),
+        () => same_sketch(l, s),
         () => relative_endpoints_are_correct(l),
         () => sketch_points_as_enpoints(s, l),
         () => no_nan_values(l),
@@ -71,7 +71,7 @@ function validate_point(
     s: Sketch
 ) {
     const validations: (ValidationFunction | ValidationResult)[] = [
-        () => has_sketch(p, s),
+        () => same_sketch(p, s),
         () => adjacent_lines_have_endpoint(p),
         () => data_object_valid(p.data, s),
     ];

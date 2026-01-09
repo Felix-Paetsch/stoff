@@ -34,6 +34,7 @@ export default function auto_validate(Sketch: SketchType) {
             const was_already_internal = currently_internal;
             currently_internal = true;
 
+            // console.log(args);
             const result = originalMethod.apply(this, args);
 
             if (!was_already_internal) validate_sketch(this);

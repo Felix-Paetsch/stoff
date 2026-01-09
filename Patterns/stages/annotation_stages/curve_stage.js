@@ -1,5 +1,5 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
 import Line from "../../../Core/StoffLib/line.js";
 import {
@@ -28,30 +28,30 @@ export default class CurveLinesStage extends BaseStage {
     // diese Funktion soll noch raus / anders werden.
     // Dafür muss geklärt werden, ob nach dem Trennen, die Komponenten auf eigene Sketches gepackt werden sollen oder nicht
     curve_lines() {
-        let lns_h = this.sketch.get_typed_lines("cut h");
-        let lns_p = this.sketch.get_typed_lines("cut p");
+        let lns_h = CollectionMethods.get_typed_lines(this.sketch, "cut h");
+        let lns_p = CollectionMethods.get_typed_lines(this.sketch, "cut p");
         let comp;
 
         if (lns_p.length > 0) {
             comp = new ConnectedComponent(lns_p[0]);
             this.curve_outer_lines(
-                comp.lines_by_key("type")["cut p"]
+                comp.lines_by_key("type")["cut p"],
             ).data.type = "side";
-            lns_p = this.sketch.get_typed_lines("cut p");
+            lns_p = CollectionMethods.get_typed_lines(this.sketch, "cut p");
             comp = new ConnectedComponent(lns_p[0]);
             this.curve_outer_lines(
-                comp.lines_by_key("type")["cut p"]
+                comp.lines_by_key("type")["cut p"],
             ).data.type = "side";
         }
         if (lns_h.length > 0) {
             comp = new ConnectedComponent(lns_h[0]);
             this.curve_outer_lines(
-                comp.lines_by_key("type")["cut h"]
+                comp.lines_by_key("type")["cut h"],
             ).data.type = "side";
-            lns_h = this.sketch.get_typed_lines("cut h");
+            lns_h = CollectionMethods.get_typed_lines(this.sketch, "cut h");
             comp = new ConnectedComponent(lns_h[0]);
             this.curve_outer_lines(
-                comp.lines_by_key("type")["cut h"]
+                comp.lines_by_key("type")["cut h"],
             ).data.type = "side";
         }
 
@@ -71,7 +71,7 @@ export default class CurveLinesStage extends BaseStage {
         for (let i = 0; i < lines.length; i++) {
             intp_pts.push(
                 lines[i].position_at_fraction(0.2, !lines.orientations[i]),
-                lines[i].position_at_fraction(0.8, !lines.orientations[i])
+                lines[i].position_at_fraction(0.8, !lines.orientations[i]),
             );
         }
 
@@ -80,30 +80,30 @@ export default class CurveLinesStage extends BaseStage {
         lines.points.slice(1, -1).forEach((p) => p.remove());
         return this.sketch.plot(
             ...target_endpoints,
-            spline.catmull_rom_spline(intp_pts)
+            spline.catmull_rom_spline(intp_pts),
         );
     }
 
     curve_side() {
         let lines = [];
-        //lines.push(this.sketch.get_typed_line("side"));
-        let f = this.sketch.get_typed_point("f");
+        //lines.push(CollectionMethods.get_typed_line(this.sketch, "side"));
+        let f = CollectionMethods.get_typed_point(this.sketch, "f");
         lines.push(
             f.get_adjacent_lines().filter((line) => {
                 return line.data.type == "side";
-            })[0]
+            })[0],
         );
-        lines.push(this.sketch.get_typed_line("f_to_o"));
-        lines.push(this.sketch.get_typed_line("o_to_n"));
+        lines.push(CollectionMethods.get_typed_line(this.sketch, "f_to_o"));
+        lines.push(CollectionMethods.get_typed_line(this.sketch, "o_to_n"));
 
         this.curve_outer_lines(lines).data.type = "side";
     }
 
     complete_fold() {
         let line = this.sketch.merge_lines(
-            this.sketch.get_typed_line("fold"),
-            this.sketch.get_typed_line("b_to_m"),
-            true
+            CollectionMethods.get_typed_line(this.sketch, "fold"),
+            CollectionMethods.get_typed_line(this.sketch, "b_to_m"),
+            true,
         );
         line.data.type = "fold";
         return line;

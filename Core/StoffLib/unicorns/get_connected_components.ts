@@ -1,8 +1,4 @@
-import ConnectedComponent from "../connected_component.js";
-import {
-    SketchElement,
-    SketchElementCollectionLike,
-} from "../types.js";
+import { ConnectedComponent } from "../connected_component.js";
 import SketchElementCollection from "../sketch_element_collection.js";
 import Point from "../point.js";
 import Line from "../line.js";

@@ -5,7 +5,7 @@ import { RenderableLine, RenderablePoint, sketch_to_renderable } from "./sketch_
 import CONF from "../../config.json" with { type: "json" };
 import url from "url";
 import Sketch from "../../sketch";
-import { get_bounding_box } from "../../collection_methods/exports";
+import { get_bounding_box } from "../../collection";
 
 // Define constants
 const PX_PER_CM = CONF.PX_PER_CM; // Pixels per centimeter

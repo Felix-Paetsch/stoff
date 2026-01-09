@@ -1,5 +1,5 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
 import Line from "../../../Core/StoffLib/line.js";
 import {
@@ -26,8 +26,8 @@ export default class CurveBottomCutStage extends BaseStage {
     }
 
     curve_styleline() {
-        let d = this.sketch.get_typed_point("d");
-        let e = this.sketch.get_typed_point("e");
+        let d = CollectionMethods.get_typed_point(this.sketch, "d");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
 
         let comp = new ConnectedComponent(d);
 
@@ -47,13 +47,13 @@ export default class CurveBottomCutStage extends BaseStage {
             lines.push(
                 lns.filter((line) => {
                     return line.data.type == "cut h";
-                })[0]
+                })[0],
             );
             lines.push(ln.p1.other_adjacent_line(ln));
             let curve = this.#curve_outer_lines(lines);
             curve.data.type = "cut";
             curve.data.darttip = "h";
-            lines2 = this.sketch.get_typed_lines("cut h");
+            lines2 = CollectionMethods.get_typed_lines(this.sketch, "cut h");
             let curve2 = this.#curve_outer_lines(lines2);
             curve2.data.type = "cut";
             curve2.data.darttip = "h";
@@ -64,13 +64,13 @@ export default class CurveBottomCutStage extends BaseStage {
             lines.push(
                 lns.filter((line) => {
                     return line.data.type == "cut p";
-                })[0]
+                })[0],
             );
             lines.push(ln.p1.other_adjacent_line(ln));
             let curve = this.#curve_outer_lines(lines);
             curve.data.type = "cut";
             curve.data.darttip = "p";
-            lines2 = this.sketch.get_typed_lines("cut p");
+            lines2 = CollectionMethods.get_typed_lines(this.sketch, "cut p");
             let curve2 = this.#curve_outer_lines(lines2);
             curve2.data.type = "cut";
             curve2.data.darttip = "p";
@@ -87,8 +87,8 @@ export default class CurveBottomCutStage extends BaseStage {
                     this.curve_inner_waistline_dart("outer");
                     return;
                 case "inner":
-                    p1 = this.sketch.get_typed_point("g");
-                    p2 = this.sketch.get_typed_point("i");
+                    p1 = CollectionMethods.get_typed_point(this.sketch, "g");
+                    p2 = CollectionMethods.get_typed_point(this.sketch, "i");
                     this.sketch
                         .get_typed_point("j")
                         .get_adjacent_lines()
@@ -97,8 +97,8 @@ export default class CurveBottomCutStage extends BaseStage {
                         });
                     break;
                 case "outer":
-                    p1 = this.sketch.get_typed_point("r");
-                    p2 = this.sketch.get_typed_point("s");
+                    p1 = CollectionMethods.get_typed_point(this.sketch, "r");
+                    p2 = CollectionMethods.get_typed_point(this.sketch, "s");
                     this.sketch
                         .get_typed_point("q")
                         .get_adjacent_lines()
@@ -119,8 +119,8 @@ export default class CurveBottomCutStage extends BaseStage {
             });
             this.#curve_outer_lines(adjacent).data.sub_type = "dart";
         } else {
-            let ln = this.sketch.get_typed_line("h_to_i");
-            let ln2 = this.sketch.get_typed_line("p_to_s");
+            let ln = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+            let ln2 = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
             if (ln) {
                 this.curve_inner_waistline_dart("inner");
             }
@@ -142,7 +142,7 @@ export default class CurveBottomCutStage extends BaseStage {
         for (let i = 0; i < lines.length; i++) {
             intp_pts.push(
                 lines[i].position_at_fraction(0.2, !lines.orientations[i]),
-                lines[i].position_at_fraction(0.8, !lines.orientations[i])
+                lines[i].position_at_fraction(0.8, !lines.orientations[i]),
             );
         }
         intp_pts.push(target_endpoints[1]);
@@ -151,7 +151,7 @@ export default class CurveBottomCutStage extends BaseStage {
 
         return this.sketch.plot(
             ...target_endpoints,
-            spline.catmull_rom_spline(intp_pts)
+            spline.catmull_rom_spline(intp_pts),
         );
     }
 }

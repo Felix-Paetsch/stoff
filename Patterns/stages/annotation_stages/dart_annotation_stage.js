@@ -1,5 +1,5 @@
 import BaseStage from "../../../Core/Stages/base_stages/baseStage.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
 import {
     Vector,
@@ -44,11 +44,11 @@ export default class DartAnnotationStage extends BaseStage {
     }
 
     #mirror() {
-        let line = this.sketch.get_typed_line("fold");
+        let line = CollectionMethods.get_typed_line(this.sketch, "fold");
         this.sketch.unfold(line);
 
-        let a = this.sketch.get_typed_point("a");
-        let m = this.sketch.get_typed_point("m");
+        let a = CollectionMethods.get_typed_point(this.sketch, "a");
+        let m = CollectionMethods.get_typed_point(this.sketch, "m");
         let lines = a.get_adjacent_lines();
         this.sketch.merge_lines(lines[0], lines[1], true);
         lines = m.get_adjacent_lines();
@@ -58,7 +58,7 @@ export default class DartAnnotationStage extends BaseStage {
     manipulate_darts(config) {
         const len = config.additional.manipulation_distance;
 
-        const h = this.sketch.get_typed_point("h");
+        const h = CollectionMethods.get_typed_point(this.sketch, "h");
         if (!h) {
             return;
         }
@@ -137,7 +137,7 @@ export default class DartAnnotationStage extends BaseStage {
 
         let ln = this.sketch.plot(
             ...points,
-            spline.catmull_rom_spline(intp_pts)
+            spline.catmull_rom_spline(intp_pts),
         );
         ln.data = data;
 
@@ -162,8 +162,8 @@ export default class DartAnnotationStage extends BaseStage {
 
     // erst alle anderen Abnäher verschieben und von h und p lösen
     move_waistline_dart(distance = 3) {
-        let p = this.sketch.get_typed_point("p");
-        let h = this.sketch.get_typed_point("h");
+        let p = CollectionMethods.get_typed_point(this.sketch, "p");
+        let h = CollectionMethods.get_typed_point(this.sketch, "h");
         let vec = new Vector(0, 1);
         vec = vec.scale(distance);
 
@@ -174,7 +174,7 @@ export default class DartAnnotationStage extends BaseStage {
             h.move_to(h.add(vec));
         }
 
-        let pts = this.sketch.get_typed_points("to_merge");
+        let pts = CollectionMethods.get_typed_points(this.sketch, "to_merge");
 
         /*
         if(pts.length > 2){
@@ -193,7 +193,10 @@ export default class DartAnnotationStage extends BaseStage {
     }
 
     dart_annotation(dart_number, shift_length = 3) {
-        let dart_lines = this.sketch.get_typed_lines("dart").filter((line) => {
+        let dart_lines = CollectionMethods.get_typed_lines(
+            this.sketch,
+            "dart",
+        ).filter((line) => {
             return line.data.dart_number == dart_number;
         });
 
@@ -201,7 +204,7 @@ export default class DartAnnotationStage extends BaseStage {
             "Abnähernummer" + dart_number + "existiert nicht",
             () => {
                 return dart_lines.length > 0;
-            }
+            },
         );
 
         let fill_in = this.sketch
@@ -226,9 +229,9 @@ export default class DartAnnotationStage extends BaseStage {
         line.data.type = "annotation";
         line.data.dart_number = dart_number;
         line.data.sewing = "close_dart";
-        line.set_handedness(true)
-        dart_lines[0].set_handedness(true)
-        dart_lines[1].set_handedness(true)
+        line.set_handedness(true);
+        dart_lines[0].set_handedness(true);
+        dart_lines[1].set_handedness(true);
 
         //  this.sketch.remove(dart_lines[0].p1);
         this.remove_dart_lines_from_outline(dart_lines[0].p1);
@@ -253,7 +256,7 @@ export default class DartAnnotationStage extends BaseStage {
     }
 
     annotate_inner_waistline_dart(type = "h", position = "inner") {
-        const p = this.sketch.get_typed_point(type);
+        const p = CollectionMethods.get_typed_point(this.sketch, type);
 
         if (p) {
             const lines = p.get_adjacent_lines();
@@ -313,7 +316,7 @@ export default class DartAnnotationStage extends BaseStage {
 
         return this.sketch.plot(
             ...target_endpoints,
-            spline.catmull_rom_spline(intp_pts)
+            spline.catmull_rom_spline(intp_pts),
         );
     }
 
@@ -329,13 +332,13 @@ export default class DartAnnotationStage extends BaseStage {
 
         return this.sketch.plot(
             ...target_endpoints,
-            spline.catmull_rom_spline(intp_pts)
+            spline.catmull_rom_spline(intp_pts),
         );
     }
 
     /*
     annotate_outer_waistline_dart(){
-      const p = this.sketch.get_typed_point("p");
+      const p = CollectionMethods.get_typed_point(this.sketch, "p");
       if (p){
         const lines = p.get_adjacent_lines();
         let ln = this.curve_dart(lines[0].p2.get_adjacent_lines());
@@ -356,7 +359,7 @@ export default class DartAnnotationStage extends BaseStage {
     }
 */
     annotate_waistline_dart() {
-        const ln = this.sketch.get_typed_line("i_to_r");
+        const ln = CollectionMethods.get_typed_line(this.sketch, "i_to_r");
         if (ln) {
             this.sketch.remove(ln);
         }

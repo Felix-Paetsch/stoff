@@ -12,7 +12,7 @@ import Sketch from "../sketch";
 import assert from "../../assert.js";
 import { interpolate_colors } from "../colors.js";
 import CONF from "../config.json" with { type: "json" };
-import { has_sketch, same_sketch } from "../assert_methods/exports.js";
+import { same_sketch } from "../assert_methods/exports.js";
 import { length, radians } from "../geometry/types.js";
 import { copy_data_callback, copy_sketch_obj_data, CopySketchDataCallback, default_data_callback } from "../copy.js";
 import SketchElementCollection from "../sketch_element_collection.js";
@@ -24,7 +24,7 @@ export function line_between_points(
     pt2: Point
 ) {
     [pt1, pt2].forEach((p) => {
-        assert(has_sketch(p, sketch));
+        assert(same_sketch(p, sketch));
     });
 
     const l = Line.straight(pt1, pt2);
@@ -58,20 +58,20 @@ export function line_at_angle(
 }
 
 export type NumberFunction = (t: number) => number;
+export type TwoNumberFunction = (t: number) => [number, number];
 
 export function line_from_function_graph(
     sketch: Sketch,
     pt1: Point,
     pt2: Point,
-    f_1: NumberFunction,
-    f_2: NumberFunction | null = null
+    f_1: NumberFunction | TwoNumberFunction
 ) {
     let f: (t: number) => [number, number];
 
-    if (f_2 == null) {
-        f = (t) => [t, f_1(t)];
+    if (typeof f_1(1) == "number") {
+        f = (t) => [t, f_1(t) as number];
     } else {
-        f = (t) => [f_1(t), f_2(t)];
+        f = f_1 as TwoNumberFunction;
     }
 
     const n = Math.ceil(1 / sketch.sample_density);
@@ -101,7 +101,7 @@ export function _line_between_points_from_sample_points(
     sp: Vector[]
 ) {
     [pt1, pt2].forEach((p) => {
-        assert(has_sketch(p, sketch));
+        assert(same_sketch(p, sketch));
     });
 
     const to_rel_fun = affine_transform_from_input_output(
@@ -123,7 +123,7 @@ export function interpolate_lines(
     p2: NumberFunction = (x) => x
 ) {
     [line1, line2].forEach((l) => {
-        assert(has_sketch(l, sketch));
+        assert(same_sketch(l, sketch));
     });
 
     function normalize_fun(g: NumberFunction): NumberFunction {
@@ -375,7 +375,7 @@ export function split_line_at_length(
     data_callback: CopySketchDataCallback = copy_data_callback,
     reversed: boolean = false
 ) {
-    assert(has_sketch(line, sketch));
+    assert(same_sketch(line, sketch));
     const position = line.position_at_length(length, reversed);
     const pt = sketch.add_point(position);
     return sketch.point_on_line(pt, line, data_callback);

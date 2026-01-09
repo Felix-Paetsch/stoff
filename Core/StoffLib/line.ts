@@ -7,10 +7,11 @@ import {
     EPS,
     is_convex,
     orientation,
-    BoundingBox
+    BoundingBox,
+    polygon_orientation
 } from "./geometry.js";
 import Point from "./point.js";
-import ConnectedComponent from "./connected_component.js";
+import { ConnectedComponent } from "./connected_component";
 import assert from "../assert.js";
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from "./line_methods/offset_sample_points.js";
@@ -22,8 +23,8 @@ import Sketch from "./sketch";
 import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
 import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types";
-import { self_intersects } from "./unicorns/self_intersects.js";
-import * as SketchElementCollectionMethods from "./collection_methods/exports";
+import { self_intersects } from "./unicorns/self_intersects";
+import * as SketchElementCollectionMethods from "./collection.js";
 
 type LineAttributes = {
     stroke: Color;
@@ -31,7 +32,7 @@ type LineAttributes = {
     opacity: number;
 }
 
-class Line implements SketchElementCollectionLike {
+export default class Line implements SketchElementCollectionLike {
     public attributes: LineAttributes = {
         stroke: "rgb(0, 0, 0)",
         strokeWidth: 1,
@@ -120,7 +121,7 @@ class Line implements SketchElementCollectionLike {
 
     get_lines(): SketchElementCollection<Line> {
         return SketchElementCollectionMethods.unique(
-            new SketchElementCollection<Line>([...this.p1.get_lines(), ...this.p2.get_lines()])
+            new SketchElementCollection<Line>([this])
         ) as SketchElementCollection<Line>;
     }
 
@@ -409,13 +410,12 @@ class Line implements SketchElementCollectionLike {
     }
 
     get_endpoints(): SketchElementCollection<Point> & [Point, Point] {
-        return new SketchElementCollection([this.p1, this.p2], this.sketch) as any;
+        return new SketchElementCollection([this.p1, this.p2]) as any;
     }
 
     get_adjacent_lines() {
         return (new SketchElementCollection(
-            this.p1.get_lines().concat(this.p2.get_lines()),
-            this.sketch
+            this.p1.get_lines().concat(this.p2.get_lines())
         ) as any).unique()
             .filter((l: Line) => l !== this);
     }
@@ -803,14 +803,14 @@ class Line implements SketchElementCollectionLike {
             return r as any;
         }
         if (lines.length == 1) {
-            lines = new SketchElementCollection(lines, lines[0].get_sketch()) as any;
+            lines = new SketchElementCollection(lines) as any;
             (lines as any).orientations = true;
             (lines as any).points = lines[0].get_endpoints();
             return lines as any;
         };
         if (lines.length == 2) return set_two_line_orientations(lines);
 
-        const res: LineSketchElementCollection & { orientations: boolean[], points: Point[] } = new SketchElementCollection([], lines[0].get_sketch()) as any;
+        const res: LineSketchElementCollection & { orientations: boolean[], points: Point[] } = new SketchElementCollection([]) as any;
         res.push(lines.pop()!);
         res.orientations = [true];
         res.points = [res[0].p1, res[0].p2];
@@ -882,6 +882,37 @@ class Line implements SketchElementCollectionLike {
         return res;
     }
 
+    static oriented_circle(lines: Line[]): {
+        lines: Line[], // Im Uhrzeigersinn
+        points: Point[], // Im Uhrzeigersinn, startend mit dem Endpunkt der ersten Linie am weitersten vorne im Uhrzeigersinn
+        orientations: boolean[] // Für jede Linie ob p1 -> p2 im Uhrzeigersinn verläuft
+    } {
+        const ordered_lines = Line.order_by_endpoints(...lines);
+        assert(ordered_lines.points[0] == ordered_lines.points[ordered_lines.points.length - 1], "Lines dont form circle");
+
+        // We assume no self-intersection
+        const orientation = polygon_orientation(ordered_lines.points.slice(1));
+        if (!orientation) {
+            ordered_lines.reverse();
+            ordered_lines.points.reverse();
+            ordered_lines.orientations.reverse();
+            ordered_lines.orientations = ordered_lines.orientations.map(o => !o);
+        }
+
+        ordered_lines.points.shift();
+        ordered_lines.orientations.shift();
+        let orientations: boolean[];
+        if (!ordered_lines.orientations[0]) {
+            orientations = ordered_lines.orientations.map(o => !o);
+        }
+
+        return {
+            lines: ordered_lines,
+            points: ordered_lines.points,
+            orientations: ordered_lines.orientations
+        }
+    }
+
     static straight(...endpoints: [Point, Point]) {
         return new Line(endpoints, [
             new Vector(0, 0),
@@ -889,5 +920,3 @@ class Line implements SketchElementCollectionLike {
         ]);
     }
 }
-
-export default Line;

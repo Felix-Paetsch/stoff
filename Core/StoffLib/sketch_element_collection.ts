@@ -8,42 +8,41 @@ export type PointSketchElementCollection = SketchElementCollection<Point>;
 
 export default class SketchElementCollection<Type extends SketchElement = SketchElement> extends Array<Type> implements SketchElementCollectionLike {
     constructor(
-        arr: Type[] = [],
-        readonly sketch: Sketch | null = null
+        arr: Type[] = []
     ) {
         super();
         Object.setPrototypeOf(arr, SketchElementCollection.prototype);
-        (arr as any).sketch = sketch;
         return arr as SketchElementCollection<Type>;
     }
 
     copy() {
-        return new SketchElementCollection([...this], this.sketch);
+        return new SketchElementCollection([...this]);
     }
 
-    get_points() {
+    get_points(): SketchElementCollection<Point> {
         return new SketchElementCollection(this.filter((p: SketchElement) => p instanceof Point));
     }
 
-    get_lines() {
+    get_lines(): SketchElementCollection<Line> {
         return new SketchElementCollection(this.filter((l: SketchElement) => l instanceof Line));
     }
 
-    get_sketch(ignore_error = false) {
-        if (this.sketch) return this.sketch;
-        if (ignore_error) return new Sketch();
-        throw new Error("SketchElementCollection doesn't have an associated sketch.");
+    get_sketch() {
+        if (this[0]) {
+            return this[0].get_sketch();
+        }
+        return new Sketch();
     }
 
     filter(...args: Parameters<typeof Array.prototype.filter>) {
         return new SketchElementCollection(
-            super.filter(...args), this.sketch
+            super.filter(...args)
         );
     }
 
     concat(...args: Parameters<typeof Array.prototype.concat>) {
         return new SketchElementCollection(
-            super.concat(...args), this.sketch
+            super.concat(...args)
         );
     }
 

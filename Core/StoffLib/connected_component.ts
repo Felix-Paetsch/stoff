@@ -8,8 +8,9 @@ import Point from "./point";
 import Line from "./line";
 import Sketch from "./sketch";
 import SketchElementCollection from "./sketch_element_collection";
+import { same_sketch } from "./assert_methods/exports";
 
-class ConnectedComponent implements SketchElementCollectionLike {
+export class ConnectedComponent implements SketchElementCollectionLike {
     constructor(
         private root_el: SketchElement
     ) { }
@@ -83,11 +84,7 @@ class ConnectedComponent implements SketchElementCollectionLike {
         return this.obj().bounding_box;
     }
 
-    contains(el: SketchElement | ConnectedComponent): boolean {
-        if (el instanceof ConnectedComponent) {
-            return this.contains(el.root());
-        }
-
+    contains(el: SketchElement): boolean {
         const { points, lines } = this.obj();
         if (el instanceof Point) {
             return points.includes(el);
@@ -111,9 +108,9 @@ class ConnectedComponent implements SketchElementCollectionLike {
             currently_visiting_point = this.root_el.p1;
         }
 
-        const visited_points = (this as any).new_sketch_element_collection();
-        const visited_lines = (this as any).new_sketch_element_collection();
-        const to_visit_points = [currently_visiting_point];
+        const visited_points = new SketchElementCollection<Point>();
+        const visited_lines = new SketchElementCollection<Line>();
+        const to_visit_points: Point[] = [currently_visiting_point];
 
         while (to_visit_points.length > 0) {
             currently_visiting_point = to_visit_points.pop()!;
@@ -129,15 +126,13 @@ class ConnectedComponent implements SketchElementCollectionLike {
             visited_points.push(currently_visiting_point);
         }
 
-        const res = visited_points.concat(visited_lines);
-        res.points = visited_points;
-        res.lines = visited_lines;
-        res.bounding_box = BoundingBox.from_points(
-            visited_points.concat(
+        return {
+            points: visited_points,
+            lines: visited_lines,
+            bounding_box: BoundingBox.from_points(visited_points.concat(
                 visited_lines.flatMap((l: Line) => l.get_absolute_sample_points()),
-            ),
-        );
-        return res;
+            ))
+        }
     }
 
     toString() {
@@ -150,14 +145,65 @@ class ConnectedComponent implements SketchElementCollectionLike {
             res.get_corresponding_sketch_element(this.root()),
         );
     }
-
-    connected_component() {
-        return this;
-    }
-
-    get_connected_components() {
-        return [this];
-    }
 }
 
-export default ConnectedComponent;
+export class AvoidantConnectedComponent extends ConnectedComponent {
+    constructor(
+        root_el: SketchElement,
+        private avoids: SketchElement[]
+    ) {
+        super(root_el);
+
+        assert(same_sketch(root_el, ...avoids));
+        assert(!avoids.includes(root_el));
+    }
+
+    obj(): {
+        points: SketchElementCollection<Point>,
+        lines: SketchElementCollection<Line>,
+        bounding_box: BoundingBox
+    } {
+        let currently_visiting_point;
+        const root = this.root();
+        if (root instanceof Point) {
+            currently_visiting_point = root;
+        } else {
+            currently_visiting_point = root.p1;
+        }
+
+        const forbidden_points = this.avoids.filter(p => p instanceof Point);
+        const forbidden_lines = this.avoids.filter(p => p instanceof Line);
+
+        const visited_points = new SketchElementCollection<Point>();
+        const visited_lines = new SketchElementCollection<Line>();
+        const to_visit_points: Point[] = [currently_visiting_point];
+
+        while (to_visit_points.length > 0) {
+            currently_visiting_point = to_visit_points.pop()!;
+            if (
+                visited_points.includes(currently_visiting_point)
+                || forbidden_points.includes(currently_visiting_point)
+            ) {
+                continue;
+            }
+            for (const line of currently_visiting_point.get_adjacent_lines()) {
+                if (
+                    !visited_lines.includes(line)
+                    && !forbidden_lines.includes(line)
+                ) {
+                    visited_lines.push(line);
+                    to_visit_points.push(...(line as Line).get_endpoints());
+                }
+            }
+            visited_points.push(currently_visiting_point);
+        }
+
+        return {
+            points: visited_points,
+            lines: visited_lines,
+            bounding_box: BoundingBox.from_points(visited_points.concat(
+                visited_lines.flatMap((l: Line) => l.get_absolute_sample_points()),
+            ))
+        }
+    }
+}

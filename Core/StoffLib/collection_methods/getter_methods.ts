@@ -42,7 +42,7 @@ export function lines_by_key(ec: SketchElementCollectionLike, key: string) {
         const groupKey =
             line.data[key] !== undefined ? line.data[key] : "_";
         if (!acc[groupKey]) {
-            acc[groupKey] = new SketchElementCollection<Line>([], ec.get_sketch());
+            acc[groupKey] = new SketchElementCollection<Line>([]);
         }
         acc[groupKey].push(line);
         return acc;
@@ -54,7 +54,7 @@ export function points_by_key(ec: SketchElementCollectionLike, key: string) {
         (acc: Record<string, SketchElementCollection<Point>>, pt: Point) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = new SketchElementCollection<Point>([], ec.get_sketch());
+                acc[groupKey] = new SketchElementCollection<Point>([]);
             }
             acc[groupKey].push(pt);
             return acc;
@@ -104,7 +104,7 @@ export function get_points_between_lines(
         filterLine(line2Filter, l)
     ]));
 
-    let result: SketchElementCollection<Point> = new SketchElementCollection([], sketch);
+    let result: SketchElementCollection<Point> = new SketchElementCollection([]);
     for (let i = 0; i < lines.length - 1; i++) {
         for (let j = i + 1; j < lines.length; j++) {
             const p = lines[i].common_endpoint(lines[j]);
@@ -186,7 +186,7 @@ export function get_lines_between_points(
         filterPoint(point2Filter, l)
     ]));
 
-    let result: SketchElementCollection<Line> = new SketchElementCollection([], sketch);
+    let result: SketchElementCollection<Line> = new SketchElementCollection([]);
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
             if (
@@ -279,10 +279,10 @@ export function get_typed_lines(se: SketchElementCollectionLike, type: string) {
     return lines_by_key(se, "type")[type] || [];
 }
 
-export function get_typed_point(se: SketchElementCollectionLike, type: string) {
+export function get_typed_point(se: SketchElementCollectionLike, type: string): Point | null {
     return get_typed_points(se, type)[0] || null;
 }
 
-export function get_typed_line(se: SketchElementCollectionLike, type: string) {
+export function get_typed_line(se: SketchElementCollectionLike, type: string): Line | null {
     return get_typed_lines(se, type)[0] || null;
 }

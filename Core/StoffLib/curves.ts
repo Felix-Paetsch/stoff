@@ -4,6 +4,7 @@ import { radians } from "./geometry/types";
 import Sketch from "./sketch";
 import Line from "./line";
 import Point from "./point";
+import { assert } from "../assert";
 
 export function arc(fill_amt: radians) {
     return (t: number) => {

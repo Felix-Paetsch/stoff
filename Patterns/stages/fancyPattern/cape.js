@@ -9,7 +9,7 @@ import {
     LEFT,
     DOWN,
 } from "../../../Core/StoffLib/geometry.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import { spline } from "../../../Core/StoffLib/curves.js";
 import Line from "../../../Core/StoffLib/line.js";
 
@@ -67,14 +67,14 @@ export default class CapeStage extends SequentialStage {
         // für Typ 2
 
         const pt_side = this.sketch.split_line_at_fraction(
-            this.sketch.get_typed_line("side"),
-            0.5
+            get_typed_line(this.sketch, "side"),
+            0.5,
         ).point;
         pt_side.data.type = "f";
 
-        const fold = this.sketch.get_typed_line("fold");
+        const fold = CollectionMethods.get_typed_line(this.sketch, "fold");
         const pt_fold = this.sketch.add_point(
-            this.#lot_position(pt_side, fold)
+            this.#lot_position(pt_side, fold),
         );
         pt_fold.data.type = "b";
         const vec = pt_fold.subtract(fold.p1).scale(scale);
@@ -84,21 +84,27 @@ export default class CapeStage extends SequentialStage {
         const bottom = this.sketch.line_between_points(pt_fold, pt_side);
         bottom.data.type = "bottom";
 
-        const waistline = this.sketch.get_typed_line("waistline");
-        const o = this.sketch.get_typed_point("o");
-        const bottom_old = this.sketch.get_typed_line("bottom");
+        const waistline = CollectionMethods.get_typed_line(
+            this.sketch,
+            "waistline",
+        );
+        const o = CollectionMethods.get_typed_point(this.sketch, "o");
+        const bottom_old = CollectionMethods.get_typed_line(
+            this.sketch,
+            "bottom",
+        );
         this.sketch.remove(
             o,
             waistline.p1,
             waistline.p2,
             bottom_old.p1,
-            bottom_old.p2
+            bottom_old.p2,
         );
     }
 
     #remove_front_gapping(percent = 0.06) {
-        const armpit = this.sketch.get_typed_line("armpit");
-        const bottom = this.sketch.get_typed_line("bottom");
+        const armpit = CollectionMethods.get_typed_line(this.sketch, "armpit");
+        const bottom = CollectionMethods.get_typed_line(this.sketch, "bottom");
         const pt = this.sketch.split_line_at_fraction(armpit, 0.65).point;
         const lot_pt = this.sketch.add_point(this.#lot_position(pt, bottom));
         this.sketch.point_on_line(lot_pt, bottom);
@@ -106,12 +112,12 @@ export default class CapeStage extends SequentialStage {
             pt,
             lot_pt,
             percent,
-            this.sketch.get_typed_line("side")
+            CollectionMethods.get_typed_line(this.sketch, "side"),
         );
     }
 
     #open_armpit(scale = 0.2) {
-        const side = this.sketch.get_typed_line("side");
+        const side = CollectionMethods.get_typed_line(this.sketch, "side");
         side.p1.move_to(side.get_line_vector().scale(scale).add(side.p1));
 
         this.draw_new_armpit(110, 0.8);
@@ -131,7 +137,7 @@ export default class CapeStage extends SequentialStage {
 
         const angle = vec_angle_clockwise(
             pt.add(vec).subtract(pt_fix),
-            pt.subtract(vec).subtract(pt_fix)
+            pt.subtract(vec).subtract(pt_fix),
         );
         const fun = rotation_fun(pt_fix, angle);
 
@@ -144,12 +150,12 @@ export default class CapeStage extends SequentialStage {
 
         this.sketch.merge_points(
             cutted.cut_parts[0].line.p1,
-            cutted.cut_parts[1].line.p1
+            cutted.cut_parts[1].line.p1,
         );
         cutted.cut_parts[0].line.p2.move_to(cutted.cut_parts[1].line.p2);
         this.sketch.merge_points(
             cutted.cut_parts[0].line.p2,
-            cutted.cut_parts[1].line.p2
+            cutted.cut_parts[1].line.p2,
         );
 
         this.sketch.merge_lines(lns_fix[0], lns_fix[1], true);
@@ -158,10 +164,12 @@ export default class CapeStage extends SequentialStage {
 
     // this function should be found in a libary
     draw_new_armpit(tiefe_percent, entlang) {
-        this.sketch.remove(this.sketch.get_typed_line("armpit"));
+        this.sketch.remove(
+            CollectionMethods.get_typed_line(this.sketch, "armpit"),
+        );
 
-        let c = this.sketch.get_typed_point("c");
-        let e = this.sketch.get_typed_point("e");
+        let c = CollectionMethods.get_typed_point(this.sketch, "c");
+        let e = CollectionMethods.get_typed_point(this.sketch, "e");
 
         const tiefe = this.wd.sh.bust / tiefe_percent;
 
@@ -172,7 +180,7 @@ export default class CapeStage extends SequentialStage {
                 new Vector(0, 0),
                 new Vector(tiefe, entlang),
                 new Vector(0, 1),
-            ]) //.plot_control_points(this.sketch),
+            ]), //.plot_control_points(this.sketch),
         );
 
         l.data.type = "armpit";
@@ -181,8 +189,14 @@ export default class CapeStage extends SequentialStage {
 
     construct_cape_sleeve() {
         this.#cut_sleeve();
-        const pts = this.sketch.get_typed_line("bottom_cut").get_endpoints();
-        this.cut_sleeve_stripes(this.sketch.get_typed_line("bottom_cut"), 10);
+        const pts = CollectionMethods.get_typed_line(
+            this.sketch,
+            "bottom_cut",
+        ).get_endpoints();
+        this.cut_sleeve_stripes(
+            CollectionMethods.get_typed_line(this.sketch, "bottom_cut"),
+            10,
+        );
         this.flare_bottom_sleeve(3);
         this.connect_sleeve_bottom(pts[1], pts[0]);
 
@@ -192,22 +206,22 @@ export default class CapeStage extends SequentialStage {
     }
 
     #cut_sleeve() {
-        const sides = this.sketch.get_typed_lines("side");
+        const sides = CollectionMethods.get_typed_lines(this.sketch, "side");
 
         const side1 = this.sketch.split_line_at_fraction(sides[0], 0.65);
         const side2 = this.sketch.split_line_at_fraction(sides[1], 0.65);
         const cut_line = this.sketch.line_between_points(
             side1.point,
-            side2.point
+            side2.point,
         );
 
         const cutted = this.sketch.cut(cut_line);
 
         const comp_upper_part = new ConnectedComponent(
-            this.sketch.get_typed_line("armpit")
+            CollectionMethods.get_typed_line(this.sketch, "armpit"),
         );
         const comp_lower_part = new ConnectedComponent(
-            this.sketch.get_typed_line("bottom")
+            CollectionMethods.get_typed_line(this.sketch, "bottom"),
         );
 
         comp_upper_part.get_untyped_lines()[0].data.type = "bottom_cut";
@@ -219,7 +233,7 @@ export default class CapeStage extends SequentialStage {
     }
 
     #construct_special_bottom_part() {
-        const bottom = this.sketch.get_typed_line("bottom");
+        const bottom = CollectionMethods.get_typed_line(this.sketch, "bottom");
         const comp = new ConnectedComponent(bottom);
         let vec = new Vector(bottom.p2.add(new Vector(-2, 5)));
         const comp2 = comp.paste_to_sketch(this.sketch, vec);
@@ -249,7 +263,7 @@ export default class CapeStage extends SequentialStage {
         // aufteilen - zweiteilig in der Zusammensetzung aufgrund der Ösen
         const comp3 = comp.paste_to_sketch(
             this.sketch,
-            bottom.p1.add(new Vector(0, -45))
+            bottom.p1.add(new Vector(0, -45)),
         );
         let scale = 0.2;
         // die Lange aussenseite, (ist verdoppelt in der Höhe zum umklappen, daher so lang)
@@ -284,7 +298,7 @@ export default class CapeStage extends SequentialStage {
     cut_sleeve_stripes(bottom_line, number_of_stripes = 3) {
         let lns = [];
         let bottom = bottom_line;
-        let armpit = this.sketch.get_typed_line("armpit");
+        let armpit = CollectionMethods.get_typed_line(this.sketch, "armpit");
 
         const len = bottom.get_length() / number_of_stripes;
         const vec = this.sketch
@@ -299,8 +313,8 @@ export default class CapeStage extends SequentialStage {
                 this.sketch.line_at_angle(
                     temp.point,
                     deg_to_rad(0),
-                    vec.length()
-                ).line
+                    vec.length(),
+                ).line,
             );
             lns[i].data.type = "dart";
             lns[i].data.dart_number = i + 1;
@@ -313,14 +327,17 @@ export default class CapeStage extends SequentialStage {
             if (i < number_of_stripes - 2) {
                 temp = this.sketch.split_line_at_length(
                     temp.line_segments[1],
-                    len
+                    len,
                 );
             }
         }
     }
 
     flare_bottom_sleeve(distance_armpit = 5, flare_by_angle = false) {
-        const dart_lines = this.sketch.get_typed_lines("dart");
+        const dart_lines = CollectionMethods.get_typed_lines(
+            this.sketch,
+            "dart",
+        );
         if (dart_lines.length == 0) return;
 
         dart_lines.sort(function (a, b) {
@@ -351,7 +368,10 @@ export default class CapeStage extends SequentialStage {
             });
         }
 
-        let top_right_corner = this.sketch.get_typed_point("d");
+        let top_right_corner = CollectionMethods.get_typed_point(
+            this.sketch,
+            "d",
+        );
         let prev_top_right_corner = dart_lines[0].p1; // Will become relevant only for n>1 th line
         let prev_bottom_left_corner = dart_lines[0].p1;
 
@@ -363,13 +383,13 @@ export default class CapeStage extends SequentialStage {
             const bottom_right_corner = top_right_corner.other_adjacent_point(
                 top_left_corner,
                 prev_top_right_corner,
-                prev_bottom_left_corner
+                prev_bottom_left_corner,
             );
             //this.sketch.dev.at_new_url("/wah")
             const cut_res = this.sketch.cut(l, l.p1);
             const bottom_left_corner = cut_res.points.get_point_between_lines(
                 (l) => l.has_endpoint(bottom_right_corner),
-                (l) => l.has_endpoint(top_left_corner)
+                (l) => l.has_endpoint(top_left_corner),
             );
 
             // The new entry in dart_lines[i] is the right side of the split dart
@@ -412,18 +432,18 @@ export default class CapeStage extends SequentialStage {
 
         const rot_correction_fun = rotation_fun(
             correction_pivot,
-            correction_angle
+            correction_angle,
         );
         this.sketch.transform((p) => p.move_to(rot_correction_fun(p)));
     }
 
     connect_sleeve_bottom(start_pt, end_pt, middle_addition = 3) {
-        let lns = this.sketch.get_typed_lines("dart");
-        //  let lns = this.sketch.get_typed_lines("bottom");
+        let lns = CollectionMethods.get_typed_lines(this.sketch, "dart");
+        //  let lns = CollectionMethods.get_typed_lines(this.sketch, "bottom");
         lns.sort(function (a, b) {
             return a.p2.x - b.p2.x;
         });
-        let sides = this.sketch.get_typed_lines("side");
+        let sides = CollectionMethods.get_typed_lines(this.sketch, "side");
         const vec = sides[0].p1
             .subtract(sides[1].p1)
             .scale(0.5)
@@ -476,7 +496,7 @@ export default class CapeStage extends SequentialStage {
         const curve = this.sketch.line_from_function_graph(
             pts[0],
             pts[pts.length - 1],
-            spline.catmull_rom_spline(pts)
+            spline.catmull_rom_spline(pts),
         );
         /*
          */
@@ -489,7 +509,7 @@ export default class CapeStage extends SequentialStage {
     }
 
     #merge_parts(type) {
-        let lns = this.sketch.get_typed_lines(type);
+        let lns = CollectionMethods.get_typed_lines(this.sketch, type);
         lns = Line.order_by_endpoints(lns);
         let temp = lns[0];
         for (let i = 1; i < lns.length; i++) {

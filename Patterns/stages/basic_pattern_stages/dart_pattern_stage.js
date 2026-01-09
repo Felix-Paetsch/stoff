@@ -3,12 +3,11 @@ import {
     Vector,
     vec_angle_clockwise,
 } from "../../../Core/StoffLib/geometry.js";
-import ConnectedComponent from "../../../Core/StoffLib/connected_component.js";
+import { ConnectedComponent } from "../../../Core/StoffLib/connected_component.js";
 import assert from "../../../Core/assert.js";
 import DartData from "./dart_data.js";
 import { EPS } from "../../../Core/StoffLib/geometry.js";
 import { at_url } from "../../../Core/Debug/render_at.js";
-import CollectionMethods from "../../../Core/StoffLib/collection_methods/exports.js";
 
 export default class DartBaseStage extends BaseStage {
     constructor(t) {
@@ -76,7 +75,9 @@ export default class DartBaseStage extends BaseStage {
         if (this.wd.split) {
             if (!CollectionMethods.get_typed_line(this.sketch, "cut p")) {
                 this.remove_outer_waistline_dart();
-            } else if (!CollectionMethods.get_typed_line(this.sketch, "cut h")) {
+            } else if (
+                !CollectionMethods.get_typed_line(this.sketch, "cut h")
+            ) {
                 this.remove_inner_waistline_dart();
             }
             return;
@@ -314,7 +315,10 @@ export default class DartBaseStage extends BaseStage {
         data.check_sum();
         this.wd.dart_number = data.get_number_of_darts();
 
-        let rot_vec = CollectionMethods.get_typed_line(this.sketch, "b_to_m").get_line_vector();
+        let rot_vec = CollectionMethods.get_typed_line(
+            this.sketch,
+            "b_to_m",
+        ).get_line_vector();
 
         let h = CollectionMethods.get_typed_point(this.sketch, "h");
         let f = CollectionMethods.get_typed_point(this.sketch, "f");
@@ -324,7 +328,7 @@ export default class DartBaseStage extends BaseStage {
         let temp_cut = this.sketch.cut([f, h], h, [ln2], grp2);
         let temp_glue = this.sketch.glue(
             CollectionMethods.get_typed_line(this.sketch, "h_to_k"),
-            CollectionMethods.get_typed_line(this.sketch, "h_to_l")
+            CollectionMethods.get_typed_line(this.sketch, "h_to_l"),
         );
         let temp_lines = temp_glue.point.get_adjacent_lines();
         this.sketch.merge_lines(temp_lines[0], temp_lines[1], true).data.type =
@@ -338,7 +342,7 @@ export default class DartBaseStage extends BaseStage {
             let points_temp = [];
             data.sort_line(line);
             let percentages = data.get_fractions_along_line(line);
-            let ln = CollectionMethods.get_typed_line(this.sketch,(line);
+            let ln = CollectionMethods.get_typed_line(this.sketch, line);
             //  let first = [];
             let last = [];
             percentages.forEach((arr) => {
@@ -356,7 +360,7 @@ export default class DartBaseStage extends BaseStage {
                     }
                 } else {
                     let p = this.sketch.add_point(
-                        ln.position_at_length(x * ln.get_length())
+                        ln.position_at_length(x * ln.get_length()),
                     );
                     p.data.dart = "cut_point";
                     p.data.rotation = y;
@@ -384,7 +388,7 @@ export default class DartBaseStage extends BaseStage {
 
         const total_angle_rad = -vec_angle_clockwise(
             temp_cut.cut_parts[0].line.get_line_vector(),
-            temp_cut.cut_parts[1].line.get_line_vector()
+            temp_cut.cut_parts[1].line.get_line_vector(),
         );
 
         const fixed = h;
@@ -404,7 +408,7 @@ export default class DartBaseStage extends BaseStage {
             });
         }
         const cut_points_with_left_line = points_with_left_line.filter(
-            (d) => d.pt.data.dart == "cut_point"
+            (d) => d.pt.data.dart == "cut_point",
         );
         cut_points_with_left_line.reverse(); // From b to f; so we dont need to keep track of total rotation (although a bit more computation)
 
@@ -421,12 +425,12 @@ export default class DartBaseStage extends BaseStage {
             cut_res.cut_parts[1].line.swap_orientation();
 
             const left_cut_part = cut_res.cut_parts.filter((p) =>
-                left_line.is_adjacent(p.point)
+                left_line.is_adjacent(p.point),
             )[0];
             const rotation_component = this.sketch.path_between_points(
                 left_cut_part.point,
                 f_pt,
-                left_line
+                left_line,
             );
             const points_to_rotate = rotation_component.points;
             points_to_rotate.forEach((p) => {
@@ -434,12 +438,12 @@ export default class DartBaseStage extends BaseStage {
             });
         });
 
-        let f_pts = CollectionMethods.get_typed_point(this.sketch,s("f");
+        let f_pts = CollectionMethods.get_typed_points(this.sketch, "f");
         let vec = f_pts[0].vector().subtract(f_pts[1].vector());
         if (vec.x < EPS.COARSE && vec.y < EPS.COARSE) {
             this.sketch.remove(
                 temp_cut.cut_parts[0].line,
-                temp_cut.cut_parts[1].line
+                temp_cut.cut_parts[1].line,
             );
             f_pts[1].move_to(f_pts[0]);
             this.sketch.merge_points(f_pts[0], f_pts[1]);
@@ -458,15 +462,15 @@ export default class DartBaseStage extends BaseStage {
     move_dart_number_to_darttip(
         number,
         new_darttip = "p",
-        correct_lines = true
+        correct_lines = true,
     ) {
         //     let pts = this.sketch.points_by_key("dart_number")[number];
         let lns = this.sketch.lines_by_key("dart_number")[number];
         let old_darttip = lns[0].data.darttip;
         lns[0].data.darttip = new_darttip;
         lns[1].data.darttip = new_darttip;
-        let old_p = CollectionMethods.get_typed_point(this.sketch,(old_darttip);
-        let new_p = CollectionMethods.get_typed_point(this.sketch,(new_darttip);
+        let old_p = CollectionMethods.get_typed_point(this.sketch, old_darttip);
+        let new_p = CollectionMethods.get_typed_point(this.sketch, new_darttip);
 
         assert.IS_POINT(old_p);
         assert.IS_POINT(new_p);
@@ -477,10 +481,10 @@ export default class DartBaseStage extends BaseStage {
 
         if (correct_lines) {
             lns[0].p2.move_to(
-                lns[0].get_line_vector().normalize().scale(len).add(new_p)
+                lns[0].get_line_vector().normalize().scale(len).add(new_p),
             );
             lns[1].p2.move_to(
-                lns[1].get_line_vector().normalize().scale(len).add(new_p)
+                lns[1].get_line_vector().normalize().scale(len).add(new_p),
             );
         }
     }
@@ -495,7 +499,7 @@ export default class DartBaseStage extends BaseStage {
         let dart_lines_left = [];
         darts_left.forEach((number) => {
             dart_lines_left = dart_lines_left.concat(
-                this.sketch.lines_by_key("dart_number")[number]
+                this.sketch.lines_by_key("dart_number")[number],
             );
         });
 
@@ -535,9 +539,15 @@ export default class DartBaseStage extends BaseStage {
                 temp_ln.data.type == "neckline" ||
                 temp_ln.data.type == "fold"
             ) {
-                h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+                h_to_i = CollectionMethods.get_typed_line(
+                    this.sketch,
+                    "h_to_i",
+                );
             } else {
-                h_to_i = CollectionMethods.get_typed_line(this.sketch, "h_to_i");
+                h_to_i = CollectionMethods.get_typed_line(
+                    this.sketch,
+                    "h_to_i",
+                );
             }
             lines.push(CollectionMethods.get_typed_line(this.sketch, "h_to_g"));
             lines.push(CollectionMethods.get_typed_line(this.sketch, "h_to_i"));
@@ -551,9 +561,15 @@ export default class DartBaseStage extends BaseStage {
                 temp_ln.data.type == "neckline" ||
                 temp_ln.data.type == "fold"
             ) {
-                h_to_i = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
+                h_to_i = CollectionMethods.get_typed_line(
+                    this.sketch,
+                    "p_to_s",
+                );
             } else {
-                h_to_i = CollectionMethods.get_typed_line(this.sketch, "p_to_s");
+                h_to_i = CollectionMethods.get_typed_line(
+                    this.sketch,
+                    "p_to_s",
+                );
             }
             lines.push(CollectionMethods.get_typed_line(this.sketch, "p_to_r"));
             lines.push(CollectionMethods.get_typed_line(this.sketch, "p_to_s"));
@@ -563,7 +579,10 @@ export default class DartBaseStage extends BaseStage {
 
         let p_h = this.sketch.add_point(j.subtract(h).scale(5).add(h));
         let ln_h = this.sketch.line_between_points(h, p_h);
-        let bottom_lns = CollectionMethods.get_typed_line(this.sketch,s("bottom");
+        let bottom_lns = CollectionMethods.get_typed_lines(
+            this.sketch,
+            "bottom",
+        );
         let positions = this.sketch.intersection_positions(bottom_lns[0], ln_h);
         let bottom_ln;
         if (positions.length > 0) {
@@ -581,7 +600,7 @@ export default class DartBaseStage extends BaseStage {
             [p_h, j],
             null,
             [temp.line_segments[1], j_to_i],
-            [temp.line_segments[0], j.other_adjacent_line(j_to_i)]
+            [temp.line_segments[0], j.other_adjacent_line(j_to_i)],
         );
         if (lns[0].data.darttip == "h") {
             temp_cut.cut_parts[0].line.data.type = "j_to_u";
@@ -620,7 +639,7 @@ export default class DartBaseStage extends BaseStage {
         let lns = this.sketch.lines_by_key("dart_number")[number];
 
         this.sketch.glue(lns[0], lns[1]);
-        lns = CollectionMethods.get_typed_line(this.sketch,s("side");
+        lns = CollectionMethods.get_typed_lines(this.sketch, "side");
         let ln = this.sketch.merge_lines(lns[0], lns[1], true);
         if (outer) {
             let side = this.sketch.line_between_points(ln.p1, ln.p2);
@@ -633,11 +652,14 @@ export default class DartBaseStage extends BaseStage {
         this.split_up_dart(["armpit", 1, 1]);
         let side = CollectionMethods.get_typed_line(this.sketch, "side");
         let armpit = CollectionMethods.get_typed_line(this.sketch, "armpit");
-        let shoulder = CollectionMethods.get_typed_line(this.sketch, "shoulder");
+        let shoulder = CollectionMethods.get_typed_line(
+            this.sketch,
+            "shoulder",
+        );
         let p = armpit.p2;
         armpit.replace_endpoint(armpit.p2, side.p1);
 
-        let dart_lines = CollectionMethods.get_typed_line(this.sketch,s("dart");
+        let dart_lines = CollectionMethods.get_typed_lines(this.sketch, "dart");
         this.sketch.remove(p, dart_lines[0], dart_lines[1]);
 
         let vec = shoulder
