@@ -1,37 +1,30 @@
 import { mirror_type } from "../geometry.js";
 import Point from "../point.js";
-import Line from "../line.js";
-import { SketchElementCollectionLike } from "../types.js";
+import { SketchElement, SketchElementCollection } from "../types.js";
 import { MirrorData } from "../geometry/types.js";
+import { sketch_element_collection_as_array } from "../collection.js";
 
 export function delete_sketch_elements(
-    ec: SketchElementCollectionLike
+    ec: SketchElementCollection
 ): void {
-    const pts = ec.get_points();
-    const lns = ec.get_lines();
-
-    lns.forEach(l => l.remove());
-    pts.forEach(p => p.remove());
+    const nec = sketch_element_collection_as_array(ec);
+    nec.forEach(el => el.remove());
 }
 
-export function transform(
-    ec: SketchElementCollectionLike,
-    pt_fun: (pt: Point) => void = () => { }
-): SketchElementCollectionLike {
-    ec.get_points().forEach(pt_fun);
-    return ec;
-}
-
-export function mirror(
-    ec: SketchElementCollectionLike,
+export function mirror<T extends SketchElement, S extends SketchElementCollection<T>>(
+    ec: S,
     mirror_args: MirrorData
-): SketchElementCollectionLike {
-    transform(ec, pt => {
-        pt.move_to(pt.mirror_at(mirror_args));
-    });
+): S {
+    const nec = sketch_element_collection_as_array(ec);
+    for (const el of nec) {
+        if (el instanceof Point) {
+            el.move_to(el.mirror_at(mirror_args));
+            continue;
+        }
 
-    if (mirror_type(mirror_args) === "Line") {
-        ec.get_lines().forEach((l: Line) => l.mirror());
+        if (mirror_type(mirror_args) === "Line") {
+            el.mirror();
+        }
     }
 
     return ec;

@@ -15,7 +15,6 @@ import CONF from "../config.json" with { type: "json" };
 import { same_sketch } from "../assert_methods/exports.js";
 import { length, radians } from "../geometry/types.js";
 import { copy_data_callback, copy_sketch_obj_data, CopySketchDataCallback, default_data_callback } from "../copy.js";
-import SketchElementCollection from "../sketch_element_collection.js";
 import * as UnicornIntersect from "../unicorns/intersect_lines.js";
 
 export function line_between_points(
@@ -294,7 +293,10 @@ export function point_on_line(
     pt: Point,
     line: Line,
     data_callback: CopySketchDataCallback = copy_data_callback
-) {
+): {
+    line_segments: [Line, Line],
+    point: Point
+} {
     if (!(pt instanceof Point)) {
         pt = sketch.add_point(pt);
     }
@@ -342,7 +344,7 @@ export function point_on_line(
         [new Vector(0, 0), new Vector(1, 0)]
     );
 
-    const line_segments = [
+    const line_segments: [Line, Line] = [
         sketch._line_between_points_from_sample_points(
             line.p1,
             pt,
@@ -362,7 +364,7 @@ export function point_on_line(
     sketch.remove_line(line);
 
     return {
-        line_segments: new SketchElementCollection(line_segments),
+        line_segments: line_segments,
         point: pt,
     }
 };
@@ -401,14 +403,7 @@ export function intersect_lines(sketch: Sketch, line1: Line, line2: Line): {
 } {
     assert(same_sketch(line1, line2, sketch));
 
-    const { intersection_points, l1_segments, l2_segments } =
-        UnicornIntersect.intersect_lines(sketch, line1, line2);
-
-    return {
-        intersection_points: new SketchElementCollection(intersection_points),
-        l1_segments: new SketchElementCollection(l1_segments),
-        l2_segments: new SketchElementCollection(l2_segments),
-    }
+    return UnicornIntersect.intersect_lines(sketch, line1, line2);
 };
 
 export function line_with_offset(

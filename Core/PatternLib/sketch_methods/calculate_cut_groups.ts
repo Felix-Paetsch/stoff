@@ -1,7 +1,6 @@
-import { avoidant_connected_components, connected_hull, endpoint_hull } from "@/Core/StoffLib/collection";
+import * as CollectionMethods from "@/Core/StoffLib/collection";
 import Line from "../../StoffLib/line";
 import Point from "../../StoffLib/point";
-import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 
 export type LineGroup = Line[];
 
@@ -19,14 +18,14 @@ export function calculate_cut_groups_no_fixed_point(
         ]
     }
 
-    const components = avoidant_connected_components(
-        connected_hull(new SketchElementCollection(lines)),
-        endpoint_hull(new SketchElementCollection(lines))
+    const components = CollectionMethods.avoidant_connected_components(
+        CollectionMethods.connected_hull(lines),
+        CollectionMethods.endpoint_hull(lines)
     );
 
     assert(components.length < 3, "Cant deduce smart cut");
-    const lines_grp1: Line[] = components[0]?.get_lines() || [];
-    const lines_grp2: Line[] = components[1]?.get_lines() || [];
+    const lines_grp1: Line[] = CollectionMethods.get_lines(components[0] || []);
+    const lines_grp2: Line[] = CollectionMethods.get_lines(components[1] || []);
     return [
         lines_grp1.filter(l => lines.some(line => l.is_adjacent(line))),
         lines_grp2.filter(l => lines.some(line => l.is_adjacent(line)))
@@ -38,7 +37,9 @@ export function calculate_cut_groups_with_fixed_point(
     pt: Point,
     group1: LineGroup | null = null
 ): [LineGroup, LineGroup] {
-    const splitting_points = endpoint_hull(new SketchElementCollection(lines)).get_points().filter(
+    const splitting_points = CollectionMethods.get_points(
+        CollectionMethods.endpoint_hull(lines)
+    ).filter(
         p => p !== pt
     );
 
@@ -52,12 +53,12 @@ export function calculate_cut_groups_with_fixed_point(
         ]
     }
 
-    const component_objects = avoidant_connected_components(
-        connected_hull(new SketchElementCollection(lines)),
-        endpoint_hull(new SketchElementCollection(lines))
+    const component_objects = CollectionMethods.avoidant_connected_components(
+        CollectionMethods.connected_hull(lines),
+        CollectionMethods.endpoint_hull(lines)
     ).map(c => ({
-        points: c.get_points(),
-        lines: c.get_lines()
+        points: CollectionMethods.get_points(c),
+        lines: CollectionMethods.get_lines(c)
     }));
 
     const relevant_components = component_objects.filter(

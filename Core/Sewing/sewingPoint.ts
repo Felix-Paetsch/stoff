@@ -30,7 +30,7 @@ export class SewingPoint {
     }
 
     adjacent_lines(): Line[] {
-        return [...new Set(this.points.flatMap((p) => p.get_lines()))];
+        return [...new Set(this.points.flatMap((p) => p.get_adjacent_lines()))];
     }
 
     is_adjacent(thing: SewingLine | Line | Point | SewingPoint): boolean {

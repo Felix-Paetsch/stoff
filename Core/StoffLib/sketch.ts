@@ -9,10 +9,9 @@ import {
     CopySketchDataCallback,
 } from "./copy";
 import CONF from "./config.json";
-import SketchElementCollection from "./sketch_element_collection";
 
 import assert from "../assert";
-import { SketchElement, SketchElementCollectionLike } from "./types";
+import { SketchElement, SketchElementCollection } from "./types";
 import auto_validate from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
@@ -22,11 +21,12 @@ import { radians, length } from "./geometry/types";
 import { AvoidantConnectedComponent, ConnectedComponent } from "./connected_component";
 import path from "path";
 import { same_sketch } from "./assert_methods/exports";
+import * as CollectionMethods from "./collection";
 
 export default class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-    private points = new SketchElementCollection<Point>();
-    private lines = new SketchElementCollection<Line>();
+    private points: Point[] = [];
+    private lines: Line[] = [];
     public data: any = {};
 
     constructor() {
@@ -57,6 +57,10 @@ export default class Sketch {
 
     get_lines() {
         return this.lines;
+    }
+
+    get_sketch_elements() {
+        return [...this.lines, ...this.points];
     }
 
     get_sketch() {
@@ -101,15 +105,22 @@ export default class Sketch {
         this.points = this.points.filter((p) => !points.includes(p));
     }
 
-    remove(...els: SketchElementCollectionLike[]) {
+    remove(...els: (SketchElement | SketchElementCollection)[]) {
         const points_to_remove = [];
         const lines_to_remove = [];
 
         for (let i = 0; i < els.length; i++) {
-            const points = els[i].get_points();
-            const lines = els[i].get_lines();
-            lines_to_remove.push(...lines);
-            points_to_remove.push(...points);
+            const el = els[i];
+            if (el instanceof Point) {
+                points_to_remove.push(el);
+            } else if (el instanceof Line) {
+                lines_to_remove.push(el);
+            } else {
+                const points = CollectionMethods.get_points(el);
+                const lines = CollectionMethods.get_lines(el);
+                lines_to_remove.push(...lines);
+                points_to_remove.push(...points);
+            }
         }
 
         this.remove_lines(...lines_to_remove);
@@ -448,6 +459,5 @@ export default class Sketch {
 
 (Sketch as any).Line = Line;
 (Sketch as any).Point = Point;
-(Sketch as any).SketchElementCollection = SketchElementCollection;
 
 auto_validate(Sketch);

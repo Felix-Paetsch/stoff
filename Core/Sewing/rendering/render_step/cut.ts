@@ -3,7 +3,7 @@ import { Sewing } from "../../sewing";
 import Line from "../../../StoffLib/line";
 import Point from "../../../StoffLib/point";
 import { LineRenderAttributes } from "../renderer";
-import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
+import * as CollectionMethods from "@/Core/StoffLib/collection";
 
 const cut_line_attributes: Partial<LineRenderAttributes> = {
     stroke: ["#fcc", "red"]
@@ -22,8 +22,9 @@ export default function cutRenderer(sewing: Sewing, lines: Line[]): Renderer & {
     lines.forEach(line => {
         renderer.render_line(line, cut_line_attributes);
     });
-    const se = new SketchElementCollection(lines);
-    (se as any).endpoint_hull().get_points().forEach((p: Point) => {
+    CollectionMethods.get_points(
+        CollectionMethods.endpoint_hull(lines)
+    ).forEach((p: Point) => {
         renderer.render_point(p, cut_point_attributes);
     });
     return Object.assign(renderer, {

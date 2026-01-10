@@ -6,10 +6,9 @@ import RogueComponent from "./rogue.js";
 import { ConnectedComponentFaceData } from "./algorithms/findFaces.js";
 import Sketch from "../../StoffLib/sketch.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
-import { SketchElementCollectionLike } from "@/Core/StoffLib/types.js";
-import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection.js";
+import * as CollectionMethods from "../../StoffLib/collection";
 
-export default class FaceAtlas implements SketchElementCollectionLike {
+export default class FaceAtlas {
     // Doesnt automatically update with sketch changes
     // (Mostly because things currently are to expensive)
 
@@ -47,11 +46,11 @@ export default class FaceAtlas implements SketchElementCollectionLike {
     }
 
     get_lines() {
-        return new SketchElementCollection(this.lines);
+        return [...this.lines];
     }
 
     get_points() {
-        return new SketchElementCollection(Array.from(new Set(this.lines.flatMap(l => l.get_endpoints()))));
+        return CollectionMethods.unique(this.lines.flatMap(l => l.get_endpoints()));
     }
 
     get_sketch(): Sketch {

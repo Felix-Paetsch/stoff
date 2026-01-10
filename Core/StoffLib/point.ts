@@ -1,10 +1,9 @@
 import { BoundingBox, Vector } from "./geometry.js";
 import { ConnectedComponent } from "./connected_component.js";
 import assert from "../assert.js";
-import SketchElementCollection from "./sketch_element_collection.js";
 import Sketch from "./sketch";
 import Line from "./line.js";
-import { SketchElementCollectionLike, SketchElementData } from "./types.js";
+import { SketchElementData } from "./types.js";
 import { Color } from "./colors.js";
 
 type PointRenderAttributes = {
@@ -15,7 +14,7 @@ type PointRenderAttributes = {
     opacity: number;
 }
 
-class Point extends Vector implements SketchElementCollectionLike {
+class Point extends Vector {
     private adjacent_lines: Line[] = [];
     public data: SketchElementData = {};
     public attributes: PointRenderAttributes = {
@@ -112,36 +111,13 @@ class Point extends Vector implements SketchElementCollectionLike {
         return this;
     }
 
-    get_adjacent_line() {
-        assert(
-            this.adjacent_lines.length < 2,
-            "Point has more than one adjacent line."
-        );
-        return this.adjacent_lines[0];
-    }
-
     get_adjacent_lines() {
-        return new SketchElementCollection(this.adjacent_lines);
-    }
-
-    get_adjacent_point() {
-        const adjacent = this.get_adjacent_points();
-        assert(adjacent.length < 2, "Point has more than one adjacent points.");
-        return adjacent[0];
+        return [...this.adjacent_lines];
     }
 
     get_adjacent_points() {
         const pt = this.adjacent_lines.map((l) => l.other_endpoint(this));
         return pt.filter((p, i) => pt.indexOf(p) == i);
-    }
-
-    get_lines() {
-        return new SketchElementCollection(this.adjacent_lines);
-    }
-
-    // Used in Collection Elements
-    get_points() {
-        return new SketchElementCollection([this]);
     }
 
     get_sketch() {

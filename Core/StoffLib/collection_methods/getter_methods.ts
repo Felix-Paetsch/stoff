@@ -1,34 +1,40 @@
 import Point from "../point.js";
 import Line from "../line.js";
-import { SketchElement, SketchElementCollectionLike } from "../types.js";
-import SketchElementCollection from "../sketch_element_collection.js";
 import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter.js";
+import { SketchElement, SketchElementCollection } from "../types.js";
+import Sketch from "../sketch.js";
+import { same_sketch } from "../assert_methods/exports.js";
+import { sketch_element_collection_as_array } from "../collection.js";
 
-export function get_sketch_elements(ec: SketchElementCollectionLike): {
-    points: SketchElementCollection<Point>,
-    lines: SketchElementCollection<Line>
-} {
-    return {
-        points: ec.get_points(),
-        lines: ec.get_lines()
+export function unique<T extends SketchElement>(ec: SketchElementCollection<T>): T[] {
+    const nec = sketch_element_collection_as_array(ec);
+    return nec.filter(
+        (value, index) => nec.indexOf(value) === index
+    )
+}
+
+export function get_lines(ec: SketchElementCollection): Line[] {
+    const nec = sketch_element_collection_as_array(ec);
+    return nec.filter(e => e instanceof Line);
+}
+
+export function get_points(ec: SketchElementCollection): Point[] {
+    const nec = sketch_element_collection_as_array(ec);
+    return nec.filter(e => e instanceof Point);
+}
+
+export function get_sketch(...els: (SketchElement | { get_sketch(): Sketch })[]): Sketch {
+    if (els.length == 0) {
+        return new Sketch();
     }
+    if (els.length == 1) {
+        return els[0].get_sketch();
+    }
+    assert(same_sketch(...els.map(e => e.get_sketch())));
+    return els[0].get_sketch();
 }
 
-export function unique(ec: SketchElementCollectionLike): SketchElementCollection {
-    const points = ec.get_points();
-    const lines = ec.get_lines();
-
-    const filtered_points = points.filter(
-        (value, index) => points.indexOf(value) === index
-    );
-    const filtered_lines = lines.filter(
-        (value, index) => lines.indexOf(value) === index
-    );
-
-    return new SketchElementCollection((filtered_lines as SketchElement[]).concat(...filtered_points));
-}
-
-export function group_by_key(ec: SketchElementCollectionLike, key: string) {
+export function group_by_key(ec: SketchElementCollection, key: string) {
     const pts = points_by_key(ec, key);
     const lns = lines_by_key(ec, key);
     return {
@@ -37,24 +43,26 @@ export function group_by_key(ec: SketchElementCollectionLike, key: string) {
     }
 }
 
-export function lines_by_key(ec: SketchElementCollectionLike, key: string) {
-    return ec.get_lines().reduce((acc: Record<string, SketchElementCollection<Line>>, line: Line) => {
-        const groupKey =
-            line.data[key] !== undefined ? line.data[key] : "_";
-        if (!acc[groupKey]) {
-            acc[groupKey] = new SketchElementCollection<Line>([]);
-        }
-        acc[groupKey].push(line);
-        return acc;
-    }, {});
+export function lines_by_key(ec: SketchElementCollection, key: string) {
+    return get_lines(ec).reduce(
+        (acc: Record<string, Line[]>, line: Line) => {
+            const groupKey =
+                line.data[key] !== undefined ? line.data[key] : "_";
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(line);
+            return acc;
+        }, {}
+    );
 }
 
-export function points_by_key(ec: SketchElementCollectionLike, key: string) {
-    return ec.get_points().reduce(
-        (acc: Record<string, SketchElementCollection<Point>>, pt: Point) => {
+export function points_by_key(ec: SketchElementCollection, key: string) {
+    return get_points(ec).reduce(
+        (acc: Record<string, Point[]>, pt: Point) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = new SketchElementCollection<Point>([]);
+                acc[groupKey] = [];
             }
             acc[groupKey].push(pt);
             return acc;
@@ -63,7 +71,7 @@ export function points_by_key(ec: SketchElementCollectionLike, key: string) {
 }
 
 export function get_points_between_lines(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     line1Filter: LineFilter,
     line2Filter: LineFilter,
     find_where: "collection_points_any_lines"
@@ -71,22 +79,24 @@ export function get_points_between_lines(
         | "any_points_collection_lines"
         | "any_points_any_lines" // Mostly unreasonable
         = "any_points_collection_lines"
-): SketchElementCollection<Point> {
-    const sketch = ec.get_sketch();
+): Point[] {
+    const nec = sketch_element_collection_as_array(ec);
+    const sketch = get_sketch(...nec);
+
     if (!sketch && find_where !== "collection_points_collection_lines") {
         throw new Error("Sketch of collection not specified!");
     }
     if (find_where === "any_points_any_lines") {
         return get_points_between_lines(
-            sketch!,
+            sketch.get_sketch_elements(),
             line1Filter,
             line2Filter,
             "collection_points_collection_lines"
         );
     }
 
-    let lines: Line[] = ec.get_lines();
-    let points: Point[] = ec.get_points();
+    let lines: Line[] = get_lines(nec);
+    let points: Point[] = get_points(nec);
 
     if (
         find_where == "collection_points_any_lines"
@@ -104,7 +114,7 @@ export function get_points_between_lines(
         filterLine(line2Filter, l)
     ]));
 
-    let result: SketchElementCollection<Point> = new SketchElementCollection([]);
+    let result: SketchElementCollection<Point> = [];
     for (let i = 0; i < lines.length - 1; i++) {
         for (let j = i + 1; j < lines.length; j++) {
             const p = lines[i].common_endpoint(lines[j]);
@@ -127,7 +137,7 @@ export function get_points_between_lines(
 }
 
 export function get_point_between_lines(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     line1Filter: LineFilter,
     line2Filter: LineFilter,
     find_where: "collection_points_any_lines"
@@ -145,7 +155,7 @@ export function get_point_between_lines(
 }
 
 export function get_lines_between_points(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     point1Filter: PointFilter,
     point2Filter: PointFilter,
     find_where: "collection_points_any_lines"
@@ -153,22 +163,23 @@ export function get_lines_between_points(
         | "any_points_collection_lines"
         | "any_points_any_lines" // Mostly unreasonable
         = "any_points_collection_lines"
-): SketchElementCollection<Line> {
-    const sketch = ec.get_sketch();
+): Line[] {
+    const nec = sketch_element_collection_as_array(ec);
+    const sketch = get_sketch(...nec);
     if (!sketch && find_where !== "collection_points_collection_lines") {
         throw new Error("Sketch of collection not specified!");
     }
     if (find_where === "any_points_any_lines") {
         return get_lines_between_points(
-            sketch!,
+            sketch.get_sketch_elements(),
             point1Filter,
             point1Filter,
             "collection_points_collection_lines"
         );
     }
 
-    let lines: Line[] = ec.get_lines();
-    let points: Point[] = ec.get_points();
+    let lines: Line[] = get_lines(ec);
+    let points: Point[] = get_points(ec);
 
     if (
         find_where == "collection_points_any_lines"
@@ -186,7 +197,7 @@ export function get_lines_between_points(
         filterPoint(point2Filter, l)
     ]));
 
-    let result: SketchElementCollection<Line> = new SketchElementCollection([]);
+    let result: SketchElementCollection<Line> = [];
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
             if (
@@ -205,7 +216,7 @@ export function get_lines_between_points(
 }
 
 export function get_line_between_points(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     point1Filter: PointFilter,
     point2Filter: PointFilter,
     find_where: "collection_points_any_lines"
@@ -223,66 +234,54 @@ export function get_line_between_points(
 }
 
 export function get_common_points(
-    a: SketchElementCollectionLike,
-    b: SketchElementCollectionLike
+    a: SketchElementCollection,
+    b: SketchElementCollection
 ): Point[] {
-    return a.get_points().filter(p => b.get_points().includes(p));
+    const ptsa = get_points(a);
+    const ptsb = get_points(b);
+
+    return ptsa.filter(p => ptsb.includes(p));
 }
 
 export function get_common_lines(
-    a: SketchElementCollectionLike,
-    b: SketchElementCollectionLike
+    a: SketchElementCollection,
+    b: SketchElementCollection
 ): Line[] {
-    return a.get_lines().filter(l => b.get_lines().includes(l));
+    const lnsa = get_lines(a);
+    const lnsb = get_lines(b);
+
+    return lnsa.filter(p => lnsb.includes(p));
 }
 
 export function get_common_sketch_elements(
-    a: SketchElementCollectionLike,
-    b: SketchElementCollectionLike
+    a: SketchElementCollection,
+    b: SketchElementCollection
 ): SketchElement[] {
-    return [
-        ...get_common_lines(a, b),
-        ...get_common_points(a, b),
-    ];
-}
-
-export function has_points(
-    ec: SketchElementCollectionLike,
-    ...pts: Point[]
-): boolean {
-    return pts.every(p => ec.get_points().includes(p));
-}
-
-export function has_lines(
-    ec: SketchElementCollectionLike,
-    ...lns: Line[]
-): boolean {
-    return lns.every(l => ec.get_lines().includes(l));
+    const na = sketch_element_collection_as_array(a);
+    const nb = sketch_element_collection_as_array(b);
+    return na.filter(p => nb.includes(p));
 }
 
 export function has(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     ...se: SketchElement[]
 ): boolean {
-    return se.every(el =>
-        el instanceof Point
-            ? ec.get_points().includes(el)
-            : ec.get_lines().includes(el)
-    );
+    const nec = sketch_element_collection_as_array(ec);
+    return se.every(el => nec.includes(el));
 }
 
-export function get_typed_points(se: SketchElementCollectionLike, type: string) {
+export function get_typed_points(se: SketchElementCollection, type: string) {
     return points_by_key(se, "type")[type] || [];
 }
 
-export function get_typed_lines(se: SketchElementCollectionLike, type: string) {
+export function get_typed_lines(se: SketchElementCollection, type: string) {
     return lines_by_key(se, "type")[type] || [];
 }
 
-export function get_typed_point(se: SketchElementCollectionLike, type: string): Point | null {
+export function get_typed_point(se: SketchElementCollection, type: string): Point | null {
     return get_typed_points(se, type)[0] || null;
 }
 
-export function get_typed_line(se: SketchElementCollectionLike, type: string): Line | null {
+export function get_typed_line(se: SketchElementCollection, type: string): Line | null {
     return get_typed_lines(se, type)[0] || null;
 }

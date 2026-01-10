@@ -1,4 +1,3 @@
-import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection";
 import Line from "../../../StoffLib/line";
 import Face from "../face";
 import { ConnectedComponent } from "@/Core/StoffLib/connected_component";
@@ -6,6 +5,8 @@ import FaceAtlas from "../faceAtlas";
 import RogueComponent from "../rogue";
 import Point from "@/Core/StoffLib/point";
 import { vec_angle_clockwise, ZERO } from "@/Core/StoffLib/geometry";
+import * as CollectionMethods from "@/Core/StoffLib/collection";
+import { SketchElement } from "@/Core/StoffLib/types";
 
 export type ConnectedComponentFaceData = {
     faces: Face[];
@@ -15,19 +16,21 @@ export type ConnectedComponentFaceData = {
 
 
 export default function findFaces(lines: Line[]) {
-    const connected_components = (new SketchElementCollection(lines) as any).get_connected_components();
-    const CC_faces = connected_components.map((cc: ConnectedComponent) => findConnectedComponentFaces(cc));
+    const connected_components = CollectionMethods.connected_components(lines);
+    const CC_faces = connected_components.map(
+        (cc: SketchElement[]) => findConnectedComponentFaces(
+            CollectionMethods.get_lines(cc)
+        )
+    );
     return new FaceAtlas(CC_faces);
 }
 
-export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedComponentFaceData {
+function findConnectedComponentFaces(lines: Line[]): ConnectedComponentFaceData {
     const boundaries: {
         lines: Line[];
         orientation: boolean[];
     }[] = [];
     const rogue_lines: Line[] = [];
-
-    const lines: Line[] = cc.get_lines();
 
     /*console.log("====================FF=============", lines.length);
     for (let i = 0; i < lines.length; i++) {
@@ -113,7 +116,7 @@ export function findConnectedComponentFaces(cc: ConnectedComponent): ConnectedCo
                     return {
                         faces: [],
                         outer_face: null,
-                        rogue: FaceAtlas.rogue_lines_to_components(cc.get_lines()),
+                        rogue: FaceAtlas.rogue_lines_to_components(lines),
                     }
                 }
 

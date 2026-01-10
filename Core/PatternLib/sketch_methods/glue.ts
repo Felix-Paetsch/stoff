@@ -6,7 +6,6 @@ import Point from "../../StoffLib/point";
 import SewingSketch from "../sewing_sketch.js";
 import { AvoidantConnectedComponent, ConnectedComponent } from "@/Core/StoffLib/connected_component.js";
 import { lines_by_key } from "@/Core/StoffLib/collection.js";
-import SketchElementCollection from "@/Core/StoffLib/sketch_element_collection.js";
 
 export type GlueIdent = Line | [Point, Point] | [Line, Point];
 export type GlueResult = {
@@ -111,7 +110,7 @@ function glue_with_fixed_point(s: SewingSketch, ident1: [Point, Point], ident2: 
 
     if (data.lines == "delete" || data.points == "delete") {
         s.remove_lines(...glue_lines);
-        glue_lines = new SketchElementCollection([]);
+        glue_lines = [];
     } else {
         assert(
             glue_lines.length == 1 || glue_lines.length == 2,

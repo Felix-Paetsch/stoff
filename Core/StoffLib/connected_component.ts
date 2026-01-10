@@ -2,15 +2,14 @@ import { Vector, mirror_type } from "./geometry";
 import { } from "./copy"; // Hopefully Temporary: Imports are otherwise broken
 import { copy_sketch_element_collection } from "./copy";
 import { BoundingBox } from "./geometry/bounding_box";
-import { SketchElement, SketchElementCollectionLike } from "./types";
+import { SketchElement } from "./types";
 import { MirrorData } from "./geometry/types";
 import Point from "./point";
 import Line from "./line";
 import Sketch from "./sketch";
-import SketchElementCollection from "./sketch_element_collection";
 import { same_sketch } from "./assert_methods/exports";
 
-export class ConnectedComponent implements SketchElementCollectionLike {
+export class ConnectedComponent {
     constructor(
         private root_el: SketchElement
     ) { }
@@ -97,8 +96,8 @@ export class ConnectedComponent implements SketchElementCollectionLike {
     }
 
     obj(): {
-        points: SketchElementCollection<Point>,
-        lines: SketchElementCollection<Line>,
+        points: Point[],
+        lines: Line[],
         bounding_box: BoundingBox
     } {
         let currently_visiting_point;
@@ -108,8 +107,8 @@ export class ConnectedComponent implements SketchElementCollectionLike {
             currently_visiting_point = this.root_el.p1;
         }
 
-        const visited_points = new SketchElementCollection<Point>();
-        const visited_lines = new SketchElementCollection<Line>();
+        const visited_points: Point[] = [];
+        const visited_lines: Line[] = [];
         const to_visit_points: Point[] = [currently_visiting_point];
 
         while (to_visit_points.length > 0) {
@@ -129,7 +128,7 @@ export class ConnectedComponent implements SketchElementCollectionLike {
         return {
             points: visited_points,
             lines: visited_lines,
-            bounding_box: BoundingBox.from_points(visited_points.concat(
+            bounding_box: BoundingBox.from_points((visited_points as Vector[]).concat(
                 visited_lines.flatMap((l: Line) => l.get_absolute_sample_points()),
             ))
         }
@@ -159,8 +158,8 @@ export class AvoidantConnectedComponent extends ConnectedComponent {
     }
 
     obj(): {
-        points: SketchElementCollection<Point>,
-        lines: SketchElementCollection<Line>,
+        points: Point[],
+        lines: Line[],
         bounding_box: BoundingBox
     } {
         let currently_visiting_point;
@@ -174,8 +173,8 @@ export class AvoidantConnectedComponent extends ConnectedComponent {
         const forbidden_points = this.avoids.filter(p => p instanceof Point);
         const forbidden_lines = this.avoids.filter(p => p instanceof Line);
 
-        const visited_points = new SketchElementCollection<Point>();
-        const visited_lines = new SketchElementCollection<Line>();
+        const visited_points: Point[] = [];
+        const visited_lines: Line[] = [];
         const to_visit_points: Point[] = [currently_visiting_point];
 
         while (to_visit_points.length > 0) {
@@ -201,7 +200,7 @@ export class AvoidantConnectedComponent extends ConnectedComponent {
         return {
             points: visited_points,
             lines: visited_lines,
-            bounding_box: BoundingBox.from_points(visited_points.concat(
+            bounding_box: BoundingBox.from_points((visited_points as Vector[]).concat(
                 visited_lines.flatMap((l: Line) => l.get_absolute_sample_points()),
             ))
         }

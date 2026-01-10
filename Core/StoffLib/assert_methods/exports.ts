@@ -2,7 +2,8 @@ import { EPS, Vector } from "../geometry.js";
 import { merge_validations } from "../../assert.js";
 import Point from "../point";
 import Line from "../line";
-import { SketchElement, SketchElementCollectionLike } from "../types.js";
+import { SketchElement } from "../types.js";
+import Sketch from "../sketch.js";
 
 export { validate_sketch } from "./sketch_is_valid.js";
 
@@ -11,7 +12,9 @@ export function invalid_path() {
 }
 
 export function same_sketch(
-    ...els: SketchElementCollectionLike[]
+    ...els: (SketchElement | {
+        get_sketch: () => Sketch
+    })[]
 ) {
     if (els.length == 0) return true;
     const sketch = els[0].get_sketch();

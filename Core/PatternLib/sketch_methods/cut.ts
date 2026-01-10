@@ -31,14 +31,14 @@ export function cut_with_fixed_point(
     });
 
     const copied_lines: Line[] = [];
-    for (let i = 0; i < ordered.length; i++) {
+    for (let i = 0; i < ordered.lines.length; i++) {
         if (ordered.orientations[i]) {
             copied_lines.push(
-                s.copy_line(ordered[i], ordered.points[i], ordered.points[i + 1])
+                s.copy_line(ordered.lines[i], ordered.points[i], ordered.points[i + 1])
             )
         } else {
             copied_lines.push(
-                s.copy_line(ordered[i], ordered.points[i + 1], ordered.points[i])
+                s.copy_line(ordered.lines[i], ordered.points[i + 1], ordered.points[i])
             )
         }
     }
@@ -72,14 +72,14 @@ export function cut_without_fixed_point(
 
     const copied_points = ordered.points.map(p => p.copy(s));
     const copied_lines: Line[] = [];
-    for (let i = 0; i < ordered.length; i++) {
+    for (let i = 0; i < ordered.lines.length; i++) {
         if (ordered.orientations[i]) {
             copied_lines.push(
-                s.copy_line(ordered[i], ordered.points[i], ordered.points[i + 1])
+                s.copy_line(ordered.lines[i], ordered.points[i], ordered.points[i + 1])
             )
         } else {
             copied_lines.push(
-                s.copy_line(ordered[i], ordered.points[i + 1], ordered.points[i])
+                s.copy_line(ordered.lines[i], ordered.points[i + 1], ordered.points[i])
             )
         }
     }

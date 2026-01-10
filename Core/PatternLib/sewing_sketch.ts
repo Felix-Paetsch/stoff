@@ -12,7 +12,6 @@ import { calculate_cut_groups_no_fixed_point, calculate_cut_groups_with_fixed_po
 import { SketchElement } from "../StoffLib/types.ts";
 import { same_sketch } from "../StoffLib/assert_methods/exports.ts";
 import { lines_by_key, mirror } from "../StoffLib/collection.ts";
-import SketchElementCollection from "../StoffLib/sketch_element_collection.ts";
 
 /*
 
@@ -250,7 +249,7 @@ export default class SewingSketch extends Sketch {
     }
 
     remove_anchors() {
-        lines_by_key(this, "_anchor")["true"].remove();
+        this.remove(...lines_by_key(this, "_anchor")["true"]);
         return this;
     }
 
@@ -260,8 +259,9 @@ export default class SewingSketch extends Sketch {
         line: Line | null = null
     ) {
         if (line == null) {
-            assert(p1.get_adjacent_lines().length == 1);
-            line = p1.get_adjacent_line();
+            const adj = p1.get_adjacent_lines();
+            assert(adj.length == 1);
+            line = adj[0];
         }
 
         const points: Point[] = [p1];
@@ -336,10 +336,10 @@ export default class SewingSketch extends Sketch {
         this.anchor();
 
         this.paste_sketch(this);
-        mirror(new SketchElementCollection([...old_lines, ...old_pts]), VERTICAL);
+        mirror([...old_lines, ...old_pts], VERTICAL);
 
         const new_pts = [...this.get_points().filter(p => !old_pts.includes(p))]
-        const new_lns = [...this.get_points().filter(p => !old_lines.includes(p))]
+        const new_lns = [...this.get_lines().filter(p => !old_lines.includes(p))]
 
         const get_dublicate_pt = (id: string) => new_pts.filter(p => p.data.__unfoldUID == id)[0]!;
         const get_dublicate_ln = (id: string) => new_lns.filter(l => l.data.__unfoldUID == id)[0]!;
@@ -371,7 +371,7 @@ export default class SewingSketch extends Sketch {
     }
 
     remove_underscore_attributes(...attr: string[]) {
-        this.get_points().concat(this.get_lines()).forEach((p) => {
+        this.get_sketch_elements().forEach((p) => {
             for (const key of Object.keys(p.data)) {
                 if (
                     key.startsWith("__") &&
@@ -388,7 +388,7 @@ export default class SewingSketch extends Sketch {
     }
 
     delete_with_underscore_attributes(...attr: string[]) {
-        this.get_lines().concat(this.get_points()).forEach((p) => {
+        this.get_sketch_elements().forEach((p) => {
             for (const key of Object.keys(p.data)) {
                 if (
                     key.startsWith("__") &&

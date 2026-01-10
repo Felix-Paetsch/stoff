@@ -1,9 +1,11 @@
-import SketchElementCollection from "./sketch_element_collection.js";
-import { SketchElementCollectionLike } from "./types.js";
+import { SketchElement, SketchElementCollection } from "./types";
 
-export function to_sketch_element_collection(ec: SketchElementCollectionLike) {
-    return new SketchElementCollection([...ec.get_lines(), ...ec.get_lines()]);
-};
+export function sketch_element_collection_as_array<T extends SketchElement>(e: SketchElementCollection<T>): T[] {
+    if (e instanceof Array) {
+        return e;
+    }
+    return e.get_sketch_elements() as T[];
+}
 
 export * from "./collection_methods/element_wise_methods";
 export * from "./collection_methods/filter";

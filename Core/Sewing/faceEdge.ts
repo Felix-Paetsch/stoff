@@ -143,8 +143,8 @@ function face_edge_component_connected_to_horizontally(
                 &&
                 other.line.has_endpoint(point2)
             ) {
-                for (const l1 of point1.get_lines()) {
-                    for (const l2 of point2.get_lines()) {
+                for (const l1 of point1.get_adjacent_lines()) {
+                    for (const l2 of point2.get_adjacent_lines()) {
                         if (lines_vertically_adjacent(sewing, l1, l2)) return true;
                     }
                 }

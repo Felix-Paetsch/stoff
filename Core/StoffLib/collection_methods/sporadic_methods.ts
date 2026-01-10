@@ -2,33 +2,28 @@ import { Vector, convex_hull as GeometryConvexHull, BoundingBox } from "../geome
 import { copy_sketch_element_collection } from "../copy.js";
 import {
     SketchElement,
-    SketchElementCollectionLike,
+    SketchElementCollection
 } from "../types.js";
-import Point from "../point";
-import Line from "../line";
-import SketchElementCollection from "../sketch_element_collection.js";
 import { ConnectedComponent } from "../connected_component.js";
+import { get_lines, get_points, get_sketch } from "./getter_methods.js";
+import { sketch_element_collection_as_array } from "../collection.js";
 
 export function get_bounding_box(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     min_bb: [number, number] = [0, 0]
 ): BoundingBox {
-    const pts = ec.get_points();
-    const lns = ec.get_lines();
+    const nec = sketch_element_collection_as_array(ec);
     return BoundingBox.merge(
-        [
-            ...pts.map(el => el.get_bounding_box()),
-            ...lns.map(el => el.get_bounding_box())
-        ],
+        nec.map(el => el.get_bounding_box()),
         min_bb
     );
 }
 
 export function convex_hull(
-    ec: SketchElementCollectionLike
+    ec: SketchElementCollection
 ): Vector[] {
-    const pts = ec.get_points();
-    const lns = ec.get_lines();
+    const pts: Vector[] = get_points(ec);
+    const lns = get_lines(ec);
 
     return GeometryConvexHull(
         pts.concat(
@@ -38,49 +33,42 @@ export function convex_hull(
 }
 
 export function endpoint_hull(
-    ec: SketchElementCollectionLike
-): SketchElementCollection {
-    const lines = [...ec.get_lines()];
-    const points = [...ec.get_points()];
+    ec: SketchElementCollection
+): SketchElement[] {
+    const nec = sketch_element_collection_as_array(ec);
+    const lines = get_lines(nec);
+    const res = [...nec];
 
     lines.forEach(l => {
-        if (!points.includes(l.p1)) points.push(l.p1);
-        if (!points.includes(l.p2)) points.push(l.p2);
+        if (!res.includes(l.p1)) res.push(l.p1);
+        if (!res.includes(l.p2)) res.push(l.p2);
     });
 
-    return new SketchElementCollection((lines as SketchElement[]).concat(points));
+    return res;
 }
 
 export function connected_hull(
-    ec: SketchElementCollectionLike
-): SketchElementCollection {
-    const points: Point[] = [];
-    const lines: Line[] = [];
+    ec: SketchElementCollection
+): SketchElement[] {
+    const res: SketchElementCollection = [];
+    const nec = sketch_element_collection_as_array(ec);
 
-    for (const pt of ec.get_points()) {
-        if (points.includes(pt)) continue;
-        const cc = new ConnectedComponent(pt);
-        const obj = cc.obj();
-        points.push(...obj.points);
-        lines.push(...obj.lines);
+    for (const el of nec) {
+        if (res.includes(el)) {
+            continue;
+        }
+
+        res.push(...new ConnectedComponent(el).get_sketch_elements());
     }
 
-    for (const ln of ec.get_lines()) {
-        if (lines.includes(ln)) continue;
-        const cc = new ConnectedComponent(ln);
-        const obj = cc.obj();
-        points.push(...obj.points);
-        lines.push(...obj.lines);
-    }
-
-    return new SketchElementCollection((points as SketchElement[]).concat(lines));
+    return res;
 }
 
-export function inner_lines(
-    ec: SketchElementCollectionLike
-): SketchElementCollection {
-    const lines = [...ec.get_lines()];
-    const points = ec.get_points();
+export function inner_line_hull(
+    ec: SketchElementCollection
+): SketchElement[] {
+    const lines: SketchElementCollection = get_lines(ec);
+    const points = get_points(ec);
 
     for (let i = 0; i < points.length; i++) {
         for (let j = i + 1; j < points.length; j++) {
@@ -93,13 +81,11 @@ export function inner_lines(
         }
     }
 
-    return new SketchElementCollection(
-        (lines as SketchElement[]).concat(points)
-    );
+    return lines.concat(points)
 }
 
 export function paste_to_sketch(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     target: any,
     position: Vector | null = null
 ) {
@@ -107,33 +93,35 @@ export function paste_to_sketch(
 }
 
 export function connected_components(
-    ec: SketchElementCollectionLike
-): SketchElementCollection[] {
-    const sketch = ec.get_sketch();
+    ec: SketchElementCollection
+): SketchElement[][] {
+    const nec = sketch_element_collection_as_array(ec);
+    if (nec.length === 0) return [];
 
-    const all = sketch.get_lines().concat(sketch.get_points());
-    const ec_all = ec.get_lines().concat(ec.get_points());
+    const sketch = get_sketch(...nec);
 
-    const other_things = all.filter(element => !ec_all.includes(element));
+    const all = sketch.get_sketch_elements();
+
+    const other_things = all.filter(element => !nec.includes(element));
     return sketch.get_avoidant_connected_components(other_things).map(c => {
-        const obj = c.obj();
-        return obj.points.concat(obj.lines);
+        return c.get_sketch_elements();
     })
 }
 
 
 export function avoidant_connected_components(
-    ec: SketchElementCollectionLike,
+    ec: SketchElementCollection,
     avoiding: SketchElement[]
-): SketchElementCollection[] {
-    const sketch = ec.get_sketch();
+): SketchElement[][] {
+    const nec = sketch_element_collection_as_array(ec);
+    if (nec.length === 0) return [];
+    const sketch = get_sketch(...nec);
 
-    const all = sketch.get_lines().concat(sketch.get_points());
-    const ec_all = ec.get_lines().concat(ec.get_points()).filter(a => avoiding.includes(a));
+    const all = sketch.get_sketch_elements()
+    const ec_all = nec.filter(a => avoiding.includes(a));
 
     const other_things = all.filter(element => !ec_all.includes(element));
     return sketch.get_avoidant_connected_components(other_things).map(c => {
-        const obj = c.obj();
-        return obj.points.concat(obj.lines);
+        return c.get_sketch_elements()
     })
 }

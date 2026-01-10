@@ -1,11 +1,10 @@
-import { BoundingBox, DOWN, LEFT, polygon_contains_point, RIGHT, UP } from "../../StoffLib/geometry.js";
+import { BoundingBox, LEFT, polygon_contains_point, RIGHT, UP } from "../../StoffLib/geometry.js";
 import Line from "../../StoffLib/line.js";
 import { Vector } from "@/Core/StoffLib/geometry.js";
 import Point from "../../StoffLib/point.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 import FaceAtlas from "./faceAtlas.js";
 import RogueComponent from "./rogue.js";
-import { polygon_orientation } from "@/Core/StoffLib/geometry.js";
 
 export default class Face {
     constructor(
@@ -173,7 +172,7 @@ export default class Face {
 
     static from_boundary(boundary: Line[], faceAtlas?: FaceAtlas): Face {
         const ordered = Line.order_by_endpoints(...boundary);
-        return new Face(ordered, ordered.orientations, faceAtlas);
+        return new Face(ordered.lines, ordered.orientations, faceAtlas);
     }
 
     static oriented_lines(lines: Line[]): Line[];

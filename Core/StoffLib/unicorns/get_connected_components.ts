@@ -1,8 +1,8 @@
 import { ConnectedComponent } from "../connected_component.js";
-import SketchElementCollection from "../sketch_element_collection.js";
 import Point from "../point.js";
 import Line from "../line.js";
 import Sketch from "../sketch.js";
+import { SketchElement } from "../types.js";
 
 export function get_connected_components(
     sketch: Sketch
@@ -10,13 +10,13 @@ export function get_connected_components(
     let points: Point[] = sketch.get_points();
     if (points.length === 0) return [];
 
-    const components: SketchElementCollection[] = [];
+    const components: SketchElement[][] = [];
 
     while (points.length > 0) {
         let currentlyVisiting = points[0];
 
-        const visitedPoints = new SketchElementCollection<Point>([]);
-        const visitedLines = new SketchElementCollection<Line>([]);
+        const visitedPoints: Point[] = [];
+        const visitedLines: Line[] = [];
         const toVisit: Point[] = [currentlyVisiting];
 
         while (toVisit.length > 0) {
@@ -38,7 +38,7 @@ export function get_connected_components(
         }
 
         components.push(
-            visitedPoints.concat(visitedLines)
+            (visitedPoints as SketchElement[]).concat(visitedLines)
         );
 
         points = points.filter(

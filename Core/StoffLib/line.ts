@@ -15,16 +15,16 @@ import { ConnectedComponent } from "./connected_component";
 import assert from "../assert.js";
 import { _calculate_intersections } from "./unicorns/intersect_lines.js";
 import offset_sample_points from "./line_methods/offset_sample_points.js";
-import SketchElementCollection, { LineSketchElementCollection } from "./sketch_element_collection.js";
 import * as LineManipulation from "./line_methods/line_manipulation";
 import { copy_sketch_element_collection } from "./copy.js";
 import Cache from "../utils/cache.js";
 import Sketch from "./sketch";
 import { Color } from "./colors.js";
 import { Fraction } from "./geometry/1d.js";
-import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types";
+import { SketchElement, SketchElementData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
 import * as SketchElementCollectionMethods from "./collection.js";
+import { invalid_path } from "./assert_methods/exports.js";
 
 type LineAttributes = {
     stroke: Color;
@@ -32,7 +32,7 @@ type LineAttributes = {
     opacity: number;
 }
 
-export default class Line implements SketchElementCollectionLike {
+export default class Line {
     public attributes: LineAttributes = {
         stroke: "rgb(0, 0, 0)",
         strokeWidth: 1,
@@ -113,16 +113,6 @@ export default class Line implements SketchElementCollectionLike {
     set sample_points(points) {
         this._sample_points = points;
         this.cache_update("sample_points");
-    }
-
-    get_points() {
-        return new SketchElementCollection(this.endpoints);
-    }
-
-    get_lines(): SketchElementCollection<Line> {
-        return SketchElementCollectionMethods.unique(
-            new SketchElementCollection<Line>([this])
-        ) as SketchElementCollection<Line>;
     }
 
     cache_update(...what: string[]) {
@@ -409,15 +399,14 @@ export default class Line implements SketchElementCollectionLike {
         return this.p2.subtract(this.p1);
     }
 
-    get_endpoints(): SketchElementCollection<Point> & [Point, Point] {
-        return new SketchElementCollection([this.p1, this.p2]) as any;
+    get_endpoints(): [Point, Point] {
+        return [this.p1, this.p2];
     }
 
     get_adjacent_lines() {
-        return (new SketchElementCollection(
-            this.p1.get_lines().concat(this.p2.get_lines())
-        ) as any).unique()
-            .filter((l: Line) => l !== this);
+        return SketchElementCollectionMethods.unique(
+            this.p1.get_adjacent_lines().concat(this.p2.get_adjacent_lines())
+        ).filter((l: Line) => l !== this);
     }
 
     same_orientation(p1: Point, p2: Point): boolean;
@@ -758,7 +747,7 @@ export default class Line implements SketchElementCollectionLike {
     }
 
     paste_to_sketch(target: Sketch, position: Vector | null = null) {
-        const res = copy_sketch_element_collection(this, target, position);
+        const res = copy_sketch_element_collection([this], target, position);
         return res.get_corresponding_sketch_element(this);
     }
 
@@ -790,65 +779,78 @@ export default class Line implements SketchElementCollectionLike {
         return self_intersects(this);
     }
 
-    static order_by_endpoints(...lines: Line[]): LineSketchElementCollection & {
-        orientations: boolean[], points: Point[]
+    static order_by_endpoints(...lines: Line[]): {
+        lines: Line[],
+        points: Point[],
+        orientations: boolean[]
     } {
         if (Array.isArray(lines[0])) {
             lines = [...lines[0]];
         }
         if (lines.length == 0) {
-            const r = new SketchElementCollection([]);
-            (r as any).orientations = [];
-            (r as any).points = [];
-            return r as any;
+            return {
+                lines: [],
+                points: [],
+                orientations: []
+            }
         }
         if (lines.length == 1) {
-            lines = new SketchElementCollection(lines) as any;
-            (lines as any).orientations = true;
-            (lines as any).points = lines[0].get_endpoints();
-            return lines as any;
+            return {
+                lines: lines,
+                points: lines[0].get_endpoints(),
+                orientations: [true]
+            }
         };
-        if (lines.length == 2) return set_two_line_orientations(lines);
+        if (lines.length == 2) return set_two_line_orientations({
+            lines: lines
+        });
 
-        const res: LineSketchElementCollection & { orientations: boolean[], points: Point[] } = new SketchElementCollection([]) as any;
-        res.push(lines.pop()!);
+        const res: {
+            lines: Line[],
+            points: Point[],
+            orientations: boolean[]
+        } = {
+            lines: [], points: [], orientations: []
+        };
+
+        res.lines.push(lines.pop()!);
         res.orientations = [true];
-        res.points = [res[0].p1, res[0].p2];
+        res.points = [res.lines[0]!.p1, res.lines[0]!.p2];
 
         let smth_found: boolean = false;
         while (lines.length > 0) {
             for (let i = lines.length - 1; i >= 0; i--) {
-                if (res[0].common_endpoint(lines[i])) {
+                if (res.lines[0].common_endpoint(lines[i])) {
                     // Prepend
                     smth_found = true;
-                    res.unshift(...lines.splice(i, 1));
-                    if (res.length == 2) {
+                    res.lines.unshift(...lines.splice(i, 1));
+                    if (res.lines.length == 2) {
                         set_two_line_orientations(res);
                     } else {
                         const next_orientation = res.orientations[0];
                         res.orientations.unshift(
-                            res[1][next_orientation ? "p1" : "p2"] == res[0].p2
+                            res.lines[1][next_orientation ? "p1" : "p2"] == res.lines[0].p2
                         );
                         res.points.unshift(
-                            res[0].other_endpoint(res.points[0])
+                            res.lines[0].other_endpoint(res.points[0])
                         );
                     }
-                } else if (res[res.length - 1].common_endpoint(lines[i])) {
+                } else if (res.lines[res.lines.length - 1].common_endpoint(lines[i])) {
                     // Append
                     smth_found = true;
-                    res.push(...lines.splice(i, 1));
-                    if (res.length == 2) {
+                    res.lines.push(...lines.splice(i, 1));
+                    if (res.lines.length == 2) {
                         set_two_line_orientations(res);
                     } else {
                         const prev_orientation =
                             res.orientations[res.orientations.length - 1];
                         res.orientations.push(
-                            res[res.length - 2][
+                            res.lines[res.lines.length - 2][
                             prev_orientation ? "p2" : "p1"
-                            ] == res[res.length - 1].p1
+                            ] == res.lines[res.lines.length - 1].p1
                         );
                         res.points.push(
-                            res[res.length - 1].other_endpoint(
+                            res.lines[res.lines.length - 1].other_endpoint(
                                 res.points[res.points.length - 1]
                             )
                         );
@@ -860,23 +862,33 @@ export default class Line implements SketchElementCollectionLike {
                 throw new Error("Lines dont form a connected segment");
         }
 
-        function set_two_line_orientations(lines: any) {
-            if (lines[1].has_endpoint(lines[0].p2)) {
-                lines.orientations = [true, lines[1].p1 == lines[0].p2];
-                lines.points = [
-                    lines[0].p1,
-                    lines[0].p2,
-                    lines[1].other_endpoint(lines[0].p2),
+        function set_two_line_orientations(data: {
+            lines: Line[],
+            points?: Point[],
+            orientations?: boolean[]
+        }): {
+            lines: Line[],
+            points: Point[],
+            orientations: boolean[]
+        } {
+            if (data.lines[1].has_endpoint(data.lines[0].p2)) {
+                data.orientations = [true, data.lines[1].p1 == data.lines[0].p2];
+                data.points = [
+                    data.lines[0].p1,
+                    data.lines[0].p2,
+                    data.lines[1].other_endpoint(data.lines[0].p2),
                 ];
-            } else if (lines[1].has_endpoint(lines[0].p1)) {
-                lines.orientations = [false, lines[1].p1 == lines[0].p1];
-                lines.points = [
-                    lines[0].p2,
-                    lines[0].p1,
-                    lines[1].other_endpoint(lines[0].p1),
+            } else if (data.lines[1].has_endpoint(data.lines[0].p1)) {
+                data.orientations = [false, data.lines[1].p1 == data.lines[0].p1];
+                data.points = [
+                    data.lines[0].p2,
+                    data.lines[0].p1,
+                    data.lines[1].other_endpoint(lines[0].p1),
                 ];
-            } else throw new Error("Lines dont form a connected segment");
-            return lines;
+            } else {
+                assert(invalid_path(), "Lines dont form a connected segment")
+            }
+            return data as any;
         }
 
         return res;
@@ -893,7 +905,7 @@ export default class Line implements SketchElementCollectionLike {
         // We assume no self-intersection
         const orientation = polygon_orientation(ordered_lines.points.slice(1));
         if (!orientation) {
-            ordered_lines.reverse();
+            ordered_lines.lines.reverse();
             ordered_lines.points.reverse();
             ordered_lines.orientations.reverse();
             ordered_lines.orientations = ordered_lines.orientations.map(o => !o);
@@ -906,11 +918,7 @@ export default class Line implements SketchElementCollectionLike {
             orientations = ordered_lines.orientations.map(o => !o);
         }
 
-        return {
-            lines: ordered_lines,
-            points: ordered_lines.points,
-            orientations: ordered_lines.orientations
-        }
+        return ordered_lines;
     }
 
     static straight(...endpoints: [Point, Point]) {

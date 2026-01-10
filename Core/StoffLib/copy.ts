@@ -3,7 +3,7 @@ import Point from "./point.js";
 import Line from "./line.js";
 import Sketch from "./sketch";
 import { ConnectedComponent } from "./connected_component.js";
-import { SketchElement, SketchElementCollectionLike, SketchElementData } from "./types.js";
+import { SketchElement, SketchElementCollection, SketchElementData } from "./types.js";
 
 export type CopySketchDataCallback = {
     (
@@ -111,7 +111,7 @@ function copy_sketch(
 }
 
 function copy_sketch_element_collection(
-    source: SketchElementCollectionLike,
+    source: SketchElementCollection,
     target: Sketch,
     position: Vector | null = null
 ) {
