@@ -5,7 +5,7 @@ import { Line } from "../line";
 import { SketchElement } from "../types";
 import { Sketch } from "../sketch";
 
-export { validate_sketch } from "./sketch_is_valid";
+export * from "./sketch_is_valid";
 
 export function invalid_path(str = "Invalid path reached!") {
     return str;
@@ -44,3 +44,4 @@ export function vec_on_line(vec: Vector, line: Line) {
 export function path_connected(el1: SketchElement, el2: SketchElement) {
     return el1.connected_component().contains(el2);
 }
+

@@ -162,57 +162,82 @@ export type Color = keyof typeof namedColors
     | `#${string}`
     | `hsl(${number},${number},${number})`;
 
-const interpolateColor_native = (color1: Color, color2: Color, ratio: number = 0.5): Color => {
-    const hslToRgb = (h: number, s: number, l: number) => {
-        s /= 100;
-        l /= 100;
 
-        const k = (n: number) => (n + h / 30) % 12;
-        const a = s * Math.min(l, 1 - l);
-        const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+export type Gradient = [Color, Color];
 
-        return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
-    };
+export function interpolate_colors(color1: Color, color2: Color, ratio?: number): Color;
+export function interpolate_colors(color1: Gradient, color2: Color, ratio?: number): Gradient;
+export function interpolate_colors(color1: Color, color2: Gradient, ratio?: number): Gradient;
+export function interpolate_colors(color1: Gradient, color2: Gradient, ratio?: number): Gradient;
+export function interpolate_colors(color1: Gradient | Gradient, color2: Gradient | Gradient, ratio?: number): Gradient;
+export function interpolate_colors(color1: Color | Gradient, color2: Color | Gradient, ratio: number = 0.5): Color | Gradient {
+    if (!is_gradient(color1) && !is_gradient(color2)) {
+        const rgb1 = colorToRgb(color1);
+        const rgb2 = colorToRgb(color2);
 
-    const colorToRgb = (col: Color) => {
-        if (typeof col !== "string") return [0, 0, 0];
-        if (col in namedColors) {
-            return namedColors[col as keyof typeof namedColors];
-        } else if (col.charAt(0) === '#') {
-            const hex = col.replace('#', '');
-            const r = parseInt(hex.substring(0, 2), 16);
-            const g = parseInt(hex.substring(2, 4), 16);
-            const b = parseInt(hex.substring(4, 6), 16);
-            return [r, g, b];
-        } else if (col.startsWith('rgb')) {
-            // Extract RGB values
-            return col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-        } else if (col.startsWith('rgba')) {
-            const [r, g, b, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0, 0];
-            return [r, g, b, a];
-        } else if (col.startsWith('hsl')) {
-            const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-            return hslToRgb(h, s, l);
+        const r = Math.round(rgb1[0] * (1 - ratio) + rgb2[0] * ratio);
+        const g = Math.round(rgb1[1] * (1 - ratio) + rgb2[1] * ratio);
+        const b = Math.round(rgb1[2] * (1 - ratio) + rgb2[2] * ratio);
+        if (typeof rgb1[3] === 'number' || typeof rgb2[3] === 'number') {
+            const a = Math.round((rgb1[3] || 1) * (1 - ratio) + (rgb2[3] || 1) * ratio);
+            return `rgba(${r},${g},${b},${a})`;
         }
 
-        return [0, 0, 0];
-    };
-
-    const rgb1 = colorToRgb(color1);
-    const rgb2 = colorToRgb(color2);
-
-    // Interpolate
-    const r = Math.round(rgb1[0] * (1 - ratio) + rgb2[0] * ratio);
-    const g = Math.round(rgb1[1] * (1 - ratio) + rgb2[1] * ratio);
-    const b = Math.round(rgb1[2] * (1 - ratio) + rgb2[2] * ratio);
-    if (typeof rgb1[3] === 'number' || typeof rgb2[3] === 'number') {
-        const a = Math.round((rgb1[3] || 1) * (1 - ratio) + (rgb2[3] || 1) * ratio);
-        return `rgba(${r},${g},${b},${a})`;
+        return `rgb(${r},${g},${b})`;
     }
 
-    return `rgb(${r},${g},${b})`;
+    if (!is_gradient(color1)) {
+        return (interpolate_colors as any)(color2, color1, 1 - ratio);
+    }
+
+    if (is_gradient(color2)) {
+        return [
+            interpolate_colors(color1[0], color2[0], ratio),
+            interpolate_colors(color1[1], color2[1], ratio)
+        ]
+    }
+
+    return [
+        interpolate_colors(color1[0], color2, ratio),
+        interpolate_colors(color1[1], color2, ratio)
+    ]
 };
 
-export {
-    interpolateColor_native as interpolate_colors
+function is_gradient(c: Color | Gradient): c is Gradient {
+    return c instanceof Array;
 }
+
+function hslToRgb(h: number, s: number, l: number) {
+    s /= 100;
+    l /= 100;
+
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+    return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
+};
+
+function colorToRgb(col: Color) {
+    if (typeof col !== "string") return [0, 0, 0];
+    if (col in namedColors) {
+        return namedColors[col as keyof typeof namedColors];
+    } else if (col.charAt(0) === '#') {
+        const hex = col.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return [r, g, b];
+    } else if (col.startsWith('rgb')) {
+        // Extract RGB values
+        return col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
+    } else if (col.startsWith('rgba')) {
+        const [r, g, b, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0, 0];
+        return [r, g, b, a];
+    } else if (col.startsWith('hsl')) {
+        const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
+        return hslToRgb(h, s, l);
+    }
+
+    return [0, 0, 0];
+};

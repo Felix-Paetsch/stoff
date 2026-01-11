@@ -15,11 +15,9 @@ import { DropFirst, SketchElement, SketchElementCollection } from "./types";
 import { auto_validate } from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
-import * as RenderingMethods from "../Render/sketch_rendering_methods/exports";
 import { line_with_length } from "./unicorns/line_with_length";
 import { radians, length } from "./geometry/types";
 import { AvoidantConnectedComponent, ConnectedComponent } from "./connected_component";
-import path from "path";
 import * as CollectionMethods from "./collection";
 import * as SewingMethods from "./sketch_methods/advanced_methods/exports";
 
@@ -344,90 +342,6 @@ export class Sketch {
 
         return components;
     }
-
-    // Rendering Methods
-
-    to_svg(
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.create_svg_from_sketch(
-            this,
-            width,
-            height
-        )
-    }
-
-    to_dev_svg(
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.create_dev_svg_from_sketch(
-            this,
-            width,
-            height
-        )
-    }
-
-    save_as_svg(
-        save_to: string,
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.save_as_svg(this, save_to, width, height)
-    }
-
-    to_png(
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.create_png_from_sketch(
-            this,
-            width,
-            height
-        )
-    }
-
-    to_jpg(
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.create_jpg_from_sketch(
-            this,
-            width,
-            height
-        )
-    }
-
-    save_as_png(
-        save_to: string,
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.save_as_png(this, save_to, width, height)
-    }
-
-    save_as_jpg(
-        save_to: string,
-        width: number | null = null,
-        height: number | null = null,
-    ) {
-        return RenderingMethods.save_as_jpg(this, save_to, width, height)
-    }
-
-    save_on_A4(
-        folder: string
-    ) {
-        RenderingMethods.toA4printable(this, folder);
-        RenderingMethods.save_as_png(
-            this,
-            path.join(folder, "img.png"),
-            CONF.PRINTABLE_WIDTH_CM * CONF.PX_PER_CM,
-            CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
-        );
-    }
-
-
 
     // Sewing Sketch stuff
     cut(...args: DropFirst<Parameters<typeof SewingMethods.cut>>): ReturnType<typeof SewingMethods.cut> {

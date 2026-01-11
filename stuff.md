@@ -1,10 +1,7 @@
 Goal:
 
-1. Fix import issues
 2. Unify rendering
-3. Make it so that from StoffLib you only want to export from the files and not the subdirectories
-[Note you dont really want to export asset methods so that is fine]
-4. When nothing else todo, internally also adopt that (not necc. though)
+3. Render Data
 
 Eventually we will look at sewing to see how to improve things there for actually making it useable
 Eventually observability, speed improvements
