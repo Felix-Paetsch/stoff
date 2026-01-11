@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export default class Route {
+export class Route {
     static routes: Route[] = [];
     constructor(
         readonly url: `/${string}`,

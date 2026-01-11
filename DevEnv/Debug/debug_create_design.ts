@@ -1,7 +1,7 @@
 import { Sewing } from "@/Core/Sewing/sewing";
-import Sketch from "@/Core/StoffLib/sketch";
+import { Sketch } from "@/Core/StoffLib/sketch";
 
-export default async function (debug_scene: string) {
+export async function debug_create_design(debug_scene: string) {
     debug_scene = debug_scene || "index";
 
     // Try to import .ts file first, then fall back to .js

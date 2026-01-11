@@ -1,21 +1,21 @@
 import { SewingLine } from "./sewingLine";
-import Line from "../StoffLib/line";
-import Point from "../StoffLib/point";
-import Sketch from "../StoffLib/sketch";
+import { Line } from "../StoffLib/line";
+import { Point } from "../StoffLib/point";
+import { Sketch } from "../StoffLib/sketch";
 import { SewingPoint } from "./sewingPoint";
-import FaceAtlas from "../PatternLib/faces/faceAtlas";
 import { merge_lines_vertically } from "./mergeLines/vertically";
 import { FaceEdge } from "./faceEdge";
 import { merge_lines_horizontally } from "./mergeLines/horizontally";
 import { StackLine } from "./mergeLines/stackLine";
-import Renderer from "./rendering/renderer";
-import cutRenderer from "./rendering/render_step/cut";
-import foldRenderer from "./rendering/render_step/fold";
-import ironRenderer from "./rendering/render_step/iron";
-import sewRenderer from "./rendering/render_step/sew";
-import RendererCache from "./rendering/renderer/cache";
-import baseRenderer from "./rendering/render_step/base";
-import highlightRenderer from "./rendering/render_step/highlight";
+import { Renderer } from "../Render/renderer";
+import { cutRenderer } from "../Render/render_step/cut";
+import { foldRenderer } from "../Render/render_step/fold";
+import { ironRenderer } from "../Render/render_step/iron";
+import { sewRenderer } from "../Render/render_step/sew";
+import { RendererCache } from "../Render/renderer/cache";
+import { baseRenderer } from "../Render/render_step/base";
+import { highlightRenderer } from "../Render/render_step/highlight";
+import { FaceAtlas } from "../StoffLib/faces/faceAtlas";
 
 export class Sewing {
     public sewing_lines: SewingLine[];

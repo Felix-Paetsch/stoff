@@ -1,5 +1,5 @@
-import Point from "../point";
-import Line from "../line";
+import { Point } from "../point";
+import { Line } from "../line";
 
 export type LineFilter = Line | Line[] | ((line: Line) => boolean) | Point | null;
 export type PointFilter = Point | Point[] | ((pt: Point) => boolean) | Line | Line[] | null;

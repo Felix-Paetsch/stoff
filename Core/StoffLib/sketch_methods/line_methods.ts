@@ -6,10 +6,10 @@ import {
     PlainLine,
     Ray,
 } from "../geometry.js";
-import Line from "../line";
-import Point from "../point";
-import Sketch from "../sketch";
-import assert from "../../assert.js";
+import { Line } from "../line";
+import { Point } from "../point";
+import { Sketch } from "../sketch";
+import { assert } from "../../assert";
 import { interpolate_colors } from "../colors.js";
 import CONF from "../config.json" with { type: "json" };
 import { same_sketch } from "../assert_methods/exports.js";
@@ -220,7 +220,12 @@ export function interpolate_lines(
 }
 
 export function copy_line(l: Line, p1: Point, p2: Point) {
-    return new Line([p1, p2], l.get_sample_points())
+    const line = new Line([p1, p2], l.get_sample_points())
+
+    line.set_attributes(l.get_attributes())
+    copy_sketch_obj_data(l, line)
+
+    return line;
 }
 
 
@@ -274,10 +279,10 @@ export function merge_lines(
     new_line.data = data_callback(line1.data, line2.data, line1, line2);
 
     if (delete_join) {
-        sketch.remove_point(line1.p2);
+        sketch.remove(line1.p2);
     } else {
-        sketch.remove_line(line1);
-        sketch.remove_line(line2);
+        sketch.remove(line1);
+        sketch.remove(line2);
     }
 
     // Make sure we take orientation from line 1
@@ -361,7 +366,7 @@ export function point_on_line(
         copy_sketch_obj_data(line, ls, data_callback);
         ls.set_handedness(line.right_handed);
     });
-    sketch.remove_line(line);
+    sketch.remove(line);
 
     return {
         line_segments: line_segments,

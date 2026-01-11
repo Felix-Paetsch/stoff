@@ -6,7 +6,7 @@ import {
 } from "../geometry.js";
 import { LineSegment } from "../geometry/types.js";
 
-export default function offset_sample_points(
+export function offset_sample_points(
     sample_points: Vector[],
     radius: number,
     toRight: boolean = true

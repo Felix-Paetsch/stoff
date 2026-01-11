@@ -1,4 +1,4 @@
-import { create_canvas_from_sketch } from "../StoffLib/sketch_methods/rendering_methods/to_png_jpg.js";
+import { create_canvas_from_sketch } from "../Render/sketch_rendering_methods/to_png_jpg.js";
 
 import {
     writeFileSync,
@@ -12,7 +12,7 @@ import ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import { createCanvas } from "canvas";
 
-import Sketch from "../StoffLib/sketch.js";
+import { Sketch } from "../StoffLib/sketch.js";
 import { at_url, hot_at_url } from "./render_at.js";
 
 export type RecordingSketch = Sketch & { recorder?: Recorder };

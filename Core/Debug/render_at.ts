@@ -1,8 +1,8 @@
-import Renderer from "../Sewing/rendering/renderer/index";
-import type Sketch from "../StoffLib/sketch";
+import { Renderer } from "../Render/renderer/index";
+import { type Sketch } from "../StoffLib/sketch";
 import { Sewing } from "../Sewing/sewing";
 import { Request, Response } from "express";
-import Route from "./route";
+import { Route } from "./route";
 
 export function at_url(s: Sketch | Sewing | Sketch[], url: `/${string}`, overwrite: boolean | null = null) {
     const get = new Route(url, "GET", overwrite as any);

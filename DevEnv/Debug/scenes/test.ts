@@ -1,10 +1,10 @@
-import SewingSketch from "../../../Core/PatternLib/sewing_sketch.js";
+import { Sketch } from "@/Core/StoffLib/sketch";
 
 export default function () {
-    const r: SewingSketch = new SewingSketch();
+    const r = new Sketch();
     const points = [r.point(0, 0), r.point(0, 100), r.point(-20, 50)];
 
-    const l = (r as any).line_between_points(points[0], points[1]);
+    const l = r.line_between_points(points[0], points[1]);
 
     return r;
 }

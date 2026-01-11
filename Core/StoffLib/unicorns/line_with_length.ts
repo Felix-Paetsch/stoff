@@ -1,9 +1,9 @@
 import { Vector } from '../geometry.js';
-import Point from "../point";
-import Line from "../line";
-import Sketch from '../sketch';
+import { Point } from "../point";
+import { Line } from "../line";
+import { Sketch } from '../sketch';
 
-export default function line_with_length(
+export function line_with_length(
     original_sk: Sketch,
     original_p1: Point,
     original_p2: Point,

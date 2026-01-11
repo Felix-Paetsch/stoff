@@ -1,0 +1,23 @@
+import { Sewing } from "@/Core/Sewing/sewing";
+import { FaceRenderAttributes, LineRenderAttributes, Renderer } from "../renderer";
+import { SewingLine } from "@/Core/Sewing/sewingLine";
+
+const sew_line_attributes_primary: Partial<LineRenderAttributes> = {
+    stroke: ["#ccf", "blue"]
+}
+
+const sew_line_attributes_other: Partial<LineRenderAttributes> = {
+    stroke: ["#cfc", "green"]
+}
+
+const sew_face_attributes: Partial<FaceRenderAttributes> = {
+    fill: "green"
+}
+
+export function sewRenderer(sewing: Sewing, line: SewingLine): Renderer {
+    const renderer = new Renderer(sewing, "sew");
+    renderer.render_sketches();
+    renderer.render_face_carousel(line.face_carousel, sew_face_attributes);
+    renderer.render_sewing_line(line, sew_line_attributes_primary, sew_line_attributes_other);
+    return renderer;
+}

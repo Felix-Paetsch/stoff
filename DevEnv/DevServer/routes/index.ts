@@ -2,12 +2,12 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
 import { Express, Request, Response } from "express";
-import Sketch from "../../../Core/StoffLib/sketch.js";
-import debug_create_design from "../../Debug/debug_create_design.js";
-import create_design from "../../../Patterns/export_pattern_ui_v2.js";
-import Renderer from "@/Core/Sewing/rendering/renderer/index.js";
-import Route from "@/Core/Debug/route.js";
-import { Sewing } from "@/Core/Sewing/sewing.js";
+import { Sketch } from "../../../Core/StoffLib/sketch";
+import { debug_create_design } from "../../Debug/debug_create_design";
+import create_design from "../../../Patterns/export_pattern_ui_v2";
+import { Renderer } from "@/Core/Render/renderer/index";
+import { Route } from "@/Core/Debug/route";
+import { Sewing } from "@/Core/Sewing/sewing";
 Error.stackTraceLimit = 100;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +29,7 @@ fs.readdirSync(picturePartsPath, { withFileTypes: true }).forEach((dirent) => {
     }
 });
 
-export default (app: Express) => {
+export const register_routes = (app: Express) => {
     let hot_reload_timestamps: number[] = []; // These dont have to be reloaded
 
     // Start Page

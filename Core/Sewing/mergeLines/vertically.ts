@@ -3,7 +3,7 @@ import { Sewing } from "../sewing.js";
 import { PartialStackLine, StackLine } from "./stackLine.js";
 import { FaceEdgeWithPosition } from "../faceCarousel.js";
 import { create_and_wire_line, FaceEdgeBuildingBlock } from "./create_and_wire_line.js";
-import Point from "../../StoffLib/point.js";
+import { Point } from "../../StoffLib/point.js";
 
 export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn: StackLine[]): SewingLine {
     const sewOnComponents: PartialStackLine[] = sewOn.map(so => ({

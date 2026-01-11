@@ -1,5 +1,5 @@
-import Line from "../StoffLib/line.js";
-import Point from "../StoffLib/point.js";
+import { Line } from "../StoffLib/line.js";
+import { Point } from "../StoffLib/point.js";
 import { EPS, eps_equal } from "../StoffLib/geometry.js";
 import { FaceCarousel } from "./faceCarousel.ts";
 import { SewingPoint } from "./sewingPoint.ts";

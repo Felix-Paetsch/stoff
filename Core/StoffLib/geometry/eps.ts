@@ -1,4 +1,4 @@
-const EPS = {
+export const EPS = {
     EXACT: 0,
 
     MINY: 1e-16,
@@ -29,5 +29,3 @@ const EPS = {
 export function eps_equal(a: number, b: number, eps: number = EPS.EQUAL) {
     return Math.abs(a - b) <= eps;
 }
-
-export default EPS;

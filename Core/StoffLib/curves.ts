@@ -1,9 +1,9 @@
 import { Fraction } from "./geometry/1d";
 import { Vector } from "./geometry/classes";
 import { radians } from "./geometry/types";
-import Sketch from "./sketch";
-import Line from "./line";
-import Point from "./point";
+import { Sketch } from "./sketch";
+import { Line } from "./line";
+import { Point } from "./point";
 import { assert } from "../assert";
 
 export function arc(fill_amt: radians) {

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 type Dependency = string;
 type DependencyMap = Map<Dependency, Dependency[]>;
 
-export default class Cache {
+export class Cache {
     private lazyValueCache = new Map<string, any>();
     private dependency_map: DependencyMap = new Map();
 

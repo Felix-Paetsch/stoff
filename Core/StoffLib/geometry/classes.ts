@@ -1,7 +1,7 @@
-import { rotation_fun, vec_angle } from "./algorithms.js";
-import assert from "../../assert.js";
-import EPS from "./eps.js";
-import { isLineSegment, LineSegment, MirrorData, radians } from "./types.js";
+import { rotation_fun, vec_angle } from "./algorithms";
+import { assert } from "../../assert";
+import { EPS } from "./eps";
+import { isLineSegment, LineSegment, MirrorData, radians } from "./types";
 
 export class Vector {
     public x!: number;

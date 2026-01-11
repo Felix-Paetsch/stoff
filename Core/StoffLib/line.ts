@@ -9,22 +9,22 @@ import {
     orientation,
     BoundingBox,
     polygon_orientation
-} from "./geometry.js";
-import Point from "./point.js";
+} from "./geometry";
+import { Point } from "./point";
 import { ConnectedComponent } from "./connected_component";
-import assert from "../assert.js";
-import { _calculate_intersections } from "./unicorns/intersect_lines.js";
-import offset_sample_points from "./line_methods/offset_sample_points.js";
+import { assert } from "../assert";
+import { _calculate_intersections } from "./unicorns/intersect_lines";
+import { offset_sample_points } from "./line_methods/offset_sample_points";
 import * as LineManipulation from "./line_methods/line_manipulation";
-import { copy_sketch_element_collection } from "./copy.js";
-import Cache from "../utils/cache.js";
-import Sketch from "./sketch";
-import { Color } from "./colors.js";
-import { Fraction } from "./geometry/1d.js";
+import { copy_sketch_element_collection } from "./copy";
+import { Cache } from "../utils/cache";
+import { Sketch } from "./sketch";
+import { Color } from "./colors";
+import { Fraction } from "./geometry/1d";
 import { SketchElement, SketchElementData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
-import * as SketchElementCollectionMethods from "./collection.js";
-import { invalid_path } from "./assert_methods/exports.js";
+import * as SketchElementCollectionMethods from "./collection";
+import { invalid_path } from "./assert_methods/exports";
 
 type LineAttributes = {
     stroke: Color;
@@ -32,7 +32,7 @@ type LineAttributes = {
     opacity: number;
 }
 
-export default class Line {
+export class Line {
     public attributes: LineAttributes = {
         stroke: "rgb(0, 0, 0)",
         strokeWidth: 1,
@@ -43,6 +43,7 @@ export default class Line {
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
     public right_handed: boolean = true;
+    private _is_removed = false;
 
     constructor(
         private endpoints: [Point, Point],
@@ -66,7 +67,7 @@ export default class Line {
         if (this._sample_points[0].length_squared() < EPS.COARSE) {
             this.sample_points[0] = new Vector(0, 0);
         } else {
-            throw new Error("Line sample points dont start with (0,0)");
+            assert(invalid_path("Line sample points dont start with (1,0)"));
         }
 
         if (
@@ -76,34 +77,41 @@ export default class Line {
                 1, 0
             );
         } else {
-            throw new Error("Line sample points dont end with (1,0)");
+            assert(invalid_path("Line sample points dont end with (1,0)"));
         }
 
-        this.endpoints[0].add_adjacent_line(this);
-        this.endpoints[1].add_adjacent_line(this);
-        assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
-        assert(this.endpoints[0].sketch === this.endpoints[1].sketch);
+        this.endpoints[0].__register_line(this);
+        this.endpoints[1].__register_line(this);
+        this.get_sketch().__register_line(this);
 
-        if (typeof (this as any)._init !== "undefined") {
-            (this as any)._init();
-        }
+        assert(this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch());
+        assert(this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch());
     }
 
-    get sketch() {
+    get is_removed() {
+        return this._is_removed;
+    }
+
+    get_sketch() {
+        assert(!this._is_removed, "Line is removed");
         return this.p1.get_sketch();
     }
 
     get p1() {
+        assert(!this._is_removed, "Line is removed");
         return this.endpoints[0];
     }
     set p1(p) {
+        assert(!this._is_removed, "Line is removed");
         this.endpoints[0] = p;
         this.cache_update("endpoints");
     }
     get p2() {
+        assert(!this._is_removed, "Line is removed");
         return this.endpoints[1];
     }
     set p2(p) {
+        assert(!this._is_removed, "Line is removed");
         this.endpoints[1] = p;
         this.cache_update("endpoints");
     }
@@ -111,15 +119,18 @@ export default class Line {
         return this._sample_points;
     }
     set sample_points(points) {
+        assert(!this._is_removed, "Line is removed");
         this._sample_points = points;
         this.cache_update("sample_points");
     }
 
     cache_update(...what: string[]) {
+        assert(!this._is_removed, "Line is removed");
         this.cache.dependency_changed(...what);
     }
 
     offset_sample_points(radius: number, withHandedness: boolean = true) {
+        assert(!this._is_removed, "Line is removed");
         return offset_sample_points(
             this.get_absolute_sample_points(),
             radius,
@@ -128,25 +139,30 @@ export default class Line {
     }
 
     set_endpoints(p1: Point, p2: Point) {
-        this.p1.remove_line(this);
-        this.p2.remove_line(this);
+        assert(!this._is_removed, "Line is removed");
+        this.p1.__unregister_line(this);
+        this.p2.__unregister_line(this);
 
         this.p1 = p1;
         this.p2 = p2;
 
-        p1.add_adjacent_line(this);
-        p2.add_adjacent_line(this);
+        p1.__register_line(this);
+        p2.__register_line(this);
 
         return this;
     }
 
     remove() {
-        (assert as any).HAS_SKETCH(this);
-        this.sketch.remove(this);
+        assert(!this._is_removed, "Line is already removed");
+        this.p1.__unregister_line(this);
+        this.p2.__unregister_line(this);
+        this.get_sketch().__unregister_line(this);
+        this._is_removed = true;
     }
 
     other_endpoint(pt: SketchElement): Point {
-        (assert as any).HAS_ENDPOINT(this, pt);
+        assert(this.is_adjacent(pt));
+        assert(!this._is_removed, "Line is removed");
 
         if (pt instanceof Line)
             return this.other_endpoint(this.common_endpoint(pt)!);
@@ -154,58 +170,64 @@ export default class Line {
     }
 
     endpoint_from_orientation(bool: boolean = true) {
+        assert(!this._is_removed, "Line is removed");
         return bool ? this.p1 : this.p2;
     }
 
     has_endpoint(pt: Point) {
+        assert(!this._is_removed, "Line is removed");
         return this.p1 == pt || this.p2 == pt;
     }
 
-    is_deleted() {
-        return this.sketch == null;
-    }
-
     set_changed_endpoint(p1: Point, p2: Point) {
+        assert(!this._is_removed, "Line is removed");
         if (this.p1 == p1) return this.set_endpoints(p1, p2);
         if (this.p2 == p1) return this.set_endpoints(p2, p1);
         if (this.p1 == p2) return this.set_endpoints(p2, p1);
         if (this.p2 == p2) return this.set_endpoints(p1, p2);
-        throw new Error("Both points aren't endpoints of the line");
+        assert(invalid_path(),);
     }
 
     replace_endpoint(old_pt: Point, new_pt: Point) {
+        assert(!this._is_removed, "Line is removed");
         if (this.p1 == old_pt) return this.set_endpoints(new_pt, this.p2);
         if (this.p2 == old_pt) return this.set_endpoints(this.p1, new_pt);
         if (this.p1 == new_pt) return this.set_endpoints(old_pt, this.p2);
         if (this.p2 == new_pt) return this.set_endpoints(this.p1, old_pt);
-        throw new Error("Neither point was an endpoint of the line");
+        assert(invalid_path("Both endpoints dont belong to line"));
     }
 
     set_color(color: Color) {
+        assert(!this._is_removed, "Line is removed");
         this.attributes.stroke = color;
         return this;
     }
 
     get_color() {
+        assert(!this._is_removed, "Line is removed");
         return this.attributes.stroke;
     }
 
     set_attribute<K extends keyof LineAttributes>(attr: K, value: LineAttributes[K]) {
+        assert(!this._is_removed, "Line is removed");
         this.attributes[attr] = value;
         return this;
     }
 
     get_attribute<K extends keyof LineAttributes>(attr: K): LineAttributes[K] {
+        assert(!this._is_removed, "Line is removed");
         return this.attributes[attr];
     }
 
     get_attributes(): LineAttributes {
+        assert(!this._is_removed, "Line is removed");
         return {
             ...this.attributes,
         };
     }
 
     set_attributes(attrs: Partial<LineAttributes>) {
+        assert(!this._is_removed, "Line is removed");
         this.attributes = {
             ...this.attributes,
             ...attrs,
@@ -217,15 +239,13 @@ export default class Line {
         return this.sample_points;
     }
 
-    get_sketch() {
-        return this.sketch;
-    }
-
     is_straight() {
+        assert(!this._is_removed, "Line is removed");
         return !this.sample_points.some((p) => p.y !== 0);
     }
 
     is_convex(allow_overflow: boolean = false) {
+        assert(!this._is_removed, "Line is removed");
         // The argument says whether the line is also inside the rectangle
         /*
             -----P1--------------
@@ -255,6 +275,7 @@ export default class Line {
     }
 
     connected_component() {
+        assert(!this._is_removed, "Line is removed");
         return new ConnectedComponent(this);
     }
 
@@ -400,10 +421,12 @@ export default class Line {
     }
 
     get_endpoints(): [Point, Point] {
+        assert(!this._is_removed, "Line is removed");
         return [this.p1, this.p2];
     }
 
     get_adjacent_lines() {
+        assert(!this._is_removed, "Line is removed");
         return SketchElementCollectionMethods.unique(
             this.p1.get_adjacent_lines().concat(this.p2.get_adjacent_lines())
         ).filter((l: Line) => l !== this);
@@ -413,6 +436,7 @@ export default class Line {
     same_orientation(p: Point): boolean;
     same_orientation(l: Line): boolean;
     same_orientation(...args: any[]) {
+        assert(!this._is_removed, "Line is removed");
 
         if (args[0] instanceof Line) {
             return (
@@ -422,12 +446,13 @@ export default class Line {
             );
         }
 
-        (assert as any).HAS_ENDPOINT(this, args[0]);
-        args[1] && (assert as any).HAS_ENDPOINT(this, args[1]);
+        assert(this.has_endpoint(args[0]))
+        assert(!args[1] || this.has_endpoint(args[1]))
         return this.p1 == args[0];
     }
 
     same_handedness(line: Line) {
+        assert(!this._is_removed, "Line is removed");
         if (this.same_orientation(line)) {
             return this.right_handed == line.right_handed;
         }
@@ -437,10 +462,12 @@ export default class Line {
     }
 
     get_tangent_line(pt: Vector | Point) {
+        assert(!this._is_removed, "Line is removed");
         return PlainLine.from_direction(pt, this.get_tangent_vector(pt));
     }
 
     get_tangent_vector(pt: Vector | Point) {
+        assert(!this._is_removed, "Line is removed");
         // Points along the line in the direction this.p1 -> this.p2, unless we put in this.p1;
 
         const to_absolute = this.get_to_absolute_function();
@@ -489,7 +516,7 @@ export default class Line {
             }
         }
 
-        if (min > EPS.MODERATE) (assert as any).THROW("Vector/Point is not on line.");
+        assert(min < EPS.MODERATE, "Vector/Point is not on line.");
 
         let left = best_index;
         let right = best_index + 1;
@@ -507,6 +534,7 @@ export default class Line {
     }
 
     mirror(direction: boolean = false) {
+        assert(!this._is_removed, "Line is removed");
         if (direction) {
             const t = this.p1;
             this.p1 = this.p2;
@@ -521,6 +549,10 @@ export default class Line {
     }
 
     set_orientation(p1: Point, p2?: Point) {
+        assert(!this._is_removed, "Line is removed");
+        assert(this.endpoints.includes(p1), "Point isnt endpoint of line.");
+        assert(!p2 || this.endpoints.includes(p2), "Point isnt endpoint of line.");
+
         if (p1 == this.p2) {
             this.swap_orientation();
         }
@@ -529,6 +561,7 @@ export default class Line {
     }
 
     swap_orientation() {
+        assert(!this._is_removed, "Line is removed");
         const t = this.p1;
         this.p1 = this.p2;
         this.p2 = t;
@@ -541,11 +574,13 @@ export default class Line {
     }
 
     swap_handedness() {
+        assert(!this._is_removed, "Line is removed");
         this.right_handed = !this.right_handed;
         return this;
     }
 
     set_handedness(cmpr: boolean | Line | Vector): boolean {
+        assert(!this._is_removed, "Line is removed");
         if (typeof cmpr == "boolean") {
             return (this.right_handed = cmpr);
         }
@@ -566,20 +601,23 @@ export default class Line {
             ));
         }
 
-        return (assert as any).INVALID_PATH();
+        return assert(invalid_path());
     }
 
     stretch(factor = 1) {
+        assert(!this._is_removed, "Line is removed");
         this.sample_points.forEach((p) => p.set(p.x, factor * p.y));
         this.cache_update("sample_points");
         return this;
     }
 
     endpoint_distance() {
+        assert(!this._is_removed, "Line is removed");
         return this.p1.distance(this.p2);
     }
 
     get_length() {
+        assert(!this._is_removed, "Line is removed");
         return this.cache.compute_dependent(
             "get_length",
             ["endpoints", "sample_points"],
@@ -608,6 +646,7 @@ export default class Line {
     }
 
     get_bounding_box() {
+        assert(!this._is_removed, "Line is removed");
         return this.cache.compute_dependent(
             "bounding_box",
             ["absolute_sample_points"],
@@ -620,6 +659,7 @@ export default class Line {
     }
 
     convex_hull() {
+        assert(!this._is_removed, "Line is removed");
         return this.cache.compute_dependent(
             "convex_hull",
             ["absolute_sample_points"],
@@ -630,7 +670,7 @@ export default class Line {
     }
 
     is_adjacent(thing: SketchElement) {
-        (assert as any).IS_SKETCH_ELEMENT(thing);
+        assert(!this._is_removed, "Line is removed");
 
         if (thing instanceof Point) {
             return thing == this.p1 || thing == this.p2;
@@ -640,6 +680,7 @@ export default class Line {
     }
 
     common_endpoint(line: Line) {
+        assert(!this._is_removed, "Line is removed");
         if (this.p1 == line.p1 || this.p1 == line.p2) {
             return this.p1;
         }
@@ -650,7 +691,8 @@ export default class Line {
         return null;
     }
 
-    position_at_length(length: number, reversed = false) {
+    position_at_length(length: number, reversed = false): Vector {
+        assert(!this._is_removed, "Line is removed");
         const l = this.get_length();
         length = length >= 0 ? length : l - length;
         assert(length <= l, "Specified length longer than line.");
@@ -697,10 +739,11 @@ export default class Line {
             sum += next_length;
         }
 
-        return (assert as any).INVALID_PATH();
+        throw assert(invalid_path());
     }
 
     position_at_fraction(f: number, reversed = false) {
+        assert(!this._is_removed, "Line is removed");
         assert(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
 
         f = f >= 0 ? f : 1 - f;
@@ -708,6 +751,7 @@ export default class Line {
     }
 
     closest_position(vec: Vector) {
+        assert(!this._is_removed, "Line is removed");
         const vec_rel = this.get_to_relative_function()(vec);
 
         let min: number = Infinity;
@@ -730,12 +774,13 @@ export default class Line {
     }
 
     minimal_distance(vec: Vector) {
+        assert(!this._is_removed, "Line is removed");
         const p = this.closest_position(vec);
         return p.distance(vec);
     }
 
     toString() {
-        return "[Line]";
+        return "[Line]" as const;
     }
 
     toJSON() {
@@ -747,6 +792,7 @@ export default class Line {
     }
 
     paste_to_sketch(target: Sketch, position: Vector | null = null) {
+        assert(!this._is_removed, "Line is removed");
         const res = copy_sketch_element_collection([this], target, position);
         return res.get_corresponding_sketch_element(this);
     }
@@ -772,6 +818,7 @@ export default class Line {
     }
 
     computer_center_point() {
+        assert(!this._is_removed, "Line is removed");
         return this.to_absolute_position(LineManipulation.compute_center_point(this.sample_points));;
     }
 
@@ -858,8 +905,7 @@ export default class Line {
                 }
             }
 
-            if (!smth_found)
-                throw new Error("Lines dont form a connected segment");
+            assert(smth_found, "Lines dotn form a connected segment");
         }
 
         function set_two_line_orientations(data: {
@@ -886,7 +932,7 @@ export default class Line {
                     data.lines[1].other_endpoint(lines[0].p1),
                 ];
             } else {
-                assert(invalid_path(), "Lines dont form a connected segment")
+                assert(invalid_path("Lines dont form a connected segment"))
             }
             return data as any;
         }

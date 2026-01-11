@@ -1,7 +1,0 @@
-json_db/data
-.env
-node_modules
-
-!website/public/bilder/
-!website/public/bilder/**
-discord/config.json

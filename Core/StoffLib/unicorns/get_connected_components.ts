@@ -1,7 +1,7 @@
 import { ConnectedComponent } from "../connected_component.js";
-import Point from "../point.js";
-import Line from "../line.js";
-import Sketch from "../sketch.js";
+import { Point } from "../point.js";
+import { Line } from "../line.js";
+import { Sketch } from "../sketch.js";
 import { SketchElement } from "../types.js";
 
 export function get_connected_components(

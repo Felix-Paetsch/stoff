@@ -1,6 +1,6 @@
 import CONF from "../config.json" with { type: "json" };
-import { EPS, Vector, ZERO } from "../geometry.js";
-import Line from "../line";
+import { EPS, Vector, ZERO } from "../geometry";
+import { Line } from "../line";
 
 export function rel_normalized_sample_points(line: Line, approx_sample_spacing: number | null = null) {
     if (approx_sample_spacing == null) {

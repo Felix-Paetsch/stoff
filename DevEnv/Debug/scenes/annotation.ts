@@ -1,9 +1,9 @@
-import SewingSketch from "../../../Core/PatternLib/sewing_sketch";
 import { Sewing } from "@/Core/Sewing/sewing";
 import { start_recording } from "@/Core/Debug/recording";
+import { Sketch } from "@/Core/StoffLib/sketch";
 
 export default function () {
-    const r = new SewingSketch();
+    const r = new Sketch();
     start_recording(r, "/dev");
     const points = [
         r.point(0, 0), r.point(100, 0),

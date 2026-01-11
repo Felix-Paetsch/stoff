@@ -1,6 +1,6 @@
-import { Vector, Matrix, Ray, ZERO, UP } from "./classes.js";
-import EPS from "./eps.js";
-import { Polygon, LineSegment, radians, degrees } from "./types.js";
+import { Vector, Matrix, ZERO, UP } from "./classes";
+import { EPS } from "./eps";
+import { Polygon, LineSegment, radians, degrees } from "./types";
 
 function distance_from_line_segment(endpoints: LineSegment, vec: Vector) {
     return closest_vec_on_line_segment(endpoints, vec).distance(vec);

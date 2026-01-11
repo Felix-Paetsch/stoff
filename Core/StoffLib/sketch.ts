@@ -1,6 +1,6 @@
 import { UP, Vector } from "./geometry";
-import Point from "./point";
-import Line from "./line";
+import { Point } from "./point";
+import { Line } from "./line";
 import {
     copy_sketch,
     default_data_callback,
@@ -10,30 +10,45 @@ import {
 } from "./copy";
 import CONF from "./config.json";
 
-import assert from "../assert";
-import { SketchElement, SketchElementCollection } from "./types";
-import auto_validate from "./sketch_methods/auto_validate";
+import { assert } from "../assert";
+import { DropFirst, SketchElement, SketchElementCollection } from "./types";
+import { auto_validate } from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
-import * as RenderingMethods from "./sketch_methods/rendering_methods/exports";
-import line_with_length_fn from "./unicorns/line_with_length";
+import * as RenderingMethods from "../Render/sketch_rendering_methods/exports";
+import { line_with_length } from "./unicorns/line_with_length";
 import { radians, length } from "./geometry/types";
 import { AvoidantConnectedComponent, ConnectedComponent } from "./connected_component";
 import path from "path";
-import { same_sketch } from "./assert_methods/exports";
 import * as CollectionMethods from "./collection";
+import * as SewingMethods from "./sketch_methods/advanced_methods/exports";
 
-export default class Sketch {
+export class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
     private points: Point[] = [];
     private lines: Line[] = [];
     public data: any = {};
 
-    constructor() {
-        if (typeof (this as any)._init !== "undefined") {
-            // When class is modified externally
-            (this as any)._init();
-        }
+    constructor() { }
+
+    __register_point(pt: Point) {
+        this.points.push(pt);
+    }
+
+    __register_line(ln: Line) {
+        this.lines.push(ln);
+    }
+
+    __unregister_point(pt: Point) {
+        this.points = this.points.filter(p => p != pt);
+    }
+
+    __unregister_line(ln: Line) {
+        this.lines = this.lines.filter(l => l != ln);
+    }
+
+    get_bounding_box() {
+        return CollectionMethods.get_bounding_box(this);
     }
 
     point(x: number, y: number) {
@@ -41,14 +56,8 @@ export default class Sketch {
         return this.add_point(pt);
     }
 
-    add_point(pt: Point | Vector): Point {
-        if (pt instanceof Point) {
-            pt.set_sketch(this);
-            this.points.push(pt);
-            return pt;
-        }
-
-        return this.add_point(new Point(this, pt));
+    add_point(pt: Vector): Point {
+        return new Point(this, pt);
     }
 
     get_points() {
@@ -65,44 +74,6 @@ export default class Sketch {
 
     get_sketch() {
         return this;
-    }
-
-    remove_line(line: Line) {
-        return this.remove_lines(line);
-    }
-
-    remove_lines(...lines: Line[]) {
-        lines.forEach((l) => {
-            assert(same_sketch(l, this));
-        });
-
-        for (const line of lines) {
-            line.get_endpoints().forEach((p) => p.remove_line(line));
-            const rem_line = line as any;
-            rem_line.p1 = null;
-            rem_line.p2 = null;
-        }
-        this.lines = this.lines.filter((l) => !lines.includes(l));
-    }
-
-    remove_point(pt: Point) {
-        return this.remove_points(pt);
-    }
-
-    remove_points(...points: Point[]) {
-        points.forEach((p) => {
-            assert(same_sketch(p, this));
-        });
-
-        for (const pt of points) {
-            this.remove_lines(...pt.get_adjacent_lines());
-        }
-        for (const pt of points) {
-            pt.set_sketch(null as any);
-            (pt as any).adjacent_lines = [];
-        }
-
-        this.points = this.points.filter((p) => !points.includes(p));
     }
 
     remove(...els: (SketchElement | SketchElementCollection)[]) {
@@ -123,12 +94,12 @@ export default class Sketch {
             }
         }
 
-        this.remove_lines(...lines_to_remove);
-        this.remove_points(...points_to_remove);
+        lines_to_remove.forEach(l => l.remove());
+        points_to_remove.forEach(p => p.remove());
     }
 
     clear() {
-        this.remove_points(...this.points);
+        this.remove(...this.points);
         this.data = null as any;
     }
 
@@ -148,7 +119,7 @@ export default class Sketch {
             }
         });
 
-        this.remove_points(pt2);
+        this.remove(pt2);
         return pt1;
     }
 
@@ -221,7 +192,7 @@ export default class Sketch {
         original_p2: Point,
         length: number
     ) {
-        return line_with_length_fn(
+        return line_with_length(
             this,
             original_p1,
             original_p2,
@@ -455,9 +426,37 @@ export default class Sketch {
             CONF.PRINTABLE_HEIGHT_CM * CONF.PX_PER_CM,
         );
     }
-}
 
-(Sketch as any).Line = Line;
-(Sketch as any).Point = Point;
+
+
+    // Sewing Sketch stuff
+    cut(...args: DropFirst<Parameters<typeof SewingMethods.cut>>): ReturnType<typeof SewingMethods.cut> {
+        return SewingMethods.cut(this, ...args)
+    }
+
+    glue(...args: DropFirst<Parameters<typeof SewingMethods.glue>>): ReturnType<typeof SewingMethods.glue> {
+        return SewingMethods.glue(this, ...args)
+    }
+
+    anchor(...args: DropFirst<Parameters<typeof SewingMethods.anchor>>): ReturnType<typeof SewingMethods.anchor> {
+        return SewingMethods.anchor(this, ...args)
+    }
+
+    remove_anchors(...args: DropFirst<Parameters<typeof SewingMethods.remove_anchors>>): ReturnType<typeof SewingMethods.remove_anchors> {
+        return SewingMethods.remove_anchors(this, ...args)
+    }
+
+    path_between_points(...args: Parameters<typeof SewingMethods.path_between_points>): ReturnType<typeof SewingMethods.path_between_points> {
+        return SewingMethods.path_between_points(...args)
+    }
+
+    decompress_components() {
+        return SewingMethods.decompress_components(this)
+    }
+
+    unfold(...args: DropFirst<Parameters<typeof SewingMethods.unfold>>): ReturnType<typeof SewingMethods.unfold> {
+        return SewingMethods.unfold(this, ...args)
+    }
+}
 
 auto_validate(Sketch);

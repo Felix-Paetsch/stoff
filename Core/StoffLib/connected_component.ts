@@ -1,13 +1,13 @@
 import { Vector, mirror_type } from "./geometry";
-import { } from "./copy"; // Hopefully Temporary: Imports are otherwise broken
 import { copy_sketch_element_collection } from "./copy";
 import { BoundingBox } from "./geometry/bounding_box";
 import { SketchElement } from "./types";
 import { MirrorData } from "./geometry/types";
-import Point from "./point";
-import Line from "./line";
-import Sketch from "./sketch";
+import { Point } from "./point";
+import { Line } from "./line";
+import { Sketch } from "./sketch";
 import { same_sketch } from "./assert_methods/exports";
+import { assert } from ".././assert";
 
 export class ConnectedComponent {
     constructor(
@@ -32,7 +32,7 @@ export class ConnectedComponent {
         const groupedPoints: Record<string, Point[]> = points.reduce((acc: Record<string, Point[]>, pt: Point) => {
             const groupKey = pt.data[key] !== undefined ? pt.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = (this as any).new_sketch_element_collection();
+                acc[groupKey] = [];
             }
             acc[groupKey].push(pt);
             return acc;
@@ -42,7 +42,7 @@ export class ConnectedComponent {
             const groupKey =
                 line.data[key] !== undefined ? line.data[key] : "_";
             if (!acc[groupKey]) {
-                acc[groupKey] = (this as any).new_sketch_element_collection();
+                acc[groupKey] = [];
             }
             acc[groupKey].push(line);
             return acc;
@@ -76,7 +76,7 @@ export class ConnectedComponent {
     }
 
     get_sketch() {
-        return this.root_el.sketch;
+        return this.root_el.get_sketch();
     }
 
     get_bounding_box() {

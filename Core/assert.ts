@@ -21,9 +21,6 @@ export const assert = (bool: ValidationResult | ValidationFunction, error: strin
     return true;
 };
 
-export default assert;
-
-
 export function validation_failed(v: ValidationResult) {
     return v === false;
 }

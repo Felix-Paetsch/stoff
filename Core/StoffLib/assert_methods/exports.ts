@@ -1,14 +1,14 @@
-import { EPS, Vector } from "../geometry.js";
-import { merge_validations } from "../../assert.js";
-import Point from "../point";
-import Line from "../line";
-import { SketchElement } from "../types.js";
-import Sketch from "../sketch.js";
+import { EPS, Vector } from "../geometry";
+import { merge_validations } from "../../assert";
+import { Point } from "../point";
+import { Line } from "../line";
+import { SketchElement } from "../types";
+import { Sketch } from "../sketch";
 
-export { validate_sketch } from "./sketch_is_valid.js";
+export { validate_sketch } from "./sketch_is_valid";
 
-export function invalid_path() {
-    return "Invalid path reached!"
+export function invalid_path(str = "Invalid path reached!") {
+    return str;
 }
 
 export function same_sketch(

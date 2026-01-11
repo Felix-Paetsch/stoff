@@ -1,10 +1,11 @@
-import Point from "../point.js";
-import Line from "../line.js";
-import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter.js";
-import { SketchElement, SketchElementCollection } from "../types.js";
-import Sketch from "../sketch.js";
-import { same_sketch } from "../assert_methods/exports.js";
-import { sketch_element_collection_as_array } from "../collection.js";
+import { Point } from "../point";
+import { Line } from "../line";
+import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter";
+import { SketchElement, SketchElementCollection } from "../types";
+import { Sketch } from "../sketch";
+import { same_sketch } from "../assert_methods/exports";
+import { sketch_element_collection_as_array } from "../collection";
+import { assert } from "../.././assert";
 
 export function unique<T extends SketchElement>(ec: SketchElementCollection<T>): T[] {
     const nec = sketch_element_collection_as_array(ec);

@@ -1,9 +1,9 @@
-import { Vector } from "./geometry.js";
-import Point from "./point.js";
-import Line from "./line.js";
-import Sketch from "./sketch";
-import { ConnectedComponent } from "./connected_component.js";
-import { SketchElement, SketchElementCollection, SketchElementData } from "./types.js";
+import { Vector } from "./geometry";
+import { Point } from "./point";
+import { Line } from "./line";
+import { Sketch } from "./sketch";
+import { ConnectedComponent } from "./connected_component";
+import { SketchElement, SketchElementCollection, SketchElementData } from "./types";
 
 export type CopySketchDataCallback = {
     (

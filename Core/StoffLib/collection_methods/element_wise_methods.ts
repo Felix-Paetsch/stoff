@@ -1,8 +1,8 @@
-import { mirror_type } from "../geometry.js";
-import Point from "../point.js";
-import { SketchElement, SketchElementCollection } from "../types.js";
-import { MirrorData } from "../geometry/types.js";
-import { sketch_element_collection_as_array } from "../collection.js";
+import { mirror_type } from "../geometry";
+import { Point } from "../point";
+import { SketchElement, SketchElementCollection } from "../types";
+import { MirrorData } from "../geometry/types";
+import { sketch_element_collection_as_array } from "../collection";
 
 export function delete_sketch_elements(
     ec: SketchElementCollection

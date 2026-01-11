@@ -1,5 +1,0 @@
-{
-    "ignore": ["*.json"],
-    "ext": "js,ejs,scss"
-  }
-  

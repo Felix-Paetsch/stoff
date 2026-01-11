@@ -1,4 +1,5 @@
 import { EPS } from "../geometry";
+import { assert } from "../../assert";
 import { length, radians } from "./types";
 
 export type Triangle = {
@@ -40,7 +41,7 @@ function oppositeSide(angle: AngleKey): SideKey {
     return angle === "alpha" ? "a" : angle === "beta" ? "b" : "c";
 }
 
-export default function triangle_data(
+export function triangle_data(
     triangle: TriangleSpecification
 ): Triangle {
     const { SSA = true, ...input } = triangle as TriangleSpecification & { SSA?: boolean };

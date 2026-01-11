@@ -3,11 +3,10 @@ import { validate_sketch } from "../assert_methods/sketch_is_valid";
 type SketchType = any;
 
 const sketch_graphical_non_pure_methods = [
-    "add",
     "add_point",
     "clear",
     "copy_line",
-    "delete_component",
+    "copy_point",
     "intersect_lines",
     "interpolate_lines",
     "line_between_points",
@@ -18,14 +17,12 @@ const sketch_graphical_non_pure_methods = [
     "merge_lines",
     "merge_points",
     "paste_sketch",
-    "plot",
     "point",
     "point_on_line",
-    "remove_lines",
-    "remove_points",
+    "remove"
 ] as const;
 
-export default function auto_validate(Sketch: SketchType) {
+export function auto_validate(Sketch: SketchType) {
     Sketch.graphical_non_pure_methods = sketch_graphical_non_pure_methods;
     Sketch.graphical_non_pure_methods.forEach((methodName: string) => {
         const originalMethod = Sketch.prototype[methodName];
@@ -36,7 +33,6 @@ export default function auto_validate(Sketch: SketchType) {
 
             // console.log(args);
             const result = originalMethod.apply(this, args);
-
             if (!was_already_internal) validate_sketch(this);
 
             currently_internal = was_already_internal;

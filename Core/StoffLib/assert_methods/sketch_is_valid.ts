@@ -1,12 +1,12 @@
-import assert, { merge_validations, ValidationFunction, ValidationResult } from "../../assert";
-import { Vector, ZERO } from "../geometry.js";
+import { assert, merge_validations, ValidationFunction, ValidationResult } from "../../assert";
+import { Vector, ZERO } from "../geometry";
 import CONF from "../config.json" with { type: "json" };
-import Line from "../line.js";
-import Point from "../point.js";
-import { at_url } from "../../Debug/render_at.js";
-import Sketch from "../sketch";
-import { ConnectedComponent } from "../connected_component.js";
-import { same_sketch } from "./exports.js";
+import { Line } from "../line";
+import { Point } from "../point";
+import { at_url } from "../../Debug/render_at";
+import { Sketch } from "../sketch";
+import { ConnectedComponent } from "../connected_component";
+import { same_sketch } from "./exports";
 
 let currently_validating = false;
 

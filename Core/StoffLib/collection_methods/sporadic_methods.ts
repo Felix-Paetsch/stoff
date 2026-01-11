@@ -1,12 +1,12 @@
-import { Vector, convex_hull as GeometryConvexHull, BoundingBox } from "../geometry.js";
-import { copy_sketch_element_collection } from "../copy.js";
+import { Vector, convex_hull as GeometryConvexHull, BoundingBox } from "../geometry";
+import { copy_sketch_element_collection } from "../copy";
 import {
     SketchElement,
     SketchElementCollection
-} from "../types.js";
-import { ConnectedComponent } from "../connected_component.js";
-import { get_lines, get_points, get_sketch } from "./getter_methods.js";
-import { sketch_element_collection_as_array } from "../collection.js";
+} from "../types";
+import { ConnectedComponent } from "../connected_component";
+import { get_lines, get_points, get_sketch } from "./getter_methods";
+import { sketch_element_collection_as_array } from "../collection";
 
 export function get_bounding_box(
     ec: SketchElementCollection,

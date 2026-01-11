@@ -22,7 +22,7 @@
             "@/*": ["./*"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Core/StoffLib/cc.dts", "Core/StoffLib/sketch_methods/rendering_methods/to_sewing_data_ts_idk"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],
     "exclude": [
         "node_modules",
         "dist",

@@ -1,11 +1,11 @@
 import { line_segments_intersect } from "../geometry";
-import Line from "../line";
+import { Line } from "../line";
 
-declare module "../line" {
-    class Line {
-        self_intersection_cache: boolean | null;
-    }
-}
+// declare module "../line" {
+//     export class Line {
+//         self_intersection_cache: boolean | null;
+//     }
+// }
 
 export function self_intersects(line: Line): boolean {
     // Needs more work

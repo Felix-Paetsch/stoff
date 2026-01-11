@@ -1,4 +1,4 @@
-import Sketch from "@/Core/StoffLib/sketch.js";
+import { Sketch } from "@/Core/StoffLib/sketch.js";
 import { Sewing } from "@/Core/Sewing/sewing.js";
 import { dirname, join } from "path";
 import { writeFileSync } from "fs";
@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import debug_create_design from "../Debug/debug_create_design.js";
+import { debug_create_design } from "../Debug/debug_create_design.js";
 
 // Get scene name from command line arguments, default to "annotation"
 const sceneName = process.argv[2] || "annotation";

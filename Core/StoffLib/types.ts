@@ -1,5 +1,5 @@
-import Point from "./point.js";
-import Line from "./line.js";
+import { Point } from "./point";
+import { Line } from "./line";
 
 export type SketchElement = Point | Line;
 export type SketchElementCollection<T extends SketchElement = SketchElement> = T[] | {
@@ -7,3 +7,7 @@ export type SketchElementCollection<T extends SketchElement = SketchElement> = T
 };
 
 export type SketchElementData = any;
+
+export type DropFirst<T extends any[]> = T extends [any, ...infer Rest]
+    ? Rest
+    : never;

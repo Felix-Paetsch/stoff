@@ -1,11 +1,11 @@
-import Line from "../StoffLib/line.js";
-import { Sewing } from "./sewing.ts";
-import { SewingPoint } from "./sewingPoint.ts";
-import Point from "../StoffLib/point.js";
-import { FaceCarousel } from "./faceCarousel.ts";
-import { FaceEdge, FaceEdgeComponent } from "./faceEdge.ts";
-import Face from "../PatternLib/faces/face.ts";
-import { merge_intervals } from "../StoffLib/geometry.js";
+import { Line } from "../StoffLib/line";
+import { Sewing } from "./sewing";
+import { SewingPoint } from "./sewingPoint";
+import { Point } from "../StoffLib/point";
+import { FaceCarousel } from "./faceCarousel";
+import { FaceEdge, FaceEdgeComponent } from "./faceEdge";
+import { merge_intervals } from "../StoffLib/geometry";
+import { Face } from "../StoffLib/faces/face.ts";
 
 export type SewingLineComponent = {
     line: Line,

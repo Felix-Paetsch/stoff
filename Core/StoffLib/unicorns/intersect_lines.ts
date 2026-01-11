@@ -8,9 +8,9 @@ import {
 } from "../geometry.js";
 import { copy_sketch_obj_data } from "../copy.js";
 import { interpolate_colors } from "../colors.js";
-import Sketch from "../sketch";
-import Line from "../line";
-import Point from "../point";
+import { Sketch } from "../sketch";
+import { Line } from "../line";
+import { Point } from "../point";
 import { LineSegment } from "../geometry/types.js";
 
 export {
@@ -137,8 +137,8 @@ function intersect_lines(
     intersections.shift();
     intersections.sort((a, b) => a[0] + a[2] - (b[0] + b[2]));
 
-    sketch.remove_line(line1);
-    sketch.remove_line(line2);
+    sketch.remove(line1);
+    sketch.remove(line2);
 
     const resPoints = new Array(intersections.length);
     for (let i = 0; i < intersections.length; i++) {
@@ -505,3 +505,4 @@ function _get_monotone_segments(coords: [Vector, number][]) {
 
     return segments;
 }
+

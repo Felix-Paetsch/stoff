@@ -1,5 +1,5 @@
-import EPS, { eps_equal } from "./geometry/eps.js";
-import triangle_data from "./geometry/triangle_data.js";
+import { EPS, eps_equal } from "./geometry/eps";
+import { triangle_data } from "./geometry/triangle_data";
 import {
     Vector,
     Matrix,
@@ -12,7 +12,7 @@ import {
     RIGHT,
     VERTICAL,
     HORIZONTAL,
-} from "./geometry/classes.js";
+} from "./geometry/classes";
 import {
     affine_transform_from_input_output,
     orthogonal_transform_from_input_output,
@@ -29,10 +29,10 @@ import {
     polygon_contains_point,
     orientation,
     polygon_orientation,
-} from "./geometry/algorithms.js";
-import { BoundingBox } from "./geometry/bounding_box.js";
-import { merge_intervals, interval_overlap } from "./geometry/1d.js";
-import { isLineSegment, LineSegment, MirrorData } from "./geometry/types.js";
+} from "./geometry/algorithms";
+import { BoundingBox } from "./geometry/bounding_box";
+import { merge_intervals, interval_overlap } from "./geometry/1d";
+import { isLineSegment, LineSegment, MirrorData } from "./geometry/types";
 
 export function mirror_type(el: Line | Ray | LineSegment): "Line";
 export function mirror_type(el: Vector | null): "Point";

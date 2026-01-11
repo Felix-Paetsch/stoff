@@ -1,10 +1,10 @@
-import { BoundingBox, Vector } from "./geometry.js";
-import { ConnectedComponent } from "./connected_component.js";
-import assert from "../assert.js";
-import Sketch from "./sketch";
-import Line from "./line.js";
-import { SketchElementData } from "./types.js";
-import { Color } from "./colors.js";
+import { BoundingBox, Vector } from "./geometry";
+import { ConnectedComponent } from "./connected_component";
+import { assert } from "../assert";
+import { Sketch } from "./sketch";
+import { Line } from "./line";
+import { SketchElementData } from "./types";
+import { Color } from "./colors";
 
 type PointRenderAttributes = {
     fill: Color;
@@ -14,7 +14,7 @@ type PointRenderAttributes = {
     opacity: number;
 }
 
-class Point extends Vector {
+export class Point extends Vector {
     private adjacent_lines: Line[] = [];
     public data: SketchElementData = {};
     public attributes: PointRenderAttributes = {
@@ -25,8 +25,9 @@ class Point extends Vector {
         opacity: 1,
     };
 
+    private _is_removed = false;
     constructor(
-        private _sketch: Sketch,
+        private sketch: Sketch,
         ...args: ConstructorParameters<typeof Vector>
     ) {
         super(...args);
@@ -41,13 +42,11 @@ class Point extends Vector {
             opacity: 1,
         };
 
-        if (typeof (this as any)._init !== "undefined") {
-            (this as any)._init();
-        }
+        this.sketch.__register_point(this);
     }
 
-    get sketch() {
-        return this._sketch;
+    get is_removed() {
+        return this._is_removed;
     }
 
     vector() {
@@ -55,6 +54,7 @@ class Point extends Vector {
     }
 
     connected_component() {
+        assert(!this._is_removed, "Point is removed");
         return new ConnectedComponent(this);
     }
 
@@ -95,69 +95,61 @@ class Point extends Vector {
     copy(sketch?: Sketch) {
         if (sketch) {
             const r = new Point(sketch, this.x, this.y);
-            r.attributes = JSON.parse(JSON.stringify(r.attributes));
+            r.set_attributes(this.get_attributes());
             return r;
         }
         return new Vector(this);
     }
 
     get_tangent_vector(line: Line) {
+        assert(!this._is_removed, "Point is removed");
         assert(this.adjacent_lines.includes(line));
         return line.get_tangent_vector(this);
     }
 
-    add_adjacent_line(line: Line) {
+    __register_line(line: Line) {
         this.adjacent_lines.push(line);
-        return this;
+    }
+
+    __unregister_line(line: Line) {
+        this.adjacent_lines = this.adjacent_lines.filter(l => l !== line);
     }
 
     get_adjacent_lines() {
+        assert(!this._is_removed, "Point is removed");
         return [...this.adjacent_lines];
     }
 
     get_adjacent_points() {
+        assert(!this._is_removed, "Point is removed");
         const pt = this.adjacent_lines.map((l) => l.other_endpoint(this));
         return pt.filter((p, i) => pt.indexOf(p) == i);
     }
 
     get_sketch() {
+        assert(!this._is_removed, "Point is removed");
         return this.sketch;
     }
 
-    other_adjacent_line(...lines: Line[]) {
-        const other = this.other_adjacent_lines(...lines);
-        assert(
-            other.length < 2,
-            "Point has more than one other adjacent line."
-        );
-        return other[0] || null;
-    }
-
     other_adjacent_lines(...lines: Line[]) {
+        assert(!this._is_removed, "Point is removed");
         for (const line of lines) {
             assert(this.adjacent_lines.includes(line));
         }
         return this.adjacent_lines.filter((l) => lines.indexOf(l) < 0);
     }
 
-    other_adjacent_point(...pts: Point[]) {
-        const other = this.other_adjacent_points(...pts);
-        assert(
-            other.length < 2,
-            "Point has more than one other adjacent points."
-        );
-        return other[0] || null;
-    }
-
     other_adjacent_points(...pts: Point[]) {
-        return this.get_adjacent_points().filter((p) => pts.indexOf(p) < 0);
-    }
+        assert(!this._is_removed, "Point is removed");
 
-    common_line(point: Point) {
-        return this.common_lines(point)[0] || null;
+        const adj = this.get_adjacent_points();
+        assert(pts.every(adj.includes));
+
+        return adj.filter((p) => pts.indexOf(p) < 0);
     }
 
     common_lines(point: Point) {
+        assert(!this._is_removed, "Point is removed");
         return this.adjacent_lines.filter((l) =>
             point.get_adjacent_lines().includes(l)
         );
@@ -166,6 +158,7 @@ class Point extends Vector {
     set(x: number, y: number): Point;
     set(x: Vector): Point;
     set(x: number | Vector, y: number = 0) {
+        assert(!this._is_removed, "Point is removed");
         this.adjacent_lines?.forEach((l) => l.cache_update("endpoints"));
         return (super.set as any)(x, y);
     }
@@ -173,6 +166,7 @@ class Point extends Vector {
     move_to(x: number, y: number): Point;
     move_to(x: Vector): Point;
     move_to(x: number | Vector, y: number = 0) {
+        assert(!this._is_removed, "Point is removed");
         return (this.set as any)(x, y);
     }
 
@@ -186,17 +180,11 @@ class Point extends Vector {
         return this.move_to(this.x + x, this.y + y);
     }
 
-    remove_line(l: Line, ignore_not_present: boolean = false) {
-        if (!ignore_not_present) {
-            assert(this.adjacent_lines.includes(l));
-        }
-        this.adjacent_lines = this.adjacent_lines.filter((line) => line != l);
-        return this;
-    }
-
     remove() {
-        this._sketch!.remove(this);
-        this._sketch = null as any;
+        this.adjacent_lines.forEach(l => l.remove());
+        assert(!this._is_removed, "Point is already removed");
+        this.sketch.__unregister_point(this);
+        this._is_removed = true;
     }
 
     has_lines(...ls: Line[]) {
@@ -206,14 +194,7 @@ class Point extends Vector {
         return true;
     }
 
-    set_sketch(s: Sketch) {
-        this._sketch = s;
-        return this;
-    }
-
     get_bounding_box() {
         return new BoundingBox(this.x, this.y, this.x, this.y);
     }
 }
-
-export default Point;

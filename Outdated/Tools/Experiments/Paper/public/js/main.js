@@ -1,1 +1,0 @@
-const main_canvas = new Main_Canvas();
