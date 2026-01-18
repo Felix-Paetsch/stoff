@@ -5,6 +5,7 @@ import { FaceCarousel } from "./faceCarousel.ts";
 import { SewingPoint } from "./sewingPoint.ts";
 import { Sewing } from "./sewing.ts";
 import { interval_overlap } from "../StoffLib/geometry/1d.ts";
+import { assert } from "../assert.ts";
 
 export type FaceEdgeComponent = {
     line: Line,
@@ -14,12 +15,17 @@ export type FaceEdgeComponent = {
 
 export class FaceEdge {
     constructor(
-        readonly face_carousel: FaceCarousel,
+        public _face_carousel: null | FaceCarousel,
         readonly lines: FaceEdgeComponent[], // We assume they are consecutive (or at least could be)
     ) { }
 
-    get outdated(): boolean {
-        return this.face_carousel.outdated;
+    get _is_outdated(): boolean {
+        return this.face_carousel._is_outdated;
+    }
+
+    get face_carousel(): FaceCarousel {
+        assert(!!this._face_carousel, "Face carousel not initialized yet");
+        return this.face_carousel!
     }
 
     get_lines(): Line[] {

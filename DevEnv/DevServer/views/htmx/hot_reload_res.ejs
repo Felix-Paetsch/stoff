@@ -20,13 +20,8 @@
 <% } else if (render_type === "sketch"){ %>
     <div id="canvas" hx-swap-oob="outerHTML" class="p-4 pb-15">
         <div class="flex flex-row flex-wrap gap-4 justify-start">
-            <% 
-                const r = new RenderClass(to_render);
-                r.render_sketches();
-                const svg = r.render_sketch(to_render, 500, 500, 20);
-            %>
             <%- include("./card", {
-                svg,
+                svg: _svg,
                 data: to_render.data
             }); %>
         </div>
@@ -54,8 +49,7 @@
                 <% 
                     if (to_render[0]){
                         const r = new RenderClass(to_render[0]);
-                        r.render_sketches();
-                        const svg = r.render_sketch(to_render[0], 500, 500, 20);
+                        const svg = r.build_sketch_svg(to_render[0], 500, 500, 20);
                 %>
                         <%- include("./card", {
                             svg,
@@ -69,8 +63,7 @@
                 <div class="flex flex-row flex-wrap gap-4 justify-start">
                     <% 
                         const r = new RenderClass(to_render[i]);
-                        r.render_sketches();
-                        const svg = r.render_sketch(to_render[i], 500, 500, 20);
+                        const svg = r.build_sketch_svg(to_render[i], 500, 500, 20);
                     %>
                     <%- include("./card", {
                         svg,
@@ -102,7 +95,7 @@
                 <div class="flex flex-row flex-wrap gap-4 justify-start">
                     <% for (const sketch of to_render.sketches){ %>
                         <%- include("./card", {
-                            svg: to_render.renderers[i].render_sketch(sketch, 500, 500, 20),
+                            svg: to_render.renderers[i].build_sketch_svg(sketch, 500, 500, 20),
                             data: sketch.data
                         }); %>
                     <% } %>

@@ -1,3 +1,4 @@
+import { assert } from "@/Core/assert";
 import CONF from "../config.json" with { type: "json" };
 import { EPS, Vector, ZERO } from "../geometry";
 import { Line } from "../line";
@@ -84,149 +85,130 @@ export function renormalize(line: Line, new_density: number | null = null) {
     return line;
 };
 
-export function smooth_out(line: Line, ker_size: number = 0.1, ker_size_absolute: boolean = false) {
-    /*
-        We smooth out the curve by making for each point x on the curve a new sample point.
-        That new sample point is the x determined by
-
-        argmin \integral_0^1 |x - \gamma(t)|^{exponent} dt
-
-        where \gamma(t) uniformly sweeps through the line near (\pm ker_size/2) the current point.
-
-        ========
-
-        For n = 1 we get
-
-        argmin \integral_0^1 |x - \gamma(t)|^{1} dt
-        = argmin \sum_{line segments} Length(segment) * Distance(X, Segment)
-
-        which doesnt seem nice. (And e.g. for inside a circle is everywhere the same)
-
-        So lets try minimizing for n=2. See some image in docs.
-    */
-
+export function smooth_out(
+    line: Line,
+    ker_size: number = 0.1,
+    ker_size_absolute: boolean = false
+) {
     if (ker_size_absolute) {
         ker_size = ker_size / line.endpoint_distance();
     }
 
-    const total_length = line.get_length() / line.endpoint_distance();
-    const n = 1 / CONF.DEFAULT_SAMPLE_POINT_DENSITY;
-    const len_per_pt = total_length / n;
+    const density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
+    line.sample_points = line._rel_normalized_sample_points(
+        line.get_length() / density
+    );
 
-    const new_sample_points = [line.sample_points[0]];
+    const pts = line.sample_points;
+    if (pts.length <= 2) return line;
 
-    // Loop variables
-    let interp_points = [line.sample_points[0], line.sample_points[0]];
-    let weights = [1];
-
-    let latest_point = [0, 0]; // index, fraction (0-1) went to next pt
-
-    // weight = 1 means it is the whole ker_size
-    // How muth the weight should change for each unit of change in len
-    const weight_per_step = 1 / ker_size;
-
-    while (true) {
-        let to_move_forwards = len_per_pt;
-        while (to_move_forwards > 0) {
-            if (latest_point[0] == line.sample_points.length - 1) {
-                interp_points.push(
-                    line.sample_points[line.sample_points.length - 1]
-                );
-                weights[weights.length - 1] =
-                    weights[weights.length - 1] +
-                    to_move_forwards * weight_per_step;
-                to_move_forwards = 0;
-                break;
-            }
-
-            let distance_to_next_pt = line.sample_points[
-                latest_point[0]
-            ].distance(line.sample_points[latest_point[0] + 1]);
-            let rem_distance_to_next_pt =
-                distance_to_next_pt * (1 - latest_point[1]);
-            if (rem_distance_to_next_pt < to_move_forwards) {
-                latest_point = [latest_point[0] + 1, 0];
-                to_move_forwards -= rem_distance_to_next_pt;
-                interp_points.push(line.sample_points[latest_point[0]]);
-                weights.push(rem_distance_to_next_pt * weight_per_step);
-                continue;
-            }
-
-            let split_fraction =
-                latest_point[1] + to_move_forwards / distance_to_next_pt;
-
-            const start = line.sample_points[latest_point[0]].scale(
-                1 - split_fraction
-            );
-            const end =
-                line.sample_points[latest_point[0] + 1].scale(
-                    split_fraction
-                );
-            interp_points.push(start.add(end));
-            latest_point[1] = split_fraction;
-            weights.push(to_move_forwards * weight_per_step);
-            to_move_forwards = 0;
-            break;
-        }
-
-        let to_move_backwards = len_per_pt;
-        while (to_move_backwards > 0) {
-            while (weights[0] < to_move_backwards * weight_per_step) {
-                to_move_backwards -= weights[0] / weight_per_step;
-                weights.shift();
-                interp_points.shift();
-            }
-
-            if (interp_points[0] == interp_points[1]) {
-                // We are at the beginning
-                weights[0] =
-                    weights[0] - to_move_backwards * weight_per_step;
-                to_move_backwards = 0;
-                break;
-            }
-
-            const delta_weight =
-                (weights[0] - to_move_backwards * weight_per_step) /
-                weights[0];
-            interp_points[0] = interp_points[0]
-                .scale(delta_weight)
-                .add(interp_points[1].scale(1 - delta_weight));
-
-            weights[0] = weights[0] - to_move_backwards * weight_per_step;
-            to_move_backwards = 0;
-            break;
-        }
-
-        new_sample_points.push(
-            compute_center_point(interp_points, weights)
-        );
-
-        if (
-            weights.length == 1 &&
-            latest_point[0] == line.sample_points.length - 1
-        ) {
-            new_sample_points.push(new Vector(1, 0));
-            break;
-        }
+    // Arc-length parameterization
+    const arc: number[] = [0];
+    for (let i = 1; i < pts.length; i++) {
+        arc[i] = arc[i - 1] + pts[i - 1].distance(pts[i]);
     }
 
-    line.sample_points = new_sample_points;
-    return line;
-};
+    const L = arc[arc.length - 1];
+    const k = ker_size;
 
-export function compute_center_point(
-    points: Vector[],
-    line_weights: number[] | null = null
+    // Weighted centroid over segments
+    function centroid(points: Vector[], weights: number[]): Vector {
+        let acc = ZERO;
+        let total = 0;
+
+        for (let i = 0; i < weights.length; i++) {
+            const w = weights[i];
+            if (w <= 0) continue;
+
+            acc = acc.add(
+                points[i].add(points[i + 1]).scale(0.5 * w)
+            );
+            total += w;
+        }
+
+        return total > 0 ? acc.scale(1 / total) : points[0];
+    }
+
+    const new_points: Vector[] = [];
+    new_points.push(pts[0]); // fixed endpoint
+
+    for (let i = 1; i < pts.length - 1; i++) {
+        const s = arc[i];
+        const w0 = s - k;
+        const w1 = s + k;
+
+        const points: Vector[] = [];
+        const weights: number[] = [];
+
+        // Left collapsed mass
+        if (w0 < 0) {
+            const w = -w0;
+            points.push(pts[0], pts[0]);
+            weights.push(w);
+        }
+
+        // Interior segments
+        for (let j = 0; j < pts.length - 1; j++) {
+            const a0 = arc[j];
+            const a1 = arc[j + 1];
+            const seg_len = a1 - a0;
+
+            if (seg_len <= EPS.WEAK_EQUAL) continue;
+            if (a1 < w0 || a0 > w1) continue;
+
+            const t0 = Math.max(0, (w0 - a0) / seg_len);
+            const t1 = Math.min(1, (w1 - a0) / seg_len);
+            if (t0 >= t1) continue;
+
+            const p0 = pts[j].scale(1 - t0).add(pts[j + 1].scale(t0));
+            const p1 = pts[j].scale(1 - t1).add(pts[j + 1].scale(t1));
+            const w = (t1 - t0) * seg_len;
+
+            if (points.length === 0) points.push(p0);
+            points.push(p1);
+            weights.push(w);
+        }
+
+        // Right collapsed mass
+        if (w1 > L) {
+            const w = w1 - L;
+            const last = pts[pts.length - 1];
+            if (points.length === 0) {
+                points.push(last);
+            }
+            points.push(last);
+            weights.push(w);
+        }
+
+        new_points.push(
+            weights.length > 0 ? centroid(points, weights) : pts[i]
+        );
+    }
+
+    new_points.push(pts[pts.length - 1]); // fixed endpoint
+
+    line.sample_points = new_points;
+    return line;
+}
+
+export function compute_polyline_center_point(
+    points: Vector[]
 ) {
+    assert(points.length > 0, "No points give");
     if (points.length == 1) return points[1];
 
-    let numerator = ZERO;
+    let result = ZERO;
+    let len = 0;
 
-    for (let i = 0; i < points.length; i++) {
-        numerator = numerator.add(
-            points[i].add(points[i + 1]).scale(line_weights ? line_weights[i] : 1)
+    for (let i = 0; i < points.length - 1; i++) {
+        const distance = points[i].distance(points[i + 1]);
+        len += distance;
+
+        result = result.add(
+            points[i].add(points[i + 1]).scale(distance)
         );
     }
 
-    return numerator.scale(1 / 2);
+    return result.scale(1 / (2 * len));
 }
+

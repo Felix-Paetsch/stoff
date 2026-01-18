@@ -7,7 +7,7 @@ import {
     Ray,
 } from "../geometry.js";
 import { copy_sketch_obj_data } from "../copy.js";
-import { interpolate_colors } from "../colors.js";
+import { interpolate_colors, is_gradient } from "../../utils/colors.js";
 import { Sketch } from "../sketch";
 import { Line } from "../line";
 import { Point } from "../point";
@@ -33,11 +33,16 @@ function intersect_lines(
 ) {
     const intersections = _calculate_intersections(line1, line2);
 
-    const int_color = interpolate_colors(
+    let int_color = interpolate_colors(
         line1.get_color(),
         line2.get_color(),
         0.5
     );
+
+    if (is_gradient(int_color)) {
+        int_color = interpolate_colors(...int_color);
+    }
+
     const l1_rel_points = line1.get_sample_points();
     for (let i = 0; i < intersections.length; i++) {
         intersections[i][4] = sketch

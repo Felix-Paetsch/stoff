@@ -1,3 +1,8 @@
+- get demos all to work
+- Make debug nicer
+- Leonie thing
+
+
 Felix Todo Right now:
 - What exactly are each command for? (How is it with hot reloading?)
 - What to do with "lines cannot be ordered"

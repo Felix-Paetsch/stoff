@@ -3,36 +3,57 @@ import { Line } from "../StoffLib/line";
 import { Point } from "../StoffLib/point";
 import { Sketch } from "../StoffLib/sketch";
 import { SewingPoint } from "./sewingPoint";
-import { merge_lines_vertically } from "./mergeLines/vertically";
+import { merge_lines_vertically } from "./line_methods/merge_lines/vertically";
 import { FaceEdge } from "./faceEdge";
-import { merge_lines_horizontally } from "./mergeLines/horizontally";
-import { StackLine } from "./mergeLines/stackLine";
-import { Renderer } from "../Render/renderer";
+import { merge_lines_horizontally } from "./line_methods/merge_lines/horizontally";
+import { StackLine } from "./line_methods/merge_lines/stackLine";
 import { cutRenderer } from "../Render/render_step/cut";
 import { foldRenderer } from "../Render/render_step/fold";
 import { ironRenderer } from "../Render/render_step/iron";
 import { sewRenderer } from "../Render/render_step/sew";
-import { RendererCache } from "../Render/renderer/cache";
-import { baseRenderer } from "../Render/render_step/base";
+import { RendererCache } from "../Render/cache";
 import { highlightRenderer } from "../Render/render_step/highlight";
 import { FaceAtlas } from "../StoffLib/faces/faceAtlas";
+import { Renderer } from "../Render/renderer";
+import { devRenderer } from "../Render/render_step/dev";
+import assert from "assert";
+import { create_sewing_line } from "./line_methods/create_sewing_line";
 
 export class Sewing {
-    public sewing_lines: SewingLine[];
-    public sewing_points: SewingPoint[];
+    readonly all_time_sewing_points: SewingPoint[] = [];
+    public sewing_points: SewingPoint[] = [];
+
+    public sewing_lines: SewingLine[] = [];
     readonly faceAtlases: Map<Sketch, FaceAtlas> = new Map();
     public renderers: Renderer[] = [];
     readonly renderCache = new RendererCache();
 
+    public data: any = {};
+
     constructor(
         readonly sketches: Sketch[]
     ) {
-        this.sewing_lines = [];
-        this.sewing_points = [];
         for (const sketch of this.sketches) {
-            this.faceAtlases.set(sketch, FaceAtlas.from_lines(sketch.get_lines(), sketch));
+            this.faceAtlases.set(sketch, FaceAtlas.from_lines(sketch.get_lines()));
         }
-        this.renderers.push(baseRenderer(this));
+        this.renderers.push(devRenderer(this));
+    }
+
+    __register_point(pt: SewingPoint) {
+        this.all_time_sewing_points.push(pt);
+        this.sewing_points.push(pt);
+    }
+
+    __register_line(ln: SewingLine) {
+        this.sewing_lines.push(ln);
+    }
+
+    __unregister_point(pt: SewingPoint) {
+        this.sewing_points = this.sewing_points.filter(p => p != pt);
+    }
+
+    __unregister_line(ln: SewingLine) {
+        this.sewing_lines = this.sewing_lines.filter(l => l != ln);
     }
 
     is_sewing_point(point: Point | SewingPoint): boolean {
@@ -45,15 +66,14 @@ export class Sewing {
 
     sewing_point(point: Point | SewingPoint): SewingPoint {
         if (point instanceof SewingPoint) {
+            assert(this.sewing_points.some(p => p.is(point)));
             return point;
         }
         const find = this.sewing_points.find((p) => p.is(point));
         if (find) {
             return find;
         }
-        const sewingPoint = new SewingPoint(this, [point]);
-        this.sewing_points.push(sewingPoint);
-        return sewingPoint;
+        return new SewingPoint(this, [point]);
     }
 
     merge_points(point1: SewingPoint, point2: SewingPoint): SewingPoint;
@@ -61,21 +81,12 @@ export class Sewing {
     merge_points(...points: (SewingPoint | Point)[]): SewingPoint {
         const sewing_points = points.map((p) => this.sewing_point(p));
         const pts = [...new Set(sewing_points.flatMap((p) => p.points))];
-        const newSewingPoint = new SewingPoint(this, pts);
-
-        const allSewingLines = [...new Set(sewing_points.flatMap((p) => p.sewingLines))];
-        newSewingPoint.sewingLines = allSewingLines;
 
         for (const oldPoint of sewing_points) {
-            oldPoint.outdated = true;
-            const index = this.sewing_points.indexOf(oldPoint);
-            if (index > -1) {
-                this.sewing_points.splice(index, 1);
-            }
+            oldPoint.__mark_oudated();
         }
 
-        this.sewing_points.push(newSewingPoint);
-        return newSewingPoint;
+        return new SewingPoint(this, pts);
     }
 
     merge_lines(line1: SewingLine, line2: SewingLine): SewingLine;
@@ -86,7 +97,7 @@ export class Sewing {
 
     sewing_line(line: Line): SewingLine {
         const existingLine = this.sewing_lines.find((l) => l.contains(line));
-        return existingLine || SewingLine.from_line(this, line);
+        return existingLine || create_sewing_line(this, line);
     }
 
     get_lines() {
@@ -161,7 +172,9 @@ export class Sewing {
         } else {
             this.renderers.push(cutRenderer(this, [line] as Line[]));
         }
-        return SewingLine.from_line(this, line);
+
+        const sline = create_sewing_line(this, line);
+        return sline;
     }
 
     fold(fold_line: Line | SewingLine, rightOnLeft: boolean = false) {
@@ -195,4 +208,19 @@ export class Sewing {
     }
 
     todo(what: string, args: any) { }
+
+    dev_render() {
+        this.renderers.push(devRenderer(this));
+    }
+
+    // For debugging mostly
+    copy(): Sewing {
+        const sk = new Sewing(this.sketches);
+
+        sk.sewing_lines = [...this.sewing_lines];
+        sk.sewing_points = [...this.sewing_points];
+        sk.renderers = this.renderers.map(r => r.copy(sk));
+
+        return sk;
+    }
 }

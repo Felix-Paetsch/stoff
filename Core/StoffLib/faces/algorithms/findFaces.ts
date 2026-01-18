@@ -16,6 +16,7 @@ export type ConnectedComponentFaceData = {
 
 export function findFaces(lines: Line[]) {
     const connected_components = CollectionMethods.connected_components(lines);
+
     const CC_faces = connected_components.map(
         (cc: SketchElement[]) => findConnectedComponentFaces(
             CollectionMethods.get_lines(cc)

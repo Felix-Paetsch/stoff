@@ -4,9 +4,9 @@ import { assert } from "../assert";
 import { Sketch } from "./sketch";
 import { Line } from "./line";
 import { SketchElementData } from "./types";
-import { Color } from "./colors";
+import { Color } from "../utils/colors";
 
-type PointRenderAttributes = {
+export type PointRenderAttributes = {
     fill: Color;
     radius: number;
     stroke: Color;

@@ -154,7 +154,7 @@ const namedColors = {
     yellow: [255, 255, 0],
     yellowgreen: [154, 205, 50]
     // Add more named colors as needed
-};
+} as const;
 
 export type Color = keyof typeof namedColors
     | `rgb(${number},${number},${number})`
@@ -169,7 +169,7 @@ export function interpolate_colors(color1: Color, color2: Color, ratio?: number)
 export function interpolate_colors(color1: Gradient, color2: Color, ratio?: number): Gradient;
 export function interpolate_colors(color1: Color, color2: Gradient, ratio?: number): Gradient;
 export function interpolate_colors(color1: Gradient, color2: Gradient, ratio?: number): Gradient;
-export function interpolate_colors(color1: Gradient | Gradient, color2: Gradient | Gradient, ratio?: number): Gradient;
+export function interpolate_colors(color1: Color | Gradient, color2: Color | Gradient, ratio?: number): Gradient | Color;
 export function interpolate_colors(color1: Color | Gradient, color2: Color | Gradient, ratio: number = 0.5): Color | Gradient {
     if (!is_gradient(color1) && !is_gradient(color2)) {
         const rgb1 = colorToRgb(color1);
@@ -203,11 +203,11 @@ export function interpolate_colors(color1: Color | Gradient, color2: Color | Gra
     ]
 };
 
-function is_gradient(c: Color | Gradient): c is Gradient {
+export function is_gradient(c: Color | Gradient): c is Gradient {
     return c instanceof Array;
 }
 
-function hslToRgb(h: number, s: number, l: number) {
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
     s /= 100;
     l /= 100;
 
@@ -218,26 +218,116 @@ function hslToRgb(h: number, s: number, l: number) {
     return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
 };
 
-function colorToRgb(col: Color) {
-    if (typeof col !== "string") return [0, 0, 0];
+export function colorToRgb(col: Color): [number, number, number, number] {
     if (col in namedColors) {
-        return namedColors[col as keyof typeof namedColors];
+        return [...namedColors[col as keyof typeof namedColors], 1];
     } else if (col.charAt(0) === '#') {
         const hex = col.replace('#', '');
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        return [r, g, b];
+        if (hex.length == 6) {
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            return [r, g, b, 1];
+        }
+        if (hex.length == 8) {
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            const a = parseInt(hex.substring(6, 8), 16);
+            return [r, g, b, a];
+        }
+        if (hex.length == 3) {
+            const r1 = hex.substring(0, 1);
+            const r = parseInt(r1 + r1, 16);
+            const g1 = hex.substring(1, 2);
+            const g = parseInt(g1 + g1, 16);
+            const b1 = hex.substring(2, 3);
+            const b = parseInt(b1 + b1, 16);
+            return [r, g, b, 1];
+        }
+        if (hex.length == 4) {
+            const r1 = hex.substring(0, 1);
+            const r = parseInt(r1 + r1, 16);
+            const b1 = hex.substring(1, 2);
+            const b = parseInt(b1 + b1, 16);
+            const g1 = hex.substring(2, 3);
+            const g = parseInt(g1 + g1, 16);
+            const a1 = hex.substring(3, 4);
+            const a = parseInt(a1 + a1, 16);
+            return [r, g, b, a];
+        }
     } else if (col.startsWith('rgb')) {
         // Extract RGB values
-        return col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
+        return [...(col.match(/\d+\.?\d*/g)?.map(Number) as [number, number, number]), 1];
     } else if (col.startsWith('rgba')) {
-        const [r, g, b, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0, 0];
-        return [r, g, b, a];
+        return col.match(/\d+\.?\d*/g)?.map(Number) as [number, number, number, number];
     } else if (col.startsWith('hsl')) {
         const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-        return hslToRgb(h, s, l);
+        return [...hslToRgb(h, s, l), 1];
+    } else if (col.startsWith('hsla')) {
+        const [h, s, l, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
+        return [...hslToRgb(h, s, l), a];
     }
 
-    return [0, 0, 0];
+    return [0, 0, 0, 0];
 };
+
+function bytesToHex(bytes: number[]) {
+    return bytes
+        .map((n) => {
+            const v = Math.min(255, Math.max(0, Math.round(n)));
+            return v.toString(16).padStart(2, "0");
+        })
+        .join("");
+}
+
+export function colorToHex(col: Color): `#${string}` {
+    const rgba = colorToRgb(col)
+    if (rgba[3] == 1) {
+        return `#${bytesToHex(rgba.slice(0, 3))}`
+    }
+
+    return `#${bytesToHex(rgba)}`
+}
+
+export function colorToHsl(col: Color): [number, number, number, number] {
+    const [r, g, b, a] = colorToRgb(col);
+
+    const rNorm = r / 255;
+    const gNorm = g / 255;
+    const bNorm = b / 255;
+
+    const max = Math.max(rNorm, gNorm, bNorm);
+    const min = Math.min(rNorm, gNorm, bNorm);
+    const delta = max - min;
+
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (delta !== 0) {
+        s = delta / (1 - Math.abs(2 * l - 1));
+
+        switch (max) {
+            case rNorm:
+                h = ((gNorm - bNorm) / delta) % 6;
+                break;
+            case gNorm:
+                h = (bNorm - rNorm) / delta + 2;
+                break;
+            case bNorm:
+                h = (rNorm - gNorm) / delta + 4;
+                break;
+        }
+
+        h *= 60;
+        if (h < 0) h += 360;
+    }
+
+    return [
+        Math.round(h),
+        Math.round(s * 100),
+        Math.round(l * 100),
+        a
+    ];
+}

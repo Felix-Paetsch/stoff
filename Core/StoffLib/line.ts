@@ -19,22 +19,22 @@ import * as LineManipulation from "./line_methods/line_manipulation";
 import { copy_sketch_element_collection } from "./copy";
 import { Cache } from "../utils/cache";
 import { Sketch } from "./sketch";
-import { Color } from "./colors";
+import { Color, Gradient } from "../utils/colors";
 import { Fraction } from "./geometry/1d";
 import { SketchElement, SketchElementData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
 import * as SketchElementCollectionMethods from "./collection";
 import { invalid_path } from "./assert_methods/exports";
 
-type LineAttributes = {
-    stroke: Color;
+export type LineRenderAttributes = {
+    stroke: Color | Gradient;
     strokeWidth: number;
     opacity: number;
-}
+};
 
 export class Line {
-    public attributes: LineAttributes = {
-        stroke: "rgb(0, 0, 0)",
+    public attributes: LineRenderAttributes = {
+        stroke: ["#ccc", "black"],
         strokeWidth: 1,
         opacity: 1,
     }
@@ -161,7 +161,7 @@ export class Line {
     }
 
     other_endpoint(pt: SketchElement): Point {
-        assert(this.is_adjacent(pt));
+        assert(this.is_adjacent(pt), "Line is not adjacent to thing");
         assert(!this._is_removed, "Line is removed");
 
         if (pt instanceof Line)
@@ -185,7 +185,7 @@ export class Line {
         if (this.p2 == p1) return this.set_endpoints(p2, p1);
         if (this.p1 == p2) return this.set_endpoints(p2, p1);
         if (this.p2 == p2) return this.set_endpoints(p1, p2);
-        assert(invalid_path(),);
+        assert(invalid_path());
     }
 
     replace_endpoint(old_pt: Point, new_pt: Point) {
@@ -197,7 +197,7 @@ export class Line {
         assert(invalid_path("Both endpoints dont belong to line"));
     }
 
-    set_color(color: Color) {
+    set_color(color: Color | Gradient) {
         assert(!this._is_removed, "Line is removed");
         this.attributes.stroke = color;
         return this;
@@ -208,25 +208,25 @@ export class Line {
         return this.attributes.stroke;
     }
 
-    set_attribute<K extends keyof LineAttributes>(attr: K, value: LineAttributes[K]) {
+    set_attribute<K extends keyof LineRenderAttributes>(attr: K, value: LineRenderAttributes[K]) {
         assert(!this._is_removed, "Line is removed");
         this.attributes[attr] = value;
         return this;
     }
 
-    get_attribute<K extends keyof LineAttributes>(attr: K): LineAttributes[K] {
+    get_attribute<K extends keyof LineRenderAttributes>(attr: K): LineRenderAttributes[K] {
         assert(!this._is_removed, "Line is removed");
         return this.attributes[attr];
     }
 
-    get_attributes(): LineAttributes {
+    get_attributes(): LineRenderAttributes {
         assert(!this._is_removed, "Line is removed");
         return {
             ...this.attributes,
         };
     }
 
-    set_attributes(attrs: Partial<LineAttributes>) {
+    set_attributes(attrs: Partial<LineRenderAttributes>) {
         assert(!this._is_removed, "Line is removed");
         this.attributes = {
             ...this.attributes,
@@ -676,7 +676,7 @@ export class Line {
             return thing == this.p1 || thing == this.p2;
         }
 
-        return this.common_endpoint(thing) !== null;
+        return this.has_endpoint(thing.p1) || this.has_endpoint(thing.p2);
     }
 
     common_endpoint(line: Line) {
@@ -688,7 +688,7 @@ export class Line {
             return this.p2;
         }
 
-        return null;
+        throw new Error("Lines don't have common endpoint!");
     }
 
     position_at_length(length: number, reversed = false): Vector {
@@ -819,7 +819,7 @@ export class Line {
 
     computer_center_point() {
         assert(!this._is_removed, "Line is removed");
-        return this.to_absolute_position(LineManipulation.compute_center_point(this.sample_points));;
+        return this.to_absolute_position(LineManipulation.compute_polyline_center_point(this.sample_points));;
     }
 
     self_intersects(): boolean {
@@ -929,7 +929,7 @@ export class Line {
                 data.points = [
                     data.lines[0].p2,
                     data.lines[0].p1,
-                    data.lines[1].other_endpoint(lines[0].p1),
+                    data.lines[1].other_endpoint(data.lines[0].p1),
                 ];
             } else {
                 assert(invalid_path("Lines dont form a connected segment"))

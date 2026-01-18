@@ -10,7 +10,7 @@ import { Line } from "../line";
 import { Point } from "../point";
 import { Sketch } from "../sketch";
 import { assert } from "../../assert";
-import { interpolate_colors } from "../colors.js";
+import { interpolate_colors } from "../../utils/colors.js";
 import CONF from "../config.json" with { type: "json" };
 import { same_sketch } from "../assert_methods/exports.js";
 import { length, radians } from "../geometry/types.js";

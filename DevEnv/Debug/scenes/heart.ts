@@ -1,6 +1,6 @@
 import { Sketch } from "../../../Core/StoffLib/sketch";
 import { Vector } from "../../../Core/StoffLib/geometry";
-import { interpolate_colors } from "@/Core/StoffLib/colors";
+import { interpolate_colors } from "@/Core/utils/colors";
 
 export default function () {
     const s = new Sketch();

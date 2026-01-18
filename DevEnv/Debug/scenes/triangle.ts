@@ -1,7 +1,7 @@
-import { vec_angle, triangle_data } from "../../Core/StoffLib/geometry.js";
-import Sketch from "../../Core/StoffLib/sketch.js";
+import { triangle_data, vec_angle } from "@/Core/StoffLib/geometry";
+import { Sketch } from "@/Core/StoffLib/sketch";
 
-export default function() {
+export default function () {
     const s = new Sketch();
 
     const pts = [
@@ -19,11 +19,13 @@ export default function() {
     const c = pts[1].subtract(pts[0]);
     s.line_between_points(pts[1], pts[0]).data.side = "c";
 
+    return s;
+
     pts[0].data = "alpha"; // A: 1,2
     pts[1].data = "beta";  // B: 0,2
     pts[2].data = "gamma"; // C: 0,1
 
-    const triangle = {
+    const triangle: any = {
         a: a.length(),
         b: b.length(),
         c: c.length(),
@@ -33,7 +35,7 @@ export default function() {
     };
 
     // Copy the triangle data
-    const incompleteTriangle = { ...triangle };
+    const incompleteTriangle: any = { ...triangle };
 
     // Randomly delete 3 keys
     const keys = Object.keys(incompleteTriangle);
@@ -42,11 +44,11 @@ export default function() {
         delete incompleteTriangle[keys[randomIndex]];
         keys.splice(randomIndex, 1); // Remove the deleted key from the list
     }
-    
+
     // Log the results to compare
     console.log("Original Triangle:", triangle);
     console.log("Incomplete Triangle:", incompleteTriangle);
-    const computedTriangle = triangle_data(incompleteTriangle);
+    const computedTriangle: any = triangle_data(incompleteTriangle);
     console.log("Computed Triangle:", computedTriangle);
 
     // Compare the computed triangle with the original triangle

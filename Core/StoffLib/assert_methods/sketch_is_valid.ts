@@ -3,10 +3,11 @@ import { Vector, ZERO } from "../geometry";
 import CONF from "../config.json" with { type: "json" };
 import { Line } from "../line";
 import { Point } from "../point";
-import { at_url } from "../../Debug/render_at";
 import { Sketch } from "../sketch";
 import { ConnectedComponent } from "../connected_component";
 import { same_sketch } from "./exports";
+import { debug_render } from "@/Core/Debug/debug_render";
+import { self_intersects } from "../unicorns/self_intersects";
 
 let currently_validating = false;
 
@@ -54,7 +55,8 @@ function validate_line(l: Line, s: Sketch): ValidationResult {
                     if (l.data) {
                         l.data.SELF_INTERSECTS = true;
                     }
-                    at_url(s, "/self_intersects", false);
+
+                    debug_render(s, { self_intersects: true });
 
                     Error.stackTraceLimit = Infinity;
                     return "A line self intersected! \nYou may visit /self_intersects to see the problem.\n"

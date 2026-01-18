@@ -1,142 +1,61 @@
-import { create_canvas_from_sketch } from "../Render/sketch_rendering_methods/to_png_jpg.js";
+import { assert } from "../assert";
+import { Sewing } from "../Sewing/sewing";
+import { wrap_sewing_methods, wrap_sewing_prototype_methods } from "../Sewing/wrap_sewing_methods";
+import { Sketch } from "../StoffLib/sketch";
+import { wrap_sketch_methods, wrap_sketch_prototype_methods } from "../StoffLib/sketch_methods/wrap_sketch_methods";
+import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 
-import {
-    writeFileSync,
-    existsSync,
-    mkdirSync,
-    rmSync,
-    readdirSync,
-    statSync,
-} from "fs";
-import ffmpeg from "fluent-ffmpeg";
-import path from "path";
-import { createCanvas } from "canvas";
+export type Recordable = Sketch | Sewing;
 
-import { Sketch } from "../StoffLib/sketch.js";
-import { at_url, hot_at_url } from "./render_at.js";
+const active_recordings: Map<Recordable, LiveRecording<Recordable>> = new Map();
 
-export type RecordingSketch = Sketch & { recorder?: Recorder };
+export function start_recording<T extends Recordable>(
+    target: T
+): LiveRecording<T> {
+    assert(!active_recordings.get(target), "Already recording");
 
-export function is_recording(sketch: RecordingSketch) {
-    return !!sketch.recorder;
+    const rec = new LiveRecording(target);
+    active_recordings.set(target, rec);
+
+    return rec;
 }
 
-export function start_recording(sketch: RecordingSketch, url?: `/${string}`, overwrite: boolean | null = null) {
-    if (is_recording(sketch)) return;
-    const r = new Recorder(sketch, false);
-    if (url) r.hot_at_url(url, overwrite);
-    return r;
+export function stop_recording<T extends Recordable>(
+    target: T
+): LiveRecording<T> {
+    const rec = active_recordings.get(target);
+    if (!rec) throw assert(!rec, "Not currently recording");
+
+    rec.stop();
+    return rec;
 }
 
-export function take_snapshot(sketch: RecordingSketch) {
-    if (!is_recording(sketch)) {
-        throw new Error("Not recording");
-    }
-    sketch.recorder!.snapshot();
-}
-export function stop_recording(sketch: RecordingSketch, url?: `/${string}`, overwrite: boolean | null = null) {
-    if (!is_recording(sketch)) {
-        throw new Error("Not recording");
-    }
-    const r = sketch.recorder!.stop_recording();
-    if (url) {
-        r.at_url(url, overwrite);
-    }
-    return r;
+export function is_recording(target: Recordable): boolean {
+    return !!active_recordings.get(target);
 }
 
-export function global_recording() {
-    const global_recording = new Recording();
+export function get_recording<T extends Recordable>(
+    target: T
+): LiveRecording<T> {
+    const rec = active_recordings.get(target);
+    if (!rec) throw assert(!rec, "Not currently recording");
+    return rec as LiveRecording<T>;
+}
 
-    const old_methods: any = {};
-    let global_taking_snapshot = false;
 
-    const s = Sketch as any;
-    for (const method_name of s.graphical_non_pure_methods) {
-        const old_method = s.prototype[method_name];
-        old_methods[method_name] = old_method;
+export class Recording<T extends Recordable = Recordable> {
+    protected taking_snapshot: boolean = false;
+    readonly snapshots: T[];
 
-        s.prototype[method_name] = function (...args: any[]) {
-            const taking_snapshot = global_taking_snapshot;
-            if (!taking_snapshot) global_taking_snapshot = true;
-            if (!taking_snapshot && this.points.length == 0) {
-                global_recording.snapshot(this);
-            }
-
-            const result = old_method.apply(this, args);
-
-            if (!taking_snapshot) {
-                global_recording.snapshot(this);
-
-                {
-                    const old_limit = Error.stackTraceLimit;
-                    Error.stackTraceLimit = Infinity;
-
-                    const error = new Error("");
-                    const stackTrace =
-                        "Stack Trace<br>" +
-                        (error.stack ?? "")
-                            .split("\n")
-                            .slice(2)
-                            .map((s) => s.trim())
-                            .join("<br>");
-
-                    const s_data =
-                        global_recording.snapshots[
-                            global_recording.snapshots.length - 1
-                        ]?.data;
-                    if (s_data) (s_data as any)["Stack Trace"] = stackTrace;
-
-                    Error.stackTraceLimit = old_limit;
-                }
-
-                global_taking_snapshot = false;
-            }
-            return result;
-        };
+    constructor(snapshots: T[] = []) {
+        this.snapshots = [...snapshots];
     }
 
-    return global_recording;
-};
-
-export class Recorder {
-    private taking_snapshot: boolean;
-    private old_methods: Record<string, (...args: any[]) => any>;
-    readonly snapshots: Sketch[];
-
-    constructor(
-        readonly sketch: RecordingSketch,
-        readonly debug: boolean
-    ) {
-        this.taking_snapshot = false;
-        this.old_methods = {};
-        this.snapshots = [];
-
-        if (sketch.recorder) throw new Error("Sketch already is recording!");
-        sketch.recorder = this;
-
-        const s = sketch as any;
-        for (const method_name of s.constructor.graphical_non_pure_methods) {
-            const old_method = s[method_name];
-            this.old_methods[method_name] = old_method;
-
-            s[method_name] = function (...args: any[]) {
-                const taking_snapshot = s.recorder.taking_snapshot;
-                if (!taking_snapshot) s.recorder.startSnapshot();
-                const result = old_method.apply(s, args);
-                if (!taking_snapshot) s.recorder.endSnapshot();
-                return result;
-            };
-        }
-
-        this.snapshot();
-    }
-
-    snapshot() {
+    snapshot(s: T) {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
-        const copy = this.sketch.copy();
+        const copy = s;
 
         {
             const old_limit = Error.stackTraceLimit;
@@ -158,206 +77,126 @@ export class Recorder {
         this.snapshots.push(copy);
         if (cold_snapshot) this.taking_snapshot = false;
     }
+}
 
-    startSnapshot() {
-        this.taking_snapshot = true;
-        if (this.debug) this.snapshot();
-    }
+export class LiveRecording<T extends Recordable> extends Recording {
+    private toggle: Toggle;
 
-    endSnapshot() {
-        this.taking_snapshot = false;
-        this.snapshot();
-    }
+    constructor(record: T, double_shot: boolean = false) {
+        super();
 
-    stop_recording() {
-        this.sketch.recorder = undefined;
-
-        const s = this.sketch as any;
-        for (const method_name of Object.keys(this.old_methods)) {
-            s[method_name] = this.old_methods[method_name].bind(s);
+        const r = this;
+        const wrap_method = (ev: () => EvaluationResult) => {
+            const taking_snapshot = r.taking_snapshot;
+            if (!taking_snapshot) {
+                r.taking_snapshot = true;
+                if (double_shot) r.snapshot(record);
+            }
+            const result = ev();
+            if (!taking_snapshot) {
+                r.taking_snapshot = false;
+                r.snapshot(record);
+            }
+            return result;
         }
-
-        return new Recording(this.snapshots).lock();
+        if (record instanceof Sketch) {
+            this.toggle = wrap_sketch_methods(
+                record, wrap_method
+            )
+        } else {
+            this.toggle = wrap_sewing_methods(
+                record, wrap_method
+            )
+        }
     }
 
-    hot_at_url(url: `/${string}`, overwrite: boolean | null = null) {
-        hot_at_url(this.snapshots, url, overwrite);
+    stop() {
+        this.toggle(false);
     }
 }
 
-const currentDir = process.cwd();
-const files = readdirSync(currentDir);
-files.forEach((file) => {
-    const filePath = path.join(currentDir, file);
-    if (file.startsWith("___frames") && statSync(filePath).isDirectory()) {
-        console.log(`Deleting folder: ${filePath}`);
-        rmSync(filePath, { recursive: true });
-    }
-});
 
-class Recording {
-    private render_processed_snapshots: any[];
-    private locked: boolean;
+let global_recording: {
+    rec: Recording,
+    toggle: Toggle,
+    taking_snapshot: boolean
+} | null = null;
 
-    constructor(
-        readonly snapshots: Sketch[] = []
-    ) {
-        this.render_processed_snapshots = [];
-        this.locked = true;
+export function start_global_recording(): Recording {
+    assert(!global_recording, "Already recording");
+    global_recording = {
+        rec: new Recording(),
+        toggle: () => true,
+        taking_snapshot: false
     }
 
-    at_url(url: `/${string}`, overwrite: boolean | null = null) {
-        at_url(this.snapshots, url, overwrite);
-    }
+    const wrapper = (method: () => EvaluationResult, object: Recordable) => {
+        if (!global_recording) throw new Error();
 
-    hot_at_url(url: `/${string}`, overwrite = null) {
-        this.unlock();
-        return hot_at_url(this.snapshots, url, overwrite);
-    }
+        const taking_snapshot = global_recording.taking_snapshot;
+        if (!taking_snapshot) global_recording.taking_snapshot = true;
 
-    to_mp4(
-        save_to: string,
-        fps: number = 2,
-        width: number = 700,
-        height: number | null = null,
-        extra_padding: number = 50
-    ) {
-        console.log("Start Video Creation");
+        const result = method();
 
-        const outputPath = path.isAbsolute(save_to)
-            ? save_to
-            : path.join("./renders", save_to);
+        if (!taking_snapshot) {
+            global_recording.rec.snapshot(object);
 
-        const timestamp = new Date().toISOString().replace(/:/g, "-");
-        const frameDir = `./___frames_${timestamp}`;
+            {
+                const old_limit = Error.stackTraceLimit;
+                Error.stackTraceLimit = Infinity;
 
-        if (!existsSync(frameDir)) {
-            mkdirSync(frameDir);
-        }
+                const error = new Error("");
+                const stackTrace =
+                    "Stack Trace<br>" +
+                    (error.stack ?? "")
+                        .split("\n")
+                        .slice(2)
+                        .map((s) => s.trim())
+                        .join("<br>");
 
-        // Calculate Dimensions for final Video to have frames take on same size
-        width = width - 2 * extra_padding;
-        if (height == null) {
-            height = (9 * width) / 16;
-        } else {
-            height = height - 2 * extra_padding;
-        }
+                const s_data =
+                    global_recording.rec.snapshots[
+                        global_recording.rec.snapshots.length - 1
+                    ]?.data;
+                if (s_data) (s_data as any)["Stack Trace"] = stackTrace;
 
-        const max_bb = {
-            width: 1,
-            height: 1,
-        };
-
-        this.snapshots.forEach((snapshot: any) => {
-            const bb = snapshot.get_bounding_box();
-            if (bb.width > max_bb.width) {
-                max_bb.width = bb.width;
+                Error.stackTraceLimit = old_limit;
             }
 
-            if (bb.height > max_bb.height) {
-                max_bb.height = bb.height;
-            }
-        });
-
-        const target_aspect_ratio = max_bb.width / max_bb.height;
-        const target_width = Math.round(
-            Math.min(width, target_aspect_ratio * height)
-        );
-        const target_height = Math.round(
-            Math.min(height, width / target_aspect_ratio)
-        );
-
-        let target_padded_width = Math.round(target_width + 2 * extra_padding);
-        if (target_padded_width % 2 == 1) target_padded_width++;
-        let target_padded_height = Math.round(
-            target_height + 2 * extra_padding
-        );
-        if (target_padded_height % 2 == 1) target_padded_height++;
-
-        this.snapshots.forEach((snapshot, index) => {
-            const originalCanvas = create_canvas_from_sketch(
-                snapshot,
-                target_width,
-                target_height
-            );
-
-            const enlargedCanvas = createCanvas(
-                target_padded_width,
-                target_padded_height
-            );
-            const ctx = enlargedCanvas.getContext("2d");
-
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, enlargedCanvas.width, enlargedCanvas.height);
-
-            const originalWidth = originalCanvas.width;
-            const originalHeight = originalCanvas.height;
-
-            ctx.drawImage(
-                originalCanvas,
-                Math.ceil((target_padded_width - originalWidth) / 2),
-                Math.ceil((target_padded_height - originalHeight) / 2)
-            );
-
-            const enlargedBuffer = enlargedCanvas.toBuffer();
-            const framePath = `${frameDir}/frame_${String(index).padStart(5, "0")}.png`;
-
-            writeFileSync(framePath, enlargedBuffer);
-        });
-
-        console.log("Start FFMpeg");
-        const frameDirAbs = path.resolve(frameDir); // Convert the frame directory to an absolute path
-        const outputPathAbs = path.resolve(outputPath); // Convert the output path to an absolute path
-
-        ffmpeg()
-            .addInput(`${frameDirAbs}/frame_%05d.png`) // Use the absolute path for frames
-            .inputOptions([
-                `-framerate ${fps}`, // Use fps as a variable
-            ])
-            .outputOptions([
-                "-c:v libx264", // Specify codec
-                "-pix_fmt yuv420p", // Ensure pixel format compatibility for broader support
-            ])
-            .on("start", (commandLine) => {
-                console.log("Spawned ffmpeg with command: " + commandLine);
-            })
-            .on("end", () => {
-                console.log(`Video saved to ${outputPathAbs}`);
-                rmSync(frameDirAbs, { recursive: true }); // Clean up the frames using the absolute path
-            })
-            .on("error", (err) => {
-                console.error(`Error occurred: ${err.message}`);
-            })
-            .save(outputPathAbs);
-    }
-
-    // Custrom Recording
-    snapshot(...s: (Recording | Sketch)[]) {
-        if (this.locked) return;
-        return this.append(...s);
-    }
-
-    append(...s: (Recording | Sketch)[]) {
-        if (this.locked) return;
-        for (const el of s) {
-            if (el instanceof Recording) {
-                this.snapshots.push(...el.snapshots);
-            } else {
-                this.snapshots.push(el.copy());
-            }
+            global_recording.taking_snapshot = false;
         }
 
-        this.render_processed_snapshots = [];
-        return this;
+        return result;
     }
 
-    unlock() {
-        this.locked = false;
-        return this;
+    const toggle1 = wrap_sketch_prototype_methods(
+        Sketch, wrapper
+    );
+
+    const toggle2 = wrap_sewing_prototype_methods(
+        Sewing, wrapper
+    );
+
+    global_recording.toggle = (to?: boolean) => {
+        toggle1(to);
+        return toggle2(to);
     }
 
-    lock() {
-        this.locked = true;
-        return this;
-    }
+    return global_recording.rec;
+}
+
+export function stop_global_recording(): Recording {
+    if (!global_recording) throw assert("Not currently recording");
+    const r = global_recording;
+    global_recording = null;
+    return r.rec;
+}
+
+export function get_global_recording(): Recording {
+    if (!global_recording) throw assert("Not currently recording");
+    return global_recording.rec;
+}
+
+export function is_global_recording(): boolean {
+    return !!global_recording;
 }

@@ -4,10 +4,11 @@ import path from "path";
 import { Express, Request, Response } from "express";
 import { Sketch } from "../../../Core/StoffLib/sketch";
 import { debug_create_design } from "../../Debug/debug_create_design";
-import create_design from "../../../Patterns/export_pattern_ui_v2";
-import { Renderer } from "@/Core/Render/renderer/index";
-import { Route } from "@/Core/Debug/route";
+import { create_design } from "../../../Patterns/pattern_export.ts";
 import { Sewing } from "@/Core/Sewing/sewing";
+import { Route } from "../route.ts";
+import { Renderer } from "@/Core/Render/renderer.ts";
+import { render_sketches } from "@/Core/Render/render_sketches_methods.ts";
 Error.stackTraceLimit = 100;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -74,19 +75,32 @@ export const register_routes = (app: Express) => {
                 fs.writeFileSync("./DevEnv/Profiling/latest_design_config.json", JSON.stringify(design_config, null, 2));
             } catch (e: any) { }
 
-            console.time("CREATE DESIGN");
+            // console.time("CREATE DESIGN");
             const s: Sketch | Sewing | Sketch[] = create_design(design_config);
-            console.timeEnd("CREATE DESIGN");
+            // console.timeEnd("CREATE DESIGN");
 
-            console.time("RENDER");
-            res.render("htmx/hot_reload_res", {
-                state,
-                to_render: s,
-                RenderClass: Renderer,
-                render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
-                error: false
-            });
-            console.timeEnd("RENDER");
+            // console.time("RENDER");
+            if (s instanceof Sewing) {
+                res.render("htmx/hot_reload_res", {
+                    state,
+                    to_render: s,
+                    RenderClass: Renderer,
+                    render_type: "sewing",
+                    error: false
+                });
+            } else {
+                const r = new Renderer(s);
+                render_sketches(r);
+
+                res.render("htmx/hot_reload_res", {
+                    state,
+                    _svg: r.build_sketch_svg(s, 500, 500, 20),
+                    to_render: s,
+                    render_type: "sketch",
+                    error: false
+                });
+            }
+            // console.timeEnd("RENDER");
             // console.timeEnd("RECIEVE REQUEST");
         } catch (error: any) {
             // console.timeEnd("RECIEVE REQUEST");
@@ -120,13 +134,26 @@ export const register_routes = (app: Express) => {
         Route.reset();
         try {
             const s = await debug_create_design(req.params.file);
-            res.render("htmx/hot_reload_res", {
-                state,
-                to_render: s,
-                RenderClass: Renderer,
-                render_type: s instanceof Sketch ? "sketch" : "sewing" as const,
-                error: false
-            });
+            if (s instanceof Sewing) {
+                res.render("htmx/hot_reload_res", {
+                    state,
+                    to_render: s,
+                    RenderClass: Renderer,
+                    render_type: "sewing",
+                    error: false
+                });
+            } else {
+                const r = new Renderer(s);
+                render_sketches(r);
+
+                res.render("htmx/hot_reload_res", {
+                    state,
+                    _svg: r.build_sketch_svg(s, 500, 500, 20),
+                    to_render: s,
+                    render_type: "sketch",
+                    error: false
+                });
+            }
         } catch (error: any) {
             console.log(error);
             res.render("htmx/hot_reload_res", {

@@ -1,5 +1,5 @@
 getTimeoutSetting = () => {
-    console.log(currentPollingInterval);
+    // console.log(currentPollingInterval);
     return currentPollingInterval;
 };
 
@@ -30,7 +30,7 @@ function onSuccessfulResponse() {
 function onFailedResponse() {
     currentPollingInterval = Math.min(
         currentPollingInterval * backoffMultiplier,
-        maxInterval
+        maxInterval,
     );
     if (currentPollingInterval >= maxInterval) {
         document.getElementById("no-connection")?.classList.remove("hidden");

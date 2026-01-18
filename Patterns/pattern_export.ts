@@ -1,7 +1,8 @@
+import { PatternFunction } from "@/Core/types.js";
 import { Sewing } from "@/Core/Sewing/sewing";
 import { Sketch } from "@/Core/StoffLib/sketch";
 
-export default function () {
+export const create_design: PatternFunction = () => {
     const r = new Sketch();
     const points = [
         r.point(0, 0), r.point(100, 0),
@@ -17,13 +18,15 @@ export default function () {
     const l = r.line_between_points(points[2], points[0]);
 
     const u = r.line_between_points(points[2], points[3]);
-    // console.log(FaceAtlas.from_lines(r.get_lines()));
-    const s = new Sewing([r, r.copy(), r.copy()])
-    // console.log(lb.get_sketch());
+
+    const s = new Sewing([r])
 
     const T = s.cut(lt);
     const B = s.cut(lb);
-    const l1 = s.fold(l);
+
+    const sl = s.sewing_line(l);
+    s.dev_render();
+    const l1 = s.fold(sl);
 
     const r2 = s.sew(T, [{
         line: B,
@@ -31,5 +34,9 @@ export default function () {
         same_handedness: true,
     }]);
     s.cut(u);
-    return s;
+    s.dev_render();
+    s.highlight(l1);
+    s.dev_render();
+
+    return s.sketches[0];
 }

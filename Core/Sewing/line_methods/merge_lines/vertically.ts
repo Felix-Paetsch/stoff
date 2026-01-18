@@ -1,9 +1,9 @@
-import { SewingLine } from "../sewingLine.js";
-import { Sewing } from "../sewing.js";
-import { PartialStackLine, StackLine } from "./stackLine.js";
-import { FaceEdgeWithPosition } from "../faceCarousel.js";
-import { create_and_wire_line, FaceEdgeBuildingBlock } from "./create_and_wire_line.js";
-import { Point } from "../../StoffLib/point.js";
+import { Point } from "@/Core/StoffLib/point";
+import { FaceEdgeWithPosition } from "../../faceCarousel";
+import { Sewing } from "../../sewing";
+import { SewingLine } from "../../sewingLine";
+import { create_and_wire_line, FaceEdgeBuildingBlock } from "./create_and_wire_line";
+import { PartialStackLine, StackLine } from "./stackLine";
 
 export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn: StackLine[]): SewingLine {
     const sewOnComponents: PartialStackLine[] = sewOn.map(so => ({
@@ -50,7 +50,6 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
 
     // merge points
     // remove all! sewing lines..
-    guide.remove();
     sewOnComponents.forEach(so => {
         const firstPointInGuideOrientation = so.line.endpoint_from_orientation(so.same_orientation);
         const secondPointInGuideOrientation = so.line.endpoint_from_orientation(!so.same_orientation);
@@ -65,9 +64,10 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
         firstPointInGuideOrientation.merge(first_guide_point);
         secondPointInGuideOrientation.merge(second_guide_point);
 
-        so.line.remove();
+        so.line.__mark_outdated();
     })
 
+    guide.__mark_outdated();
     return create_and_wire_line({
         sewing,
         primary_component,

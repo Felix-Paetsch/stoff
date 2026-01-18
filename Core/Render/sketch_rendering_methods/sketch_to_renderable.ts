@@ -1,11 +1,10 @@
 import { Sketch } from "@/Core/StoffLib/sketch";
-import { LineRenderAttributes, PointRenderAttributes } from "../renderer";
 import { get_bounding_box } from "@/Core/StoffLib/collection";
 import CONF from "@/Core/StoffLib/config.json" with { type: "json" };
-import { Point } from "@/Core/StoffLib/point"
-import { Line } from "@/Core/StoffLib/line"
+import { Point, PointRenderAttributes } from "@/Core/StoffLib/point"
+import { Line, LineRenderAttributes } from "@/Core/StoffLib/line"
 import { Vector } from "@/Core/StoffLib/geometry";
-import { interpolate_colors } from "@/Core/StoffLib/colors";
+import { interpolate_colors } from "@/Core/utils/colors";
 
 export {
     sketch_to_renderable,

@@ -1,5 +1,4 @@
-import { Sketch } from "@/Core/StoffLib/sketch.js";
-import { Sewing } from "@/Core/Sewing/sewing.js";
+import { Sketch } from "@/Core/StoffLib/sketch";
 import { dirname, join } from "path";
 import { writeFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -25,7 +24,7 @@ if (design instanceof Sketch) {
     design.renderers.forEach((r, i) => {
         design.sketches.forEach((s, index) => {
             const target = join(__dirname, `out/step_${i}_component_${index}.svg`);
-            const svg = r.render_sketch(s, 300, 300, 20);
+            const svg = r.build_sketch_svg(s, 300, 300, 20);
             writeFileSync(target, svg, "utf-8");
         })
     });

@@ -20,7 +20,7 @@ export class FaceAtlas {
     readonly connectedComponents: ConnectedFaceComponent[];
     readonly maximalComponents: ConnectedFaceComponent[];
 
-    constructor(connectedComponents: ConnectedComponentFaceData[], public sketch?: Sketch) {
+    constructor(connectedComponents: ConnectedComponentFaceData[]) {
         connectedComponents.forEach(data => {
             data.faces.forEach(face => {
                 (face as any).faceAtlas = this;
@@ -54,7 +54,7 @@ export class FaceAtlas {
     }
 
     get_sketch(): Sketch {
-        return this.sketch || new Sketch();
+        return this.lines[0]?.get_sketch() || new Sketch();
     }
 
     adjacent_faces(line: Line): [Face, Face] | [RogueComponent, Face | null] | null {
@@ -116,12 +116,7 @@ export class FaceAtlas {
         return components.map(c => new RogueComponent(c.lines));
     }
 
-    static from_lines(lines: Line[], _sketch?: Sketch): FaceAtlas {
-        const atlas = findFaces(lines);
-        if (_sketch || (lines as any).get_sketch instanceof Function) {
-            const sketch = _sketch || (lines as any).get_sketch();
-            atlas.sketch = sketch;
-        }
-        return atlas;
+    static from_lines(lines: Line[]): FaceAtlas {
+        return findFaces(lines);
     }
 }

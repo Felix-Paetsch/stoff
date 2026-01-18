@@ -1,23 +1,18 @@
 import { Sewing } from "@/Core/Sewing/sewing";
-import { FaceRenderAttributes, LineRenderAttributes, Renderer } from "../renderer";
 import { SewingLine } from "@/Core/Sewing/sewingLine";
-
-const sew_line_attributes_primary: Partial<LineRenderAttributes> = {
-    stroke: ["#ccf", "blue"]
-}
-
-const sew_line_attributes_other: Partial<LineRenderAttributes> = {
-    stroke: ["#cfc", "green"]
-}
-
-const sew_face_attributes: Partial<FaceRenderAttributes> = {
-    fill: "green"
-}
+import { Renderer } from "../renderer";
+import { render_active_sewing_line, render_inactive_sewing } from "../render_sewing_methods";
+import { LineRenderAttributes } from "@/Core/StoffLib/line";
+import { default_active_sewing_line_other_attributes, default_active_sewing_line_primary_attributes, to_gradient } from "../defaults/sewing";
 
 export function sewRenderer(sewing: Sewing, line: SewingLine): Renderer {
     const renderer = new Renderer(sewing, "sew");
-    renderer.render_sketches();
-    renderer.render_face_carousel(line.face_carousel, sew_face_attributes);
-    renderer.render_sewing_line(line, sew_line_attributes_primary, sew_line_attributes_other);
+
+    render_inactive_sewing(renderer);
+    render_active_sewing_line(
+        renderer,
+        line
+    );
+
     return renderer;
 }

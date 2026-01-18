@@ -93,9 +93,16 @@ export function paste_to_sketch(
 }
 
 export function connected_components(
-    ec: SketchElementCollection
+    ec: SketchElementCollection,
+    exclude_endpoints: boolean = false
 ): SketchElement[][] {
-    const nec = sketch_element_collection_as_array(ec);
+    let nec: SketchElementCollection;
+    if (exclude_endpoints) {
+        nec = sketch_element_collection_as_array(ec);
+    } else {
+        nec = endpoint_hull(ec);
+    }
+
     if (nec.length === 0) return [];
 
     const sketch = get_sketch(...nec);

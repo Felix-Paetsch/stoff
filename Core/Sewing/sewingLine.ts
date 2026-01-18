@@ -3,9 +3,9 @@ import { Sewing } from "./sewing";
 import { SewingPoint } from "./sewingPoint";
 import { Point } from "../StoffLib/point";
 import { FaceCarousel } from "./faceCarousel";
-import { FaceEdge, FaceEdgeComponent } from "./faceEdge";
+import { FaceEdge } from "./faceEdge";
 import { merge_intervals } from "../StoffLib/geometry";
-import { Face } from "../StoffLib/faces/face.ts";
+import { assert } from "../assert.ts";
 
 export type SewingLineComponent = {
     line: Line,
@@ -18,40 +18,58 @@ export type PartialSewingLineComponent = SewingLineComponent & {
 }
 
 export class SewingLine {
-    public outdated: boolean;
+    public _is_outdated: boolean = false;
 
     constructor(
         readonly sewing: Sewing,
         readonly primary_component: SewingLineComponent[],
         readonly other_components: PartialSewingLineComponent[],
-        readonly face_carousel: FaceCarousel
+        public _face_carousel: FaceCarousel | null
     ) {
-        this.outdated = false;
+        this.sewing.__register_line(this);
+    }
+
+    get face_carousel(): FaceCarousel {
+        assert(!!this._face_carousel, "Face carousel not initialized yet");
+        return this._face_carousel!
     }
 
     get p1(): SewingPoint {
+        assert(!this._is_outdated);
         const first = this.primary_component[0];
-        return this.sewing.sewing_point(
-            first.line.endpoint_from_orientation(
-                first.has_sewing_line_orientation
-            )
+        const endpoint = first.line.endpoint_from_orientation(
+            first.has_sewing_line_orientation
         )
+
+        const find = this.sewing.sewing_points.find((p) => p.is(endpoint));
+        if (find) {
+            return find;
+        }
+        throw new Error("Endpoint is not sewing point");
     }
 
     get p2(): SewingPoint {
+        assert(!this._is_outdated);
         const last = this.primary_component[this.primary_component.length - 1];
-        return this.sewing.sewing_point(
-            last.line.endpoint_from_orientation(
-                !last.has_sewing_line_orientation
-            )
+
+        const endpoint = last.line.endpoint_from_orientation(
+            !last.has_sewing_line_orientation
         )
+
+        const find = this.sewing.sewing_points.find((p) => p.is(endpoint));
+        if (find) {
+            return find;
+        }
+        throw new Error("Endpoint is not sewing point");
     }
 
     get_endpoints(): [SewingPoint, SewingPoint] {
+        assert(!this._is_outdated);
         return [this.p1, this.p2];
     }
 
     other_endpoint(pt: Point | SewingPoint): SewingPoint {
+        assert(!this._is_outdated);
         const endpoints = this.get_endpoints();
         if (endpoints[0].is(pt)) {
             return endpoints[1];
@@ -60,22 +78,30 @@ export class SewingLine {
     }
 
     endpoint_from_orientation(bool = true): SewingPoint {
+        assert(!this._is_outdated);
         return bool ? this.get_endpoints()[0] : this.get_endpoints()[1];
     }
 
     has_endpoint(pt: Point | SewingPoint): boolean {
+        assert(!this._is_outdated);
         const endpoints = this.get_endpoints();
         return endpoints[0].is(pt) || endpoints[1].is(pt);
     }
 
-    common_endpoint(line: SewingLine | Line): SewingPoint | null {
+    common_endpoint(line: SewingLine | Line): SewingPoint {
+        assert(!this._is_outdated);
         if (this.p1.is(line.p1) || this.p1.is(line.p2)) {
             return this.p1;
         }
-        return this.p2.is(line.p1) || this.p2.is(line.p2) ? this.p2 : null;
+        if (this.p2.is(line.p1) || this.p2.is(line.p2)) {
+            return this.p2;
+        }
+
+        throw new Error("No points in common");
     }
 
     is_adjacent(thing: SewingLine | Line | Point | SewingPoint): boolean {
+        assert(!this._is_outdated);
         if (thing instanceof Point || thing instanceof SewingPoint) {
             return this.p1.is(thing) || this.p2.is(thing);
         }
@@ -84,32 +110,38 @@ export class SewingLine {
     }
 
     get_adjacent_lines(): SewingLine[] {
-        const lines = this.get_endpoints().flatMap((p) => p.get_sewing_lines());
+        assert(!this._is_outdated);
+        const lines = this.get_endpoints().flatMap((p) => p.sewing_lines);
         return lines.filter((l) => l !== this).filter(
             (line, index, array) => array.indexOf(line) === index
         );
     }
 
     get_lines(): Line[] {
+        assert(!this._is_outdated);
         return this.primary_component
             .concat(this.other_components)
             .map((l) => l.line);
     }
 
     get_points(): Point[] {
+        assert(!this._is_outdated);
         return Array.from(new Set(this.get_lines().flatMap(l => l.get_endpoints())));
     }
 
     face_edges(): FaceEdge[] {
+        assert(!this._is_outdated);
         return this.face_carousel.faceEdges.map((e) => e.edge);
     }
 
     get right_handed(): boolean {
+        assert(!this._is_outdated);
         return this.primary_component[0].has_sewing_line_handedness
             == this.primary_component[0].line.right_handed;
     }
 
     swap_orientation() {
+        assert(!this._is_outdated);
         this.primary_component.forEach((l) => l.has_sewing_line_orientation = !l.has_sewing_line_orientation);
         this.other_components.forEach((l) => l.has_sewing_line_orientation = !l.has_sewing_line_orientation);
         this.primary_component.reverse();
@@ -118,12 +150,14 @@ export class SewingLine {
     }
 
     swap_handedness(): boolean {
+        assert(!this._is_outdated);
         this.primary_component.forEach((l) => l.has_sewing_line_handedness = !l.has_sewing_line_handedness);
         this.other_components.forEach((l) => l.has_sewing_line_handedness = !l.has_sewing_line_handedness);
         return this.right_handed;
     }
 
     same_orientation(line: SewingLine | Line): boolean {
+        assert(!this._is_outdated);
         if (line instanceof Line) {
             for (const component of this.primary_component.concat(this.other_components)) {
                 if (component.line === line) {
@@ -150,6 +184,7 @@ export class SewingLine {
     }
 
     same_handedness(line: SewingLine | Line): boolean {
+        assert(!this._is_outdated);
         if (line instanceof Line) {
             for (const component of this.primary_component.concat(this.other_components)) {
                 if (component.line === line) {
@@ -190,6 +225,7 @@ export class SewingLine {
     }
 
     set_orientation(thing: SewingLine | Line | SewingPoint | Point) {
+        assert(!this._is_outdated);
         if (thing instanceof Line || thing instanceof SewingLine) {
             if (this.same_orientation(thing)) {
                 return;
@@ -205,6 +241,7 @@ export class SewingLine {
     }
 
     set_handedness(line: SewingLine | Line | boolean): boolean {
+        assert(!this._is_outdated);
         const current_handedness = this.right_handed;
         if (typeof line === "boolean") {
             if (line === current_handedness) {
@@ -219,15 +256,20 @@ export class SewingLine {
     }
 
     updated(): SewingLine {
-        if (!this.outdated) return this;
-        return this.sewing.sewing_lines.find((l) => l.contains(
+        if (!this._is_outdated) return this;
+        const candiate = this.sewing.sewing_lines.find((l) => l.contains(
             this.primary_component[0].line
-        ))!;
+        ));
+        if (!candiate || !candiate.contains(this.get_lines())) {
+            throw new Error("Sewing line can't be updated");
+        }
+        return candiate;
     }
 
     contains(things: Line | Point | SewingLine | SewingPoint): boolean;
     contains(things: (Line | Point | SewingLine | SewingPoint)[]): boolean;
     contains(things: Line | Point | SewingLine | SewingPoint | (Line | Point | SewingLine | SewingPoint)[]): boolean {
+        assert(!this._is_outdated);
         const own_lines = this.get_lines();
         const own_points = this.get_points();
 
@@ -257,37 +299,34 @@ export class SewingLine {
     }
 
     get_length() {
+        assert(!this._is_outdated);
         return this.primary_component.reduce((acc, l) => acc + l.line.get_length(), 0);
     }
 
     is_circular(): boolean {
+        assert(!this._is_outdated);
         return this.p1 == this.p2;
     }
 
     is_straight(): boolean {
+        assert(!this._is_outdated);
         throw new Error("Not implemented");
     }
 
     is_convex(): boolean {
+        assert(!this._is_outdated);
         throw new Error("Not implemented");
     }
 
-    remove() {
-        this.outdated = true;
-        const lineIndex = this.sewing.sewing_lines.indexOf(this);
-        if (lineIndex > -1) {
-            this.sewing.sewing_lines.splice(lineIndex, 1);
-        }
+    __mark_outdated() {
+        assert(!this._is_outdated);
+        this._is_outdated = true;
 
-        this.get_endpoints().forEach((endpoint) => {
-            const lineIndex = endpoint.sewingLines.indexOf(this);
-            if (lineIndex > -1) {
-                endpoint.sewingLines.splice(lineIndex, 1);
-            }
-        });
+        this.sewing.__unregister_line(this);
     }
 
     position(lin: Line): [number, number] {
+        assert(!this._is_outdated);
         let start_position = 0;
 
         const component = this.other_components.find(c => c.line === lin);
@@ -317,109 +356,12 @@ export class SewingLine {
     }
 
     structured_sublines(lin: Line[]) {
+        assert(!this._is_outdated);
         return lin.map(l => ({
             line: l,
             position: this.position(l),
             orientation: this.same_orientation(l),
             handedness: this.same_handedness(l)
         })).sort((a, b) => a.position[0] - b.position[0]);
-    }
-
-    static from_line(sewing: Sewing, line: Line): SewingLine {
-        const sLine = new SewingLine(
-            sewing,
-            [{
-                line: line,
-                has_sewing_line_orientation: true,
-                has_sewing_line_handedness: true
-            }],
-            [],
-            null as any
-        );
-
-        const faces = sewing.adjacent_faces(line);
-        const edges: FaceEdgeComponent[][] = [];
-
-        if (!faces) throw new Error("Sketch of line doesnt belong to sewing.");
-        // console.log(faces);
-        if (faces[0] instanceof Face) {
-            if (!faces[0].is_boundary()) {
-                edges.push([{
-                    line: line,
-                    standard_handedness: true,
-                    standard_orientation: true
-                }]);
-            } else {
-                const atlas = sewing.faceAtlases.get(line.get_sketch())!;
-                const comp = atlas.component_from_face(faces[0]);
-                const parent_face = comp.parent_face;
-                if (parent_face) {
-                    edges.push([{
-                        line: line,
-                        standard_handedness: true,
-                        standard_orientation: true
-                    }]);
-                }
-            }
-            if (!(faces[1] as Face)?.is_boundary()) {
-                edges.push([{
-                    line: line,
-                    standard_handedness: false,
-                    standard_orientation: true
-                }]);
-            } else if (faces[1]) {
-                const atlas = sewing.faceAtlases.get(line.get_sketch())!;
-                const comp = atlas.component_from_face(faces[1]);
-                const parent_face = comp.parent_face;
-                if (parent_face) {
-                    edges.push([{
-                        line: line,
-                        standard_handedness: false,
-                        standard_orientation: true
-                    }]);
-                }
-            }
-        } else {
-            const face = faces[1];
-            // Possible but strange case
-            // A rogue chain that overlaps with two different components; or out in the wild
-            if (!face) throw new Error("Sketch of line doesnt have a face.");
-            if (face.is_boundary()) throw new Error("Line is not contained inside fabric.");
-            edges.push([{
-                line: line,
-                standard_handedness: true,
-                standard_orientation: true
-            }], [{
-                line: line,
-                standard_handedness: false,
-                standard_orientation: true
-            }]);
-
-        }
-        if (!line.right_handed) edges.reverse(); // First face always is to the right
-
-        const faceEdges = edges.map(e => new FaceEdge(null as any, e));
-        const carousel = new FaceCarousel(sLine, faceEdges.map(e => ({
-            edge: e,
-            sewOn: [line],
-            folded_right: e.lines[0].standard_handedness === line.right_handed
-        })));
-        faceEdges.forEach(e => (e as any).face_carousel = carousel);
-        (sLine as any).face_carousel = carousel;
-
-        return sLine;
-    }
-
-    static position_at_horizontally_merged_sewing_line(sl1: SewingLine, sl2: SewingLine, from_first_line: boolean, position: number) {
-        // Assuming sl1 and sl2 have the same orientation
-        // Returns the new position at the merged sewing line
-        const length1 = sl1.get_length();
-        const length2 = sl2.get_length();
-        const total_length = length1 + length2;
-
-        if (from_first_line) {
-            return position * length1 / total_length;
-        }
-        return (1 - position) * length2 / total_length;
     }
 }
