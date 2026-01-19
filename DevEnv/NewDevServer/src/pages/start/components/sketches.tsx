@@ -1,27 +1,34 @@
 import { render_sketches } from "@/Core/Render/render_sketches_methods";
 import { Renderer } from "@/Core/Render/renderer";
-import { create_design } from "@/Patterns/pattern_export";
-import { MeasurementsLayout, PatternConfig } from "@/Patterns/patternTypes";
+import { create_design, PatternConfig } from "@/Patterns/patterns";
 import { useMemo } from "react";
 
 type SketchesProps = {
     designData: PatternConfig,
-    measureData: MeasurementsLayout
+    measureData: any
 }
 
 export function Sketches({
     designData,
     measureData
 }: SketchesProps) {
-    const build: Renderer | Error = useMemo(() => {
-        try {
-            const design = create_design(designData, measureData as any);
-            const r = new Renderer(design);
-            render_sketches(r);
-            return r;
-        } catch (e) {
-            return e instanceof Error ? e : new Error(String(e))
+    const build = useMemo(() => {
+        const name: string = (designData as any).pattern_name;
+        const design = create_design(name, designData, measureData);
+        if (design instanceof Error) {
+            return design;
         }
+
+        if (design.success !== false) {
+            const r = new Renderer(design.result);
+            render_sketches(r);
+            return {
+                renderer: r,
+                data: design.data || null
+            };
+        }
+
+        return new Error(design.reason || "Unspecified error creating design");
     }, [designData, measureData])
 
     return (
@@ -31,7 +38,7 @@ export function Sketches({
                     build instanceof Error ? (
                         <div className="sp__previewError">
                             <div className="sp__previewErrorTitle">
-                                {build.name}
+                                {build.name}: {build.message}
                             </div>
                             <pre className="sp__previewErrorStack">
                                 {build.stack ?? String(build)}
@@ -39,7 +46,7 @@ export function Sketches({
                         </div>
                     ) : (
                         <div className="sp__previewList">
-                            {build.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
+                            {build.renderer.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
                                 <div
                                     className="sp__previewItem"
                                     key={i}
@@ -49,6 +56,14 @@ export function Sketches({
                                     />
                                 </div>
                             ))}
+
+                            <div
+                                className="sp__previewItem"
+                            >
+                                <pre>
+                                    {build.data}
+                                </ pre>
+                            </div>
                         </div>
                     )
                 }

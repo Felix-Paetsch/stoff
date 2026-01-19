@@ -4,7 +4,7 @@ import path from "path";
 import { Express, Request, Response } from "express";
 import { Sketch } from "../../../Core/StoffLib/sketch";
 import { debug_create_design } from "../../Debug/debug_create_design";
-import { create_design } from "../../../Patterns/pattern_export.ts";
+import { create_design } from "../../../Patterns/tshirt/pattern_export.tsport.ts";
 import { Sewing } from "@/Core/Sewing/sewing";
 import { Route } from "../route.ts";
 import { Renderer } from "@/Core/Render/renderer.ts";

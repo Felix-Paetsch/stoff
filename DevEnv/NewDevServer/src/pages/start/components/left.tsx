@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react"
 import { JsonCodeEditor } from "../../../components/JsonCodeEditor/JsonCodeEditor";
 import { copyToClipboard } from "../../../lib/copy"
-import { is_measurements, is_pattern_config, MeasurementsLayout, PatternConfig } from "@/Patterns/patternTypes"
 import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "../defaults"
+import { is_pattern_config, PatternConfig } from "@/Patterns/patterns";
 
 type LeftSideProps = {
     designData: PatternConfig
     setDesignData: React.Dispatch<React.SetStateAction<PatternConfig>>
 
-    measureData: MeasurementsLayout
-    setMeasureData: React.Dispatch<React.SetStateAction<MeasurementsLayout>>
+    measureData: any,
+    setMeasureData: React.Dispatch<React.SetStateAction<any>>
 }
 
 export function LeftSide({
@@ -35,8 +35,16 @@ export function LeftSide({
             return;
         }
 
-        if (!is_pattern_config(potentialDesignConfig)) {
-            setDesignError("Invalid Design Config");
+        let is_config: string | true;
+        try {
+            is_config = is_pattern_config(potentialDesignConfig.pattern_name, potentialDesignConfig);
+        } catch {
+            setDesignError(`You need to specify an object with the "pattern_name" key.`);
+            return;
+        }
+
+        if (typeof is_config == "string") {
+            setDesignError(is_config);
             return;
         }
 
@@ -49,11 +57,6 @@ export function LeftSide({
             potentialMeasureConfig = JSON.parse(measureText);
         } catch {
             setMeasureError("Invalid JSON");
-            return;
-        }
-
-        if (!is_measurements(potentialMeasureConfig)) {
-            setMeasureError("Invalid Measurements Config");
             return;
         }
 

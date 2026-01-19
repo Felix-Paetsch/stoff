@@ -3,6 +3,8 @@ Goal:
 2. Unify rendering
 3. Render Data
 
+Editing the design config feels realy bad, bcs you dont get told what is wrong
+
 Eventually we will look at sewing to see how to improve things there for actually making it useable
 Eventually observability, speed improvements
 - Making them

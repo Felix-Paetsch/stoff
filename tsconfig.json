@@ -31,7 +31,8 @@
         "Tools/Simulation/StoffGo",
         "Tools/Simulation/StoffPy",
 
-        "DevEnv/NewDevServer"
+        "DevEnv/NewDevServer",
+        "DevEnv/DevServer"
     ],
     "ts-node": {
         "esm": true,

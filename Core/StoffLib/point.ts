@@ -5,6 +5,7 @@ import { Sketch } from "./sketch";
 import { Line } from "./line";
 import { SketchElementData } from "./types";
 import { Color } from "../utils/colors";
+import { default_point_attributes } from "../Render/defaults/base";
 
 export type PointRenderAttributes = {
     fill: Color;
@@ -17,13 +18,7 @@ export type PointRenderAttributes = {
 export class Point extends Vector {
     private adjacent_lines: Line[] = [];
     public data: SketchElementData = {};
-    public attributes: PointRenderAttributes = {
-        fill: "black",
-        radius: 2,
-        stroke: "black",
-        strokeWidth: 1,
-        opacity: 1,
-    };
+    public attributes: PointRenderAttributes = default_point_attributes;
 
     private _is_removed = false;
     constructor(
@@ -34,13 +29,6 @@ export class Point extends Vector {
 
         this.adjacent_lines = [];
         this.data = {};
-        this.attributes = {
-            fill: "black",
-            radius: 2,
-            stroke: "black",
-            strokeWidth: 1,
-            opacity: 1,
-        };
 
         this.sketch.__register_point(this);
     }

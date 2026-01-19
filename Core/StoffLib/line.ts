@@ -25,6 +25,7 @@ import { SketchElement, SketchElementData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
 import * as SketchElementCollectionMethods from "./collection";
 import { invalid_path } from "./assert_methods/exports";
+import { default_line_attributes } from "../Render/defaults/base";
 
 export type LineRenderAttributes = {
     stroke: Color | Gradient;
@@ -33,11 +34,7 @@ export type LineRenderAttributes = {
 };
 
 export class Line {
-    public attributes: LineRenderAttributes = {
-        stroke: ["#ccc", "black"],
-        strokeWidth: 1,
-        opacity: 1,
-    }
+    public attributes: LineRenderAttributes = default_line_attributes;
     public data: SketchElementData = {};
     private cache: Cache = new Cache();
 

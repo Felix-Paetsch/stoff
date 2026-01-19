@@ -9,6 +9,7 @@ import { Sewing } from "@/Core/Sewing/sewing";
 import { FaceEdgeComponent } from "@/Core/Sewing/faceEdge";
 import { BoundingBox, EPS, Vector } from "@/Core/StoffLib/geometry";
 import { default_face_edge_attributes, default_face_render_attributes, default_line_attributes, default_point_attributes } from "./defaults/base";
+import { get_trace } from "../utils/trace";
 
 type RenderInstruction = {
     hover_data: Json,
@@ -62,7 +63,7 @@ export class Renderer {
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
         );
-        this.stack = (new Error().stack as string).split("\n").slice(2).map((s) => s.trim()).join("\n");
+        this.stack = get_trace();
     }
 
     get_face_atlas(sketch: Sketch) {

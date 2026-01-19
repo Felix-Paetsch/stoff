@@ -27,10 +27,6 @@ export function line_between_points(
     });
 
     const l = Line.straight(pt1, pt2);
-    l.set_color(
-        interpolate_colors(pt1.get_color(), pt2.get_color(), 0.5)
-    );
-
     return l;
 }
 

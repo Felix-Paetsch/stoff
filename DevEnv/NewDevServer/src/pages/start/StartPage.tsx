@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useState } from "react"
-import { generatePreviewItems } from "../../lib/svgGenerator"
-
 import "./startPage.css"
 import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./defaults"
 import { LeftSide } from "./components/left"
 import { readLS, writeLS } from "./localStorageMap"
-import { is_measurements, is_pattern_config, MeasurementsLayout, PatternConfig } from "@/Patterns/patternTypes"
 import { Sketches } from "./components/sketches"
+import { is_pattern_config, PatternConfig } from "@/Patterns/patterns"
+import { useEffect, useState } from "react"
 
 
 export function StartPage() {
@@ -19,8 +17,14 @@ export function StartPage() {
         const saved = readLS("designDataText");
         try {
             const res = JSON.parse(saved as any);
-            if (!is_pattern_config(res)) {
-                throw new Error("Make sure this is a valid design config");
+            let is_config: string | true;
+            try {
+                is_config = is_pattern_config(res.pattern_name, res);
+            } catch {
+                throw new Error(`You need to specify an object with the "pattern_name" key.`);
+            }
+            if (typeof is_config == "string") {
+                throw new Error(is_config);
             }
             return res;
         } catch (e: any) {
@@ -30,13 +34,10 @@ export function StartPage() {
         }
     });
 
-    const [measureData, setMeasureData] = useState<MeasurementsLayout>(() => {
+    const [measureData, setMeasureData] = useState(() => {
         const saved = readLS("measureDataText");
         try {
             const res = JSON.parse(saved as any);
-            if (!is_measurements(res)) {
-                throw new Error("Make sure this is a valid design config");
-            }
             return res;
         } catch (e: any) {
             const err: Error = e;
@@ -56,18 +57,6 @@ export function StartPage() {
             return next
         })
     }
-
-    const preview = useMemo(() => {
-        try {
-            return {
-                ok: true as const,
-                items: generatePreviewItems(designData, measureData),
-            }
-        } catch (e) {
-            const err = e instanceof Error ? e : new Error(String(e))
-            return { ok: false as const, error: err }
-        }
-    }, [designData, measureData])
 
     return (
         <div className="sp">

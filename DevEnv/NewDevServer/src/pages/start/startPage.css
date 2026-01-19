@@ -74,19 +74,22 @@
 	padding: 10px;
 	border: 1px solid rgba(148, 163, 184, 0.18);
 	border-radius: 10px;
+    width: min-content;
 	background: rgba(15, 23, 42, 0.5);
+}
+
+.sp__previewItem pre{
+    min-width: 500px;
 }
 
 .sp__previewSvg {
 	flex: 0 0 auto;
+    background: rgba(255,255,255,0.9);
+    border-radius: 10px;
 }
 
 .sp__previewText {
 	min-width: 0;
-}
-
-.sp__previewLabel {
-	font-weight: 600;
 }
 
 .sp__previewError {
