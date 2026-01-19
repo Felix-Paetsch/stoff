@@ -16,8 +16,8 @@ import { highlightRenderer } from "../Render/render_step/highlight";
 import { FaceAtlas } from "../StoffLib/faces/faceAtlas";
 import { Renderer } from "../Render/renderer";
 import { devRenderer } from "../Render/render_step/dev";
-import assert from "assert";
 import { create_sewing_line } from "./line_methods/create_sewing_line";
+import { assert } from "../assert";
 
 export class Sewing {
     readonly all_time_sewing_points: SewingPoint[] = [];

@@ -1,8 +1,22 @@
-import { PatternFunction } from "@/Core/types.js";
 import { Sewing } from "@/Core/Sewing/sewing";
 import { Sketch } from "@/Core/StoffLib/sketch";
+import { BaseMeasurements, PatternFunction } from "./patternTypes";
 
-export const create_design: PatternFunction = () => {
+export type TShirtPatternConfig = {
+    pattern_name: "T-Shirt",
+
+    'Darts fitted': '0_nothing',
+    'Darts standard': '0_nothing',
+    'Darts wide': '0_nothing',
+    Fancy: '0_none',
+    Main_Body: 'fitted',
+    Neckline: 'round',
+    Sleeves: '0_standard_kurz'
+}
+
+export const create_design: PatternFunction<"T-Shirt"> = (
+    cfg: TShirtPatternConfig, mea: BaseMeasurements
+) => {
     const r = new Sketch();
     const points = [
         r.point(0, 0), r.point(100, 0),

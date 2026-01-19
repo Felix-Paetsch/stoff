@@ -9,6 +9,7 @@ import { Sewing } from "@/Core/Sewing/sewing";
 import { Route } from "../route.ts";
 import { Renderer } from "@/Core/Render/renderer.ts";
 import { render_sketches } from "@/Core/Render/render_sketches_methods.ts";
+import { people_measurements } from "@/Data/measurements.ts";
 Error.stackTraceLimit = 100;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -76,7 +77,7 @@ export const register_routes = (app: Express) => {
             } catch (e: any) { }
 
             // console.time("CREATE DESIGN");
-            const s: Sketch | Sewing | Sketch[] = create_design(design_config);
+            const s: Sketch | Sewing | Sketch[] = create_design(design_config as any, people_measurements.Leonie);
             // console.timeEnd("CREATE DESIGN");
 
             // console.time("RENDER");

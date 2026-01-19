@@ -29,7 +29,9 @@
         "website",
         "DevEnv/Profiling",
         "Tools/Simulation/StoffGo",
-        "Tools/Simulation/StoffPy"
+        "Tools/Simulation/StoffPy",
+
+        "DevEnv/NewDevServer"
     ],
     "ts-node": {
         "esm": true,

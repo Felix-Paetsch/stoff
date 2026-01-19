@@ -48,13 +48,15 @@ export class Renderer {
     readonly stack: string;
 
     constructor(
-        s: Sewing | Sketch,
+        s: Sewing | Sketch | Sketch[],
         public render_step: string | null = null
     ) {
         if (s instanceof Sewing) {
             this.sewing = s;
-        } else {
+        } else if (s instanceof Sketch) {
             this.sewing = new Sewing([s]);
+        } else {
+            this.sewing = new Sewing(s);
         }
 
         this.sewing.sketches.forEach(
