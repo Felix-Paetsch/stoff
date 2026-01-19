@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+
+    // Needed so TS resolves imports correctly from this folder
+    "baseUrl": ".",
+
+    // Re-map root paths for this project
+    "paths": {
+      "@/*": ["../../*"]
+    },
+
+    // Vite / browser environment
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"]
+  },
+  "include": [
+    "src",
+    "../../**/*.ts",
+    "../../**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
