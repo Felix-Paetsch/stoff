@@ -1,7 +1,9 @@
 import './App.css'
+import { StartPage } from './pages/start'
 
 function App() {
-    return <h1>HII</h1>
+	return <StartPage />
 }
 
 export default App
+

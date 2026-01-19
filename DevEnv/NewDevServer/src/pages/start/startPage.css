@@ -1,0 +1,203 @@
+.sp {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: #0b0f19;
+	color: #e5e7eb;
+}
+
+.sp__topbar {
+	height: 44px;
+	flex: 0 0 auto;
+	border: 0;
+	width: 100%;
+	text-align: left;
+	padding: 0 14px;
+	cursor: pointer;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	font-size: 14px;
+	color: #e5e7eb;
+	background: #0f172a;
+	border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sp__topbar:focus-visible {
+	outline: 3px solid rgba(255, 255, 255, 0.7);
+	outline-offset: -3px;
+}
+
+.sp__main {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+}
+
+.sp__left {
+	width: 520px;
+	max-width: 60vw;
+	border-right: 1px solid rgba(148, 163, 184, 0.18);
+	background: #0b0f19;
+	overflow: auto;
+}
+
+.sp__leftInner {
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sp__right {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: auto;
+}
+
+.sp__rightInner {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sp__previewList {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.sp__previewItem {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 10px;
+	border: 1px solid rgba(148, 163, 184, 0.18);
+	border-radius: 10px;
+	background: rgba(15, 23, 42, 0.5);
+}
+
+.sp__previewSvg {
+	flex: 0 0 auto;
+}
+
+.sp__previewText {
+	min-width: 0;
+}
+
+.sp__previewLabel {
+	font-weight: 600;
+}
+
+.sp__previewError {
+	border: 1px solid rgba(239, 68, 68, 0.35);
+	background: rgba(127, 29, 29, 0.18);
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.sp__previewErrorTitle {
+	font-weight: 650;
+	color: #fecaca;
+	margin-bottom: 8px;
+}
+
+.sp__previewErrorStack {
+	margin: 0;
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #fecaca;
+}
+
+/* Defaults copy area */
+.sp__defaults {
+	padding: 12px;
+	border-radius: 12px;
+	border: 1px dashed rgba(148, 163, 184, 0.18);
+	background: rgba(2, 6, 23, 0.22);
+}
+
+.sp__defaultsHeader {
+	font-weight: 650;
+	color: #94a3b8;
+	margin-bottom: 10px;
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+}
+
+.sp__defaultBlock {
+	border-radius: 12px;
+	border: 1px solid rgba(148, 163, 184, 0.18);
+	background: rgba(15, 23, 42, 0.5);
+	margin-bottom: 12px;
+	overflow: hidden;
+}
+
+.sp__defaultTitleRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	background: rgba(2, 6, 23, 0.35);
+	border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+/* Less emphasized title inside each default block */
+.sp__defaultTitle {
+	font-weight: 500;
+	color: #cbd5e1;
+	font-size: 12px;
+}
+
+.sp__copyBtn {
+	border: 1px solid rgba(148, 163, 184, 0.22);
+	background: transparent;
+	color: #cbd5e1;
+	border-radius: 10px;
+	padding: 6px 10px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.sp__copyBtn:hover {
+	background: rgba(148, 163, 184, 0.08);
+}
+
+/* Keep the code block dark and clearly readable */
+.sp__defaultPre {
+	margin: 0;
+	padding: 12px;
+	color: #94a3b8;
+	background: #0b1020;
+	white-space: pre;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 12px;
+	line-height: 1.45;
+}
+
+
+@media (max-width: 980px) {
+	.sp__main {
+		flex-direction: column;
+	}
+
+	/* In single-column mode: preview first, inputs below */
+	.sp__right {
+		order: 0;
+		border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+	}
+
+	.sp__left {
+		order: 1;
+		width: 100%;
+		max-width: none;
+		border-right: 0;
+		border-bottom: 0;
+	}
+}
