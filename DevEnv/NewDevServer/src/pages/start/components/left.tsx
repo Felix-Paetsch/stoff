@@ -8,8 +8,7 @@ type LeftSideProps = {
     designData: PatternConfig
     setDesignData: React.Dispatch<React.SetStateAction<PatternConfig>>
 
-    measureData: any,
-    setMeasureData: React.Dispatch<React.SetStateAction<any>>
+    measureData: any, setMeasureData: React.Dispatch<React.SetStateAction<any>>
 }
 
 export function LeftSide({

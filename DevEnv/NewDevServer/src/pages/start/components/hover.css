@@ -1,0 +1,13 @@
+.hover_data {
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    max-width: 320px;
+    white-space: pre-wrap;
+    z-index: 999999;
+    pointer-events: none;
+}
+
+
