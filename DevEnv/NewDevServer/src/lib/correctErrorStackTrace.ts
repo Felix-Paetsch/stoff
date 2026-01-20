@@ -11,36 +11,31 @@ type MapStackTraceOptions = {
     debug?: boolean;
 };
 
-// Must run BEFORE using SourceMapConsumer in the browser (source-map v0.8+)
 let initialized = false;
 function ensureSourceMapWasmInitialized() {
     if (initialized) return;
-
-    // @ts-ignore
     SourceMapConsumer.initialize({
         "lib/mappings.wasm": mappingsWasmUrl,
     });
     initialized = true;
 }
 
-const consumerCache = new Map<string, SourceMapConsumer | null>();
+type CachedConsumer = {
+    consumer: SourceMapConsumer;
+    // Base URL to resolve sources against (map URL if external, else module URL)
+    baseUrl: string;
+};
+
+const consumerCache = new Map<string, CachedConsumer | null>();
 
 function extractFrame(stackLine: string): StackFrame | null {
-    // Firefox:
-    //   func@http://host/path/file.js:1:234
-    //   @http://host/path/file.js:1:234
+    // Firefox: func@url:line:col
     let m = stackLine.match(/@(.+?):(\d+):(\d+)\s*$/);
     if (m) {
-        return {
-            url: m[1],
-            line: Number(m[2]),
-            column: Number(m[3]),
-        };
+        return { url: m[1], line: Number(m[2]), column: Number(m[3]) };
     }
 
-    // Chrome:
-    //   at func (http://host/path/file.js:1:234)
-    //   at http://host/path/file.js:1:234
+    // Chrome: at func (url:line:col) / at url:line:col
     m = stackLine.match(/\(?(.+?):(\d+):(\d+)\)?\s*$/);
     if (m) {
         const url = m[1];
@@ -49,11 +44,7 @@ function extractFrame(stackLine: string): StackFrame | null {
             url.startsWith("https://") ||
             url.startsWith("file://")
         ) {
-            return {
-                url,
-                line: Number(m[2]),
-                column: Number(m[3]),
-            };
+            return { url, line: Number(m[2]), column: Number(m[3]) };
         }
     }
 
@@ -98,7 +89,7 @@ function mapUrlByAppendingDotMap(fileUrl: string): string {
 async function fetchSourcemapForModuleUrl(
     moduleUrl: string,
     debug: boolean,
-): Promise<any | null> {
+): Promise<{ rawMap: any; baseUrl: string } | null> {
     // 1) Fetch module code and read sourceMappingURL
     try {
         const jsRes = await fetch(moduleUrl);
@@ -115,13 +106,14 @@ async function fetchSourcemapForModuleUrl(
             }
 
             if (sm.startsWith("data:")) {
-                return decodeDataUrlToJson(sm);
+                return { rawMap: decodeDataUrlToJson(sm), baseUrl: moduleUrl };
             }
 
             const mapUrl = new URL(sm, moduleUrl).toString();
             const mapRes = await fetch(mapUrl);
             if (!mapRes.ok) throw new Error(`Failed to fetch sourcemap: ${mapUrl}`);
-            return await mapRes.json();
+
+            return { rawMap: await mapRes.json(), baseUrl: mapUrl };
         }
 
         if (debug) {
@@ -144,7 +136,8 @@ async function fetchSourcemapForModuleUrl(
         if (debug) {
             console.log("[mapStackTrace] fallback .map worked", { mapUrl });
         }
-        return await mapRes.json();
+
+        return { rawMap: await mapRes.json(), baseUrl: mapUrl };
     } catch {
         return null;
     }
@@ -153,21 +146,22 @@ async function fetchSourcemapForModuleUrl(
 async function getConsumerForModuleUrl(
     moduleUrl: string,
     debug: boolean,
-): Promise<SourceMapConsumer | null> {
+): Promise<CachedConsumer | null> {
     ensureSourceMapWasmInitialized();
 
     if (consumerCache.has(moduleUrl)) return consumerCache.get(moduleUrl)!;
 
-    const rawMap = await fetchSourcemapForModuleUrl(moduleUrl, debug);
-    if (!rawMap) {
+    const result = await fetchSourcemapForModuleUrl(moduleUrl, debug);
+    if (!result) {
         consumerCache.set(moduleUrl, null);
         return null;
     }
 
     try {
-        const consumer = await new SourceMapConsumer(rawMap);
-        consumerCache.set(moduleUrl, consumer);
-        return consumer;
+        const consumer = await new SourceMapConsumer(result.rawMap);
+        const cached: CachedConsumer = { consumer, baseUrl: result.baseUrl };
+        consumerCache.set(moduleUrl, cached);
+        return cached;
     } catch (e) {
         if (debug) {
             console.log("[mapStackTrace] failed to create SourceMapConsumer", {
@@ -178,6 +172,29 @@ async function getConsumerForModuleUrl(
         consumerCache.set(moduleUrl, null);
         return null;
     }
+}
+
+function resolveFullSourcePath(
+    source: string,
+    consumer: SourceMapConsumer,
+    baseUrl: string,
+): string {
+    // If it's already a URL-like source (rare but possible), keep it.
+    if (
+        source.startsWith("http://") ||
+        source.startsWith("https://") ||
+        source.startsWith("file://")
+    ) {
+        return source;
+    }
+
+    // sourceRoot can be absolute, relative, or undefined.
+    // Resolve it against the map URL/module URL to get an absolute base.
+    const sourceRoot = consumer.sourceRoot ?? "";
+    const rootBase = new URL(sourceRoot || ".", baseUrl);
+
+    // Then resolve the source against that.
+    return new URL(source, rootBase).toString();
 }
 
 export async function mapStackTrace(
@@ -195,12 +212,12 @@ export async function mapStackTrace(
             const frame = extractFrame(line);
             if (!frame) return line;
 
-            const consumer = await getConsumerForModuleUrl(frame.url, debug);
-            if (!consumer) return line;
+            const cached = await getConsumerForModuleUrl(frame.url, debug);
+            if (!cached) return line;
 
-            // IMPORTANT:
-            // Most JS engine stacks report columns as 1-based.
-            // source-map expects generated columns as 0-based.
+            const { consumer, baseUrl } = cached;
+
+            // Stack columns are usually 1-based; source-map expects 0-based.
             const generatedColumn = Math.max(0, frame.column - 1);
 
             const pos = consumer.originalPositionFor({
@@ -208,19 +225,27 @@ export async function mapStackTrace(
                 column: generatedColumn,
             });
 
-            if (!pos.source || pos.line == null || pos.column == null) {
-                return line;
-            }
+            if (!pos.source || pos.line == null || pos.column == null) return line;
 
-            // pos.column is 0-based; display as 1-based
             const displayColumn = pos.column + 1;
+            const fullSource = resolveFullSourcePath(pos.source, consumer, baseUrl);
 
             return line.replace(
                 `${frame.url}:${frame.line}:${frame.column}`,
-                `${pos.source}:${pos.line}:${displayColumn}`,
+                `${fullSource}:${pos.line}:${displayColumn}`,
             );
         }),
     );
 
     return mapped.join("\n");
+}
+
+export function deleteStackTraceFromFirstTSX(stack: string): string {
+    const lines = stack.split("\n");
+    const firstTsxIndex = lines.findIndex(
+        (line, i) => i !== 0 && /\.tsx(\?|:)/.test(line),
+    );
+
+    if (firstTsxIndex === -1) return stack;
+    return lines.slice(0, firstTsxIndex).join("\n");
 }

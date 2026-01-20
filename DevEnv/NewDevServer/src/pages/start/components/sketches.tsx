@@ -3,7 +3,7 @@ import { Renderer } from "@/Core/Render/renderer";
 import { create_design, PatternConfig } from "@/Patterns/patterns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { add_svg_hover_events, cleanup_svg_hover_events } from "./hover";
-import { mapStackTrace } from "../../../lib/correctErrorStackTrace";
+import { deleteStackTraceFromFirstTSX, mapStackTrace } from "../../../lib/correctErrorStackTrace";
 
 type SketchesProps = {
     designData: PatternConfig;
@@ -51,9 +51,20 @@ export function Sketches({ designData, measureData }: SketchesProps) {
         (async () => {
             const mapped = await mapStackTrace(build); // , { debug: false });
 
-            if (!cancelled) setMappedStack(mapped);
+            if (cancelled) return;
+
+            const deletedTrace = deleteStackTraceFromFirstTSX(mapped);
+            const mappedTrace = deletedTrace.split("\n").map(
+                l => l.split("@")
+            ).map(
+                l => {
+                    return `${l[0]!}@${l[2]!}`
+                }
+            ).join("\n");
+
+            setMappedStack(mappedTrace);
         })().catch(() => {
-            if (!cancelled) setMappedStack(build.stack ?? String(build));
+            if (!cancelled) setMappedStack("Failed to Load Stack Trace");
         });
 
         return () => {
