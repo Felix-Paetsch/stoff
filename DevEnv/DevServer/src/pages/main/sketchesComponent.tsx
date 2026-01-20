@@ -1,53 +1,26 @@
-import { render_sketches } from "@/Core/Render/render_sketches_methods";
 import { Renderer } from "@/Core/Render/renderer";
-import { create_design, PatternConfig } from "@/Patterns/patterns";
-import { add_svg_hover_events, cleanup_svg_hover_events } from "../../../lib/add_hover_events";
-import { deleteStackTraceFromFirstTSX, mapStackTrace } from "../../../lib/correctErrorStackTrace";
 import { useEffect, useState } from "react";
+import { deleteStackTraceFromFirstTSX, mapStackTrace } from "../../utils/correctErrorStackTrace";
+import { render_sketches } from "@/Core/Render/render_sketches_methods";
+import { DesignRenderResult } from "../../lib/create_design_data";
 
 type SketchesProps = {
-    designData: PatternConfig;
-    measureData: any;
+    design: DesignRenderResult;
 };
 
-export function Sketches({ designData, measureData }: SketchesProps) {
+export function SketchesComponent({ design }: SketchesProps) {
     const [mappedStack, setMappedStack] = useState<string | null>(null);
-
-    const build = (() => {
-        try {
-            const name: string = (designData as any).pattern_name;
-            const design = create_design(name, designData, measureData);
-
-            if (design instanceof Error) {
-                return design;
-            }
-
-            if (design.success !== false) {
-                const r = new Renderer(design.result);
-                render_sketches(r);
-
-                return {
-                    renderer: r,
-                    data: design.data || null,
-                };
-            }
-
-            return new Error(design.reason || "Unspecified error creating design");
-        } catch (e) {
-            return e instanceof Error ? e : new Error(String(e));
-        }
-    })();
 
     useEffect(() => {
         let cancelled = false;
 
-        if (!(build instanceof Error)) {
+        if (!(design instanceof Error)) {
             setMappedStack(null);
             return;
         }
 
         (async () => {
-            const mapped = await mapStackTrace(build); // , { debug: false });
+            const mapped = await mapStackTrace(design); // , { debug: false });
 
             if (cancelled) return;
 
@@ -68,27 +41,41 @@ export function Sketches({ designData, measureData }: SketchesProps) {
         return () => {
             cancelled = true;
         };
-    }, [build]);
+    }, [design]);
 
-    useEffect(() => {
-        if (build instanceof Error) return;
+    let processedResult: Error | {
+        renderer: Renderer,
+        data: any
+    };
 
-        requestAnimationFrame(() => {
-            add_svg_hover_events();
-        });
+    if (design instanceof Error) {
+        processedResult = design;
+    } else if (design.success === false) {
+        processedResult = new Error(design.reason)
+    } else {
+        processedResult = {
+            renderer: new Renderer(design.result),
+            data: null
+        }
 
-        return () => {
-            cleanup_svg_hover_events();
-        };
-    }, [build]);
+        render_sketches(processedResult.renderer);
+
+        if (design.data) {
+            try {
+                processedResult.data = JSON.stringify(design.data, null, 2);
+            } catch {
+                processedResult.data = "Failed to serialize data!"
+            }
+        }
+    }
 
     return (
         <main className="sp__right" aria-label="Preview">
             <div className="sp__rightInner">
-                {build instanceof Error ? (
+                {processedResult instanceof Error ? (
                     <div className="sp__previewError">
                         <div className="sp__previewErrorTitle">
-                            {build.name}: {build.message}
+                            {processedResult.name}: {processedResult.message}
                         </div>
                         <pre className="sp__previewErrorStack">
                             {mappedStack ?? "Stack Trace Loading.."}
@@ -96,7 +83,7 @@ export function Sketches({ designData, measureData }: SketchesProps) {
                     </div>
                 ) : (
                     <div className="sp__previewList sketch_display">
-                        {build.renderer.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
+                        {processedResult.renderer.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
                             <div className="sp__previewItem" key={i}>
                                 <div
                                     className="sp__previewSvg"
@@ -106,7 +93,7 @@ export function Sketches({ designData, measureData }: SketchesProps) {
                         ))}
 
                         <div className="sp__previewItem">
-                            <pre>{build.data}</pre>
+                            <pre>{processedResult.data}</pre>
                         </div>
                     </div>
                 )}

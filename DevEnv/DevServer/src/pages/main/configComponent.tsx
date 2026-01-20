@@ -1,24 +1,19 @@
 import { useEffect, useState } from "react"
-import { JsonCodeEditor } from "../../../components/JsonCodeEditor/JsonCodeEditor";
-import { copyToClipboard } from "../../../lib/copy"
-import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "../defaults"
-import { is_pattern_config, PatternConfig } from "@/Patterns/patterns";
+import { DesignInputData } from "src/App";
+import { is_pattern_config_with_pattern_name } from "../../lib/is_pattern_config";
+import { copyToClipboard } from "../../utils/copy";
+import { JsonCodeEditor } from "./JsonCodeEditor/JsonCodeEditor.tsx";
+import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "../../config/defaults.ts";
 
 type LeftSideProps = {
-    designData: PatternConfig
-    setDesignData: React.Dispatch<React.SetStateAction<PatternConfig>>
-
-    measureData: any, setMeasureData: React.Dispatch<React.SetStateAction<any>>
+    designInputData: DesignInputData
 }
 
-export function LeftSide({
-    designData,
-    setDesignData,
-    measureData,
-    setMeasureData,
+export function ConfigComponent({
+    designInputData
 }: LeftSideProps) {
-    const [designText, setDesignText] = useState(JSON.stringify(designData, null, 2));
-    const [measureText, setMeasureText] = useState(JSON.stringify(measureData, null, 2));
+    const [designText, setDesignText] = useState(JSON.stringify(designInputData.designData, null, 2));
+    const [measureText, setMeasureText] = useState(JSON.stringify(designInputData.measureData, null, 2));
 
     const [designError, setDesignError] = useState<string | null>(null)
     const [measureError, setMeasureError] = useState<string | null>(null)
@@ -34,13 +29,7 @@ export function LeftSide({
             return;
         }
 
-        let is_config: string | true;
-        try {
-            is_config = is_pattern_config(potentialDesignConfig.pattern_name, potentialDesignConfig);
-        } catch {
-            setDesignError(`You need to specify an object with the "pattern_name" key.`);
-            return;
-        }
+        const is_config: string | true = is_pattern_config_with_pattern_name(potentialDesignConfig);
 
         if (typeof is_config == "string") {
             setDesignError(is_config);
@@ -48,8 +37,9 @@ export function LeftSide({
         }
 
         setDesignError(null);
-        setDesignData(potentialDesignConfig);
+        designInputData.setDesignData(potentialDesignConfig);
     }, [designText]);
+
     useEffect(() => {
         let potentialMeasureConfig: any = {};
         try {
@@ -60,7 +50,7 @@ export function LeftSide({
         }
 
         setMeasureError(null);
-        setMeasureData(potentialMeasureConfig);
+        designInputData.setMeasureData(potentialMeasureConfig);
     }, [measureText])
 
     function handleCopy(kind: "design" | "measure", text: string) {
@@ -101,9 +91,6 @@ export function LeftSide({
                                 className="sp__copyBtn"
                                 type="button"
                                 onClick={() => {
-                                    setDesignText(
-                                        JSON.stringify(DEFAULT_DESIGN_CONFIG, null, 2)
-                                    )
                                     setDesignError(null)
                                     handleCopy(
                                         "design",
@@ -130,9 +117,6 @@ export function LeftSide({
                                 className="sp__copyBtn"
                                 type="button"
                                 onClick={() => {
-                                    setMeasureText(
-                                        JSON.stringify(DEFAULT_MEASUREMENTS, null, 2)
-                                    )
                                     setMeasureError(null)
                                     handleCopy(
                                         "measure",
