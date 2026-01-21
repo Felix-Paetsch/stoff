@@ -46,7 +46,6 @@ export class Renderer {
     private faceAtlas: Map<Sketch, FaceAtlas> = new Map();
     readonly svgMap: Map<Sketch, RenderInstruction[]> = new Map();
     readonly sewing: Sewing;
-    readonly stack: string;
 
     constructor(
         s: Sewing | Sketch | Sketch[],
@@ -63,7 +62,6 @@ export class Renderer {
         this.sewing.sketches.forEach(
             sketch => this.svgMap.set(sketch, [])
         );
-        this.stack = get_trace();
     }
 
     get_face_atlas(sketch: Sketch) {

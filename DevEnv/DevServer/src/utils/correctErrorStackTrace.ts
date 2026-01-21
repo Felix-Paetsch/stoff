@@ -14,6 +14,7 @@ type MapStackTraceOptions = {
 let initialized = false;
 function ensureSourceMapWasmInitialized() {
     if (initialized) return;
+    // @ts-ignore;
     SourceMapConsumer.initialize({
         "lib/mappings.wasm": mappingsWasmUrl,
     });
@@ -190,6 +191,7 @@ function resolveFullSourcePath(
 
     // sourceRoot can be absolute, relative, or undefined.
     // Resolve it against the map URL/module URL to get an absolute base.
+    // @ts-ignore
     const sourceRoot = consumer.sourceRoot ?? "";
     const rootBase = new URL(sourceRoot || ".", baseUrl);
 

@@ -31,7 +31,7 @@
         "Tools/Simulation/StoffGo",
         "Tools/Simulation/StoffPy",
 
-        "DevEnv/NewDevServer",
+        "DevEnv/DevServer",
         "DevEnv/DevServer"
     ],
     "ts-node": {

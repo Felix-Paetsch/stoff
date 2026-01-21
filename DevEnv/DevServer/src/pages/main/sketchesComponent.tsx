@@ -70,29 +70,35 @@ export function SketchesComponent({ design }: SketchesProps) {
     }
 
     return (
-        <main className="sp__right" aria-label="Preview">
-            <div className="sp__rightInner">
+        <main className="shd__right" aria-label="Preview">
+            <div className="shd__rightInner">
+
                 {processedResult instanceof Error ? (
-                    <div className="sp__previewError">
-                        <div className="sp__previewErrorTitle">
+                    <div className="shd__previewError">
+                        <div className="shd__previewErrorTitle">
+
                             {processedResult.name}: {processedResult.message}
                         </div>
-                        <pre className="sp__previewErrorStack">
+                        <pre className="shd__previewErrorStack">
+
                             {mappedStack ?? "Stack Trace Loading.."}
                         </pre>
                     </div>
                 ) : (
-                    <div className="sp__previewList sketch_display">
+                    <div className="shd__previewList sketch_display">
+
                         {processedResult.renderer.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
-                            <div className="sp__previewItem" key={i}>
+                            <div className="shd__previewItem" key={i}>
                                 <div
-                                    className="sp__previewSvg"
+                                    className="shd__previewSvg"
+
                                     dangerouslySetInnerHTML={{ __html: item }}
                                 />
                             </div>
                         ))}
 
-                        <div className="sp__previewItem">
+                        <div className="shd__previewItem">
+
                             <pre>{processedResult.data}</pre>
                         </div>
                     </div>

@@ -1,0 +1,53 @@
+/* Debug-page-only styles
+   Prefix: dbg__
+*/
+
+.dbg__page {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+	padding: 12px;
+}
+
+.dbg__list {
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* Each entry gets exactly its own row.
+   The row can scroll horizontally independent of the page.
+*/
+.dbg__entryRow {
+	border: 1px solid rgba(168, 162, 158, 0.22);
+	background: rgba(28, 25, 23, 0.35);
+	border-radius: 12px;
+	padding: 12px;
+	color: #e7e5e4;
+
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.dbg__entryRow--hot {
+background: rgba(99, 102, 241, 0.16);
+border-color: rgba(129, 140, 248, 0.30);
+
+    /* background: rgba(185, 28, 28, 0.16); */
+	/* border-color: rgba(239, 68, 68, 0.30); */
+}
+
+/* Inside each row we keep the same preview styles, but forbid wrapping
+   so the user can scroll right.
+*/
+.dbg__previewList {
+	flex-wrap: nowrap;
+}
+
+/* Make sure the items don't shrink into unreadability when scrolling */
+.dbg__previewList > .shd__previewItem {
+	flex: 0 0 auto;
+}

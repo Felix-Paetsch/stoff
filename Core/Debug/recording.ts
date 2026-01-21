@@ -46,16 +46,18 @@ export function get_recording<T extends Recordable>(
 export class Recording<T extends Recordable = Recordable> {
     protected taking_snapshot: boolean = false;
     readonly snapshots: T[];
+    readonly stack_traces: string[];
 
-    constructor(snapshots: T[] = []) {
+    constructor(snapshots: T[] = [], stack_traces?: string[]) {
         this.snapshots = [...snapshots];
+        this.stack_traces = stack_traces ? stack_traces : Array(snapshots.length).fill("<No stack trace available>");
     }
 
     snapshot(s: T) {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
-        const copy = s;
+        const copy = s.copy();
 
         {
             const old_limit = Error.stackTraceLimit;
@@ -63,18 +65,18 @@ export class Recording<T extends Recordable = Recordable> {
 
             const error = new Error("");
             const stackTrace =
-                "Stack Trace<br>" +
+                "Stack Trace\n" +
                 (error.stack ?? "")
                     .split("\n")
-                    .slice(4)
-                    .map((s) => s.trim())
-                    .join("<br>");
-            copy.data["Stack Trace"] = stackTrace;
+                    .slice(6)
+                    .join("\n");
+
+            this.stack_traces.push(stackTrace)
 
             Error.stackTraceLimit = old_limit;
         }
 
-        this.snapshots.push(copy);
+        this.snapshots.push(copy as any);
         if (cold_snapshot) this.taking_snapshot = false;
     }
 }

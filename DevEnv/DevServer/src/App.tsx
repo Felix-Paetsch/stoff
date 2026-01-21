@@ -1,11 +1,16 @@
+import "./pages/shared/root.css"
+import "./pages/shared/shared.css"
+
 import { DebugPage } from "./pages/debug"
 import { readLS, writeLS } from "./utils/localStorageMap"
 import { MainPage } from "./pages/main"
 import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults"
 import { useEffect, useState } from "react"
 import { is_pattern_config_with_pattern_name } from "./lib/is_pattern_config"
-import { create_design, PatternConfig } from "@/Patterns/patterns"
+import { PatternConfig } from "@/Patterns/patterns"
 import { create_design_data } from "./lib/create_design_data"
+import { add_svg_hover_events } from "./lib/sketch_tooltips"
+
 
 type SubPage = "stoffstoff" | "debug"
 
@@ -37,14 +42,29 @@ export function App() {
         debug: debugRenderData
     } = create_design_data(designInputData.designData, designInputData.measureData);
 
+    useEffect(() => {
+        const frameId = requestAnimationFrame(() => {
+            add_svg_hover_events()
+        })
+
+        return () => {
+            cancelAnimationFrame(frameId)
+        }
+    }, [
+        designInputData.designData,
+        designInputData.measureData,
+    ]);
+
     return (
-        <div className="sp">
-            <div className="sp__topbar" role="tablist" aria-label="Start pages">
+        <div className="root__app">
+            <div className="root__topbar" role="tablist" aria-label="Start pages">
+
                 <button
                     className={
-                        "sp__topbarBtn" +
-                        (page === "stoffstoff" ? " sp__topbarBtn--active" : "")
+                        "root__topbarBtn" +
+                        (page === "stoffstoff" ? " root__topbarBtn--active" : "")
                     }
+
                     type="button"
                     onClick={() => {
                         if (page === "stoffstoff") {
@@ -61,8 +81,9 @@ export function App() {
 
                 <button
                     className={
-                        "sp__topbarBtn" + (page === "debug" ? " sp__topbarBtn--active" : "")
+                        "root__topbarBtn" + (page === "debug" ? " root__topbarBtn--active" : "")
                     }
+
                     type="button"
                     onClick={() => setPage("debug")}
                     role="tab"

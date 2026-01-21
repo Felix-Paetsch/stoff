@@ -1,5 +1,8 @@
 Q: What to do with sketch data?
 
+Hower things
+Get rid of Sketch Data (?)
+
 Todo: Deal with design config => maybe just an input object one can input as text
 Also the export things could export can object which tells you about the shape and everything they expect
 

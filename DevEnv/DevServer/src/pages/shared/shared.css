@@ -1,0 +1,202 @@
+/* Shared preview/boxes styles used across pages.
+   Prefix: shd__
+*/
+
+/* Page wrapper rendered below the topbar */
+.shd__page {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Defaults copy area */
+.shd__defaults {
+	padding: 12px;
+	border-radius: 12px;
+	border: 1px dashed rgba(168, 162, 158, 0.22);
+	background: rgba(12, 10, 9, 0.22);
+}
+
+.shd__defaultsHeader {
+	font-weight: 650;
+	color: #a8a29e;
+	margin-bottom: 10px;
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+}
+
+.shd__defaultBlock {
+	border-radius: 12px;
+	border: 1px solid rgba(168, 162, 158, 0.22);
+	background: rgba(28, 25, 23, 0.35);
+	margin-bottom: 12px;
+	overflow: hidden;
+}
+
+.shd__defaultTitleRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	background: rgba(12, 10, 9, 0.35);
+	border-bottom: 1px solid rgba(168, 162, 158, 0.22);
+}
+
+/* Less emphasized title inside each default block */
+.shd__defaultTitle {
+	font-weight: 500;
+	color: #e7e5e4;
+	font-size: 12px;
+}
+
+.shd__copyBtn {
+	border: 1px solid rgba(168, 162, 158, 0.22);
+	background: transparent;
+	color: #e7e5e4;
+	border-radius: 10px;
+	padding: 6px 10px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.shd__copyBtn:hover {
+	background: rgba(168, 162, 158, 0.10);
+}
+
+/* Keep the code block dark and clearly readable */
+.shd__defaultPre {
+	margin: 0;
+	padding: 12px;
+	color: #a8a29e;
+	background: #0c0a09;
+	white-space: pre;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+	font-size: 12px;
+	line-height: 1.45;
+}
+
+
+.shd__main {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+}
+
+.shd__left {
+	width: 700px;
+	max-width: 50vw;
+	border-right: 1px solid rgba(168, 162, 158, 0.22);
+	background: #12110f;
+	overflow: auto;
+}
+
+.shd__leftInner {
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.shd__right {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: auto;
+}
+
+.shd__rightInner {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.shd__previewList {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: flex-start;
+}
+
+.shd__previewItem {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 10px;
+	border: 1px solid rgba(168, 162, 158, 0.22);
+	border-radius: 10px;
+	width: min-content;
+	background: rgba(28, 25, 23, 0.35);
+}
+
+.shd__previewItem pre {
+	min-width: 500px;
+	max-width: min(900px, calc(100vw - 80px));
+	overflow: auto;
+}
+
+.shd__previewSvg {
+	flex: 0 0 auto;
+	background: rgba(250, 250, 249, 0.94);
+	border-radius: 10px;
+	padding: clamp(8px, 1.2vw, 14px);
+}
+
+.shd__previewSvg svg {
+	display: block;
+	width: clamp(320px, 25vw, 560px);
+	height: auto;
+}
+
+.shd__previewText {
+	min-width: 0;
+}
+
+.shd__previewError {
+	border: 1px solid rgba(239, 68, 68, 0.35);
+	background: rgba(127, 29, 29, 0.18);
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.shd__previewErrorTitle {
+	font-weight: 650;
+	color: #fecaca;
+	margin-bottom: 8px;
+}
+
+.shd__previewErrorStack {
+	margin: 0;
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #fecaca;
+}
+
+@media (max-width: 980px) {
+	.shd__main {
+		flex-direction: column;
+	}
+
+	/* In single-column mode: preview first, inputs below */
+	.shd__right {
+		order: 0;
+		border-bottom: 1px solid rgba(168, 162, 158, 0.22);
+	}
+
+	.shd__left {
+		order: 1;
+		width: 100%;
+		max-width: none;
+		border-right: 0;
+		border-bottom: 0;
+	}
+}

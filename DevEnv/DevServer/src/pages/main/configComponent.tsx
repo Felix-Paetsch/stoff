@@ -61,8 +61,9 @@ export function ConfigComponent({
     }
 
     return (
-        <aside className="sp__left" aria-label="Inputs">
-            <div className="sp__leftInner">
+        <aside className="shd__left" aria-label="Inputs">
+            <div className="shd__leftInner">
+
                 <JsonCodeEditor
                     title="Design Config"
                     initial_value={designText}
@@ -77,18 +78,24 @@ export function ConfigComponent({
                     error={measureError}
                 />
 
-                <section className="sp__defaults">
-                    <div className="sp__defaultsHeader">
+                <section className="shd__defaults">
+
+                    <div className="shd__defaultsHeader">
+
                         Defaults
                     </div>
 
-                    <div className="sp__defaultBlock">
-                        <div className="sp__defaultTitleRow">
-                            <div className="sp__defaultTitle">
+                    <div className="shd__defaultBlock">
+
+                        <div className="shd__defaultTitleRow">
+
+                            <div className="shd__defaultTitle">
+
                                 Design Config
                             </div>
                             <button
-                                className="sp__copyBtn"
+                                className="shd__copyBtn"
+
                                 type="button"
                                 onClick={() => {
                                     setDesignError(null)
@@ -103,18 +110,23 @@ export function ConfigComponent({
                                     : "Copy"}
                             </button>
                         </div>
-                        <pre className="sp__defaultPre">
+                        <pre className="shd__defaultPre">
+
                             {JSON.stringify(DEFAULT_DESIGN_CONFIG, null, 2)}
                         </pre>
                     </div>
 
-                    <div className="sp__defaultBlock">
-                        <div className="sp__defaultTitleRow">
-                            <div className="sp__defaultTitle">
+                    <div className="shd__defaultBlock">
+
+                        <div className="shd__defaultTitleRow">
+
+                            <div className="shd__defaultTitle">
+
                                 Measurements
                             </div>
                             <button
-                                className="sp__copyBtn"
+                                className="shd__copyBtn"
+
                                 type="button"
                                 onClick={() => {
                                     setMeasureError(null)
@@ -129,7 +141,8 @@ export function ConfigComponent({
                                     : "Copy"}
                             </button>
                         </div>
-                        <pre className="sp__defaultPre">
+                        <pre className="shd__defaultPre">
+
                             {JSON.stringify(DEFAULT_MEASUREMENTS, null, 2)}
                         </pre>
                     </div>

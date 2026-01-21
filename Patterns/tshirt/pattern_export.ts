@@ -1,8 +1,10 @@
 import { Sewing } from "@/Core/Sewing/sewing";
 import { Sketch } from "@/Core/StoffLib/sketch";
 import { z } from "zod"
-import { definePattern, Pattern } from "../types";
+import { definePattern } from "../types";
 import { BaseMeasurements, BaseMeasurementsSchema } from "../base_measurements";
+import { debug_render, hot_debug_render } from "@/Core/Debug/debug_render";
+import { LiveRecording } from "@/Core/Debug/recording";
 
 export const TShirtPatternConfigSchema = z.object({
     "Darts fitted": z.literal("0_nothing"),
@@ -24,6 +26,7 @@ export const TShirtPattern = definePattern({
         cfg: TShirtPatternConfig, mea: BaseMeasurements
     ) => {
         const r = new Sketch();
+        hot_debug_render(new LiveRecording(r), "Hell");
         const points = [
             r.point(0, 0), r.point(100, 0),
             r.point(50, 50),
@@ -34,15 +37,20 @@ export const TShirtPattern = definePattern({
         r.line_between_points(points[1], points[4])
         r.line_between_points(points[0], points[3])
 
+
         const lb = r.line_between_points(points[3], points[4]);
         const l = r.line_between_points(points[2], points[0]);
 
+        debug_render(r);
         const u = r.line_between_points(points[2], points[3]);
 
-        const s = new Sewing([r])
+        const s = new Sewing([r, r.copy()])
+
 
         const T = s.cut(lt);
         const B = s.cut(lb);
+
+        // throw new Error();
 
         const sl = s.sewing_line(l);
         s.dev_render();
@@ -59,7 +67,8 @@ export const TShirtPattern = definePattern({
         s.dev_render();
 
         return {
-            result: s.sketches[0]!
+            result: s,
+            data: "Aiiiia"
         }
     }
 })

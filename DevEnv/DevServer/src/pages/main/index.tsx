@@ -1,4 +1,4 @@
-import "./index.css";
+
 
 import { ConfigComponent } from "./configComponent";
 import { SketchesComponent } from "./sketchesComponent";
@@ -13,8 +13,9 @@ type StoffStoffPageProps = {
 
 export function MainPage({ inputVisible, designInputData, design }: StoffStoffPageProps) {
     return (
-        <div className="sp__page">
-            <div className="sp__main">
+        <div className="shd__page">
+            <div className="shd__main">
+
                 {inputVisible ? (
                     <ConfigComponent
                         designInputData={designInputData}
