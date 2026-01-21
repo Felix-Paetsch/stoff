@@ -97,10 +97,11 @@ export function SketchesComponent({ design }: SketchesProps) {
                             </div>
                         ))}
 
-                        <div className="shd__previewItem">
+                        <div className="shd__previewItem shd__previewItem--text">
 
                             <pre>{processedResult.data}</pre>
                         </div>
+
                     </div>
                 )}
             </div>

@@ -140,6 +140,21 @@
 	overflow: auto;
 }
 
+/* Main/StoffStoff: text tile should fill the available width and scroll horizontally */
+.shd__previewItem--text {
+	width: 100%;
+}
+
+.shd__previewItem--text pre {
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-y: visible;
+	white-space: pre;
+}
+
+
 .shd__previewSvg {
 	flex: 0 0 auto;
 	background: rgba(250, 250, 249, 0.94);

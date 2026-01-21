@@ -28,9 +28,61 @@
 
 	width: 100%;
 	max-width: 100%;
-	overflow-x: auto;
-	overflow-y: hidden;
+
+	/* Mirror shared preview sizing so debug controls/text can match svg tiles */
+	--dbg-svg-w: clamp(320px, 25vw, 560px);
+	--dbg-svg-pad: clamp(8px, 1.2vw, 14px);
+	--dbg-preview-content-h: calc(var(--dbg-svg-w) + (2 * var(--dbg-svg-pad)));
+	/* shd__previewItem has 10px padding on each side + 1px border */
+	--dbg-preview-item-w: calc(var(--dbg-preview-content-h) + 20px + 2px);
+	--dbg-preview-item-h: calc(var(--dbg-preview-content-h) + 20px + 2px);
+
+	/* Keep each entry at a reasonable height; inner text boxes scroll. */
+	--dbg-entry-max-h: min(70vh, 860px);
+	max-height: var(--dbg-entry-max-h);
+
+	/* Horizontal scrolling is handled by the preview list, not the whole card. */
+	overflow: hidden;
+
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
+
+
+
+
+
+/* Slider + counter for Recording entries */
+.dbg__recordingControls {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	align-self: flex-start;
+
+	/* Visually separate the controls from the scrollable preview strip */
+	padding: 10px;
+	border: 1px solid rgba(168, 162, 158, 0.18);
+	border-radius: 10px;
+	background: rgba(12, 10, 9, 0.35);
+}
+
+
+
+
+.dbg__recordingSlider {
+	/* same width as the svg preview tile (including shd__previewItem padding) */
+	width: var(--dbg-preview-item-w);
+}
+
+
+.dbg__recordingCounter {
+	font-variant-numeric: tabular-nums;
+	min-width: 64px;
+	text-align: right;
+	opacity: 0.9;
+}
+
 
 .dbg__entryRow--hot {
 background: rgba(99, 102, 241, 0.16);
@@ -44,10 +96,49 @@ border-color: rgba(129, 140, 248, 0.30);
    so the user can scroll right.
 */
 .dbg__previewList {
+	flex: 1 1 auto;
+	min-height: 0;
 	flex-wrap: nowrap;
+
+	/* This is the horizontal scroll container for the debug preview tiles */
+	overflow-x: auto;
+	overflow-y: hidden;
+	width: 100%;
+	padding-bottom: 2px;
+
+	/* Keep the strip at the same height as the svg tiles */
+	max-height: var(--dbg-preview-item-h);
 }
+
 
 /* Make sure the items don't shrink into unreadability when scrolling */
 .dbg__previewList > .shd__previewItem {
 	flex: 0 0 auto;
+	max-height: var(--dbg-preview-item-h);
+	box-sizing: border-box;
 }
+
+
+/* Debug-only: allow wide text boxes (no max width clamp) */
+.dbg__previewList .shd__previewItem pre {
+	max-width: none;
+
+	/* Debug-only: narrower default text tiles */
+	min-width: 320px;
+
+	/* Same inner height as the svg wrapper box, so tiles align */
+	height: var(--dbg-preview-content-h);
+	max-height: var(--dbg-preview-content-h);
+	overflow: auto;
+	margin: 0;
+	box-sizing: border-box;
+
+	/* preserve long lines for horizontal scrolling */
+	white-space: pre;
+}
+
+
+
+
+
+

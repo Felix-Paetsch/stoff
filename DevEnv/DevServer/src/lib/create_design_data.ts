@@ -38,7 +38,7 @@ export function create_design_data(designConfig: any, mea: any): {
         })
     });
 
-    const hot_lis_id = register_hot_debug_render_listener((s, data, id) => {
+    const hot_lis_id = register_hot_debug_render_listener((s, id, data) => {
         const entry = debug.find(e => e.id == id);
 
         if (!entry) {
