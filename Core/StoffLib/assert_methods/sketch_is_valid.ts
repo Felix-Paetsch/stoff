@@ -52,9 +52,7 @@ function validate_line(l: Line, s: Sketch): ValidationResult {
                 () => {
                     l.attributes.stroke = "red";
                     l.attributes.opacity = 0.9;
-                    if (l.data) {
-                        l.data.SELF_INTERSECTS = true;
-                    }
+                    l.data.SELF_INTERSECTS = "true";
 
                     debug_render(s, { self_intersects: true });
 

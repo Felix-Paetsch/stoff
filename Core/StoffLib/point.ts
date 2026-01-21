@@ -3,9 +3,9 @@ import { ConnectedComponent } from "./connected_component";
 import { assert } from "../assert";
 import { Sketch } from "./sketch";
 import { Line } from "./line";
-import { SketchElementData } from "./types";
 import { Color } from "../utils/colors";
 import { default_point_attributes } from "../Render/defaults/base";
+import { StoffObjectData } from "./types";
 
 export type PointRenderAttributes = {
     fill: Color;
@@ -17,7 +17,7 @@ export type PointRenderAttributes = {
 
 export class Point extends Vector {
     private adjacent_lines: Line[] = [];
-    public data: SketchElementData = {};
+    public data: StoffObjectData = {};
     public attributes: PointRenderAttributes = default_point_attributes;
 
     private _is_removed = false;

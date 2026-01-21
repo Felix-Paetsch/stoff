@@ -1,7 +1,3 @@
-// Cuts at a line or line-path.
-// Visually CD => CI + D with the I and first part of D overlapping
-
-import { CopySketchDataCallback } from "../../copy";
 import { Line } from "../../line";
 import { Point } from "../../point";
 import { Sketch } from "../../sketch";
@@ -9,7 +5,7 @@ import { Vector, VERTICAL } from "../../geometry"
 import { calculate_cut_groups_no_fixed_point, calculate_cut_groups_with_fixed_point, LineGroup } from "./calculate_cut_groups";
 import { cut_with_fixed_point, cut_without_fixed_point, CutPart } from "./cut";
 import { GlueIdent, GlueResult, glue as glue_with_validated_input } from "./glue";
-import { default_data_callback } from "../../copy";
+import { CopySketchObjectDataCallback, default_data_callback } from "../../copy";
 import { SketchElement } from "../../types";
 import { same_sketch } from "../../assert_methods/exports";
 import * as CollectionMethods from "../../collection";
@@ -128,17 +124,17 @@ export function cut(s: Sketch,
 
 // Merge the points without deleting them afterwards
 export function glue(s: Sketch, ident1: GlueIdent, ident2: GlueIdent, data?: {
-    points?: "merge" | CopySketchDataCallback,
-    lines?: "merge" | "delete" | "keep" | CopySketchDataCallback
+    points?: "merge" | CopySketchObjectDataCallback,
+    lines?: "merge" | "delete" | "keep" | CopySketchObjectDataCallback
 }): GlueResult;
 // Merge lines at glueing point (automatically removing lines between glueing points)
 export function glue(s: Sketch, ident1: GlueIdent, ident2: GlueIdent, data: {
     points: "delete",
-    lines?: CopySketchDataCallback
+    lines?: CopySketchObjectDataCallback
 }): GlueResult;
 export function glue(s: Sketch, ident1: GlueIdent, ident2: GlueIdent, data: Partial<{
-    points: "merge" | "delete" | CopySketchDataCallback,
-    lines: "merge" | "delete" | "keep" | CopySketchDataCallback
+    points: "merge" | "delete" | CopySketchObjectDataCallback,
+    lines: "merge" | "delete" | "keep" | CopySketchObjectDataCallback
 }> = {}) {
     /*
         IN:

@@ -49,10 +49,10 @@ export function debug_render(s: Rendereable, data: any = null) {
         s instanceof Sewing
             ? s
             : Array.isArray(s)
-                ? s.map(sk => sk.copy())
+                ? s.map(sk => sk.copy().sketch)
                 : s instanceof Recording
                     ? new Recording(s.snapshots)
-                    : s.copy();
+                    : s.copy().sketch;
 
     debug_listener.forEach(({ fn }) =>
         fn(frozen_to_render, data)

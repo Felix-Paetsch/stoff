@@ -3,15 +3,14 @@ import { Point } from "./point";
 import { Line } from "./line";
 import {
     copy_sketch,
-    default_data_callback,
-    copy_data_callback,
-    copy_sketch_obj_data,
-    CopySketchDataCallback,
+    CopyResult,
+    CopySketchObjectDataCallback,
+    default_data_callback
 } from "./copy";
 import CONF from "./config.json";
 
 import { assert } from "../assert";
-import { DropFirst, SketchElement, SketchElementCollection } from "./types";
+import { DropFirst, SketchElement, SketchElementCollection, StoffObjectData } from "./types";
 import { auto_validate } from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
@@ -25,7 +24,7 @@ export class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
     private points: Point[] = [];
     private lines: Line[] = [];
-    public data: any = {};
+    public data: StoffObjectData = {};
 
     constructor() { }
 
@@ -98,7 +97,7 @@ export class Sketch {
 
     clear() {
         this.remove(...this.points);
-        this.data = null as any;
+        this.data = {};
     }
 
     // ===============
@@ -107,7 +106,7 @@ export class Sketch {
         if (pt1 == pt2) return pt1;
         assert(pt1.equals(pt2));
 
-        copy_sketch_obj_data(pt2, pt1, data_callback);
+        pt2.data = data_callback(pt2.data, pt1.data, pt2, pt1);
 
         pt2.get_adjacent_lines().forEach((line) => {
             if (line.p1 !== pt2) {
@@ -121,35 +120,31 @@ export class Sketch {
         return pt1;
     }
 
-    copy_point(point: Point, data_callback = copy_data_callback) {
-        const p = this.add_point(point.copy());
-        copy_sketch_obj_data(point, p, data_callback);
-        return p;
-    };
-
     copy() {
         const new_s = new Sketch();
-        return new_s.paste_sketch(this);
+        return {
+            ...new_s.paste_sketch(this),
+            sketch: new_s
+        }
     }
 
-    paste_sketch(sketch: Sketch): this;
-    paste_sketch(sketch: Sketch, position: Vector): this;
-    paste_sketch(sketch: Sketch, data_callback: CopySketchDataCallback): this;
-    paste_sketch(sketch: Sketch, data_callback: CopySketchDataCallback, position: Vector): this;
+    paste_sketch(sketch: Sketch): CopyResult;
+    paste_sketch(sketch: Sketch, position: Vector): CopyResult;
+    paste_sketch(sketch: Sketch, data_callback: CopySketchObjectDataCallback): CopyResult;
+    paste_sketch(sketch: Sketch, data_callback: CopySketchObjectDataCallback, position: Vector): CopyResult;
     paste_sketch(
         sketch: Sketch,
-        data_callback: Vector | CopySketchDataCallback | null = null,
+        data_callback: Vector | CopySketchObjectDataCallback | null = null,
         position: Vector | null = null
-    ) {
+    ): CopyResult {
         if (data_callback instanceof Vector) {
             position = data_callback;
             data_callback = null;
         }
         if (data_callback == null) {
-            data_callback = copy_data_callback;
+            data_callback = default_data_callback;
         }
-        copy_sketch(sketch, this, data_callback, position);
-        return this;
+        return copy_sketch(sketch, this, data_callback, position);
     }
 
     has(...els: (Point | Line | ConnectedComponent)[]) {
@@ -259,7 +254,7 @@ export class Sketch {
         line1: Line,
         line2: Line,
         delete_join: boolean = false,
-        data_callback: CopySketchDataCallback = default_data_callback
+        data_callback: CopySketchObjectDataCallback = default_data_callback
     ) {
         return LineMethods.merge_lines(this, line1, line2, delete_join, data_callback)
     }
@@ -267,27 +262,24 @@ export class Sketch {
     point_on_line(
         pt: Point,
         line: Line,
-        data_callback: CopySketchDataCallback = copy_data_callback
     ) {
-        return LineMethods.point_on_line(this, pt, line, data_callback)
+        return LineMethods.point_on_line(this, pt, line)
     }
 
     split_line_at_length(
         line: Line,
         length: number,
-        data_callback: CopySketchDataCallback = copy_data_callback,
         reversed: boolean = false
     ) {
-        return LineMethods.split_line_at_length(this, line, length, data_callback, reversed)
+        return LineMethods.split_line_at_length(this, line, length, reversed)
     };
 
     split_line_at_fraction(
         line: Line,
         fraction: number,
-        data_callback: CopySketchDataCallback = copy_data_callback,
         reversed = false,
     ) {
-        return LineMethods.split_line_at_fraction(this, line, fraction, data_callback, reversed);
+        return LineMethods.split_line_at_fraction(this, line, fraction, reversed);
     };
 
     intersect_lines(line1: Line, line2: Line) {

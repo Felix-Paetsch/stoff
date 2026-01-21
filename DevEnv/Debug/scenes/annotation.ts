@@ -18,7 +18,7 @@ export default function () {
 
     const u = r.line_between_points(points[2], points[3]);
     // console.log(FaceAtlas.from_lines(r.get_lines()));
-    const s = new Sewing([r, r.copy(), r.copy()])
+    const s = new Sewing([r, r.copy().sketch, r.copy().sketch])
     // console.log(lb.get_sketch());
 
     const T = s.cut(lt);

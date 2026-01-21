@@ -21,9 +21,9 @@ export default function () {
 
     return s;
 
-    pts[0].data = "alpha"; // A: 1,2
-    pts[1].data = "beta";  // B: 0,2
-    pts[2].data = "gamma"; // C: 0,1
+    pts[0].data.angle = "alpha"; // A: 1,2
+    pts[1].data.angle = "beta";  // B: 0,2
+    pts[2].data.angle = "gamma"; // C: 0,1
 
     const triangle: any = {
         a: a.length(),

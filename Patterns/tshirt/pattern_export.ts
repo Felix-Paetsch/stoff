@@ -44,7 +44,7 @@ export const TShirtPattern = definePattern({
         debug_render(r);
         const u = r.line_between_points(points[2], points[3]);
 
-        const s = new Sewing([r, r.copy()])
+        const s = new Sewing([r, r.copy().sketch])
 
 
         const T = s.cut(lt);

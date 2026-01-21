@@ -6,7 +6,6 @@ import {
     PlainLine,
     Ray,
 } from "../geometry.js";
-import { copy_sketch_obj_data } from "../copy.js";
 import { interpolate_colors, is_gradient } from "../../utils/colors.js";
 import { Sketch } from "../sketch";
 import { Line } from "../line";
@@ -85,7 +84,7 @@ function intersect_lines(
             intersections[i + 1][4] as Point,
             sample_points
         );
-        copy_sketch_obj_data(line1, l);
+        l.data = { ...line1.data };
         l.set_handedness(line1.right_handed);
         l1_segments.push(l);
     }
@@ -133,7 +132,7 @@ function intersect_lines(
             intersections[i + 1][4] as Point,
             sample_points
         );
-        copy_sketch_obj_data(line2, l);
+        l.data = { ...line2.data };
         l.set_handedness(line2.right_handed);
         l2_segments.push(l);
     }

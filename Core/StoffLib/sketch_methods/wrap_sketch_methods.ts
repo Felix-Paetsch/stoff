@@ -21,7 +21,6 @@ export const sketch_graphical_non_pure_methods: MethodName<Sketch>[] = [
     "add_point",
     "clear",
     "copy_line",
-    "copy_point",
     "intersect_lines",
     "interpolate_lines",
     "line_between_points",

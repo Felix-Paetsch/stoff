@@ -141,7 +141,7 @@ export class ConnectedComponent {
     paste_to_sketch(target: Sketch, position: Vector | null = null) {
         const res = copy_sketch_element_collection(this, target, position);
         return new ConnectedComponent(
-            res.get_corresponding_sketch_element(this.root()),
+            res.corresponding_sketch_element(this.root())
         );
     }
 }

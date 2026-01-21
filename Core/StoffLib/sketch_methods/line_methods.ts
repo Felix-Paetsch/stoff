@@ -14,8 +14,8 @@ import { interpolate_colors } from "../../utils/colors.js";
 import CONF from "../config.json" with { type: "json" };
 import { same_sketch } from "../assert_methods/exports.js";
 import { length, radians } from "../geometry/types.js";
-import { copy_data_callback, copy_sketch_obj_data, CopySketchDataCallback, default_data_callback } from "../copy.js";
 import * as UnicornIntersect from "../unicorns/intersect_lines.js";
+import { CopySketchObjectDataCallback, default_data_callback } from "../copy.js";
 
 export function line_between_points(
     sketch: Sketch,
@@ -219,7 +219,7 @@ export function copy_line(l: Line, p1: Point, p2: Point) {
     const line = new Line([p1, p2], l.get_sample_points())
 
     line.set_attributes(l.get_attributes())
-    copy_sketch_obj_data(l, line)
+    line.data = { ...l.data };
 
     return line;
 }
@@ -230,7 +230,7 @@ export function merge_lines(
     line1: Line,
     line2: Line,
     delete_join: boolean = false,
-    data_callback: CopySketchDataCallback = default_data_callback
+    data_callback: CopySketchObjectDataCallback = default_data_callback
 ) {
     assert(same_sketch(line1, line2, sketch));
 
@@ -292,8 +292,7 @@ export function merge_lines(
 export function point_on_line(
     sketch: Sketch,
     pt: Point,
-    line: Line,
-    data_callback: CopySketchDataCallback = copy_data_callback
+    line: Line
 ): {
     line_segments: [Line, Line],
     point: Point
@@ -359,7 +358,9 @@ export function point_on_line(
     ];
 
     line_segments.forEach((ls) => {
-        copy_sketch_obj_data(line, ls, data_callback);
+        ls.data = {
+            ...line.data
+        };
         ls.set_handedness(line.right_handed);
     });
     sketch.remove(line);
@@ -375,13 +376,12 @@ export function split_line_at_length(
     sketch: Sketch,
     line: Line,
     length: number,
-    data_callback: CopySketchDataCallback = copy_data_callback,
     reversed: boolean = false
 ) {
     assert(same_sketch(line, sketch));
     const position = line.position_at_length(length, reversed);
     const pt = sketch.add_point(position);
-    return sketch.point_on_line(pt, line, data_callback);
+    return sketch.point_on_line(pt, line);
 };
 
 
@@ -389,12 +389,11 @@ export function split_line_at_fraction(
     sketch: Sketch,
     line: Line,
     fraction: number,
-    data_callback: CopySketchDataCallback = copy_data_callback,
     reversed = false,
 ) {
     const position = line.position_at_fraction(fraction, reversed);
     const pt = sketch.add_point(position);
-    return sketch.point_on_line(pt, line, data_callback);
+    return sketch.point_on_line(pt, line);
 };
 
 export function intersect_lines(sketch: Sketch, line1: Line, line2: Line): {

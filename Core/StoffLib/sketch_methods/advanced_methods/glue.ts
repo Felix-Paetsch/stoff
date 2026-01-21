@@ -1,5 +1,4 @@
 import { assert } from "../../../assert";
-import { CopySketchDataCallback } from "../../../StoffLib/copy";
 import { Point } from "../../../StoffLib/point";
 import { Line } from "../../../StoffLib/line";
 import { AvoidantConnectedComponent, ConnectedComponent } from "@/Core/StoffLib/connected_component";
@@ -7,6 +6,7 @@ import { lines_by_key } from "@/Core/StoffLib/collection";
 import { Sketch } from "../../sketch";
 import { remove_underscore_attributes } from "./exports";
 import { affine_transform_from_input_output } from "../../geometry";
+import { CopySketchObjectDataCallback } from "../../copy";
 
 export type GlueIdent = Line | [Point, Point] | [Line, Point];
 export type GlueResult = {
@@ -39,8 +39,8 @@ function glue_ident_to_global_form(ident: GlueIdent): [Point, Point] {
 }
 
 export function glue(s: Sketch, ident1: GlueIdent, ident2: GlueIdent, data: {
-    points: "delete" | CopySketchDataCallback,
-    lines: "delete" | "keep" | CopySketchDataCallback
+    points: "delete" | CopySketchObjectDataCallback,
+    lines: "delete" | "keep" | CopySketchObjectDataCallback
 }): GlueResult {
     const gd1 = glue_ident_to_global_form(ident1);
     const gd2 = glue_ident_to_global_form(ident2);
@@ -63,8 +63,8 @@ export function glue(s: Sketch, ident1: GlueIdent, ident2: GlueIdent, data: {
 
 // The first entry agree
 function glue_with_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Point, Point], data: {
-    points: "delete" | CopySketchDataCallback,
-    lines: "delete" | "keep" | CopySketchDataCallback
+    points: "delete" | CopySketchObjectDataCallback,
+    lines: "delete" | "keep" | CopySketchObjectDataCallback
 }): GlueResult & {
     glue_type: "with_fixed"
 } {
@@ -129,7 +129,7 @@ function glue_with_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Point
     }
 
     if (data.points == "delete") {
-        delete_glue_point(s, merged_pt, data.lines as CopySketchDataCallback);
+        delete_glue_point(s, merged_pt, data.lines as CopySketchObjectDataCallback);
     }
 
     return {
@@ -141,8 +141,8 @@ function glue_with_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Point
 }
 
 function glue_without_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Point, Point], data: {
-    points: "delete" | CopySketchDataCallback,
-    lines: "delete" | "keep" | CopySketchDataCallback
+    points: "delete" | CopySketchObjectDataCallback,
+    lines: "delete" | "keep" | CopySketchObjectDataCallback
 }): GlueResult & {
     glue_type: "without_fixed"
 } {
@@ -203,8 +203,8 @@ function glue_without_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Po
     }
 
     if (data.points == "delete") {
-        delete_glue_point(s, merged_points[0], data.lines as CopySketchDataCallback);
-        delete_glue_point(s, merged_points[1], data.lines as CopySketchDataCallback);
+        delete_glue_point(s, merged_points[0], data.lines as CopySketchObjectDataCallback);
+        delete_glue_point(s, merged_points[1], data.lines as CopySketchObjectDataCallback);
     }
 
     return {
@@ -217,7 +217,7 @@ function glue_without_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Po
 function delete_glue_point(
     s: Sketch,
     pt: Point,
-    line_callback: CopySketchDataCallback
+    line_callback: CopySketchObjectDataCallback
 ) {
     const adjacent = pt.get_adjacent_lines();
     if (adjacent.length < 2) {

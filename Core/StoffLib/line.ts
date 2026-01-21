@@ -21,7 +21,7 @@ import { Cache } from "../utils/cache";
 import { Sketch } from "./sketch";
 import { Color, Gradient } from "../utils/colors";
 import { Fraction } from "./geometry/1d";
-import { SketchElement, SketchElementData } from "./types";
+import { SketchElement, StoffObjectData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
 import * as SketchElementCollectionMethods from "./collection";
 import { invalid_path } from "./assert_methods/exports";
@@ -35,7 +35,7 @@ export type LineRenderAttributes = {
 
 export class Line {
     public attributes: LineRenderAttributes = default_line_attributes;
-    public data: SketchElementData = {};
+    public data: StoffObjectData = {};
     private cache: Cache = new Cache();
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
@@ -791,7 +791,7 @@ export class Line {
     paste_to_sketch(target: Sketch, position: Vector | null = null) {
         assert(!this._is_removed, "Line is removed");
         const res = copy_sketch_element_collection([this], target, position);
-        return res.get_corresponding_sketch_element(this);
+        return res.corresponding_sketch_element(this);
     }
 
     _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null) {
