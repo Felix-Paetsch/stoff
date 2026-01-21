@@ -8,9 +8,8 @@ import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults"
 import { useEffect, useState } from "react"
 import { is_pattern_config_with_pattern_name } from "./lib/is_pattern_config"
 import { PatternConfig } from "@/Patterns/patterns"
-import { create_design_data } from "./lib/create_design_data"
-import { add_svg_hover_events } from "./lib/sketch_tooltips"
-
+import { create_design_data } from "./lib/create_design_data";
+import { } from "./lib/sketch_tooltips"
 
 type SubPage = "stoffstoff" | "debug"
 
@@ -41,19 +40,6 @@ export function App() {
         design,
         debug: debugRenderData
     } = create_design_data(designInputData.designData, designInputData.measureData);
-
-    useEffect(() => {
-        const frameId = requestAnimationFrame(() => {
-            add_svg_hover_events()
-        })
-
-        return () => {
-            cancelAnimationFrame(frameId)
-        }
-    }, [
-        designInputData.designData,
-        designInputData.measureData,
-    ]);
 
     return (
         <div className="root__app">
@@ -92,7 +78,6 @@ export function App() {
                     Debug
                 </button>
             </div>
-
             {page === "stoffstoff" ? (
                 <MainPage
                     inputVisible={mainPageInputVisible}
