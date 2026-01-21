@@ -86,7 +86,6 @@ export function SketchesComponent({ design }: SketchesProps) {
                     </div>
                 ) : (
                     <div className="shd__previewList sketch_display">
-
                         {processedResult.renderer.build_all_sketch_svgs(500, 500, 20).map((item, i) => (
                             <div className="shd__previewItem" key={i}>
                                 <div

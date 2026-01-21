@@ -3,6 +3,7 @@ import { Point } from "./point";
 import { Line } from "./line";
 import {
     copy_sketch,
+    copy_sketch_element_collection,
     CopyResult,
     CopySketchObjectDataCallback,
     default_data_callback
@@ -145,6 +146,14 @@ export class Sketch {
             data_callback = default_data_callback;
         }
         return copy_sketch(sketch, this, data_callback, position);
+    }
+
+    paste_sketch_element_collection(sec: SketchElementCollection, position?: Vector): CopyResult;
+    paste_sketch_element_collection(
+        sec: SketchElementCollection,
+        position: Vector | null = null
+    ): CopyResult {
+        return copy_sketch_element_collection(sec, this, position);
     }
 
     has(...els: (Point | Line | ConnectedComponent)[]) {
