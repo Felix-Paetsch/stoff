@@ -6,9 +6,11 @@ import { assert } from "../assert.ts";
 
 export class SewingPoint {
     public _is_outdated: boolean = false;
+    public adjacent_lines: SewingLine[] = [];
+    public _update_to: SewingPoint | null = null;
 
     constructor(
-        readonly sewing: Sewing,
+        private sewing: Sewing,
         public points: Point[],
     ) {
         for (const p of this.points) {
@@ -20,10 +22,13 @@ export class SewingPoint {
         sewing.__register_point(this);
     }
 
-    get sewing_lines(): SewingLine[] {
-        return this.sewing.sewing_lines.filter(sl => {
-            return sl.p1.is(this) || sl.p2.is(this);
-        });
+    __register_line(l: SewingLine) {
+        this.adjacent_lines.push(l);
+    }
+
+    get_sewing() {
+        assert(!this._is_outdated, "SewingPoint is outdated");
+        return this.sewing;
     }
 
     representative(): Point {
@@ -48,11 +53,6 @@ export class SewingPoint {
         return this.points.some((p) => p === point);
     }
 
-    adjacent_lines(): Line[] {
-        assert(!this._is_outdated, "SewingPoint is outdated");
-        return [...new Set(this.points.flatMap((p) => p.get_adjacent_lines()))];
-    }
-
     is_adjacent(thing: SewingLine | Line | Point | SewingPoint): boolean {
         assert(!this._is_outdated, "SewingPoint is outdated");
         if (thing instanceof SewingLine) {
@@ -62,9 +62,9 @@ export class SewingPoint {
             return this.representative_for_line(thing) !== null;
         }
         if (thing instanceof SewingPoint) {
-            return !thing.is(this) && this.sewing_lines.some((l) => l.has_endpoint(thing));
+            return !thing.is(this) && this.adjacent_lines.some((l) => l.has_endpoint(thing));
         }
-        return !this.is(thing) && this.adjacent_lines().some(l => l.has_endpoint(thing));
+        return !this.is(thing) && this.adjacent_lines.some(l => l.has_endpoint(thing));
     }
 
     merge(point: SewingPoint | Point): SewingPoint {
@@ -79,20 +79,24 @@ export class SewingPoint {
 
     get_lines(): Line[] {
         assert(!this._is_outdated, "SewingPoint is outdated");
-        return this.sewing_lines.flatMap((l) => l.get_lines());
-    }
-    updated(): SewingPoint {
-        if (!this._is_outdated) return this;
-        const candiate = this.sewing.sewing_points.find((p) => p.is(this))!
-        if (!candiate || !this.points.every(p => candiate.is(p))) {
-            throw new Error("Sewing point can't be updated");
-        }
-        return candiate;
+        return this.adjacent_lines.flatMap((l) => l.get_lines());
     }
 
-    __mark_oudated() {
+    updated(): SewingPoint {
+        if (!this._is_outdated) return this;
+        if (!this._update_to) {
+            throw new Error("Sewing line can't be updated");
+        }
+        return this._update_to.updated()
+    }
+
+    __mark_oudated(update_to?: SewingPoint | null) {
+        this.adjacent_lines.forEach(l => l.__mark_outdated);
         if (this._is_outdated) throw new Error("Point already is outdated!");
-        this._is_outdated = true;
         this.sewing.__unregister_point(this);
+        this._is_outdated = true;
+        if (typeof update_to !== "undefined") {
+            this._update_to = update_to;
+        }
     }
 }

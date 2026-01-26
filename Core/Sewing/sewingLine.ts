@@ -19,14 +19,17 @@ export type PartialSewingLineComponent = SewingLineComponent & {
 
 export class SewingLine {
     public _is_outdated: boolean = false;
+    public _update_to: SewingLine | null = null;
 
     constructor(
-        readonly sewing: Sewing,
+        public endpoints: [SewingPoint, SewingPoint],
         readonly primary_component: SewingLineComponent[],
         readonly other_components: PartialSewingLineComponent[],
         public _face_carousel: FaceCarousel | null
     ) {
-        this.sewing.__register_line(this);
+        this.endpoints[0].__register_line(this);
+        this.endpoints[1].__register_line(this);
+        this.get_sewing().__register_line(this);
     }
 
     get face_carousel(): FaceCarousel {
@@ -34,33 +37,18 @@ export class SewingLine {
         return this._face_carousel!
     }
 
+    get_sewing() {
+        return this.p1.get_sewing();
+    }
+
     get p1(): SewingPoint {
         assert(!this._is_outdated);
-        const first = this.primary_component[0];
-        const endpoint = first.line.endpoint_from_orientation(
-            first.has_sewing_line_orientation
-        )
-
-        const find = this.sewing.sewing_points.find((p) => p.is(endpoint));
-        if (find) {
-            return find;
-        }
-        throw new Error("Endpoint is not sewing point");
+        return this.endpoints[0];
     }
 
     get p2(): SewingPoint {
         assert(!this._is_outdated);
-        const last = this.primary_component[this.primary_component.length - 1];
-
-        const endpoint = last.line.endpoint_from_orientation(
-            !last.has_sewing_line_orientation
-        )
-
-        const find = this.sewing.sewing_points.find((p) => p.is(endpoint));
-        if (find) {
-            return find;
-        }
-        throw new Error("Endpoint is not sewing point");
+        return this.endpoints[1];
     }
 
     get_endpoints(): [SewingPoint, SewingPoint] {
@@ -111,7 +99,7 @@ export class SewingLine {
 
     get_adjacent_lines(): SewingLine[] {
         assert(!this._is_outdated);
-        const lines = this.get_endpoints().flatMap((p) => p.sewing_lines);
+        const lines = this.get_endpoints().flatMap((p) => p.adjacent_lines);
         return lines.filter((l) => l !== this).filter(
             (line, index, array) => array.indexOf(line) === index
         );
@@ -257,13 +245,10 @@ export class SewingLine {
 
     updated(): SewingLine {
         if (!this._is_outdated) return this;
-        const candiate = this.sewing.sewing_lines.find((l) => l.contains(
-            this.primary_component[0].line
-        ));
-        if (!candiate || !candiate.contains(this.get_lines())) {
+        if (!this._update_to) {
             throw new Error("Sewing line can't be updated");
         }
-        return candiate;
+        return this._update_to.updated()
     }
 
     contains(things: Line | Point | SewingLine | SewingPoint): boolean;
@@ -318,11 +303,13 @@ export class SewingLine {
         throw new Error("Not implemented");
     }
 
-    __mark_outdated() {
+    __mark_outdated(update_to?: SewingLine | null) {
         assert(!this._is_outdated);
+        this.get_sewing().__unregister_line(this);
         this._is_outdated = true;
-
-        this.sewing.__unregister_line(this);
+        if (typeof update_to !== "undefined") {
+            this._update_to = update_to;
+        }
     }
 
     position(lin: Line): [number, number] {

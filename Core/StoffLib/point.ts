@@ -16,7 +16,7 @@ export type PointRenderAttributes = {
 }
 
 export class Point extends Vector {
-    private adjacent_lines: Line[] = [];
+    public adjacent_lines: Line[] = [];
     public data: StoffObjectData = {};
     public attributes: PointRenderAttributes = default_point_attributes;
 

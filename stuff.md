@@ -1,3 +1,7 @@
+Cut => If we cut in, sometimes we have a point becoming two points and sometimes being one point
+
+
+
 Goal:
 
 2. Unify rendering

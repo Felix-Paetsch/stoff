@@ -4,8 +4,11 @@ import { Sewing } from "../../sewing";
 import { SewingLine } from "../../sewingLine";
 import { create_and_wire_line, FaceEdgeBuildingBlock } from "./create_and_wire_line";
 import { PartialStackLine, StackLine } from "./stackLine";
+import { SewingPoint } from "../../sewingPoint";
 
 export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn: StackLine[]): SewingLine {
+    const merged_line_endpoints = guide.get_endpoints();
+
     const sewOnComponents: PartialStackLine[] = sewOn.map(so => ({
         sewTo: guide.primary_component.map(c => c.line),
         ...so
@@ -61,19 +64,25 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
         const second_guide_point: Point = structured_guide_sublines[structured_guide_sublines.length - 1].line.endpoint_from_orientation(
             !structured_guide_sublines[structured_guide_sublines.length - 1].orientation
         );
-        firstPointInGuideOrientation.merge(first_guide_point);
-        secondPointInGuideOrientation.merge(second_guide_point);
 
         so.line.__mark_outdated();
+
+        firstPointInGuideOrientation.merge(first_guide_point);
+        secondPointInGuideOrientation.merge(second_guide_point);
     })
 
     guide.__mark_outdated();
-    return create_and_wire_line({
-        sewing,
+    const res = create_and_wire_line({
+        endpoints: merged_line_endpoints.map(p => p.updated()) as [SewingPoint, SewingPoint],
         primary_component,
         other_components,
         face_edge_building_blocks: edges
     });
+
+    guide._update_to = res;
+    sewOnComponents.forEach(so => so.line._update_to = res);
+
+    return res;
 }
 
 function edge_buidling_blocks(

@@ -36,11 +36,6 @@ export class FaceEdge {
         return Array.from(new Set(this.lines.flatMap(l => l.line.get_endpoints())));
     }
 
-    updated(): FaceEdge {
-        const updated_carousel = this.face_carousel.updated();
-        return updated_carousel.faceEdges.filter((fe) => fe.edge.contains(this))[0].edge;
-    }
-
     contains(things: Line | Point | FaceEdge): boolean;
     contains(things: (Line | Point | FaceEdge)[]): boolean;
     contains(things: Line | Point | FaceEdge | (Line | Point | FaceEdge)[]): boolean {
@@ -110,7 +105,7 @@ export class FaceEdge {
             [this.lines[this.lines.length - 1], other.lines[0]],
             [this.lines[this.lines.length - 1], other.lines[other.lines.length - 1]],
         ].some(([c1, c2]) => face_edge_component_connected_to_horizontally(
-            this.face_carousel.sewingLine.sewing, this, c1, other, c2, at
+            this.face_carousel.sewingLine.get_sewing(), this, c1, other, c2, at
         ));
     }
 }

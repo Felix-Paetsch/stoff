@@ -34,7 +34,7 @@ export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine |
     const other = line1.other_components.concat(line2.other_components)
 
     const newSewingLine = new SewingLine(
-        sewing,
+        [line1.p1, line2.p2],
         primary,
         other,
         null
@@ -43,8 +43,8 @@ export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine |
     newSewingLine._face_carousel = merge_face_carousels_horizontally(newSewingLine, line1.face_carousel, line2.face_carousel);
 
     // Remove lines from sewing_lines array
-    line1.__mark_outdated();
-    line2.__mark_outdated();
+    line1.__mark_outdated(newSewingLine);
+    line2.__mark_outdated(newSewingLine);
 
     return newSewingLine;
 }

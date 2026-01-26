@@ -82,11 +82,20 @@ export class Sewing {
         const sewing_points = points.map((p) => this.sewing_point(p));
         const pts = [...new Set(sewing_points.flatMap((p) => p.points))];
 
-        for (const oldPoint of sewing_points) {
-            oldPoint.__mark_oudated();
-        }
-
-        return new SewingPoint(this, pts);
+        sewing_points.forEach(p => p.__mark_oudated());
+        const res = new SewingPoint(this, pts);
+        sewing_points.forEach(p => {
+            p._update_to = res;
+            p.adjacent_lines.forEach(l => {
+                l._is_outdated = false;
+                l.endpoints = [
+                    l.endpoints[0] === p ? res : l.endpoints[0],
+                    l.endpoints[1] === p ? res : l.endpoints[1]
+                ];
+            });
+        });
+        sewing_points.forEach(p => p._update_to = res);
+        return res;
     }
 
     merge_lines(line1: SewingLine, line2: SewingLine): SewingLine;

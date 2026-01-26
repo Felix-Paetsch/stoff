@@ -7,11 +7,11 @@ import { assert } from "@/Core/assert";
 import { FaceCarousel } from "../faceCarousel";
 
 export function create_sewing_line(sewing: Sewing, line: Line): SewingLine {
-    sewing.sewing_point(line.p1);
-    sewing.sewing_point(line.p2);
-
     const sLine = new SewingLine(
-        sewing,
+        [
+            sewing.sewing_point(line.p1),
+            sewing.sewing_point(line.p2)
+        ],
         [{
             line: line,
             has_sewing_line_orientation: true,

@@ -1,8 +1,8 @@
 import { Line } from "@/Core/StoffLib/line";
 import { FaceEdge, FaceEdgeComponent } from "../../faceEdge";
-import { Sewing } from "../../sewing";
 import { PartialSewingLineComponent, SewingLine, SewingLineComponent } from "../../sewingLine";
 import { FaceCarousel, FaceEdgeWithPosition } from "../../faceCarousel";
+import { SewingPoint } from "../../sewingPoint";
 
 export type FaceEdgeBuildingBlock = {
     lines: FaceEdgeComponent[],
@@ -11,7 +11,7 @@ export type FaceEdgeBuildingBlock = {
 }
 
 export type lineConstructionData = {
-    sewing: Sewing,
+    endpoints: [SewingPoint, SewingPoint],
     primary_component: SewingLineComponent[],
     other_components: PartialSewingLineComponent[],
     face_edge_building_blocks: FaceEdgeBuildingBlock[]
@@ -19,10 +19,10 @@ export type lineConstructionData = {
 
 export function create_and_wire_line(data: lineConstructionData): SewingLine {
     const newSewingLine = new SewingLine(
-        data.sewing,
+        data.endpoints,
         data.primary_component,
         data.other_components,
-        null as any
+        null
     );
 
     const face_edges: FaceEdgeWithPosition[] = data.face_edge_building_blocks.map(bb => {

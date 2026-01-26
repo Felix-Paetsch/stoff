@@ -80,5 +80,4 @@ export class FaceCarousel {
     updated(): FaceCarousel {
         return this.sewingLine.updated().face_carousel;
     }
-
 }
