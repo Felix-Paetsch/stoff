@@ -21,7 +21,6 @@ export function RecordingEntryView({
         entry.to_render.snapshots.length
     )
 
-
     const renders = useMemo(() => {
         return entry.to_render.snapshots.map(snapshot => {
             const renderer = new Renderer(snapshot);

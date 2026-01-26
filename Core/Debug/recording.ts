@@ -76,7 +76,12 @@ export class Recording<T extends Recordable = Recordable> {
             Error.stackTraceLimit = old_limit;
         }
 
-        this.snapshots.push(copy as any);
+        if (s instanceof Sketch) {
+            this.snapshots.push((copy as any).sketch);
+        } else {
+            this.snapshots.push(copy as any);
+        }
+
         if (cold_snapshot) this.taking_snapshot = false;
     }
 }

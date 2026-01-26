@@ -34,7 +34,7 @@ export function App() {
         });
     }
 
-    const designInputData = getDesignInputData();
+    const designInputData = useGetDesignInputData();
     // We need this up here, as this computation has side effects (the debug views)
     const {
         design,
@@ -93,8 +93,8 @@ export function App() {
     )
 }
 
-export type DesignInputData = ReturnType<typeof getDesignInputData>;
-function getDesignInputData() {
+export type DesignInputData = ReturnType<typeof useGetDesignInputData>;
+function useGetDesignInputData() {
     const [designData, setDesignData] = useState<PatternConfig>(() => {
         const saved = readLS(
             "designDataText",
