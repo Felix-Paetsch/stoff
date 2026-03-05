@@ -1,4 +1,6 @@
-import { is_pattern_config as is_pattern_config_wo_pattern_name } from "@/Patterns/patterns";
+import { is_pattern_config as is_pattern_config_wo_pattern_name, PatternConfig } from "@/Patterns/patterns";
+
+export type PatternConfigWithName = PatternConfig & { pattern_name: string };
 
 export function is_pattern_config_with_pattern_name(obj: unknown): true | string {
     if (

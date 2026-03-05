@@ -13,7 +13,7 @@ export function get_connected_components(
     const components: SketchElement[][] = [];
 
     while (points.length > 0) {
-        let currentlyVisiting = points[0];
+        let currentlyVisiting = points[0]!;
 
         const visitedPoints: Point[] = [];
         const visitedLines: Line[] = [];
@@ -47,6 +47,6 @@ export function get_connected_components(
     }
 
     return components.map(
-        c => new ConnectedComponent(c[0])
+        c => new ConnectedComponent(c[0]!)
     );
 }

@@ -72,7 +72,7 @@ export function inner_line_hull(
 
     for (let i = 0; i < points.length; i++) {
         for (let j = i + 1; j < points.length; j++) {
-            const inner = points[i].common_lines(points[j]);
+            const inner = points[i]!.common_lines(points[j]!);
             for (const l of inner) {
                 if (!lines.includes(l)) {
                     lines.push(l);

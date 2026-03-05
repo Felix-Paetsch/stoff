@@ -229,8 +229,8 @@ export class Renderer {
         if (face_descriptor instanceof Face) {
             this.render_face(
                 {
-                    line: face_descriptor.get_lines()[0],
-                    standard_handedness: face_descriptor.line_handedness(face_descriptor.get_lines()[0])
+                    line: face_descriptor.get_lines()[0]!,
+                    standard_handedness: face_descriptor.line_handedness(face_descriptor.get_lines()[0]!)
                 },
                 attributes,
                 belongs_to_render_groups,
@@ -250,7 +250,7 @@ export class Renderer {
             render: (ras: string, ctx: RenderContext) => {
                 const sketch = face_descriptor.line.get_sketch();
 
-                const { fill, opacity, style } = {
+                const { fill, opacity } = {
                     ...default_face_render_attributes, ...attributes
                 };
 

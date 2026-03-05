@@ -1,11 +1,10 @@
 import { Sewing } from "@/Core/Sewing/sewing";
-import * as CollectionMethods from "@/Core/StoffLib/collection";
 import { Line, LineRenderAttributes } from "@/Core/StoffLib/line";
-import { Point, PointRenderAttributes } from "@/Core/StoffLib/point";
+import { PointRenderAttributes } from "@/Core/StoffLib/point";
 import { Renderer } from "../renderer";
-import { get_line_render_data, get_point_render_data, render_sketches } from "../render_sketches_methods";
-import { default_active_sewing_line_primary_attributes, default_active_sewing_point_attributes, default_non_sewing_line_attributes, default_non_sewing_point_attributes, to_gradient } from "../defaults/sewing";
-import { render_inactive_sewing, render_sewing } from "../render_sewing_methods";
+import { get_line_render_data, get_point_render_data } from "../render_sketches_methods";
+import { default_active_sewing_line_primary_attributes, default_active_sewing_point_attributes, to_gradient } from "../defaults/sewing";
+import { render_inactive_sewing } from "../render_sewing_methods";
 
 const cut_line_attributes: LineRenderAttributes = {
     ...default_active_sewing_line_primary_attributes,

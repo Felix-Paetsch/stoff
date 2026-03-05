@@ -1,4 +1,4 @@
-import { BoundingBox, LEFT, polygon_contains_point, UP } from "../../StoffLib/geometry";
+import { BoundingBox, polygon_contains_point } from "../../StoffLib/geometry";
 import { Line } from "../../StoffLib/line";
 import { Vector } from "@/Core/StoffLib/geometry";
 import { Point } from "../../StoffLib/point";
@@ -32,29 +32,24 @@ export class Face {
     }
 
     point_hull(): Vector[] {
-        try {
-            const points: Vector[] = [];
-            let last_point: Point;
-            if (this.boundary.length > 2) {
-                last_point = this.boundary[0].other_endpoint(
-                    this.boundary[0].common_endpoint(this.boundary[1])!
-                );
-            } else {
-                last_point = this.boundary[0].p1;
-            }
-            for (const line of this.boundary) {
-                const sample_points = line.get_absolute_sample_points();
-                if (line.p2 == last_point) {
-                    sample_points.reverse();
-                }
-                points.push(...sample_points);
-                last_point = line.other_endpoint(last_point);
-            }
-            return points;
+        const points: Vector[] = [];
+        let last_point: Point;
+        if (this.boundary.length > 2) {
+            last_point = this.boundary[0]!.other_endpoint(
+                this.boundary[0]!.common_endpoint(this.boundary[1]!)!
+            );
+        } else {
+            last_point = this.boundary[0]!.p1;
         }
-        catch (e) {
-            return [this.boundary[0].p1, this.boundary[0].p1, this.boundary[0].p1];
+        for (const line of this.boundary) {
+            const sample_points = line.get_absolute_sample_points();
+            if (line.p2 == last_point) {
+                sample_points.reverse();
+            }
+            points.push(...sample_points);
+            last_point = line.other_endpoint(last_point);
         }
+        return points;
     }
 
     get_bounding_box(): BoundingBox {
@@ -65,8 +60,8 @@ export class Face {
         const points = this.point_hull();
         let area = 0;
         for (let i = 0; i < points.length; i++) {
-            const p1 = points[i];
-            const p2 = points[(i + 1) % points.length];
+            const p1 = points[i]!;
+            const p2 = points[(i + 1) % points.length]!;
             area += p1.x * p2.y - p2.x * p1.y;
         }
         return area / 2;
@@ -98,7 +93,7 @@ export class Face {
         const handedness: boolean[] = [];
         for (let i = 0; i < this.boundary.length; i++) {
             const total = Number(
-                this.boundary[i].right_handed,
+                this.boundary[i]!.right_handed,
             ) + Number(clockwise) + Number(
                 orientations[i]
             );
@@ -145,7 +140,7 @@ export class Face {
             return this.contains(thing.position_at_fraction(0.5)!, true);
         }
         if (thing instanceof RogueComponent) {
-            return this.contains(thing.lines[0].position_at_fraction(0.5)!, true);
+            return this.contains(thing.lines[0]!.position_at_fraction(0.5)!, true);
         }
         if (
             thing instanceof Point && !only_interior

@@ -1,12 +1,15 @@
 import { Point } from "@/Core/StoffLib/point";
 import { FaceEdgeWithPosition } from "../../faceCarousel";
-import { Sewing } from "../../sewing";
 import { SewingLine } from "../../sewingLine";
 import { create_and_wire_line, FaceEdgeBuildingBlock } from "./create_and_wire_line";
 import { PartialStackLine, StackLine } from "./stackLine";
 import { SewingPoint } from "../../sewingPoint";
+import { assert } from "../../../assert";
+import { same_sewing } from "../../assert_methods";
 
-export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn: StackLine[]): SewingLine {
+export function merge_lines_vertically(guide: SewingLine, sewOn: StackLine[]): SewingLine {
+    assert(same_sewing(guide, ...sewOn.map(sl => sl.line)));
+
     const merged_line_endpoints = guide.get_endpoints();
 
     const sewOnComponents: PartialStackLine[] = sewOn.map(so => ({
@@ -36,18 +39,18 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
         }
 
         if (febb.folded_right) {
-            left_right_building_blocks[0][0].push(febb);
+            left_right_building_blocks[0]![0].push(febb);
         } else {
-            left_right_building_blocks[0][1].push(febb);
+            left_right_building_blocks[0]![1].push(febb);
         }
     }
 
     left_right_building_blocks.push(...sewOnComponents.map(so => edge_buidling_blocks(
-        guide, so
+        so
     )));
 
-    const edges = left_right_building_blocks.flatMap(([l, r]) => l);
-    left_right_building_blocks.reverse().forEach(([l, r]) => {
+    const edges = left_right_building_blocks.flatMap(([l, _r]) => l);
+    left_right_building_blocks.reverse().forEach(([_l, r]) => {
         edges.push(...r.reverse())
     })
 
@@ -58,11 +61,11 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
         const secondPointInGuideOrientation = so.line.endpoint_from_orientation(!so.same_orientation);
 
         const structured_guide_sublines = guide.structured_sublines(so.sewTo);
-        const first_guide_point: Point = structured_guide_sublines[0].line.endpoint_from_orientation(
-            structured_guide_sublines[0].orientation
+        const first_guide_point: Point = structured_guide_sublines[0]!.line.endpoint_from_orientation(
+            structured_guide_sublines[0]!.orientation
         );
-        const second_guide_point: Point = structured_guide_sublines[structured_guide_sublines.length - 1].line.endpoint_from_orientation(
-            !structured_guide_sublines[structured_guide_sublines.length - 1].orientation
+        const second_guide_point: Point = structured_guide_sublines[structured_guide_sublines.length - 1]!.line.endpoint_from_orientation(
+            !structured_guide_sublines[structured_guide_sublines.length - 1]!.orientation
         );
 
         so.line.__mark_outdated();
@@ -86,13 +89,12 @@ export function merge_lines_vertically(sewing: Sewing, guide: SewingLine, sewOn:
 }
 
 function edge_buidling_blocks(
-    guide: SewingLine,
     sl: PartialStackLine
 ): [FaceEdgeBuildingBlock[], FaceEdgeBuildingBlock[]] {
     const left: FaceEdgeBuildingBlock[] = [];
     const right: FaceEdgeBuildingBlock[] = [];
     for (const fe of sl.line.face_carousel.face_edges()) {
-        const febb = single_edge_building_block(guide, sl, fe)
+        const febb = single_edge_building_block(sl, fe)
 
         if (!febb) continue;
         if (febb.folded_right) {
@@ -104,7 +106,6 @@ function edge_buidling_blocks(
 }
 
 function single_edge_building_block(
-    guide: SewingLine,
     sl: PartialStackLine,
     fe: FaceEdgeWithPosition
 ): FaceEdgeBuildingBlock | null {

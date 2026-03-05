@@ -157,7 +157,7 @@ export class AvoidantConnectedComponent extends ConnectedComponent {
         assert(!avoids.includes(root_el));
     }
 
-    obj(): {
+    override obj(): {
         points: Point[],
         lines: Line[],
         bounding_box: BoundingBox

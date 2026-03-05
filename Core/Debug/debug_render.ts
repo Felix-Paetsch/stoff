@@ -86,9 +86,13 @@ export function hot_debug_render(
             })
         );
 
+        let toggle_state: boolean = true;
+
         return (to?: boolean) => {
             if (toggles.length === 0) return true;
-            return toggles.map(t => t(to))[0];
+            toggle_state = typeof to == "boolean" ? to : !toggle_state;
+            toggles.forEach(t => t(toggle_state));
+            return toggle_state;
         };
     }
 

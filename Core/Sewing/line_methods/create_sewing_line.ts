@@ -85,7 +85,7 @@ export function create_sewing_line(sewing: Sewing, line: Line): SewingLine {
     const carousel = new FaceCarousel(sLine, faceEdges.map(e => ({
         edge: e,
         sewOn: [line],
-        folded_right: e.lines[0].standard_handedness === line.right_handed
+        folded_right: e.lines[0]!.standard_handedness === line.right_handed
     })));
     faceEdges.forEach(e => e._face_carousel = carousel);
     sLine._face_carousel = carousel;

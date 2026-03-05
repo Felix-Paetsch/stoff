@@ -75,6 +75,7 @@ function toA4printable(
 function drawA4Page(
     points: RenderablePoint[],
     lines: RenderableLine[],
+    // @ts-ignore We dont really need bottom right
     { topLeftX, topLeftY, bottomRightX, bottomRightY }: {
         topLeftX: number,
         topLeftY: number,

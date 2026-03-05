@@ -4,8 +4,8 @@ import { EPS } from "./eps";
 import { isLineSegment, LineSegment, MirrorData, radians } from "./types";
 
 export class Vector {
-    public x!: number;
-    public y!: number;
+    protected _x!: number;
+    protected _y!: number;
     public is_column: boolean;
 
     constructor(
@@ -26,28 +26,21 @@ export class Vector {
             throw new Error("Vector entries are not proper numbers!");
         }
 
-        if (typeof column == "undefined") {
-            throw new Error("hey!");
-        }
-
         this.is_column = column;
-        this.set(x, y);
+        this._x = x;
+        this._y = y;
+    }
+
+    get x() {
+        return this._x;
+    }
+
+    get y() {
+        return this._y;
     }
 
     to_array() {
         return [this.x, this.y];
-    }
-
-    set(x: number, y: number): Vector;
-    set(x: Vector): Vector;
-    set(x: number | Vector, y: number = 0): Vector {
-        if (x instanceof Vector) {
-            return this.set(x.x, x.y);
-        }
-
-        this.x = x; // LEFT, RIGHT
-        this.y = y; // UP, DOWN
-        return this;
     }
 
     dot(vec: Vector) {
@@ -116,8 +109,35 @@ export class Vector {
         return new Vector(this.x + vec.x, this.y + vec.y);
     }
 
+    static add(vec1: Vector, vec2: Vector) {
+        return vec1.add(vec2);
+    }
+
     subtract(vec: Vector) {
         return this.add(vec.scale(-1));
+    }
+
+    static subtract(vec1: Vector, vec2: Vector) {
+        return vec1.subtract(vec2);
+    }
+
+    static lerp(vec1: Vector, vec2: Vector, amt: number) {
+        return Vector.add(vec1.scale(1 - amt), vec2.scale(amt));
+    }
+
+    component_wise(fn: (x: number) => number) {
+        return new Vector(fn(this.x), fn(this.y));
+    }
+
+    static component_wise(vecs: [Vector], fn: (a: [number]) => number): Vector;
+    static component_wise(vecs: [Vector, Vector], fn: (a: [number, number]) => number): Vector;
+    static component_wise(vecs: [Vector, Vector, Vector], fn: (a: [number, number, number]) => number): Vector;
+    static component_wise(vecs: Vector[], fn: (x: number[]) => number): Vector;
+    static component_wise(...args: any[]): Vector {
+        return new Vector(
+            args[1](args[0].map((v: Vector) => v.x)),
+            args[1](args[0].map((v: Vector) => v.y))
+        )
     }
 
     mirror_at(
@@ -160,12 +180,16 @@ export class Vector {
         return new Vector(-this.y, this.x).normalize();
     }
 
+    static orthogonal(from: Vector, to: Vector) {
+        return to.subtract(from).get_orthogonal()
+    }
+
     toString() {
         return `[${this.x
             .toString()
-            .slice(0, this.x.toString().split(".")[0].length + 4)}, ${this.y
+            .slice(0, this.x.toString().split(".")[0]!.length + 4)}, ${this.y
                 .toString()
-                .slice(0, this.y.toString().split(".")[0].length + 4)}]`;
+                .slice(0, this.y.toString().split(".")[0]!.length + 4)}]`;
     }
 
     toJSON() {

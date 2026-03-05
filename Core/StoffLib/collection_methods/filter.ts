@@ -1,8 +1,9 @@
 import { Point } from "../point";
 import { Line } from "../line";
+import { StoffObjectData } from "../types";
 
-export type LineFilter = Line | Line[] | ((line: Line) => boolean) | Point | null;
-export type PointFilter = Point | Point[] | ((pt: Point) => boolean) | Line | Line[] | null;
+export type LineFilter = Line | Line[] | ((line: Line) => boolean) | Point | true | StoffObjectData;
+export type PointFilter = Point | Point[] | ((pt: Point) => boolean) | Line | Line[] | true | StoffObjectData;
 
 export function filterLine(filter: LineFilter, line: Line) {
     if (filter instanceof Line) {
@@ -11,13 +12,16 @@ export function filterLine(filter: LineFilter, line: Line) {
     if (filter instanceof Point) {
         return line.has_endpoint(filter);
     }
-    if (filter === null) {
+    if (filter === true) {
         return true;
     }
     if (filter instanceof Array) {
         return filter.includes(line);
     }
-    return filter(line);
+    if (typeof filter == "function") {
+        return filter(line);
+    }
+    return Object.keys(filter).every(k => line.data[k] === filter[k]);
 }
 
 export function filterPoint(filter: PointFilter, pt: Point) {
@@ -27,7 +31,7 @@ export function filterPoint(filter: PointFilter, pt: Point) {
     if (filter instanceof Line) {
         return filter.has_endpoint(pt);
     }
-    if (filter === null) {
+    if (filter === true) {
         return true;
     }
     if (filter instanceof Array) {
@@ -37,5 +41,8 @@ export function filterPoint(filter: PointFilter, pt: Point) {
         }
         return (filter as Line[]).some((line) => line.has_endpoint(pt));
     }
-    return filter(pt);
+    if (typeof filter == "function") {
+        return filter(pt);
+    }
+    return Object.keys(filter).every(k => pt.data[k] === filter[k]);
 }

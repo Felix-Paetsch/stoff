@@ -18,8 +18,8 @@ export function parseFaceComponents(data: ConnectedComponentFaceData[]): Connect
         for (let j = 0; j < components.length; j++) {
             if (i === j) continue;
 
-            const parentComp = components[i];
-            const childComp = components[j];
+            const parentComp = components[i]!;
+            const childComp = components[j]!;
 
             if (parentComp.component && childComp.component &&
                 parentComp.component.contains(childComp.component)) {
@@ -29,7 +29,7 @@ export function parseFaceComponents(data: ConnectedComponentFaceData[]): Connect
     }
 
     for (let childIdx = 0; childIdx < components.length; childIdx++) {
-        const childComp = components[childIdx];
+        const childComp = components[childIdx]!;
 
         const potentialParents = containmentPairs
             .filter(p => p.child === childIdx)
@@ -37,18 +37,18 @@ export function parseFaceComponents(data: ConnectedComponentFaceData[]): Connect
 
         if (potentialParents.length === 0) continue;
 
-        let smallestParentIdx = potentialParents[0];
-        let smallestArea = components[smallestParentIdx].component?.area() ?? Infinity;
+        let smallestParentIdx = potentialParents[0]!;
+        let smallestArea = components[smallestParentIdx]!.component?.area() ?? Infinity;
 
         for (const parentIdx of potentialParents) {
-            const parentArea = components[parentIdx].component?.area() ?? Infinity;
+            const parentArea = components[parentIdx]!.component?.area() ?? Infinity;
             if (parentArea < smallestArea) {
                 smallestArea = parentArea;
                 smallestParentIdx = parentIdx;
             }
         }
 
-        const parentComp = components[smallestParentIdx];
+        const parentComp = components[smallestParentIdx]!;
         childComp.parent_component = parentComp.component;
         parentComp.subcomponents.push(childComp);
 
@@ -61,8 +61,8 @@ export function parseFaceComponents(data: ConnectedComponentFaceData[]): Connect
     }
 
     for (let i = 0; i < components.length; i++) {
-        const component = components[i];
-        const rogue = data[i].rogue;
+        const component = components[i]!;
+        const rogue = data[i]!.rogue;
         for (const r of rogue) {
             let isInner = component.component?.contains(r);
             isInner && component.inner_chains.push(r);

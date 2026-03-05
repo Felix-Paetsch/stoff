@@ -11,7 +11,7 @@ import {
 import CONF from "./config.json";
 
 import { assert } from "../assert";
-import { DropFirst, SketchElement, SketchElementCollection, StoffObjectData } from "./types";
+import { DropFirst, SketchElement, SketchElementCollection } from "./types";
 import { auto_validate } from "./sketch_methods/auto_validate";
 
 import * as LineMethods from "./sketch_methods/line_methods";
@@ -25,7 +25,6 @@ export class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
     private points: Point[] = [];
     private lines: Line[] = [];
-    public data: StoffObjectData = {};
 
     constructor() { }
 
@@ -58,6 +57,16 @@ export class Sketch {
         return new Point(this, pt);
     }
 
+    // point(pt: Vector): Point;
+    // point(x: number, y: number): Point;
+    // point(a: any, b?: any): Point {
+    //     if (a instanceof Vector) {
+    //         return new Point(this, a.x, a.y);
+    //     }
+    //
+    //     return new Point(this, a, a);
+    // }
+
     get_points() {
         return this.points;
     }
@@ -79,7 +88,7 @@ export class Sketch {
         const lines_to_remove = [];
 
         for (let i = 0; i < els.length; i++) {
-            const el = els[i];
+            const el = els[i]!;
             if (el instanceof Point) {
                 points_to_remove.push(el);
             } else if (el instanceof Line) {
@@ -98,7 +107,6 @@ export class Sketch {
 
     clear() {
         this.remove(...this.points);
-        this.data = {};
     }
 
     // ===============

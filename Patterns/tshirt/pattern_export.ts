@@ -1,10 +1,10 @@
-import { Sewing } from "@/Core/Sewing/sewing";
-import { Sketch } from "@/Core/StoffLib/sketch";
 import { z } from "zod"
 import { definePattern } from "../types";
 import { BaseMeasurements, BaseMeasurementsSchema } from "../base_measurements";
-import { debug_render, hot_debug_render } from "@/Core/Debug/debug_render";
-import { LiveRecording } from "@/Core/Debug/recording";
+import { hot_debug_render } from "@/Core/Debug/debug_render";
+import { start_global_recording } from "@/Core/Debug/recording";
+import { construct_base_tshirt_parts } from "./construct_base_parts";
+import { BoundShirtSideMeasurements, ShirtDerivedMeasurements } from "./measurement_utils";
 
 export const TShirtPatternConfigSchema = z.object({
     "Darts fitted": z.literal("0_nothing"),
@@ -23,52 +23,17 @@ export const TShirtPattern = definePattern({
     config_schema: TShirtPatternConfigSchema,
     measurements_schema: BaseMeasurementsSchema,
     construct: (
-        cfg: TShirtPatternConfig, mea: BaseMeasurements
+        _cfg: TShirtPatternConfig, bmea: BaseMeasurements
     ) => {
-        const r = new Sketch();
-        hot_debug_render(new LiveRecording(r), "Hell");
-        const points = [
-            r.point(0, 0), r.point(100, 0),
-            r.point(50, 50),
-            r.point(0, 100), r.point(100, 100)
-        ];
+        const gr = start_global_recording();
+        hot_debug_render(gr);
 
-        const lt = r.line_between_points(points[0], points[1]);
-        r.line_between_points(points[1], points[4])
-        r.line_between_points(points[0], points[3])
-
-
-        const lb = r.line_between_points(points[3], points[4]);
-        const l = r.line_between_points(points[2], points[0]);
-
-        debug_render(r);
-        const u = r.line_between_points(points[2], points[3]);
-
-        const s = new Sewing([r, r.copy().sketch])
-
-
-        const T = s.cut(lt);
-        const B = s.cut(lb);
-
-        // throw new Error();
-
-        const sl = s.sewing_line(l);
-        s.dev_render();
-        const l1 = s.fold(sl);
-
-        const r2 = s.sew(T, [{
-            line: B,
-            same_orientation: true,
-            same_handedness: true,
-        }]);
-        s.cut(u);
-        s.dev_render();
-        s.highlight(l1);
-        s.dev_render();
+        console.log(bmea, ShirtDerivedMeasurements(bmea));
+        const mea = BoundShirtSideMeasurements(bmea, "back");
+        const r = construct_base_tshirt_parts(mea);
 
         return {
-            result: s,
-            data: "Aiiiia"
+            result: r
         }
     }
 })

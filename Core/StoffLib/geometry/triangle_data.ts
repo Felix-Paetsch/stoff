@@ -83,7 +83,7 @@ export function triangle_data(
         );
 
         if (knownSides.length === 2 && knownAngles.length === 1) {
-            const angle = knownAngles[0];
+            const angle = knownAngles[0]!;
             const opposite = oppositeSide(angle);
 
             if (sides[opposite] !== undefined) {
@@ -147,7 +147,7 @@ export function triangle_data(
                 k => angles[k] === undefined
             )!;
             angles[missing] =
-                Math.PI - angles[knownAngles[0]]! - angles[knownAngles[1]]!;
+                Math.PI - angles[knownAngles[0]!]! - angles[knownAngles[1]!]!;
             changed = true;
         }
 

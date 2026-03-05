@@ -12,7 +12,7 @@ import {
 } from "./geometry";
 import { Point } from "./point";
 import { ConnectedComponent } from "./connected_component";
-import { assert } from "../assert";
+import { assert, invalid_path } from "../assert";
 import { _calculate_intersections } from "./unicorns/intersect_lines";
 import { offset_sample_points } from "./line_methods/offset_sample_points";
 import * as LineManipulation from "./line_methods/line_manipulation";
@@ -24,7 +24,6 @@ import { Fraction } from "./geometry/1d";
 import { SketchElement, StoffObjectData } from "./types";
 import { self_intersects } from "./unicorns/self_intersects";
 import * as SketchElementCollectionMethods from "./collection";
-import { invalid_path } from "./assert_methods/exports";
 import { default_line_attributes } from "../Render/defaults/base";
 
 export type LineRenderAttributes = {
@@ -61,16 +60,16 @@ export class Line {
             "sample_points",
         ]);
 
-        if (this._sample_points[0].length_squared() < EPS.COARSE) {
-            this.sample_points[0] = new Vector(0, 0);
+        if (this._sample_points[0]!.length_squared() < EPS.COARSE) {
+            this._sample_points[0] = new Vector(0, 0);
         } else {
             assert(invalid_path("Line sample points dont start with (1,0)"));
         }
 
         if (
-            this.sample_points[this.sample_points.length - 1].subtract(new Vector(1, 0)).length_squared() < EPS.COARSE
+            this._sample_points[this._sample_points.length - 1]!.subtract(new Vector(1, 0)).length_squared() < EPS.COARSE
         ) {
-            this.sample_points[this.sample_points.length - 1] = new Vector(
+            this._sample_points[this._sample_points.length - 1] = new Vector(
                 1, 0
             );
         } else {
@@ -256,18 +255,18 @@ export class Line {
         const sp = this.sample_points;
         let first_non_zero_sp_index = 0;
         while (
-            sp[++first_non_zero_sp_index].distance(sp[0]) < EPS.WEAK_EQUAL
+            sp[++first_non_zero_sp_index]!.distance(sp[0]!) < EPS.WEAK_EQUAL
         ) { }
 
         let last_non_one_sp_index = sp.length - 1;
         while (
-            sp[--last_non_one_sp_index].distance(sp[sp.length - 1]) <
+            sp[--last_non_one_sp_index]!.distance(sp[sp.length - 1]!) <
             EPS.WEAK_EQUAL
         ) { }
 
         return (
-            sp[first_non_zero_sp_index].x >= -EPS.MINY &&
-            sp[last_non_one_sp_index].x <= 1 + EPS.MINY
+            sp[first_non_zero_sp_index]!.x >= -EPS.MINY &&
+            sp[last_non_one_sp_index]!.x <= 1 + EPS.MINY
         );
     }
 
@@ -280,47 +279,47 @@ export class Line {
         return this.sample_points.map((v) => new Vector(v));
     }
 
-    private cut_sample_points_at(
-        index_from: number,
-        from_percentage_after: Fraction,
-        index_to: number,
-        to_percentage_after: Fraction
-    ) {
-        const cut_sample_points = this.sample_points.slice(
-            index_from,
-            index_to + 2
-        ); // One after last one included if needed interpolation
-
-        if (from_percentage_after > 0) {
-            cut_sample_points[0] = cut_sample_points[0]
-                .mult(1 - from_percentage_after)
-                .add(cut_sample_points[1].mult(from_percentage_after));
-        }
-
-        if (
-            to_percentage_after == 0 &&
-            !(index_to + 1 == this.sample_points.length)
-        ) {
-            cut_sample_points.pop();
-        } else if (to_percentage_after == 0) {
-        } else {
-            const l = cut_sample_points.length - 1;
-            cut_sample_points[l] = cut_sample_points[l - 1]
-                .mult(1 - to_percentage_after)
-                .add(cut_sample_points[l].mult(to_percentage_after));
-        }
-
-        const transform_func = affine_transform_from_input_output(
-            [
-                cut_sample_points[0],
-                cut_sample_points[cut_sample_points.length - 1],
-            ],
-            [new Vector(0, 0), new Vector(1, 0)]
-        );
-
-        const res = cut_sample_points.map((p) => transform_func(p));
-        return res;
-    }
+    // private cut_sample_points_at(
+    //     index_from: number,
+    //     from_percentage_after: Fraction,
+    //     index_to: number,
+    //     to_percentage_after: Fraction
+    // ) {
+    //     const cut_sample_points = this.sample_points.slice(
+    //         index_from,
+    //         index_to + 2
+    //     ); // One after last one included if needed interpolation
+    //
+    //     if (from_percentage_after > 0) {
+    //         cut_sample_points[0] = cut_sample_points[0]
+    //             .mult(1 - from_percentage_after)
+    //             .add(cut_sample_points[1].mult(from_percentage_after));
+    //     }
+    //
+    //     if (
+    //         to_percentage_after == 0 &&
+    //         !(index_to + 1 == this.sample_points.length)
+    //     ) {
+    //         cut_sample_points.pop();
+    //     } else if (to_percentage_after == 0) {
+    //     } else {
+    //         const l = cut_sample_points.length - 1;
+    //         cut_sample_points[l] = cut_sample_points[l - 1]
+    //             .mult(1 - to_percentage_after)
+    //             .add(cut_sample_points[l].mult(to_percentage_after));
+    //     }
+    //
+    //     const transform_func = affine_transform_from_input_output(
+    //         [
+    //             cut_sample_points[0],
+    //             cut_sample_points[cut_sample_points.length - 1],
+    //         ],
+    //         [new Vector(0, 0), new Vector(1, 0)]
+    //     );
+    //
+    //     const res = cut_sample_points.map((p) => transform_func(p));
+    //     return res;
+    // }
 
     to_relative_position(vec: Vector) {
         return this.get_to_relative_function()(vec);
@@ -373,8 +372,8 @@ export class Line {
         let end;
         const length = this.get_length() / this.endpoint_distance();
         for (let i = 1; i < this.sample_points.length; i++) {
-            current_len += this.sample_points[i].distance(
-                this.sample_points[i - 1]
+            current_len += this.sample_points[i]!.distance(
+                this.sample_points[i - 1]!
             );
             if (start === undefined && current_len >= fromFraction * length) {
                 start = i;
@@ -471,13 +470,13 @@ export class Line {
         if (this.p1.equals(pt)) {
             let i = 1;
             while (
-                this.sample_points[i].distance(this.sample_points[0]) <
+                this.sample_points[i]!.distance(this.sample_points[0]!) <
                 EPS.MEDIUM
             ) {
                 i++;
             }
             const tangent_inwards = this.p1
-                .subtract(to_absolute(this.sample_points[i]))
+                .subtract(to_absolute(this.sample_points[i]!))
                 .normalize();
             return this.p1 == pt ? tangent_inwards : tangent_inwards.invert();
         }
@@ -485,14 +484,14 @@ export class Line {
         if (this.p2.equals(pt)) {
             let i = this.sample_points.length - 1;
             while (
-                this.sample_points[i].distance(
-                    this.sample_points[this.sample_points.length - 1]
+                this.sample_points[i]!.distance(
+                    this.sample_points[this.sample_points.length - 1]!
                 ) < EPS.MEDIUM
             ) {
                 i--;
             }
             return this.p2
-                .subtract(to_absolute(this.sample_points[i]))
+                .subtract(to_absolute(this.sample_points[i]!))
                 .normalize();
         }
 
@@ -502,7 +501,7 @@ export class Line {
 
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
-                [this.sample_points[i], this.sample_points[i + 1]],
+                [this.sample_points[i]!, this.sample_points[i + 1]!],
                 pt_rel
             );
             const dist = closest_on_line.distance(pt_rel);
@@ -518,15 +517,16 @@ export class Line {
         let left = best_index;
         let right = best_index + 1;
         while (
-            this.sample_points[left].distance_squared(
-                this.sample_points[right]
+            this.sample_points[left]!.distance_squared(
+                this.sample_points[right]!
             ) < EPS.FINE_SQUARED
         ) {
             if (left > 0) left--;
             if (right < this.sample_points.length - 1) right++;
         }
+
         return to_absolute(
-            this.sample_points[right].subtract(this.sample_points[left])
+            this.sample_points[right]!.subtract(this.sample_points[left]!)
         );
     }
 
@@ -540,7 +540,10 @@ export class Line {
             // This performs double mirror
         }
         this.right_handed = !this.right_handed;
-        this.sample_points.forEach((p) => p.set(p.x, -p.y));
+        for (let i = 0; i < this.sample_points.length; i++) {
+            const p = this.sample_points[i]!;
+            this.sample_points[i] = new Vector(p.x, -p.y);
+        }
         this.cache_update("sample_points");
         return this;
     }
@@ -563,7 +566,10 @@ export class Line {
         this.p1 = this.p2;
         this.p2 = t;
         this.sample_points.reverse();
-        this.sample_points.forEach((p) => p.set(1 - p.x, -p.y));
+        for (let i = 0; i < this.sample_points.length; i++) {
+            const p = this.sample_points[i]!;
+            this.sample_points[i] = new Vector(1 - p.x, -p.y);
+        }
         this.cache_update("sample_points");
         this.right_handed = !this.right_handed;
 
@@ -603,7 +609,12 @@ export class Line {
 
     stretch(factor = 1) {
         assert(!this._is_removed, "Line is removed");
-        this.sample_points.forEach((p) => p.set(p.x, factor * p.y));
+
+        for (let i = 0; i < this.sample_points.length; i++) {
+            const p = this.sample_points[i]!;
+            this.sample_points[i] = new Vector(p.x, factor * p.y);
+        }
+
         this.cache_update("sample_points");
         return this;
     }
@@ -623,18 +634,7 @@ export class Line {
                 let sum = 0;
 
                 for (let i = 0; i < this.sample_points.length - 1; i++) {
-                    sum += Math.sqrt(
-                        Math.pow(
-                            this.sample_points[i].y -
-                            this.sample_points[i + 1].y,
-                            2
-                        ) +
-                        Math.pow(
-                            this.sample_points[i].x -
-                            this.sample_points[i + 1].x,
-                            2
-                        )
-                    );
+                    sum += this.sample_points[i]!.distance(this.sample_points[i + 1]!);
                 }
 
                 return sum * endpoint_distance;
@@ -706,8 +706,8 @@ export class Line {
             let START_I = i;
             let next_length = 0;
             while (true) {
-                next_length = this.sample_points[i + 1].distance(
-                    this.sample_points[START_I]
+                next_length = this.sample_points[i + 1]!.distance(
+                    this.sample_points[START_I]!
                 );
                 if (next_length > EPS.FINE) {
                     break;
@@ -726,9 +726,11 @@ export class Line {
                 const left_to_walk = adjusted_length - sum;
                 const fraction_left = left_to_walk / next_length;
 
-                const relative_vec = this.sample_points[i]
-                    .mult(1 - fraction_left)
-                    .add(this.sample_points[i + 1].mult(fraction_left));
+                const relative_vec = Vector.lerp(
+                    this.sample_points[i]!,
+                    this.sample_points[i + 1]!,
+                    fraction_left
+                );
 
                 return this.vec_to_absolute(relative_vec);
             }
@@ -756,7 +758,7 @@ export class Line {
 
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
-                [this.sample_points[i], this.sample_points[i + 1]],
+                [this.sample_points[i]!, this.sample_points[i + 1]!],
                 vec_rel
             );
             const dist = closest_on_line.distance(vec_rel);
@@ -794,7 +796,7 @@ export class Line {
         return res.corresponding_sketch_element(this);
     }
 
-    _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null) {
+    _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null): Vector[] {
         return LineManipulation.rel_normalized_sample_points(this, rel_approx_sample_spacing);
     }
 
@@ -816,7 +818,9 @@ export class Line {
 
     computer_center_point() {
         assert(!this._is_removed, "Line is removed");
-        return this.to_absolute_position(LineManipulation.compute_polyline_center_point(this.sample_points));;
+        return this.to_absolute_position(
+            LineManipulation.compute_polyline_center_point(this.sample_points)
+        );
     }
 
     self_intersects(): boolean {
@@ -841,7 +845,7 @@ export class Line {
         if (lines.length == 1) {
             return {
                 lines: lines,
-                points: lines[0].get_endpoints(),
+                points: lines[0]!.get_endpoints(),
                 orientations: [true]
             }
         };
@@ -864,7 +868,7 @@ export class Line {
         let smth_found: boolean = false;
         while (lines.length > 0) {
             for (let i = lines.length - 1; i >= 0; i--) {
-                if (res.lines[0].common_endpoint(lines[i])) {
+                if (res.lines[0]!.common_endpoint(lines[i]!)) {
                     // Prepend
                     smth_found = true;
                     res.lines.unshift(...lines.splice(i, 1));
@@ -873,13 +877,13 @@ export class Line {
                     } else {
                         const next_orientation = res.orientations[0];
                         res.orientations.unshift(
-                            res.lines[1][next_orientation ? "p1" : "p2"] == res.lines[0].p2
+                            res.lines[1]![next_orientation ? "p1" : "p2"] == res.lines[0]!.p2
                         );
                         res.points.unshift(
-                            res.lines[0].other_endpoint(res.points[0])
+                            res.lines[0]!.other_endpoint(res.points[0]!)
                         );
                     }
-                } else if (res.lines[res.lines.length - 1].common_endpoint(lines[i])) {
+                } else if (res.lines[res.lines.length - 1]!.common_endpoint(lines[i]!)) {
                     // Append
                     smth_found = true;
                     res.lines.push(...lines.splice(i, 1));
@@ -889,13 +893,13 @@ export class Line {
                         const prev_orientation =
                             res.orientations[res.orientations.length - 1];
                         res.orientations.push(
-                            res.lines[res.lines.length - 2][
+                            res.lines[res.lines.length - 2]![
                             prev_orientation ? "p2" : "p1"
-                            ] == res.lines[res.lines.length - 1].p1
+                            ] == res.lines[res.lines.length - 1]!.p1
                         );
                         res.points.push(
-                            res.lines[res.lines.length - 1].other_endpoint(
-                                res.points[res.points.length - 1]
+                            res.lines[res.lines.length - 1]!.other_endpoint(
+                                res.points[res.points.length - 1]!
                             )
                         );
                     }
@@ -914,23 +918,27 @@ export class Line {
             points: Point[],
             orientations: boolean[]
         } {
-            if (data.lines[1].has_endpoint(data.lines[0].p2)) {
-                data.orientations = [true, data.lines[1].p1 == data.lines[0].p2];
+            const l0 = data.lines[0]!;
+            const l1 = data.lines[1]!;
+
+            if (l1.has_endpoint(l0.p2)) {
+                data.orientations = [true, l1.p1 == l0.p2];
                 data.points = [
-                    data.lines[0].p1,
-                    data.lines[0].p2,
-                    data.lines[1].other_endpoint(data.lines[0].p2),
+                    l0.p1,
+                    l0.p2,
+                    l1.other_endpoint(l0.p2),
                 ];
-            } else if (data.lines[1].has_endpoint(data.lines[0].p1)) {
-                data.orientations = [false, data.lines[1].p1 == data.lines[0].p1];
+            } else if (l1.has_endpoint(l0.p1)) {
+                data.orientations = [false, l1.p1 == l0.p1];
                 data.points = [
-                    data.lines[0].p2,
-                    data.lines[0].p1,
-                    data.lines[1].other_endpoint(data.lines[0].p1),
+                    l0.p2,
+                    l0.p1,
+                    l1.other_endpoint(l0.p1),
                 ];
             } else {
-                assert(invalid_path("Lines dont form a connected segment"))
+                assert(invalid_path("Lines dont form a connected segment"));
             }
+
             return data as any;
         }
 
@@ -956,10 +964,6 @@ export class Line {
 
         ordered_lines.points.shift();
         ordered_lines.orientations.shift();
-        let orientations: boolean[];
-        if (!ordered_lines.orientations[0]) {
-            orientations = ordered_lines.orientations.map(o => !o);
-        }
 
         return ordered_lines;
     }

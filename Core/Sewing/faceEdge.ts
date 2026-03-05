@@ -105,7 +105,7 @@ export class FaceEdge {
             [this.lines[this.lines.length - 1], other.lines[0]],
             [this.lines[this.lines.length - 1], other.lines[other.lines.length - 1]],
         ].some(([c1, c2]) => face_edge_component_connected_to_horizontally(
-            this.face_carousel.sewingLine.get_sewing(), this, c1, other, c2, at
+            this.face_carousel.sewingLine.get_sewing(), this, c1!, other, c2!, at
         ));
     }
 }

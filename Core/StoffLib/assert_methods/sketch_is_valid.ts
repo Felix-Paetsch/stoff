@@ -4,10 +4,8 @@ import CONF from "../config.json" with { type: "json" };
 import { Line } from "../line";
 import { Point } from "../point";
 import { Sketch } from "../sketch";
-import { ConnectedComponent } from "../connected_component";
 import { same_sketch } from "./exports";
 import { debug_render } from "@/Core/Debug/debug_render";
-import { self_intersects } from "../unicorns/self_intersects";
 
 let currently_validating = false;
 
@@ -25,10 +23,6 @@ export function validate_sketch(sk: Sketch) {
         () => validate_point(p, sk)
     ))
 
-    validation_fns.push(
-        () => data_object_valid(sk.data, sk)
-    );
-
     const res = merge_validations(validation_fns);
 
     currently_validating = false || !reset_validating;
@@ -41,7 +35,6 @@ function validate_line(l: Line, s: Sketch): ValidationResult {
         () => relative_endpoints_are_correct(l),
         () => sketch_points_as_enpoints(s, l),
         () => no_nan_values(l),
-        () => data_object_valid(l.data, s),
         () => endpoints_have_line(l),
     ];
 
@@ -72,8 +65,7 @@ function validate_point(
 ) {
     const validations: (ValidationFunction | ValidationResult)[] = [
         () => same_sketch(p, s),
-        () => adjacent_lines_have_endpoint(p),
-        () => data_object_valid(p.data, s),
+        () => adjacent_lines_have_endpoint(p)
     ];
 
     return merge_validations(validations);
@@ -82,11 +74,11 @@ function validate_point(
 // TEST CASES LINES
 
 function relative_endpoints_are_correct(l: Line) {
-    if (!l.get_sample_points()[0].equals(ZERO)) {
+    if (!l.get_sample_points()[0]!.equals(ZERO)) {
         return "Line sample points don't start with (0,0).";
     }
 
-    if (!l.get_sample_points()[1].equals(new Vector(1, 0))) {
+    if (!l.get_sample_points()[1]!.equals(new Vector(1, 0))) {
         ("Line sample points don't end with (1,0).");
     }
 }
@@ -128,87 +120,4 @@ function adjacent_lines_have_endpoint(pt: Point) {
         pt.get_adjacent_lines().every((l) => l.has_endpoint(pt)),
         "A point has a line registered that shouldn't be there"
     );
-}
-
-// TEST CASES SKETCH
-function data_object_valid(data: any, s: Sketch) {
-    let nesting = 0;
-    nesting_buffer(data);
-
-    function nesting_buffer(data: any): any {
-        nesting++;
-        if (nesting > 50) {
-            throw new Error(
-                "Data nesting to deep! Circular data structure?"
-            );
-        }
-
-        // Basic Stuff
-        if (
-            [
-                "undefined",
-                "boolean",
-                "number",
-                "bigint",
-                "string",
-                "symbol",
-            ].includes(typeof data)
-        ) {
-            return nesting--;
-        }
-
-        if (data == null) {
-            return nesting--;
-        }
-
-        // Arrays
-        if (data instanceof Array) {
-            nesting--;
-            return data.map(nesting_buffer);
-        }
-
-        // Basic dicts
-        if (data.constructor === Object) {
-            for (const key in data) {
-                nesting_buffer(data[key]);
-            }
-            return nesting--;
-        }
-
-        // Points
-        if (data instanceof Point) {
-            assert(
-                s.has(data),
-                "Object data references point not in sketch"
-            );
-            return nesting--;
-        }
-
-        // Vectors
-        if (data instanceof Vector) {
-            return nesting--;
-        }
-
-        // Lines
-        if (data instanceof Line) {
-            assert(
-                s.has(data),
-                "Object data references line not in sketch"
-            );
-            return nesting--;
-        }
-
-        if (data instanceof ConnectedComponent) {
-            assert(
-                s.has(data.root()),
-                "Root element of ConnectedCompoonent doesnt belong to sketch"
-            );
-            return nesting--;
-        }
-
-        assert(
-            false,
-            "Object data somewhere has object of unhandled datatype (Invalid data type)"
-        );
-    }
 }

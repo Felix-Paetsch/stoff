@@ -14,25 +14,25 @@ export function unique<T extends SketchElement>(ec: SketchElementCollection<T>):
     )
 }
 
-export function get_lines(ec: SketchElementCollection): Line[] {
+export function get_lines(ec: SketchElementCollection, filter: LineFilter = true): Line[] {
     const nec = sketch_element_collection_as_array(ec);
-    return nec.filter(e => e instanceof Line);
+    return nec.filter(e => e instanceof Line && filterLine(filter, e as Line)) as Line[];
 }
 
-export function get_points(ec: SketchElementCollection): Point[] {
+export function get_points(ec: SketchElementCollection, filter: PointFilter = true): Point[] {
     const nec = sketch_element_collection_as_array(ec);
-    return nec.filter(e => e instanceof Point);
+    return nec.filter(e => e instanceof Point && filterPoint(filter, e as Point)) as Point[];
 }
 
-export function get_sketch(...els: (SketchElement | { get_sketch(): Sketch })[]): Sketch {
+export function get_sketch(...els: ({ get_sketch(): Sketch })[]): Sketch {
     if (els.length == 0) {
         return new Sketch();
     }
     if (els.length == 1) {
-        return els[0].get_sketch();
+        return els[0]!.get_sketch();
     }
     assert(same_sketch(...els.map(e => e.get_sketch())));
-    return els[0].get_sketch();
+    return els[0]!.get_sketch();
 }
 
 export function group_by_key(ec: SketchElementCollection, key: string) {
@@ -118,13 +118,13 @@ export function get_points_between_lines(
     let result: SketchElementCollection<Point> = [];
     for (let i = 0; i < lines.length - 1; i++) {
         for (let j = i + 1; j < lines.length; j++) {
-            const p = lines[i].common_endpoint(lines[j]);
+            const p = lines[i]!.common_endpoint(lines[j]!);
             if (
                 p
                 && ((
-                    testedFilters[i][0] && testedFilters[j][1]
+                    testedFilters[i]![0] && testedFilters[j]![1]
                 ) || (
-                        testedFilters[i][1] && testedFilters[j][0]
+                        testedFilters[i]![1] && testedFilters[j]![0]
                     ))
                 && points.includes(p)
                 && !result.includes(p)
@@ -193,9 +193,9 @@ export function get_lines_between_points(
         points = sketch!.get_points();
     }
 
-    const testedFilters: [boolean, boolean][] = points.map(l => ([
-        filterPoint(point1Filter, l),
-        filterPoint(point2Filter, l)
+    const testedFilters: [boolean, boolean][] = points.map(p => ([
+        filterPoint(point1Filter, p),
+        filterPoint(point2Filter, p)
     ]));
 
     let result: SketchElementCollection<Line> = [];
@@ -203,12 +203,13 @@ export function get_lines_between_points(
         for (let j = i + 1; j < points.length; j++) {
             if (
                 (
-                    testedFilters[i][0] && testedFilters[j][1]
+                    testedFilters[i]![0] && testedFilters[j]![1]
                 ) || (
-                    testedFilters[i][1] && testedFilters[j][0]
+                    testedFilters[i]![1] && testedFilters[j]![0]
                 )
             ) {
-                result.push(...points[i].common_lines(points[j]));
+                const common = points[i]!.common_lines(points[j]!);
+                result.push(...common.filter(c => lines.includes(c)));
             }
         }
     }

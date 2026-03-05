@@ -220,8 +220,8 @@ export function anchor(s: Sketch, ...objects: SketchElement[]) {
 
     for (let i = 1; i < connected_component_points.length; i++) {
         const a = s.line_between_points(
-            connected_component_points[0][0],
-            connected_component_points[i][0],
+            connected_component_points[0]![0]!,
+            connected_component_points[i]![0]!,
         );
 
         a.data = {
@@ -235,7 +235,7 @@ export function anchor(s: Sketch, ...objects: SketchElement[]) {
 }
 
 export function remove_anchors(s: Sketch) {
-    s.remove(...CollectionMethods.lines_by_key(s, "_anchor")["true"]);
+    s.remove(...(CollectionMethods.lines_by_key(s, "_anchor")["true"] || []));
     return s;
 }
 
@@ -247,17 +247,17 @@ export function path_between_points(
     if (line == null) {
         const adj = p1.get_adjacent_lines();
         assert(adj.length == 1);
-        line = adj[0];
+        line = adj[0]!;
     }
 
     const points: Point[] = [p1];
     const lines: Line[] = [line];
-    let last_line_p2 = lines[0].other_endpoint(p1);
+    let last_line_p2 = lines[0]!.other_endpoint(p1);
     while (last_line_p2 !== p2) {
         points.push(last_line_p2);
         const new_line = last_line_p2.other_adjacent_lines(
-            lines[lines.length - 1],
-        )[0];
+            lines[lines.length - 1]!,
+        )[0]!;
         assert(new_line instanceof Line, "There is no path from p1 to p2.");
 
         lines.push(new_line);
@@ -285,16 +285,16 @@ export function decompress_components(s: Sketch) {
 
     while (current_index < cc.length) {
         for (let i = 0; i < cols && current_index < cc.length; i++) {
-            const c = cc[current_index];
+            const c = cc[current_index]!;
             const off_by = current_TL.subtract(c.bounding_box.top_left);
             c.points.forEach((pt) => pt.offset_by(off_by));
 
             current_index++;
-            current_TL.x += c.bounding_box.width + 3;
+            current_TL = new Vector(current_TL.x + c.bounding_box.width + 3, current_TL.y);
             max_height = Math.max(max_height, c.bounding_box.height);
         }
 
-        current_TL.set(0, current_TL.y + max_height + 3);
+        current_TL = new Vector(0, current_TL.y + max_height + 3);
         max_height = 0;
     }
 
@@ -326,36 +326,52 @@ export function unfold(
     s.paste_sketch(s);
     CollectionMethods.mirror([...old_lines, ...old_pts], VERTICAL);
 
-    const new_pts = [...s.get_points().filter(p => !old_pts.includes(p))]
-    const new_lns = [...s.get_lines().filter(p => !old_lines.includes(p))]
+    const pt_pairs = old_pts.map(
+        p => {
+            const pts = CollectionMethods.get_points(s, {
+                __unfoldUID: p.data.__unfoldUID!
+            });
+            if (pts[0] == p) return pts;
+            return [pts[1]!, pts[0]!];
+        }
+    );
 
-    const get_dublicate_pt = (id: string) => new_pts.filter(p => p.data.__unfoldUID == id)[0]!;
-    const get_dublicate_ln = (id: string) => new_lns.filter(l => l.data.__unfoldUID == id)[0]!;
-    const get_orig_pt = (id: string) => old_pts.filter(p => p.data.__unfoldUID == id)[0]!;
-    const get_orig_ln = (id: string) => old_lines.filter(l => l.data.__unfoldUID == id)[0]!;
+    const ln_pairs = old_lines.map(
+        l => {
+            const lns = CollectionMethods.get_lines(s, {
+                __unfoldUID: l.data.__unfoldUID!
+            });
+            if (lns[0] == l) return lns;
+            return [lns[1]!, lns[0]!];
+        }
+    );
+
+    remove_underscore_attributes(s);
+
+    const along_line_copy: [Point, Point] = [
+        pt_pairs.find(p => p[0] == along_line[0])![1]!,
+        pt_pairs.find(p => p[0] == along_line[1])![1]!
+    ]
 
     glue(
         s,
         along_line,
-        [
-            get_dublicate_pt(along_line[0].data.__unfoldUID),
-            get_dublicate_pt(along_line[1].data.__unfoldUID),
-        ],
+        along_line_copy,
         {
             points: (d) => d
         }
     )
 
-    s.get_lines().forEach((l) => {
-        const ref = get_orig_ln(l.data.__unfoldUID);
-        if (ref === l) callback(l, "original", l);
-        else callback(l, "mirror", ref);
+    remove_anchors(s);
+
+    pt_pairs.forEach(pair => {
+        callback(pair[0]!, "original", pair[0]!);
+        callback(pair[1]!, "mirror", pair[0]!);
     });
 
-    s.get_points().forEach((p) => {
-        const ref = get_orig_pt(p.data.__unfoldUID);
-        if (ref === p) callback(p, "original", p);
-        else callback(p, "mirror", ref);
+    ln_pairs.forEach(pair => {
+        callback(pair[0]!, "original", pair[0]!);
+        callback(pair[1]!, "mirror", pair[0]!);
     });
 }
 

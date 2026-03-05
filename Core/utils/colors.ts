@@ -263,10 +263,10 @@ export function colorToRgb(col: Color): [number, number, number, number] {
         return col.match(/\d+\.?\d*/g)?.map(Number) as [number, number, number, number];
     } else if (col.startsWith('hsl')) {
         const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-        return [...hslToRgb(h, s, l), 1];
+        return [...hslToRgb(h!, s!, l!), 1];
     } else if (col.startsWith('hsla')) {
         const [h, s, l, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-        return [...hslToRgb(h, s, l), a];
+        return [...hslToRgb(h!, s!, l!), a!];
     }
 
     return [0, 0, 0, 0];

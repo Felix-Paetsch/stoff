@@ -2,7 +2,6 @@ import { LineRenderAttributes } from "@/Core/StoffLib/line";
 import { PointRenderAttributes } from "@/Core/StoffLib/point";
 import { FaceEdgeRenderAttributes } from "../renderer";
 import { Color, Gradient, interpolate_colors } from "@/Core/utils/colors";
-import { Grayscale } from "pdf-lib";
 
 export const sewing_inactive_point_style = {
     strokeWidth: 2,

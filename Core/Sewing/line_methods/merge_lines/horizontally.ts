@@ -1,30 +1,29 @@
-import { Line } from "@/Core/StoffLib/line";
-import { Sewing } from "../../sewing";
 import { SewingLine } from "../../sewingLine";
 import { FaceCarousel, FaceEdgeWithPosition } from "../../faceCarousel";
 import { FaceEdge } from "../../faceEdge";
+import { assert } from "../../../assert";
+import { same_sewing } from "../../assert_methods";
 
-export function merge_lines_horizontally(sewing: Sewing, line1: SewingLine, line2: SewingLine): SewingLine;
-export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine | Line)[]): SewingLine;
-export function merge_lines_horizontally(sewing: Sewing, ...lines: (SewingLine | Line)[]): SewingLine {
-    if (lines.length === 1) {
-        return lines[0] instanceof SewingLine ? lines[0] : sewing.sewing_line(lines[0]);
-    }
-
-    if (lines.length > 2) {
-        return merge_lines_horizontally(
-            sewing,
-            merge_lines_horizontally(sewing, lines[0], lines[1]),
-            ...lines.slice(2)
-        );
-    }
+export function merge_lines_horizontally(...lines: SewingLine[]): SewingLine {
+    assert(same_sewing(...lines));
 
     if (lines.length === 0) {
         throw new Error("No lines to merge");
     }
 
-    const line1: SewingLine = lines[0] instanceof Line ? sewing.sewing_line(lines[0]) : lines[0];
-    const line2: SewingLine = lines[1] instanceof Line ? sewing.sewing_line(lines[1]) : lines[1];
+    if (lines.length === 1) {
+        return lines[0]!;
+    }
+
+    if (lines.length > 2) {
+        return merge_lines_horizontally(
+            merge_lines_horizontally(lines[0]!, lines[1]!),
+            ...lines.slice(2)
+        );
+    }
+
+    const line1: SewingLine = lines[0]!;
+    const line2: SewingLine = lines[1]!;
 
     line2.set_orientation(line1);
     line2.set_handedness(line1);
@@ -63,8 +62,6 @@ function merge_face_carousels_horizontally(sewingLine: SewingLine, carousel1: Fa
                 other_start_edge = other_edge;
 
                 new_edges.push(merge_face_edges_horizontally(
-                    carousel1.sewingLine,
-                    carousel2.sewingLine,
                     start_edge,
                     other_start_edge
                 ));
@@ -76,7 +73,7 @@ function merge_face_carousels_horizontally(sewingLine: SewingLine, carousel1: Fa
     const first_carousel_edges = carousel1.face_edges(start_edge || 0);
     start_edge && first_carousel_edges.next();
     if (!other_start_edge) {
-        other_start_edge = carousel2.faceEdges[0];
+        other_start_edge = carousel2.faceEdges[0]!;
         new_edges.push(other_start_edge);
     }
 
@@ -94,8 +91,6 @@ function merge_face_carousels_horizontally(sewingLine: SewingLine, carousel1: Fa
                 }
 
                 new_edges.push(merge_face_edges_horizontally(
-                    carousel1.sewingLine,
-                    carousel2.sewingLine,
                     edge,
                     other_edge
                 ));
@@ -117,11 +112,11 @@ function merge_face_carousels_horizontally(sewingLine: SewingLine, carousel1: Fa
 }
 
 
-function merge_face_edges_horizontally(sewingLine1: SewingLine, sewingLine2: SewingLine, edge1: FaceEdgeWithPosition, edge2: FaceEdgeWithPosition): FaceEdgeWithPosition {
-    // We assume edge1 and edge2 are connected horizontally, having correct orientation and belong to those sewing lines
+function merge_face_edges_horizontally(edge1: FaceEdgeWithPosition, edge2: FaceEdgeWithPosition): FaceEdgeWithPosition {
+    // We assume edge1 and edge2 are connected horizontally, having correct orientation
     const new_edge_lines = [...edge1.edge.lines];
     if (
-        new_edge_lines.length > 0 && new_edge_lines[new_edge_lines.length - 1].line === edge2.edge.lines[0].line
+        new_edge_lines.length > 0 && new_edge_lines[new_edge_lines.length - 1]!.line === edge2.edge.lines[0]!.line
     ) {
         new_edge_lines.push(...edge2.edge.lines.slice(1));
     } else {

@@ -7,17 +7,13 @@ import { Sketch } from "../sketch";
 
 export * from "./sketch_is_valid";
 
-export function invalid_path(str = "Invalid path reached!") {
-    return str;
-}
-
 export function same_sketch(
-    ...els: (SketchElement | {
+    ...els: ({
         get_sketch: () => Sketch
     })[]
 ) {
     if (els.length == 0) return true;
-    const sketch = els[0].get_sketch();
+    const sketch = els[0]!.get_sketch();
 
     return merge_validations(
         els.map(
@@ -44,4 +40,3 @@ export function vec_on_line(vec: Vector, line: Line) {
 export function path_connected(el1: SketchElement, el2: SketchElement) {
     return el1.connected_component().contains(el2);
 }
-

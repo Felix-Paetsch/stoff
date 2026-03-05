@@ -1,5 +1,5 @@
 let currently_display: string[] = ["base"]
-let render_groups: Map<string, HTMLElement[]> = new Map()
+const render_groups: Map<string, HTMLElement[]> = new Map()
 
 let tooltipEl: HTMLPreElement | null = null
 let currentHoveredEl: HTMLElement | null = null

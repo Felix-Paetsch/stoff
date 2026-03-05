@@ -31,7 +31,6 @@ export const sketch_graphical_non_pure_methods: MethodName<Sketch>[] = [
     "merge_lines",
     "merge_points",
     "paste_sketch",
-    "point",
     "point_on_line",
     "remove"
 ];

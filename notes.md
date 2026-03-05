@@ -1,10 +1,21 @@
+Get Away from React? Or fix react errors. Lazy load line numbers?
+Fix react errors?
+TS Warnings for bad array and object accesses
+Make UI nicer; e.g. when hovering
+
+Talk with Leonie abt current progress
+
+
+============
+
+
+
 - Make things faster
 - Render to A4
 - Sewings
 - Leonies Muster
-- Get rid of sketch data
 
-
+- Get away from react?
 
 
 Debug Performance!!

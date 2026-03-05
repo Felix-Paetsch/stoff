@@ -33,7 +33,7 @@ export class SewingPoint {
 
     representative(): Point {
         assert(!this._is_outdated, "SewingPoint is outdated");
-        return this.points[0];
+        return this.points[0]!;
     }
 
     representative_for_line(line: Line): Point {

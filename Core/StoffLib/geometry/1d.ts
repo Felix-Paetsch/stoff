@@ -12,3 +12,17 @@ export function interval_overlap(i: Interval, ...intervals: Interval[]): Interva
     const y = Math.min(...intervals.map(i => i[1]));
     return [Math.min(x, y), Math.max(x, y)];
 }
+
+export function pythagoras([w1, w2]: Interval, [h1, h2]: Interval): number;
+export function pythagoras(w: number, h: number): number;
+export function pythagoras(w: any, h: any): number {
+    if (typeof w !== "number") {
+        return pythagoras(w[0] - w[1], h[0] - h[1]);
+    }
+
+    return Math.sqrt(w * w + h * h);
+}
+
+export function lerp(a: number, b: number, amt: number): number {
+    return a * (1 - amt) + b * amt;
+}

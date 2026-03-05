@@ -21,12 +21,15 @@ export const assert = (bool: ValidationResult | ValidationFunction, error: strin
     return true;
 };
 
-export function validation_failed(v: ValidationResult) {
-    return v === false;
+export function invalid_path(str = "Invalid path reached!") {
+    return str;
 }
 
+export function validation_failed(v: ValidationResult) {
+    return v === false || (typeof v == "string");
+}
 
-export function merge_validations(fns: (ValidationFunction | ValidationResult)[]): ValidationResult {
+export function merge_validations(fns: (ValidationFunction | ValidationResult)[], failure_text: string | null = null): ValidationResult {
     for (let f of fns) {
         let res: ValidationResult;
         if (typeof f == "function") {
@@ -36,7 +39,7 @@ export function merge_validations(fns: (ValidationFunction | ValidationResult)[]
         }
 
         if (validation_failed(res)) {
-            return res;
+            return failure_text || res;
         }
     }
 

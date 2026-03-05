@@ -6,7 +6,7 @@ import { readLS, writeLS } from "./utils/localStorageMap"
 import { MainPage } from "./pages/main"
 import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults"
 import { useEffect, useState } from "react"
-import { is_pattern_config_with_pattern_name } from "./lib/is_pattern_config"
+import { is_pattern_config_with_pattern_name, PatternConfigWithName } from "./lib/is_pattern_config"
 import { PatternConfig } from "@/Patterns/patterns"
 import { create_design_data } from "./lib/create_design_data";
 import { } from "./lib/sketch_tooltips"
@@ -95,7 +95,7 @@ export function App() {
 
 export type DesignInputData = ReturnType<typeof useGetDesignInputData>;
 function useGetDesignInputData() {
-    const [designData, setDesignData] = useState<PatternConfig>(() => {
+    const [designData, setDesignData] = useState<PatternConfigWithName>(() => {
         const saved = readLS(
             "designDataText",
             JSON.stringify(DEFAULT_DESIGN_CONFIG)
@@ -111,7 +111,7 @@ function useGetDesignInputData() {
             return DEFAULT_DESIGN_CONFIG
         }
 
-        return res as any;
+        return res as PatternConfigWithName;
     })
 
     const [measureData, setMeasureData] = useState(() => {

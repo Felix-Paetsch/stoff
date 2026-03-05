@@ -64,7 +64,5 @@ export default function () {
     }
 
     // Store the triangle data in the Sketch object for visualization if needed
-    s.data = { original: triangle, incomplete: incompleteTriangle, computed: computedTriangle };
-
     return s;
 }

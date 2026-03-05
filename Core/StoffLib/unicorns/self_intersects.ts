@@ -39,11 +39,11 @@ export function self_intersects(line: Line): boolean {
         let start = 0;
         let i = 1;
         while (i < plen) {
-            let prev = points[start],
-                curr = points[i];
+            let prev = points[start]!;
+            let curr = points[i]!;
             while (i < plen && curr.x === prev.x && curr.y === prev.y) {
                 i++;
-                curr = points[i];
+                curr = points[i]!;
             }
             if (i === plen) break;
 
@@ -55,14 +55,14 @@ export function self_intersects(line: Line): boolean {
             const y_dec = y_diff < 0;
 
             while (i + 1 < plen) {
-                let next = points[i + 1];
+                let next = points[i + 1]!;
                 while (
                     i + 1 < plen &&
                     next.x === curr.x &&
                     next.y === curr.y
                 ) {
                     i++;
-                    next = points[i + 1];
+                    next = points[i + 1]!;
                 }
                 if (i + 1 === plen) break;
 
@@ -94,9 +94,9 @@ export function self_intersects(line: Line): boolean {
     const segCount = monotone_segments.length;
     const segment_lines = new Array(segCount);
     for (let si = 0; si < segCount; si++) {
-        const seg = monotone_segments[si];
-        const s = seg[0],
-            e = seg[1];
+        const seg = monotone_segments[si]!;
+        const s = seg[0]!;
+        const e = seg[1]!;
         const lines = [];
         let pi = s;
 
@@ -104,23 +104,24 @@ export function self_intersects(line: Line): boolean {
         while (
             pi < e &&
             points[pi + 1] &&
-            points[pi].x === points[pi + 1].x &&
-            points[pi].y === points[pi + 1].y
-        )
+            points[pi]!.equals(points[pi + 1]!)
+        ) {
             pi++;
+        }
 
         for (let j = pi + 1; j <= e; j++) {
             // Skip duplicates in between
             while (
                 j <= e &&
-                points[pi].x === points[j].x &&
-                points[pi].y === points[j].y
+                points[pi]!.equals(points[j]!)
             )
                 j++;
             if (j > e) break;
-            const p1 = points[pi],
-                p2 = points[j];
-            if (p1.x !== p2.x || p1.y !== p2.y) {
+
+            const p1 = points[pi]!;
+            const p2 = points[j]!;
+
+            if (!p1.equals(p2)) {
                 lines.push([p1, p2]);
                 pi = j;
             } else {
@@ -130,12 +131,12 @@ export function self_intersects(line: Line): boolean {
 
         let direction = 1;
         for (let k = 0; k < lines.length; k++) {
-            const l = lines[k];
-            if (l[0].x < l[1].x) {
+            const l = lines[k]!;
+            if (l[0]!.x < l[1]!.x) {
                 direction = 1;
                 break;
             }
-            if (l[0].x > l[1].x) {
+            if (l[0]!.x > l[1]!.x) {
                 direction = -1;
                 break;
             }

@@ -3,7 +3,7 @@ import CONF from "../config.json" with { type: "json" };
 import { EPS, Vector, ZERO } from "../geometry";
 import { Line } from "../line";
 
-export function rel_normalized_sample_points(line: Line, approx_sample_spacing: number | null = null) {
+export function rel_normalized_sample_points(line: Line, approx_sample_spacing: number | null = null): Vector[] {
     if (approx_sample_spacing == null) {
         const density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
         approx_sample_spacing = line.get_length() / (density * line.endpoint_distance());
@@ -15,26 +15,27 @@ export function rel_normalized_sample_points(line: Line, approx_sample_spacing: 
     const sample_point_distance = total_len * step_size;
 
     const sp = line.sample_points;
-    const res = [sp[0]];
+    const res: Vector[] = [sp[0]!];
 
     let current_sp_index = 0;
-    let point_for_distance_from = sp[0]; // Is or is after sp[current_sp_index]
+    let point_for_distance_from = sp[0]!; // Is or is after sp[current_sp_index]
     let distance_left = sample_point_distance;
 
     while (current_sp_index < sp.length - 1) {
-        let distance_to_next_sp_point = point_for_distance_from
-            .subtract(sp[current_sp_index + 1])
-            .length();
+        let distance_to_next_sp_point = Vector.subtract(
+            point_for_distance_from,
+            sp[current_sp_index + 1]!
+        ).length();
+
         if (distance_to_next_sp_point < distance_left) {
             distance_left -= distance_to_next_sp_point;
             current_sp_index += 1;
-            point_for_distance_from = sp[current_sp_index];
+            point_for_distance_from = sp[current_sp_index]!;
         } else {
             const next_sample_point = point_for_distance_from.add(
-                sp[current_sp_index + 1]
+                sp[current_sp_index + 1]!
                     .subtract(point_for_distance_from)
-                    .normalize()
-                    .mult(distance_left)
+                    .to_len(distance_left)
             );
 
             point_for_distance_from = next_sample_point;
@@ -44,13 +45,13 @@ export function rel_normalized_sample_points(line: Line, approx_sample_spacing: 
     }
 
     if (
-        sp[sp.length - 1].subtract(res[res.length - 1]).length() <
+        sp[sp.length - 1]!.subtract(res[res.length - 1]!).length() <
         sample_point_distance * 0.3
     ) {
         res.pop();
     }
 
-    res.push(sp[sp.length - 1]);
+    res.push(sp[sp.length - 1]!);
 
     return res;
 };
@@ -68,7 +69,7 @@ export function remove_duplicate_points(line: Line) {
     let last_index = 0;
     line.sample_points = line.sample_points.filter((point, index) => {
         if (index === 0) return true;
-        const prevPoint = line.sample_points[last_index];
+        const prevPoint = line.sample_points[last_index]!;
         if (prevPoint.distance(point) > EPS.WEAK_EQUAL) {
             last_index = index;
             return true;
@@ -105,10 +106,10 @@ export function smooth_out(
     // Arc-length parameterization
     const arc: number[] = [0];
     for (let i = 1; i < pts.length; i++) {
-        arc[i] = arc[i - 1] + pts[i - 1].distance(pts[i]);
+        arc[i] = arc[i - 1]! + pts[i - 1]!.distance(pts[i]!);
     }
 
-    const L = arc[arc.length - 1];
+    const L = arc[arc.length - 1]!;
     const k = ker_size;
 
     // Weighted centroid over segments
@@ -117,23 +118,23 @@ export function smooth_out(
         let total = 0;
 
         for (let i = 0; i < weights.length; i++) {
-            const w = weights[i];
+            const w = weights[i]!;
             if (w <= 0) continue;
 
             acc = acc.add(
-                points[i].add(points[i + 1]).scale(0.5 * w)
+                points[i]!.add(points[i + 1]!).scale(0.5 * w)
             );
             total += w;
         }
 
-        return total > 0 ? acc.scale(1 / total) : points[0];
+        return total > 0 ? acc.scale(1 / total) : points[0]!;
     }
 
     const new_points: Vector[] = [];
-    new_points.push(pts[0]); // fixed endpoint
+    new_points.push(pts[0]!); // fixed endpoint
 
     for (let i = 1; i < pts.length - 1; i++) {
-        const s = arc[i];
+        const s = arc[i]!;
         const w0 = s - k;
         const w1 = s + k;
 
@@ -143,14 +144,14 @@ export function smooth_out(
         // Left collapsed mass
         if (w0 < 0) {
             const w = -w0;
-            points.push(pts[0], pts[0]);
+            points.push(pts[0]!, pts[0]!);
             weights.push(w);
         }
 
         // Interior segments
         for (let j = 0; j < pts.length - 1; j++) {
-            const a0 = arc[j];
-            const a1 = arc[j + 1];
+            const a0 = arc[j]!;
+            const a1 = arc[j + 1]!;
             const seg_len = a1 - a0;
 
             if (seg_len <= EPS.WEAK_EQUAL) continue;
@@ -160,8 +161,8 @@ export function smooth_out(
             const t1 = Math.min(1, (w1 - a0) / seg_len);
             if (t0 >= t1) continue;
 
-            const p0 = pts[j].scale(1 - t0).add(pts[j + 1].scale(t0));
-            const p1 = pts[j].scale(1 - t1).add(pts[j + 1].scale(t1));
+            const p0 = Vector.lerp(pts[j]!, pts[j + 1]!, t0);
+            const p1 = Vector.lerp(pts[j]!, pts[j + 1]!, t1);
             const w = (t1 - t0) * seg_len;
 
             if (points.length === 0) points.push(p0);
@@ -172,7 +173,7 @@ export function smooth_out(
         // Right collapsed mass
         if (w1 > L) {
             const w = w1 - L;
-            const last = pts[pts.length - 1];
+            const last = pts[pts.length - 1]!;
             if (points.length === 0) {
                 points.push(last);
             }
@@ -181,11 +182,11 @@ export function smooth_out(
         }
 
         new_points.push(
-            weights.length > 0 ? centroid(points, weights) : pts[i]
+            weights.length > 0 ? centroid(points, weights) : pts[i]!
         );
     }
 
-    new_points.push(pts[pts.length - 1]); // fixed endpoint
+    new_points.push(pts[pts.length - 1]!); // fixed endpoint
 
     line.sample_points = new_points;
     return line;
@@ -193,19 +194,19 @@ export function smooth_out(
 
 export function compute_polyline_center_point(
     points: Vector[]
-) {
+): Vector {
     assert(points.length > 0, "No points give");
-    if (points.length == 1) return points[1];
+    if (points.length == 1) return points[1]!;
 
     let result = ZERO;
     let len = 0;
 
     for (let i = 0; i < points.length - 1; i++) {
-        const distance = points[i].distance(points[i + 1]);
+        const distance = points[i]!.distance(points[i + 1]!);
         len += distance;
 
         result = result.add(
-            points[i].add(points[i + 1]).scale(distance)
+            points[i]!.add(points[i + 1]!).scale(distance)
         );
     }
 

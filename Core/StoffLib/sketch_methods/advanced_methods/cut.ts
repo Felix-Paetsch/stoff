@@ -34,18 +34,18 @@ export function cut_with_fixed_point(
     for (let i = 0; i < ordered.lines.length; i++) {
         if (ordered.orientations[i]) {
             copied_lines.push(
-                s.copy_line(ordered.lines[i], ordered.points[i], ordered.points[i + 1])
+                s.copy_line(ordered.lines[i]!, ordered.points[i]!, ordered.points[i + 1]!)
             )
         } else {
             copied_lines.push(
-                s.copy_line(ordered.lines[i], ordered.points[i + 1], ordered.points[i])
+                s.copy_line(ordered.lines[i]!, ordered.points[i + 1]!, ordered.points[i]!)
             )
         }
     }
 
     grp2.forEach(line => {
         const endpoint_index = ordered.points.findIndex(p => line.has_endpoint(p));
-        line.replace_endpoint(ordered.points[endpoint_index], copied_points[endpoint_index]);
+        line.replace_endpoint(ordered.points[endpoint_index]!, copied_points[endpoint_index]!);
     });
 
     return [
@@ -75,18 +75,18 @@ export function cut_without_fixed_point(
     for (let i = 0; i < ordered.lines.length; i++) {
         if (ordered.orientations[i]) {
             copied_lines.push(
-                s.copy_line(ordered.lines[i], ordered.points[i], ordered.points[i + 1])
+                s.copy_line(ordered.lines[i]!, ordered.points[i]!, ordered.points[i + 1]!)
             )
         } else {
             copied_lines.push(
-                s.copy_line(ordered.lines[i], ordered.points[i + 1], ordered.points[i])
+                s.copy_line(ordered.lines[i]!, ordered.points[i + 1]!, ordered.points[i]!)
             )
         }
     }
 
     grp2.forEach(line => {
         const endpoint_index = ordered.points.findIndex(p => line.has_endpoint(p));
-        line.replace_endpoint(ordered.points[endpoint_index], copied_points[endpoint_index]);
+        line.replace_endpoint(ordered.points[endpoint_index]!, copied_points[endpoint_index]!);
     });
 
     return [

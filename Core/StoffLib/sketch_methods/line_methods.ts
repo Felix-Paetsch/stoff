@@ -77,7 +77,7 @@ export function line_from_function_graph(
     );
 
     const transform = affine_transform_from_input_output(
-        [sample_points[0], sample_points[sample_points.length - 1]],
+        [sample_points[0]!, sample_points[sample_points.length - 1]!],
         [new Vector(0, 0), new Vector(1, 0)]
     );
 
@@ -100,7 +100,7 @@ export function _line_between_points_from_sample_points(
     });
 
     const to_rel_fun = affine_transform_from_input_output(
-        [sp[0], sp[sp.length - 1]],
+        [sp[0]!, sp[sp.length - 1]!],
         [new Vector(0, 0), new Vector(1, 0)]
     );
 
@@ -171,13 +171,10 @@ export function interpolate_lines(
         const i1 = Math.min(i0 + 1, samples.length - 1);
         const f = index - i0;
 
-        const s0 = samples[i0];
-        const s1 = samples[i1];
+        const s0 = samples[i0]!;
+        const s1 = samples[i1]!;
 
-        return new Vector(
-            s0.x * (1 - f) + s1.x * f,
-            s0.y * (1 - f) + s1.y * f
-        );
+        return Vector.lerp(s0, s1, f)
     }
 
     const sample_points = new Array(n + 1);
@@ -193,11 +190,7 @@ export function interpolate_lines(
         );
 
         const ft = f_norm(t);
-
-        sample_points[i] = new Vector(
-            L1.x * (1 - ft) + L2.x * ft,
-            L1.y * (1 - ft) + L2.y * ft
-        );
+        sample_points[i] = Vector.lerp(L1, L2, ft);
     }
 
     const new_line = _line_between_points_from_sample_points(
@@ -306,7 +299,7 @@ export function point_on_line(
     let closest_distance = Infinity;
     for (let i = 0; i < abs.length - 1; i++) {
         const new_dist = distance_from_line_segment(
-            [abs[i], abs[i + 1]],
+            [abs[i]!, abs[i + 1]!],
             pt
         );
         if (closest_distance > new_dist) {
@@ -319,8 +312,8 @@ export function point_on_line(
         throw new Error("Point not actually on line!");
     }
 
-    const line_vector = abs[closest_line_segment_first_index + 1].subtract(
-        abs[closest_line_segment_first_index]
+    const line_vector = abs[closest_line_segment_first_index + 1]!.subtract(
+        abs[closest_line_segment_first_index]!
     );
     const offset_vector = line_vector
         .get_orthonormal()
@@ -416,9 +409,9 @@ export function line_with_offset(
         offset,
         withHandedness,
     );
-    const p1 = sketch.add_point(abs_sample_points[0]);
+    const p1 = sketch.add_point(abs_sample_points[0]!);
     const p2 = sketch.add_point(
-        abs_sample_points[abs_sample_points.length - 1],
+        abs_sample_points[abs_sample_points.length - 1]!,
     );
 
     const ret_line = sketch._line_between_points_from_sample_points(

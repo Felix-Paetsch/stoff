@@ -101,7 +101,7 @@ export class Sewing {
     merge_lines(line1: SewingLine, line2: SewingLine): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine;
     merge_lines(...lines: (SewingLine | Line)[]): SewingLine {
-        return merge_lines_horizontally(this, ...this.order_by_endpoints(lines));
+        return merge_lines_horizontally(...this.order_by_endpoints(lines));
     }
 
     sewing_line(line: Line): SewingLine {
@@ -139,18 +139,18 @@ export class Sewing {
         }
 
         const ordered_lines = [sl.pop()!];
-        const endpoints = ordered_lines[0].get_endpoints();
+        const endpoints = ordered_lines[0]!.get_endpoints();
         outer: while (sl.length > 0) {
             for (let i = 0; i < sl.length; i++) {
-                if (sl[i].has_endpoint(endpoints[1])) {
-                    ordered_lines.push(sl[i]);
-                    endpoints[1] = sl[i].other_endpoint(endpoints[endpoints.length - 1]);
+                if (sl[i]!.has_endpoint(endpoints[1])) {
+                    ordered_lines.push(sl[i]!);
+                    endpoints[1] = sl[i]!.other_endpoint(endpoints[endpoints.length - 1]!);
                     sl.splice(i, 1);
                     continue outer
                 }
-                if (sl[i].has_endpoint(endpoints[0])) {
-                    ordered_lines.unshift(sl[i]);
-                    endpoints[0] = sl[i].other_endpoint(endpoints[0]);
+                if (sl[i]!.has_endpoint(endpoints[0])) {
+                    ordered_lines.unshift(sl[i]!);
+                    endpoints[0] = sl[i]!.other_endpoint(endpoints[0]);
                     sl.splice(i, 1);
                     continue outer
                 }
@@ -174,7 +174,7 @@ export class Sewing {
         if (Array.isArray(line)) {
             return line.map((l) => this.cut(l));
         }
-        if (this.renderers.length > 0 && this.renderers[this.renderers.length - 1].render_step == "cut") {
+        if (this.renderers.length > 0 && this.renderers[this.renderers.length - 1]!.render_step == "cut") {
             (this.renderers[this.renderers.length - 1] as ReturnType<typeof cutRenderer>).add_cut_line(
                 line
             );
@@ -207,7 +207,7 @@ export class Sewing {
     }
 
     sew(guide: SewingLine, sewOn: StackLine[]) {
-        const res = merge_lines_vertically(this, guide, sewOn);
+        const res = merge_lines_vertically(guide, sewOn);
         this.renderers.push(sewRenderer(this, res));
         return res;
     }
@@ -216,7 +216,7 @@ export class Sewing {
         this.renderers.push(highlightRenderer(this, objects));
     }
 
-    todo(what: string, args: any) { }
+    todo(_what: string, _args: any) { }
 
     dev_render() {
         this.renderers.push(devRenderer(this));

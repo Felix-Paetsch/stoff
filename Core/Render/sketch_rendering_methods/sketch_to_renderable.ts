@@ -86,15 +86,15 @@ function sketch_to_renderable(
     };
 }
 
-function reduce_polyline_sample_points(polyline: Vector[]) {
+function reduce_polyline_sample_points(polyline: Vector[]): Vector[] {
     const max_pts_per_line = CONF.RENDER_MAX_SAMPLE_POINTS_PER_LINE;
     if (polyline.length <= max_pts_per_line) return polyline;
 
-    let reduced = [];
+    let reduced: Vector[] = [];
     const step = (polyline.length - 1) / (max_pts_per_line - 1);
 
     for (let i = 0; i < max_pts_per_line; i++) {
-        reduced.push(polyline[Math.round(i * step)]);
+        reduced.push(polyline[Math.round(i * step)]!);
     }
 
     return reduced;

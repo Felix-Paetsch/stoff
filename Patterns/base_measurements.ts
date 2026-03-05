@@ -4,6 +4,7 @@ export const BaseMeasurementsSchema = z.object({
     over_bust_front: z.number(),
     over_bust_back: z.number(),
     belly_front: z.number(),
+    belly_back: z.number(),
 
     shoulder_length: z.number(),
     shoulder_width: z.number(),
@@ -34,3 +35,4 @@ export const BaseMeasurementsSchema = z.object({
 });
 
 export type BaseMeasurements = z.infer<typeof BaseMeasurementsSchema>;
+

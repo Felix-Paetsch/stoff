@@ -1,5 +1,4 @@
 import { Line } from "../StoffLib/line";
-import { Sewing } from "./sewing";
 import { SewingPoint } from "./sewingPoint";
 import { Point } from "../StoffLib/point";
 import { FaceCarousel } from "./faceCarousel";
@@ -124,8 +123,8 @@ export class SewingLine {
 
     get right_handed(): boolean {
         assert(!this._is_outdated);
-        return this.primary_component[0].has_sewing_line_handedness
-            == this.primary_component[0].line.right_handed;
+        return this.primary_component[0]!.has_sewing_line_handedness
+            == this.primary_component[0]!.line.right_handed;
     }
 
     swap_orientation() {
@@ -153,14 +152,14 @@ export class SewingLine {
                 }
             }
 
-            if (line.common_endpoint(this.primary_component[0].line)) {
-                return this.primary_component[0].has_sewing_line_orientation
-                    == this.primary_component[0].line.same_orientation(line);
+            if (line.common_endpoint(this.primary_component[0]!.line)) {
+                return this.primary_component[0]!.has_sewing_line_orientation
+                    == this.primary_component[0]!.line.same_orientation(line);
             }
 
-            if (line.common_endpoint(this.primary_component[this.primary_component.length - 1].line)) {
-                return this.primary_component[this.primary_component.length - 1].has_sewing_line_orientation
-                    == this.primary_component[this.primary_component.length - 1].line.same_orientation(line);
+            if (line.common_endpoint(this.primary_component[this.primary_component.length - 1]!.line)) {
+                return this.primary_component[this.primary_component.length - 1]!.has_sewing_line_orientation
+                    == this.primary_component[this.primary_component.length - 1]!.line.same_orientation(line);
             }
 
             return false;
@@ -180,23 +179,23 @@ export class SewingLine {
                 }
             }
 
-            if (line.common_endpoint(this.primary_component[0].line)) {
-                return this.primary_component[0].has_sewing_line_handedness
-                    == this.primary_component[0].line.same_handedness(line);
+            if (line.common_endpoint(this.primary_component[0]!.line)) {
+                return this.primary_component[0]!.has_sewing_line_handedness
+                    == this.primary_component[0]!.line.same_handedness(line);
             }
 
-            if (line.common_endpoint(this.primary_component[this.primary_component.length - 1].line)) {
-                return this.primary_component[this.primary_component.length - 1].has_sewing_line_handedness
-                    == this.primary_component[this.primary_component.length - 1].line.same_handedness(line);
+            if (line.common_endpoint(this.primary_component[this.primary_component.length - 1]!.line)) {
+                return this.primary_component[this.primary_component.length - 1]!.has_sewing_line_handedness
+                    == this.primary_component[this.primary_component.length - 1]!.line.same_handedness(line);
             }
 
             return false;
         }
 
-        const firstThis = this.primary_component[0];
-        const firstThat = line.primary_component[0];
-        const lastThis = this.primary_component[this.primary_component.length - 1];
-        const lastThat = line.primary_component[line.primary_component.length - 1];
+        const firstThis = this.primary_component[0]!;
+        const firstThat = line.primary_component[0]!;
+        const lastThis = this.primary_component[this.primary_component.length - 1]!;
+        const lastThat = line.primary_component[line.primary_component.length - 1]!;
 
         for (const lThis of [firstThis, lastThis]) {
             for (const lThat of [firstThat, lastThat]) {

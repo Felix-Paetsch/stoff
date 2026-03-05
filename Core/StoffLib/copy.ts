@@ -66,8 +66,6 @@ export function copy_sketch(
     }
 
 
-    target.data = data_callback(target.data, source.data, target, source);
-
     return copy_sketch_element_collection(
         source,
         target,
@@ -102,8 +100,8 @@ export function copy_sketch_element_collection(
     function get_corresponding_sketch_element(el: SketchElement): SketchElement;
     function get_corresponding_sketch_element(el: SketchElement) {
         for (let i = 0; i < reference_array.length; i++) {
-            if (reference_array[i][0] === el) {
-                return reference_array[i][1];
+            if (reference_array[i]![0] === el) {
+                return reference_array[i]![1];
             }
         }
 

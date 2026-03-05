@@ -62,7 +62,7 @@ export class FaceCarousel {
         }
 
         for (let j = start_edge; j < end_edge; j++) {
-            yield this.faceEdges[j % this.faceEdges.length];
+            yield this.faceEdges[j % this.faceEdges.length]!;
         }
     }
 

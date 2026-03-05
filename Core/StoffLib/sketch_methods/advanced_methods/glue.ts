@@ -119,11 +119,11 @@ function glue_with_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Point
         );
 
         if (glue_lines.length == 2) {
-            const res = data.lines(glue_lines[0].data, glue_lines[1].data, glue_lines[0], glue_lines[1]); // data.lines is data_callback
+            const res = data.lines(glue_lines[0]!.data, glue_lines[1]!.data, glue_lines[0]!, glue_lines[1]!); // data.lines is data_callback
             if (res) {
-                glue_lines[0].data = res;
+                glue_lines[0]!.data = res;
             }
-            s.remove(glue_lines[1]);
+            s.remove(glue_lines[1]!);
             glue_lines.pop();
         }
     }
@@ -193,11 +193,11 @@ function glue_without_fixed_point(s: Sketch, ident1: [Point, Point], ident2: [Po
         );
 
         if (glue_lines.length == 2) {
-            const res = data.lines(glue_lines[0].data, glue_lines[1].data, glue_lines[0], glue_lines[1]); // data.lines is data_callback
+            const res = data.lines(glue_lines[0]!.data, glue_lines[1]!.data, glue_lines[0]!, glue_lines[1]!); // data.lines is data_callback
             if (res) {
-                glue_lines[0].data = res;
+                glue_lines[0]!.data = res;
             }
-            s.remove(glue_lines[1]);
+            s.remove(glue_lines[1]!);
             glue_lines.pop();
         }
     }
@@ -228,5 +228,5 @@ function delete_glue_point(
         throw new Error(
             "Cant safely delete glue point! Not two adjacent lines",
         );
-    return s.merge_lines(adjacent[0], adjacent[1], true, line_callback);
+    return s.merge_lines(adjacent[0]!, adjacent[1]!, true, line_callback);
 }

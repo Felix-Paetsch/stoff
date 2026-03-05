@@ -78,9 +78,9 @@ export class Point extends Vector {
         };
     }
 
-    copy(): Vector;
-    copy(sketch: Sketch): Point;
-    copy(sketch?: Sketch) {
+    override copy(): Vector;
+    override copy(sketch: Sketch): Point;
+    override  copy(sketch?: Sketch) {
         if (sketch) {
             const r = new Point(sketch, this.x, this.y);
             r.set_attributes(this.get_attributes());
@@ -143,12 +143,20 @@ export class Point extends Vector {
         );
     }
 
+
     set(x: number, y: number): Point;
     set(x: Vector): Point;
-    set(x: number | Vector, y: number = 0) {
+    set(x: number | Vector, y: number = 0): Point {
         assert(!this._is_removed, "Point is removed");
+
+        if (x instanceof Vector) {
+            return this.set(x.x, x.y);
+        }
+
         this.adjacent_lines?.forEach((l) => l.cache_update("endpoints"));
-        return (super.set as any)(x, y);
+        this._x = x;
+        this._y = y;
+        return this;
     }
 
     move_to(x: number, y: number): Point;
@@ -177,7 +185,7 @@ export class Point extends Vector {
 
     has_lines(...ls: Line[]) {
         for (let i = 0; i < ls.length; i++) {
-            if (!this.adjacent_lines.includes(ls[i])) return false;
+            if (!this.adjacent_lines.includes(ls[i]!)) return false;
         }
         return true;
     }

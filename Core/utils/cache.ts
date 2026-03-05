@@ -23,7 +23,7 @@ export class Cache {
     }
 
     lazy_compute<Key extends Json, T>(descr: string) {
-        return (key: Key, fun: () => {}) => this.lazy(descr, key, fun);
+        return (key: Key, fun: () => T) => this.lazy<Key, T>(descr, key, fun);
     }
 
     tag(obj: {}): string {

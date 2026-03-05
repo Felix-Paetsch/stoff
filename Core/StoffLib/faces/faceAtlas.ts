@@ -73,13 +73,13 @@ export class FaceAtlas {
 
         // The other face is an outside face
         if (faces.length === 1) {
-            faces.push(this.component_from_face(faces[0]).component);
+            faces.push(this.component_from_face(faces[0]!).component);
         }
 
-        if (faces[0].line_handedness(line)) {
-            return [faces[0], faces[1]];
+        if (faces[0]!.line_handedness(line)) {
+            return [faces[0]!, faces[1]!];
         } else {
-            return [faces[1], faces[0]];
+            return [faces[1]!, faces[0]!];
         }
     }
 
@@ -101,9 +101,9 @@ export class FaceAtlas {
         }));
 
         for (let i = components.length - 1; i > 0; i--) {
-            const component = components[i];
+            const component = components[i]!;
             for (let j = i - 1; j >= 0; j--) {
-                const other = components[j];
+                const other = components[j]!;
                 if ([...other.points].some(v => component.points.has(v))) {
                     component.lines.push(...other.lines);
                     other.points.forEach(p => component.points.add(p));

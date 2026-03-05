@@ -23,7 +23,7 @@ export function RecordingEntryView({
 
     const renders = useMemo(() => {
         return entry.to_render.snapshots.map(snapshot => {
-            const renderer = new Renderer(snapshot);
+            const renderer = new Renderer(snapshot.object);
             render_sketches(renderer);
 
             return renderer.build_all_sketch_svgs(500, 500, 20)
@@ -39,7 +39,7 @@ export function RecordingEntryView({
         }
     }
 
-    const originaĺ_traces: string[] = (entry.to_render as any).stack_traces;
+    const originaĺ_traces: string[] = entry.to_render.snapshots.map(s => s.stackTrace);
     const traces = originaĺ_traces.map(t => {
         return t.split("\n").map(l => l.split("?")[0]).join("\n") + "\n[Sadly I can't provide you with the correct line numbers here..]";
     })

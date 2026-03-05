@@ -184,9 +184,9 @@ function _convex_hull(points: Vector[]) {
     for (const p of points) {
         while (
             lower.length >= 2 &&
-            lower[lower.length - 2]
-                .subtract(lower[lower.length - 1])
-                .cross(p.subtract(lower[lower.length - 1])) <= 0
+            lower[lower.length - 2]!
+                .subtract(lower[lower.length - 1]!)
+                .cross(p.subtract(lower[lower.length - 1]!)) <= 0
         ) {
             lower.pop();
         }
@@ -195,12 +195,12 @@ function _convex_hull(points: Vector[]) {
 
     const upper = [];
     for (let i = points.length - 1; i >= 0; i--) {
-        const p = points[i];
+        const p = points[i]!;
         while (
             upper.length >= 2 &&
-            upper[upper.length - 2]
-                .subtract(upper[upper.length - 1])
-                .cross(p.subtract(upper[upper.length - 1])) <= 0
+            upper[upper.length - 2]!
+                .subtract(upper[upper.length - 1]!)
+                .cross(p.subtract(upper[upper.length - 1]!)) <= 0
         ) {
             upper.pop();
         }
@@ -232,9 +232,9 @@ function is_convex(pts: Polygon, eps = EPS.TINY): boolean {
 
     let sign = 0;
     for (let i = 0; i < n; i++) {
-        const p0 = pts[i];
-        const p1 = pts[(i + 1) % n];
-        const p2 = pts[(i + 2) % n];
+        const p0 = pts[i]!;
+        const p1 = pts[(i + 1) % n]!;
+        const p2 = pts[(i + 2) % n]!;
 
         const v1 = p1.subtract(p0);
         const v2 = p2.subtract(p1);
@@ -263,9 +263,9 @@ function polygon_contains_point(polygon_points: Polygon, point: Vector) {
     }
     let totalAngle = 0;
     for (let i = 0; i < polygon_points.length; i++) {
-        const v1 = polygon_points[i].subtract(point);
+        const v1 = polygon_points[i]!.subtract(point);
         const v2 =
-            polygon_points[(i + 1) % polygon_points.length].subtract(point);
+            polygon_points[(i + 1) % polygon_points.length]!.subtract(point);
 
         if (v1.equals(new Vector(0, 0), EPS.MINY)) {
             return false;
@@ -286,12 +286,12 @@ function polygon_contains_point(polygon_points: Polygon, point: Vector) {
 function polygon_orientation(points: Polygon, eps = EPS.COARSE_SQUARED): boolean {
     let new_points = [points[0]];
     points.forEach((p) => {
-        if (new_points[new_points.length - 1].distance_squared(p) > eps) {
+        if (new_points[new_points.length - 1]!.distance_squared(p) > eps) {
             new_points.push(p);
         }
     });
     if (
-        new_points[0].distance_squared(new_points[new_points.length - 1]) < eps
+        new_points[0]!.distance_squared(new_points[new_points.length - 1]!) < eps
     ) {
         new_points.pop();
     }
@@ -299,9 +299,9 @@ function polygon_orientation(points: Polygon, eps = EPS.COARSE_SQUARED): boolean
     let total = 0;
     const n = new_points.length;
     for (let i = 0; i < n; i++) {
-        const prev = new_points[(i + n - 1) % n];
-        const curr = new_points[i];
-        const next = new_points[(i + 1) % n];
+        const prev = new_points[(i + n - 1) % n]!;
+        const curr = new_points[i]!;
+        const next = new_points[(i + 1) % n]!;
 
         total += vec_angle_clockwise(next.subtract(curr), curr.subtract(prev));
     }

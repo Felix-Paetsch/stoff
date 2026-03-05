@@ -59,7 +59,7 @@ function findConnectedComponentFaces(lines: Line[]): ConnectedComponentFaceData 
             ) continue;
 
             const visited_lines: Line[] = [];
-            const orientations = [];
+            const orientations: boolean[] = [];
             let latest_line = line;
             let latest_endpoint = line.endpoint_from_orientation(!searching_with_orientation); // The one after current line, before next line
 
@@ -70,7 +70,7 @@ function findConnectedComponentFaces(lines: Line[]): ConnectedComponentFaceData 
 
                 for (let i = 0; i < visited_lines.length; i++) {
                     if (
-                        visited_lines[i].endpoint_from_orientation(orientations[i]) == latest_endpoint
+                        visited_lines[i]!.endpoint_from_orientation(orientations[i]!) == latest_endpoint
                     ) {
                         visited_lines.push(latest_line);
                         const latest_orientation = latest_line.p2 == latest_endpoint;
@@ -80,9 +80,9 @@ function findConnectedComponentFaces(lines: Line[]): ConnectedComponentFaceData 
                             orientation: orientations.splice(i),
                         });
 
-                        const b = boundaries[boundaries.length - 1];
+                        const b = boundaries[boundaries.length - 1]!;
                         for (let i = 0; i < b.lines.length; i++) {
-                            lines_map.get(b.lines[i])![b.orientation[i] ? "with_orientation" : "against_orientation"] = true;
+                            lines_map.get(b.lines[i]!)![b.orientation[i]! ? "with_orientation" : "against_orientation"] = true;
                         }
 
                         // console.log(` Formed boundary | ${b.lines.map(l => l.data.CIDENT)}`)
@@ -136,7 +136,7 @@ function findConnectedComponentFaces(lines: Line[]): ConnectedComponentFaceData 
                     visited_lines.push(latest_line);
                     const latest_orientation = latest_line.p2 == latest_endpoint;
                     orientations.push(latest_orientation);
-                    latest_line = possible_next_lines[0];
+                    latest_line = possible_next_lines[0]!;
                     latest_endpoint = latest_line.other_endpoint(latest_endpoint);
                 }
             }
