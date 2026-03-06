@@ -9,7 +9,7 @@ export function add_calls_tracker<
     }
 
     return function (this: any, ...args: any[]) {
-        Calls[name] += 1;
+        Calls[name]! += 1;
         return fun.apply(this, args);
     } as F;
 }
@@ -26,7 +26,7 @@ export function add_time_tracker<
         const result = fun.apply(this, args);
         const end = Date.now();
 
-        Times[name] += end - start;
+        Times[name]! += end - start;
         return result;
     } as F;
 }

@@ -1,17 +1,22 @@
 {
     "type": "module",
     "scripts": {
-        "dev::server": "cd ./DevEnv/DevServer/ && npm run dev",
         "dev::typecheck": "npx tsc -p tsconfig.json --noEmit",
         "dev::typecheck::watch": "./Tools/Scripts/watch.sh 'npx tsc -p tsconfig.json --noEmit' 5",
+
+        "dev::server": "cd ./DevEnv/DevServer/ && npm run dev",
+        "dev::server::typecheck": "cd ./DevEnv/DevServer/ && npm run dev::typecheck",
+        "dev::server::lint": "cd ./DevEnv/DevServer/ && npm run dev::lint",
+        "dev::server::lint::watch": "cd ./DevEnv/DevServer/ && npm run dev::lint::watch",
+        "dev::server::typecheck::watch": "cd ./DevEnv/DevServer/ && npm run dev::typecheck::watch",
+        "dev::server::typecheck_lint::watch": "cd ./DevEnv/DevServer/ && npm run dev::typecheck_lint::watch",
+
+        "dev::check_all": "npm run dev::typecheck && cd ./DevEnv/DevServer/ && npm run dev::typecheck && npm run dev::lint",
+        "dev::check_all::watch": "./Tools/Scripts/watch.sh 'npm run dev::typecheck && cd ./DevEnv/DevServer/ && npm run dev::typecheck && npm run dev::lint' 5",
+        
         "dev::standalone": "tsx DevEnv/StandAlone/index.js",
         "dev::standalone::watch": "./Tools/Scripts/watch.sh 'npm run dev::standalone' 5",
-        "dev::browser": "cd DevEnv/Profiling && npm run dev",
-        "tools::go": "(cd ./Tools/StoffGo && go run .)",
-        "tools::measure": "node Tools/Measurements/index.js",
-        "tools::mvp_dev": "cd Tools/MVPwebsite && npm run dev",
-        "tools::mvp_dev_hot": "cd Tools/MVPwebsite && npm run dev_hot",
-        "tools::mvp_host": "cd Tools/MVPwebsite && npm run host"
+        "dev::browser": "cd DevEnv/Profiling && npm run dev"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.1.11",
@@ -24,7 +29,6 @@
         "fluent-ffmpeg": "^2.1.3",
         "nodemon": "^3.1.10",
         "postcss": "^8.5.6",
-        "prettier": "^3.6.2",
         "ts-node": "^1.7.1",
         "tsx": "^4.20.3",
         "typescript": "^5.9.2"

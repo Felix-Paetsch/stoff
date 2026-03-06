@@ -33,13 +33,13 @@ function extractFrame(stackLine: string): StackFrame | null {
     // Firefox: func@url:line:col
     let m = stackLine.match(/@(.+?):(\d+):(\d+)\s*$/);
     if (m) {
-        return { url: m[1], line: Number(m[2]), column: Number(m[3]) };
+        return { url: m[1]!, line: Number(m[2]), column: Number(m[3]) };
     }
 
     // Chrome: at func (url:line:col) / at url:line:col
     m = stackLine.match(/\(?(.+?):(\d+):(\d+)\)?\s*$/);
     if (m) {
-        const url = m[1];
+        const url = m[1]!;
         if (
             url.startsWith("http://") ||
             url.startsWith("https://") ||
@@ -59,7 +59,7 @@ function findSourceMappingUrl(jsText: string): string | null {
     let match: RegExpExecArray | null = null;
 
     while ((match = re.exec(jsText)) !== null) {
-        last = match[1];
+        last = match[1]!;
     }
 
     return last;

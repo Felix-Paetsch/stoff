@@ -1,32 +1,35 @@
-import { UP, Vector } from "./geometry";
-import { Point } from "./point";
-import { Line } from "./line";
+import CONF from "./config.json";
 import {
     copy_sketch,
     copy_sketch_element_collection,
     CopyResult,
     CopySketchObjectDataCallback,
-    default_data_callback
+    default_data_callback,
 } from "./copy";
-import CONF from "./config.json";
+import { UP, Vector } from "./geometry";
+import { Line } from "./line";
+import { Point } from "./point";
 
 import { assert } from "../assert";
-import { DropFirst, SketchElement, SketchElementCollection } from "./types";
 import { auto_validate } from "./sketch_methods/auto_validate";
+import { DropFirst, SketchElement, SketchElementCollection } from "./types";
 
+import * as CollectionMethods from "./collection";
+import {
+    AvoidantConnectedComponent,
+    ConnectedComponent,
+} from "./connected_component";
+import { length, radians } from "./geometry/types";
+import * as SewingMethods from "./sketch_methods/advanced_methods/exports";
 import * as LineMethods from "./sketch_methods/line_methods";
 import { line_with_length } from "./unicorns/line_with_length";
-import { radians, length } from "./geometry/types";
-import { AvoidantConnectedComponent, ConnectedComponent } from "./connected_component";
-import * as CollectionMethods from "./collection";
-import * as SewingMethods from "./sketch_methods/advanced_methods/exports";
 
 export class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
     private points: Point[] = [];
     private lines: Line[] = [];
 
-    constructor() { }
+    constructor() {}
 
     __register_point(pt: Point) {
         this.points.push(pt);
@@ -37,11 +40,11 @@ export class Sketch {
     }
 
     __unregister_point(pt: Point) {
-        this.points = this.points.filter(p => p != pt);
+        this.points = this.points.filter((p) => p != pt);
     }
 
     __unregister_line(ln: Line) {
-        this.lines = this.lines.filter(l => l != ln);
+        this.lines = this.lines.filter((l) => l != ln);
     }
 
     get_bounding_box() {
@@ -101,8 +104,8 @@ export class Sketch {
             }
         }
 
-        lines_to_remove.forEach(l => l.remove());
-        points_to_remove.forEach(p => p.remove());
+        lines_to_remove.forEach((l) => l.remove());
+        points_to_remove.forEach((p) => p.remove());
     }
 
     clear() {
@@ -111,7 +114,11 @@ export class Sketch {
 
     // ===============
 
-    merge_points(pt1: Point, pt2: Point, data_callback = default_data_callback) {
+    merge_points(
+        pt1: Point,
+        pt2: Point,
+        data_callback = default_data_callback,
+    ) {
         if (pt1 == pt2) return pt1;
         assert(pt1.equals(pt2));
 
@@ -133,18 +140,25 @@ export class Sketch {
         const new_s = new Sketch();
         return {
             ...new_s.paste_sketch(this),
-            sketch: new_s
-        }
+            sketch: new_s,
+        };
     }
 
     paste_sketch(sketch: Sketch): CopyResult;
     paste_sketch(sketch: Sketch, position: Vector): CopyResult;
-    paste_sketch(sketch: Sketch, data_callback: CopySketchObjectDataCallback): CopyResult;
-    paste_sketch(sketch: Sketch, data_callback: CopySketchObjectDataCallback, position: Vector): CopyResult;
+    paste_sketch(
+        sketch: Sketch,
+        data_callback: CopySketchObjectDataCallback,
+    ): CopyResult;
+    paste_sketch(
+        sketch: Sketch,
+        data_callback: CopySketchObjectDataCallback,
+        position: Vector,
+    ): CopyResult;
     paste_sketch(
         sketch: Sketch,
         data_callback: Vector | CopySketchObjectDataCallback | null = null,
-        position: Vector | null = null
+        position: Vector | null = null,
     ): CopyResult {
         if (data_callback instanceof Vector) {
             position = data_callback;
@@ -156,31 +170,28 @@ export class Sketch {
         return copy_sketch(sketch, this, data_callback, position);
     }
 
-    paste_sketch_element_collection(sec: SketchElementCollection, position?: Vector): CopyResult;
     paste_sketch_element_collection(
         sec: SketchElementCollection,
-        position: Vector | null = null
+        position?: Vector,
+    ): CopyResult;
+    paste_sketch_element_collection(
+        sec: SketchElementCollection,
+        position: Vector | null = null,
     ): CopyResult {
         return copy_sketch_element_collection(sec, this, position);
     }
 
     has(...els: (Point | Line | ConnectedComponent)[]) {
         for (const el of els) {
-            if (
-                el instanceof Point
-                && !this.points.includes(el)
-            ) {
-                return false
+            if (el instanceof Point && !this.points.includes(el)) {
+                return false;
+            } else if (el instanceof Line && !this.lines.includes(el)) {
+                return false;
             } else if (
-                el instanceof Line
-                && !this.lines.includes(el)
+                el instanceof ConnectedComponent &&
+                !this.has(el.root())
             ) {
-                return false
-            } else if (
-                el instanceof ConnectedComponent
-                && !this.has(el.root())
-            ) {
-                return false
+                return false;
             }
         }
 
@@ -197,17 +208,8 @@ export class Sketch {
         return LineMethods.line_between_points(this, pt1, pt2);
     }
 
-    line_with_length(
-        original_p1: Point,
-        original_p2: Point,
-        length: number
-    ) {
-        return line_with_length(
-            this,
-            original_p1,
-            original_p2,
-            length
-        );
+    line_with_length(original_p1: Point, original_p2: Point, length: number) {
+        return line_with_length(this, original_p1, original_p2, length);
     }
 
     line_at_angle(
@@ -215,7 +217,7 @@ export class Sketch {
         angle: radians,
         length: length,
         reference_direction: Vector = UP,
-        absolute: boolean = false // Whether the direction is pointed from 0 or towards this point
+        absolute: boolean = false, // Whether the direction is pointed from 0 or towards this point
     ) {
         return LineMethods.line_at_angle(
             this,
@@ -223,8 +225,8 @@ export class Sketch {
             angle,
             length,
             reference_direction,
-            absolute
-        )
+            absolute,
+        );
     }
 
     line_from_function_graph(
@@ -232,22 +234,20 @@ export class Sketch {
         pt2: Point,
         f_1: LineMethods.NumberFunction | LineMethods.TwoNumberFunction,
     ) {
-        return LineMethods.line_from_function_graph(
-            this,
-            pt1,
-            pt2,
-            f_1
-        )
+        return LineMethods.line_from_function_graph(this, pt1, pt2, f_1);
     }
 
     _line_between_points_from_sample_points(
         pt1: Point,
         pt2: Point,
-        sp: Vector[]
+        sp: Vector[],
     ) {
         return LineMethods._line_between_points_from_sample_points(
-            this, pt1, pt2, sp
-        )
+            this,
+            pt1,
+            pt2,
+            sp,
+        );
     }
 
     interpolate_lines(
@@ -256,11 +256,17 @@ export class Sketch {
         direction: 0 | 1 | 2 | 3 = 0,
         f: LineMethods.NumberFunction = (x) => x,
         p1: LineMethods.NumberFunction = (x) => x,
-        p2: LineMethods.NumberFunction = (x) => x
+        p2: LineMethods.NumberFunction = (x) => x,
     ) {
         return LineMethods.interpolate_lines(
-            this, line1, line2, direction, f, p1, p2
-        )
+            this,
+            line1,
+            line2,
+            direction,
+            f,
+            p1,
+            p2,
+        );
     }
 
     copy_line(l: Line, p1: Point, p2: Point) {
@@ -271,33 +277,37 @@ export class Sketch {
         line1: Line,
         line2: Line,
         delete_join: boolean = false,
-        data_callback: CopySketchObjectDataCallback = default_data_callback
+        data_callback: CopySketchObjectDataCallback = default_data_callback,
     ) {
-        return LineMethods.merge_lines(this, line1, line2, delete_join, data_callback)
+        return LineMethods.merge_lines(
+            this,
+            line1,
+            line2,
+            delete_join,
+            data_callback,
+        );
     }
 
-    point_on_line(
-        pt: Point,
-        line: Line,
-    ) {
-        return LineMethods.point_on_line(this, pt, line)
+    point_on_line(pt: Point, line: Line) {
+        return LineMethods.point_on_line(this, pt, line);
     }
 
     split_line_at_length(
         line: Line,
         length: number,
-        reversed: boolean = false
+        reversed: boolean = false,
     ) {
-        return LineMethods.split_line_at_length(this, line, length, reversed)
-    };
+        return LineMethods.split_line_at_length(this, line, length, reversed);
+    }
 
-    split_line_at_fraction(
-        line: Line,
-        fraction: number,
-        reversed = false,
-    ) {
-        return LineMethods.split_line_at_fraction(this, line, fraction, reversed);
-    };
+    split_line_at_fraction(line: Line, fraction: number, reversed = false) {
+        return LineMethods.split_line_at_fraction(
+            this,
+            line,
+            fraction,
+            reversed,
+        );
+    }
 
     intersect_lines(line1: Line, line2: Line) {
         return LineMethods.intersect_lines(this, line1, line2);
@@ -308,7 +318,7 @@ export class Sketch {
         offset: number,
         withHandedness: boolean = true,
     ) {
-        return LineMethods.line_with_offset(this, line, offset, withHandedness)
+        return LineMethods.line_with_offset(this, line, offset, withHandedness);
     }
 
     // ==== CC Methods
@@ -333,10 +343,7 @@ export class Sketch {
         const visited_points: Point[] = [];
 
         for (const p of this.points) {
-            if (
-                !visited_points.includes(p)
-                && !se.includes(p)
-            ) {
+            if (!visited_points.includes(p) && !se.includes(p)) {
                 const new_component = new AvoidantConnectedComponent(p, se);
                 components.push(new_component);
                 visited_points.push(...new_component.get_points());
@@ -353,32 +360,44 @@ export class Sketch {
     }
 
     // Sewing Sketch stuff
-    cut(...args: DropFirst<Parameters<typeof SewingMethods.cut>>): ReturnType<typeof SewingMethods.cut> {
-        return SewingMethods.cut(this, ...args)
+    cut(
+        ...args: DropFirst<Parameters<typeof SewingMethods.cut>>
+    ): ReturnType<typeof SewingMethods.cut> {
+        return SewingMethods.cut(this, ...args);
     }
 
-    glue(...args: DropFirst<Parameters<typeof SewingMethods.glue>>): ReturnType<typeof SewingMethods.glue> {
-        return SewingMethods.glue(this, ...args)
+    glue(
+        ...args: DropFirst<Parameters<typeof SewingMethods.glue>>
+    ): ReturnType<typeof SewingMethods.glue> {
+        return SewingMethods.glue(this, ...args);
     }
 
-    anchor(...args: DropFirst<Parameters<typeof SewingMethods.anchor>>): ReturnType<typeof SewingMethods.anchor> {
-        return SewingMethods.anchor(this, ...args)
+    anchor(
+        ...args: DropFirst<Parameters<typeof SewingMethods.anchor>>
+    ): ReturnType<typeof SewingMethods.anchor> {
+        return SewingMethods.anchor(this, ...args);
     }
 
-    remove_anchors(...args: DropFirst<Parameters<typeof SewingMethods.remove_anchors>>): ReturnType<typeof SewingMethods.remove_anchors> {
-        return SewingMethods.remove_anchors(this, ...args)
+    remove_anchors(
+        ...args: DropFirst<Parameters<typeof SewingMethods.remove_anchors>>
+    ): ReturnType<typeof SewingMethods.remove_anchors> {
+        return SewingMethods.remove_anchors(this, ...args);
     }
 
-    path_between_points(...args: Parameters<typeof SewingMethods.path_between_points>): ReturnType<typeof SewingMethods.path_between_points> {
-        return SewingMethods.path_between_points(...args)
+    path_between_points(
+        ...args: Parameters<typeof SewingMethods.path_between_points>
+    ): ReturnType<typeof SewingMethods.path_between_points> {
+        return SewingMethods.path_between_points(...args);
     }
 
     decompress_components() {
-        return SewingMethods.decompress_components(this)
+        return SewingMethods.decompress_components(this);
     }
 
-    unfold(...args: DropFirst<Parameters<typeof SewingMethods.unfold>>): ReturnType<typeof SewingMethods.unfold> {
-        return SewingMethods.unfold(this, ...args)
+    unfold(
+        ...args: DropFirst<Parameters<typeof SewingMethods.unfold>>
+    ): ReturnType<typeof SewingMethods.unfold> {
+        return SewingMethods.unfold(this, ...args);
     }
 }
 

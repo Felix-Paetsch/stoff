@@ -8,7 +8,7 @@ import {
     is_convex,
     orientation,
     BoundingBox,
-    polygon_orientation
+    polygon_orientation,
 } from "./geometry";
 import { Point } from "./point";
 import { ConnectedComponent } from "./connected_component";
@@ -67,10 +67,13 @@ export class Line {
         }
 
         if (
-            this._sample_points[this._sample_points.length - 1]!.subtract(new Vector(1, 0)).length_squared() < EPS.COARSE
+            this._sample_points[this._sample_points.length - 1]!.subtract(
+                new Vector(1, 0),
+            ).length_squared() < EPS.COARSE
         ) {
             this._sample_points[this._sample_points.length - 1] = new Vector(
-                1, 0
+                1,
+                0,
             );
         } else {
             assert(invalid_path("Line sample points dont end with (1,0)"));
@@ -80,8 +83,12 @@ export class Line {
         this.endpoints[1].__register_line(this);
         this.get_sketch().__register_line(this);
 
-        assert(this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch());
-        assert(this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch());
+        assert(
+            this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch(),
+        );
+        assert(
+            this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch(),
+        );
     }
 
     get is_removed() {
@@ -130,7 +137,7 @@ export class Line {
         return offset_sample_points(
             this.get_absolute_sample_points(),
             radius,
-            withHandedness ? this.right_handed : !this.right_handed
+            withHandedness ? this.right_handed : !this.right_handed,
         );
     }
 
@@ -204,13 +211,18 @@ export class Line {
         return this.attributes.stroke;
     }
 
-    set_attribute<K extends keyof LineRenderAttributes>(attr: K, value: LineRenderAttributes[K]) {
+    set_attribute<K extends keyof LineRenderAttributes>(
+        attr: K,
+        value: LineRenderAttributes[K],
+    ) {
         assert(!this._is_removed, "Line is removed");
         this.attributes[attr] = value;
         return this;
     }
 
-    get_attribute<K extends keyof LineRenderAttributes>(attr: K): LineRenderAttributes[K] {
+    get_attribute<K extends keyof LineRenderAttributes>(
+        attr: K,
+    ): LineRenderAttributes[K] {
         assert(!this._is_removed, "Line is removed");
         return this.attributes[attr];
     }
@@ -328,7 +340,7 @@ export class Line {
     get_to_relative_function() {
         return affine_transform_from_input_output(
             [this.p1, this.p2],
-            [new Vector(0, 0), new Vector(1, 0)]
+            [new Vector(0, 0), new Vector(1, 0)],
         );
     }
 
@@ -339,7 +351,7 @@ export class Line {
     get_to_absolute_function() {
         return affine_transform_from_input_output(
             [new Vector(0, 0), new Vector(1, 0)],
-            [this.p1, this.p2]
+            [this.p1, this.p2],
         );
     }
 
@@ -356,16 +368,19 @@ export class Line {
                 return this.sample_points.map((p) => {
                     return to_absolute(p);
                 });
-            }
+            },
         );
         return [...r];
     }
 
-    get_relative_sample_points_from_to(fromFraction: Fraction, toFraction: Fraction): Vector[] {
+    get_relative_sample_points_from_to(
+        fromFraction: Fraction,
+        toFraction: Fraction,
+    ): Vector[] {
         if (fromFraction > toFraction)
             return this.get_relative_sample_points_from_to(
                 toFraction,
-                fromFraction
+                fromFraction,
             );
         let current_len = 0;
         let start;
@@ -373,7 +388,7 @@ export class Line {
         const length = this.get_length() / this.endpoint_distance();
         for (let i = 1; i < this.sample_points.length; i++) {
             current_len += this.sample_points[i]!.distance(
-                this.sample_points[i - 1]!
+                this.sample_points[i - 1]!,
             );
             if (start === undefined && current_len >= fromFraction * length) {
                 start = i;
@@ -390,23 +405,26 @@ export class Line {
 
         const points = this.sample_points.slice(
             start || end || Infinity,
-            end || Infinity
+            end || Infinity,
         );
 
         points.push(
-            this.to_relative_position(this.position_at_fraction(toFraction))
+            this.to_relative_position(this.position_at_fraction(toFraction)),
         );
         points.unshift(
-            this.to_relative_position(this.position_at_fraction(fromFraction))
+            this.to_relative_position(this.position_at_fraction(fromFraction)),
         );
         return points;
     }
 
-    get_absolute_sample_points_from_to(fromFraction: Fraction, toFraction: Fraction): Vector[] {
+    get_absolute_sample_points_from_to(
+        fromFraction: Fraction,
+        toFraction: Fraction,
+    ): Vector[] {
         const to_absolute = this.get_to_absolute_function();
         return this.get_relative_sample_points_from_to(
             fromFraction,
-            toFraction
+            toFraction,
         ).map((p) => {
             return to_absolute(p);
         });
@@ -424,7 +442,7 @@ export class Line {
     get_adjacent_lines() {
         assert(!this._is_removed, "Line is removed");
         return SketchElementCollectionMethods.unique(
-            this.p1.get_adjacent_lines().concat(this.p2.get_adjacent_lines())
+            this.p1.get_adjacent_lines().concat(this.p2.get_adjacent_lines()),
         ).filter((l: Line) => l !== this);
     }
 
@@ -442,8 +460,8 @@ export class Line {
             );
         }
 
-        assert(this.has_endpoint(args[0]))
-        assert(!args[1] || this.has_endpoint(args[1]))
+        assert(this.has_endpoint(args[0]));
+        assert(!args[1] || this.has_endpoint(args[1]));
         return this.p1 == args[0];
     }
 
@@ -485,7 +503,7 @@ export class Line {
             let i = this.sample_points.length - 1;
             while (
                 this.sample_points[i]!.distance(
-                    this.sample_points[this.sample_points.length - 1]!
+                    this.sample_points[this.sample_points.length - 1]!,
                 ) < EPS.MEDIUM
             ) {
                 i--;
@@ -502,7 +520,7 @@ export class Line {
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
                 [this.sample_points[i]!, this.sample_points[i + 1]!],
-                pt_rel
+                pt_rel,
             );
             const dist = closest_on_line.distance(pt_rel);
 
@@ -518,7 +536,7 @@ export class Line {
         let right = best_index + 1;
         while (
             this.sample_points[left]!.distance_squared(
-                this.sample_points[right]!
+                this.sample_points[right]!,
             ) < EPS.FINE_SQUARED
         ) {
             if (left > 0) left--;
@@ -526,7 +544,7 @@ export class Line {
         }
 
         return to_absolute(
-            this.sample_points[right]!.subtract(this.sample_points[left]!)
+            this.sample_points[right]!.subtract(this.sample_points[left]!),
         );
     }
 
@@ -551,7 +569,10 @@ export class Line {
     set_orientation(p1: Point, p2?: Point) {
         assert(!this._is_removed, "Line is removed");
         assert(this.endpoints.includes(p1), "Point isnt endpoint of line.");
-        assert(!p2 || this.endpoints.includes(p2), "Point isnt endpoint of line.");
+        assert(
+            !p2 || this.endpoints.includes(p2),
+            "Point isnt endpoint of line.",
+        );
 
         if (p1 == this.p2) {
             this.swap_orientation();
@@ -597,11 +618,7 @@ export class Line {
         }
 
         if (cmpr instanceof Vector) {
-            return (this.right_handed = !orientation(
-                this.p1,
-                this.p2,
-                cmpr
-            ));
+            return (this.right_handed = !orientation(this.p1, this.p2, cmpr));
         }
 
         return assert(invalid_path());
@@ -634,11 +651,13 @@ export class Line {
                 let sum = 0;
 
                 for (let i = 0; i < this.sample_points.length - 1; i++) {
-                    sum += this.sample_points[i]!.distance(this.sample_points[i + 1]!);
+                    sum += this.sample_points[i]!.distance(
+                        this.sample_points[i + 1]!,
+                    );
                 }
 
                 return sum * endpoint_distance;
-            }
+            },
         );
     }
 
@@ -649,9 +668,9 @@ export class Line {
             ["absolute_sample_points"],
             () => {
                 return BoundingBox.from_points(
-                    this.get_absolute_sample_points()
+                    this.get_absolute_sample_points(),
                 );
-            }
+            },
         );
     }
 
@@ -662,7 +681,7 @@ export class Line {
             ["absolute_sample_points"],
             () => {
                 return convex_hull(this.get_absolute_sample_points());
-            }
+            },
         );
     }
 
@@ -707,7 +726,7 @@ export class Line {
             let next_length = 0;
             while (true) {
                 next_length = this.sample_points[i + 1]!.distance(
-                    this.sample_points[START_I]!
+                    this.sample_points[START_I]!,
                 );
                 if (next_length > EPS.FINE) {
                     break;
@@ -729,7 +748,7 @@ export class Line {
                 const relative_vec = Vector.lerp(
                     this.sample_points[i]!,
                     this.sample_points[i + 1]!,
-                    fraction_left
+                    fraction_left,
                 );
 
                 return this.vec_to_absolute(relative_vec);
@@ -759,7 +778,7 @@ export class Line {
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
                 [this.sample_points[i]!, this.sample_points[i + 1]!],
-                vec_rel
+                vec_rel,
             );
             const dist = closest_on_line.distance(vec_rel);
 
@@ -796,12 +815,22 @@ export class Line {
         return res.corresponding_sketch_element(this);
     }
 
-    _rel_normalized_sample_points(rel_approx_sample_spacing: number | null = null): Vector[] {
-        return LineManipulation.rel_normalized_sample_points(this, rel_approx_sample_spacing);
+    _rel_normalized_sample_points(
+        rel_approx_sample_spacing: number | null = null,
+    ): Vector[] {
+        return LineManipulation.rel_normalized_sample_points(
+            this,
+            rel_approx_sample_spacing,
+        );
     }
 
-    _abs_normalized_sample_points(abs_approx_sample_spacing: number | null = null) {
-        return LineManipulation.abs_normalized_sample_points(this, abs_approx_sample_spacing);
+    _abs_normalized_sample_points(
+        abs_approx_sample_spacing: number | null = null,
+    ) {
+        return LineManipulation.abs_normalized_sample_points(
+            this,
+            abs_approx_sample_spacing,
+        );
     }
 
     _remove_duplicate_points() {
@@ -809,7 +838,7 @@ export class Line {
     }
 
     renormalize(density: number | null = null) {
-        return LineManipulation.renormalize(this, density)
+        return LineManipulation.renormalize(this, density);
     }
 
     smooth_out(ker_size: number = 0.1, ker_size_absolute: boolean = false) {
@@ -819,7 +848,7 @@ export class Line {
     computer_center_point() {
         assert(!this._is_removed, "Line is removed");
         return this.to_absolute_position(
-            LineManipulation.compute_polyline_center_point(this.sample_points)
+            LineManipulation.compute_polyline_center_point(this.sample_points),
         );
     }
 
@@ -828,9 +857,9 @@ export class Line {
     }
 
     static order_by_endpoints(...lines: Line[]): {
-        lines: Line[],
-        points: Point[],
-        orientations: boolean[]
+        lines: Line[];
+        points: Point[];
+        orientations: boolean[];
     } {
         if (Array.isArray(lines[0])) {
             lines = [...lines[0]];
@@ -839,26 +868,29 @@ export class Line {
             return {
                 lines: [],
                 points: [],
-                orientations: []
-            }
+                orientations: [],
+            };
         }
         if (lines.length == 1) {
             return {
                 lines: lines,
                 points: lines[0]!.get_endpoints(),
-                orientations: [true]
-            }
-        };
-        if (lines.length == 2) return set_two_line_orientations({
-            lines: lines
-        });
+                orientations: [true],
+            };
+        }
+        if (lines.length == 2)
+            return set_two_line_orientations({
+                lines: lines,
+            });
 
         const res: {
-            lines: Line[],
-            points: Point[],
-            orientations: boolean[]
+            lines: Line[];
+            points: Point[];
+            orientations: boolean[];
         } = {
-            lines: [], points: [], orientations: []
+            lines: [],
+            points: [],
+            orientations: [],
         };
 
         res.lines.push(lines.pop()!);
@@ -877,13 +909,16 @@ export class Line {
                     } else {
                         const next_orientation = res.orientations[0];
                         res.orientations.unshift(
-                            res.lines[1]![next_orientation ? "p1" : "p2"] == res.lines[0]!.p2
+                            res.lines[1]![next_orientation ? "p1" : "p2"] ==
+                            res.lines[0]!.p2,
                         );
                         res.points.unshift(
-                            res.lines[0]!.other_endpoint(res.points[0]!)
+                            res.lines[0]!.other_endpoint(res.points[0]!),
                         );
                     }
-                } else if (res.lines[res.lines.length - 1]!.common_endpoint(lines[i]!)) {
+                } else if (
+                    res.lines[res.lines.length - 1]!.common_endpoint(lines[i]!)
+                ) {
                     // Append
                     smth_found = true;
                     res.lines.push(...lines.splice(i, 1));
@@ -895,12 +930,12 @@ export class Line {
                         res.orientations.push(
                             res.lines[res.lines.length - 2]![
                             prev_orientation ? "p2" : "p1"
-                            ] == res.lines[res.lines.length - 1]!.p1
+                            ] == res.lines[res.lines.length - 1]!.p1,
                         );
                         res.points.push(
                             res.lines[res.lines.length - 1]!.other_endpoint(
-                                res.points[res.points.length - 1]!
-                            )
+                                res.points[res.points.length - 1]!,
+                            ),
                         );
                     }
                 }
@@ -910,31 +945,23 @@ export class Line {
         }
 
         function set_two_line_orientations(data: {
-            lines: Line[],
-            points?: Point[],
-            orientations?: boolean[]
+            lines: Line[];
+            points?: Point[];
+            orientations?: boolean[];
         }): {
-            lines: Line[],
-            points: Point[],
-            orientations: boolean[]
+            lines: Line[];
+            points: Point[];
+            orientations: boolean[];
         } {
             const l0 = data.lines[0]!;
             const l1 = data.lines[1]!;
 
             if (l1.has_endpoint(l0.p2)) {
                 data.orientations = [true, l1.p1 == l0.p2];
-                data.points = [
-                    l0.p1,
-                    l0.p2,
-                    l1.other_endpoint(l0.p2),
-                ];
+                data.points = [l0.p1, l0.p2, l1.other_endpoint(l0.p2)];
             } else if (l1.has_endpoint(l0.p1)) {
                 data.orientations = [false, l1.p1 == l0.p1];
-                data.points = [
-                    l0.p2,
-                    l0.p1,
-                    l1.other_endpoint(l0.p1),
-                ];
+                data.points = [l0.p2, l0.p1, l1.other_endpoint(l0.p1)];
             } else {
                 assert(invalid_path("Lines dont form a connected segment"));
             }
@@ -946,12 +973,16 @@ export class Line {
     }
 
     static oriented_circle(lines: Line[]): {
-        lines: Line[], // Im Uhrzeigersinn
-        points: Point[], // Im Uhrzeigersinn, startend mit dem Endpunkt der ersten Linie am weitersten vorne im Uhrzeigersinn
-        orientations: boolean[] // Für jede Linie ob p1 -> p2 im Uhrzeigersinn verläuft
+        lines: Line[]; // Im Uhrzeigersinn
+        points: Point[]; // Im Uhrzeigersinn, startend mit dem Endpunkt der ersten Linie am weitersten vorne im Uhrzeigersinn
+        orientations: boolean[]; // Für jede Linie ob p1 -> p2 im Uhrzeigersinn verläuft
     } {
         const ordered_lines = Line.order_by_endpoints(...lines);
-        assert(ordered_lines.points[0] == ordered_lines.points[ordered_lines.points.length - 1], "Lines dont form circle");
+        assert(
+            ordered_lines.points[0] ==
+            ordered_lines.points[ordered_lines.points.length - 1],
+            "Lines dont form circle",
+        );
 
         // We assume no self-intersection
         const orientation = polygon_orientation(ordered_lines.points.slice(1));
@@ -959,7 +990,9 @@ export class Line {
             ordered_lines.lines.reverse();
             ordered_lines.points.reverse();
             ordered_lines.orientations.reverse();
-            ordered_lines.orientations = ordered_lines.orientations.map(o => !o);
+            ordered_lines.orientations = ordered_lines.orientations.map(
+                (o) => !o,
+            );
         }
 
         ordered_lines.points.shift();
@@ -969,9 +1002,6 @@ export class Line {
     }
 
     static straight(...endpoints: [Point, Point]) {
-        return new Line(endpoints, [
-            new Vector(0, 0),
-            new Vector(1, 0),
-        ]);
+        return new Line(endpoints, [new Vector(0, 0), new Vector(1, 0)]);
     }
 }

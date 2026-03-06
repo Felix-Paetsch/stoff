@@ -5,8 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+
+    "dev::lint": "eslint .",
+    "dev::typecheck": "npx tsc -p tsconfig.json --noEmit",
+    "dev::lint::watch": "../../Tools/Scripts/watch.sh 'npm run dev::lint' 2",
+    "dev::typecheck::watch": "../../Tools/Scripts/watch.sh 'npm run dev::typecheck' 2",
+    "dev::typecheck_lint::watch": "../../Tools/Scripts/watch.sh 'npm run dev::typecheck && npm run dev::lint' 4",
+
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {

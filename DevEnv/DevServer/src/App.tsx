@@ -1,62 +1,68 @@
-import "./pages/shared/root.css"
-import "./pages/shared/shared.css"
+import "./pages/shared/root.css";
+import "./pages/shared/shared.css";
 
-import { DebugPage } from "./pages/debug"
-import { readLS, writeLS } from "./utils/localStorageMap"
-import { MainPage } from "./pages/main"
-import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults"
-import { useEffect, useState } from "react"
-import { is_pattern_config_with_pattern_name, PatternConfigWithName } from "./lib/is_pattern_config"
-import { PatternConfig } from "@/Patterns/patterns"
+import { useEffect, useState } from "react";
+import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults";
 import { create_design_data } from "./lib/create_design_data";
-import { } from "./lib/sketch_tooltips"
+import {
+    is_pattern_config_with_pattern_name,
+    PatternConfigWithName,
+} from "./lib/is_pattern_config";
+import { } from "./lib/sketch_tooltips";
+import { DebugPage } from "./pages/debug";
+import { MainPage } from "./pages/main";
+import { readLS, writeLS } from "./utils/localStorageMap";
 
-type SubPage = "stoffstoff" | "debug"
+type SubPage = "stoffstoff" | "debug";
 
 export function App() {
     const [page, setPage] = useState<SubPage>(() => {
         return readLS("currentPageVisible", "stoffstoff") as SubPage;
     });
     useEffect(() => {
-        writeLS("currentPageVisible", page)
+        writeLS("currentPageVisible", page);
     }, [page]);
 
     const [mainPageInputVisible, setMainPageInputVisible] = useState(() => {
         const raw = readLS("mainPageInputVisible", "true");
-        return raw === null ? true : raw === "true"
-    })
+        return raw === null ? true : raw === "true";
+    });
 
     function toggleLeftVisible() {
         setMainPageInputVisible((v) => {
-            const next = !v
-            writeLS("mainPageInputVisible", String(next))
-            return next
+            const next = !v;
+            writeLS("mainPageInputVisible", String(next));
+            return next;
         });
     }
 
     const designInputData = useGetDesignInputData();
     // We need this up here, as this computation has side effects (the debug views)
-    const {
-        design,
-        debug: debugRenderData
-    } = create_design_data(designInputData.designData, designInputData.measureData);
+    const { design, debug: debugRenderData } = create_design_data(
+        designInputData.designData,
+        designInputData.measureData,
+    );
 
     return (
         <div className="root__app">
-            <div className="root__topbar" role="tablist" aria-label="Start pages">
-
+            <div
+                className="root__topbar"
+                role="tablist"
+                aria-label="Start pages"
+            >
                 <button
                     className={
                         "root__topbarBtn" +
-                        (page === "stoffstoff" ? " root__topbarBtn--active" : "")
+                        (page === "stoffstoff"
+                            ? " root__topbarBtn--active"
+                            : "")
                     }
-
                     type="button"
                     onClick={() => {
                         if (page === "stoffstoff") {
-                            toggleLeftVisible()
+                            toggleLeftVisible();
                         } else {
-                            setPage("stoffstoff")
+                            setPage("stoffstoff");
                         }
                     }}
                     role="tab"
@@ -67,9 +73,9 @@ export function App() {
 
                 <button
                     className={
-                        "root__topbarBtn" + (page === "debug" ? " root__topbarBtn--active" : "")
+                        "root__topbarBtn" +
+                        (page === "debug" ? " root__topbarBtn--active" : "")
                     }
-
                     type="button"
                     onClick={() => setPage("debug")}
                     role="tab"
@@ -85,12 +91,10 @@ export function App() {
                     design={design}
                 />
             ) : (
-                <DebugPage
-                    debugRenderData={debugRenderData}
-                />
+                <DebugPage debugRenderData={debugRenderData} />
             )}
         </div>
-    )
+    );
 }
 
 export type DesignInputData = ReturnType<typeof useGetDesignInputData>;
@@ -98,40 +102,38 @@ function useGetDesignInputData() {
     const [designData, setDesignData] = useState<PatternConfigWithName>(() => {
         const saved = readLS(
             "designDataText",
-            JSON.stringify(DEFAULT_DESIGN_CONFIG)
-        )
+            JSON.stringify(DEFAULT_DESIGN_CONFIG),
+        );
 
-        const res: unknown = JSON.parse(saved)
-        const is_config = is_pattern_config_with_pattern_name(
-            res
-        )
+        const res: unknown = JSON.parse(saved);
+        const is_config = is_pattern_config_with_pattern_name(res);
 
         if (typeof is_config === "string") {
-            console.log(new Error(is_config))
-            return DEFAULT_DESIGN_CONFIG
+            console.log(new Error(is_config));
+            return DEFAULT_DESIGN_CONFIG;
         }
 
         return res as PatternConfigWithName;
-    })
+    });
 
     const [measureData, setMeasureData] = useState(() => {
         const saved = readLS(
             "measureDataText",
-            JSON.stringify(DEFAULT_MEASUREMENTS)
-        )
+            JSON.stringify(DEFAULT_MEASUREMENTS),
+        );
 
         try {
-            return JSON.parse(saved)
+            return JSON.parse(saved);
         } catch (e: any) {
-            console.log(e.message)
-            return DEFAULT_MEASUREMENTS
+            console.log(e.message);
+            return DEFAULT_MEASUREMENTS;
         }
-    })
+    });
 
     return {
         designData,
         setDesignData,
         measureData,
-        setMeasureData
+        setMeasureData,
     } as const;
 }

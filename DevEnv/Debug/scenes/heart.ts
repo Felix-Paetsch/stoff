@@ -87,7 +87,7 @@ export default function () {
         b *= scale_factor;
 
         // Set the color
-        lines[i].set_color(
+        lines[i]!.set_color(
             `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`
         );
     }
@@ -95,8 +95,8 @@ export default function () {
     for (let i = 1; i < 8; i++) {
         const new_lines = [];
         for (let j = 0; j < lines.length - 1; j++) {
-            const l1 = lines[j];
-            const l2 = lines[(j + 1) % lines.length];
+            const l1 = lines[j]!;
+            const l2 = lines[(j + 1) % lines.length]!;
 
             const newLine = s.interpolate_lines(l1, l2)
             new_lines.push(newLine);

@@ -7,7 +7,7 @@ export default function () {
         r.point(0, 0), r.point(100, 0),
         r.point(50, 50),
         r.point(0, 100), r.point(100, 100)
-    ];
+    ] as const;
 
     const lt = r.line_between_points(points[0], points[1]);
     r.line_between_points(points[1], points[4])
@@ -23,13 +23,14 @@ export default function () {
 
     const T = s.cut(lt);
     const B = s.cut(lb);
-    const l1 = s.fold(l);
 
-    const r2 = s.sew(T, [{
+    s.fold(l);
+    s.sew(T, [{
         line: B,
         same_orientation: true,
         same_handedness: true,
     }]);
+
     s.cut(u);
     return s;
 }

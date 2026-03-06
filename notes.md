@@ -1,4 +1,5 @@
 Get Away from React? Or fix react errors. Lazy load line numbers?
+On safe get rid of all unused imports
 Fix react errors?
 TS Warnings for bad array and object accesses
 Make UI nicer; e.g. when hovering
