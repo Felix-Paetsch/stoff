@@ -45,7 +45,7 @@ export class BoundingBox {
     }
 
     static merge(boxes: BoundingBox[], min_bb: [number, number] | null = null) {
-        if (min_bb = null) {
+        if (min_bb === null) {
             min_bb = [0, 0];
             boxes.forEach(b => {
                 if (b.min_bb[0] > min_bb![0]) {

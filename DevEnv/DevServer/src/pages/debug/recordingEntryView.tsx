@@ -1,61 +1,100 @@
-import { Recording } from "@/Core/Debug/recording"
-import { render_sketches } from "@/Core/Render/render_sketches_methods"
+import { useEffect, useMemo, useState } from "react";
 
-import { Renderer } from "@/Core/Render/renderer"
-import { useMemo, useState } from "react"
-import { DebugRenderData } from "../../lib/create_design_data"
+import { Recording } from "@/Core/Debug/recording";
+import { render_sketches } from "@/Core/Render/render_sketches_methods";
+import { Renderer } from "@/Core/Render/renderer";
 
+import { DebugRenderData } from "../../lib/create_design_data";
+import {
+    deleteStackTraceFromFirstTSX,
+    mapStackTrace,
+} from "../../utils/correctErrorStackTrace";
 
 type RecordingEntry = DebugRenderData[number] & {
-    to_render: Recording
-}
+    to_render: Recording;
+};
 
 export function RecordingEntryView({
     entry,
     index,
 }: {
-    entry: RecordingEntry
-    index: number
+    entry: RecordingEntry;
+    index: number;
 }) {
-    const [page, setPage] = useState(
-        entry.to_render.snapshots.length
-    )
+    const [page, setPage] = useState(entry.to_render.snapshots.length);
+    const [traces, setTraces] = useState<string[]>(() =>
+        entry.to_render.snapshots.map(() => "Loading stack..."),
+    );
 
     const renders = useMemo(() => {
-        return entry.to_render.snapshots.map(snapshot => {
+        return entry.to_render.snapshots.map((snapshot) => {
             const renderer = new Renderer(snapshot.object);
             render_sketches(renderer);
 
-            return renderer.build_all_sketch_svgs(500, 500, 20)
-        })
-    }, [entry.to_render])
+            return renderer.build_all_sketch_svgs(500, 500, 20);
+        });
+    }, [entry.to_render]);
 
-    let render_data: string | null = null
+    useEffect(() => {
+        let cancelled = false;
+
+        Promise.all(
+            entry.to_render.snapshots.map(async (snapshot) => {
+                try {
+                    const mapped = await mapStackTrace(
+                        snapshot.stackTrace,
+                        {
+                            debug: false,
+                        },
+                    );
+
+                    return deleteStackTraceFromFirstTSX(mapped)
+                        .split("\n")
+                        .slice(1)
+                        .join("\n");
+                } catch {
+                    return "Failed loading stack...";
+                }
+            }),
+        )
+            .then((resolvedTraces) => {
+                if (!cancelled) {
+                    setTraces(resolvedTraces);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setTraces(
+                        entry.to_render.snapshots.map(
+                            () => "Failed loading stack...",
+                        ),
+                    );
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [entry.to_render]);
+
+    let renderData: string | null = null;
     if (entry.data) {
         try {
-            render_data = JSON.stringify(entry.data, null, 2)
+            renderData = JSON.stringify(entry.data, null, 2);
         } catch {
-            render_data = "Failed to serialize data!"
+            renderData = "Failed to serialize data!";
         }
     }
 
-    const originaĺ_traces: string[] = entry.to_render.snapshots.map(s => s.stackTrace);
-    const traces = originaĺ_traces.map(t => {
-        return t.split("\n").map(l => l.split("?")[0]).join("\n") + "\n[Sadly I can't provide you with the correct line numbers here..]";
-    })
-
-    const total = renders.length
+    const total = renders.length;
     const effectivePage =
-        total === 0
-            ? 0
-            : Math.min(Math.max(page || 1, 1), total)
+        total === 0 ? 0 : Math.min(Math.max(page || 1, 1), total);
 
     return (
         <section
             key={index}
             className={
-                "dbg__entryRow" +
-                (entry.hot ? " dbg__entryRow--hot" : "")
+                "dbg__entryRow" + (entry.hot ? " dbg__entryRow--hot" : "")
             }
         >
             <div className="dbg__recordingControls">
@@ -67,25 +106,21 @@ export function RecordingEntryView({
                     step={1}
                     value={Math.max(effectivePage, 1)}
                     disabled={total === 0}
-                    onChange={e =>
-                        setPage(Number(e.target.value))
-                    }
+                    onChange={(e) => setPage(Number(e.target.value))}
                 />
 
                 <div className="dbg__recordingCounter">
-                    {total === 0
-                        ? "0/0"
-                        : `${effectivePage}/${total}`}
+                    {total === 0 ? "0/0" : `${effectivePage}/${total}`}
                 </div>
             </div>
 
-            {renders.map((rendered, render_index) => (
+            {renders.map((rendered, renderIndex) => (
                 <div
-                    key={render_index}
+                    key={renderIndex}
                     className="shd__previewList dbg__previewList sketch_display"
                     style={{
                         display:
-                            effectivePage === render_index + 1
+                            effectivePage === renderIndex + 1
                                 ? "flex"
                                 : "none",
                     }}
@@ -93,7 +128,7 @@ export function RecordingEntryView({
                     {rendered.map((item, i) => (
                         <div
                             className="shd__previewItem"
-                            key={"_" + render_index + i}
+                            key={`_${renderIndex}${i}`}
                         >
                             <div
                                 className="shd__previewSvg"
@@ -104,18 +139,19 @@ export function RecordingEntryView({
                         </div>
                     ))}
 
-                    {render_data && (
+                    {renderData && (
                         <div className="shd__previewItem">
-                            <pre>{render_data}</pre>
+                            <pre>{renderData}</pre>
                         </div>
                     )}
 
                     <div className="shd__previewItem">
-                        <pre>{traces[render_index] || "No stack found."}</pre>
+                        <pre>{traces[renderIndex] || "No stack found."}</pre>
                     </div>
                 </div>
             ))}
         </section>
-    )
+    );
 }
+
 

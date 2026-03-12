@@ -18,6 +18,11 @@ export function render_sketches(r: Renderer, styles: Partial<SketchRenderStyling
 }
 
 export function render_sketch(r: Renderer, s: Sketch, styles: Partial<SketchRenderStyling> = {}) {
+    r.render_bg(
+        s, ["base"], [],
+        get_sketch_render_data(s)
+    );
+
     let lineStyles: LineRenderAttributes | null = null;
     if (styles.lines) {
         lineStyles = {
@@ -69,25 +74,30 @@ export function render_sketch(r: Renderer, s: Sketch, styles: Partial<SketchRend
 }
 
 export function get_line_render_data(line: Line, extra_data: Record<string, Json> = {}) {
-    if (typeof line.data === "object") {
-        return Object.assign({}, line.data, {
-            _length: Math.round(line.get_length() * 1000) / 1000,
-            _right_handed: line.right_handed,
-            ...(extra_data),
-        });
-    }
-
-    return line.data;
+    return Object.assign({}, line.data, {
+        _length: Math.round(line.get_length() * 1000) / 1000,
+        _right_handed: line.right_handed,
+        ...(extra_data),
+    });
 }
 
 
 export function get_point_render_data(point: Point, extra_data: Record<string, Json> = {}) {
-    if (typeof point.data === "object") {
-        return Object.assign({}, point.data, {
-            _x: Math.round(point.x * 1000) / 1000,
-            _y: Math.round(point.y * 1000) / 1000,
-            ...(extra_data),
-        });
-    }
-    return point.data;
+    return Object.assign({}, point.data, {
+        _x: Math.round(point.x * 1000) / 1000,
+        _y: Math.round(point.y * 1000) / 1000,
+        ...(extra_data),
+    });
+}
+
+export function get_sketch_render_data(s: Sketch, extra_data: Record<string, Json> = {}) {
+    const bb = s.get_bounding_box();
+
+    return Object.assign({}, s.data, {
+        _x: bb.min_x,
+        _y: bb.min_y,
+        _width: bb.width,
+        _height: bb.height,
+        ...(extra_data),
+    });
 }

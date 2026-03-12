@@ -1,8 +1,10 @@
+Todo: Infering line numbers for recodings
+=> We can cache things...
+=> But only Cache when not reloading (reloading signal?)
+
+
 Get Away from React? Or fix react errors. Lazy load line numbers?
-On safe get rid of all unused imports
-Fix react errors?
-TS Warnings for bad array and object accesses
-Make UI nicer; e.g. when hovering
+Make UI nicer; e.g. when hovering -- make it easier
 
 Talk with Leonie abt current progress
 

@@ -5,48 +5,81 @@ type StackFrame = {
     url: string;
     line: number;
     column: number;
+    matchedText: string;
 };
 
 type MapStackTraceOptions = {
     debug?: boolean;
 };
 
-let initialized = false;
-function ensureSourceMapWasmInitialized() {
-    if (initialized) return;
-    // @ts-ignore;
-    SourceMapConsumer.initialize({
-        "lib/mappings.wasm": mappingsWasmUrl,
-    });
-    initialized = true;
-}
-
 type CachedConsumer = {
     consumer: SourceMapConsumer;
-    // Base URL to resolve sources against (map URL if external, else module URL)
     baseUrl: string;
 };
 
-const consumerCache = new Map<string, CachedConsumer | null>();
+let wasmInitState: "not-initialized" | "initialized" | "failed" =
+    "not-initialized";
+
+function debugLog(debug: boolean, message: string, extra?: unknown) {
+    if (!debug) return;
+    console.log(`[mapStackTrace] ${message}`, extra ?? "");
+}
+
+function ensureSourceMapWasmInitialized(debug: boolean) {
+    if (wasmInitState === "initialized") return;
+    if (wasmInitState === "failed") return;
+
+    try {
+        // @ts-ignore
+        SourceMapConsumer.initialize({
+            "lib/mappings.wasm": mappingsWasmUrl,
+        });
+        wasmInitState = "initialized";
+    } catch (e) {
+        wasmInitState = "failed";
+        debugLog(debug, "SourceMapConsumer.initialize failed", e);
+    }
+}
+
+const consumerCache = new Map<string, Promise<CachedConsumer | null>>();
+
+function isSupportedScriptUrl(url: string): boolean {
+    return (
+        url.startsWith("http://") ||
+        url.startsWith("https://") ||
+        url.startsWith("file://")
+    );
+}
 
 function extractFrame(stackLine: string): StackFrame | null {
     // Firefox: func@url:line:col
     let m = stackLine.match(/@(.+?):(\d+):(\d+)\s*$/);
     if (m) {
-        return { url: m[1]!, line: Number(m[2]), column: Number(m[3]) };
+        const url = m[1]!;
+        if (!isSupportedScriptUrl(url)) return null;
+
+        return {
+            url,
+            line: Number(m[2]),
+            column: Number(m[3]),
+            matchedText: `${url}:${m[2]}:${m[3]}`,
+        };
     }
 
-    // Chrome: at func (url:line:col) / at url:line:col
+    // Chrome:
+    //   at func (url:line:col)
+    //   at url:line:col
     m = stackLine.match(/\(?(.+?):(\d+):(\d+)\)?\s*$/);
     if (m) {
         const url = m[1]!;
-        if (
-            url.startsWith("http://") ||
-            url.startsWith("https://") ||
-            url.startsWith("file://")
-        ) {
-            return { url, line: Number(m[2]), column: Number(m[3]) };
-        }
+        if (!isSupportedScriptUrl(url)) return null;
+
+        return {
+            url,
+            line: Number(m[2]),
+            column: Number(m[3]),
+            matchedText: `${url}:${m[2]}:${m[3]}`,
+        };
     }
 
     return null;
@@ -65,81 +98,127 @@ function findSourceMappingUrl(jsText: string): string | null {
     return last;
 }
 
+function decodeBase64Utf8(base64: string): string {
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+}
+
 function decodeDataUrlToJson(dataUrl: string): any {
     const comma = dataUrl.indexOf(",");
-    if (comma === -1) throw new Error("Invalid data URL sourcemap");
+    if (comma === -1) {
+        throw new Error("Invalid data URL sourcemap");
+    }
 
     const meta = dataUrl.slice(0, comma);
     const data = dataUrl.slice(comma + 1);
 
     if (meta.includes(";base64")) {
-        const json = atob(data);
-        return JSON.parse(json);
+        return JSON.parse(decodeBase64Utf8(data));
     }
 
-    const json = decodeURIComponent(data);
-    return JSON.parse(json);
+    return JSON.parse(decodeURIComponent(data));
 }
 
 function mapUrlByAppendingDotMap(fileUrl: string): string {
-    const u = new URL(fileUrl, window.location.origin);
+    const u = new URL(fileUrl, window.location.href);
     u.pathname = `${u.pathname}.map`;
     return u.toString();
+}
+
+async function fetchJson(url: string): Promise<any> {
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`Failed to fetch JSON: ${url} (${res.status})`);
+    }
+    return res.json();
+}
+
+async function fetchText(url: string): Promise<string> {
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`Failed to fetch text: ${url} (${res.status})`);
+    }
+    return res.text();
 }
 
 async function fetchSourcemapForModuleUrl(
     moduleUrl: string,
     debug: boolean,
 ): Promise<{ rawMap: any; baseUrl: string } | null> {
-    // 1) Fetch module code and read sourceMappingURL
+    // 1) Try reading sourceMappingURL from the module itself.
     try {
-        const jsRes = await fetch(moduleUrl);
-        if (!jsRes.ok) throw new Error(`Failed to fetch module: ${moduleUrl}`);
-        const jsText = await jsRes.text();
-
+        const jsText = await fetchText(moduleUrl);
         const sm = findSourceMappingUrl(jsText);
+
         if (sm) {
-            if (debug) {
-                console.log("[mapStackTrace] sourceMappingURL found", {
-                    moduleUrl,
-                    sourceMappingUrl: sm.slice(0, 140),
-                });
-            }
+            debugLog(debug, "sourceMappingURL found", {
+                moduleUrl,
+                sourceMappingUrl: sm.slice(0, 200),
+            });
 
             if (sm.startsWith("data:")) {
-                return { rawMap: decodeDataUrlToJson(sm), baseUrl: moduleUrl };
+                return {
+                    rawMap: decodeDataUrlToJson(sm),
+                    baseUrl: moduleUrl,
+                };
             }
 
             const mapUrl = new URL(sm, moduleUrl).toString();
-            const mapRes = await fetch(mapUrl);
-            if (!mapRes.ok) throw new Error(`Failed to fetch sourcemap: ${mapUrl}`);
-
-            return { rawMap: await mapRes.json(), baseUrl: mapUrl };
+            return {
+                rawMap: await fetchJson(mapUrl),
+                baseUrl: mapUrl,
+            };
         }
 
-        if (debug) {
-            console.log("[mapStackTrace] no sourceMappingURL in module", {
-                moduleUrl,
-            });
-        }
+        debugLog(debug, "no sourceMappingURL in module", { moduleUrl });
     } catch (e) {
-        if (debug) {
-            console.log("[mapStackTrace] module fetch failed", { moduleUrl, e });
-        }
+        debugLog(debug, "module fetch or sourceMappingURL parsing failed", {
+            moduleUrl,
+            e,
+        });
     }
 
     // 2) Fallback: try `${url}.map`
     try {
         const mapUrl = mapUrlByAppendingDotMap(moduleUrl);
-        const mapRes = await fetch(mapUrl);
-        if (!mapRes.ok) return null;
+        const rawMap = await fetchJson(mapUrl);
 
-        if (debug) {
-            console.log("[mapStackTrace] fallback .map worked", { mapUrl });
-        }
+        debugLog(debug, "fallback .map worked", { moduleUrl, mapUrl });
 
-        return { rawMap: await mapRes.json(), baseUrl: mapUrl };
-    } catch {
+        return { rawMap, baseUrl: mapUrl };
+    } catch (e) {
+        debugLog(debug, "fallback .map failed", { moduleUrl, e });
+        return null;
+    }
+}
+
+async function createConsumerForModuleUrl(
+    moduleUrl: string,
+    debug: boolean,
+): Promise<CachedConsumer | null> {
+    ensureSourceMapWasmInitialized(debug);
+
+    if (wasmInitState === "failed") {
+        return null;
+    }
+
+    const result = await fetchSourcemapForModuleUrl(moduleUrl, debug);
+    if (!result) {
+        return null;
+    }
+
+    try {
+        const consumer = await new SourceMapConsumer(result.rawMap);
+        return {
+            consumer,
+            baseUrl: result.baseUrl,
+        };
+    } catch (e) {
+        debugLog(debug, "failed to create SourceMapConsumer", {
+            moduleUrl,
+            e,
+        });
         return null;
     }
 }
@@ -148,31 +227,29 @@ async function getConsumerForModuleUrl(
     moduleUrl: string,
     debug: boolean,
 ): Promise<CachedConsumer | null> {
-    ensureSourceMapWasmInitialized();
-
-    if (consumerCache.has(moduleUrl)) return consumerCache.get(moduleUrl)!;
-
-    const result = await fetchSourcemapForModuleUrl(moduleUrl, debug);
-    if (!result) {
-        consumerCache.set(moduleUrl, null);
-        return null;
+    const cachedPromise = consumerCache.get(moduleUrl);
+    if (cachedPromise) {
+        return cachedPromise;
     }
 
-    try {
-        const consumer = await new SourceMapConsumer(result.rawMap);
-        const cached: CachedConsumer = { consumer, baseUrl: result.baseUrl };
-        consumerCache.set(moduleUrl, cached);
-        return cached;
-    } catch (e) {
-        if (debug) {
-            console.log("[mapStackTrace] failed to create SourceMapConsumer", {
-                moduleUrl,
-                e,
-            });
-        }
-        consumerCache.set(moduleUrl, null);
+    const promise = createConsumerForModuleUrl(moduleUrl, debug).catch((e) => {
+        debugLog(debug, "unexpected consumer creation failure", {
+            moduleUrl,
+            e,
+        });
         return null;
+    });
+
+    consumerCache.set(moduleUrl, promise);
+
+    const result = await promise;
+
+    // If creation failed, remove it so a later call can retry.
+    if (result == null) {
+        consumerCache.delete(moduleUrl);
     }
+
+    return result;
 }
 
 function resolveFullSourcePath(
@@ -180,66 +257,134 @@ function resolveFullSourcePath(
     consumer: SourceMapConsumer,
     baseUrl: string,
 ): string {
-    // If it's already a URL-like source (rare but possible), keep it.
-    if (
-        source.startsWith("http://") ||
-        source.startsWith("https://") ||
-        source.startsWith("file://")
-    ) {
+    if (isSupportedScriptUrl(source)) {
         return source;
     }
 
-    // sourceRoot can be absolute, relative, or undefined.
-    // Resolve it against the map URL/module URL to get an absolute base.
-    // @ts-ignore
-    const sourceRoot = consumer.sourceRoot ?? "";
-    const rootBase = new URL(sourceRoot || ".", baseUrl);
+    try {
+        // @ts-ignore
+        const sourceRoot = consumer.sourceRoot ?? "";
+        const rootBase = new URL(sourceRoot || ".", baseUrl);
+        return new URL(source, rootBase).toString();
+    } catch {
+        return source;
+    }
+}
 
-    // Then resolve the source against that.
-    return new URL(source, rootBase).toString();
+function isReasonableFrame(frame: StackFrame): boolean {
+    return (
+        Number.isInteger(frame.line) &&
+        Number.isInteger(frame.column) &&
+        frame.line > 0 &&
+        frame.column > 0
+    );
+}
+
+async function mapSingleStackLine(
+    line: string,
+    debug: boolean,
+): Promise<string> {
+    try {
+        const frame = extractFrame(line);
+        if (!frame) {
+            return line;
+        }
+
+        if (!isReasonableFrame(frame)) {
+            debugLog(debug, "skipping unreasonable frame", { frame, line });
+            return line;
+        }
+
+        const cached = await getConsumerForModuleUrl(frame.url, debug);
+        if (!cached) {
+            return line;
+        }
+
+        const { consumer, baseUrl } = cached;
+
+        // Browser stack columns are usually 1-based.
+        const generatedColumn = Math.max(0, frame.column - 1);
+
+
+        let pos:
+            | {
+                source: string | null;
+                line: number | null;
+                column: number | null;
+                name?: string | null;
+            }
+            | undefined;
+
+        try {
+            pos = consumer.originalPositionFor({
+                line: frame.line,
+                column: generatedColumn,
+            });
+        } catch (e) {
+            debugLog(debug, "originalPositionFor failed", {
+                frame,
+                line,
+                e,
+            });
+            return line;
+        }
+
+        if (!pos?.source || pos.line == null || pos.column == null) {
+            return line;
+        }
+
+        const fullSource = resolveFullSourcePath(
+            pos.source,
+            consumer,
+            baseUrl,
+        );
+        const displayColumn = pos.column + 1;
+        const replacement = `${fullSource}:${pos.line}:${displayColumn}`;
+
+        if (!line.includes(frame.matchedText)) {
+            return line;
+        }
+
+        return line.replace(frame.matchedText, replacement);
+    } catch (e) {
+        debugLog(debug, "failed to map stack line", { line, e });
+        return line;
+    }
 }
 
 export async function mapStackTrace(
-    error: Error,
+    error: Error | string,
     options: MapStackTraceOptions = {},
 ): Promise<string> {
     const debug = Boolean(options.debug);
 
-    if (!error.stack) return `${error.name}: ${error.message}`;
+    try {
+        if (error instanceof Error) {
+            if (!error.stack) {
+                return `${error.name}: ${error.message}`;
+            }
 
-    const lines = error.stack.split("\n");
+            error = error.stack!;
+        }
 
-    const mapped = await Promise.all(
-        lines.map(async (line) => {
-            const frame = extractFrame(line);
-            if (!frame) return line;
+        const lines = error.split("\n");
+        const mapped = await Promise.all(
+            lines.map((line) => mapSingleStackLine(line, debug)),
+        );
 
-            const cached = await getConsumerForModuleUrl(frame.url, debug);
-            if (!cached) return line;
+        return mapped.join("\n");
+    } catch (e) {
+        debugLog(debug, "mapStackTrace failed entirely, returning original", e);
+        if (typeof error == "string") {
+            return error;
+        }
 
-            const { consumer, baseUrl } = cached;
+        return error.stack ?? `${error.name}: ${error.message}`;
+    }
+}
 
-            // Stack columns are usually 1-based; source-map expects 0-based.
-            const generatedColumn = Math.max(0, frame.column - 1);
-
-            const pos = consumer.originalPositionFor({
-                line: frame.line,
-                column: generatedColumn,
-            });
-
-            if (!pos.source || pos.line == null || pos.column == null) return line;
-
-            const displayColumn = pos.column + 1;
-            const fullSource = resolveFullSourcePath(pos.source, consumer, baseUrl);
-
-            return line.replace(
-                `${frame.url}:${frame.line}:${frame.column}`,
-                `${fullSource}:${pos.line}:${displayColumn}`,
-            );
-        }),
-    );
-
-    return mapped.join("\n");
+export function clearStackTraceSourceMapCache() {
+    consumerCache.clear();
 }
 
 export function deleteStackTraceFromFirstTSX(stack: string): string {
@@ -248,6 +393,9 @@ export function deleteStackTraceFromFirstTSX(stack: string): string {
         (line, i) => i !== 0 && /\.tsx(\?|:)/.test(line),
     );
 
-    if (firstTsxIndex === -1) return stack;
+    if (firstTsxIndex === -1) {
+        return stack;
+    }
+
     return lines.slice(0, firstTsxIndex).join("\n");
 }

@@ -1,7 +1,7 @@
 import { create_design } from "@/Patterns/patterns";
 import { is_pattern_config_with_pattern_name } from "./is_pattern_config";
 import { register_debug_render_listener, register_hot_debug_render_listener, remove_debug_listener, remove_hot_debug_listener, Rendereable } from "@/Core/Debug/debug_render";
-import { mapStackTrace } from "../utils/correctErrorStackTrace";
+import { clearStackTraceSourceMapCache, mapStackTrace } from "../utils/correctErrorStackTrace";
 import { is_global_recording, stop_global_recording } from "@/Core/Debug/recording";
 
 export type DesignRenderResult = ReturnType<typeof create_design>;
@@ -13,10 +13,12 @@ export type DebugRenderData = ({
     id?: string
 })[];
 
-export function create_design_data(designConfig: any, mea: any): {
+export function create_design_data(designConfig: any): {
     design: DesignRenderResult,
     debug: DebugRenderData
 } {
+    clearStackTraceSourceMapCache();
+
     const is_config = is_pattern_config_with_pattern_name(
         designConfig
     )
@@ -55,7 +57,7 @@ export function create_design_data(designConfig: any, mea: any): {
         }
     });
 
-    const design = create_design(designConfig.pattern_name, designConfig, mea);
+    const design = create_design(designConfig.pattern_name, designConfig);
 
     remove_debug_listener(lis_id);
     remove_hot_debug_listener(hot_lis_id);

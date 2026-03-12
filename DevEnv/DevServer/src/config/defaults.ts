@@ -1,5 +1,7 @@
 import { people_measurements } from "@/Data/measurements"
 
+const DEFAULT_MEASUREMENTS = people_measurements.Leonie;
+
 export const DEFAULT_DESIGN_CONFIG = {
     pattern_name: "T-Shirt",
 
@@ -10,6 +12,5 @@ export const DEFAULT_DESIGN_CONFIG = {
     Main_Body: "fitted",
     Neckline: "round",
     Sleeves: "0_standard_kurz",
+    ...DEFAULT_MEASUREMENTS
 } as const;
-
-export const DEFAULT_MEASUREMENTS = people_measurements.Leonie;

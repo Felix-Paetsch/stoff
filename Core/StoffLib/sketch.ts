@@ -12,7 +12,7 @@ import { Point } from "./point";
 
 import { assert } from "../assert";
 import { auto_validate } from "./sketch_methods/auto_validate";
-import { DropFirst, SketchElement, SketchElementCollection } from "./types";
+import { DropFirst, SketchElement, SketchElementCollection, StoffObjectData } from "./types";
 
 import * as CollectionMethods from "./collection";
 import {
@@ -29,7 +29,9 @@ export class Sketch {
     private points: Point[] = [];
     private lines: Line[] = [];
 
-    constructor() {}
+    public data: StoffObjectData = {};
+
+    constructor() { }
 
     __register_point(pt: Point) {
         this.points.push(pt);

@@ -73,6 +73,28 @@ export class Renderer {
         return this.faceAtlas.get(sketch)!;
     }
 
+    render_bg(
+        sk: Sketch,
+        belongs_to_render_groups: string[] = ["base"],
+        show_render_groups_on_hover: string[] = [],
+        hover_data: Json = null
+    ) {
+        const skRenderInstructions = this.svgMap.get(sk);
+        if (!skRenderInstructions) { throw new Error("Sketch doesn't belong to sewing."); }
+        skRenderInstructions.push({
+            hover_data,
+            belongs_to_render_groups,
+            show_render_groups_on_hover,
+            render_priority: 0,
+            render: (ras: string, ctx: RenderContext) => {
+                return `
+<rect x="0" y="0" width="${ctx.width}" height="${ctx.height}" 
+stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" ${ras} />
+`
+            }
+        });
+    }
+
     render_point(
         pt: Point,
         attr: Partial<PointRenderAttributes>,

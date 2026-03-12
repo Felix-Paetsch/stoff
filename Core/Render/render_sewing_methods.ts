@@ -1,7 +1,8 @@
 import { SewingLine } from "@/Core/Sewing/sewingLine";
 import {
     get_line_render_data,
-    get_point_render_data
+    get_point_render_data,
+    get_sketch_render_data
 } from "./render_sketches_methods";
 import { SewingPoint } from "@/Core/Sewing/sewingPoint";
 import { Gradient, interpolate_colors, is_gradient } from "@/Core/utils/colors";
@@ -27,6 +28,11 @@ import { LineRenderAttributes } from "@/Core/StoffLib/line";
 
 export function render_inactive_sewing(r: Renderer) {
     r.sewing.sketches.forEach(s => {
+        r.render_bg(
+            s, ["base"], [],
+            get_sketch_render_data(s)
+        );
+
         s.get_lines().forEach(line => {
             r.render_line(
                 line,
@@ -73,6 +79,11 @@ export function render_inactive_sewing(r: Renderer) {
 
 export function render_sewing(r: Renderer) {
     r.sewing.sketches.forEach(s => {
+        r.render_bg(
+            s, ["base"], [],
+            get_sketch_render_data(s)
+        );
+
         s.get_lines().forEach(line => {
             r.render_line(
                 line,

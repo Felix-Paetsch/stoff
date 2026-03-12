@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { TShirtPattern } from "./tshirt/pattern_export";
 import { PatternFunction } from "./types";
+import { BowlCozyPattern } from "./bowl_cozy";
 
 export const Patterns = [
-    TShirtPattern
+    TShirtPattern,
+    BowlCozyPattern
 ] as const;
 
 export const PatternConfigSchema = z.union(Patterns.map(p => p.config_schema));
@@ -20,7 +22,7 @@ export function is_pattern_config(name: unknown, s: unknown): true | string {
     return true;
 }
 
-export function create_design(name: string, designData: unknown, measurements: unknown): Error | ReturnType<PatternFunction<any, any>> {
+export function create_design(name: string, designData: unknown): Error | ReturnType<PatternFunction<any, any>> {
     const pattern = Patterns.find(p => p.name == name);
     if (!pattern) {
         return new Error(`There doesn't exist a pattern named: ${name}`);
@@ -31,13 +33,8 @@ export function create_design(name: string, designData: unknown, measurements: u
         return config.error;
     }
 
-    const mea = pattern.measurements_schema.safeParse(measurements);
-    if (!mea.success) {
-        return mea.error;
-    }
-
     try {
-        return pattern.construct(config.data, mea.data);
+        return pattern.construct(config.data as any);
     } catch (e: any) {
         return e as Error;
     }

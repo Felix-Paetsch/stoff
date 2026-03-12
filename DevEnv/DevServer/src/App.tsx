@@ -2,7 +2,7 @@ import "./pages/shared/root.css";
 import "./pages/shared/shared.css";
 
 import { useEffect, useState } from "react";
-import { DEFAULT_DESIGN_CONFIG, DEFAULT_MEASUREMENTS } from "./config/defaults";
+import { DEFAULT_DESIGN_CONFIG } from "./config/defaults";
 import { create_design_data } from "./lib/create_design_data";
 import {
     is_pattern_config_with_pattern_name,
@@ -39,8 +39,7 @@ export function App() {
     const designInputData = useGetDesignInputData();
     // We need this up here, as this computation has side effects (the debug views)
     const { design, debug: debugRenderData } = create_design_data(
-        designInputData.designData,
-        designInputData.measureData,
+        designInputData.designData
     );
 
     return (
@@ -116,24 +115,12 @@ function useGetDesignInputData() {
         return res as PatternConfigWithName;
     });
 
-    const [measureData, setMeasureData] = useState(() => {
-        const saved = readLS(
-            "measureDataText",
-            JSON.stringify(DEFAULT_MEASUREMENTS),
-        );
-
-        try {
-            return JSON.parse(saved);
-        } catch (e: any) {
-            console.log(e.message);
-            return DEFAULT_MEASUREMENTS;
-        }
-    });
+    useEffect(() => {
+        writeLS("designDataText", JSON.stringify(designData));
+    }, [designData]);
 
     return {
         designData,
-        setDesignData,
-        measureData,
-        setMeasureData,
+        setDesignData
     } as const;
 }
