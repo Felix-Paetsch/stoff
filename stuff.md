@@ -71,3 +71,5 @@ Renderer (?)
 
 
 For dst: Shader!!! i.e. squiggle, make underpath thing/...
+
+Clean up splines. They should not be to oppinionated about sketches (?) but they can ofc. export extra funcitonality

@@ -79,4 +79,5 @@ type Shadow extends Sketch?
 
 Stamp should be available for usual things and not limited to shadows but probably favoured
 
+Polyline Methods <-> Line
 

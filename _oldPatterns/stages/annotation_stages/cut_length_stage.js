@@ -11,7 +11,7 @@ import {
     vec_angle,
     deg_to_rad,
 } from "../../../Core/StoffLib/geometry.js";
-import { intersect_lines } from "../../../Core/StoffLib/unicorns/intersect_lines.js";
+import { intersect_lines } from "../../../Core/StoffLib/algorithms/intersect_lines.js";
 import assert from "../../../Core/assert.js";
 import fill_in_dart from "../algorithms/fill_in_dart.js";
 import { at_url } from "../../../Core/Debug/render_at.js";

@@ -11,6 +11,8 @@
     "_descr2": "sample point amt choices",
     "DEFAULT_SAMPLE_POINT_DENSITY": 0.01,
     "INTERPOLATION_NORMALIZATION_DENSITY": 0.001,
+    "DEFAULT_LINE_SEGMENT_LENGTH": 0.01,
+
     "RENDER_MAX_SAMPLE_POINTS_PER_LINE": 100,
 
     "_descr3": "validation steps included",

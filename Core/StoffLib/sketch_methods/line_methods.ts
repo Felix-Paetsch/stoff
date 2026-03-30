@@ -14,14 +14,13 @@ import { interpolate_colors } from "../../utils/colors.js";
 import CONF from "../config.json" with { type: "json" };
 import { same_sketch } from "../assert_methods/exports.js";
 import { length, radians } from "../geometry/types.js";
-import * as UnicornIntersect from "../unicorns/intersect_lines.js";
-import { CopySketchObjectDataCallback, default_data_callback } from "../copy.js";
+import * as UnicornIntersect from "../algorithms/intersect_lines.js";
+import {
+    CopySketchObjectDataCallback,
+    default_data_callback,
+} from "../copy.js";
 
-export function line_between_points(
-    sketch: Sketch,
-    pt1: Point,
-    pt2: Point
-) {
+export function line_between_points(sketch: Sketch, pt1: Point, pt2: Point) {
     [pt1, pt2].forEach((p) => {
         assert(same_sketch(p, sketch));
     });
@@ -36,7 +35,7 @@ export function line_at_angle(
     angle: radians,
     length: length,
     reference_direction: Vector = UP,
-    absolute: boolean = false // Whether the direction is pointed from 0 or towards this point
+    absolute: boolean = false, // Whether the direction is pointed from 0 or towards this point
 ) {
     if (absolute) {
         reference_direction = reference_direction.subtract(point);
@@ -59,7 +58,7 @@ export function line_from_function_graph(
     sketch: Sketch,
     pt1: Point,
     pt2: Point,
-    f_1: NumberFunction | TwoNumberFunction
+    f_1: NumberFunction | TwoNumberFunction,
 ) {
     let f: (t: number) => [number, number];
 
@@ -73,19 +72,19 @@ export function line_from_function_graph(
 
     const sample_points = Array.from(
         { length: n + 1 },
-        (_, i) => new Vector(...f(i / n))
+        (_, i) => new Vector(...f(i / n)),
     );
 
     const transform = affine_transform_from_input_output(
         [sample_points[0]!, sample_points[sample_points.length - 1]!],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     return _line_between_points_from_sample_points(
         sketch,
         pt1,
         pt2,
-        sample_points.map(transform)
+        sample_points.map(transform),
     );
 }
 
@@ -93,7 +92,7 @@ export function _line_between_points_from_sample_points(
     sketch: Sketch,
     pt1: Point,
     pt2: Point,
-    sp: Vector[]
+    sp: Vector[],
 ) {
     [pt1, pt2].forEach((p) => {
         assert(same_sketch(p, sketch));
@@ -101,7 +100,7 @@ export function _line_between_points_from_sample_points(
 
     const to_rel_fun = affine_transform_from_input_output(
         [sp[0]!, sp[sp.length - 1]!],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     const l = new Line([pt1, pt2], sp.map(to_rel_fun));
@@ -115,7 +114,7 @@ export function interpolate_lines(
     direction: 0 | 1 | 2 | 3 = 0,
     f: NumberFunction = (x) => x,
     p1: NumberFunction = (x) => x,
-    p2: NumberFunction = (x) => x
+    p2: NumberFunction = (x) => x,
 ) {
     [line1, line2].forEach((l) => {
         assert(same_sketch(l, sketch));
@@ -156,7 +155,7 @@ export function interpolate_lines(
 
     const abs_to_rel = affine_transform_from_input_output(
         [start, end],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     const n = Math.ceil(1 / sketch.sample_density);
@@ -174,7 +173,7 @@ export function interpolate_lines(
         const s0 = samples[i0]!;
         const s1 = samples[i1]!;
 
-        return Vector.lerp(s0, s1, f)
+        return Vector.lerp(s0, s1, f);
     }
 
     const sample_points = new Array(n + 1);
@@ -183,10 +182,10 @@ export function interpolate_lines(
         const t = i / n;
 
         const L1 = abs_to_rel(
-            interpolateFromNormalized(line1_normalized, p1_norm(t))
+            interpolateFromNormalized(line1_normalized, p1_norm(t)),
         );
         const L2 = abs_to_rel(
-            interpolateFromNormalized(line2_normalized, p2_norm(t))
+            interpolateFromNormalized(line2_normalized, p2_norm(t)),
         );
 
         const ft = f_norm(t);
@@ -197,7 +196,7 @@ export function interpolate_lines(
         sketch,
         start,
         end,
-        sample_points
+        sample_points,
     );
 
     new_line.set_handedness(line1.right_handed);
@@ -209,21 +208,20 @@ export function interpolate_lines(
 }
 
 export function copy_line(l: Line, p1: Point, p2: Point) {
-    const line = new Line([p1, p2], l.get_sample_points())
+    const line = new Line([p1, p2], l.get_sample_points());
 
-    line.set_attributes(l.get_attributes())
+    line.set_attributes(l.get_attributes());
     line.data = { ...l.data };
 
     return line;
 }
-
 
 export function merge_lines(
     sketch: Sketch,
     line1: Line,
     line2: Line,
     delete_join: boolean = false,
-    data_callback: CopySketchObjectDataCallback = default_data_callback
+    data_callback: CopySketchObjectDataCallback = default_data_callback,
 ) {
     assert(same_sketch(line1, line2, sketch));
 
@@ -251,18 +249,18 @@ export function merge_lines(
 
     const t_fun = affine_transform_from_input_output(
         [line1.p1, line2.p2],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     const relative_points = abs_total.map((p) => t_fun(p));
     const new_line = sketch._line_between_points_from_sample_points(
         line1.p1,
         line2.p2,
-        relative_points
+        relative_points,
     );
 
     new_line.set_color(
-        interpolate_colors(line1.get_color(), line2.get_color(), 0.5)
+        interpolate_colors(line1.get_color(), line2.get_color(), 0.5),
     );
     new_line.set_handedness(line1.right_handed);
     new_line.data = data_callback(line1.data, line2.data, line1, line2);
@@ -279,16 +277,15 @@ export function merge_lines(
         new_line.swap_orientation();
     }
     return new_line;
-};
-
+}
 
 export function point_on_line(
     sketch: Sketch,
     pt: Point,
-    line: Line
+    line: Line,
 ): {
-    line_segments: [Line, Line],
-    point: Point
+    line_segments: [Line, Line];
+    point: Point;
 } {
     if (!(pt instanceof Point)) {
         pt = sketch.add_point(pt);
@@ -298,10 +295,7 @@ export function point_on_line(
     let closest_line_segment_first_index = 0;
     let closest_distance = Infinity;
     for (let i = 0; i < abs.length - 1; i++) {
-        const new_dist = distance_from_line_segment(
-            [abs[i]!, abs[i + 1]!],
-            pt
-        );
+        const new_dist = distance_from_line_segment([abs[i]!, abs[i + 1]!], pt);
         if (closest_distance > new_dist) {
             closest_distance = new_dist;
             closest_line_segment_first_index = i;
@@ -313,11 +307,9 @@ export function point_on_line(
     }
 
     const line_vector = abs[closest_line_segment_first_index + 1]!.subtract(
-        abs[closest_line_segment_first_index]!
+        abs[closest_line_segment_first_index]!,
     );
-    const offset_vector = line_vector
-        .get_orthonormal()
-        .scale(closest_distance);
+    const offset_vector = line_vector.get_orthonormal().scale(closest_distance);
 
     const splitting_pt = pt.subtract(offset_vector);
 
@@ -329,30 +321,30 @@ export function point_on_line(
 
     const left_to_rel_fun = affine_transform_from_input_output(
         [line.p1, splitting_pt],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     const right_to_rel_fun = affine_transform_from_input_output(
         [splitting_pt, line.p2],
-        [new Vector(0, 0), new Vector(1, 0)]
+        [new Vector(0, 0), new Vector(1, 0)],
     );
 
     const line_segments: [Line, Line] = [
         sketch._line_between_points_from_sample_points(
             line.p1,
             pt,
-            left_part.map(left_to_rel_fun)
+            left_part.map(left_to_rel_fun),
         ),
         sketch._line_between_points_from_sample_points(
             pt,
             line.p2,
-            right_part.map(right_to_rel_fun)
+            right_part.map(right_to_rel_fun),
         ),
     ];
 
     line_segments.forEach((ls) => {
         ls.data = {
-            ...line.data
+            ...line.data,
         };
         ls.set_handedness(line.right_handed);
     });
@@ -361,22 +353,20 @@ export function point_on_line(
     return {
         line_segments: line_segments,
         point: pt,
-    }
-};
-
+    };
+}
 
 export function split_line_at_length(
     sketch: Sketch,
     line: Line,
     length: number,
-    reversed: boolean = false
+    reversed: boolean = false,
 ) {
     assert(same_sketch(line, sketch));
     const position = line.position_at_length(length, reversed);
     const pt = sketch.add_point(position);
     return sketch.point_on_line(pt, line);
-};
-
+}
 
 export function split_line_at_fraction(
     sketch: Sketch,
@@ -387,17 +377,21 @@ export function split_line_at_fraction(
     const position = line.position_at_fraction(fraction, reversed);
     const pt = sketch.add_point(position);
     return sketch.point_on_line(pt, line);
-};
+}
 
-export function intersect_lines(sketch: Sketch, line1: Line, line2: Line): {
-    intersection_points: Point[],
-    l1_segments: Line[],
-    l2_segments: Line[]
+export function intersect_lines(
+    sketch: Sketch,
+    line1: Line,
+    line2: Line,
+): {
+    intersection_points: Point[];
+    l1_segments: Line[];
+    l2_segments: Line[];
 } {
     assert(same_sketch(line1, line2, sketch));
 
     return UnicornIntersect.intersect_lines(sketch, line1, line2);
-};
+}
 
 export function line_with_offset(
     sketch: Sketch,
@@ -405,10 +399,7 @@ export function line_with_offset(
     offset: number,
     withHandedness: boolean = true,
 ) {
-    const abs_sample_points = line.offset_sample_points(
-        offset,
-        withHandedness,
-    );
+    const abs_sample_points = line.offset_sample_points(offset, withHandedness);
     const p1 = sketch.add_point(abs_sample_points[0]!);
     const p2 = sketch.add_point(
         abs_sample_points[abs_sample_points.length - 1]!,
@@ -425,21 +416,19 @@ export function line_with_offset(
         p2,
         line: ret_line,
     };
-};
+}
 
 export function intersection_positions(
     sketch: Sketch,
     line1: Line | PlainLine | Ray,
-    line2: Line | PlainLine | Ray
+    line2: Line | PlainLine | Ray,
 ): Vector[] {
     if (line1 instanceof Line && line2 instanceof Line) {
         assert(same_sketch(sketch, line1, line2));
         return UnicornIntersect.intersection_positions(line1, line2);
     }
 
-    if (
-        !(line1 instanceof Line) && !(line2 instanceof Line)
-    ) {
+    if (!(line1 instanceof Line) && !(line2 instanceof Line)) {
         const pos = line1.intersect(line2);
         if (pos) return [pos];
         return [];
@@ -450,5 +439,8 @@ export function intersection_positions(
     }
 
     assert(same_sketch(sketch, line1));
-    return UnicornIntersect.plainLine_intersection_positions(line1, line2 as PlainLine | Ray);
-};
+    return UnicornIntersect.plainLine_intersection_positions(
+        line1,
+        line2 as PlainLine | Ray,
+    );
+}

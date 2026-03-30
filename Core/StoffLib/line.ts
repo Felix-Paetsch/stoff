@@ -13,7 +13,7 @@ import {
 import { Point } from "./point";
 import { ConnectedComponent } from "./connected_component";
 import { assert, invalid_path } from "../assert";
-import { _calculate_intersections } from "./unicorns/intersect_lines";
+import { _calculate_intersections } from "./algorithms/intersect_lines";
 import { offset_sample_points } from "./line_methods/offset_sample_points";
 import * as LineManipulation from "./line_methods/line_manipulation";
 import { copy_sketch_element_collection } from "./copy";
@@ -22,7 +22,7 @@ import { Sketch } from "./sketch";
 import { Color, Gradient } from "../utils/colors";
 import { Fraction } from "./geometry/1d";
 import { SketchElement, StoffObjectData } from "./types";
-import { self_intersects } from "./unicorns/self_intersects";
+import { self_intersects } from "./algorithms/self_intersects";
 import * as SketchElementCollectionMethods from "./collection";
 import { default_line_attributes } from "../Render/defaults/base";
 

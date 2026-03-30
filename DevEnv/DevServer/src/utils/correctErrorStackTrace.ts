@@ -305,14 +305,13 @@ async function mapSingleStackLine(
         // Browser stack columns are usually 1-based.
         const generatedColumn = Math.max(0, frame.column - 1);
 
-
         let pos:
             | {
-                source: string | null;
-                line: number | null;
-                column: number | null;
-                name?: string | null;
-            }
+                  source: string | null;
+                  line: number | null;
+                  column: number | null;
+                  name?: string | null;
+              }
             | undefined;
 
         try {
@@ -333,11 +332,7 @@ async function mapSingleStackLine(
             return line;
         }
 
-        const fullSource = resolveFullSourcePath(
-            pos.source,
-            consumer,
-            baseUrl,
-        );
+        const fullSource = resolveFullSourcePath(pos.source, consumer, baseUrl);
         const displayColumn = pos.column + 1;
         const replacement = `${fullSource}:${pos.line}:${displayColumn}`;
 

@@ -27,7 +27,6 @@ import {
 import { length, radians } from "./geometry/types";
 import * as SewingMethods from "./sketch_methods/advanced_methods/exports";
 import * as LineMethods from "./sketch_methods/line_methods";
-import { line_with_length } from "./unicorns/line_with_length";
 
 export class Sketch {
     readonly sample_density = CONF.DEFAULT_SAMPLE_POINT_DENSITY;
@@ -212,10 +211,6 @@ export class Sketch {
 
     line_between_points(pt1: Point, pt2: Point) {
         return LineMethods.line_between_points(this, pt1, pt2);
-    }
-
-    line_with_length(original_p1: Point, original_p2: Point, length: number) {
-        return line_with_length(this, original_p1, original_p2, length);
     }
 
     line_at_angle(

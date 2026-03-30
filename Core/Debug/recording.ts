@@ -1,21 +1,27 @@
 import { assert } from "../assert";
 import { Sewing } from "../Sewing/sewing";
-import { wrap_sewing_methods, wrap_sewing_prototype_methods } from "../Sewing/wrap_sewing_methods";
+import {
+    wrap_sewing_methods,
+    wrap_sewing_prototype_methods,
+} from "../Sewing/wrap_sewing_methods";
 import { Sketch } from "../StoffLib/sketch";
-import { wrap_sketch_methods, wrap_sketch_prototype_methods } from "../StoffLib/sketch_methods/wrap_sketch_methods";
+import {
+    wrap_sketch_methods,
+    wrap_sketch_prototype_methods,
+} from "../StoffLib/sketch_methods/wrap_sketch_methods";
 import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 
 export type Recordable = Sketch | Sewing;
 export type Snapshot<T extends Recordable> = {
-    object: T,
-    stackTrace: string,
-    annotation: any
-}
+    object: T;
+    stackTrace: string;
+    annotation: any;
+};
 
 const active_recordings: Map<Recordable, LiveRecording<Recordable>> = new Map();
 
 export function start_recording<T extends Recordable>(
-    target: T
+    target: T,
 ): LiveRecording<T> {
     assert(!active_recordings.get(target), "Already recording");
 
@@ -26,7 +32,7 @@ export function start_recording<T extends Recordable>(
 }
 
 export function stop_recording<T extends Recordable>(
-    target: T
+    target: T,
 ): LiveRecording<T> {
     const rec = active_recordings.get(target);
     if (!rec) throw assert(!rec, "Not currently recording");
@@ -40,13 +46,12 @@ export function is_recording(target: Recordable): boolean {
 }
 
 export function get_recording<T extends Recordable>(
-    target: T
+    target: T,
 ): LiveRecording<T> {
     const rec = active_recordings.get(target);
     if (!rec) throw assert(!rec, "Not currently recording");
     return rec as LiveRecording<T>;
 }
-
 
 export class Recording<T extends Recordable = Recordable> {
     protected taking_snapshot: boolean = false;
@@ -60,7 +65,8 @@ export class Recording<T extends Recordable = Recordable> {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
-        const copy: T = s instanceof Sketch ? s.copy().sketch : s.copy() as any;
+        const copy: T =
+            s instanceof Sketch ? s.copy().sketch : (s.copy() as any);
 
         const old_limit = Error.stackTraceLimit;
         Error.stackTraceLimit = Infinity;
@@ -68,16 +74,13 @@ export class Recording<T extends Recordable = Recordable> {
         const error = new Error("");
         const stackTrace =
             "Stack Trace\n" +
-            (error.stack ?? "")
-                .split("\n")
-                .slice(stack_trace_slice)
-                .join("\n");
+            (error.stack ?? "").split("\n").slice(stack_trace_slice).join("\n");
         Error.stackTraceLimit = old_limit;
 
         this.snapshots.push({
             object: copy,
             stackTrace,
-            annotation
+            annotation,
         });
         if (cold_snapshot) this.taking_snapshot = false;
     }
@@ -102,15 +105,11 @@ export class LiveRecording<T extends Recordable> extends Recording {
                 r.snapshot(record);
             }
             return result;
-        }
+        };
         if (record instanceof Sketch) {
-            this.toggle = wrap_sketch_methods(
-                record, wrap_method
-            )
+            this.toggle = wrap_sketch_methods(record, wrap_method);
         } else {
-            this.toggle = wrap_sewing_methods(
-                record, wrap_method
-            )
+            this.toggle = wrap_sewing_methods(record, wrap_method);
         }
     }
 
@@ -120,9 +119,9 @@ export class LiveRecording<T extends Recordable> extends Recording {
 }
 
 let global_recording: {
-    rec: Recording,
-    toggle: Toggle,
-    taking_snapshot: boolean
+    rec: Recording;
+    toggle: Toggle;
+    taking_snapshot: boolean;
 } | null = null;
 
 export function start_global_recording(): Recording {
@@ -130,11 +129,12 @@ export function start_global_recording(): Recording {
     global_recording = {
         rec: new Recording(),
         toggle: () => true,
-        taking_snapshot: false
-    }
+        taking_snapshot: false,
+    };
 
     const wrapper = (method: () => EvaluationResult, object: Recordable) => {
-        if (!global_recording) throw new Error();
+        if (!global_recording)
+            throw new Error("There is no global recording currently");
 
         const taking_snapshot = global_recording.taking_snapshot;
         if (!taking_snapshot) global_recording.taking_snapshot = true;
@@ -147,20 +147,16 @@ export function start_global_recording(): Recording {
         }
 
         return result;
-    }
+    };
 
-    const toggle1 = wrap_sketch_prototype_methods(
-        Sketch, wrapper
-    );
+    const toggle1 = wrap_sketch_prototype_methods(Sketch, wrapper);
 
-    const toggle2 = wrap_sewing_prototype_methods(
-        Sewing, wrapper
-    );
+    const toggle2 = wrap_sewing_prototype_methods(Sewing, wrapper);
 
     global_recording.toggle = (to?: boolean) => {
         toggle1(to);
         return toggle2(to);
-    }
+    };
 
     return global_recording.rec;
 }

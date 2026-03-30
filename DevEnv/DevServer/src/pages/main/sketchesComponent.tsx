@@ -51,9 +51,9 @@ export function SketchesComponent({ design }: SketchesProps) {
     let processedResult:
         | Error
         | {
-            renderer: Renderer;
-            data: any;
-        };
+              renderer: Renderer;
+              data: any;
+          };
 
     if (design instanceof Error) {
         processedResult = design;
@@ -97,7 +97,9 @@ export function SketchesComponent({ design }: SketchesProps) {
                                 <div className="shd__previewItem" key={i}>
                                     <div
                                         className="shd__previewSvg"
-                                        dangerouslySetInnerHTML={{ __html: item }}
+                                        dangerouslySetInnerHTML={{
+                                            __html: item,
+                                        }}
                                     />
                                 </div>
                             ))}

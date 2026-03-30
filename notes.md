@@ -65,3 +65,9 @@ See x,y of mouse all the time while hovering?
 
 Length preserving reparameterization via spline through points
 => resampling
+
+Hovering the sketch but no items, it still shows me a hover thing.. (with the dev things)
+
+
+Clean up line methods and their positions
+Default line segment length might be a fn of total size..
