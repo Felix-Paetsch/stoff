@@ -84,6 +84,10 @@ export class Line {
         this.get_sketch().__register_line(this);
 
         assert(
+            this.endpoints[0] !== this.endpoints[1],
+            "Can't have a line between one and the same point.",
+        );
+        assert(
             this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch(),
         );
         assert(
@@ -202,7 +206,7 @@ export class Line {
 
     set_color(color: Color | Gradient) {
         assert(!this._is_removed, "Line is removed");
-        this.attributes.stroke = color;
+        this.set_attribute("stroke", color);
         return this;
     }
 
@@ -216,6 +220,9 @@ export class Line {
         value: LineRenderAttributes[K],
     ) {
         assert(!this._is_removed, "Line is removed");
+        this.attributes = {
+            ...this.attributes,
+        };
         this.attributes[attr] = value;
         return this;
     }
@@ -268,13 +275,13 @@ export class Line {
         let first_non_zero_sp_index = 0;
         while (
             sp[++first_non_zero_sp_index]!.distance(sp[0]!) < EPS.WEAK_EQUAL
-        ) { }
+        ) {}
 
         let last_non_one_sp_index = sp.length - 1;
         while (
             sp[--last_non_one_sp_index]!.distance(sp[sp.length - 1]!) <
             EPS.WEAK_EQUAL
-        ) { }
+        ) {}
 
         return (
             sp[first_non_zero_sp_index]!.x >= -EPS.MINY &&
@@ -910,7 +917,7 @@ export class Line {
                         const next_orientation = res.orientations[0];
                         res.orientations.unshift(
                             res.lines[1]![next_orientation ? "p1" : "p2"] ==
-                            res.lines[0]!.p2,
+                                res.lines[0]!.p2,
                         );
                         res.points.unshift(
                             res.lines[0]!.other_endpoint(res.points[0]!),
@@ -929,7 +936,7 @@ export class Line {
                             res.orientations[res.orientations.length - 1];
                         res.orientations.push(
                             res.lines[res.lines.length - 2]![
-                            prev_orientation ? "p2" : "p1"
+                                prev_orientation ? "p2" : "p1"
                             ] == res.lines[res.lines.length - 1]!.p1,
                         );
                         res.points.push(
@@ -980,7 +987,7 @@ export class Line {
         const ordered_lines = Line.order_by_endpoints(...lines);
         assert(
             ordered_lines.points[0] ==
-            ordered_lines.points[ordered_lines.points.length - 1],
+                ordered_lines.points[ordered_lines.points.length - 1],
             "Lines dont form circle",
         );
 

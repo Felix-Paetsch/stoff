@@ -125,6 +125,11 @@ export class Vector {
         return Vector.add(vec1.scale(1 - amt), vec2.scale(amt));
     }
 
+    static lerp_abs(vec1: Vector, vec2: Vector, amt: number) {
+        const add = Vector.subtract(vec2, vec1).to_len(amt);
+        return vec1.add(add);
+    }
+
     component_wise(fn: (x: number) => number) {
         return new Vector(fn(this.x), fn(this.y));
     }

@@ -1,9 +1,64 @@
 import { Line } from "../line";
 import { Point } from "../point";
-import { StoffObjectData } from "../types";
+import { SketchElement, StoffObjectData } from "../types";
 
-export type LineFilter = Line | Line[] | ((line: Line) => boolean) | Point | true | StoffObjectData;
-export type PointFilter = Point | Point[] | ((pt: Point) => boolean) | Line | Line[] | true | StoffObjectData;
+export type LineFilter =
+    | Line
+    | Line[]
+    | ((line: Line) => boolean)
+    | Point
+    | true
+    | StoffObjectData;
+export type PointFilter =
+    | Point
+    | Point[]
+    | ((pt: Point) => boolean)
+    | Line
+    | Line[]
+    | true
+    | StoffObjectData;
+
+export function not(filter: LineFilter): LineFilter;
+export function not(filter: PointFilter): PointFilter;
+export function not(
+    filter: PointFilter | LineFilter,
+): PointFilter | LineFilter {
+    return (o: SketchElement) => {
+        if (o instanceof Point) {
+            return !filterPoint(filter as PointFilter, o);
+        }
+
+        return !filterLine(filter as LineFilter, o);
+    };
+}
+
+export function and(...filter: LineFilter[]): LineFilter;
+export function and(...filter: PointFilter[]): PointFilter;
+export function and(
+    ...filter: (PointFilter | LineFilter)[]
+): PointFilter | LineFilter {
+    return (o: SketchElement) => {
+        if (o instanceof Point) {
+            return filter.every((f) => filterPoint(f as PointFilter, o));
+        }
+
+        return filter.every((f) => filterLine(f as LineFilter, o));
+    };
+}
+
+export function or(...filter: LineFilter[]): LineFilter;
+export function or(...filter: PointFilter[]): PointFilter;
+export function or(
+    ...filter: (PointFilter | LineFilter)[]
+): PointFilter | LineFilter {
+    return (o: SketchElement) => {
+        if (o instanceof Point) {
+            return filter.some((f) => filterPoint(f as PointFilter, o));
+        }
+
+        return filter.some((f) => filterLine(f as LineFilter, o));
+    };
+}
 
 export function filterLine(filter: LineFilter, line: Line) {
     if (filter instanceof Line) {
@@ -21,7 +76,7 @@ export function filterLine(filter: LineFilter, line: Line) {
     if (typeof filter == "function") {
         return filter(line);
     }
-    return Object.keys(filter).every(k => line.data[k] === filter[k]);
+    return Object.keys(filter).every((k) => line.data[k] === filter[k]);
 }
 
 export function filterPoint(filter: PointFilter, pt: Point) {
@@ -44,5 +99,5 @@ export function filterPoint(filter: PointFilter, pt: Point) {
     if (typeof filter == "function") {
         return filter(pt);
     }
-    return Object.keys(filter).every(k => pt.data[k] === filter[k]);
+    return Object.keys(filter).every((k) => pt.data[k] === filter[k]);
 }

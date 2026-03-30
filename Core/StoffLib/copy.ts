@@ -103,6 +103,10 @@ export function copy_sketch_element_collection(
             if (reference_array[i]![0] === el) {
                 return reference_array[i]![1];
             }
+
+            if (reference_array[i]![1] == el) {
+                return reference_array[i]![0];
+            }
         }
 
         throw new Error("Requested sketch element was not copied");

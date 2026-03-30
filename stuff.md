@@ -1,5 +1,7 @@
 Cut => If we cut in, sometimes we have a point becoming two points and sometimes being one point
 
+make ".get_lines" the same as get_lines form teh input things
+
 
 
 Goal:
@@ -65,3 +67,7 @@ Remove console logs
 
 Unify PatternLib, StoffLib (?)
 Renderer (?)
+
+
+
+For dst: Shader!!! i.e. squiggle, make underpath thing/...

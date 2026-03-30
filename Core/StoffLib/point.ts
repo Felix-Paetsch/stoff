@@ -13,7 +13,7 @@ export type PointRenderAttributes = {
     stroke: Color;
     strokeWidth: number;
     opacity: number;
-}
+};
 
 export class Point extends Vector {
     public adjacent_lines: Line[] = [];
@@ -47,7 +47,7 @@ export class Point extends Vector {
     }
 
     set_color(color: Color) {
-        this.attributes.fill = color;
+        this.set_attribute("fill", color);
         return this;
     }
 
@@ -55,7 +55,13 @@ export class Point extends Vector {
         return this.attributes.fill;
     }
 
-    set_attribute<Key extends keyof PointRenderAttributes>(attr: Key, value: PointRenderAttributes[Key]) {
+    set_attribute<Key extends keyof PointRenderAttributes>(
+        attr: Key,
+        value: PointRenderAttributes[Key],
+    ) {
+        this.attributes = {
+            ...this.attributes,
+        };
         this.attributes[attr] = value;
         return this;
     }
@@ -80,7 +86,7 @@ export class Point extends Vector {
 
     override copy(): Vector;
     override copy(sketch: Sketch): Point;
-    override  copy(sketch?: Sketch) {
+    override copy(sketch?: Sketch) {
         if (sketch) {
             const r = new Point(sketch, this.x, this.y);
             r.set_attributes(this.get_attributes());
@@ -100,7 +106,7 @@ export class Point extends Vector {
     }
 
     __unregister_line(line: Line) {
-        this.adjacent_lines = this.adjacent_lines.filter(l => l !== line);
+        this.adjacent_lines = this.adjacent_lines.filter((l) => l !== line);
     }
 
     get_adjacent_lines() {
@@ -139,10 +145,9 @@ export class Point extends Vector {
     common_lines(point: Point) {
         assert(!this._is_removed, "Point is removed");
         return this.adjacent_lines.filter((l) =>
-            point.get_adjacent_lines().includes(l)
+            point.get_adjacent_lines().includes(l),
         );
     }
-
 
     set(x: number, y: number): Point;
     set(x: Vector): Point;
@@ -177,7 +182,7 @@ export class Point extends Vector {
     }
 
     remove() {
-        this.adjacent_lines.forEach(l => l.remove());
+        this.adjacent_lines.forEach((l) => l.remove());
         assert(!this._is_removed, "Point is already removed");
         this.sketch.__unregister_point(this);
         this._is_removed = true;
