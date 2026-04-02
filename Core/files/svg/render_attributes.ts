@@ -77,5 +77,5 @@ export const defaultPolygonRenderAttributes: PolygonRenderAttributes = {
     stroke: "black",
     stroke_width: 2,
     opacity: 1,
-    render_priority: 20,
+    render_priority: 10,
 };

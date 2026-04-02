@@ -24,9 +24,7 @@ export function convex_hull(ec: SketchElementCollection): Vector[] {
     const pts: Vector[] = get_points(ec);
     const lns = get_lines(ec);
 
-    return GeometryConvexHull(
-        pts.concat(lns.flatMap((l) => l.get_absolute_sample_points())),
-    );
+    return GeometryConvexHull(pts.concat(lns.flatMap((l) => l.sample_points)));
 }
 
 export function endpoint_hull(ec: SketchElementCollection): SketchElement[] {

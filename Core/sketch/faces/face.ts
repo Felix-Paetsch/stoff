@@ -45,7 +45,7 @@ export class Face {
             last_point = this.boundary[0]!.p1;
         }
         for (const line of this.boundary) {
-            const sample_points = line.get_absolute_sample_points();
+            const sample_points = line.sample_points;
             if (line.p2 == last_point) {
                 sample_points.reverse();
             }

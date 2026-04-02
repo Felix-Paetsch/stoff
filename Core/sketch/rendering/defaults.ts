@@ -1,27 +1,17 @@
-import {
-    LineRenderAttributes,
-    PointRenderAttributes,
-} from "@/Core/files/svg/render_attributes";
+// All sizes here are given as Pixels and will be converted to image space
 
-export const default_point_attributes: PointRenderAttributes = {
-    stroke: "black",
-    stroke_width: 2,
-    fill: "white",
-    opacity: 1,
-    radius: 3,
-    render_priority: 100,
-};
+import { Color, Gradient } from "@/Core/colors";
 
-export const default_line_attributes: LineRenderAttributes = {
-    stroke: ["#ccc", "black"],
+export const point_attributes = {
+    stroke: "black" as Color,
     stroke_width: 3,
+    fill: "white" as Color,
     opacity: 1,
-    render_priority: 10,
+    radius: 10,
 };
 
-export const default_face_render_attributes: LineRenderAttributes = {
-    stroke: "#ccc",
-    stroke_width: 2,
-    opacity: 0.2,
-    render_priority: 5,
+export const line_attributes = {
+    stroke: ["#ccc", "black"] as Gradient,
+    stroke_width: 5,
+    opacity: 1,
 };

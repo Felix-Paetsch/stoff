@@ -252,88 +252,6 @@ export class Line {
         return this.sample_points.map((v) => new Vector(v));
     }
 
-    // private cut_sample_points_at(
-    //     index_from: number,
-    //     from_percentage_after: Fraction,
-    //     index_to: number,
-    //     to_percentage_after: Fraction
-    // ) {
-    //     const cut_sample_points = this.sample_points.slice(
-    //         index_from,
-    //         index_to + 2
-    //     ); // One after last one included if needed interpolation
-    //
-    //     if (from_percentage_after > 0) {
-    //         cut_sample_points[0] = cut_sample_points[0]
-    //             .mult(1 - from_percentage_after)
-    //             .add(cut_sample_points[1].mult(from_percentage_after));
-    //     }
-    //
-    //     if (
-    //         to_percentage_after == 0 &&
-    //         !(index_to + 1 == this.sample_points.length)
-    //     ) {
-    //         cut_sample_points.pop();
-    //     } else if (to_percentage_after == 0) {
-    //     } else {
-    //         const l = cut_sample_points.length - 1;
-    //         cut_sample_points[l] = cut_sample_points[l - 1]
-    //             .mult(1 - to_percentage_after)
-    //             .add(cut_sample_points[l].mult(to_percentage_after));
-    //     }
-    //
-    //     const transform_func = affine_transform_from_input_output(
-    //         [
-    //             cut_sample_points[0],
-    //             cut_sample_points[cut_sample_points.length - 1],
-    //         ],
-    //         [new Vector(0, 0), new Vector(1, 0)]
-    //     );
-    //
-    //     const res = cut_sample_points.map((p) => transform_func(p));
-    //     return res;
-    // }
-
-    to_relative_position(vec: Vector) {
-        return this.get_to_relative_function()(vec);
-    }
-
-    get_to_relative_function() {
-        return affine_transform_from_input_output(
-            [this.p1, this.p2],
-            [new Vector(0, 0), new Vector(1, 0)],
-        );
-    }
-
-    to_absolute_position(vec: Vector) {
-        return this.get_to_absolute_function()(vec);
-    }
-
-    get_to_absolute_function() {
-        return affine_transform_from_input_output(
-            [new Vector(0, 0), new Vector(1, 0)],
-            [this.p1, this.p2],
-        );
-    }
-
-    vec_to_absolute(vec: Vector) {
-        return this.get_to_absolute_function()(vec);
-    }
-
-    get_absolute_sample_points() {
-        const r = this.cache.compute_dependent(
-            "get_absolute_sample_points",
-            ["endpoints", "sample_points"],
-            () => {
-                const to_absolute = this.get_to_absolute_function();
-                return this.sample_points.map((p) => {
-                    return to_absolute(p);
-                });
-            },
-        );
-        return [...r];
-    }
-
     get_line_vector() {
         return this.p2.subtract(this.p1);
     }
@@ -388,7 +306,6 @@ export class Line {
         expect(!this._is_removed, "Line is removed");
         // Points along the line in the direction this.p1 -> this.p2, unless we put in this.p1;
 
-        const to_absolute = this.get_to_absolute_function();
         if (this.p1.equals(pt)) {
             let i = 1;
             while (
@@ -398,7 +315,7 @@ export class Line {
                 i++;
             }
             const tangent_inwards = this.p1
-                .subtract(to_absolute(this.sample_points[i]!))
+                .subtract(this.sample_points[i]!)
                 .normalize();
             return this.p1 == pt ? tangent_inwards : tangent_inwards.invert();
         }
@@ -412,21 +329,18 @@ export class Line {
             ) {
                 i--;
             }
-            return this.p2
-                .subtract(to_absolute(this.sample_points[i]!))
-                .normalize();
+            return this.p2.subtract(this.sample_points[i]!).normalize();
         }
 
-        const pt_rel = this.get_to_relative_function()(pt);
         let min = Infinity;
         let best_index: number = 0;
 
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
                 [this.sample_points[i]!, this.sample_points[i + 1]!],
-                pt_rel,
+                pt,
             );
-            const dist = closest_on_line.distance(pt_rel);
+            const dist = closest_on_line.distance(pt);
 
             if (dist < min) {
                 min = dist;
@@ -447,9 +361,7 @@ export class Line {
             if (right < this.sample_points.length - 1) right++;
         }
 
-        return to_absolute(
-            this.sample_points[right]!.subtract(this.sample_points[left]!),
-        );
+        return this.sample_points[right]!.subtract(this.sample_points[left]!);
     }
 
     mirror(direction: boolean = false) {
@@ -571,9 +483,7 @@ export class Line {
             "bounding_box",
             ["absolute_sample_points"],
             () => {
-                return BoundingBox.from_points(
-                    this.get_absolute_sample_points(),
-                );
+                return BoundingBox.from_points(this.sample_points);
             },
         );
     }
@@ -584,7 +494,7 @@ export class Line {
             "convex_hull",
             ["absolute_sample_points"],
             () => {
-                return convex_hull(this.get_absolute_sample_points());
+                return convex_hull(this.sample_points);
             },
         );
     }
@@ -649,13 +559,11 @@ export class Line {
                 const left_to_walk = adjusted_length - sum;
                 const fraction_left = left_to_walk / next_length;
 
-                const relative_vec = Vector.lerp(
+                return Vector.lerp(
                     this.sample_points[i]!,
                     this.sample_points[i + 1]!,
                     fraction_left,
                 );
-
-                return this.vec_to_absolute(relative_vec);
             }
 
             sum += next_length;
@@ -674,7 +582,6 @@ export class Line {
 
     closest_position(vec: Vector) {
         expect(!this._is_removed, "Line is removed");
-        const vec_rel = this.get_to_relative_function()(vec);
 
         let min: number = Infinity;
         let best: Vector = new Vector(0, 0);
@@ -682,9 +589,9 @@ export class Line {
         for (let i = 0; i < this.sample_points.length - 1; i++) {
             const closest_on_line = closest_vec_on_line_segment(
                 [this.sample_points[i]!, this.sample_points[i + 1]!],
-                vec_rel,
+                vec,
             );
-            const dist = closest_on_line.distance(vec_rel);
+            const dist = closest_on_line.distance(vec);
 
             if (dist < min) {
                 min = dist;
@@ -692,7 +599,7 @@ export class Line {
             }
         }
 
-        return this.get_to_absolute_function()(best);
+        return best;
     }
 
     minimal_distance(vec: Vector) {
@@ -876,9 +783,6 @@ export class Line {
     }
 
     static straight(...endpoints: [Point, Point]) {
-        return new Line(
-            endpoints,
-            new Polyline([new Vector(0, 0), new Vector(1, 0)]),
-        );
+        return new Line(endpoints, new Polyline([...endpoints]));
     }
 }

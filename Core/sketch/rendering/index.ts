@@ -1,6 +1,6 @@
 import { SVG_Builder } from "@/Core/files/svg/svg_builder";
 
-import { default_line_attributes, default_point_attributes } from "./defaults";
+import { line_attributes, point_attributes } from "./defaults";
 import {
     LineRenderAttributes,
     PointRenderAttributes,
@@ -13,15 +13,8 @@ import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
 import { BoundingBox } from "@/Core/geometry";
 
-export type SketchRenderStyling = {
-    lines: Partial<LineRenderAttributes>;
-    points: Partial<PointRenderAttributes>;
-    faces: Partial<LineRenderAttributes>;
-};
-
 export function render_debug_sketch(
     s: Sketch,
-    styles: Partial<SketchRenderStyling> = {},
     width: number | null = null,
     height: number | null = null,
     padding: number = 0,
@@ -32,6 +25,10 @@ export function render_debug_sketch(
         height,
         bb,
     );
+
+    const px_to_unit = (x: number) =>
+        (x * real_render_dimensions.bounding_box.width) /
+        real_render_dimensions.width;
 
     const svg = new SVG_Builder(
         real_render_dimensions.width,
@@ -57,16 +54,12 @@ export function render_debug_sketch(
         get_sketch_render_data(s),
     );
 
-    let lineStyles: LineRenderAttributes = default_line_attributes;
-    if (styles.lines) {
-        lineStyles = {
-            ...default_line_attributes,
-            ...styles.lines,
-        };
-
-        if (Array.isArray(lineStyles.stroke)) {
-            lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 2);
-        }
+    const lineStyles: Partial<LineRenderAttributes> = {
+        ...line_attributes,
+        stroke_width: px_to_unit(line_attributes.stroke_width),
+    };
+    if (Array.isArray(lineStyles.stroke)) {
+        lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 5);
     }
 
     s.get_lines().forEach((line) => {
@@ -78,13 +71,11 @@ export function render_debug_sketch(
         }
     });
 
-    let pointStyles: PointRenderAttributes = default_point_attributes;
-    if (styles.points) {
-        pointStyles = {
-            ...default_point_attributes,
-            ...styles.points,
-        };
-    }
+    const pointStyles: Partial<PointRenderAttributes> = {
+        ...point_attributes,
+        radius: px_to_unit(point_attributes.radius),
+        stroke_width: px_to_unit(point_attributes.stroke_width),
+    };
 
     s.get_points().forEach((pt) => {
         svg.render_point(pt, pointStyles, get_point_render_data(pt));
@@ -95,7 +86,6 @@ export function render_debug_sketch(
 
 export function render_sketch(
     s: Sketch,
-    styles: Partial<SketchRenderStyling> = {},
     width: number | null = null,
     height: number | null = null,
     padding: number = 0,
@@ -107,26 +97,26 @@ export function render_sketch(
         bb,
     );
 
+    const px_to_unit = (x: number) =>
+        (x * real_render_dimensions.bounding_box.width) /
+        real_render_dimensions.width;
+
     const svg = new SVG_Builder(
         real_render_dimensions.width,
         real_render_dimensions.height,
         [
-            real_render_dimensions.bounding_box.top_right,
             real_render_dimensions.bounding_box.top_left,
+            real_render_dimensions.bounding_box.bottom_right,
         ],
         padding,
     );
 
-    let lineStyles: LineRenderAttributes = default_line_attributes;
-    if (styles.lines) {
-        lineStyles = {
-            ...default_line_attributes,
-            ...styles.lines,
-        };
-
-        if (Array.isArray(lineStyles.stroke)) {
-            lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 2);
-        }
+    const lineStyles: Partial<LineRenderAttributes> = {
+        ...line_attributes,
+        stroke_width: px_to_unit(line_attributes.stroke_width),
+    };
+    if (Array.isArray(lineStyles.stroke)) {
+        lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 2);
     }
 
     s.get_lines().forEach((line) => {
@@ -138,13 +128,11 @@ export function render_sketch(
         }
     });
 
-    let pointStyles: PointRenderAttributes = default_point_attributes;
-    if (styles.points) {
-        pointStyles = {
-            ...default_point_attributes,
-            ...styles.points,
-        };
-    }
+    const pointStyles: Partial<PointRenderAttributes> = {
+        ...point_attributes,
+        radius: px_to_unit(point_attributes.radius),
+        stroke_width: px_to_unit(point_attributes.stroke_width),
+    };
 
     s.get_points().forEach((pt) => {
         svg.render_point(pt, pointStyles);
@@ -229,7 +217,7 @@ function recalculate_render_dimensions(
         source_aspect_ratio = target_aspect_ratio;
     }
 
-    if (source_aspect_ratio > target_aspect_ratio) {
+    if (source_aspect_ratio < target_aspect_ratio) {
         const delta_w_source =
             target_aspect_ratio * bounding_box.height - bounding_box.width;
         return {

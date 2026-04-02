@@ -110,7 +110,8 @@ export class Polyline {
         if (to < 0) {
             to = l - to;
         }
-        const flipped = from < to;
+
+        const flipped = from > to;
         if (flipped) {
             const t = to;
             to = from;
@@ -119,6 +120,11 @@ export class Polyline {
 
         let res: Vector[] = [];
         let currentDistance = 0;
+
+        if (from == 0) {
+            res.push(this.first());
+        }
+
         for (let i = 0; i < this.vec.length - 1; i++) {
             const segmentLength = this.vec[i]!.distance(this.vec[i + 1]!);
             const nextDistance = currentDistance + segmentLength;
@@ -150,6 +156,10 @@ export class Polyline {
             }
 
             currentDistance = nextDistance;
+        }
+
+        if (flipped) {
+            res.reverse();
         }
 
         return new Polyline(res);

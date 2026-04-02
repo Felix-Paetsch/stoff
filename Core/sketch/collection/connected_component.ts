@@ -138,9 +138,7 @@ export class ConnectedComponent {
             lines: visited_lines,
             bounding_box: BoundingBox.from_points(
                 (visited_points as Vector[]).concat(
-                    visited_lines.flatMap((l: Line) =>
-                        l.get_absolute_sample_points(),
-                    ),
+                    visited_lines.flatMap((l: Line) => l.sample_points),
                 ),
             ),
         };
@@ -214,9 +212,7 @@ export class AvoidantConnectedComponent extends ConnectedComponent {
             lines: visited_lines,
             bounding_box: BoundingBox.from_points(
                 (visited_points as Vector[]).concat(
-                    visited_lines.flatMap((l: Line) =>
-                        l.get_absolute_sample_points(),
-                    ),
+                    visited_lines.flatMap((l: Line) => l.sample_points),
                 ),
             ),
         };

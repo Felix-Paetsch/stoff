@@ -19,17 +19,13 @@ import { is_polygon, Shape, to_shape } from "../../geometry/shapes/polyline";
 import { interpolate_shapes } from "../../../ShapeManipulation/interpolate";
 import { merge_shapes } from "@/Core/geometry/shapes/unstructured/merge";
 
-export function line_between_points(sketch: Sketch, pt1: Point, pt2: Point) {
-    [pt1, pt2].forEach((p) => {
-        expect(same_sketch(p, sketch));
-    });
-
+export function line_between_points(pt1: Point, pt2: Point) {
+    expect(same_sketch(pt1, pt2));
     const l = Line.straight(pt1, pt2);
     return l;
 }
 
 export function line_at_angle(
-    sketch: Sketch,
     point: Point,
     angle: Radians,
     length: Length,
@@ -41,8 +37,8 @@ export function line_at_angle(
     }
 
     const vec = reference_direction.to_len(length).rotate(angle);
-    const new_pt = sketch.add_point(point.add(vec));
-    const line = line_between_points(sketch, point, new_pt);
+    const new_pt = point.get_sketch().add_point(point.add(vec));
+    const line = line_between_points(point, new_pt);
 
     return {
         line,

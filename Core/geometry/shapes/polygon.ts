@@ -82,6 +82,7 @@ export class Polygon {
             top_left,
             new Vector(top_left.x, bottom_right.y),
             bottom_right,
+            new Vector(bottom_right.x, top_left.y),
         ]);
     }
 }

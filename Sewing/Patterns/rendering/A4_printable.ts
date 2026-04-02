@@ -1,8 +1,12 @@
 import { SVG_Builder } from "@/Core/files/svg/svg_builder";
 import { Vector } from "@/Core/geometry";
 import { Polygon } from "@/Core/geometry/shapes/polygon";
+import CONF from "../../../config.json" with { type: "json" };
 
-const PX_PER_CM = 16;
+const PX_PER_CM = CONF.PX_PER_CM;
+const UNITS_PER_CM = CONF.UNITS_PER_CM;
+const PX_PER_UNIT = PX_PER_CM / UNITS_PER_CM;
+
 const PRINT_WIDTH_CM = 21;
 const PRINT_HEIGHT_CM = 29.7;
 
@@ -19,8 +23,8 @@ export function to_A4_printable(
     const print_height_without_padding_px =
         PRINT_HEIGHT_PX - 2 * print_padding_px;
 
-    const width = svgb.width * PX_PER_CM;
-    const height = svgb.height * PX_PER_CM;
+    const width = svgb.width * PX_PER_UNIT;
+    const height = svgb.height * PX_PER_UNIT;
 
     const pagesX = Math.ceil(width / print_width_without_padding_px);
     const pagesY = Math.ceil(height / print_height_without_padding_px);

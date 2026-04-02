@@ -13,7 +13,7 @@ import {
     PolygonRenderAttributes,
     TextRenderAttributes,
 } from "./render_attributes";
-import { colorToRgb, Gradient } from "@/Core/colors";
+import { colorToHex, Gradient, interpolate_colors } from "@/Core/colors";
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
@@ -21,16 +21,20 @@ export type RenderGroupData = {
     hide_render_groups_on_hover: string[];
 };
 
+// The thing with higher render priority gets rendered on top
+
 export class SVGGradient {
     readonly id: string;
     constructor(
         readonly gradient: Gradient,
         readonly segments: number = 1,
     ) {
-        this.id = `#gradient_${unique_string()}`;
+        this.id = `gradient_${unique_string()}`;
     }
 
     segment_ids(): string[] {
+        if (this.segments == 1) return [this.id];
+
         const res: string[] = [];
 
         for (let i = 0; i < this.segments; i++) {
@@ -41,7 +45,26 @@ export class SVGGradient {
     }
 
     gradient_segments(): Gradient[] {
-        throw new Error();
+        if (this.segments == 1) {
+            return [this.gradient];
+        }
+
+        const res: Gradient[] = [];
+        for (let i = 0; i < this.segments; i++) {
+            res.push([
+                interpolate_colors(
+                    this.gradient[0],
+                    this.gradient[1],
+                    i / this.segments,
+                ),
+                interpolate_colors(
+                    this.gradient[0],
+                    this.gradient[1],
+                    (i + 1) / this.segments,
+                ),
+            ]);
+        }
+        return res;
     }
 }
 
@@ -89,7 +112,7 @@ export class SVG_Builder {
 <text ${ras} x="${position.x}" y="${position.y}"
       font-family="${escapeXml(full_attributes.font_family)}"
       font-size="${full_attributes.font_size}"
-      fill="${colorToRgb(full_attributes.fill)}"
+      fill="${colorToHex(full_attributes.fill)}"
       font-weight="${full_attributes.font_weight}"
       text-anchor="${full_attributes.text_anchor}">${escapeXml(text)}</text>`;
         }, full_attributes.render_priority);
@@ -106,6 +129,7 @@ export class SVG_Builder {
             ...defaultPointRenderAttributes,
             ...attributes,
         };
+
         this.custom((crg) => {
             const ras = crg(
                 {
@@ -116,16 +140,20 @@ export class SVG_Builder {
             );
 
             const strokeString = full_attributes.stroke
-                ? `stroke="${colorToRgb(full_attributes.stroke)}" stroke-width="${full_attributes.stroke_width}"`
+                ? `stroke="${colorToHex(full_attributes.stroke)}" stroke-width="${full_attributes.stroke_width}"`
                 : 'stroke="none"';
             const fillString = full_attributes.fill
-                ? `stroke="${colorToRgb(full_attributes.fill)}"`
+                ? `fill="${colorToHex(full_attributes.fill)}"`
                 : 'fill="none"';
 
-            return `<g ${ras} >
+            if (data !== null) {
+                return `<g ${ras} >
 <circle cx="${position.x}" cy="${position.y}" r="${Math.max(full_attributes.radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${full_attributes.stroke_width}"/>;
 <circle cx="${position.x}" cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>
 </g>`;
+            } else {
+                return `<circle cx="${position.x}" cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>`;
+            }
         }, full_attributes.render_priority);
     }
 
@@ -152,10 +180,10 @@ export class SVG_Builder {
 
             let pointsString = vectors_to_string(line.verticies);
 
-            let res: string = `<g ${ras} >`;
+            let res: string = data !== null ? `<g ${ras} >` : "";
             if (!full_attributes.stroke) {
             } else if (typeof full_attributes.stroke == "string") {
-                res += `<polyline points="${pointsString}" style="fill:none; stroke: ${colorToRgb(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
+                res += `<polyline points="${pointsString}" style="fill:none; stroke: ${colorToHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
             } else {
                 let gradient: SVGGradient;
                 if (!(full_attributes.stroke instanceof SVGGradient)) {
@@ -174,11 +202,13 @@ export class SVG_Builder {
                     const sublinePoints = vectors_to_string(subline.verticies);
                     const subgradient = subgradients[i]!;
 
-                    res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(${subgradient}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
+                    res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${subgradient}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
                 }
             }
-            res += `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(full_attributes.stroke_width, 4)}"/>`;
-            res += `</g>`;
+            res +=
+                data !== null
+                    ? `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(full_attributes.stroke_width, 4)}"/></g>`
+                    : "";
 
             return res;
         }, full_attributes.render_priority);
@@ -212,12 +242,12 @@ export class SVG_Builder {
             if (!full_attributes.fill) {
                 fillString = 'fill="none"';
             } else if (typeof full_attributes.fill == "string") {
-                fillString = `fill="${colorToRgb(full_attributes.fill)}"`;
+                fillString = `fill="${colorToHex(full_attributes.fill)}"`;
             } else if (full_attributes.fill instanceof SVGGradient) {
-                fillString = `fill="url(${full_attributes.fill.id})`;
+                fillString = `fill="url(#${full_attributes.fill.id})`;
             } else {
                 const grad = this.create_gradient(full_attributes.fill);
-                fillString = `fill="url(${grad.id})`;
+                fillString = `fill="url(#${grad.id})`;
             }
 
             let res: string = `<g ${ras} >`;
@@ -244,12 +274,8 @@ export class SVG_Builder {
         const segment_gradients = svgGradient.gradient_segments();
 
         this.custom(() => {
-            const full = `<linearGradient id="${svgGradient.id}">
-      <stop offset="0%" stop-color="${svgGradient.gradient[0]}" />
-      <stop offset="100%" stop-color="${svgGradient.gradient[1]}" />
-    </linearGradient>`;
-
-            const segments = segment_gradients
+            let res = "<defs>";
+            res += segment_gradients
                 .map((g, i) => {
                     return `<linearGradient id="${segment_ids[i]!}">
       <stop offset="0%" stop-color="${g[0]}" />
@@ -258,8 +284,15 @@ export class SVG_Builder {
                 })
                 .join("");
 
-            return segments + full;
-        }, Infinity);
+            if (svgGradient.segments > 1) {
+                res += `<linearGradient id="${svgGradient.id}">
+      <stop offset="0%" stop-color="${svgGradient.gradient[0]}" />
+      <stop offset="100%" stop-color="${svgGradient.gradient[1]}" />
+    </linearGradient>`;
+            }
+
+            return (res += "</defs>");
+        }, -Infinity);
 
         return svgGradient;
     }
@@ -301,29 +334,11 @@ export class SVG_Builder {
             (a, b) => a.render_priority - b.render_priority,
         );
 
-        const items = this.render_instructions.map((r) => {
-            r.render(compute_render_group_css);
-        });
-
-        let border = "";
-        if (padding) {
-            const outer_rect = vectors_to_string([
-                new_viewbox[0],
-                new Vector(new_viewbox[0].x, new_viewbox[1].y),
-                new_viewbox[1],
-                new Vector(new_viewbox[0].y, new_viewbox[1].x),
-            ]);
-            const inner_rect = vectors_to_string([
-                viewbox[0],
-                new Vector(viewbox[0].x, viewbox[1].y),
-                viewbox[1],
-                new Vector(viewbox[1].x, viewbox[0].y),
-            ]);
-            border = `<path d="M ${outer_rect} Z
-                    M ${inner_rect} Z" 
-                    fill="white" 
-                    fill-rule="evenodd" />`;
-        }
+        const items = this.render_instructions
+            .map((r) => {
+                return r.render(compute_render_group_css);
+            })
+            .join("");
 
         const view = [
             new_viewbox[0].x,
@@ -337,7 +352,6 @@ export class SVG_Builder {
         return `
             <svg width="${width}" height="${height}" viewBox="${view}" xmlns="http://www.w3.org/2000/svg">
                 ${items}
-                ${border}
             </svg>
         `;
     }

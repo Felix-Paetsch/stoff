@@ -210,7 +210,7 @@ export class Sketch {
     // =========== LINE METHODS ==========
 
     line_between_points(pt1: Point, pt2: Point) {
-        return LineMethods.line_between_points(this, pt1, pt2);
+        return LineMethods.line_between_points(pt1, pt2);
     }
 
     line_at_angle(
@@ -221,7 +221,6 @@ export class Sketch {
         absolute: boolean = false, // Whether the direction is pointed from 0 or towards this point
     ) {
         return LineMethods.line_at_angle(
-            this,
             point,
             angle,
             length,

@@ -9,3 +9,6 @@ dev-typecheck:
 
 dev-typecheck-watch:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
+
+dev-output:
+    nsxiv -a /home/Felix/work/Stoff/Dev/Debug/output/scene.png &

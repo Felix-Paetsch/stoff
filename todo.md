@@ -1,10 +1,15 @@
+Scale points and stroke width and so on down to fit a certain pixel area on the screen in sketch rendering.
+
 # Tomorrow
 
-Live image viewer for debug images
 
 Fix svg gradients
-- segments
+- segments (two or more are not shown)
+- probably a polyline issue
 - unlazyfy
+- gradients in different directions
+- can/should reuse stops, but really have to do one for each thing
+just have 5 new things per line. The gradient API outwards is fine and could just use a little bit of improvement, asking for gradients from, to, in a specific direction.
 
 Allow for text
 
@@ -134,3 +139,9 @@ svg.use_gradient(): SVGGradient
 [] fix/use config file
 [] automatically remove unused imports..
 [] fix gitignore
+[] fix padding overlapping circles.. maybe no border?
+[] test if empty sketches or sketches with only one pt work
+[] line: many polygon edgecases. Should write them down.
+[] line gradient rendering
+[] encode right ahnd left hand and p1 p2 with colors
+[] if gradient length == 1 => don't create a 2nd gradient
