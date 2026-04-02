@@ -1,0 +1,19 @@
+<li class="l-toolbar-panel-key-points-item <%- extra_classlist %> _hu_keypoint_element" _id="<%- id %>" onclick="if (event.target.tagName !== 'svg' && event.target.tagName !== 'path') { event_handler.emmit(new Action('set_active_point', {id: this.attributes._id.value})) }">
+    <div class="l-toolbar-panel-key-points-point" <%- `style="background-color: ${ color }"` %>></div>
+    <div class="l-toolbar-panel-key-points-name"><%= name %></div>
+    <div class="l-toolbar-panel-key-points-tools">
+        <div class="hu_skip_icon_wrapper l-toolbar-panel-key-points-tools-item l-toolbar-panel-key-points-tools-arrow skip_icon dont_trigger_click" _id="<%- id %>" tooltip="Skip (S)" onclick="event_handler.emmit(new Action('skip_point', {id: this.attributes._id.value}))">
+            <shopicon-regular-angledoublerightsmall class="dont_trigger_click"></shopicon-regular-angledoublerightsmall>
+        </div>
+        <div class="hu_unskip_icon_wrapper l-toolbar-panel-key-points-tools-item l-toolbar-panel-key-points-tools-arrow skip_icon dont_trigger_click" _id="<%- id %>" tooltip="Undo skip (S)" onclick="event_handler.emmit(new Action('skip_point', {id: this.attributes._id.value}))">
+            <shopicon-regular-angledoubleleftsmall class="dont_trigger_click"></shopicon-regular-angledoubleleftsmall>
+        </div>
+
+        <div class="hu_hide_icon_wrapper l-toolbar-panel-key-points-tools-item l-toolbar-panel-key-points-tools-eye dont_trigger_click" _id="<%- id %>" tooltip="Mark as visible (H)" onclick="event_handler.emmit(new Action('hide_point', {id: this.attributes._id.value}))">
+            <shopicon-regular-hide class="hide_icon dont_trigger_click"></shopicon-regular-hide>
+        </div>
+        <div class="hu_show_icon_wrapper l-toolbar-panel-key-points-tools-item l-toolbar-panel-key-points-tools-eye dont_trigger_click" _id="<%- id %>" tooltip="Mark as occluded (H)" onclick="event_handler.emmit(new Action('hide_point', {id: this.attributes._id.value}))">
+            <shopicon-regular-show class="show_icon dont_trigger_click"></shopicon-regular-show>
+        </div>
+    </div>
+</li>

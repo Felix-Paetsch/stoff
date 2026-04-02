@@ -1,0 +1,403 @@
+body{ 
+    --black: #282828;
+    --grey-dark: #5C5858;
+    --grey-light: #D3D3D3;
+    --grey-extra-light: #EFEFEF;
+    --highlight: #0000FF;
+    --background-light: #FFF3EB;
+    --white: #FFFFFF;
+    --green: #34C749;
+    --green-dark: #40844A;
+    --green-light: #EBFAED;
+    --purple: #6B2D7C;
+    --purple-light: #F0EAF2;
+    --red: #FC615D;
+    --red-light: #FFF0EF;
+
+    overflow: hidden;
+}
+
+.hidden{
+    display: none;
+}
+
+.l-navigation-list-item-title::after{
+    display: none;
+}
+
+._hu_annotation_img_wrapper{
+    height: 100% !important;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 10rem 1fr;
+}
+
+._hu_annotation_img{
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: center;
+}
+
+._hu_point_container{
+    grid-row: 2;
+    grid-column: 2;
+
+    position: relative;
+}
+
+/*
+._hu_point{
+    box-sizing: border-box;
+    pointer-events: none;
+    background: rgba(255,255,255,.2);
+}
+
+._hu_point.hidden_point{
+    border: 1px dashed white;
+}
+
+._hu_point.visible_point{
+    border: 1px solid white;
+}
+
+._hu_point.selected_keypoint_in_img{
+    -webkit-box-shadow:0px 0px 5px 2px rgba(0,0,255,0.9);
+    -moz-box-shadow:   0px 0px 5px 2px rgba(0,0,255,0.9);
+    box-shadow:        0px 0px 5px 2px rgba(0,0,255,0.9);
+}*/
+
+._hu_point{
+    box-sizing: border-box;
+    pointer-events: none;
+    background: rgba(255,255,255,1);
+}
+
+._hu_point.hidden_point{
+    border: 1.5px dashed black;
+}
+
+._hu_point.visible_point{
+    border: 1.5px  solid black;
+}
+
+._hu_point.selected_keypoint_in_img{
+    -webkit-box-shadow:0px 0px 5px 2px rgba(0,0,255,0.9);
+    -moz-box-shadow:   0px 0px 5px 2px rgba(0,0,255,0.9);
+    box-shadow:        0px 0px 5px 2px rgba(0,0,255,0.9);
+}
+
+._hu_navigator_img_point{
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid white;
+    background: rgba(255,255,255,.2);
+    border-radius: 10rem;
+}
+
+._hu_navigator_img_point.selected_keypoint_in_navigator{
+    -webkit-box-shadow:0px 0px 5px 2px rgba(0,0,255,0.9);
+    -moz-box-shadow:   0px 0px 5px 2px rgba(0,0,255,0.9);
+    box-shadow:        0px 0px 5px 2px rgba(0,0,255,0.9);
+    background-color: white;
+}
+
+.navigation_joint_line{
+    background-color: white;
+    position: absolute;
+    border-radius: 1em;
+}
+
+/* Preview */
+.preview_hidden{
+    display: none;
+}
+
+.preview_visible{
+    opacity: .8;
+}
+
+/* Point Show / Hide Icons */
+._hu_navigator_img_wrapper{
+    position: relative;
+}
+
+._hu_navigator_img_wrapper img{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#ex_img_nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: .8em 1.5rem;
+    margin: 0;
+    background-color: white;
+    position: relative;
+    z-index: 70;
+}
+
+#ex_img_resizable_wrapper{
+    background-color: #d5f9ff;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#ex_img_nav li{
+    list-style: none;
+}
+
+#ex_img_back_btn, #ex_img_forward_btn{
+    cursor: pointer;
+}
+
+._hu_keypoint_element:not(.selected_keypoint):hover{
+    background-color: var(--grey-extra-light);
+}
+
+#_hu_keypoint_toolbar_help{
+    color: var(--grey-dark);
+    text-decoration: underline dotted;
+    font-size: .8em;
+    margin-left: .5em;
+}
+
+/********************** keypoint_toolbar.js ***********************/
+.unannotated_keypoint{
+    color: var(--grey-light);
+}
+
+.invisible_keypoint{
+    color: var(--green);
+}
+
+.selected_keypoint{
+    background-color: var(--highlight);
+    color: var(--grey-light) !important;
+    cursor: pointer;
+}
+
+.invisible_keypoint .l-toolbar-panel-key-points-point{
+    border: .08rem dashed black !important;
+}
+
+.l-toolbar-panel-key-points-point, .selected_keypoint .l-toolbar-panel-key-points-point{
+    border: .08rem solid black !important;
+}
+
+._hu_keypoint_element .hu_show_icon_wrapper, ._hu_keypoint_element .hu_hide_icon_wrapper, ._hu_keypoint_element .skip_icon,
+._hu_keypoint_element.selected_keypoint .hu_unskip_icon_wrapper{
+    display: none;
+}
+
+.selected_keypoint .hu_show_icon_wrapper, .selected_keypoint .skip_icon{
+    display: block;
+}
+
+.selected_keypoint.invisible_keypoint .hu_show_icon_wrapper{
+    display: none;
+}
+
+.selected_keypoint.invisible_keypoint .hu_hide_icon_wrapper{
+    display: block;
+    color: white;
+}
+
+
+._hu_keypoint_element:hover{
+    color: black;
+}
+
+.l-toolbar-panel-key-points-item._hu_keypoint_element.success:hover{
+    color: var(--green-dark);
+}
+
+.skipped_keypoint {
+    text-decoration: line-through;
+}
+
+._hu_keypoint_element.selected_keypoint.skipped_keypoint .hu_skip_icon_wrapper {
+    display: none;
+}
+
+._hu_keypoint_element.selected_keypoint.skipped_keypoint .hu_unskip_icon_wrapper {
+    display: block;
+}
+
+._hu_keypoint_element{
+    cursor: pointer;
+    position: relative;
+}
+
+
+._hu_keypoint_element {
+    font-weight: inherit !important;
+}
+
+.l-toolbar-panel p.annotate_all_keypoints_text{
+    font-size: .9rem;
+    margin-top: -.4rem;
+    margin-bottom: -.4rem;
+}
+
+/*
+._hu_keypoint_element:hover::before{
+    position: absolute;
+    content: "";
+    width: .15rem;
+    left: -.25rem;
+    height: 100%;
+    background-color: black;
+}
+*/
+
+/* ============= frame toolbar ================== */
+.frame_toolbar_image_skipped{
+    text-decoration: line-through !important;
+}
+
+.current_active_img.frame_toolbar_img_removed .do_skip_btn{
+    display: none;
+}
+
+.current_active_img.frame_toolbar_img_removed .undo_skip_btn{
+    display: block;
+}
+
+.l-toolbar-panel-frames-item:not(.current_active_img):hover{
+    background-color: var(--grey-extra-light);
+}
+
+
+.l-toolbar-panel-frames-item.success:hover, .l-toolbar-panel-frames-item.current_active_img.success{
+    color: var(--green-dark);
+}
+
+.l-toolbar-panel-frames-item.current_active_img, .l-toolbar-panel-frames-item:hover {
+    background-color: #d3d3d3;
+    color: #282828;
+    cursor: pointer;
+}
+
+.l-toolbar-panel-frames-item .l-toolbar-panel-frames-tools{
+    width: 60px;
+}
+
+
+.l-toolbar-panel-frames-item:not(:hover) .l-toolbar-panel-frames-tools,
+.l-toolbar-panel-frames-item.current_active_img:hover .l-toolbar-panel-frames-tools-copy,
+.l-toolbar-panel-frames-item:not(.current_active_img):hover .l-toolbar-panel-frames-tools-arrow,
+.l-toolbar-panel-frames-item.frame_toolbar_image_skipped .do_skip_btn,
+.l-toolbar-panel-frames-item:not(.frame_toolbar_image_skipped) .undo_skip_btn,
+.l-toolbar-panel-frames-item:not(.current_active_img):hover .l-toolbar-panel-frames-tools-delete-points{
+    display: none;
+}
+
+.l-toolbar-tools-item-focus_mode i{
+    font-size: 1.2rem;
+}
+
+
+/* Hiding Keypoints */
+.hide_all_keypoints ._hu_point, .hide_all_keypoints .canvas_line{
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hide_all_keypoints ._hu_point.preview_visible, .hide_all_keypoints .canvas_line.preview_visible{
+    opacity: 1;
+}
+
+.hide_all_but_current_keypoints ._hu_point.selected_keypoint_in_img:not(.preview_hidden){
+    opacity: 1;
+}
+
+
+/* ============= notifications ================== */
+.l-fb-panel-notification-purple {
+    background-color: var(--purple-light);
+    color: var(--purple);
+}
+
+.l-fb-panel-notification {
+    padding: 16px 48px;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: .13px;
+}
+
+/* ============= h2d2 adjustments ================ */
+
+
+#hu-navigation-breadcrumb{
+    font-weight: 700;
+    color: var(--select-focus);
+}
+
+#hu-navigation-breadcrumb span{
+    display: inline-block;
+    margin: 0 0.3rem 0 0.3rem;
+}
+
+#hu-navigation-breadcrumb a{
+    color: var(--select-focus);
+    text-decoration: underline;
+}
+
+#hu_logout_btn{
+    font-size: 0.9em;
+}
+
+#hu_logout_btn:hover{
+    color: black;
+    background-color: var(--grey-light);
+    border-color: black;
+}
+
+/* ============= jquery adjustments ================ */
+
+.l-toolbar-panel{
+    overflow: hidden;
+}
+
+.l-toolbar-panel-key-points-wrapper, .l-toolbar-panel-frames-wrapper{
+    height: 100%;
+}
+
+.ui-resizable-s {
+    height: 5px; /* Adjust this value as needed */
+    background: #f0f0f0; /* Optional: adds a background color to the handle */
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    bottom: 0px;
+}
+
+
+/* ============= z-Index ================ */
+.l-toolbar{
+    z-index: 90 !important;
+}
+
+.l-stage-controller-bar{
+    position: relative;
+    z-index: 85;
+    margin-left: 294px;
+    margin-right: 294px;
+}
+
+/* ============== Other =============*/
+.cursor_drag ._hu_annotation_img_wrapper ._hu_point_container{
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.cursor_dragging {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}

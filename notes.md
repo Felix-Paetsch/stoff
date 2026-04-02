@@ -49,7 +49,6 @@ Zod (validation)
 
 (For point algorithms: https://github.com/w8r/martinez/blob/master/src/segment_intersection.js#L29)
 
-
 Need to do maybe some more speed testing/building for it
 - sample point calculations/etc. as iterator; lazily computed?
 
@@ -63,11 +62,16 @@ Rework exporting to SVG
 Compile out js to wasm? Maybe with this js to wasm compiler?
 See x,y of mouse all the time while hovering?
 
-Length preserving reparameterization via spline through points
-=> resampling
-
 Hovering the sketch but no items, it still shows me a hover thing.. (with the dev things)
 
 
 Clean up line methods and their positions
 Default line segment length might be a fn of total size..
+
+Better exporting for geometry files and types?
+Can i import geometry with indesx.ts
+
+Todo: random (e.g. pseudo random, should persist between runs)
+
+Incorporate RUST!!!!
+For DST and line algos

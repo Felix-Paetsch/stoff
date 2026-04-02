@@ -1,0 +1,50 @@
+/* Shared app-shell styles (classes used from App.tsx)
+   Prefix: root__
+*/
+
+.root__app {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: #12110f; /* warm near-black */
+	color: #e7e5e4;
+}
+
+/* Top bar is a tab-like button row */
+.root__topbar {
+	height: 44px;
+	flex: 0 0 auto;
+	width: 100%;
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	padding: 6px;
+	background: #1c1917;
+	border-bottom: 1px solid rgba(168, 162, 158, 0.22);
+}
+
+.root__topbarBtn {
+	border: 1px solid rgba(168, 162, 158, 0.22);
+	background: rgba(28, 25, 23, 0.35);
+	color: #e7e5e4;
+	border-radius: 10px;
+	padding: 0 12px;
+	cursor: pointer;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	font-size: 13px;
+}
+
+.root__topbarBtn:hover {
+	background: rgba(168, 162, 158, 0.10);
+}
+
+.root__topbarBtn--active {
+	background: rgba(120, 113, 108, 0.28);
+	border-color: rgba(168, 162, 158, 0.36);
+}
+
+.root__topbarBtn:focus-visible {
+	outline: 3px solid rgba(255, 255, 255, 0.55);
+	outline-offset: 2px;
+}

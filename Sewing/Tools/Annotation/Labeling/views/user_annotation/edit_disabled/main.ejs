@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HU Annotationssoftware</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"/>
+
+    <link rel="stylesheet" href="/css/h2d2/main.css">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+    <link rel="stylesheet" href="/css/annotation/main_annotation.css">
+</head>
+<body class="l-body">
+    <main class="l-main">
+        <div class="l-viewport">
+            <%- include("../common/head.ejs", {
+                mode: "no_edit"
+            }) %>
+            <section class="l-fb-panel-notification l-fb-panel-notification-purple" style="padding: 8px 0px">
+                <div class="g-container">
+                    <div class="g-row g-gutter-y">
+                        <div class="g-col-12 g-gap-y">
+                            <div class="l-notification-wrapper">
+                                <div class="l-notification-icon">
+                                    <shopicon-regular-info></shopicon-regular-info>
+                                </div>
+                                <div class="l-notification-text">
+                                    You are currently in Read-Only mode.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="l-stage">
+                <div class="l-stage-toolbar-area" style="overflow: visible;">
+                    <%- include("../common/keypoint_toolbar") %>
+                    <%- include("../common/point_example_images") %>
+                    <%- include("../common/frame_toolbar") %>
+                    <%- include("../common/swiper_img_list") %>
+                </div>
+                <%- include("../common/frame_slider") %>
+            </section>
+        </div>
+
+        <!--%- include("../common/change_log")    % >
+        < %- include("../common/instructions")  %-->
+        <%- include("../common/device_notify") %>
+    </main>
+
+    <script src="/js/annotation/self_contained/undo_redo_stack.js"></script>
+    <script>
+        UndoRedo.disable();
+    </script>
+    <%- include("../common/h2d2_imports") %>
+    <%- include("../common/hu_js_imports", {
+        mode: "no_edit"
+    }) %>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<tr onclick="window.location.href = '<%- `/a/${ project_id }/${ id }` %>'" style="cursor: pointer;">
+    <td><a class="l-fb-panel-table-td-clamp" href="<%- `/a/${ project_id }/${ id }` %>"><%= name %></a></td>
+    <td><%= unannotated > 0 ? "No" : "Yes"%></td>
+    <td><%= unannotated == 0 ? "-" : unannotated %></td>
+    <td><%= annotated == 0 ? "-" : annotated %></td>
+    <td>
+        <%= current_user ? current_user : "-" %>
+    </td>
+</tr>

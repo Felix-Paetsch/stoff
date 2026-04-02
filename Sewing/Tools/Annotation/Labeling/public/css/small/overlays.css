@@ -1,0 +1,127 @@
+/* DIALOG::all */
+
+.overlay_title{
+    margin: 0;
+}
+
+.highlight_italic{
+    white-space: nowrap;
+    background-color: #0004;
+    display: inline-block;
+    padding: 0 .2rem;
+}
+
+.overlay_btn_flex{
+    display: flex;
+    flex-direction: row;
+}
+
+.overlay_btn_flex > div{
+    padding: .3rem 1rem;
+    border-radius: .5rem;
+    border: .1rem solid var(--dark_theme_color);
+    cursor: pointer;
+
+    transition-duration: .3s;
+}
+
+.overlay_btn_flex > div:nth-child(1){
+    margin-right: .5rem;
+}
+
+.overlay_btn_flex > div:nth-child(2){
+    background-color: var(--dark_theme_color);
+    color: var(--highlight_bg);
+}
+
+.error_display{
+    margin: -.5rem 0 .8rem 0;
+    font-size: .8rem;
+    color: var(--warning_text_color);
+    display: none;
+}
+
+/* DIALOG::specific */
+
+#deletion_dialog{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--highlight_bg);
+    padding: 1rem 2rem 1rem 1rem;
+    border-bottom-right-radius: .5rem;
+    border-top-right-radius: .5rem;
+
+    min-width: 20rem;
+    border-left: .2rem solid var(--danger_color);
+    cursor: default;
+}
+
+#deletion_dialog input{
+    margin: 0 0 1rem 0;
+}
+
+#deletion_dialog .overlay_btn_flex > div.disabled:nth-child(2){
+    opacity: .8;
+    color: var(--highlight_bg) !important;
+    cursor: default;
+}
+
+#deletion_dialog .overlay_btn_flex > div:nth-child(1):hover{
+    border-color: var(--highlight_color);
+}
+
+#deletion_dialog .overlay_btn_flex > div:nth-child(2):hover{
+    color: var(--danger_color);
+}
+
+/* -- start edit -- */
+
+#rename_dialog{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--highlight_bg);
+    padding: 1rem 2rem 1rem 1rem;
+    border-bottom-right-radius: .5rem;
+    border-top-right-radius: .5rem;
+
+    min-width: 20rem;
+    border-left: .2rem solid var(--highlight_color);
+    cursor: default;
+}
+
+#rename_dialog input{
+    margin: 1rem 0;
+}
+
+#rename_dialog .overlay_btn_flex > div:nth-child(1):hover{
+    border-color: var(--highlight_color);
+}
+
+#rename_dialog .overlay_btn_flex > div:nth-child(2):hover{
+    color: var(--highlight_color);
+}
+
+/* -- start joint creation / rename */
+
+#joint_change_dialog{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--highlight_bg);
+    padding: 1rem 2rem 1rem 1rem;
+    border-bottom-right-radius: .5rem;
+    border-top-right-radius: .5rem;
+
+    min-width: 20rem;
+    border-left: .2rem solid var(--highlight_color);
+    cursor: default;
+}
+
+#join_input_flex{
+    display: flex;
+    flex-direction: column;
+    margin: .7rem 0 .7rem 0;
+}
+
+#joint_change_dialog input{
+    margin: .2rem 0;
+}

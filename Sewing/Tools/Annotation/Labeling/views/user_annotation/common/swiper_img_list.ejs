@@ -1,0 +1,20 @@
+<div class="l-stage-image-wrapper">
+    <div class="swiper-container swiper-stage">
+        <div class="swiper-wrapper">
+            <% 
+                for (let img of img_data){ 
+            %>
+
+            <div class="swiper-slide">
+                <div class="swiper-zoom-container">
+                    <div _id="<%- img.id %>" class="_hu_annotation_img_wrapper">
+                        <img class="_hu_annotation_img" src="<%-  img.path %>" alt="">
+                        <div class="_hu_point_container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <% } %>
+        </div>
+    </div>
+</div>

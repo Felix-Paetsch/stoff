@@ -1,0 +1,18 @@
+#top_bar{
+    width: 100%;
+    padding: .2rem 0 .2rem var(--main_content_margin_left);
+    box-sizing: border-box;
+    background-color: var(--highlight_bg);
+}
+
+#top_bar span:nth-child(1){
+    color: var(--highlight_color);
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+#top_bar span:nth-child(2){
+    transform: translateY(-.1rem);
+    display: inline-block;
+    margin-left: .5rem;
+}

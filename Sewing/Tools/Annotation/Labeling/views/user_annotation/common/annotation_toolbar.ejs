@@ -1,0 +1,31 @@
+<div class="l-toolbar-group" id="hu_editing_functions_toolbar">
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-zoom-in" id="zoom_in_btn"
+    onclick="get_active_img().scale_up()" tooltip="Zoom in (+)">
+        <shopicon-regular-plus></shopicon-regular-plus>
+    </div>
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-zoom-out disable" id="zoom_out_btn"
+    onclick="get_active_img().scale_down()" tooltip="Zoom out (-)">
+        <shopicon-regular-minus></shopicon-regular-minus>
+    </div>
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-move mode_btn" id="drag_mode_btn"
+    onclick="get_active_img().set_interaction_mode('drag')" tooltip="Activate drag mode (D)">
+        <shopicon-regular-move></shopicon-regular-move>
+    </div>
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-polygon active mode_btn" id="annotate_mode_btn"
+    onclick="get_active_img().set_interaction_mode('annotate')" tooltip="Annotate & move to the next unfinished keypoint (A)">
+        <shopicon-regular-polygon></shopicon-regular-polygon>
+    </div>
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-polygon mode_btn" id="variant_annotate_mode_btn"
+    onclick="get_active_img().set_interaction_mode('annotate', 'move_next')" tooltip="Annotate & move to the next key point (E)">
+        <svg style="width:24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="M0 0h48v48H0z" fill="none"></path><path fill="var(--color)" d="M36 30c-.15 0-.298.012-.445.023l-6.144-13.965A5.975 5.975 0 0031 12a6 6 0 10-12 0c0 1.104.303 2.135.824 3.024l-6.283 9.183A5.98 5.98 0 0012 24a6 6 0 106 6 5.961 5.961 0 00-1.159-3.534l6.057-8.852A5.982 5.982 0 0025 18c.294 0 .581-.028.864-.069l6.029 13.703A5.976 5.976 0 0030 36a6 6 0 106-6z"></path></svg>
+    </div>
+
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-space-top l-toolbar-tools-item-undo disable" id="undo_btn"
+    onclick="undo_redo.undo()" tooltip="Undo (Y)">
+        <shopicon-regular-undo></shopicon-regular-undo>
+    </div>
+    <div class="l-toolbar-tools-item l-toolbar-tools-item-redo disable" id="redo_btn"
+    onclick="undo_redo.redo()" tooltip="Redo (X)">
+        <shopicon-regular-redo></shopicon-regular-redo>
+    </div>
+</div>

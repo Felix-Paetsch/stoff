@@ -1,0 +1,30 @@
+{
+	"win_size": [600, 600],
+	"camera_movement": {
+		"move_speed": 3,
+		"rotate_speed": 1,
+		"zoom_speed": 0.5,
+		"focus_speed": 20
+	},
+	"camera_defaults": {
+		"orth": true,
+		"width": 3.0,
+		"midpoint": [0,0,-50],
+        "rot": [0,0,0],
+        "focus": 50
+	},
+	"simulation2D": {
+		"area_per_pt": 0.3,
+		
+		"simulation_steps": 200,
+		"gravity_exp": 3.0,
+		"point_force_mult": 0.00001,
+		"point_force_influence_radius": 2,
+
+		"boundary_force_mult": 0.00001,
+		"boundary_force_influence_distance": 0.2,
+		
+		"velocity_step_scale": 0.9,
+		"velocity_max": 0.02
+	}
+}

@@ -1,0 +1,72 @@
+<header class="l-header">
+    <div class="g-container">
+        <div class="g-row g-gutter-y l-header-row">
+            <div class="g-col-3 g-gap-y g-align-item-center">
+                <ul class="l-menu-list">
+                    <li class="l-menu-list-item">
+                        <a href="/">
+                            <shopicon-regular-home></shopicon-regular-home>
+                        </a>
+                    </li>
+                    <li class="l-menu-list-item l-menu-list-item-menu" style="display: none">
+                        <shopicon-regular-menu></shopicon-regular-menu>
+                        <div style="display: none" class="l-menu-list-item-menu-dropdown-wrapper">
+                            <div class="l-menu-list-item-menu-dropdown">
+                                <div class="l-menu-list-item-menu-dropdown-group">
+                                    <ul class="l-menu-list-item-menu-dropdown-list">
+                                        <li class="l-menu-list-item-menu-dropdown-list-item">
+                                            Save to version history
+                                        </li>
+                                        <li class="l-menu-list-item-menu-dropdown-list-item l-menu-list-item-menu-dropdown-list-item-version-history">
+                                            Go to version history ...
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="l-menu-list-item-menu-dropdown-group">
+                                    <ul class="l-menu-list-item-menu-dropdown-list">
+                                        <li class="l-menu-list-item-menu-dropdown-list-item">
+                                            Mark image series as unusable ...
+                                        </li>
+                                        <li class="l-menu-list-item-menu-dropdown-list-item">
+                                            Mark frames as unsusable ...
+                                        </li>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="l-menu-list-item l-menu-list-item-instructions"><a href="/help"  target="_blank"><shopicon-regular-question></shopicon-regular-question></a></li>
+                </ul>
+            </div>
+            <div class="g-col-6 g-gap-y g-align-item-center">
+                <ul class="l-navigation-list">
+                    <% if (!edit_enabled && false) { %>
+                        <li class="l-navigation-list-item">
+                            <a href="<%- CONF.abs_path(`a/${ project_data.id }/${ prev_img_batch_id }`) %>">
+                                <shopicon-regular-arrowback></shopicon-regular-arrowback>
+                            </a>
+                        </li>
+                        <li class="l-navigation-list-item l-navigation-list-item-title"><%= img_batch_data.name %></li>
+                        <li class="l-navigation-list-item">
+                            <a href="<%- CONF.abs_path(`a/${ project_data.id }/${ next_img_batch_id }`) %>">
+                                <shopicon-regular-arrowforward></shopicon-regular-arrowforward>
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li class="l-navigation-list-item l-navigation-list-item-title" id="hu-navigation-breadcrumb">
+                            <a href="/">Home</a> <span>/</span>
+                            <a href="/p/<%= project_data.id %>"><%= project_data.name %></a> <span>/</span>
+                            <%= img_batch_data.name %>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+            <div class="g-col-3 g-gap-y g-align-item-center g-justify-content-flex-end">
+                <% if (mode == "no_edit") { %>
+                    <a class="btn btn-modal" href="<%- CONF.abs_path(`a/${ project_data.id }/${ img_batch_data.id }`) %>">Log In and Edit</a>
+                <% } else { %>
+                    <a class="btn btn-modal" id="hu_logout_btn" href="<%- `/p/${ project_data.id }/logout/${ img_batch_data.id }` %>">Save and Log Out</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>

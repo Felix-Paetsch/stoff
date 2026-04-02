@@ -29,17 +29,11 @@
             "@/*": ["./*"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Core/geometry/shapes/algorithms/intersect_lines.ts.tmp", "DevEnv/Debug/scenes/triangle.ts.broken", "DevEnv/Debug/scenes/test.ts.broken", "DevEnv/Debug/scenes/index.ts.broken", "DevEnv/Debug/scenes/heart.ts.broken", "DevEnv/Debug/scenes/dev.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",
-        "website",
-        "DevEnv/Profiling",
-        "Tools/Simulation/StoffGo",
-        "Tools/Simulation/StoffPy",
-
-        "DevEnv/DevServer",
-        "DevEnv/DevServer"
+        "Sewing//DevServer",
     ],
     "ts-node": {
         "esm": true,

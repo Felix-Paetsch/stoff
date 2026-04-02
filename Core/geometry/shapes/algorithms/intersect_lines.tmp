@@ -1,0 +1,261 @@
+import { EPS, PlainLine, Ray, Vector } from "@/Core/geometry";
+import { Polyline, PolylinePosition } from "..";
+
+// [line1StartIndex, line1EndIndex, line2StartIndex, line2EndIndex, line1Fraction, line2Fraction]
+type IntersectionPosition = [number, number, number, number, number, number];
+
+type Intersection = {
+    pos: Vector;
+    i1: number;
+    f1: number;
+    i2: number;
+    f2: number;
+};
+
+const PARAM_EPS = EPS.MODERATE;
+const KEY_SCALE = 1e10;
+
+export function intersect_lines(
+    line1: Polyline,
+    line2: Polyline,
+): [PolylinePosition[], PolylinePosition[], [number, number][]] {
+    const intersections = _calculate_intersections(line1, line2);
+
+    const byLine1 = [...intersections].sort((a, b) =>
+        _compare_positions(a.i1, a.f1, b.i1, b.f1),
+    );
+
+    const res1: PolylinePosition[] = byLine1.map((it) => ({
+        pos: it.pos,
+        i: it.i1,
+        f: it.f1,
+    }));
+
+    const byLine2WithLine1Index = byLine1
+        .map((it, index) => [it, index] as const)
+        .sort(([a], [b]) => _compare_positions(a.i2, a.f2, b.i2, b.f2));
+
+    const res2: PolylinePosition[] = byLine2WithLine1Index.map(([it]) => ({
+        pos: it.pos,
+        i: it.i2,
+        f: it.f2,
+    }));
+
+    const indices: [number, number][] = byLine2WithLine1Index.map(
+        ([, line1Index], line2Index) => [line1Index, line2Index],
+    );
+
+    return [res1, res2, indices];
+}
+
+export function plainLine_intersection_positions(
+    line: Polyline,
+    plainLine: PlainLine | Ray,
+    fineness: number = EPS.MODERATE,
+): IntersectionPosition[] {
+    if (line.length < 2) return [];
+
+    const seen = new Map<string, IntersectionPosition>();
+
+    for (let i = 0; i < line.length - 1; i++) {
+        const a = line[i]!;
+        const b = line[i + 1]!;
+
+        const point = plainLine.intersect([a, b], fineness);
+        if (!point) continue;
+
+        const f = _fraction_on_segment(a, b, point);
+        const [canonI, canonF] = _canonicalize_position(i, f);
+
+        // There is no real "second polyline" here, but the public return type
+        // requires the full tuple shape. We use a synthetic [0, 1].
+        const entry: IntersectionPosition = [
+            canonI,
+            canonI + 1,
+            0,
+            1,
+            canonF,
+            0,
+        ];
+        const key = `${canonI}:${_round(canonF)}`;
+
+        if (!seen.has(key)) {
+            seen.set(key, entry);
+        }
+    }
+
+    return [...seen.values()].sort((a, b) =>
+        _compare_positions(a[0], a[4], b[0], b[4]),
+    );
+}
+
+function _calculate_intersections(
+    line1: Polyline,
+    line2: Polyline,
+): Intersection[] {
+    if (line1.length < 2 || line2.length < 2) return [];
+
+    const seen = new Map<string, Intersection>();
+
+    for (let i = 0; i < line1.length - 1; i++) {
+        const a0 = line1[i]!;
+        const a1 = line1[i + 1]!;
+
+        for (let j = 0; j < line2.length - 1; j++) {
+            const b0 = line2[j]!;
+            const b1 = line2[j + 1]!;
+
+            const hit = _segment_intersection(a0, a1, b0, b1);
+            if (!hit) continue;
+
+            const [i1, f1] = _canonicalize_position(i, hit.t);
+            const [i2, f2] = _canonicalize_position(j, hit.u);
+
+            const key = `${i1}:${_round(f1)}|${i2}:${_round(f2)}`;
+            if (seen.has(key)) continue;
+
+            seen.set(key, {
+                pos: hit.pos,
+                i1,
+                f1,
+                i2,
+                f2,
+            });
+        }
+    }
+
+    return [...seen.values()];
+}
+
+function _segment_intersection(
+    a0: Vector,
+    a1: Vector,
+    b0: Vector,
+    b1: Vector,
+): { pos: Vector; t: number; u: number } | null {
+    const r = a1.subtract(a0);
+    const s = b1.subtract(b0);
+    const qmp = b0.subtract(a0);
+
+    const rr = r.dot(r);
+    const ss = s.dot(s);
+
+    // both segments are points
+    if (rr <= PARAM_EPS * PARAM_EPS && ss <= PARAM_EPS * PARAM_EPS) {
+        if (a0.distance(b0) <= PARAM_EPS) {
+            return { pos: a0, t: 0, u: 0 };
+        }
+        return null;
+    }
+
+    // first segment is a point
+    if (rr <= PARAM_EPS * PARAM_EPS) {
+        const u = _fraction_on_segment(b0, b1, a0);
+        const pos = Vector.lerp(b0, b1, u);
+        if (pos.distance(a0) <= PARAM_EPS) {
+            return { pos: a0, t: 0, u };
+        }
+        return null;
+    }
+
+    // second segment is a point
+    if (ss <= PARAM_EPS * PARAM_EPS) {
+        const t = _fraction_on_segment(a0, a1, b0);
+        const pos = Vector.lerp(a0, a1, t);
+        if (pos.distance(b0) <= PARAM_EPS) {
+            return { pos: b0, t, u: 0 };
+        }
+        return null;
+    }
+
+    const rxs = r.cross(s);
+    const qmpxr = qmp.cross(r);
+
+    // parallel
+    if (Math.abs(rxs) <= EPS.MINY) {
+        // parallel but not collinear
+        if (Math.abs(qmpxr) > PARAM_EPS) return null;
+
+        // collinear: return midpoint of overlap
+        const t0 = qmp.dot(r) / rr;
+        const t1 = t0 + s.dot(r) / rr;
+
+        const start = Math.max(0, Math.min(t0, t1));
+        const end = Math.min(1, Math.max(t0, t1));
+
+        if (end < -PARAM_EPS || start > 1 + PARAM_EPS || start > end) {
+            return null;
+        }
+
+        const t = _clamp01((start + end) * 0.5);
+        const pos = Vector.lerp(a0, a1, t);
+        const u = _fraction_on_segment(b0, b1, pos);
+
+        return { pos, t, u };
+    }
+
+    const t = qmp.cross(s) / rxs;
+    const u = qmp.cross(r) / rxs;
+
+    if (t < -PARAM_EPS || t > 1 + PARAM_EPS) return null;
+    if (u < -PARAM_EPS || u > 1 + PARAM_EPS) return null;
+
+    const clampedT = _clamp01(t);
+    const clampedU = _clamp01(u);
+
+    return {
+        pos: Vector.lerp(a0, a1, clampedT),
+        t: clampedT,
+        u: clampedU,
+    };
+}
+
+function _canonicalize_position(
+    segmentIndex: number,
+    fraction: number,
+): [number, number] {
+    const f = _clamp01(fraction);
+
+    // If we hit exactly the start of a segment, prefer the previous segment's end.
+    if (f <= EPS.MINY) {
+        if (segmentIndex > 0) return [segmentIndex - 1, 1];
+        return [0, 0];
+    }
+
+    // End of current segment.
+    if (f >= 1 - EPS.MINY) {
+        return [segmentIndex, 1];
+    }
+
+    return [segmentIndex, f];
+}
+
+function _fraction_on_segment(a: Vector, b: Vector, p: Vector): number {
+    const ab = b.subtract(a);
+    const ap = p.subtract(a);
+    const len2 = ab.dot(ab);
+
+    if (len2 <= EPS.MINY) return 0;
+    return _clamp01(ap.dot(ab) / len2);
+}
+
+function _compare_positions(
+    i1: number,
+    f1: number,
+    i2: number,
+    f2: number,
+): number {
+    const d = i1 + f1 - (i2 + f2);
+    if (Math.abs(d) <= EPS.MINY) return 0;
+    return d < 0 ? -1 : 1;
+}
+
+function _round(value: number): number {
+    return Math.round(value * KEY_SCALE) / KEY_SCALE;
+}
+
+function _clamp01(value: number): number {
+    if (value <= 0) return 0;
+    if (value >= 1) return 1;
+    return value;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HU Annotationssoftware</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"/>
+
+    <link rel="stylesheet" href="<%- CONF.abs_path('css/h2d2/main.css') %>">
+    <link rel="stylesheet" href="/fonts/fontawesome/main.css">
+    <link rel="stylesheet" href="<%- CONF.abs_path('css/annotation/main_annotation.css') %>">
+</head>
+<body>
+    <main class="l-main">
+        <div class="l-viewport">
+            <%- include("../common/head.ejs", {
+                mode: "edit"
+            }) %>
+
+            <section class="l-stage">
+                <div class="l-stage-toolbar-area" style="overflow: visible;">
+                    <%- include("../common/keypoint_toolbar") %>
+                    <%- include("../common/point_example_images") %>
+                    <%- include("../common/frame_toolbar") %>
+                    <%- include("../common/swiper_img_list") %>
+                </div>
+                <%- include("../common/frame_slider") %>
+            </section>
+        </div>
+
+        <!--%- include("../common/change_log")    %>
+        < %- include("../common/instructions")  %-->
+        <%- include("../common/device_notify") %>
+    </main>
+
+    <script src="/js/annotation/self_contained/undo_redo_stack.js"></script>
+    <%- include("../common/h2d2_imports") %>
+    <%- include("../common/hu_js_imports", {
+        mode: "edit"
+    }) %>
+
+    <% if (typeof edit_guard_enabled === "undefined" || edit_guard_enabled == true) { %>
+        <script>
+            frontend_vars.annotation_start = +"<%- annotation_start %>";
+
+            {
+                var newUrl = "<%- CONF.abs_path(`a/${project_data.id}/${img_batch_data.id}/edit`) %>";
+                history.replaceState(null, null, newUrl);
+            }
+
+            /*const a_tags = document.querySelectorAll("a");
+            for (const a of a_tags){
+                const href = a.href;
+                a.addEventListener("click", () => {
+                    fetch("<%- `/p/${ project_data.id }/logout/${ img_batch_data.id }` %>")
+                    .then(response => {
+                        window.location.href = href;
+                    });
+                });
+                
+                a.href = "#";
+            }*/
+
+            window.addEventListener('beforeunload', function(event) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "<%- `/p/${ project_data.id }/logout/${ img_batch_data.id }` %>", false);
+                xhr.send();
+
+                if (xhr.status === 200) {
+                    console.log("Logged out!");
+                } else {
+                    console.log("Logout failed.");
+                }
+            });
+        </script>
+    <% } %>
+</body>
+</html>

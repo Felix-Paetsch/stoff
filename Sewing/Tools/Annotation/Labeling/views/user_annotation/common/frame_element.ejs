@@ -1,0 +1,20 @@
+<li class="_hu_frame_element l-toolbar-panel-frames-item <%- extra_classlist %> frame_element_id_<%- id %>" _id="<%- id %>">
+    <div class="l-toolbar-panel-frames-point"></div>
+    <div class="l-toolbar-panel-frames-name"><%= name %></div>
+    <div class="l-toolbar-panel-frames-tools">
+        <% if (edit_enabled){ %>
+            <div class="l-toolbar-panel-frames-tools-item l-toolbar-panel-frames-tools-arrow do_skip_btn" onclick="frame_toolbar.skip_img(+'<%- id %>', event)" tooltip="Skip (E)" _id="<%- id %>">
+                <shopicon-regular-angledoublerightsmall></shopicon-regular-angledoublerightsmall>
+            </div>
+            <div class="l-toolbar-panel-frames-tools-item l-toolbar-panel-frames-tools-arrow undo_skip_btn" onclick="frame_toolbar.skip_img(+'<%- id %>', event)" tooltip="Undo Skip (E)" _id="<%- id %>">
+                <shopicon-regular-angledoubleleftsmall></shopicon-regular-angledoubleleftsmall>
+            </div>
+            <div class="l-toolbar-panel-frames-tools-item l-toolbar-panel-frames-tools-copy copy_tooltip" onclick="frame_toolbar.copy_from_img(+'<%- id %>', event)" tooltip="Transfer keypoints" _id="<%- id %>">
+                <shopicon-regular-backdown></shopicon-regular-backdown>
+            </div>
+            <div class="l-toolbar-panel-frames-tools-item l-toolbar-panel-frames-tools-delete-points" onclick="frame_toolbar.delete_current_img_points(event)" tooltip="Reset annotation (R)" _id="<%- id %>">
+                <shopicon-regular-refresh></shopicon-regular-refresh>
+            </div> 
+        <% } %>
+    </div>
+</li>
