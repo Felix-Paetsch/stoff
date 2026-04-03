@@ -145,3 +145,10 @@ svg.use_gradient(): SVGGradient
 [] line gradient rendering
 [] encode right ahnd left hand and p1 p2 with colors
 [] if gradient length == 1 => don't create a 2nd gradient
+
+[] radial distance functions
+- making a path of points by angular binary search around the last point
+- can use this to make mandelbrot!
+    - would maybe have to find the best angular point for this though?
+- can use for auto-digitize lines?
+[] unify what angle mean

@@ -783,6 +783,9 @@ export class Line {
     }
 
     static straight(...endpoints: [Point, Point]) {
-        return new Line(endpoints, new Polyline([...endpoints]));
+        return new Line(
+            endpoints,
+            new Polyline(endpoints.map((p) => p.vector())),
+        );
     }
 }

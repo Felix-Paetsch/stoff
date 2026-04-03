@@ -1,5 +1,3 @@
-import { unique_string } from "@/Core/utils/unique";
-import { Vector, ZERO } from "../../geometry";
 import { Polygon } from "../../geometry/shapes/polygon";
 import { Polyline } from "../../geometry/shapes/polyline";
 import { Json } from "../../utils/json";
@@ -13,7 +11,9 @@ import {
     PolygonRenderAttributes,
     TextRenderAttributes,
 } from "./render_attributes";
-import { colorToHex, Gradient, interpolate_colors } from "@/Core/colors";
+import { colorToHex, Gradient } from "@/Core/colors";
+import { SVGGradient } from "./gradient";
+import { Vector, ZERO } from "@/Core/geometry";
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
@@ -23,69 +23,25 @@ export type RenderGroupData = {
 
 // The thing with higher render priority gets rendered on top
 
-export class SVGGradient {
-    readonly id: string;
-    constructor(
-        readonly gradient: Gradient,
-        readonly segments: number = 1,
-    ) {
-        this.id = `gradient_${unique_string()}`;
-    }
-
-    segment_ids(): string[] {
-        if (this.segments == 1) return [this.id];
-
-        const res: string[] = [];
-
-        for (let i = 0; i < this.segments; i++) {
-            res.push(`${this.id}_${i}`);
-        }
-
-        return res;
-    }
-
-    gradient_segments(): Gradient[] {
-        if (this.segments == 1) {
-            return [this.gradient];
-        }
-
-        const res: Gradient[] = [];
-        for (let i = 0; i < this.segments; i++) {
-            res.push([
-                interpolate_colors(
-                    this.gradient[0],
-                    this.gradient[1],
-                    i / this.segments,
-                ),
-                interpolate_colors(
-                    this.gradient[0],
-                    this.gradient[1],
-                    (i + 1) / this.segments,
-                ),
-            ]);
-        }
-        return res;
-    }
-}
-
 type RenderInstruction = {
-    render: (
-        compute_render_group_css: (
-            r?: Partial<RenderGroupData> | null,
-            hover_data?: Json,
-        ) => string,
-    ) => string;
+    content: string;
     render_priority: number;
 };
 
 export class SVG_Builder {
     protected render_instructions: RenderInstruction[] = [];
+    protected defs: string = "";
+
     constructor(
         public width: number = 100,
         public height: number = 100,
         public viewbox: [Vector, Vector] = [ZERO, new Vector(100, 100)],
         public padding: number = 0,
     ) {}
+
+    add_def(str: string) {
+        this.defs += str;
+    }
 
     render_text(
         text: string,
@@ -186,23 +142,33 @@ export class SVG_Builder {
                 res += `<polyline points="${pointsString}" style="fill:none; stroke: ${colorToHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
             } else {
                 let gradient: SVGGradient;
-                if (!(full_attributes.stroke instanceof SVGGradient)) {
-                    gradient = this.create_gradient(full_attributes.stroke, 1);
+                let sections: number;
+
+                if (Array.isArray(full_attributes.stroke[0])) {
+                    gradient = new SVGGradient(full_attributes.stroke[0], this);
+                    sections = full_attributes.stroke[1] as number;
                 } else {
-                    gradient = full_attributes.stroke;
+                    gradient = new SVGGradient(
+                        full_attributes.stroke as Gradient,
+                        this,
+                    );
+                    sections = 1;
                 }
 
-                const subgradients = gradient.segment_ids();
+                for (let i = 0; i < sections; i++) {
+                    const from = i / sections;
+                    const to = (i + 1) / sections;
 
-                for (let i = 0; i < gradient.segments; i++) {
-                    const subline = line.slice(
-                        i / gradient.segments,
-                        (i + 1) / gradient.segments,
-                    );
+                    const subline = line.slice(from, to);
+
+                    const gradient_id = gradient.gradient_segment(from, to, {
+                        from: subline.first(),
+                        to: subline.last(),
+                    });
+
                     const sublinePoints = vectors_to_string(subline.verticies);
-                    const subgradient = subgradients[i]!;
 
-                    res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${subgradient}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
+                    res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
                 }
             }
             res +=
@@ -243,11 +209,12 @@ export class SVG_Builder {
                 fillString = 'fill="none"';
             } else if (typeof full_attributes.fill == "string") {
                 fillString = `fill="${colorToHex(full_attributes.fill)}"`;
-            } else if (full_attributes.fill instanceof SVGGradient) {
-                fillString = `fill="url(#${full_attributes.fill.id})`;
             } else {
-                const grad = this.create_gradient(full_attributes.fill);
-                fillString = `fill="url(#${grad.id})`;
+                throw new Error(
+                    "Gradient fill unimplemented, as we need to figure out direction",
+                );
+                // const grad = new SVGGradient(full_attributes.fill);
+                // fillString = `fill="url(#${grad.id})`;
             }
 
             let res: string = `<g ${ras} >`;
@@ -267,36 +234,6 @@ export class SVG_Builder {
         }, full_attributes.render_priority);
     }
 
-    create_gradient(g: Gradient, segments: number = 1): SVGGradient {
-        const svgGradient = new SVGGradient(g, segments);
-
-        const segment_ids = svgGradient.segment_ids();
-        const segment_gradients = svgGradient.gradient_segments();
-
-        this.custom(() => {
-            let res = "<defs>";
-            res += segment_gradients
-                .map((g, i) => {
-                    return `<linearGradient id="${segment_ids[i]!}">
-      <stop offset="0%" stop-color="${g[0]}" />
-      <stop offset="100%" stop-color="${g[1]}" />
-    </linearGradient>`;
-                })
-                .join("");
-
-            if (svgGradient.segments > 1) {
-                res += `<linearGradient id="${svgGradient.id}">
-      <stop offset="0%" stop-color="${svgGradient.gradient[0]}" />
-      <stop offset="100%" stop-color="${svgGradient.gradient[1]}" />
-    </linearGradient>`;
-            }
-
-            return (res += "</defs>");
-        }, -Infinity);
-
-        return svgGradient;
-    }
-
     custom(
         render: (
             compute_render_group_css: (
@@ -307,7 +244,7 @@ export class SVG_Builder {
         render_priority: number = 0,
     ) {
         this.render_instructions.push({
-            render,
+            content: render(compute_render_group_css),
             render_priority,
         });
     }
@@ -334,11 +271,7 @@ export class SVG_Builder {
             (a, b) => a.render_priority - b.render_priority,
         );
 
-        const items = this.render_instructions
-            .map((r) => {
-                return r.render(compute_render_group_css);
-            })
-            .join("");
+        const items = this.render_instructions.map((r) => r.content).join("");
 
         const view = [
             new_viewbox[0].x,
@@ -351,6 +284,7 @@ export class SVG_Builder {
 
         return `
             <svg width="${width}" height="${height}" viewBox="${view}" xmlns="http://www.w3.org/2000/svg">
+                <defs>${this.defs}</defs>
                 ${items}
             </svg>
         `;

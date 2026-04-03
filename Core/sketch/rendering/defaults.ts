@@ -11,7 +11,8 @@ export const point_attributes = {
 };
 
 export const line_attributes = {
-    stroke: ["#ccc", "black"] as Gradient,
+    rh_stroke: [["#ccc", "rgb(0,0,100)"], 3] as [Gradient, number],
+    lh_stroke: [["#ccc", "rgb(100,0,0)"], 3] as [Gradient, number],
     stroke_width: 5,
     opacity: 1,
 };

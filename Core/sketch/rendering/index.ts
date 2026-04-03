@@ -13,83 +13,18 @@ import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
 import { BoundingBox } from "@/Core/geometry";
 
-export function render_debug_sketch(
-    s: Sketch,
-    width: number | null = null,
-    height: number | null = null,
-    padding: number = 0,
-): SVG_Builder {
-    const bb = s.get_bounding_box();
-    const real_render_dimensions = recalculate_render_dimensions(
-        width,
-        height,
-        bb,
-    );
-
-    const px_to_unit = (x: number) =>
-        (x * real_render_dimensions.bounding_box.width) /
-        real_render_dimensions.width;
-
-    const svg = new SVG_Builder(
-        real_render_dimensions.width,
-        real_render_dimensions.height,
-        [
-            real_render_dimensions.bounding_box.top_right,
-            real_render_dimensions.bounding_box.top_left,
-        ],
-        padding,
-    );
-
-    svg.render_polygon(
-        new Polygon([
-            bb.top_left,
-            bb.top_right,
-            bb.bottom_right,
-            bb.bottom_left,
-        ]),
-        {
-            fill: "white",
-            stroke: null,
-        },
-        get_sketch_render_data(s),
-    );
-
-    const lineStyles: Partial<LineRenderAttributes> = {
-        ...line_attributes,
-        stroke_width: px_to_unit(line_attributes.stroke_width),
-    };
-    if (Array.isArray(lineStyles.stroke)) {
-        lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 5);
-    }
-
-    s.get_lines().forEach((line) => {
-        const shape = line.shape;
-        if (is_polygon(shape)) {
-            svg.render_polygon(shape, lineStyles, get_line_render_data(line));
-        } else {
-            svg.render_polyline(shape, lineStyles, get_line_render_data(line));
-        }
-    });
-
-    const pointStyles: Partial<PointRenderAttributes> = {
-        ...point_attributes,
-        radius: px_to_unit(point_attributes.radius),
-        stroke_width: px_to_unit(point_attributes.stroke_width),
-    };
-
-    s.get_points().forEach((pt) => {
-        svg.render_point(pt, pointStyles, get_point_render_data(pt));
-    });
-
-    return svg;
-}
-
 export function render_sketch(
     s: Sketch,
     width: number | null = null,
     height: number | null = null,
     padding: number = 0,
+    debug: boolean = false,
 ): SVG_Builder {
+    function if_debug<T>(fn: () => T) {
+        if (debug) return fn();
+        return null;
+    }
+
     const bb = s.get_bounding_box();
     const real_render_dimensions = recalculate_render_dimensions(
         width,
@@ -111,20 +46,45 @@ export function render_sketch(
         padding,
     );
 
-    const lineStyles: Partial<LineRenderAttributes> = {
-        ...line_attributes,
-        stroke_width: px_to_unit(line_attributes.stroke_width),
-    };
-    if (Array.isArray(lineStyles.stroke)) {
-        lineStyles.stroke = svg.create_gradient(lineStyles.stroke, 2);
-    }
+    svg.render_polygon(
+        new Polygon([
+            bb.top_left,
+            bb.top_right,
+            bb.bottom_right,
+            bb.bottom_left,
+        ]),
+        {
+            fill: "white",
+            stroke: null,
+        },
+        if_debug(() => get_sketch_render_data(s)),
+    );
 
     s.get_lines().forEach((line) => {
+        const lineStyles: Partial<LineRenderAttributes> = {
+            ...line_attributes,
+            stroke_width: px_to_unit(line_attributes.stroke_width),
+        };
+
+        if (line.right_handed) {
+            lineStyles.stroke = line_attributes.lh_stroke;
+        } else {
+            lineStyles.stroke = line_attributes.rh_stroke;
+        }
+
         const shape = line.shape;
         if (is_polygon(shape)) {
-            svg.render_polygon(shape, lineStyles);
+            svg.render_polygon(
+                shape,
+                lineStyles,
+                if_debug(() => get_line_render_data(line)),
+            );
         } else {
-            svg.render_polyline(shape, lineStyles);
+            svg.render_polyline(
+                shape,
+                lineStyles,
+                if_debug(() => get_line_render_data(line)),
+            );
         }
     });
 
@@ -135,7 +95,11 @@ export function render_sketch(
     };
 
     s.get_points().forEach((pt) => {
-        svg.render_point(pt, pointStyles);
+        svg.render_point(
+            pt,
+            pointStyles,
+            if_debug(() => get_point_render_data(pt)),
+        );
     });
 
     return svg;

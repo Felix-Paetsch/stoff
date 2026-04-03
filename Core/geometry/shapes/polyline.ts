@@ -15,6 +15,7 @@ import {
 import { expect } from "@/Core/expect";
 import { Radians } from "../types";
 import { is_convex } from "../algorithms";
+import { from_polyline_function } from "./algorithms/polyline_from_function";
 
 export type PolylinePosition = {
     pos: Vector;
@@ -139,17 +140,16 @@ export class Polyline {
                         : (from - currentDistance) / segmentLength;
 
                 res.push(Vector.lerp(this.vec[i]!, this.vec[i + 1]!, t));
-                currentDistance = nextDistance;
-                continue;
+                currentDistance = from;
             }
 
             if (to <= nextDistance) {
                 const t =
                     segmentLength === 0
                         ? 0
-                        : (to - currentDistance) / segmentLength;
+                        : (nextDistance - to) / segmentLength;
 
-                res.push(Vector.lerp(this.vec[i]!, this.vec[i + 1]!, t));
+                res.push(Vector.lerp(this.vec[i]!, this.vec[i + 1]!, 1 - t));
                 break;
             } else {
                 res.push(this.vec[i]!);
@@ -169,10 +169,12 @@ export class Polyline {
         return new Polygon(this.vec);
     }
 
-    static from_polyline_function(_fn: PolylineFunction): Polyline {
-        // do binary search while adding the points you find
-        // also check first and last point, but dont include last point
-        throw new Error();
+    static from_polyline_function(
+        fn: PolylineFunction,
+        sample_spacing: number | null = null,
+        start_samples: number = 2,
+    ): Polyline {
+        return from_polyline_function(fn, sample_spacing, start_samples);
     }
 
     static from_function_graph(

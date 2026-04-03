@@ -1,4 +1,3 @@
-import { render_sketch } from "@/Core/sketch/rendering";
 import { Sketch } from "../../../Core/sketch/sketch/index";
 
 export default function (): Sketch | Sketch[] | void {
@@ -6,11 +5,9 @@ export default function (): Sketch | Sketch[] | void {
 
     const p = s.point(0, 0);
     const q = s.point(1, 1);
-    const r = s.point(2, 2);
+    // const r = s.point(2, 2);
 
-    s.line_between_points(p, q);
-    s.line_between_points(r, q);
+    s.line_from_function_graph(p, q, (x) => Math.sin(Math.PI * x));
 
-    console.log(render_sketch(s, 500, 500, 100).svg());
     return s;
 }

@@ -1,5 +1,4 @@
 import { Color, Gradient } from "@/Core/colors";
-import { SVGGradient } from "./svg_builder";
 
 export type TextRenderAttributes = {
     font_family: string;
@@ -51,7 +50,7 @@ export const defaultPointRenderAttributes: PointRenderAttributes = {
 };
 
 export type LineRenderAttributes = {
-    stroke: Color | Gradient | SVGGradient | null;
+    stroke: Color | Gradient | [Gradient, number] | null;
     stroke_width: number;
     opacity: number;
     render_priority: number;
@@ -65,8 +64,8 @@ export const defaultLineRenderAttributes: LineRenderAttributes = {
 };
 
 export type PolygonRenderAttributes = {
-    fill: Color | Gradient | SVGGradient | null;
-    stroke: Color | Gradient | SVGGradient | null;
+    fill: Color | Gradient | null;
+    stroke: Color | Gradient | [Gradient, number] | null;
     stroke_width: number;
     opacity: number;
     render_priority: number;
