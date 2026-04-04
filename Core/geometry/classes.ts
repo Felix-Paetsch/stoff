@@ -347,6 +347,12 @@ export class Matrix {
     toString() {
         return `[${this.col1.toString()}, ${this.col2.toString()}]`;
     }
+
+    transform() {
+        return (x: Vector) => {
+            return this.mult(x);
+        };
+    }
 }
 
 export class Line {

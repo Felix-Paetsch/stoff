@@ -1,5 +1,9 @@
 export const EPS = {
-    equal: (a: number, b: number) => {
-        return Math.abs(a - b) < 0.0000001;
+    equals: (a: number, b: number): boolean => {
+        return Math.abs(a - b) < EPS.tiny;
     },
+    is_zero: (a: number): boolean => {
+        return EPS.equals(a, 0);
+    },
+    tiny: 0.0000001,
 };

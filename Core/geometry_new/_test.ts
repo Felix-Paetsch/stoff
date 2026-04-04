@@ -1,3 +1,3 @@
-import { Triangle } from "./index.ts";
+import { LinearTransform } from "./index.ts";
 
-console.log(Triangle);
+console.log(LinearTransform.);

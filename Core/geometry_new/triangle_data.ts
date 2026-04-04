@@ -41,7 +41,7 @@ function oppositeSide(angle: AngleKey): SideKey {
     return angle === "alpha" ? "a" : angle === "beta" ? "b" : "c";
 }
 
-export function triangle_data(triangle: TriangleSpecification): Triangle {
+export function from_specification(triangle: TriangleSpecification): Triangle {
     const { SSA = true, ...input } = triangle as TriangleSpecification & {
         SSA?: boolean;
     };
@@ -247,4 +247,12 @@ export function triangle_data(triangle: TriangleSpecification): Triangle {
         beta: Beta!,
         gamma: Gamma!,
     };
+}
+
+export function pythagoras(w: number, h: number): number {
+    return Math.sqrt(w * w + h * h);
+}
+
+export function pythagorasN(c: number, a: number): number {
+    return Math.sqrt(c * c - a * a);
 }

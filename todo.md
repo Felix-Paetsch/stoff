@@ -140,3 +140,5 @@ svg.use_gradient(): SVGGradient
     - would maybe have to find the best angular point for this though?
 - can use for auto-digitize lines?
 [] unify what angle mean
+[] more suffisticated Numerics.eps
+[] Clean up geometry methods
