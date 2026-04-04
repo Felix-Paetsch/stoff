@@ -1,31 +1,19 @@
 Scale points and stroke width and so on down to fit a certain pixel area on the screen in sketch rendering.
 
-# Tomorrow
+# Next
+
+Create a files index.ts export
+Figure out geometry export structure
 
 
-Fix svg gradients
-- segments (two or more are not shown)
-- probably a polyline issue
-- unlazyfy
-- gradients in different directions
-- can/should reuse stops, but really have to do one for each thing
-just have 5 new things per line. The gradient API outwards is fine and could just use a little bit of improvement, asking for gradients from, to, in a specific direction.
-
-Allow for text
-
-Write method (outside of files) for
-- rendering to A4 pages
-
-Ideally: Can now remove all Core/rendering methods
-Can fix all remaining errors displayed..
+# All
 
 
-# In general
-
-
-[] gradient: use new id for each segment
-
-[] Move things out of SVG that aren't SVG builder
+[] figure out what to do with eps; also give it better meaning
+[] also have max iteration bounds in eps file
+- expensive
+- inexpensive
+- maybe with utility exposing a generator that eventually throws
 
 [] change polyline, polygon to f32 arrays
 [] introduce wasm

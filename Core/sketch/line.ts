@@ -10,7 +10,7 @@ import {
     PlainLine,
     polygon_orientation,
     Vector,
-} from "../geometry/index";
+} from "../geometry";
 import { Cache } from "../utils/cache";
 import { ConnectedComponent } from "./collection/connected_component";
 import { copy_sketch_element_collection } from "./collection/copy";

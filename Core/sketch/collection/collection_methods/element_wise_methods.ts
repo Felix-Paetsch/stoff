@@ -1,4 +1,4 @@
-import { mirror_type, MirrorData } from "../../../geometry/index";
+import { mirror_type, MirrorData } from "../../../geometry";
 import { SketchElement, SketchElementCollection } from "../../types";
 import { sketch_element_collection_as_array } from "..";
 import { Point } from "../../point";

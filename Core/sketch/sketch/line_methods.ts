@@ -5,7 +5,7 @@ import {
     Radians,
     Length,
     EPS,
-} from "../../geometry/index";
+} from "../../geometry";
 import { Line } from "../line";
 import { Point } from "../point";
 import { Sketch } from "./index";

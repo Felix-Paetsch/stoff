@@ -1,4 +1,4 @@
-import { Radians, Vector } from "@/Core/geometry";
+import { Radians, Vector } from "@/Core/geometry/index.ts";
 import { PolylineFunction } from "../index.ts";
 
 export { Spline } from "./splines.ts";

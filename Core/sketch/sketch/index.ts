@@ -5,7 +5,7 @@ import {
     CopySketchObjectDataCallback,
     default_data_callback,
 } from "../collection/copy";
-import { UP, Vector, Length, Radians } from "../../geometry/index";
+import { UP, Vector, Length, Radians } from "../../geometry";
 import { Line } from "../line";
 import { Point } from "../point";
 
