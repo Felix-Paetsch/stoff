@@ -2,8 +2,13 @@ import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { Polyline } from "./polyline";
 import { Shape } from "./shape";
+import { resample_polygon_points } from "./algorithms/resample";
+import { Radians } from "../types";
+import { resample_strict } from "./algorithms/resample_strict";
+import { remove_dub } from "./algorithms/remove_dub";
 
 export class Polygon extends Shape {
+    // A polygon has the last line segment implicit. However a duplicate point doesn't matter.
     constructor(positions: Float64Array | Vector[]) {
         super(positions);
     }
@@ -61,5 +66,26 @@ export class Polygon extends Shape {
         const vectors = vectors_from_polyline_function(fn);
         // First use polyine to get rid of potential duplicate point at the end
         return new Polyline(vectors).as_polygon();
+    }
+
+    resample(
+        smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
+        sample_spacing: number | null = null,
+    ): Polygon {
+        return new Polygon(
+            resample_polygon_points(
+                this.verticies,
+                smoothness_angle,
+                sample_spacing,
+            ),
+        );
+    }
+
+    resample_strict(sample_spacing: number | null = null): Polygon {
+        return resample_strict(this, sample_spacing);
+    }
+
+    remove_dubplicates(): Polygon {
+        return remove_dub(this);
     }
 }

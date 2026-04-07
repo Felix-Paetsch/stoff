@@ -6,11 +6,13 @@ import { EPS } from "../../numerics";
 import { Fraction } from "../interval";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { Geometry, Line, Ray } from "..";
+import { closest_points, f64_to_vec_array } from "../../rust/exports";
 import {
-    make_line_to_relevant_polyline,
-    make_ray_to_relevant_polyline,
+    make_line_to_relevant_polyline_for_closest_vec,
+    make_ray_to_relevant_polyline_for_closest_vec,
 } from "../geometry/closest_vector";
-import { closest_points, f64_to_vec_array } from "@/Core/rust/exports";
+import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
+import { merge } from "../geometry/merge";
 
 export namespace Shape {
     export type PolylineFunction = (t: Fraction) => Vector;
@@ -23,7 +25,7 @@ export namespace Shape {
     };
 }
 
-export abstract class Shape implements Iterable<Vector> {
+export abstract class Shape {
     private _length: number | null = null;
     private _positions: Float64Array | null = null;
     private _verticies: Vector[] | null = null;
@@ -35,10 +37,6 @@ export abstract class Shape implements Iterable<Vector> {
         } else {
             this._verticies = positions;
         }
-    }
-
-    *[Symbol.iterator](): Iterator<Vector> {
-        return this.verticies!;
     }
 
     get verticies(): Vector[] {
@@ -146,15 +144,18 @@ export abstract class Shape implements Iterable<Vector> {
         return this._positions!.length / 2;
     }
 
+    is_empty(): boolean {
+        return this.vertex_count == 0;
+    }
+
     is_convex(): boolean {
         const l = this.as_polygon();
-        if (l.vertex_count < 4) {
+        if (l.vertex_count < 3) {
             return true;
         }
 
         const pts = l.verticies;
         const n = pts.length;
-        if (n < 3) return true;
 
         let sign = 0;
         for (let i = 0; i < n; i++) {
@@ -166,7 +167,39 @@ export abstract class Shape implements Iterable<Vector> {
             const v2 = p2.subtract(p1);
             const cross = v1.cross(v2);
 
-            if (EPS.less_than(cross, 0)) continue;
+            if (EPS.less_than(Math.abs(cross), 0)) continue;
+
+            if (sign === 0) {
+                sign = Math.sign(cross);
+            } else if (Math.sign(cross) !== sign && Math.sign(cross) !== 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    is_strictly_convex(): boolean {
+        const l = this.as_polygon();
+        if (l.vertex_count < 3) {
+            return false;
+        }
+
+        const pts = l.verticies;
+        const n = pts.length;
+
+        let sign = 0;
+        for (let i = 0; i < n; i++) {
+            const p0 = pts[i]!;
+            const p1 = pts[(i + 1) % n]!;
+            const p2 = pts[(i + 2) % n]!;
+
+            const v1 = p1.subtract(p0);
+            const v2 = p2.subtract(p1);
+            const cross = v1.cross(v2);
+
+            if (cross == 0) {
+                return false;
+            }
 
             if (sign === 0) {
                 sign = Math.sign(cross);
@@ -196,9 +229,9 @@ export abstract class Shape implements Iterable<Vector> {
         if (from instanceof Shape) {
             fShape = from;
         } else if (from instanceof Line) {
-            fShape = make_line_to_relevant_polyline(from, this);
+            fShape = make_line_to_relevant_polyline_for_closest_vec(from, this);
         } else if (from instanceof Ray) {
-            fShape = make_ray_to_relevant_polyline(from, this);
+            fShape = make_ray_to_relevant_polyline_for_closest_vec(from, this);
         } else if (Array.isArray(from)) {
             fShape = new Polyline(from);
         } else {
@@ -209,6 +242,60 @@ export abstract class Shape implements Iterable<Vector> {
         if (!res) return res;
 
         return res[0];
+    }
+
+    normal_vector(at: Shape.ShapePosition | Vector): Vector | null {
+        if (at instanceof Vector) {
+            const closest = this.closest_shape_position(at);
+            if (!closest) return null;
+            return this.normal_vector(closest);
+        }
+
+        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        if (!l) return null;
+
+        return l[1].subtract(l[0]).orthonormal();
+    }
+
+    normal_line(at: Shape.ShapePosition | Vector): Line | null {
+        if (at instanceof Vector) {
+            const closest = this.closest_shape_position(at);
+            if (!closest) return null;
+            return this.normal_line(closest);
+        }
+
+        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        if (!l) return null;
+
+        const dir = l[1].subtract(l[0]).orthogonal();
+        return Line.from_direction(at.vec, dir);
+    }
+
+    tangent_vector(at: Shape.ShapePosition | Vector): Vector | null {
+        if (at instanceof Vector) {
+            const closest = this.closest_shape_position(at);
+            if (!closest) return null;
+            return this.normal_vector(closest);
+        }
+
+        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        if (!l) return null;
+
+        return l[1].subtract(l[0]).to_len(1);
+    }
+
+    tangent_line(at: Shape.ShapePosition | Vector): Line | null {
+        if (at instanceof Vector) {
+            const closest = this.closest_shape_position(at);
+            if (!closest) return null;
+            return this.tangent_line(closest);
+        }
+
+        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        if (!l) return null;
+
+        const dir = l[1].subtract(l[0]);
+        return Line.from_direction(at.vec, dir);
     }
 
     static closest_shape_positions(
@@ -233,5 +320,14 @@ export abstract class Shape implements Iterable<Vector> {
                 frac: closest[7]!,
             },
         ];
+    }
+
+    static merge(sh1: Polygon, sh2: Polygon): Polygon;
+    static merge(sh1: Polyline, sh2: Polygon): Polyline;
+    static merge(sh1: Polygon, sh2: Polyline): Polyline;
+    static merge(sh1: Polyline, sh2: Polyline): Polyline;
+    static merge(sh1: Shape, sh2: Shape): Shape;
+    static merge(sh1: Shape, sh2: Shape): Shape {
+        return merge(sh1, sh2);
     }
 }

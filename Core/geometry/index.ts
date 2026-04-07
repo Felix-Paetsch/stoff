@@ -13,6 +13,7 @@ export { BoundingBox } from "./bounding_box";
 
 export * as Geometry from "./geometry";
 export * as FiniteGeometry from "./finite_geometry";
+export * as Spline from "./spline";
 
 export { Polyline } from "./shape/polyline";
 export { Polygon } from "./shape/polygon";

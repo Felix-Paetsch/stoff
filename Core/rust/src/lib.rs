@@ -1,4 +1,5 @@
 mod closest_shape_positions;
+mod convex_hull;
 mod utils;
 
-pub use closest_shape_positions::closest_points;
+pub use convex_hull::convex_hull;

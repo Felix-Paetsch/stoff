@@ -1,4 +1,4 @@
-use crate::utils::coords_to_linestring;
+use crate::utils::vecf64_to_linestring;
 use geo::{Coord, Line};
 use wasm_bindgen::prelude::*;
 
@@ -21,8 +21,8 @@ pub fn closest_points(coords1: &[f64], coords2: &[f64]) -> Option<Vec<f64>> {
     // shape1_fraction
     // ...... same for shape 2 ...
 
-    let line1 = coords_to_linestring(coords1)?;
-    let line2 = coords_to_linestring(coords2)?;
+    let line1 = vecf64_to_linestring(coords1)?;
+    let line2 = vecf64_to_linestring(coords2)?;
 
     // Find closest point on line2 to any point on line1
     let mut min_distance = f64::INFINITY;

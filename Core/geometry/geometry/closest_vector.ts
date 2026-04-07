@@ -4,31 +4,20 @@ import { Ray } from "../ray";
 import { Polyline } from "../shape/polyline";
 import { Shape } from "../shape/shape";
 import { Vector } from "../vector";
+import { as_polyline, is_finite_geometry } from "./utils";
 
 export function closest_vectors(
     on: Geometry,
     from: Geometry,
 ): [Vector, Vector] | null {
     let on_shape: Polyline | null = null;
-    if (on instanceof Shape) {
-        on_shape = on.as_polyline();
-    } else if (on instanceof Vector) {
-        on_shape = Polyline.from_verticies([on]);
-    } else if (Array.isArray(on)) {
-        on_shape = Polyline.from_verticies(on);
-    } else if (on instanceof Shape) {
-        throw new Error("Unexpected shape type");
+    if (is_finite_geometry(on)) {
+        on_shape = as_polyline(on);
     }
 
     let from_shape: Polyline | null = null;
-    if (from instanceof Shape) {
-        from_shape = from.as_polyline();
-    } else if (from instanceof Vector) {
-        from_shape = Polyline.from_verticies([from]);
-    } else if (Array.isArray(from)) {
-        from_shape = Polyline.from_verticies(from);
-    } else if (from instanceof Shape) {
-        throw new Error("Unexpected shape type");
+    if (is_finite_geometry(from)) {
+        on_shape = as_polyline(from);
     }
 
     // Open: (Line | Ray) x smth
@@ -45,7 +34,7 @@ export function closest_vectors(
         if (from instanceof Line) {
             const res = Shape.closest_shape_positions(
                 on_shape,
-                make_line_to_relevant_polyline(from, on_shape),
+                make_line_to_relevant_polyline_for_closest_vec(from, on_shape),
             );
             if (!res) return res;
             return [res[0].vec, res[1].vec];
@@ -54,7 +43,7 @@ export function closest_vectors(
         if (from instanceof Ray) {
             const res = Shape.closest_shape_positions(
                 on_shape,
-                make_ray_to_relevant_polyline(from, on_shape),
+                make_ray_to_relevant_polyline_for_closest_vec(from, on_shape),
             );
             if (!res) return res;
             return [res[0].vec, res[1].vec];
@@ -67,7 +56,7 @@ export function closest_vectors(
         // on is line or ray
         if (on instanceof Line) {
             const res = Shape.closest_shape_positions(
-                make_line_to_relevant_polyline(on, from_shape),
+                make_line_to_relevant_polyline_for_closest_vec(on, from_shape),
                 from_shape,
             );
             if (!res) return res;
@@ -76,7 +65,7 @@ export function closest_vectors(
 
         if (on instanceof Ray) {
             const res = Shape.closest_shape_positions(
-                make_ray_to_relevant_polyline(on, from_shape),
+                make_ray_to_relevant_polyline_for_closest_vec(on, from_shape),
                 from_shape,
             );
             if (!res) return res;
@@ -115,7 +104,10 @@ export function closest_vectors(
     return [p2, q2];
 }
 
-export function make_line_to_relevant_polyline(l: Line, s: Shape): Polyline {
+export function make_line_to_relevant_polyline_for_closest_vec(
+    l: Line,
+    s: Shape,
+): Polyline {
     if (s.positions.length == 0) {
         return Polyline.from_verticies([Vector.ZERO]);
     }
@@ -138,7 +130,10 @@ export function make_line_to_relevant_polyline(l: Line, s: Shape): Polyline {
     return Polyline.from_verticies([points[1]!, points[3]!]);
 }
 
-export function make_ray_to_relevant_polyline(r: Ray, s: Shape): Polyline {
+export function make_ray_to_relevant_polyline_for_closest_vec(
+    r: Ray,
+    s: Shape,
+): Polyline {
     if (s.positions.length == 0) {
         return Polyline.from_verticies([Vector.ZERO]);
     }

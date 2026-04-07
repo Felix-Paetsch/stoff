@@ -1,7 +1,12 @@
+import { EPS } from "@/Core/numerics";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
+import { resample_line_points } from "./algorithms/resample";
+import { Radians } from "../types";
+import { resample_strict } from "./algorithms/resample_strict";
+import { remove_dub } from "./algorithms/remove_dub";
 
 export class Polyline extends Shape {
     constructor(positions: Float64Array | Vector[]) {
@@ -137,8 +142,47 @@ export class Polyline extends Shape {
         return Polyline.from_verticies(res);
     }
 
+    is_straight(): boolean {
+        if (this.vertex_count < 2) {
+            return false;
+        }
+
+        const endpoint_vec = this.last()!.subtract(this.first()!);
+        const verticies = this.verticies;
+
+        for (let i = 0; i < verticies.length - 1; i++) {
+            const vec = verticies[i + 1]!.subtract(verticies[i]!);
+            const cross = vec.cross(endpoint_vec);
+
+            if (!EPS.is_zero(cross)) return false;
+        }
+
+        return true;
+    }
+
     static override from_function(fn: Shape.PolylineFunction): Polyline {
         const vectors = vectors_from_polyline_function(fn);
         return new Polyline(vectors);
+    }
+
+    resample(
+        smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
+        sample_spacing: number | null = null,
+    ): Polyline {
+        return new Polyline(
+            resample_line_points(
+                this.verticies,
+                smoothness_angle,
+                sample_spacing,
+            ),
+        );
+    }
+
+    resample_strict(sample_spacing: number | null = null): Polyline {
+        return resample_strict(this, sample_spacing);
+    }
+
+    remove_dubplicates(): Polyline {
+        return remove_dub(this);
     }
 }

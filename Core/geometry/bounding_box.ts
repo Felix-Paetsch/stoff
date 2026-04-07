@@ -1,18 +1,36 @@
 import { Vector } from "./vector";
 
 export class BoundingBox {
-    public is_empty: boolean = false;
+    readonly is_empty: boolean;
+    readonly width: number;
+    readonly height: number;
+    readonly top_left: Vector;
+    readonly top_right: Vector;
+    readonly bottom_left: Vector;
+    readonly bottom_right: Vector;
+
     constructor(
         readonly min_x: number,
         readonly min_y: number,
         readonly max_x: number,
         readonly max_y: number,
-    ) {}
+    ) {
+        const w = this.max_x - this.min_x;
+        this.width = Number.isFinite(w) ? w : 0;
+
+        const h = this.max_y - this.min_y;
+        this.height = Number.isFinite(h) ? h : 0;
+
+        this.top_left = new Vector(this.min_x, this.min_y);
+        this.top_right = new Vector(this.max_x, this.min_y);
+        this.bottom_left = new Vector(this.min_x, this.max_y);
+        this.bottom_right = new Vector(this.max_x, this.max_y);
+
+        this.is_empty = min_x <= max_x;
+    }
 
     static empty() {
-        const bb = new BoundingBox(Infinity, Infinity, -Infinity, -Infinity);
-        bb.is_empty = true;
-        return bb;
+        return new BoundingBox(Infinity, Infinity, -Infinity, -Infinity);
     }
 
     static from_points(points: Vector[]) {
@@ -59,31 +77,5 @@ export class BoundingBox {
                     b.bottom_right,
                 ]),
         );
-    }
-
-    get width() {
-        const r = this.max_x - this.min_x;
-        return Number.isFinite(r) ? r : 0;
-    }
-
-    get height() {
-        const r = this.max_y - this.min_y;
-        return Number.isFinite(r) ? r : 0;
-    }
-
-    get top_left() {
-        return new Vector(this.min_x, this.min_y);
-    }
-
-    get top_right() {
-        return new Vector(this.max_x, this.min_y);
-    }
-
-    get bottom_left() {
-        return new Vector(this.min_x, this.max_y);
-    }
-
-    get bottom_right() {
-        return new Vector(this.max_x, this.max_y);
     }
 }
