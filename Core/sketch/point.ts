@@ -1,4 +1,4 @@
-import { BoundingBox, Vector } from "../geometry";
+import { BoundingBox, Vector } from "../../geometrytry";
 import { ConnectedComponent } from "./collection/connected_component";
 import { expect } from "../expect";
 import { Sketch } from "./sketch";

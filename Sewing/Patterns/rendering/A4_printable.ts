@@ -1,6 +1,6 @@
 import { SVG_Builder } from "@/Core/files/svg/svg_builder";
-import { Vector } from "@/Core/geometry";
-import { Polygon } from "@/Core/geometry/shapes/polygon";
+import { Vector } from "@/geometry_oldy
+import { Polygon } from "@/geometry_old/shapes/polygonn
 import CONF from "../../../config.json" with { type: "json" };
 
 const PX_PER_CM = CONF.PX_PER_CM;

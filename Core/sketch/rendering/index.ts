@@ -6,12 +6,12 @@ import {
     PointRenderAttributes,
 } from "@/Core/files/svg/render_attributes";
 import { Sketch } from "@/Core/sketch/sketch";
-import { Polygon } from "@/Core/geometry/shapes/polygon";
-import { is_polygon } from "@/Core/geometry/shapes";
+import { Polygon } from "@/geometry_old/shapes/polygonn
+import { is_polygon } from "@/geometry_old/shapess
 import { Line } from "@/Core/sketch/line";
 import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
-import { BoundingBox } from "@/Core/geometry";
+import { BoundingBox } from "@/geometry_oldy
 
 export function render_sketch(
     s: Sketch,

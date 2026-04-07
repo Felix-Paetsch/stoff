@@ -1,6 +1,6 @@
 import { Sketch } from "@/Core/sketch/sketch";
 import { BoundShirtSideMeasurements } from "./measurement_utils";
-import { Vector } from "@/Core/geometry";
+import { Vector } from "@/geometry_oldy
 import { get_lines_between_points } from "@/Core/sketch/collection";
 
 export function construct_base_tshirt_parts(

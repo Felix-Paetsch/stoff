@@ -8,7 +8,7 @@ import {
     AvoidantConnectedComponent,
     ConnectedComponent,
 } from "../../collection/connected_component";
-import { affine_transform_from_input_output } from "../../../geometry";
+import { affine_transform_from_input_output } from "../../../../geometrytry";
 import { lines_by_key } from "../../collection";
 
 export type GlueIdent = Line | [Point, Point] | [Line, Point];

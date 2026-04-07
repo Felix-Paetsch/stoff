@@ -5,7 +5,7 @@ import {
     Radians,
     Length,
     EPS,
-} from "../../geometry";
+} from "../../../geometrytry";
 import { Line } from "../line";
 import { Point } from "../point";
 import { Sketch } from "./index";
@@ -15,9 +15,9 @@ import {
     CopySketchObjectDataCallback,
     default_data_callback,
 } from "../collection/copy";
-import { is_polygon, Shape, to_shape } from "../../geometry/shapes/polyline";
+import { is_polygon, Shape, to_shape } from "../../../geometry_old/shapes/polylineine";
 import { interpolate_shapes } from "../../../ShapeManipulation/interpolate";
-import { merge_shapes } from "@/Core/geometry/shapes/unstructured/merge";
+import { merge_shapes } from "@/geometry_old/shapes/unstructured/mergee
 
 export function line_between_points(pt1: Point, pt2: Point) {
     expect(same_sketch(pt1, pt2));

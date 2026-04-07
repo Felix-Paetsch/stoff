@@ -1,6 +1,6 @@
 // Here could be an image in the folder which shows the things
 
-import { pythagoras, pythagorasN } from "@/Core/geometry/1d";
+import { pythagoras, pythagorasN } from "@/geometry_old/1dd
 import { BowlCozyConfig } from ".";
 
 export type Bowl_Measurements = {

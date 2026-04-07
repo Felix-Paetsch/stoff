@@ -1,5 +1,5 @@
-import { EPS, Vector, ZERO } from "@/Core/geometry";
-import { PolygonVectors, PolylineVectors } from "@/Core/geometry/shapes";
+import { EPS, Vector, ZERO } from "@/geometry_oldy
+import { PolygonVectors, PolylineVectors } from "@/geometry_old/shapess
 import CONF from "../config.json" with { type: "json" };
 
 export function polyline_smooth_out(

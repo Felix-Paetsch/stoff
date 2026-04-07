@@ -1,4 +1,4 @@
-import { Vector, ZERO } from "../../geometry";
+import { Vector, ZERO } from "../../../geometrytry";
 import { Point } from "../point";
 import { Sketch } from "../sketch";
 import { same_sketch } from "./exports";

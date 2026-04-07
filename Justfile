@@ -9,3 +9,6 @@ dev-typecheck:
 
 dev-output:
     nsxiv -a /home/Felix/work/Stoff/Dev/Debug/output/scene.png &
+
+build:
+    cd Core/rust && wasm-pack build --target web

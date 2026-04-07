@@ -1,5 +1,5 @@
-import { Fraction, Vector } from "@/Core/geometry";
-import { Shape, ShapeFunction } from "@/Core/geometry/shapes";
+import { Fraction, Vector } from "@/geometry_oldy
+import { Shape, ShapeFunction } from "@/geometry_old/shapess
 
 export type NumberFunction = (t: Fraction) => Fraction;
 

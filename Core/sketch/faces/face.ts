@@ -1,4 +1,8 @@
-import { BoundingBox, polygon_contains_point, Vector } from "../../geometry";
+import {
+    BoundingBox,
+    polygon_contains_point,
+    Vector,
+} from "../../../geometrytry";
 import { Line } from "../line";
 import { Point } from "../point";
 import { ConnectedFaceComponent } from "./connectedFaceComponent";

@@ -7,7 +7,7 @@ import {
     BoundingBox,
     convex_hull as GeometryConvexHull,
     Vector,
-} from "../../../geometry";
+} from "../../../../geometrytry";
 
 export function get_bounding_box(
     ec: SketchElementCollection,

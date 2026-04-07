@@ -5,7 +5,7 @@ import {
 import { BowlCozyConfig } from ".";
 import { Sketch } from "@/Core/sketch/sketch";
 import { get_points } from "@/Core/sketch/collection";
-import { deg_to_rad, Vector } from "@/Core/geometry";
+import { deg_to_rad, Vector } from "@/geometry_oldy
 
 export function draw_base_pattern(s: Sketch, cfg: BowlCozyConfig) {
     const mea = calculate_sidelengths(cfg);

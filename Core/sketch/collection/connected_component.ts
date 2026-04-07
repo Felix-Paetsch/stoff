@@ -3,7 +3,12 @@ import { SketchElement } from "../types";
 import { Point } from "../point";
 import { Line } from "../line";
 import { Sketch } from "../sketch";
-import { BoundingBox, mirror_type, MirrorData, Vector } from "../../geometry";
+import {
+    BoundingBox,
+    mirror_type,
+    MirrorData,
+    Vector,
+} from "../../../geometrytry";
 import { expect } from "@/Core/expect";
 import { same_sketch } from "../expect_methods/exports";
 

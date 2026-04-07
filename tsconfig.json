@@ -29,7 +29,7 @@
             "@/*": ["./*"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Core/geometry/shapes/algorithms/intersect_lines.ts.tmp", "DevEnv/Debug/scenes/triangle.ts.broken", "DevEnv/Debug/scenes/test.ts.broken", "DevEnv/Debug/scenes/index.ts.broken", "DevEnv/Debug/scenes/heart.ts.broken", "DevEnv/Debug/scenes/dev.ts.broken"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "geometry/shapes/algorithms/intersect_lines.ts.tmpevEnv/Debug/scenes/triangle.ts.broken", "DevEnv/Debug/scenes/test.ts.broken", "DevEnv/Debug/scenes/index.ts.broken", "DevEnv/Debug/scenes/heart.ts.broken", "DevEnv/Debug/scenes/dev.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",

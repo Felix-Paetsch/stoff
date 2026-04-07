@@ -1,4 +1,4 @@
-import { Interval } from "../../geometry/1d";
+import { Interval } from "../../../geometry_old/1d/1d";
 import { Quadrature } from "../quadrature";
 
 export function arc_length_intergrand(f: (x: number) => number) {

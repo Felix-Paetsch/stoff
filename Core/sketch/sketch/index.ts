@@ -5,7 +5,7 @@ import {
     CopySketchObjectDataCallback,
     default_data_callback,
 } from "../collection/copy";
-import { UP, Vector, Length, Radians } from "../../geometry";
+import { UP, Vector, Length, Radians } from "../../../geometrytry";
 import { Line } from "../line";
 import { Point } from "../point";
 
@@ -26,8 +26,8 @@ import {
     ConnectedComponent,
 } from "../collection/connected_component";
 import { expect } from "../../expect";
-import { Shape } from "../../geometry/shapes";
-import { Polyline } from "../../geometry/shapes/polyline";
+import { Shape } from "../../../geometry_old/shapespes";
+import { Polyline } from "../../../geometry_old/shapes/polylineine";
 
 export class Sketch {
     private points: Point[] = [];

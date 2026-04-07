@@ -1,7 +1,7 @@
 import { Line } from "../../line";
 import { Point } from "../../point";
 import { Sketch } from "..";
-import { Vector, VERTICAL } from "../../../geometry";
+import { Vector, VERTICAL } from "../../../../geometrytry";
 import {
     calculate_cut_groups_no_fixed_point,
     calculate_cut_groups_with_fixed_point,

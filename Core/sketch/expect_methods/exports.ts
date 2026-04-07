@@ -1,4 +1,4 @@
-import { EPS, Vector } from "../../geometry";
+import { EPS, Vector } from "../../../geometrytry";
 import { merge_validations } from "../../expect";
 import { Point } from "../point";
 import { Line } from "../line";

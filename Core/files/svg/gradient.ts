@@ -1,7 +1,7 @@
 import { Gradient, interpolate_colors } from "@/Core/colors";
 import { SVG_Builder } from "./svg_builder";
 import { unique_string } from "@/Core/utils/unique";
-import { BoundingBox, Fraction, Radians, Vector } from "@/Core/geometry";
+import { BoundingBox, Fraction, Radians, Vector } from "@/geometry_oldy
 
 export class SVGGradient {
     constructor(

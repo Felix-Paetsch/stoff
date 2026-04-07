@@ -1,4 +1,4 @@
-import { EPS } from "@/Core/geometry";
+import { EPS } from "@/geometry_oldy
 import { Point } from "@/Core/sketch/point";
 import { Line } from "@/Core/sketch/line";
 import { Sketch } from "@/Core/sketch/sketch";

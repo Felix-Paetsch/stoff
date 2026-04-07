@@ -1,4 +1,4 @@
-import { Interval } from "../../geometry/1d";
+import { Interval } from "../../../geometry_old/1d/1d";
 
 const TotalMaxIterations = 10001;
 

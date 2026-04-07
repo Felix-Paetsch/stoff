@@ -1,4 +1,4 @@
-import { EPS } from "@/Core/geometry/eps";
+import { EPS } from "@/geometry_old/epss
 import { SearchResult, TerminationCriteria } from ".";
 
 const TotalMaxIterations = 10001;

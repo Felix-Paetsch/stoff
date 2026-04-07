@@ -6,7 +6,7 @@ import {
     SketchElementCollection,
     StoffObjectData,
 } from "../types";
-import { Vector } from "@/Core/geometry";
+import { Vector } from "@/geometry_oldy
 import { endpoint_hull } from ".";
 import { get_points, get_lines } from ".";
 

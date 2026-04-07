@@ -24,3 +24,6 @@ notes
 !Data/PreviewPictures/**/*.svg
 dist
 **/*.pdf
+
+rust/pkg
+rust/target

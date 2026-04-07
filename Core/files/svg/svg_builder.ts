@@ -1,5 +1,5 @@
-import { Polygon } from "../../geometry/shapes/polygon";
-import { Polyline } from "../../geometry/shapes/polyline";
+import { Polygon } from "../../../geometry_old/shapes/polygongon";
+import { Polyline } from "../../../geometry_old/shapes/polylineine";
 import { Json } from "../../utils/json";
 import {
     defaultLineRenderAttributes,
@@ -13,7 +13,7 @@ import {
 } from "./render_attributes";
 import { colorToHex, Gradient } from "@/Core/colors";
 import { SVGGradient } from "./gradient";
-import { Vector, ZERO } from "@/Core/geometry";
+import { Vector, ZERO } from "@/geometry_oldy
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];

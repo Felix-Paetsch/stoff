@@ -1,33 +1,33 @@
+import { Radians } from "./types";
 import { expect } from "../expect";
-import { EPS } from "./eps";
-import { Length, Radians } from "./types";
+import { EPS } from "../numerics";
 
 export type Triangle = {
-    a: Length;
-    b: Length;
-    c: Length;
+    a: number;
+    b: number;
+    c: number;
     alpha: Radians;
     beta: Radians;
     gamma: Radians;
 };
 
 export type TriangleSpecification =
-    | { a: Length; b: Length; c: Length }
-    | { a: Length; b: Length; gamma: Radians }
-    | { a: Length; c: Length; beta: Radians }
-    | { b: Length; c: Length; alpha: Radians }
-    | { a: Length; alpha: Radians; beta: Radians }
-    | { a: Length; alpha: Radians; gamma: Radians }
-    | { b: Length; beta: Radians; alpha: Radians }
-    | { b: Length; beta: Radians; gamma: Radians }
-    | { c: Length; gamma: Radians; alpha: Radians }
-    | { c: Length; gamma: Radians; beta: Radians }
-    | { a: Length; b: Length; alpha: Radians; SSA?: boolean }
-    | { a: Length; c: Length; alpha: Radians; SSA?: boolean }
-    | { b: Length; a: Length; beta: Radians; SSA?: boolean }
-    | { b: Length; c: Length; beta: Radians; SSA?: boolean }
-    | { c: Length; a: Length; gamma: Radians; SSA?: boolean }
-    | { c: Length; b: Length; gamma: Radians; SSA?: boolean }
+    | { a: number; b: number; c: number }
+    | { a: number; b: number; gamma: Radians }
+    | { a: number; c: number; beta: Radians }
+    | { b: number; c: number; alpha: Radians }
+    | { a: number; alpha: Radians; beta: Radians }
+    | { a: number; alpha: Radians; gamma: Radians }
+    | { b: number; beta: Radians; alpha: Radians }
+    | { b: number; beta: Radians; gamma: Radians }
+    | { c: number; gamma: Radians; alpha: Radians }
+    | { c: number; gamma: Radians; beta: Radians }
+    | { a: number; b: number; alpha: Radians; SSA?: boolean }
+    | { a: number; c: number; alpha: Radians; SSA?: boolean }
+    | { b: number; a: number; beta: Radians; SSA?: boolean }
+    | { b: number; c: number; beta: Radians; SSA?: boolean }
+    | { c: number; a: number; gamma: Radians; SSA?: boolean }
+    | { c: number; b: number; gamma: Radians; SSA?: boolean }
     | { alpha: Radians; beta: Radians; gamma: Radians };
 
 type SideKey = "a" | "b" | "c";
@@ -41,7 +41,7 @@ function oppositeSide(angle: AngleKey): SideKey {
     return angle === "alpha" ? "a" : angle === "beta" ? "b" : "c";
 }
 
-export function triangle_data(triangle: TriangleSpecification): Triangle {
+export function from_specification(triangle: TriangleSpecification): Triangle {
     const { SSA = true, ...input } = triangle as TriangleSpecification & {
         SSA?: boolean;
     };
@@ -235,7 +235,7 @@ export function triangle_data(triangle: TriangleSpecification): Triangle {
         "Triangle could not be fully resolved",
     );
 
-    if (Math.abs(Alpha! + Beta! + Gamma! - Math.PI) > EPS.MEDIUM) {
+    if (EPS.equal(Alpha! + Beta! + Gamma!, Math.PI)) {
         throw new Error("Invalid triangle");
     }
 
@@ -247,4 +247,12 @@ export function triangle_data(triangle: TriangleSpecification): Triangle {
         beta: Beta!,
         gamma: Gamma!,
     };
+}
+
+export function pythagoras(w: number, h: number): number {
+    return Math.sqrt(w * w + h * h);
+}
+
+export function pythagorasN(c: number, a: number): number {
+    return Math.sqrt(c * c - a * a);
 }

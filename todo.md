@@ -142,3 +142,6 @@ svg.use_gradient(): SVGGradient
 [] unify what angle mean
 [] more suffisticated Numerics.eps
 [] Clean up geometry methods
+[] figure out more with numerics, maybe neeeed to give custom values..
+[] for what do I need geo?
+[] rust code actions

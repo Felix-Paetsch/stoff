@@ -1,4 +1,4 @@
-import { Vector } from "./classes.js";
+import { Vector } from "./vector";
 
 export class BoundingBox {
     public is_empty: boolean = false;
@@ -7,29 +7,34 @@ export class BoundingBox {
         readonly min_y: number,
         readonly max_x: number,
         readonly max_y: number,
-        readonly min_bb: [number, number] = [0, 0]
-    ) { }
+    ) {}
 
-    static empty(min_bb: [number, number] = [0, 0]) {
-        const bb = new BoundingBox(0, 0, 0, 0, min_bb);
+    static empty() {
+        const bb = new BoundingBox(Infinity, Infinity, -Infinity, -Infinity);
         bb.is_empty = true;
         return bb;
     }
 
-    static from_points(points: Vector[], min_bb: [number, number] = [0, 0]) {
-        const min_x = Math.min(...points.map(p => p.x));
-        const min_y = Math.min(...points.map(p => p.y));
-        const max_x = Math.max(...points.map(p => p.x));
-        const max_y = Math.max(...points.map(p => p.y));
+    static from_points(points: Vector[]) {
         if (points.length === 0) {
-            return BoundingBox.empty(min_bb);
+            return BoundingBox.empty();
         }
-        return new BoundingBox(min_x, min_y, max_x, max_y, min_bb);
+
+        const min_x = Math.min(...points.map((p) => p.x));
+        const min_y = Math.min(...points.map((p) => p.y));
+        const max_x = Math.max(...points.map((p) => p.x));
+        const max_y = Math.max(...points.map((p) => p.y));
+
+        return new BoundingBox(min_x, min_y, max_x, max_y);
     }
 
     intersects(other: BoundingBox) {
-        return this.min_x <= other.max_x && this.max_x >= other.min_x &&
-            this.min_y <= other.max_y && this.max_y >= other.min_y;
+        return (
+            this.min_x <= other.max_x &&
+            this.max_x >= other.min_x &&
+            this.min_y <= other.max_y &&
+            this.max_y >= other.min_y
+        );
     }
 
     merge(others: BoundingBox[]) {
@@ -37,93 +42,48 @@ export class BoundingBox {
     }
 
     center() {
-        return new Vector((this.min_x + this.max_x) / 2, (this.min_y + this.max_y) / 2);
+        return new Vector(
+            (this.min_x + this.max_x) / 2,
+            (this.min_y + this.max_y) / 2,
+        );
     }
 
-    with_min_bb(min_bb: [number, number]) {
-        return new BoundingBox(this.min_x, this.min_y, this.max_x, this.max_y, min_bb);
-    }
-
-    static merge(boxes: BoundingBox[], min_bb: [number, number] | null = null) {
-        if (min_bb === null) {
-            min_bb = [0, 0];
-            boxes.forEach(b => {
-                if (b.min_bb[0] > min_bb![0]) {
-                    min_bb![0] = b.min_bb[0]
-                }
-                if (b.min_bb[1] > min_bb![1]) {
-                    min_bb![1] = b.min_bb[1]
-                }
-            });
-        }
-
+    static merge(boxes: BoundingBox[]) {
         return BoundingBox.from_points(
-            boxes.filter(b => !b.is_empty).flatMap(b => [b.actual_top_left, b.actual_top_right, b.actual_bottom_left, b.actual_bottom_right]),
-            min_bb!
+            boxes
+                .filter((b) => !b.is_empty)
+                .flatMap((b) => [
+                    b.top_left,
+                    b.top_right,
+                    b.bottom_left,
+                    b.bottom_right,
+                ]),
         );
     }
 
     get width() {
-        return Math.max(this.actual_width, this.min_bb[0]);
+        const r = this.max_x - this.min_x;
+        return Number.isFinite(r) ? r : 0;
     }
 
     get height() {
-        return Math.max(this.actual_height, this.min_bb[1]);
+        const r = this.max_y - this.min_y;
+        return Number.isFinite(r) ? r : 0;
     }
 
     get top_left() {
-        return new Vector(
-            this.min_x - adjust_for_minimial_bb(this.min_bb[0], this.actual_width),
-            this.min_y - adjust_for_minimial_bb(this.min_bb[1], this.actual_height)
-        );
-    }
-
-    get top_right() {
-        return new Vector(
-            this.max_x + adjust_for_minimial_bb(this.min_bb[0], this.actual_width),
-            this.min_y - adjust_for_minimial_bb(this.min_bb[1], this.actual_height)
-        );
-    }
-
-    get bottom_left() {
-        return new Vector(
-            this.min_x - adjust_for_minimial_bb(this.min_bb[0], this.actual_width),
-            this.max_y + adjust_for_minimial_bb(this.min_bb[1], this.actual_height)
-        );
-    }
-
-    get bottom_right() {
-        return new Vector(
-            this.max_x + adjust_for_minimial_bb(this.min_bb[0], this.actual_width),
-            this.max_y + adjust_for_minimial_bb(this.min_bb[1], this.actual_height)
-        );
-    }
-
-    get actual_width() {
-        return this.max_x - this.min_x;
-    }
-
-    get actual_height() {
-        return this.max_y - this.min_y;
-    }
-
-    get actual_top_left() {
         return new Vector(this.min_x, this.min_y);
     }
 
-    get actual_top_right() {
+    get top_right() {
         return new Vector(this.max_x, this.min_y);
     }
 
-    get actual_bottom_left() {
+    get bottom_left() {
         return new Vector(this.min_x, this.max_y);
     }
 
-    get actual_bottom_right() {
+    get bottom_right() {
         return new Vector(this.max_x, this.max_y);
     }
-}
-
-function adjust_for_minimial_bb(min_value: number, actual_value: number) {
-    return Math.max(0, (min_value - actual_value)) / 2;
 }

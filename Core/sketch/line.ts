@@ -10,7 +10,7 @@ import {
     PlainLine,
     polygon_orientation,
     Vector,
-} from "../geometry";
+} from "../../geometrytry";
 import { Cache } from "../utils/cache";
 import { ConnectedComponent } from "./collection/connected_component";
 import { copy_sketch_element_collection } from "./collection/copy";
@@ -25,7 +25,7 @@ import {
     Polyline,
     Shape,
     to_shape,
-} from "../geometry/shapes/polyline";
+} from "../../geometry_old/shapes/polylineine";
 
 export class Line {
     public data: StoffObjectData = {};
