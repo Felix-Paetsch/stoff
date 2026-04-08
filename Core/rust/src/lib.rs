@@ -8,3 +8,5 @@ mod intersection_bools;
 mod intersections;
 mod polygons_and_points;
 mod utils;
+mod winding;
+

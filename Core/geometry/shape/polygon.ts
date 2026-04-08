@@ -7,11 +7,12 @@ import { Radians } from "../types";
 import { resample_strict } from "./algorithms/resample_strict";
 import { remove_dub } from "./algorithms/remove_dub";
 import { FiniteGeometry } from "..";
-import { contains, f64_to_vec_array } from "@/Core/rust/exports";
+import { contains } from "@/Core/rust/exports";
 import { as_polyline } from "../geometry/utils";
 import { area, contains_properly } from "@/Core/rust/exports";
 import { centroid, interior_point } from "@/Core/rust/pkg/stoff_rust";
 import { coordinate_position } from "@/Core/rust/pkg/stoff_rust";
+import { winding } from "@/Core/rust/pkg/stoff_rust";
 
 export class Polygon extends Shape {
     // A polygon has the last line segment implicit. However a duplicate point doesn't matter.
@@ -64,8 +65,8 @@ export class Polygon extends Shape {
         return Polygon.from_verticies(res);
     }
 
-    root() {
-        return this.verticies.length > 0 ? this.verticies[0] : null;
+    root(): Vector | null {
+        return this.verticies.length > 0 ? this.verticies[0]! : null;
     }
 
     static override from_function(fn: Shape.PolylineFunction): Polygon {
@@ -147,5 +148,18 @@ export class Polygon extends Shape {
         if (pos == -1) return "outside";
         if (pos == 0) return "inside";
         return "on_boundary";
+    }
+
+    orientation(): "cw" | "ccw" | "none" {
+        const res = winding(this.positions);
+        if (res == 0) return "none";
+        if (res == 1) return "cw";
+        return "ccw";
+    }
+
+    reverse(): Polygon {
+        if (this.is_empty()) return this;
+        const vert: Vector[] = this.verticies.slice(1).reverse();
+        return new Polygon([this.root() as Vector].concat(vert));
     }
 }

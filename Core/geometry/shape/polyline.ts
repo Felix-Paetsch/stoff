@@ -185,4 +185,8 @@ export class Polyline extends Shape {
     remove_dubplicates(): Polyline {
         return remove_dub(this);
     }
+
+    reverse(): Polyline {
+        return new Polyline([...this.verticies].reverse());
+    }
 }

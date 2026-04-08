@@ -1,4 +1,4 @@
-use geo::{Coord, LineString};
+use geo::{Coord, Geometry, LineString, Polygon};
 
 pub fn vecf64_to_linestring(coords: &[f64]) -> Option<LineString> {
     if !coords.len().is_multiple_of(2) {
@@ -23,29 +23,25 @@ where
         .collect()
 }
 
-// The line strings are expected to be seperated with Nans
+// The line strings are expected to be prefixed with a nan each
 pub fn vecf64_to_linestring_vec(coords: &[f64]) -> Option<Vec<LineString>> {
     let mut result = Vec::new();
     let mut current = Vec::new();
+    let mut started = false;
 
     for &v in coords {
         if v.is_nan() {
-            if current.is_empty() {
-                result.push(LineString::new(vec![]));
-            } else {
+            if started {
                 result.push(vecf64_to_linestring(&current)?);
                 current.clear();
             }
+            started = true;
         } else {
             current.push(v);
         }
     }
 
-    if current.is_empty() {
-        if coords.last().map_or(false, |v| v.is_nan()) {
-            result.push(LineString::new(vec![]));
-        }
-    } else {
+    if started && !current.is_empty() {
         result.push(vecf64_to_linestring(&current)?);
     }
 
@@ -58,16 +54,19 @@ where
     J: IntoIterator<Item = &'a Coord>,
 {
     let mut result = Vec::new();
-    let mut first = true;
 
     for line in lines {
-        if !first {
-            result.push(f64::NAN);
-        }
-        first = false;
-
+        result.push(f64::NAN);
         result.extend(line.into_iter().flat_map(|point| [point.x, point.y]));
     }
 
     result
+}
+
+pub fn linestring_as_geometry(l: LineString) -> Geometry {
+    if l.is_closed() {
+        Polygon::new(l, vec![]).into()
+    } else {
+        l.into()
+    }
 }

@@ -12,6 +12,9 @@ import {
     intersects,
     intersect,
     self_intersects,
+    buffer,
+    f64_arrays_to_f64,
+    split_f64_array,
 } from "../../rust/exports";
 import {
     make_line_to_relevant_polyline_for_closest_vec,
@@ -413,4 +416,17 @@ export abstract class Shape {
     static merge(sh1: Shape, sh2: Shape): Shape {
         return merge(sh1, sh2);
     }
+
+    buffer(distance: number): Polygon[] {
+        return Shape.buffer([this], distance);
+    }
+
+    static buffer(shapes: Shape[], distance: number): Polygon[] {
+        const positions = shapes.map((s) => s.as_polyline().positions);
+        const f64res = buffer(f64_arrays_to_f64(positions), distance);
+        const vec_res = split_f64_array(f64res);
+        return vec_res.map((r) => new Polygon(r));
+    }
+
+    abstract reverse(): Shape;
 }
