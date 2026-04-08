@@ -19,3 +19,5 @@ export function distance(g1: Geometry, g2: Geometry): number {
 export function is_finite_geometry(g: Geometry): g is FiniteGeometry {
     return !(g instanceof Line || g instanceof Ray);
 }
+
+export { intersections } from "./geometry/intersections";

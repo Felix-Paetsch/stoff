@@ -6,6 +6,12 @@ import { resample_polygon_points } from "./algorithms/resample";
 import { Radians } from "../types";
 import { resample_strict } from "./algorithms/resample_strict";
 import { remove_dub } from "./algorithms/remove_dub";
+import { FiniteGeometry } from "..";
+import { contains, f64_to_vec_array } from "@/Core/rust/exports";
+import { as_polyline } from "../geometry/utils";
+import { area, contains_properly } from "@/Core/rust/exports";
+import { centroid, interior_point } from "@/Core/rust/pkg/stoff_rust";
+import { coordinate_position } from "@/Core/rust/pkg/stoff_rust";
 
 export class Polygon extends Shape {
     // A polygon has the last line segment implicit. However a duplicate point doesn't matter.
@@ -87,5 +93,59 @@ export class Polygon extends Shape {
 
     remove_dubplicates(): Polygon {
         return remove_dub(this);
+    }
+
+    move_root(to: Vector | Shape.ShapePosition): Polygon {
+        if (this.is_empty()) return this;
+        if (to instanceof Vector) {
+            return this.move_root(this.closest_shape_position(to)!);
+        }
+
+        let res: Vector[] = [to.vec].concat(this.verticies.slice(to.index + 1));
+        res = res.concat(this.verticies.slice(0, to.index + 1));
+        return new Polygon(res);
+    }
+
+    contains(what: FiniteGeometry.FiniteGeometry): boolean {
+        if (this.is_empty()) return false;
+        let other: Shape = as_polyline(what);
+
+        return contains(this.positions, other.positions);
+    }
+
+    contains_properly(what: FiniteGeometry.FiniteGeometry): boolean {
+        if (this.is_empty()) return false;
+        let other: Shape = as_polyline(what);
+
+        return contains_properly(this.positions, other.positions);
+    }
+
+    area(): number {
+        if (this.vertex_count < 3) {
+            return 0;
+        }
+        return area(this.positions);
+    }
+
+    interior_point(): Vector | null {
+        const ip = interior_point(this.positions);
+        if (!ip) return null;
+
+        return new Vector(ip[0]!, ip[1]!);
+    }
+
+    centroid(): Vector | null {
+        const ip = centroid(this.positions);
+        if (!ip) return null;
+
+        return new Vector(ip[0]!, ip[1]!);
+    }
+
+    coordinate_position(v: Vector): "outside" | "inside" | "on_boundary" {
+        if (this.is_empty()) return "outside";
+        const pos = coordinate_position(this.positions, v.x, v.y);
+        if (pos == -1) return "outside";
+        if (pos == 0) return "inside";
+        return "on_boundary";
     }
 }

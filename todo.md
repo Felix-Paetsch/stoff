@@ -146,3 +146,7 @@ svg.use_gradient(): SVGGradient
 [] for what do I need geo?
 [] rust code actions
 [] from points vs from verticies?
+
+??? Embroidery?
+[] Chaikins algorithm (later for embroidery; doable via geo)
+[] concave full

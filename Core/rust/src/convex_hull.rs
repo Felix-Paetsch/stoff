@@ -11,5 +11,7 @@ pub fn convex_hull(coords: &[f64]) -> Option<Vec<f64>> {
     }
     let line = vecf64_to_linestring(coords)?;
     let res = line.convex_hull();
-    Some(coords_to_vecf64(res.exterior()))
+
+    // We reverse to go clockwise
+    Some(coords_to_vecf64(res.exterior().coords().rev()))
 }

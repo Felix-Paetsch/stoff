@@ -6,13 +6,20 @@ import { EPS } from "../../numerics";
 import { Fraction } from "../interval";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { Geometry, Line, Ray } from "..";
-import { closest_points, f64_to_vec_array } from "../../rust/exports";
+import {
+    closest_points,
+    f64_to_vec_array,
+    intersects,
+    intersect,
+    self_intersects,
+} from "../../rust/exports";
 import {
     make_line_to_relevant_polyline_for_closest_vec,
     make_ray_to_relevant_polyline_for_closest_vec,
 } from "../geometry/closest_vector";
 import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
-import { merge } from "../geometry/merge";
+import { merge } from "./algorithms/merge";
+import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
 
 export namespace Shape {
     export type PolylineFunction = (t: Fraction) => Vector;
@@ -23,6 +30,7 @@ export namespace Shape {
         index: number; // Line segment index
         frac: Fraction; // Fraction to next
     };
+    export type Shape = Polyline | Polygon;
 }
 
 export abstract class Shape {
@@ -320,6 +328,81 @@ export abstract class Shape {
                 frac: closest[7]!,
             },
         ];
+    }
+
+    intersection_positions(g: Geometry.Geometry): Shape.ShapePosition[] {
+        let gShape: Shape;
+
+        if (g instanceof Shape) {
+            gShape = g;
+        } else if (g instanceof Line) {
+            gShape = make_line_to_relevant_polyline_for_closest_vec(g, this);
+        } else if (g instanceof Ray) {
+            gShape = make_ray_to_relevant_polyline_for_closest_vec(g, this);
+        } else if (Array.isArray(g)) {
+            gShape = new Polyline(g);
+        } else {
+            gShape = new Polyline([g]);
+        }
+
+        return Shape.shape_intersection_positions(this, gShape).map(
+            (p) => p[0],
+        );
+    }
+
+    intersects(g: Geometry.Geometry): boolean {
+        let gShape: Shape;
+
+        if (g instanceof Shape) {
+            gShape = g;
+        } else if (g instanceof Line) {
+            gShape = make_line_to_relevant_polyline_for_closest_vec(g, this);
+        } else if (g instanceof Ray) {
+            gShape = make_ray_to_relevant_polyline_for_closest_vec(g, this);
+        } else if (Array.isArray(g)) {
+            gShape = new Polyline(g);
+        } else {
+            gShape = new Polyline([g]);
+        }
+
+        return intersects(this.positions, gShape.positions);
+    }
+
+    self_intersects(): boolean {
+        if (this.vertex_count < 3) return false;
+        let r = self_intersects(this.positions, this instanceof Polygon);
+        return r;
+    }
+
+    static shape_intersection_positions(
+        sh1: Shape,
+        sh2: Shape,
+    ): [Shape.ShapePosition, Shape.ShapePosition][] {
+        const shl1 = sh1.as_polyline();
+        const shl2 = sh2.as_polyline();
+
+        const ip_arr = intersect(shl1.positions, shl2.positions);
+        if (!ip_arr) return [];
+
+        const ip = decode_intersection_positions(ip_arr!);
+        if (ip.length < 2) return ip;
+
+        if (sh2 instanceof Polygon) {
+            ip.sort(([_, a], [__, b]) => b.index + b.frac - a.index - a.frac);
+            if (ip[0]![0].vec.distance(ip[ip.length - 1]![0].vec) < EPS.tiny) {
+                ip.pop();
+            }
+        }
+
+        ip.sort(([a, _], [b, __]) => b.index + b.frac - a.index - a.frac);
+
+        if (sh1 instanceof Polygon) {
+            if (ip[0]![0].vec.distance(ip[ip.length - 1]![0].vec) < EPS.tiny) {
+                ip.pop();
+            }
+        }
+
+        return ip;
     }
 
     static merge(sh1: Polygon, sh2: Polygon): Polygon;

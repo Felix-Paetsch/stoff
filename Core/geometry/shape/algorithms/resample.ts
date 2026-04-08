@@ -89,6 +89,10 @@ function spline_for_line_segment(
     const p1 = line[leftIndex]!;
     const p2 = line[leftIndex + 1]!;
 
+    if (p1.distance(p2) < EPS.tiny) {
+        return (t) => Vector.lerp(p1, p2, t);
+    }
+
     const p0 = find_previous_distinct_point(line, leftIndex - 1, p1);
     const p3 = find_next_distinct_point(line, leftIndex + 2, p2);
 
@@ -127,6 +131,10 @@ function spline_for_polygon_segment(
     const n = line.length;
     const p1 = line[leftIndex]!;
     const p2 = line[(leftIndex + 1) % n]!;
+
+    if (p1.distance(p2) < EPS.tiny) {
+        return (t) => Vector.lerp(p1, p2, t);
+    }
 
     const p0 = find_previous_distinct_point_wrapped(line, leftIndex);
     const p3 = find_next_distinct_point_wrapped(line, (leftIndex + 1) % n);

@@ -23,7 +23,7 @@ export function bounding_box(...geometries: FiniteGeometry[]) {
 export function convex_hull(...geometries: FiniteGeometry[]): null | Polygon {
     const positions = merge_float_arrays(
         geometries.map((g) => as_polyline(g)).map((g) => g.positions),
-    ).reverse();
+    );
     const gon = convex_hull_rust(positions);
     if (!gon) return null;
     return new Polygon(gon);
