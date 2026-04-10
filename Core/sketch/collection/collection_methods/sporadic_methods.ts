@@ -1,6 +1,5 @@
-import { ConnectedComponent } from "./connected_component";
 import { get_lines, get_points } from "./getter_methods";
-import { sketch_element_collection_as_array } from "..";
+import { connected_component, sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
 
@@ -31,19 +30,23 @@ export function endpoint_hull(ec: SketchElementCollection): SketchElement[] {
     return res;
 }
 
-export function connected_hull(ec: SketchElementCollection): SketchElement[] {
-    const res: SketchElementCollection = [];
+export function connected_hull(ec: SketchElementCollection): SketchElement[][] {
     const nec = sketch_element_collection_as_array(ec);
 
-    for (const el of nec) {
-        if (res.includes(el)) {
+    if (nec.length == 0) return [];
+
+    const components: SketchElement[][] = [];
+    const sketch_elements = sketch_element_collection_as_array(nec[0]!.sketch);
+
+    for (const se of nec) {
+        if (components.some((c) => c.some((o) => o == se))) {
             continue;
         }
 
-        res.push(...new ConnectedComponent(el).get_sketch_elements());
+        components.push(connected_component(sketch_elements, se));
     }
 
-    return res;
+    return components;
 }
 
 export function inner_line_hull(ec: SketchElementCollection): SketchElement[] {

@@ -235,7 +235,7 @@ export function from_specification(triangle: TriangleSpecification): Triangle {
         "Triangle could not be fully resolved",
     );
 
-    if (EPS.equal(Alpha! + Beta! + Gamma!, Math.PI)) {
+    if (EPS.equals(Alpha! + Beta! + Gamma!, Math.PI)) {
         throw new Error("Invalid triangle");
     }
 

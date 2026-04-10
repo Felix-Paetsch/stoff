@@ -1,5 +1,3 @@
-import { Interval } from "../../../geometry_old/1d/1d";
-
 /*
  * Gauss-Legendre quadrature on a finite interval.
  *
@@ -21,6 +19,8 @@ import { Interval } from "../../../geometry_old/1d/1d";
  * Because the nodes/weights are symmetric, we store only the nonnegative
  * nodes and their corresponding weights.
  */
+
+import { Interval } from "@/Core/geometry";
 
 type GaussLegendreTable = {
     nodes: readonly number[];
@@ -162,7 +162,7 @@ const GAUSS_LEGENDRE_TABLES: Record<number, GaussLegendreTable> = {
 
 export function gauss_legendre(
     f: (x: number) => number,
-    range: Interval = [0, 1],
+    range: Interval.Interval = Interval.UnitInterval,
     nodes: number = 5,
 ): number {
     nodes = Math.round(nodes);

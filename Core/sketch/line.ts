@@ -5,6 +5,7 @@ import * as SketchElementCollectionMethods from "./collection/index";
 import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";
 import { EPS } from "../numerics";
 import { same_sketch } from "@/todo/expect_methods/exports";
+import { CollectionMethods } from ".";
 
 export class Line {
     public data: StoffObjectData = {};
@@ -398,7 +399,7 @@ export class Line {
 
     connected_component() {
         expect(!this._is_removed, "Point is removed");
-        return new ConnectedComponent(this);
+        return CollectionMethods.connected_component(this.sketch, this);
     }
 
     toJSON() {

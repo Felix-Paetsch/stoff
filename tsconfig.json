@@ -21,7 +21,7 @@
         "resolveJsonModule": true,
         "isolatedModules": false,
         "declaration": false,
-        "allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": false,
         "outDir": "./dist",
         "rootDir": "./",
         "baseUrl": "./",

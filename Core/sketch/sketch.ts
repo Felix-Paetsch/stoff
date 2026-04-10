@@ -1,8 +1,7 @@
 import { same_sketch } from "@/todo/expect_methods/exports";
 import { CollectionMethods, Copy } from ".";
 import { expect } from "../expect";
-import { Polygon, Polyline, Shape, Vector } from "../geometry";
-import { ConnectedComponent } from "./collection/collection_methods/connected_component";
+import { Polygon, Shape, Vector } from "../geometry";
 import { default_data_callback } from "./copy";
 import { Line } from "./line";
 import { Point } from "./point";
@@ -115,8 +114,11 @@ export class Sketch {
         return new Line([from as Point, to as Point], shape.typesafe());
     }
 
-    line_between_points(p1: Point, p2: Point) {
-        return Line.straight(p1, p2);
+    line_between_points(p1: Point, p2: Point, shape?: Shape) {
+        if (!shape) {
+            return Line.straight(p1, p2);
+        }
+        return new Line([p1, p2], shape.typesafe());
     }
 
     // ===============
@@ -256,16 +258,11 @@ export class Sketch {
         };
     }
 
-    has(...els: (Point | Line | ConnectedComponent)[]) {
+    has(...els: SketchElement[]) {
         for (const el of els) {
             if (el instanceof Point && !this.points.includes(el)) {
                 return false;
             } else if (el instanceof Line && !this.lines.includes(el)) {
-                return false;
-            } else if (
-                el instanceof ConnectedComponent &&
-                !this.has(el.root())
-            ) {
                 return false;
             }
         }

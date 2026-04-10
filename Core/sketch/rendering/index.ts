@@ -9,7 +9,7 @@ import { Sketch } from "@/Core/sketch/sketch";
 import { Line } from "@/Core/sketch/line";
 import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
-import { FiniteGeometry } from "@/Core/geometry";
+import { BoundingBox, FiniteGeometry, Polygon } from "@/Core/geometry";
 
 export function render_sketch(
     s: Sketch,
@@ -23,7 +23,7 @@ export function render_sketch(
         return null;
     }
 
-    const bb = s.get_bounding_box();
+    const bb = s.bounding_box();
     const real_render_dimensions = recalculate_render_dimensions(
         width,
         height,
@@ -53,7 +53,7 @@ export function render_sketch(
         if_debug(() => get_sketch_render_data(s)),
     );
 
-    s.get_lines().forEach((line) => {
+    s.lines.forEach((line) => {
         const lineStyles: Partial<LineRenderAttributes> = {
             ...line_attributes,
             stroke_width: px_to_unit(line_attributes.stroke_width),
@@ -66,7 +66,7 @@ export function render_sketch(
         }
 
         const shape = line.shape;
-        if (is_polygon(shape)) {
+        if (shape instanceof Polygon) {
             svg.render_polygon(
                 shape,
                 lineStyles,
@@ -87,7 +87,7 @@ export function render_sketch(
         stroke_width: px_to_unit(point_attributes.stroke_width),
     };
 
-    s.get_points().forEach((pt) => {
+    s.points.forEach((pt) => {
         svg.render_point(
             pt,
             pointStyles,
@@ -103,7 +103,7 @@ export function get_line_render_data(
     extra_data: Record<string, Json> = {},
 ) {
     return Object.assign({}, line.data, {
-        _length: Math.round(line.get_length() * 1000) / 1000,
+        _length: Math.round(line.length() * 1000) / 1000,
         _right_handed: line.right_handed,
         ...extra_data,
     });
@@ -124,7 +124,7 @@ export function get_sketch_render_data(
     s: Sketch,
     extra_data: Record<string, Json> = {},
 ) {
-    const bb = s.get_bounding_box();
+    const bb = s.bounding_box();
 
     return Object.assign({}, s.data, {
         _x: bb.min_x,

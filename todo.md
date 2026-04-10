@@ -152,4 +152,5 @@ svg.use_gradient(): SVGGradient
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave full
+[] sketch points, lines as methods?
 

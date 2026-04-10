@@ -3,6 +3,7 @@ import { Sketch } from "./sketch";
 import { Line } from "./line";
 import { StoffObjectData } from "./types";
 import { BoundingBox, Vector } from "../geometry";
+import { CollectionMethods } from ".";
 
 export class Point extends Vector {
     private _adjacent_lines: Line[] = [];
@@ -29,7 +30,7 @@ export class Point extends Vector {
 
     connected_component() {
         expect(!this._is_removed, "Point is removed");
-        return new ConnectedComponent(this);
+        return CollectionMethods.connected_component(this.sketch, this);
     }
 
     __register_line(line: Line) {

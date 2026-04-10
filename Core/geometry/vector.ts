@@ -1,5 +1,6 @@
-import { Line, LinearTransform, Ray } from ".";
+import { LinearTransform, Ray } from ".";
 import { EPS } from "../numerics";
+import { Line } from "./line";
 import { MirrorData } from "./linear_transformations";
 import { Matrix } from "./matrix";
 import { Radians } from "./types";
@@ -144,7 +145,7 @@ export class Vector {
     }
 
     project_onto(line: Line | Ray) {
-        return line.project(this);
+        return line.to_line().project(this);
     }
 
     length() {

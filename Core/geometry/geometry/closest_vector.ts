@@ -1,22 +1,22 @@
-import { Geometry } from "../geometry";
+import { Geometry } from "..";
 import { Line } from "../line";
 import { Ray } from "../ray";
 import { Polyline } from "../shape/polyline";
 import { Shape } from "../shape/shape";
 import { Vector } from "../vector";
-import { as_polyline, is_finite_geometry } from "./utils";
+import { as_polyline } from "./utils";
 
 export function closest_vectors(
-    on: Geometry,
-    from: Geometry,
+    on: Geometry.Geometry,
+    from: Geometry.Geometry,
 ): [Vector, Vector] | null {
     let on_shape: Polyline | null = null;
-    if (is_finite_geometry(on)) {
+    if (Geometry.is_finite_geometry(on)) {
         on_shape = as_polyline(on);
     }
 
     let from_shape: Polyline | null = null;
-    if (is_finite_geometry(from)) {
+    if (Geometry.is_finite_geometry(from)) {
         on_shape = as_polyline(from);
     }
 

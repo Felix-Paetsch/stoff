@@ -1,4 +1,4 @@
-import { Interval } from "../../../geometry_old/1d/1d";
+import { Interval } from "@/Core/geometry";
 
 const TotalMaxIterations = 10001;
 
@@ -7,7 +7,7 @@ export function monotone_boundary_computation(
     target: number,
     initial_guess: number,
     initial_step: number = 1,
-): Interval {
+): Interval.Interval {
     let x0 = initial_guess;
     let f0 = f(x0) - target;
 

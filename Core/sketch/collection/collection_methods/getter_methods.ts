@@ -102,10 +102,10 @@ export function get_points_between_lines(
     let points: Point[] = get_points(nec);
 
     if (find_where == "collection_points_any_lines") {
-        lines = sketch!.get_lines();
+        lines = sketch!.lines;
     }
     if (find_where == "any_points_collection_lines") {
-        points = sketch!.get_points();
+        points = sketch!.points;
     }
 
     const testedFilters: [boolean, boolean][] = lines.map((l) => [
@@ -176,10 +176,10 @@ export function get_lines_between_points(
     let points: Point[] = get_points(ec);
 
     if (find_where == "collection_points_any_lines") {
-        lines = sketch!.get_lines();
+        lines = sketch!.lines;
     }
     if (find_where == "any_points_collection_lines") {
-        points = sketch!.get_points();
+        points = sketch!.points;
     }
 
     const testedFilters: [boolean, boolean][] = points.map((p) => [
