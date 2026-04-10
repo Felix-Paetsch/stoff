@@ -9,4 +9,3 @@ mod intersections;
 mod polygons_and_points;
 mod utils;
 mod winding;
-

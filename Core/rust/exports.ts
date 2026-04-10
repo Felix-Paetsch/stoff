@@ -1,14 +1,14 @@
 import { Vector } from "../geometry/index.js";
-import init from "./pkg/stoff_rust.js";
-// Later will have to do elsewhere probably
-await init();
-
 export * from "./pkg/stoff_rust.js";
+
+// Later will have to do elsewhere probably
+// import init from "./pkg/stoff_rust.js";
+// await init();
 
 export function f64_to_vec_array(arr: Float64Array) {
     const res: Vector[] = new Array(arr.length / 2);
     for (let i = 0; i < arr.length / 2; i++) {
-        res.push(new Vector(arr[2 * i]!, arr[2 * i + 1]!));
+        res[i] = new Vector(arr[2 * i]!, arr[2 * i + 1]!);
     }
 
     return res;

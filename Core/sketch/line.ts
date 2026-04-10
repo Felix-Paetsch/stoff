@@ -56,7 +56,7 @@ export class Line {
         return this._endpoints[1];
     }
 
-    get endpoints(): [Point, Point] {
+    endpoints(): [Point, Point] {
         return [...this._endpoints];
     }
 
@@ -78,6 +78,7 @@ export class Line {
             shape.first()!.distance(this.p1) < EPS.tiny &&
             shape.last()!.distance(this.p2) < EPS.tiny
         ) {
+            this._shape = shape;
             return;
         }
         const trafo = LinearTransform.affine_orthogonal(

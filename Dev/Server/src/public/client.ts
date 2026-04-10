@@ -136,6 +136,9 @@ function connect(): void {
             if (msg.file.kind == "json") {
                 // @ts-ignore
                 (hljs as any)?.highlightAll();
+            } else if (msg.file.kind == "svg") {
+                // @ts-ignore
+                globalThis.rebuildRenderGroups();
             }
             return;
         }

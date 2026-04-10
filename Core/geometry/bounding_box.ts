@@ -26,7 +26,7 @@ export class BoundingBox {
         this.bottom_left = new Vector(this.min_x, this.max_y);
         this.bottom_right = new Vector(this.max_x, this.max_y);
 
-        this.is_empty = min_x <= max_x;
+        this.is_empty = min_x > max_x;
     }
 
     static empty() {

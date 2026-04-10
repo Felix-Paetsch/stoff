@@ -38,97 +38,56 @@ if (!fs.existsSync(filePath)) {
     process.exit(1);
 }
 
-const outputDir = path.join(__dirname, "output");
-
-await mkdir(outputDir, { recursive: true });
+const outputDir = await prepare_output_directory(
+    path.join(__dirname, "../Server/watch"),
+);
 
 const sceneExport = await import(filePath);
 const scene: Scene = sceneExport.default;
 const res = scene();
 
 if (res instanceof Sketch) {
-    const builder = render_sketch(res, 500, 500, 100);
+    const builder = render_sketch(res, 500, 500, 30, true);
     const svg = builder.svg();
 
-    await sharp(Buffer.from(svg))
-        .png()
-        .toFile(path.join(outputDir, "scene.png"));
+    fs.writeFileSync(path.join(outputDir, "output.svg"), svg);
 } else if (res instanceof SVG_Builder) {
     const svg = res.svg();
-
-    await sharp(Buffer.from(svg))
-        .png()
-        .toFile(path.join(outputDir, "scene.png"));
+    fs.writeFileSync(path.join(outputDir, "output.svg"), svg);
 }
 
 if (Array.isArray(res)) {
-    const cellSize = 500;
-    const gridSize = Math.ceil(Math.sqrt(res.length));
-    const canvasSize = cellSize * gridSize;
-    const lineWidth = 1;
+    for (let i = 0; i < res.length; i++) {
+        const s = res[i]!;
+        const builder =
+            s instanceof SVG_Builder ? s : render_sketch(s, 500, 500, 30, true);
+        const svg = builder.svg();
 
-    const pngBuffers = await Promise.all(
-        res.map(async (s) => {
-            const builder =
-                s instanceof SVG_Builder
-                    ? s
-                    : render_sketch(s, cellSize, cellSize, 50);
-            const svg = builder.svg();
-
-            return sharp(Buffer.from(svg)).png().toBuffer();
-        }),
-    );
-
-    const composites: sharp.OverlayOptions[] = [];
-
-    for (let i = 0; i < pngBuffers.length; i++) {
-        const row = Math.floor(i / gridSize);
-        const col = i % gridSize;
-
-        composites.push({
-            input: pngBuffers[i],
-            left: col * cellSize,
-            top: row * cellSize,
-        });
+        fs.writeFileSync(path.join(outputDir, `output_${i}.svg`), svg);
     }
+}
 
-    for (let i = 1; i < gridSize; i++) {
-        composites.push({
-            input: {
-                create: {
-                    width: lineWidth,
-                    height: canvasSize,
-                    channels: 4,
-                    background: { r: 0, g: 0, b: 0, alpha: 1 },
-                },
-            },
-            left: i * cellSize - Math.floor(lineWidth / 2),
-            top: 0,
-        });
+async function prepare_output_directory(outputDir: string) {
+    await mkdir(outputDir, { recursive: true });
 
-        composites.push({
-            input: {
-                create: {
-                    width: canvasSize,
-                    height: lineWidth,
-                    channels: 4,
-                    background: { r: 0, g: 0, b: 0, alpha: 1 },
-                },
-            },
-            left: 0,
-            top: i * cellSize - Math.floor(lineWidth / 2),
-        });
-    }
+    const extensionsToClear = [
+        ".json",
+        ".txt",
+        ".cjson",
+        ".png",
+        ".jpeg",
+        ".webp",
+        ".jpg",
+        ".svg",
+    ];
 
-    await sharp({
-        create: {
-            width: canvasSize,
-            height: canvasSize,
-            channels: 4,
-            background: { r: 255, g: 255, b: 255, alpha: 1 },
-        },
-    })
-        .composite(composites)
-        .png()
-        .toFile(path.join(outputDir, "scene.png"));
+    const files = fs.readdirSync(outputDir);
+    files.forEach((file) => {
+        const ext = path.extname(file).toLowerCase();
+        if (extensionsToClear.includes(ext)) {
+            fs.unlinkSync(path.join(outputDir, file));
+        }
+    });
+
+    return outputDir;
 }

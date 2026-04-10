@@ -18,8 +18,8 @@ export class Vector {
         }
 
         if (
-            !(typeof x === "number" && isFinite(x)) ||
-            !(typeof y === "number" && isFinite(y))
+            !(typeof x === "number" && !isNaN(x)) ||
+            !(typeof y === "number" && !isNaN(y))
         ) {
             throw new Error("Vector entries are not proper numbers!");
         }

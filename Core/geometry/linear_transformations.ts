@@ -40,8 +40,8 @@ export function affine_linear(
     ];
 
     const new_f_out: [Vector, Vector] = [
-        decentralize_trg(f_in[0]),
-        decentralize_trg(f_in[1]),
+        f_out[0].subtract(f_out[2]),
+        f_out[1].subtract(f_out[2]),
     ];
 
     const lin = linear(new_f_in, new_f_out);
@@ -63,7 +63,7 @@ export function affine_orthogonal(
     };
 
     const new_f_in = centralize_src(f_in[0]);
-    const new_f_out = decentralize_trg(f_in[0]);
+    const new_f_out = f_out[0].subtract(f_out[1]);
 
     const lin = orthogonal(new_f_in, new_f_out);
 

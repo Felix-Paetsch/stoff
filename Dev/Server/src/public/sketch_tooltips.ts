@@ -50,7 +50,7 @@ function hideTooltip() {
 function getHoverableSvgElement(target: HTMLThing | null): HTMLThing | null {
     if (!(target instanceof Element)) return null;
 
-    const el = target.closest(".sketch_display svg > *") as HTMLThing | null;
+    const el = target.closest(".card > .svg-body svg > *") as HTMLThing | null;
 
     if (!el) return null;
     if (!el.hasAttribute("hover_stuff")) return null;
@@ -107,7 +107,7 @@ function rebuildRenderGroups() {
     currently_display = ["base"];
 
     const svg_children = document.querySelectorAll(
-        ".sketch_display svg > *",
+        ".card > .svg-body svg > *",
     ) as NodeListOf<HTMLElement>;
 
     for (const c of svg_children) {
@@ -119,7 +119,7 @@ function rebuildRenderGroups() {
         }
 
         const belongs_to_render_groups = JSON.parse(
-            c.getAttribute("x-belongs_to_render_groups") ?? "[]",
+            c.getAttribute("x-belongs_to_render_groups") ?? '["base"]',
         ) as string[];
 
         for (const g of belongs_to_render_groups) {
@@ -135,6 +135,9 @@ function rebuildRenderGroups() {
 
     changeVisibility(["base"]);
 }
+
+// @ts-ignore
+globalThis.rebuildRenderGroups = rebuildRenderGroups;
 
 /* ------------------------------------------------------------------ */
 /* Event delegation                                                   */

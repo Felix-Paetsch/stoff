@@ -1,11 +1,9 @@
 import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter";
 import { sketch_element_collection_as_array } from "..";
-import { same_sketch } from "../../../../todo/expect_methods/exports";
 import { SketchElement, SketchElementCollection } from "../../types";
 import { Line } from "../../line";
 import { Point } from "../../point";
 import { Sketch } from "../../sketch";
-import { expect } from "@/Core/expect";
 
 export function unique<T extends SketchElement>(
     ec: SketchElementCollection<T>,
@@ -38,7 +36,6 @@ export function get_sketch(...els: { sketch: Sketch }[]): Sketch {
     if (els.length == 0) {
         return new Sketch();
     }
-    expect(same_sketch(...els.map((e) => e.sketch)));
     return els[0]!.sketch;
 }
 

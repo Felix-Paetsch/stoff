@@ -1,8 +1,7 @@
 import { merge_validations } from "@/Core/expect";
 import { Geometry, Vector } from "@/Core/geometry";
 import { EPS } from "@/Core/numerics";
-import { ConnectedComponent, Line, Point, SketchElement } from "@/Core/sketch";
-import { Sketch } from "@/sketch_old";
+import { Line, Point, Sketch } from "@/Core/sketch";
 
 export * from "./sketch_is_valid";
 
@@ -47,8 +46,4 @@ export function not_isolated(el: Line | Point) {
 
 export function vec_on_line(vec: Vector, line: Line) {
     return Geometry.distance(vec, line.shape) < EPS.tiny;
-}
-
-export function path_connected(el1: SketchElement, el2: SketchElement) {
-    return new ConnectedComponent(el1).contains(el2);
 }

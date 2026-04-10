@@ -148,9 +148,10 @@ svg.use_gradient(): SVGGradient
 [] from points vs from verticies?
 [] figure out more abt what to do with sample spacing..
 [] caching where needed. Evt connected component faster
+[] circles padding invariant
+[] do we want lines or lines()??
+[] sketch points, lines as methods?
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
-[] concave full
-[] sketch points, lines as methods?
-
+[] concave hull

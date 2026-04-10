@@ -9,7 +9,7 @@ import { Sketch } from "@/Core/sketch/sketch";
 import { Line } from "@/Core/sketch/line";
 import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
-import { BoundingBox, FiniteGeometry, Polygon } from "@/Core/geometry";
+import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
 
 export function render_sketch(
     s: Sketch,
@@ -44,8 +44,13 @@ export function render_sketch(
         padding,
     );
 
+    // This doesnt necc cover the whole svg, but _enought_ for out purposes currently
+    const offset = new Vector(px_to_unit(padding * 2), px_to_unit(padding * 2));
     svg.render_polygon(
-        FiniteGeometry.rectangle(bb.top_left, bb.bottom_right),
+        FiniteGeometry.rectangle(
+            real_render_dimensions.bounding_box.top_left.subtract(offset),
+            real_render_dimensions.bounding_box.bottom_right.add(offset),
+        ),
         {
             fill: "white",
             stroke: null,
@@ -53,7 +58,7 @@ export function render_sketch(
         if_debug(() => get_sketch_render_data(s)),
     );
 
-    s.lines.forEach((line) => {
+    s.lines().forEach((line) => {
         const lineStyles: Partial<LineRenderAttributes> = {
             ...line_attributes,
             stroke_width: px_to_unit(line_attributes.stroke_width),
@@ -87,7 +92,7 @@ export function render_sketch(
         stroke_width: px_to_unit(point_attributes.stroke_width),
     };
 
-    s.points.forEach((pt) => {
+    s.points().forEach((pt) => {
         svg.render_point(
             pt,
             pointStyles,

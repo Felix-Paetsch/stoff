@@ -12,31 +12,39 @@ import {
 } from "./types";
 
 export class Sketch {
-    public points: Point[] = [];
-    public lines: Line[] = [];
+    private _points: Point[] = [];
+    private _lines: Line[] = [];
 
     public data: StoffObjectData = {};
 
     constructor() {}
 
     __register_point(pt: Point) {
-        this.points.push(pt);
+        this._points.push(pt);
     }
 
     __register_line(ln: Line) {
-        this.lines.push(ln);
+        this._lines.push(ln);
     }
 
     __unregister_point(pt: Point) {
-        this.points = this.points.filter((p) => p != pt);
+        this._points = this._points.filter((p) => p != pt);
     }
 
     __unregister_line(ln: Line) {
-        this.lines = this.lines.filter((l) => l != ln);
+        this._lines = this._lines.filter((l) => l != ln);
     }
 
     bounding_box() {
         return CollectionMethods.get_bounding_box(this);
+    }
+
+    points() {
+        return [...this._points];
+    }
+
+    lines() {
+        return [...this._lines];
     }
 
     add_point(pt: Vector): Point;
@@ -50,7 +58,7 @@ export class Sketch {
     }
 
     get_sketch_elements() {
-        return [...this.lines, ...this.points];
+        return [...this._lines, ...this._points];
     }
 
     get sketch() {
@@ -80,7 +88,7 @@ export class Sketch {
     }
 
     clear() {
-        this.remove(...this.points);
+        this.remove(...this._points);
     }
 
     add_line(
@@ -118,6 +126,7 @@ export class Sketch {
         if (!shape) {
             return Line.straight(p1, p2);
         }
+
         return new Line([p1, p2], shape.typesafe());
     }
 
@@ -180,7 +189,8 @@ export class Sketch {
         new_line.data = data_callback(line1.data, line2.data, line1, line2);
 
         if (delete_join) {
-            line1.endpoints
+            line1
+                .endpoints()
                 .filter((p) => !new_endpoints.includes(p))
                 .map((p) => p.remove());
         } else {
@@ -260,14 +270,25 @@ export class Sketch {
 
     has(...els: SketchElement[]) {
         for (const el of els) {
-            if (el instanceof Point && !this.points.includes(el)) {
+            if (el instanceof Point && !this._points.includes(el)) {
                 return false;
-            } else if (el instanceof Line && !this.lines.includes(el)) {
+            } else if (el instanceof Line && !this._lines.includes(el)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    copy(data_callback = Copy.default_data_callback): {
+        sketch: Sketch;
+    } & Copy.CopyResult {
+        const t = new Sketch();
+        const res = Copy.sketch(this, t, data_callback);
+        return {
+            ...res,
+            sketch: t,
+        };
     }
 
     toString() {

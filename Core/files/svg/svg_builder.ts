@@ -16,7 +16,6 @@ import { Polygon, Polyline, Vector } from "@/Core/geometry";
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
     show_render_groups_on_hover: string[];
-    hide_render_groups_on_hover: string[];
 };
 
 // The thing with higher render priority gets rendered on top
@@ -100,14 +99,7 @@ export class SVG_Builder {
                 ? `fill="${colorToHex(full_attributes.fill)}"`
                 : 'fill="none"';
 
-            if (data !== null) {
-                return `<g ${ras} >
-<circle cx="${position.x}" cy="${position.y}" r="${Math.max(full_attributes.radius, 4)}" stroke="rgba(0,0,0,0)" fill="rgba(0,0,0,0)" stroke-width="${full_attributes.stroke_width}"/>;
-<circle cx="${position.x}" cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>
-</g>`;
-            } else {
-                return `<circle cx="${position.x}" cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>`;
-            }
+            return `<circle cx="${position.x}" ${ras} cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>`;
         }, full_attributes.render_priority);
     }
 
@@ -134,48 +126,44 @@ export class SVG_Builder {
 
             let pointsString = vectors_to_string(line.verticies);
 
-            let res: string = data !== null ? `<g ${ras} >` : "";
             if (!full_attributes.stroke) {
+                return "";
             } else if (typeof full_attributes.stroke == "string") {
-                res += `<polyline points="${pointsString}" style="fill:none; stroke: ${colorToHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
-            } else {
-                let gradient: SVGGradient;
-                let sections: number;
-
-                if (Array.isArray(full_attributes.stroke[0])) {
-                    gradient = new SVGGradient(full_attributes.stroke[0], this);
-                    sections = full_attributes.stroke[1] as number;
-                } else {
-                    gradient = new SVGGradient(
-                        full_attributes.stroke as Gradient,
-                        this,
-                    );
-                    sections = 1;
-                }
-
-                for (let i = 0; i < sections; i++) {
-                    const from = i / sections;
-                    const to = (i + 1) / sections;
-
-                    const subline = line.slice(from, to);
-                    if (subline.is_empty()) continue;
-
-                    const gradient_id = gradient.gradient_segment(from, to, {
-                        from: subline.first()!,
-                        to: subline.last()!,
-                    });
-
-                    const sublinePoints = vectors_to_string(subline.verticies);
-
-                    res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
-                }
+                return `<polyline points="${pointsString}" ${ras} style="fill:none; stroke: ${colorToHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
             }
-            res +=
-                data !== null
-                    ? `<polyline points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(full_attributes.stroke_width, 4)}"/></g>`
-                    : "";
 
-            return res;
+            let gradient: SVGGradient;
+            let sections: number;
+
+            if (Array.isArray(full_attributes.stroke[0])) {
+                gradient = new SVGGradient(full_attributes.stroke[0], this);
+                sections = full_attributes.stroke[1] as number;
+            } else {
+                gradient = new SVGGradient(
+                    full_attributes.stroke as Gradient,
+                    this,
+                );
+                sections = 1;
+            }
+
+            let res = `<g ${ras}>`;
+            for (let i = 0; i < sections; i++) {
+                const from = i / sections;
+                const to = (i + 1) / sections;
+
+                const subline = line.slice(from, to);
+                if (subline.is_empty()) continue;
+
+                const gradient_id = gradient.gradient_segment(from, to, {
+                    from: subline.first()!,
+                    to: subline.last()!,
+                });
+
+                const sublinePoints = vectors_to_string(subline.verticies);
+
+                res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
+            }
+            return (res += `</g>`);
         }, full_attributes.render_priority);
     }
 
@@ -202,12 +190,12 @@ export class SVG_Builder {
 
             let pointsString = vectors_to_string(gon.verticies);
 
-            let fillString: string;
-
+            let res: string;
             if (!full_attributes.fill) {
-                fillString = 'fill="none"';
+                res = "";
             } else if (typeof full_attributes.fill == "string") {
-                fillString = `fill="${colorToHex(full_attributes.fill)}"`;
+                const fillString = `fill="${colorToHex(full_attributes.fill)}"`;
+                res = `<polygon ${ras} stroke="none" ${fillString} opacity="${full_attributes.opacity}" points="${pointsString}" />`;
             } else {
                 throw new Error(
                     "Gradient fill unimplemented, as we need to figure out direction",
@@ -216,18 +204,15 @@ export class SVG_Builder {
                 // fillString = `fill="url(#${grad.id})`;
             }
 
-            let res: string = `<g ${ras} >`;
-            res += `<polygon points="${pointsString}" stroke="none" ${fillString} opacity="${full_attributes.opacity}" />`;
-            res += `<polygon points="${pointsString}" style="fill:none; stroke: rgba(0,0,0,0); stroke-width: ${Math.max(full_attributes.stroke_width, 4)}"/>`;
-            res += `</g>`;
-
-            this.render_polyline(
-                gon.to_polyline(),
-                full_attributes,
-                data,
-                belongs_to_render_groups,
-                show_render_groups_on_hover,
-            );
+            if (full_attributes.stroke && full_attributes.stroke_width > 0) {
+                this.render_polyline(
+                    gon.to_polyline(),
+                    full_attributes,
+                    data,
+                    belongs_to_render_groups,
+                    show_render_groups_on_hover,
+                );
+            }
 
             return res;
         }, full_attributes.render_priority);
@@ -331,6 +316,15 @@ function recalculate_viewbox_with_padding(
     viewbox: [Vector, Vector],
     padding: number,
 ): [Vector, Vector] {
+    if (
+        !isFinite(viewbox[0].x) ||
+        !isFinite(viewbox[0].y) ||
+        !isFinite(viewbox[1].x) ||
+        !isFinite(viewbox[1].y)
+    ) {
+        return [Vector.ZERO, Vector.ZERO];
+    }
+
     const w_ratio = width / (width - 2 * padding);
     const h_ratio = height / (height - 2 * padding);
     const ratio = Math.max(w_ratio, h_ratio);
@@ -374,9 +368,6 @@ function compute_render_group_css(
     }
     if (render_groups.show_render_groups_on_hover.length > 1) {
         render_attribute_string += `x-show_render_groups_on_hover="${data_to_string(render_groups.show_render_groups_on_hover)}" `;
-    }
-    if (render_groups.hide_render_groups_on_hover.length > 1) {
-        render_attribute_string += `x-hide_render_groups_on_hover="${data_to_string(render_groups.hide_render_groups_on_hover)}" `;
     }
 
     if (render_attribute_string == "") return "";

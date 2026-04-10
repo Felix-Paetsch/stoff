@@ -91,14 +91,14 @@ export class Polyline extends Shape {
     map(
         fn: (vec: Vector, len_rel: number, len_abs: number) => Vector,
     ): Polyline {
-        const res: Vector[] = [];
+        const res: Vector[] = new Array(this.vertex_count);
 
         const ver = this.verticies;
         const l = this.length();
         let current_l = 0;
 
         for (let i = 0; i < ver.length; i++) {
-            res.push(fn(ver[i]!, current_l / l, current_l));
+            res[i] = fn(ver[i]!, current_l / l, current_l);
         }
 
         return Polyline.from_verticies(res);
