@@ -9,18 +9,20 @@ function escapeHtml(value: string): string {
         .replaceAll("'", "&#39;");
 }
 
-function prettyJson(data: unknown): string {
-    return escapeHtml(JSON.stringify(data, null, 2));
+function json_to_string(data: unknown): string {
+    try {
+        const json = JSON.stringify(data, null, 2);
+        const s = escapeHtml(json);
+        return s;
+    } catch {
+        return "" + (data as any);
+    }
 }
 
 export function renderFileCard(file: FileRecord): string {
     const meta = `
     <div class="meta">
       <div class="name">${escapeHtml(file.name)}</div>
-      <div class="sub">
-        <span>${escapeHtml(file.kind)}</span>
-        <span>${file.size} bytes</span>
-      </div>
     </div>
   `;
 
@@ -32,16 +34,22 @@ export function renderFileCard(file: FileRecord): string {
         <img src="${escapeHtml(file.url)}?t=${file.mtimeMs}" alt="${escapeHtml(file.name)}" />
       </div>
     `;
+    } else if (file.kind === "svg") {
+        body = `
+      <div class="body svg-body">
+            ${file.content!}
+      </div>
+    `;
     } else if (file.kind === "json") {
         body = `
       <div class="body">
-        <pre>${prettyJson(file.content)}</pre>
+        <pre class="json-block"><code class="language-json">${json_to_string(file.content)}</code></pre>
       </div>
     `;
     } else if (file.kind === "text") {
         body = `
       <div class="body">
-        <pre>${escapeHtml(String(file.content ?? ""))}</pre>
+        <pre class="text-block">${escapeHtml(String(file.content ?? ""))}</pre>
       </div>
     `;
     } else {

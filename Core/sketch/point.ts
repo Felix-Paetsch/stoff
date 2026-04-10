@@ -1,4 +1,3 @@
-import { ConnectedComponent } from "./collection/collection_methods/connected_component";
 import { expect } from "../expect";
 import { Sketch } from "./sketch";
 import { Line } from "./line";

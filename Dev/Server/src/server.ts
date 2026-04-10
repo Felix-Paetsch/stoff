@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
-import type { FileKind, FileRecord, ServerMessage } from "./types.js";
+import type { Config, FileKind, FileRecord, ServerMessage } from "./types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +22,8 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
+let CONFIG: Config = {};
+
 const files = new Map<string, FileRecord>();
 
 app.use("/files", express.static(WATCHED_DIR));
@@ -30,17 +32,49 @@ app.use(express.static(PUBLIC_BUILD_DIR));
 app.use(express.static(PUBLIC_BUILD_ROOT));
 
 function compareNames(a: string, b: string): number {
-    return a.localeCompare(b, undefined, {
-        numeric: true,
-        sensitivity: "base",
-    });
+    const aParts = a.split(".");
+    const bParts = b.split(".");
+
+    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+        const aPart = aParts[i] ?? "";
+        const bPart = bParts[i] ?? "";
+
+        if (aPart === bPart) continue;
+
+        const regex = /(\d+)|(\D+)/g;
+        const aTokens = (aPart.match(regex) || []).map((p) =>
+            /^\d+$/.test(p) ? parseInt(p, 10) : p,
+        );
+        const bTokens = (bPart.match(regex) || []).map((p) =>
+            /^\d+$/.test(p) ? parseInt(p, 10) : p,
+        );
+
+        for (let j = 0; j < Math.max(aTokens.length, bTokens.length); j++) {
+            const aToken = aTokens[j] ?? "";
+            const bToken = bTokens[j] ?? "";
+
+            if (typeof aToken === "number" && typeof bToken === "number") {
+                if (aToken !== bToken) return aToken - bToken;
+            } else {
+                const strA = String(aToken).toLowerCase();
+                const strB = String(bToken).toLowerCase();
+                const cmp = strA.localeCompare(strB);
+                if (cmp !== 0) return cmp;
+            }
+        }
+    }
+    return 0;
 }
 
 function getKind(ext: string): FileKind {
     const e = ext.toLowerCase();
 
-    if ([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"].includes(e)) {
+    if ([".png", ".jpg", ".jpeg", ".gif", ".webp"].includes(e)) {
         return "image";
+    }
+
+    if (e === ".svg") {
+        return "svg";
     }
 
     if (e === ".json") {
@@ -60,6 +94,16 @@ async function pathExists(target: string): Promise<boolean> {
         return true;
     } catch {
         return false;
+    }
+}
+
+async function loadConfig(): Promise<void> {
+    try {
+        const text = await fs.readFile("./config.json", "utf8");
+        CONFIG = JSON.parse(text) as Config;
+        console.log("Config loaded:", CONFIG);
+    } catch (err) {
+        console.log("No config found, using defaults:", CONFIG);
     }
 }
 
@@ -83,7 +127,6 @@ async function buildFileRecord(absPath: string): Promise<FileRecord | null> {
         kind,
         url: `/files/${encodeURIComponent(name)}`,
         mtimeMs: stat.mtimeMs,
-        size: stat.size,
     };
 
     if (kind === "json") {
@@ -93,7 +136,7 @@ async function buildFileRecord(absPath: string): Promise<FileRecord | null> {
         } catch {
             record.content = { error: "Invalid JSON" };
         }
-    } else if (kind === "text") {
+    } else if (kind === "text" || kind === "svg") {
         try {
             record.content = await fs.readFile(absPath, "utf8");
         } catch {
@@ -149,7 +192,7 @@ function removeFromPath(absPath: string): void {
 }
 
 async function main(): Promise<void> {
-    await ensureWatchedDir();
+    await Promise.all([loadConfig(), ensureWatchedDir()]);
     await loadInitialFiles();
 
     wss.on("connection", (ws) => {
@@ -161,6 +204,7 @@ async function main(): Promise<void> {
             JSON.stringify({
                 type: "init",
                 files: sortedFiles,
+                config: CONFIG,
             } satisfies ServerMessage),
         );
     });

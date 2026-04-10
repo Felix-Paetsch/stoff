@@ -9,5 +9,5 @@
     "rootDir": "src",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/public/client.ts", "src/fileProcessor.ts", "src/types.ts"]
+  "include": ["src/public/*.ts", "src/fileProcessor.ts", "src/types.ts"]
 }

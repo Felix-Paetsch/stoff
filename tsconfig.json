@@ -13,13 +13,13 @@
         "strictFunctionTypes": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "allowJs": true,
+        "allowJs": false,
         "checkJs": false,
         "strict": true,
         "noEmit": true,
         "skipLibCheck": true,
         "resolveJsonModule": true,
-        "isolatedModules": true,
+        "isolatedModules": false,
         "declaration": false,
         "allowImportingTsExtensions": true,
         "outDir": "./dist",
@@ -29,11 +29,12 @@
             "@/*": ["./*"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "geometry/shapes/algorithms/intersect_lines.ts.tmpevEnv/Debug/scenes/triangle.ts.broken", "DevEnv/Debug/scenes/test.ts.broken", "DevEnv/Debug/scenes/index.ts.broken", "DevEnv/Debug/scenes/heart.ts.broken", "DevEnv/Debug/scenes/dev.ts.broken"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],
     "exclude": [
         "node_modules",
         "dist",
-        "Sewing//DevServer",
+        "Sewing/DevServer",
+        "Dev/Server",
     ],
     "ts-node": {
         "esm": true,

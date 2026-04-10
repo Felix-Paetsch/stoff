@@ -12,3 +12,6 @@ dev-output:
 
 build:
     cd Core/rust && wasm-pack build --target web
+
+watch-server:
+    cd Dev/Server && npm run start

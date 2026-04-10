@@ -1,13 +1,17 @@
 :root {
   color-scheme: dark;
   --bg: #0b0d10;
-  --panel: #151922;
-  --panel-2: #1b2130;
+  --panel: #22161a;
+  --panel-2: #171315;
   --text: #e8ecf3;
   --muted: #9aa4b2;
   --border: #2b3444;
   --accent: #7cc4ff;
   --shadow: rgba(0, 0, 0, 0.25);
+
+  --cardWidth: 350px;
+  --cardMinHeight: 150px;
+  --cardMaxHeight: 300px;
 }
 
 * {
@@ -60,7 +64,7 @@ main {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--cardWidth), 1fr));
   gap: 16px;
 }
 
@@ -70,29 +74,21 @@ main {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 8px 24px var(--shadow);
+  height: max-content;
+}
+
+.card > .body {
+  min-height: var(--cardMinHeight);
 }
 
 .meta {
-  padding: 14px 14px 10px;
+  padding: 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .name {
   font-weight: 600;
   word-break: break-word;
-}
-
-.sub {
-  margin-top: 6px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.body {
-  padding: 14px;
 }
 
 .image-body {
@@ -102,9 +98,17 @@ main {
 .image-body img {
   display: block;
   width: 100%;
-  height: 260px;
+  max-height: var(--cardMaxHeight);
   object-fit: contain;
   background: #0f131a;
+}
+
+.svg-body{
+    background-color: white;
+}
+.svg-body svg {
+    max-width: 100%;
+    max-height: var(--cardMaxHeight);
 }
 
 pre {
@@ -114,6 +118,21 @@ pre {
   color: #d7e2f0;
   font-size: 13px;
   line-height: 1.45;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.json-block {
+    tab-size: 2;
+}
+
+.text-block {
+    padding: 1em;
+}
+
+.json-block code {
+    min-height: 150px;
 }
 
 a {

@@ -10,7 +10,7 @@
     "rootDir": "src",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "config.json"]
 }
 
 

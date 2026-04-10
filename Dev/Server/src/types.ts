@@ -1,4 +1,4 @@
-export type FileKind = "image" | "json" | "text" | "unknown";
+export type FileKind = "image" | "svg" | "json" | "text" | "unknown";
 
 export type FileRecord = {
     name: string;
@@ -6,7 +6,6 @@ export type FileRecord = {
     ext: string;
     kind: FileKind;
     mtimeMs: number;
-    size: number;
     content?: unknown;
 };
 
@@ -14,6 +13,7 @@ export type ServerMessage =
     | {
           type: "init";
           files: FileRecord[];
+          config: Config;
       }
     | {
           type: "upsert";
@@ -23,3 +23,9 @@ export type ServerMessage =
           type: "remove";
           name: string;
       };
+
+export type Config = {
+    cardWidth?: number;
+    cardMinHeight?: number;
+    cardMaxHeight?: number;
+};

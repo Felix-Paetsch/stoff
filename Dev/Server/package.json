@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build:client": "tsc --project tsconfig.client.json",
-    "dev": "npm run build:client && concurrently \"tsc --project tsconfig.client.json --watch\" \"tsx watch src/server.ts\""
+    "dev": "npm run build:client && concurrently \"tsc --project tsconfig.client.json --watch\" \"tsx watch src/server.ts\"",
+    "start": "npm run build:client && tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.client.json"
   },
   "dependencies": {
     "chokidar": "^4.0.3",
