@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Sketch } from "../../Core/sketch/sketch/";
+import { Sketch } from "../../Core/sketch/sketch";
 import { mkdir } from "fs/promises";
 import { render_sketch } from "@/Core/sketch/rendering";
 import sharp from "sharp";

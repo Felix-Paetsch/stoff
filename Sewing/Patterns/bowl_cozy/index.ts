@@ -2,8 +2,8 @@ import { z } from "zod";
 import { definePattern } from "../types";
 import { draw_base_pattern } from "./draw_base_pattern";
 import { Sketch } from "@/Core/sketch/sketch";
-import { hot_debug_render } from "@/Core/sketch/debug/debug_render";
-import { start_global_recording } from "@/Core/sketch/debug/recording";
+import { hot_debug_render } from "@/todo/debug/debug_render";
+import { start_global_recording } from "@/todo/debug/recording";
 import {
     get_lines_between_points,
     get_points,

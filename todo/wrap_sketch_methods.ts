@@ -1,4 +1,4 @@
-import { Sketch } from "../sketch";
+import { Sketch } from "../sketch_old";
 import {
     EvaluationResult,
     MethodName,

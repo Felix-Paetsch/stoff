@@ -1,30 +1,21 @@
-import { copy_sketch_element_collection } from "../copy";
-import { ConnectedComponent } from "../connected_component";
-import { get_lines, get_points, get_sketch } from "./getter_methods";
+import { ConnectedComponent } from "./connected_component";
+import { get_lines, get_points } from "./getter_methods";
 import { sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
-import {
-    BoundingBox,
-    convex_hull as GeometryConvexHull,
-    Vector,
-} from "../../../../geometrytry";
+import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
 
-export function get_bounding_box(
-    ec: SketchElementCollection,
-    min_bb: [number, number] = [0, 0],
-): BoundingBox {
+export function get_bounding_box(ec: SketchElementCollection): BoundingBox {
     const nec = sketch_element_collection_as_array(ec);
-    return BoundingBox.merge(
-        nec.map((el) => el.get_bounding_box()),
-        min_bb,
-    );
+    return BoundingBox.merge(nec.map((el) => el.bounding_box()));
 }
 
-export function convex_hull(ec: SketchElementCollection): Vector[] {
+export function convex_hull(ec: SketchElementCollection): Polygon | null {
     const pts: Vector[] = get_points(ec);
     const lns = get_lines(ec);
 
-    return GeometryConvexHull(pts.concat(lns.flatMap((l) => l.sample_points)));
+    return FiniteGeometry.convex_hull(
+        ...pts.concat(lns.flatMap((l) => l.shape.verticies)),
+    );
 }
 
 export function endpoint_hull(ec: SketchElementCollection): SketchElement[] {
@@ -71,52 +62,4 @@ export function inner_line_hull(ec: SketchElementCollection): SketchElement[] {
     }
 
     return lines.concat(points);
-}
-
-export function paste_to_sketch(
-    ec: SketchElementCollection,
-    target: any,
-    position: Vector | null = null,
-) {
-    return copy_sketch_element_collection(ec, target, position);
-}
-
-export function connected_components(
-    ec: SketchElementCollection,
-    exclude_endpoints: boolean = false,
-): SketchElement[][] {
-    let nec: SketchElementCollection;
-    if (exclude_endpoints) {
-        nec = sketch_element_collection_as_array(ec);
-    } else {
-        nec = endpoint_hull(ec);
-    }
-
-    if (nec.length === 0) return [];
-
-    const sketch = get_sketch(...nec);
-
-    const all = sketch.get_sketch_elements();
-
-    const other_things = all.filter((element) => !nec.includes(element));
-    return sketch.get_avoidant_connected_components(other_things).map((c) => {
-        return c.get_sketch_elements();
-    });
-}
-
-export function avoidant_connected_components(
-    ec: SketchElementCollection,
-    avoiding: SketchElement[],
-): SketchElement[][] {
-    const nec = sketch_element_collection_as_array(ec);
-    if (nec.length === 0) return [];
-    const sketch = get_sketch(...nec);
-
-    const all = sketch.get_sketch_elements();
-    const ec_all = nec.filter((a) => avoiding.includes(a));
-
-    const other_things = all.filter((element) => !ec_all.includes(element));
-    return sketch.get_avoidant_connected_components(other_things).map((c) => {
-        return c.get_sketch_elements();
-    });
 }

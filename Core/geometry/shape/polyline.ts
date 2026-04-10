@@ -27,7 +27,11 @@ export class Polyline extends Shape {
     }
 
     is_polygon() {
-        return this.positions.length < 3 || this.first()!.equals(this.last()!);
+        return this.positions.length < 1 || this.first()!.equals(this.last()!);
+    }
+
+    is_polyline() {
+        return !this.is_polygon();
     }
 
     to_polygon() {
@@ -56,72 +60,30 @@ export class Polyline extends Shape {
         return new Polyline(positions);
     }
 
-    slice(from: number, to: number, relative: boolean = true): Polyline {
-        if (this.positions.length == 0) return new Polyline(new Float64Array());
+    slice(
+        from: Shape.ShapePointDescriptor,
+        to: Shape.ShapePointDescriptor,
+    ): Polyline {
+        if (this.vertex_count == 0) return new Polyline(new Float64Array());
 
-        const l = this.length();
-        if (relative) {
-            from *= l;
-            to *= l;
-        }
-        if (from < 0) {
-            from = l - from;
-        }
-        if (to < 0) {
-            to = l - to;
-        }
+        const sp1 = this.shape_point_descriptor_to_shape_position(from);
+        const sp2 = this.shape_point_descriptor_to_shape_position(to);
 
-        const flipped = from > to;
-        if (flipped) {
-            const t = to;
-            to = from;
-            from = t;
-        }
+        if (!sp1 || !sp2) return new Polyline([]);
 
-        let res: Vector[] = [];
-        let currentDistance = 0;
+        let res: Vector[] = [sp1.vec];
+        let is_increasing = sp1.index + sp1.frac < sp2.index + sp2.frac;
 
-        if (from == 0) {
-            res.push(this.first()!);
-        }
-
-        const vec = this.verticies;
-
-        for (let i = 0; i < vec.length - 1; i++) {
-            const segmentLength = vec[i]!.distance(vec[i + 1]!);
-            const nextDistance = currentDistance + segmentLength;
-
-            if (from > nextDistance) {
-                currentDistance = nextDistance;
-                continue;
-            } else if (from <= nextDistance && from > currentDistance) {
-                const t =
-                    segmentLength === 0
-                        ? 0
-                        : (from - currentDistance) / segmentLength;
-
-                res.push(Vector.lerp(vec[i]!, vec[i + 1]!, t));
-                currentDistance = from;
+        if (is_increasing) {
+            for (let i = sp1.index + 1; i < sp2.index + 1; i++) {
+                res.push(this.verticies[i]!);
             }
-
-            if (to <= nextDistance) {
-                const t =
-                    segmentLength === 0
-                        ? 0
-                        : (nextDistance - to) / segmentLength;
-
-                res.push(Vector.lerp(vec[i]!, vec[i + 1]!, 1 - t));
-                break;
-            } else {
-                res.push(vec[i]!);
+        } else {
+            for (let i = sp2.index; i > sp1.index; i--) {
+                res.push(this.verticies[i]!);
             }
-
-            currentDistance = nextDistance;
         }
-
-        if (flipped) {
-            res.reverse();
-        }
+        res.push(sp2.vec);
 
         return Polyline.from_verticies(res);
     }

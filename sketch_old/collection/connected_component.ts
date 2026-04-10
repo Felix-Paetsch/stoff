@@ -2,7 +2,7 @@ import { copy_sketch_element_collection } from "./copy";
 import { SketchElement } from "../types";
 import { Point } from "../point";
 import { Line } from "../line";
-import { Sketch } from "../sketch";
+import { Sketch } from "../sketch/sketch";
 import {
     BoundingBox,
     mirror_type,
@@ -10,7 +10,7 @@ import {
     Vector,
 } from "../../../geometrytry";
 import { expect } from "@/Core/expect";
-import { same_sketch } from "../expect_methods/exports";
+import { same_sketch } from "../../../todo/expect_methods/exports";
 
 export class ConnectedComponent {
     constructor(private root_el: SketchElement) {}

@@ -6,7 +6,7 @@ export * as Interval from "./interval";
 
 export { Matrix } from "./matrix";
 export { Vector } from "./vector";
-export { Line } from "./line";
+export { Line as PlainLine } from "./line";
 export { Ray } from "./ray";
 
 export { BoundingBox } from "./bounding_box";

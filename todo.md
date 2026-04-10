@@ -146,7 +146,10 @@ svg.use_gradient(): SVGGradient
 [] for what do I need geo?
 [] rust code actions
 [] from points vs from verticies?
+[] figure out more abt what to do with sample spacing..
+[] caching where needed. Evt connected component faster
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave full
+

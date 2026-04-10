@@ -1,18 +1,18 @@
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { Polyline } from "./polyline";
-import { Shape } from "./shape";
 import { resample_polygon_points } from "./algorithms/resample";
 import { Radians } from "../types";
 import { resample_strict } from "./algorithms/resample_strict";
 import { remove_dub } from "./algorithms/remove_dub";
-import { FiniteGeometry } from "..";
+import { FiniteGeometry, Shape } from "..";
 import { contains } from "@/Core/rust/exports";
 import { as_polyline } from "../geometry/utils";
 import { area, contains_properly } from "@/Core/rust/exports";
 import { centroid, interior_point } from "@/Core/rust/pkg/stoff_rust";
 import { coordinate_position } from "@/Core/rust/pkg/stoff_rust";
 import { winding } from "@/Core/rust/pkg/stoff_rust";
+import { Bounds } from "@/Core/numerics";
 
 export class Polygon extends Shape {
     // A polygon has the last line segment implicit. However a duplicate point doesn't matter.
@@ -33,6 +33,14 @@ export class Polygon extends Shape {
         newArray[l + 1] = this.positions[1]!;
 
         return new Polyline(newArray);
+    }
+
+    is_polygon(): true {
+        return true;
+    }
+
+    is_polyline(): false {
+        return false;
     }
 
     static from_verticies(vec: Vector[]): Polygon {
@@ -96,14 +104,17 @@ export class Polygon extends Shape {
         return remove_dub(this);
     }
 
-    move_root(to: Vector | Shape.ShapePosition): Polygon {
+    move_root(to: Shape.ShapePointDescriptor): Polygon {
         if (this.is_empty()) return this;
-        if (to instanceof Vector) {
-            return this.move_root(this.closest_shape_position(to)!);
-        }
 
-        let res: Vector[] = [to.vec].concat(this.verticies.slice(to.index + 1));
-        res = res.concat(this.verticies.slice(0, to.index + 1));
+        const to_shape_position =
+            this.shape_point_descriptor_to_shape_position(to);
+        if (!to_shape_position) return this;
+
+        let res: Vector[] = [to_shape_position.vec].concat(
+            this.verticies.slice(to_shape_position.index + 1),
+        );
+        res = res.concat(this.verticies.slice(0, to_shape_position.index + 1));
         return new Polygon(res);
     }
 
@@ -157,9 +168,46 @@ export class Polygon extends Shape {
         return "ccw";
     }
 
+    is_cw() {
+        return this.orientation() == "cw";
+    }
+
+    is_ccw() {
+        return this.orientation() == "ccw";
+    }
+
     reverse(): Polygon {
         if (this.is_empty()) return this;
         const vert: Vector[] = this.verticies.slice(1).reverse();
         return new Polygon([this.root() as Vector].concat(vert));
+    }
+
+    slice(
+        from: Shape.ShapePointDescriptor,
+        to: Shape.ShapePointDescriptor,
+    ): Polyline {
+        if (this.vertex_count == 0) return new Polyline([]);
+
+        const sp1 = this.shape_point_descriptor_to_shape_position(from);
+        const sp2 = this.shape_point_descriptor_to_shape_position(to);
+
+        if (!sp1 || !sp2) return new Polyline([]);
+
+        let res: Vector[] = [sp1.vec];
+
+        const guard = Bounds.guard_inf_loop(this.vertex_count + 2);
+
+        for (
+            let i = sp1.index + 1;
+            i != sp2.index + 1;
+            i = (i + 1) % this.vertex_count
+        ) {
+            guard();
+            res.push(this.verticies[i]!);
+        }
+
+        res.push(sp2.vec);
+
+        return Polyline.from_verticies(res);
     }
 }

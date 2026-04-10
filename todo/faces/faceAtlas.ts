@@ -5,7 +5,7 @@ import { RogueComponent } from "./rogue.js";
 import { ConnectedComponentFaceData } from "./algorithms/findFaces.js";
 import { ConnectedFaceComponent } from "./connectedFaceComponent.js";
 import { Line } from "../line.js";
-import { Sketch } from "../sketch/index.js";
+import { Sketch } from "../sketch.js";
 
 import * as CollectionMethods from "../collection";
 

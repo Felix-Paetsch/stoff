@@ -37,3 +37,11 @@ export function rectangle(v1: Vector, v2: Vector): Polygon {
         new Vector(v1.x, v2.y),
     ]);
 }
+
+export function circle(center: Vector, radius: number): Polygon {
+    return Polygon.from_function((t) => {
+        return new Vector(radius * Math.sin(t), radius * Math.cos(t)).add(
+            center,
+        );
+    });
+}

@@ -8,9 +8,9 @@ import {
 } from "../../../geometrytry";
 import { Line } from "../line";
 import { Point } from "../point";
-import { Sketch } from "./index";
+import { Sketch } from "./sketch";
 import { expect } from "../../expect";
-import { same_sketch } from "../expect_methods/exports";
+import { same_sketch } from "../../../todo/expect_methods/exports";
 import {
     CopySketchObjectDataCallback,
     default_data_callback,

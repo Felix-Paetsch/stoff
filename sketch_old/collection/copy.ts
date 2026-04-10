@@ -1,6 +1,6 @@
 import { Point } from "../point";
 import { Line } from "../line";
-import { Sketch } from "../sketch";
+import { Sketch } from "../sketch/sketch";
 import {
     SketchElement,
     SketchElementCollection,

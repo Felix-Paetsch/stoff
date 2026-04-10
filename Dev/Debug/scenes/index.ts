@@ -1,4 +1,4 @@
-import { Sketch } from "../../../Core/sketch/sketch/index";
+import { Sketch } from "../../../Core/sketch/sketch";
 
 export default function (): Sketch | Sketch[] | void {
     const s = new Sketch();

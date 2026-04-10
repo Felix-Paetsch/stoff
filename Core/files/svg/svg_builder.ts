@@ -1,5 +1,3 @@
-import { Polygon } from "../../../geometry_old/shapes/polygongon";
-import { Polyline } from "../../../geometry_old/shapes/polylineine";
 import { Json } from "../../utils/json";
 import {
     defaultLineRenderAttributes,
@@ -13,7 +11,7 @@ import {
 } from "./render_attributes";
 import { colorToHex, Gradient } from "@/Core/colors";
 import { SVGGradient } from "./gradient";
-import { Vector, ZERO } from "@/geometry_oldy
+import { Polygon, Polyline, Vector } from "@/Core/geometry";
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
@@ -35,7 +33,7 @@ export class SVG_Builder {
     constructor(
         public width: number = 100,
         public height: number = 100,
-        public viewbox: [Vector, Vector] = [ZERO, new Vector(100, 100)],
+        public viewbox: [Vector, Vector] = [Vector.ZERO, new Vector(100, 100)],
         public padding: number = 0,
     ) {}
 
@@ -160,10 +158,11 @@ export class SVG_Builder {
                     const to = (i + 1) / sections;
 
                     const subline = line.slice(from, to);
+                    if (subline.is_empty()) continue;
 
                     const gradient_id = gradient.gradient_segment(from, to, {
-                        from: subline.first(),
-                        to: subline.last(),
+                        from: subline.first()!,
+                        to: subline.last()!,
                     });
 
                     const sublinePoints = vectors_to_string(subline.verticies);

@@ -3,6 +3,8 @@ import { Vector } from "./vector";
 export type Radians = number;
 export type Degrees = number;
 
+export { type Fraction } from "./interval";
+
 export function deg_to_rad(d: Degrees): Radians {
     return (Math.PI * d) / 180;
 }

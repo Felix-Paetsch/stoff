@@ -5,7 +5,7 @@ import { BoundingBox } from "../bounding_box";
 import { EPS } from "../../numerics";
 import { Fraction } from "../interval";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { Geometry, Line, Ray } from "..";
+import { Geometry, Ray } from "..";
 import {
     closest_points,
     f64_to_vec_array,
@@ -23,6 +23,7 @@ import {
 import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
 import { merge } from "./algorithms/merge";
 import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
+import { Line } from "../line";
 
 export namespace Shape {
     export type PolylineFunction = (t: Fraction) => Vector;
@@ -34,6 +35,16 @@ export namespace Shape {
         frac: Fraction; // Fraction to next
     };
     export type Shape = Polyline | Polygon;
+    export type ShapePointDescriptor =
+        | number
+        | {
+              at: number;
+              relative: boolean;
+          }
+        | Vector
+        | Shape.ShapePosition
+        | "start"
+        | "end";
 }
 
 export abstract class Shape {
@@ -92,33 +103,7 @@ export abstract class Shape {
     }
 
     sample(at: number, relative: boolean = true): Vector {
-        const l = this.as_polyline();
-
-        const totalLength = l.length();
-        let targetDistance = relative ? at * totalLength : at;
-        if (targetDistance < 0) {
-            targetDistance = totalLength - targetDistance;
-        }
-
-        const vec = l.verticies;
-
-        let currentDistance = 0;
-        for (let i = 0; i < vec.length - 1; i++) {
-            const segmentLength = vec[i]!.distance(vec[i + 1]!);
-            const nextDistance = currentDistance + segmentLength;
-
-            if (targetDistance <= nextDistance) {
-                const t =
-                    segmentLength === 0
-                        ? 0
-                        : (targetDistance - currentDistance) / segmentLength;
-                return Vector.lerp(vec[i]!, vec[i + 1]!, t);
-            }
-
-            currentDistance = nextDistance;
-        }
-
-        return vec[vec.length - 1]!;
+        return this.shape_position_at_length(at, relative).vec;
     }
 
     as_polyline(): Polyline {
@@ -255,58 +240,87 @@ export abstract class Shape {
         return res[0];
     }
 
-    normal_vector(at: Shape.ShapePosition | Vector): Vector | null {
-        if (at instanceof Vector) {
-            const closest = this.closest_shape_position(at);
-            if (!closest) return null;
-            return this.normal_vector(closest);
+    shape_position_at_length(
+        at: number,
+        relative: boolean = true,
+    ): Shape.ShapePosition {
+        const l = this.as_polyline();
+
+        const totalLength = l.length();
+        let targetDistance = relative ? at * totalLength : at;
+        if (targetDistance < 0) {
+            targetDistance = totalLength - targetDistance;
         }
 
-        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        const vec = l.verticies;
+
+        let currentDistance = 0;
+        for (let i = 0; i < vec.length - 1; i++) {
+            const segmentLength = vec[i]!.distance(vec[i + 1]!);
+            const nextDistance = currentDistance + segmentLength;
+
+            if (targetDistance <= nextDistance) {
+                const t =
+                    segmentLength === 0
+                        ? 0
+                        : (targetDistance - currentDistance) / segmentLength;
+                return {
+                    vec: Vector.lerp(vec[i]!, vec[i + 1]!, t),
+                    index: i,
+                    frac: t,
+                };
+            }
+
+            currentDistance = nextDistance;
+        }
+
+        return {
+            vec: vec[vec.length - 1]!,
+            index: vec.length - 2,
+            frac: 1,
+        };
+    }
+
+    normal_vector(at: Shape.ShapePointDescriptor): Vector | null {
+        const at_descr = this.shape_point_descriptor_to_shape_position(at);
+        if (!at_descr) return null;
+
+        const l = get_appreciable_line_segment(this.typesafe(), at_descr.index);
         if (!l) return null;
 
         return l[1].subtract(l[0]).orthonormal();
     }
 
-    normal_line(at: Shape.ShapePosition | Vector): Line | null {
-        if (at instanceof Vector) {
-            const closest = this.closest_shape_position(at);
-            if (!closest) return null;
-            return this.normal_line(closest);
-        }
+    normal_line(at: Shape.ShapePointDescriptor): Line | null {
+        const at_descr = this.shape_point_descriptor_to_shape_position(at);
+        if (!at_descr) return null;
 
-        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        const l = get_appreciable_line_segment(this.typesafe(), at_descr.index);
         if (!l) return null;
 
         const dir = l[1].subtract(l[0]).orthogonal();
-        return Line.from_direction(at.vec, dir);
+        return Line.from_direction(at_descr.vec, dir);
     }
 
     tangent_vector(at: Shape.ShapePosition | Vector): Vector | null {
-        if (at instanceof Vector) {
-            const closest = this.closest_shape_position(at);
-            if (!closest) return null;
-            return this.normal_vector(closest);
-        }
+        const at_descr = this.shape_point_descriptor_to_shape_position(at);
+        if (!at_descr) return null;
 
-        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        const l = get_appreciable_line_segment(this.typesafe(), at_descr.index);
         if (!l) return null;
 
         return l[1].subtract(l[0]).to_len(1);
     }
 
     tangent_line(at: Shape.ShapePosition | Vector): Line | null {
-        if (at instanceof Vector) {
-            const closest = this.closest_shape_position(at);
-            if (!closest) return null;
-            return this.tangent_line(closest);
-        }
+        const at_descr = this.shape_point_descriptor_to_shape_position(at);
+        if (!at_descr) return null;
 
-        const l = get_appreciable_line_segment(this.typesafe(), at.index);
+        const l = get_appreciable_line_segment(this.typesafe(), at_descr.index);
         if (!l) return null;
 
         const dir = l[1].subtract(l[0]);
-        return Line.from_direction(at.vec, dir);
+        return Line.from_direction(at_descr.vec, dir);
     }
 
     static closest_shape_positions(
@@ -348,9 +362,7 @@ export abstract class Shape {
             gShape = new Polyline([g]);
         }
 
-        return Shape.shape_intersection_positions(this, gShape).map(
-            (p) => p[0],
-        );
+        return Shape.intersection_positions(this, gShape).map((p) => p[0]);
     }
 
     intersects(g: Geometry.Geometry): boolean {
@@ -377,7 +389,7 @@ export abstract class Shape {
         return r;
     }
 
-    static shape_intersection_positions(
+    static intersection_positions(
         sh1: Shape,
         sh2: Shape,
     ): [Shape.ShapePosition, Shape.ShapePosition][] {
@@ -429,4 +441,38 @@ export abstract class Shape {
     }
 
     abstract reverse(): Shape;
+
+    shape_point_descriptor_to_shape_position(
+        d: Shape.ShapePointDescriptor,
+    ): Shape.ShapePosition | null {
+        if (this.vertex_count == 0) return null;
+        if (d instanceof Vector) return this.closest_shape_position(d);
+        if (typeof d == "number") return this.shape_position_at_length(d);
+        if (d == "start") {
+            return {
+                vec: this.verticies[0]!,
+                index: 0,
+                frac: 0,
+            };
+        }
+        if (d == "end") {
+            if (this instanceof Polyline) {
+                return {
+                    vec: this.last()!,
+                    index: this.vertex_count - 1,
+                    frac: 1,
+                };
+            }
+
+            return {
+                vec: this.verticies[0]!,
+                index: this.vertex_count - 1,
+                frac: 1,
+            };
+        }
+        if ("at" in d) {
+            return this.shape_position_at_length(d.at, d.relative);
+        }
+        return d;
+    }
 }

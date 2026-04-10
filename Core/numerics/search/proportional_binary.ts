@@ -1,5 +1,5 @@
-import { EPS } from "@/geometry_old/epss
 import { SearchResult, TerminationCriteria } from ".";
+import { EPS } from "../eps";
 
 const TotalMaxIterations = 10001;
 
@@ -58,9 +58,11 @@ export function proportional_binary(
 
     for (; i < iterations && i < TotalMaxIterations; i++) {
         const fd = fb - fa;
-        let x = (a + b) / 2;
-        if (fd > EPS.MODERATE) {
+        let x: number;
+        if (fd > EPS.tiny) {
             x = (a * fb - b * fa) / fd;
+        } else {
+            x = a + b;
         }
         const fx = f(x) - target;
 

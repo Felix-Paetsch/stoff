@@ -1,7 +1,7 @@
-import { vec_angle_clockwise } from "../geometry/algorithms";
-import { Line, Ray } from "../geometry/classes";
-import { isLineSegment, LineSegment, Radians } from "./types";
+import { Line } from "./line";
 import { Matrix } from "./matrix";
+import { Ray } from "./ray";
+import { LineSegment, Radians } from "./types";
 import { Vector } from "./vector";
 
 export type LinearTransformation = (x: Vector) => Vector;
@@ -17,8 +17,8 @@ export function linear(
 }
 
 export function orthogonal(f_in: Vector, f_out: Vector): LinearTransformation {
-    const f_in_orth = f_in.get_orthogonal();
-    const f_out_orth = f_out.get_orthogonal();
+    const f_in_orth = f_in.orthogonal();
+    const f_out_orth = f_out.orthogonal();
 
     return linear([f_in, f_in_orth], [f_out, f_out_orth]);
 }
@@ -106,8 +106,8 @@ export function mirror_type(el: MirrorData): MirrorType {
 
 export function mirror(md: MirrorData): LinearTransformation {
     if (md instanceof Line || md instanceof Ray)
-        return (x: Vector) => x.mirror_at(md.project(x));
-    if (isLineSegment(md)) {
+        return (x: Vector) => x.mirror_at(md.to_line().project(x));
+    if (Array.isArray(md)) {
         return mirror(new Line(md[0], md[1]));
     }
     if (md === null) return mirror(Vector.ZERO);

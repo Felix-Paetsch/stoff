@@ -5,11 +5,13 @@ import {
     LineRenderAttributes,
     PointRenderAttributes,
 } from "@/Core/files/svg/render_attributes";
-import { Sketch } from "@/Core/sketch/sketch";
+import { Sketch } from "@/Core/sketch/sketch/sketch";
+import { Polygon } from "@/geometry_old/shapes/polygonn
+import { is_polygon } from "@/geometry_old/shapess
 import { Line } from "@/Core/sketch/line";
 import { Json } from "@/Core/utils/json";
 import { Point } from "@/Core/sketch/point";
-import { FiniteGeometry } from "@/Core/geometry";
+import { BoundingBox } from "@/geometry_oldy
 
 export function render_sketch(
     s: Sketch,
@@ -45,7 +47,12 @@ export function render_sketch(
     );
 
     svg.render_polygon(
-        FiniteGeometry.rectangle(bb.top_left, bb.bottom_right),
+        new Polygon([
+            bb.top_left,
+            bb.top_right,
+            bb.bottom_right,
+            bb.bottom_left,
+        ]),
         {
             fill: "white",
             stroke: null,

@@ -1,7 +1,7 @@
 import { Gradient, interpolate_colors } from "@/Core/colors";
 import { SVG_Builder } from "./svg_builder";
 import { unique_string } from "@/Core/utils/unique";
-import { BoundingBox, Fraction, Radians, Vector } from "@/geometry_oldy
+import { BoundingBox, Interval, Radians, Vector } from "../../geometry";
 
 export class SVGGradient {
     constructor(
@@ -10,8 +10,8 @@ export class SVGGradient {
     ) {}
 
     gradient_segment(
-        from: Fraction,
-        to: Fraction,
+        from: Interval.Fraction,
+        to: Interval.Fraction,
         orientation:
             | {
                   bounding_box: BoundingBox;

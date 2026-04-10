@@ -3,8 +3,8 @@ import { definePattern } from "../types";
 import { BaseMeasurementsSchema } from "../base_measurements";
 import { construct_base_tshirt_parts } from "./construct_base_parts";
 import { BoundShirtSideMeasurements } from "./measurement_utils";
-import { start_global_recording } from "@/Core/sketch/debug/recording";
-import { hot_debug_render } from "@/Core/sketch/debug/debug_render";
+import { start_global_recording } from "@/todo/debug/recording";
+import { hot_debug_render } from "@/todo/debug/debug_render";
 
 export const TShirtPatternConfigSchema = z.intersection(
     z.object({

@@ -1,43 +1,22 @@
 import { expect, invalid_path } from "../expect";
-import {
-    affine_transform_from_input_output,
-    BoundingBox,
-    closest_vec_on_line_segment,
-    convex_hull,
-    EPS,
-    is_convex,
-    orientation,
-    PlainLine,
-    polygon_orientation,
-    Vector,
-} from "../../geometrytry";
-import { Cache } from "../utils/cache";
-import { ConnectedComponent } from "./collection/connected_component";
-import { copy_sketch_element_collection } from "./collection/copy";
 import { Point } from "./point";
-import { Sketch } from "./sketch";
 import { SketchElement, StoffObjectData } from "./types";
 import * as SketchElementCollectionMethods from "./collection/index";
-// import { offset_polyline } from "../shapes/manipulations/offset_sample_points.tmp";
-import {
-    is_polygon,
-    is_polyline,
-    Polyline,
-    Shape,
-    to_shape,
-} from "../../geometry_old/shapes/polylineine";
+import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";
+import { EPS } from "../numerics";
+import { same_sketch } from "@/todo/expect_methods/exports";
 
 export class Line {
     public data: StoffObjectData = {};
-    private cache: Cache = new Cache();
 
     // From p1 to p2 rightwards | if we merge lines with opposite orientations, we take the one of the first line
+    // Makes sense (consistent locally) also for polygons
     public right_handed: boolean = true;
     private _is_removed = false;
 
     constructor(
-        private endpoints: [Point, Point],
-        private _shape: Shape,
+        private _endpoints: [Point, Point],
+        private _shape: Shape.Shape,
     ) {
         /*
             Sample points is an array of absolute values [x, y] such that
@@ -46,116 +25,111 @@ export class Line {
             - if it is a polygon, the endpoints must agree
         */
 
-        if (is_polyline(this.shape)) {
-            expect(
-                this.shape.first().distance_squared(this.p1) < EPS.COARSE &&
-                    this.shape.last().distance_squared(this.p2) < EPS.COARSE,
-                "Line sample points dont start and end at p1/p2",
-            );
-        } else {
-            expect(
-                this.shape.root().distance_squared(this.p1) < EPS.COARSE &&
-                    this.shape.root().distance_squared(this.p1) < EPS.COARSE,
-                "Polygon sample points dont start and end at p1/p2",
-            );
+        this._endpoints[0].__register_line(this);
+        if (this._endpoints[0] !== this._endpoints[1]) {
+            this._endpoints[1].__register_line(this);
         }
+        this.sketch.__register_line(this);
 
-        this.endpoints[0].__register_line(this);
-        this.endpoints[1].__register_line(this);
-        this.get_sketch().__register_line(this);
+        // For sizing it correctly
+        this.update_shape(this._shape);
 
-        expect(
-            this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch(),
-        );
-        expect(
-            this.endpoints[0].get_sketch() === this.endpoints[1].get_sketch(),
-        );
+        this.validate_self();
     }
 
     get is_removed() {
         return this._is_removed;
     }
 
-    get_sketch() {
+    get sketch() {
         expect(!this._is_removed, "Line is removed");
-        return this.p1.get_sketch();
+        return this.p1.sketch;
     }
 
     get p1() {
         expect(!this._is_removed, "Line is removed");
-        return this.endpoints[0];
-    }
-    set p1(p) {
-        expect(!this._is_removed, "Line is removed");
-        this.endpoints[0] = p;
-        this.cache_update("endpoints");
+        return this._endpoints[0];
     }
     get p2() {
         expect(!this._is_removed, "Line is removed");
-        return this.endpoints[1];
+        return this._endpoints[1];
     }
-    set p2(p) {
-        expect(!this._is_removed, "Line is removed");
-        this.endpoints[1] = p;
-        this.cache_update("endpoints");
-    }
-    get sample_points() {
-        return this.shape.verticies;
-    }
-    set sample_points(points: Vector[]) {
-        expect(!this._is_removed, "Line is removed");
-        const shape = to_shape(points);
-        if (is_polygon(shape)) {
-            expect(is_polyline(this.shape), "Sample points don't form polygon");
-            const offset = this.p1.subtract(shape.root());
-            this._shape = shape.map((v) => v.add(offset));
-            return;
-        }
 
-        const map_fun = affine_transform_from_input_output(
-            [shape.first(), shape.last()],
-            this.endpoints,
-        );
-        this._shape = shape.map(map_fun);
+    get endpoints(): [Point, Point] {
+        return [...this._endpoints];
     }
+
     get shape() {
         return this._shape;
     }
 
-    is_polygon(): boolean {
-        return is_polygon(this.shape);
-    }
+    update_shape(shape: Shape.Shape) {
+        expect(!shape.is_empty());
+        if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
+            expect(this.p1.equals(this.p2));
+            const diff = Vector.subtract(this.p1, shape.verticies[0]!);
+            if (diff.length() < EPS.tiny) return;
+            this._shape = shape.map((v) => v.add(diff));
+            return;
+        }
 
-    is_polyline(): boolean {
-        return is_polyline(this.shape);
-    }
-
-    cache_update(...what: string[]) {
-        expect(!this._is_removed, "Line is removed");
-        this.cache.dependency_changed(...what);
-    }
-
-    offset_sample_points(_radius: number, _withHandedness: boolean = true) {
-        expect(!this._is_removed, "Line is removed");
-        throw new Error("Unimplemented");
-        // return offset_polyline(
-        //     this.get_absolute_sample_points(),
-        //     radius,
-        //     withHandedness ? this.right_handed : !this.right_handed,
-        // );
+        if (
+            shape.first()!.distance(this.p1) < EPS.tiny &&
+            shape.last()!.distance(this.p2) < EPS.tiny
+        ) {
+            return;
+        }
+        const trafo = LinearTransform.affine_orthogonal(
+            [shape.first()!, shape.last()!],
+            [this.p1, this.p2],
+        );
+        this._shape = shape.map(trafo);
     }
 
     set_endpoints(p1: Point, p2: Point) {
         expect(!this._is_removed, "Line is removed");
         this.p1.__unregister_line(this);
-        this.p2.__unregister_line(this);
 
-        this.p1 = p1;
-        this.p2 = p2;
+        if (this.p1 !== this.p2) {
+            this.p2.__unregister_line(this);
+        }
+
+        this._endpoints = [p1, p2];
 
         p1.__register_line(this);
-        p2.__register_line(this);
+        if (p1 !== p2) {
+            p2.__register_line(this);
+        }
 
+        return this;
+    }
+
+    mirror() {
+        if (this.shape.is_polygon()) {
+            const transform = LinearTransform.mirror(this.shape.verticies[0]!);
+            this.update_shape(this.shape.map(transform));
+        } else {
+            const transform = LinearTransform.mirror([this.p1, this.p2]);
+            this.update_shape(this.shape.map(transform));
+        }
+
+        this.right_handed = !this.right_handed;
+    }
+
+    flip() {
+        let trafo: LinearTransform.LinearTransformation;
+        if (!this.is_closed()) {
+            trafo = LinearTransform.affine_orthogonal(this._endpoints, [
+                this.p2,
+                this.p1,
+            ]);
+            this._shape = this._shape.map(trafo);
+        } else {
+            this._shape = this._shape.reverse();
+        }
+
+        this._endpoints = [this._endpoints[1], this._endpoints[0]];
+        this.right_handed = !this.right_handed;
         return this;
     }
 
@@ -163,7 +137,7 @@ export class Line {
         expect(!this._is_removed, "Line is already removed");
         this.p1.__unregister_line(this);
         this.p2.__unregister_line(this);
-        this.get_sketch().__unregister_line(this);
+        this.sketch.__unregister_line(this);
         this._is_removed = true;
     }
 
@@ -192,7 +166,54 @@ export class Line {
         if (this.p2 == p1) return this.set_endpoints(p2, p1);
         if (this.p1 == p2) return this.set_endpoints(p2, p1);
         if (this.p2 == p2) return this.set_endpoints(p1, p2);
-        expect(invalid_path());
+        expect(invalid_path("No endpoint belonged to line"));
+    }
+
+    closest_position(to: Vector): Vector {
+        return this.shape.closest_shape_position(to)!.vec;
+    }
+
+    position_at_length(
+        at:
+            | number
+            | {
+                  at: number;
+                  relative: boolean;
+              },
+    ): Vector {
+        return this.shape.shape_point_descriptor_to_shape_position(at)!.vec;
+    }
+
+    split_at(
+        at:
+            | Point
+            | Vector
+            | number
+            | {
+                  at: number;
+                  relative: boolean;
+              }
+            | Shape.ShapePosition,
+    ): {
+        line_segments: [Line, Line];
+        point: Point;
+    } {
+        const descriptor =
+            this.shape.shape_point_descriptor_to_shape_position(at)!;
+        const pt =
+            at instanceof Point ? at : this.sketch.add_point(descriptor.vec);
+
+        const shape1 = this.shape.typesafe().slice("start", descriptor);
+        const shape2 = this.shape.typesafe().slice(descriptor, "end");
+
+        const l1 = new Line([this.p1, pt], shape1);
+        const l2 = new Line([pt, this.p2], shape2);
+
+        this.remove();
+        return {
+            line_segments: [l1, l2],
+            point: pt,
+        };
     }
 
     replace_endpoint(old_pt: Point, new_pt: Point) {
@@ -204,67 +225,10 @@ export class Line {
         expect(invalid_path("Both endpoints dont belong to line"));
     }
 
-    get_sample_points() {
-        return this.sample_points;
-    }
-
-    is_straight() {
-        expect(!this._is_removed, "Line is removed");
-        return !this.sample_points.some((p) => p.y !== 0);
-    }
-
-    is_convex(allow_overflow: boolean = false) {
-        expect(!this._is_removed, "Line is removed");
-        // The argument says whether the line is also inside the rectangle
-        /*
-            -----P1--------------
-                   *.
-                 ..:*
-            ---- P2 -------------
-        */
-        if (!is_convex(this.sample_points)) return false;
-        if (allow_overflow) return true;
-
-        const sp = this.sample_points;
-        let first_non_zero_sp_index = 0;
-        while (
-            sp[++first_non_zero_sp_index]!.distance(sp[0]!) < EPS.WEAK_EQUAL
-        ) {}
-
-        let last_non_one_sp_index = sp.length - 1;
-        while (
-            sp[--last_non_one_sp_index]!.distance(sp[sp.length - 1]!) <
-            EPS.WEAK_EQUAL
-        ) {}
-
-        return (
-            sp[first_non_zero_sp_index]!.x >= -EPS.MINY &&
-            sp[last_non_one_sp_index]!.x <= 1 + EPS.MINY
-        );
-    }
-
-    connected_component() {
-        expect(!this._is_removed, "Line is removed");
-        return new ConnectedComponent(this);
-    }
-
-    copy_sample_points() {
-        return this.sample_points.map((v) => new Vector(v));
-    }
-
-    get_line_vector() {
-        return this.p2.subtract(this.p1);
-    }
-
-    get_endpoints(): [Point, Point] {
-        expect(!this._is_removed, "Line is removed");
-        return [this.p1, this.p2];
-    }
-
-    get_adjacent_lines() {
+    adjacent_lines() {
         expect(!this._is_removed, "Line is removed");
         return SketchElementCollectionMethods.unique(
-            this.p1.get_adjacent_lines().concat(this.p2.get_adjacent_lines()),
+            this.p1.adjacent_lines().concat(this.p2.adjacent_lines()),
         ).filter((l: Line) => l !== this);
     }
 
@@ -272,126 +236,75 @@ export class Line {
     same_orientation(p: Point): boolean;
     same_orientation(l: Line): boolean;
     same_orientation(...args: any[]) {
+        // shape x shape with not all points equal: test if somehow its A.p1 -> B.p2
+        // shape x shape with all points in common: test if cw / ccw is the same
+        // point, (point | undefined): test if first point is p1
+        // UB if not touching
+
         expect(!this._is_removed, "Line is removed");
 
-        if (args[0] instanceof Line) {
+        if (args[0] instanceof Point) {
+            return this.p1 == args[0];
+        }
+
+        const l: Line = args[0];
+
+        if (l.p1 == l.p2 && l.p1 == this.p1 && l.p1 == this.p2) {
             return (
-                args[0].p2 == this.p1 ||
-                args[0].p1 == this.p2 ||
-                args[0] == this
+                this.shape.as_polygon().orientation() ==
+                l.shape.as_polygon().orientation()
             );
         }
 
-        expect(this.has_endpoint(args[0]));
-        expect(!args[1] || this.has_endpoint(args[1]));
-        return this.p1 == args[0];
+        return l.p1 == this.p2 || this.p1 == l.p2;
     }
 
     same_handedness(line: Line) {
+        // shape x shape with all points in common: objective handedness
+        // line x line with one/two point in common: objective handedness
+        // shape x shape with three points in common: true
+        // UB else
+
         expect(!this._is_removed, "Line is removed");
-        if (this.same_orientation(line)) {
+
+        if (line.p1 == line.p2 && line.p1 == this.p1 && line.p1 == this.p2) {
+            let same_orientation =
+                this.shape.as_polygon().orientation() ==
+                line.shape.as_polygon().orientation();
+            let same_handedness = this.right_handed == line.right_handed;
+
+            return same_orientation == same_handedness;
+        }
+
+        if (this.p2 == line.p1) {
+            if (this.p1 == this.p2 || line.p2 == this.p2) return true;
             return this.right_handed == line.right_handed;
         }
 
-        expect(!!this.common_endpoint(line), "Lines dont have common endpoint");
-        return this.right_handed != line.right_handed;
+        if (this.p2 == line.p2) {
+            if (this.p1 == this.p2 || line.p1 == this.p2) return true;
+            return this.right_handed != line.right_handed;
+        }
+
+        if (this.p1 == line.p1) {
+            if (this.p2 == this.p1 || line.p2 == this.p1) return true;
+            return this.right_handed != line.right_handed;
+        }
+
+        if (this.p1 == line.p2) {
+            if (this.p2 == this.p1 || line.p1 == this.p1) return true;
+            return this.right_handed != line.right_handed;
+        }
+
+        return false;
     }
 
-    get_tangent_line(pt: Vector | Point) {
-        expect(!this._is_removed, "Line is removed");
-        return PlainLine.from_direction(pt, this.get_tangent_vector(pt));
-    }
-
-    get_tangent_vector(pt: Vector | Point) {
-        expect(!this._is_removed, "Line is removed");
-        // Points along the line in the direction this.p1 -> this.p2, unless we put in this.p1;
-
-        if (this.p1.equals(pt)) {
-            let i = 1;
-            while (
-                this.sample_points[i]!.distance(this.sample_points[0]!) <
-                EPS.MEDIUM
-            ) {
-                i++;
-            }
-            const tangent_inwards = this.p1
-                .subtract(this.sample_points[i]!)
-                .normalize();
-            return this.p1 == pt ? tangent_inwards : tangent_inwards.invert();
-        }
-
-        if (this.p2.equals(pt)) {
-            let i = this.sample_points.length - 1;
-            while (
-                this.sample_points[i]!.distance(
-                    this.sample_points[this.sample_points.length - 1]!,
-                ) < EPS.MEDIUM
-            ) {
-                i--;
-            }
-            return this.p2.subtract(this.sample_points[i]!).normalize();
-        }
-
-        let min = Infinity;
-        let best_index: number = 0;
-
-        for (let i = 0; i < this.sample_points.length - 1; i++) {
-            const closest_on_line = closest_vec_on_line_segment(
-                [this.sample_points[i]!, this.sample_points[i + 1]!],
-                pt,
-            );
-            const dist = closest_on_line.distance(pt);
-
-            if (dist < min) {
-                min = dist;
-                best_index = i;
-            }
-        }
-
-        expect(min < EPS.MODERATE, "Vector/Point is not on line.");
-
-        let left = best_index;
-        let right = best_index + 1;
-        while (
-            this.sample_points[left]!.distance_squared(
-                this.sample_points[right]!,
-            ) < EPS.FINE_SQUARED
-        ) {
-            if (left > 0) left--;
-            if (right < this.sample_points.length - 1) right++;
-        }
-
-        return this.sample_points[right]!.subtract(this.sample_points[left]!);
-    }
-
-    mirror(direction: boolean = false) {
-        expect(!this._is_removed, "Line is removed");
-        if (direction) {
-            const t = this.p1;
-            this.p1 = this.p2;
-            this.p2 = t;
-            this.swap_orientation();
-            // This performs double mirror
-        }
-        this.right_handed = !this.right_handed;
-        for (let i = 0; i < this.sample_points.length; i++) {
-            const p = this.sample_points[i]!;
-            this.sample_points[i] = new Vector(p.x, -p.y);
-        }
-        this.cache_update("sample_points");
-        return this;
-    }
-
-    set_orientation(p1: Point, p2?: Point) {
-        expect(!this._is_removed, "Line is removed");
-        expect(this.endpoints.includes(p1), "Point isnt endpoint of line.");
-        expect(
-            !p2 || this.endpoints.includes(p2),
-            "Point isnt endpoint of line.",
-        );
-
-        if (p1 == this.p2) {
-            this.swap_orientation();
+    set_orientation(p1: Point, p2: Point): this;
+    set_orientation(p: Point): this;
+    set_orientation(l: Line): this;
+    set_orientation(...args: any[]): this {
+        if (!(this.same_orientation as any)(...args)) {
+            return this.swap_orientation();
         }
 
         return this;
@@ -399,17 +312,11 @@ export class Line {
 
     swap_orientation() {
         expect(!this._is_removed, "Line is removed");
-        const t = this.p1;
-        this.p1 = this.p2;
-        this.p2 = t;
-        this.sample_points.reverse();
-        for (let i = 0; i < this.sample_points.length; i++) {
-            const p = this.sample_points[i]!;
-            this.sample_points[i] = new Vector(1 - p.x, -p.y);
-        }
-        this.cache_update("sample_points");
-        this.right_handed = !this.right_handed;
 
+        this._endpoints = [this._endpoints[1], this._endpoints[0]];
+        this._shape = this._shape.reverse();
+
+        this.right_handed = !this.right_handed;
         return this;
     }
 
@@ -419,84 +326,17 @@ export class Line {
         return this;
     }
 
-    set_handedness(cmpr: boolean | Line | Vector): boolean {
+    set_handedness(cmpr: boolean | Line): boolean {
         expect(!this._is_removed, "Line is removed");
         if (typeof cmpr == "boolean") {
             return (this.right_handed = cmpr);
         }
 
-        if (cmpr instanceof Line) {
-            if (this.same_handedness(cmpr)) {
-                return this.right_handed;
-            }
-
-            return (this.right_handed = !this.right_handed);
+        if (this.same_handedness(cmpr)) {
+            return this.right_handed;
         }
 
-        if (cmpr instanceof Vector) {
-            return (this.right_handed = !orientation(this.p1, this.p2, cmpr));
-        }
-
-        return expect(invalid_path());
-    }
-
-    stretch(factor = 1) {
-        expect(!this._is_removed, "Line is removed");
-
-        for (let i = 0; i < this.sample_points.length; i++) {
-            const p = this.sample_points[i]!;
-            this.sample_points[i] = new Vector(p.x, factor * p.y);
-        }
-
-        this.cache_update("sample_points");
-        return this;
-    }
-
-    endpoint_distance() {
-        expect(!this._is_removed, "Line is removed");
-        return this.p1.distance(this.p2);
-    }
-
-    get_length() {
-        expect(!this._is_removed, "Line is removed");
-        return this.cache.compute_dependent(
-            "get_length",
-            ["endpoints", "sample_points"],
-            () => {
-                const endpoint_distance = this.endpoint_distance();
-                let sum = 0;
-
-                for (let i = 0; i < this.sample_points.length - 1; i++) {
-                    sum += this.sample_points[i]!.distance(
-                        this.sample_points[i + 1]!,
-                    );
-                }
-
-                return sum * endpoint_distance;
-            },
-        );
-    }
-
-    get_bounding_box() {
-        expect(!this._is_removed, "Line is removed");
-        return this.cache.compute_dependent(
-            "bounding_box",
-            ["absolute_sample_points"],
-            () => {
-                return BoundingBox.from_points(this.sample_points);
-            },
-        );
-    }
-
-    convex_hull() {
-        expect(!this._is_removed, "Line is removed");
-        return this.cache.compute_dependent(
-            "convex_hull",
-            ["absolute_sample_points"],
-            () => {
-                return convex_hull(this.sample_points);
-            },
-        );
+        return (this.right_handed = !this.right_handed);
     }
 
     is_adjacent(thing: SketchElement) {
@@ -521,265 +361,52 @@ export class Line {
         throw new Error("Lines don't have common endpoint!");
     }
 
-    position_at_length(length: number, reversed = false): Vector {
-        expect(!this._is_removed, "Line is removed");
-        const l = this.get_length();
-        length = length >= 0 ? length : l - length;
-        expect(length <= l, "Specified length longer than line.");
-
-        if (reversed) {
-            length = l - length;
-        }
-
-        const endpoint_distance = this.endpoint_distance();
-        const adjusted_length = length / endpoint_distance;
-
-        let sum = 0;
-        for (let i = 0; i < this.sample_points.length - 1; i++) {
-            let START_I = i;
-            let next_length = 0;
-            while (true) {
-                next_length = this.sample_points[i + 1]!.distance(
-                    this.sample_points[START_I]!,
-                );
-                if (next_length > EPS.FINE) {
-                    break;
-                }
-                if (i + 1 < this.sample_points.length) {
-                    i++;
-                } else {
-                    START_I--;
-                }
-            }
-
-            if (
-                sum <= adjusted_length + EPS.COARSE &&
-                sum + next_length >= adjusted_length - EPS.COARSE
-            ) {
-                const left_to_walk = adjusted_length - sum;
-                const fraction_left = left_to_walk / next_length;
-
-                return Vector.lerp(
-                    this.sample_points[i]!,
-                    this.sample_points[i + 1]!,
-                    fraction_left,
-                );
-            }
-
-            sum += next_length;
-        }
-
-        throw expect(invalid_path());
-    }
-
-    position_at_fraction(f: number, reversed = false) {
-        expect(!this._is_removed, "Line is removed");
-        expect(Math.abs(f) <= 1, "Fraction is not in range [-1,1]");
-
-        f = f >= 0 ? f : 1 - f;
-        return this.position_at_length(f * this.get_length(), reversed);
-    }
-
-    closest_position(vec: Vector) {
-        expect(!this._is_removed, "Line is removed");
-
-        let min: number = Infinity;
-        let best: Vector = new Vector(0, 0);
-
-        for (let i = 0; i < this.sample_points.length - 1; i++) {
-            const closest_on_line = closest_vec_on_line_segment(
-                [this.sample_points[i]!, this.sample_points[i + 1]!],
-                vec,
+    validate_self() {
+        expect(!this.shape.is_empty());
+        if (this.shape instanceof Polygon) {
+            expect(
+                this.shape.root()!.distance_squared(this.p1) < EPS.tiny &&
+                    this.shape.root()!.distance_squared(this.p2) < EPS.tiny,
+                "Polygon sample points dont start and end at p1/p2",
             );
-            const dist = closest_on_line.distance(vec);
-
-            if (dist < min) {
-                min = dist;
-                best = closest_on_line;
-            }
+        } else {
+            expect(
+                this.shape.first()!.distance_squared(this.p1) < EPS.tiny &&
+                    this.shape.last()!.distance_squared(this.p2) < EPS.tiny,
+                "Line sample points dont start and end at p1/p2",
+            );
         }
 
-        return best;
+        expect(same_sketch(...this._endpoints));
     }
 
-    minimal_distance(vec: Vector) {
-        expect(!this._is_removed, "Line is removed");
-        const p = this.closest_position(vec);
-        return p.distance(vec);
+    length() {
+        return this.shape.length();
+    }
+
+    is_closed() {
+        return this.shape.is_polygon();
     }
 
     toString() {
         return "[Line]" as const;
     }
 
+    bounding_box() {
+        return this.shape.bounding_box();
+    }
+
+    connected_component() {
+        expect(!this._is_removed, "Point is removed");
+        return new ConnectedComponent(this);
+    }
+
     toJSON() {
         return {
             p1: this.p1.toJSON(),
             p2: this.p2.toJSON(),
-            sample_points: this.sample_points,
+            sample_points: this.shape.verticies,
         };
-    }
-
-    paste_to_sketch(target: Sketch, position: Vector | null = null) {
-        expect(!this._is_removed, "Line is removed");
-        const res = copy_sketch_element_collection([this], target, position);
-        return res.corresponding_sketch_element(this);
-    }
-
-    resample(
-        sample_spacing: number | null = null,
-        smoothness_angle: number = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
-    ) {
-        this._shape = this.shape.resample(sample_spacing, smoothness_angle);
-    }
-
-    smooth_out(ker_size: number = 0.1, sample_spacing: number | null = null) {
-        return this.shape.smooth_out(ker_size, sample_spacing);
-    }
-
-    static order_by_endpoints(...lines: Line[]): {
-        lines: Line[];
-        points: Point[];
-        orientations: boolean[];
-    } {
-        if (Array.isArray(lines[0])) {
-            lines = [...lines[0]];
-        }
-        if (lines.length == 0) {
-            return {
-                lines: [],
-                points: [],
-                orientations: [],
-            };
-        }
-        if (lines.length == 1) {
-            return {
-                lines: lines,
-                points: lines[0]!.get_endpoints(),
-                orientations: [true],
-            };
-        }
-        if (lines.length == 2)
-            return set_two_line_orientations({
-                lines: lines,
-            });
-
-        const res: {
-            lines: Line[];
-            points: Point[];
-            orientations: boolean[];
-        } = {
-            lines: [],
-            points: [],
-            orientations: [],
-        };
-
-        res.lines.push(lines.pop()!);
-        res.orientations = [true];
-        res.points = [res.lines[0]!.p1, res.lines[0]!.p2];
-
-        let smth_found: boolean = false;
-        while (lines.length > 0) {
-            for (let i = lines.length - 1; i >= 0; i--) {
-                if (res.lines[0]!.common_endpoint(lines[i]!)) {
-                    // Prepend
-                    smth_found = true;
-                    res.lines.unshift(...lines.splice(i, 1));
-                    if (res.lines.length == 2) {
-                        set_two_line_orientations(res);
-                    } else {
-                        const next_orientation = res.orientations[0];
-                        res.orientations.unshift(
-                            res.lines[1]![next_orientation ? "p1" : "p2"] ==
-                                res.lines[0]!.p2,
-                        );
-                        res.points.unshift(
-                            res.lines[0]!.other_endpoint(res.points[0]!),
-                        );
-                    }
-                } else if (
-                    res.lines[res.lines.length - 1]!.common_endpoint(lines[i]!)
-                ) {
-                    // Append
-                    smth_found = true;
-                    res.lines.push(...lines.splice(i, 1));
-                    if (res.lines.length == 2) {
-                        set_two_line_orientations(res);
-                    } else {
-                        const prev_orientation =
-                            res.orientations[res.orientations.length - 1];
-                        res.orientations.push(
-                            res.lines[res.lines.length - 2]![
-                                prev_orientation ? "p2" : "p1"
-                            ] == res.lines[res.lines.length - 1]!.p1,
-                        );
-                        res.points.push(
-                            res.lines[res.lines.length - 1]!.other_endpoint(
-                                res.points[res.points.length - 1]!,
-                            ),
-                        );
-                    }
-                }
-            }
-
-            expect(smth_found, "Lines dotn form a connected segment");
-        }
-
-        function set_two_line_orientations(data: {
-            lines: Line[];
-            points?: Point[];
-            orientations?: boolean[];
-        }): {
-            lines: Line[];
-            points: Point[];
-            orientations: boolean[];
-        } {
-            const l0 = data.lines[0]!;
-            const l1 = data.lines[1]!;
-
-            if (l1.has_endpoint(l0.p2)) {
-                data.orientations = [true, l1.p1 == l0.p2];
-                data.points = [l0.p1, l0.p2, l1.other_endpoint(l0.p2)];
-            } else if (l1.has_endpoint(l0.p1)) {
-                data.orientations = [false, l1.p1 == l0.p1];
-                data.points = [l0.p2, l0.p1, l1.other_endpoint(l0.p1)];
-            } else {
-                expect(invalid_path("Lines dont form a connected segment"));
-            }
-
-            return data as any;
-        }
-
-        return res;
-    }
-
-    static oriented_circle(lines: Line[]): {
-        lines: Line[]; // Im Uhrzeigersinn
-        points: Point[]; // Im Uhrzeigersinn, startend mit dem Endpunkt der ersten Linie am weitersten vorne im Uhrzeigersinn
-        orientations: boolean[]; // Für jede Linie ob p1 -> p2 im Uhrzeigersinn verläuft
-    } {
-        const ordered_lines = Line.order_by_endpoints(...lines);
-        expect(
-            ordered_lines.points[0] ==
-                ordered_lines.points[ordered_lines.points.length - 1],
-            "Lines dont form circle",
-        );
-
-        // We assume no self-intersection
-        const orientation = polygon_orientation(ordered_lines.points.slice(1));
-        if (!orientation) {
-            ordered_lines.lines.reverse();
-            ordered_lines.points.reverse();
-            ordered_lines.orientations.reverse();
-            ordered_lines.orientations = ordered_lines.orientations.map(
-                (o) => !o,
-            );
-        }
-
-        ordered_lines.points.shift();
-        ordered_lines.orientations.shift();
-
-        return ordered_lines;
     }
 
     static straight(...endpoints: [Point, Point]) {
