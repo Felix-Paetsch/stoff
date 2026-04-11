@@ -1,4 +1,3 @@
-import { same_sketch } from "@/todo/expect_methods/exports";
 import { CollectionMethods, Copy } from ".";
 import { expect } from "../expect";
 import { Polygon, Shape, Vector } from "../geometry";

@@ -7,7 +7,7 @@ import {
 } from "@/Core/files/svg/render_attributes";
 import { Sketch } from "@/Core/sketch/sketch";
 import { Line } from "@/Core/sketch/line";
-import { Json } from "@/Core/utils/json";
+import { Json } from "@/Core/types";
 import { Point } from "@/Core/sketch/point";
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
 

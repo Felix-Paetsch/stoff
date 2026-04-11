@@ -1,4 +1,4 @@
-import { Json } from "../../utils/json";
+import { Json } from "../../types";
 import {
     defaultLineRenderAttributes,
     defaultPointRenderAttributes,

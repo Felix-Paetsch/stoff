@@ -2,7 +2,7 @@ dev-run *ARGS:
     npx tsx ./Dev/Debug/index.ts {{ARGS}}
 
 dev-watch *ARGS:
-    ./watch.sh --cooldown 1 "npx tsx ./Dev/Debug/index.ts {{ARGS}}"
+    ./watch.sh --cooldown 1 "npx tsx ./Dev/StandAlone/index.ts {{ARGS}}"
 
 dev-typecheck:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
