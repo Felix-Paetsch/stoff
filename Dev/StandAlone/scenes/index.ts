@@ -15,6 +15,8 @@ export default function (): Sketch | Sketch[] | void {
         (x) => new Vector(x, Math.sin(Math.PI * x)),
     );
 
+    s.data.test = "afsd";
+
     s.line_between_points(p, q, shape);
 
     // Out.put("hey", Out.prefix("string"));

@@ -43,6 +43,10 @@ export const default_data_callback: CopySketchObjectDataCallback =
         };
     };
 
+export const no_data_callback: CopySketchObjectDataCallback = () => {
+    return {};
+};
+
 export type CorrespondingSketchElementMethod = {
     (p: Point): Point;
     (l: Line): Line;
@@ -74,12 +78,13 @@ export function sketch(
         offset = new Vector(0, 0);
     }
 
-    return sketch_element_collection(source, target, offset);
+    return sketch_element_collection(source, target, data_callback, offset);
 }
 
 export function sketch_element_collection(
     source: SketchElementCollection,
     target_sketch: Sketch,
+    data_callback: CopySketchObjectDataCallback | null = default_data_callback,
     offset: Vector | null = null,
 ): CopyResult {
     const ret_points: Point[] = [];
@@ -88,12 +93,16 @@ export function sketch_element_collection(
     const reference_array: ([Point, Point] | [Line, Line])[] = [];
     const all_elements = CollectionMethods.endpoint_hull(source);
 
+    if (data_callback == null) {
+        data_callback = default_data_callback;
+    }
+
     CollectionMethods.get_points(all_elements).forEach((pt) => {
         const new_pt = target_sketch.add_point(
             pt.add(offset || new Vector(0, 0)),
         );
 
-        new_pt.data = { ...pt.data };
+        new_pt.data = data_callback({}, pt.data, new_pt, pt);
         reference_array.push([pt, new_pt]);
         ret_points.push(pt);
     });
@@ -121,7 +130,7 @@ export function sketch_element_collection(
 
         const new_line = new Line([endpoint_1, endpoint_2], line.shape);
         new_line.right_handed = line.right_handed;
-        new_line.data = { ...line.data };
+        new_line.data = data_callback({}, line.data, new_line, line);
 
         reference_array.push([line, new_line]);
         ret_lines.push(line);
@@ -134,22 +143,50 @@ export function sketch_element_collection(
     };
 }
 
-export function point(pt: Point, to?: Sketch): Point {
+export function point(
+    pt: Point,
+    to?: Sketch,
+    data_callback: null | CopySketchObjectDataCallback = null,
+): Point {
     if (!to) to = pt.sketch;
-    return to.add_point(pt);
+    return sketch_element_collection(pt, to, data_callback).points[0]!;
 }
 
-export function line(ln: Line): Line;
-export function line(ln: Line, from: Point, to: Point): Line;
-export function line(ln: Line, to: Sketch): Line;
+export function line(
+    ln: Line,
+    data_callback?: CopySketchObjectDataCallback,
+): Line;
+export function line(
+    ln: Line,
+    from: Point,
+    to: Point,
+    data_callback?: CopySketchObjectDataCallback,
+): Line;
+export function line(
+    ln: Line,
+    to: Sketch,
+    data_callback?: CopySketchObjectDataCallback,
+): Line;
 export function line(ln: Line, ...res: any[]): Line {
+    let new_ln: Line;
     if (res.length == 0) {
-        return new Line(ln.endpoints, ln.shape);
+        new_ln = new Line(ln.endpoints(), ln.shape);
+    } else if (res[0]! instanceof Sketch) {
+        new_ln = new Line(
+            [point(ln.p1, res[0]), point(ln.p2, res[0])],
+            ln.shape,
+        );
+    } else {
+        new_ln = new Line([res[0]!, res[1]!], ln.shape);
     }
 
-    if (res[0]! instanceof Sketch) {
-        return new Line([point(ln.p1, res[0]), point(ln.p2, res[0])], ln.shape);
-    }
+    new_ln.right_handed = ln.right_handed;
 
-    return new Line([res[0]!, res[1]!], ln.shape);
+    let data_callback: CopySketchObjectDataCallback = default_data_callback;
+    if (typeof res[res.length - 1]! == "function") {
+        data_callback = res[res.length - 1];
+    }
+    new_ln.data = data_callback({}, ln.data, new_ln, ln);
+
+    return new_ln;
 }

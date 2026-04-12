@@ -11,7 +11,7 @@ export class Recording {
         this.snapshots = [...snapshots];
     }
 
-    snapshot(s: Sketch, annotation: any = null, stack_trace_slice: number = 3) {
+    snapshot(s: Sketch, stack_trace_slice: number = 3) {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
@@ -22,7 +22,6 @@ export class Recording {
         this.snapshots.push({
             sketch: copy,
             stackTrace,
-            annotation,
         });
         if (cold_snapshot) this.taking_snapshot = false;
     }

@@ -50,7 +50,7 @@ function hideTooltip() {
 function getHoverableSvgElement(target: HTMLThing | null): HTMLThing | null {
     if (!(target instanceof Element)) return null;
 
-    const el = target.closest(".card > .svg-body svg > *") as HTMLThing | null;
+    const el = target.closest(".card .svg-body svg > *") as HTMLThing | null;
 
     if (!el) return null;
     if (!el.hasAttribute("hover_stuff")) return null;
@@ -157,8 +157,8 @@ function onMouseMove(event: HTMLThing) {
     }
 
     if (hovered === currentHoveredEl) {
-        tooltip.style.top = `${event.clientY - 2}px`;
-        tooltip.style.left = `${event.clientX + 8}px`;
+        tooltip.style.top = `${event.clientY + 2}px`;
+        tooltip.style.left = `${event.clientX + 2}px`;
         return;
     }
 
@@ -173,8 +173,8 @@ function onMouseMove(event: HTMLThing) {
     );
 
     tooltip.textContent = tooltipContent;
-    tooltip.style.top = `${event.clientY - 2}px`;
-    tooltip.style.left = `${event.clientX + 8}px`;
+    tooltip.style.top = `${event.clientY + 2}px`;
+    tooltip.style.left = `${event.clientX + 2}px`;
     tooltip.style.opacity = "1";
 
     changeVisibility(show_on_hover);
