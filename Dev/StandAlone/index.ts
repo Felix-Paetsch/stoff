@@ -1,10 +1,9 @@
+import { SVG_Builder } from "@/Core/files/svg/svg_builder";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Sketch } from "../../Core/sketch/sketch";
-import { mkdir } from "fs/promises";
-import { render_sketch } from "@/Core/sketch/rendering";
-import { SVG_Builder } from "@/Core/files/svg/svg_builder";
+import { Out } from "../lib";
 
 export type Scene = () =>
     | void
@@ -37,56 +36,18 @@ if (!fs.existsSync(filePath)) {
     process.exit(1);
 }
 
-const outputDir = await prepare_output_directory(
-    path.join(__dirname, "../Server/watch"),
-);
+Out.clear();
 
 const sceneExport = await import(filePath);
 const scene: Scene = sceneExport.default;
-const res = scene();
+const res = Out.run_wrapped(scene);
 
-if (res instanceof Sketch) {
-    const builder = render_sketch(res, 500, 500, 30, true);
-    const svg = builder.svg();
-
-    fs.writeFileSync(path.join(outputDir, "output.svg"), svg);
-} else if (res instanceof SVG_Builder) {
-    const svg = res.svg();
-    fs.writeFileSync(path.join(outputDir, "output.svg"), svg);
+if (res && !Array.isArray(res)) {
+    Out.put(res, "_out");
 }
 
 if (Array.isArray(res)) {
     for (let i = 0; i < res.length; i++) {
-        const s = res[i]!;
-        const builder =
-            s instanceof SVG_Builder ? s : render_sketch(s, 500, 500, 30, true);
-        const svg = builder.svg();
-
-        fs.writeFileSync(path.join(outputDir, `output_${i}.svg`), svg);
+        Out.put(res[i]!, "xout" + i);
     }
-}
-
-async function prepare_output_directory(outputDir: string) {
-    await mkdir(outputDir, { recursive: true });
-
-    const extensionsToClear = [
-        ".json",
-        ".txt",
-        ".cjson",
-        ".png",
-        ".jpeg",
-        ".webp",
-        ".jpg",
-        ".svg",
-    ];
-
-    const files = fs.readdirSync(outputDir);
-    files.forEach((file) => {
-        const ext = path.extname(file).toLowerCase();
-        if (extensionsToClear.includes(ext)) {
-            fs.unlinkSync(path.join(outputDir, file));
-        }
-    });
-
-    return outputDir;
 }

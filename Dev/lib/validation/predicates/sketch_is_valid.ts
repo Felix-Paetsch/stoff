@@ -5,7 +5,7 @@ import {
     ValidationResult,
 } from "@/Core/expect";
 import { Line, Point, Sketch } from "@/Core/sketch";
-import { same_sketch } from "./exports";
+import { same_sketch } from "./same_sketch";
 
 let currently_validating = false;
 
@@ -15,9 +15,9 @@ export function validate_sketch(sk: Sketch) {
 
     const validation_fns: ValidationFunction[] = [];
 
-    sk.lines.map((l) => validation_fns.push(() => validate_line(l, sk)));
+    sk.lines().map((l) => validation_fns.push(() => validate_line(l, sk)));
 
-    sk.points.map((p) => validation_fns.push(() => validate_point(p, sk)));
+    sk.points().map((p) => validation_fns.push(() => validate_point(p, sk)));
 
     const res = merge_validations(validation_fns);
 
@@ -49,7 +49,7 @@ function validate_point(p: Point, s: Sketch) {
 
 function sketch_points_as_enpoints(s: Sketch, l: Line) {
     expect(
-        s.has(...l.endpoints),
+        s.has(...l.endpoints()),
         "Line endpoints should be in the same sketch as line.",
     );
 }

@@ -1,11 +1,17 @@
-import express from "express";
 import chokidar from "chokidar";
-import { WebSocketServer } from "ws";
+import express from "express";
 import fs from "node:fs/promises";
-import path from "node:path";
 import { createServer } from "node:http";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Config, FileKind, FileRecord, ServerMessage } from "./types.js";
+import { WebSocketServer } from "ws";
+import type {
+    CJson,
+    Config,
+    FileKind,
+    FileRecord,
+    ServerMessage,
+} from "./types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +37,7 @@ app.use(express.static(SRC_PUBLIC_DIR));
 app.use(express.static(PUBLIC_BUILD_DIR));
 app.use(express.static(PUBLIC_BUILD_ROOT));
 
-function compareNames(a: string, b: string): number {
+function compareStrings(a: string, b: string): number {
     const aParts = a.split(".");
     const bParts = b.split(".");
 
@@ -81,6 +87,10 @@ function getKind(ext: string): FileKind {
         return "json";
     }
 
+    if (e === ".cjson") {
+        return "cjson";
+    }
+
     if ([".txt", ".md", ".log"].includes(e)) {
         return "text";
     }
@@ -123,6 +133,7 @@ async function buildFileRecord(absPath: string): Promise<FileRecord | null> {
 
     const record: FileRecord = {
         name,
+        title: name,
         ext,
         kind,
         url: `/files/${encodeURIComponent(name)}`,
@@ -135,6 +146,14 @@ async function buildFileRecord(absPath: string): Promise<FileRecord | null> {
             record.content = JSON.parse(text);
         } catch {
             record.content = { error: "Invalid JSON" };
+        }
+    } else if (kind === "cjson") {
+        try {
+            const text = await fs.readFile(absPath, "utf8");
+            record.content = JSON.parse(text);
+            record.title = (record.content! as CJson).title;
+        } catch {
+            record.content = { error: "Invalid CJSON" };
         }
     } else if (kind === "text" || kind === "svg") {
         try {
@@ -158,7 +177,7 @@ function broadcast(msg: ServerMessage): void {
 
 async function loadInitialFiles(): Promise<void> {
     const entries = await fs.readdir(WATCHED_DIR);
-    const sorted = entries.sort(compareNames);
+    const sorted = entries.sort(compareStrings);
 
     for (const name of sorted) {
         const absPath = path.join(WATCHED_DIR, name);
@@ -187,7 +206,10 @@ async function upsertFromPath(absPath: string): Promise<void> {
 function removeFromPath(absPath: string): void {
     const name = path.basename(absPath);
     if (files.delete(name)) {
-        broadcast({ type: "remove", name });
+        broadcast({
+            type: "remove",
+            name: name,
+        });
     }
 }
 
@@ -197,7 +219,7 @@ async function main(): Promise<void> {
 
     wss.on("connection", (ws) => {
         const sortedFiles = [...files.values()].sort((a, b) =>
-            compareNames(a.name, b.name),
+            compareStrings(a.title, b.title),
         );
 
         ws.send(

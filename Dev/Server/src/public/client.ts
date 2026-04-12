@@ -8,7 +8,7 @@ const statusEl = document.getElementById("status") as HTMLDivElement;
 // @ts-ignore
 const cards = new Map<string, HTMLElement>();
 
-function compareNames(a: string, b: string): number {
+function compareTitles(a: string, b: string): number {
     const aParts = a.split(".");
     const bParts = b.split(".");
 
@@ -44,13 +44,13 @@ function compareNames(a: string, b: string): number {
 }
 
 // @ts-ignore
-function insertCardSorted(el: HTMLElement, name: string): void {
+function insertCardSorted(el: HTMLElement, title: string): void {
     // @ts-ignore
     const children = Array.from(grid.children) as HTMLElement[];
 
     for (const child of children) {
-        const childName = child.dataset.name ?? "";
-        if (compareNames(name, childName) < 0) {
+        const childTitle = child.dataset.title ?? "";
+        if (compareTitles(title, childTitle) < 0) {
             grid.insertBefore(el, child);
             return;
         }
@@ -76,12 +76,12 @@ function upsertFile(file: FileRecord): void {
         existing.replaceWith(fresh);
         cards.set(file.name, fresh);
         fresh.remove();
-        insertCardSorted(fresh, file.name);
+        insertCardSorted(fresh, file.title);
         return;
     }
 
     cards.set(file.name, fresh);
-    insertCardSorted(fresh, file.name);
+    insertCardSorted(fresh, file.title);
 }
 
 function removeFile(name: string): void {
@@ -120,13 +120,12 @@ function connect(): void {
             cards.clear();
 
             const sorted = [...msg.files].sort((a, b) =>
-                compareNames(a.name, b.name),
+                compareTitles(a.title, b.title),
             );
             for (const file of sorted) {
                 upsertFile(file);
             }
-            // @ts-ignore
-            (hljs as any)?.highlightAll();
+            reHighlight();
             return;
         }
 
@@ -134,9 +133,10 @@ function connect(): void {
             upsertFile(msg.file);
 
             if (msg.file.kind == "json") {
-                // @ts-ignore
-                (hljs as any)?.highlightAll();
+                reHighlight();
             } else if (msg.file.kind == "svg") {
+            } else if (msg.file.kind == "cjson") {
+                reHighlight();
                 // @ts-ignore
                 globalThis.rebuildRenderGroups();
             }
@@ -145,6 +145,15 @@ function connect(): void {
 
         if (msg.type === "remove") {
             removeFile(msg.name);
+        }
+    });
+}
+
+function reHighlight() {
+    document.querySelectorAll("pre code").forEach((el) => {
+        if (!el.classList.contains("hljs")) {
+            // @ts-ignore
+            (hljs as any).highlightElement(el);
         }
     });
 }

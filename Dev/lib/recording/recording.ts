@@ -1,5 +1,4 @@
-import { Sketch } from "../../../Core/index";
-import { get_trace } from "../../../Core/utils/trace";
+import { Sketch, Utils } from "../../../Core/index";
 import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 import { wrap_sketch_methods } from "../utils/wrap_sketch_methods";
 import { Snapshot } from "./types";
@@ -12,13 +11,13 @@ export class Recording {
         this.snapshots = [...snapshots];
     }
 
-    snapshot(s: Sketch, annotation: any = null, stack_trace_slice: number = 6) {
+    snapshot(s: Sketch, annotation: any = null, stack_trace_slice: number = 3) {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
         const copy = s.copy().sketch;
 
-        const stackTrace = get_trace(stack_trace_slice);
+        const stackTrace = Utils.stack_trace(stack_trace_slice);
 
         this.snapshots.push({
             sketch: copy,
@@ -63,5 +62,9 @@ export class LiveRecording extends Recording {
 
     start() {
         this.toggle(true);
+    }
+
+    to_recording() {
+        return new Recording(this.snapshots);
     }
 }

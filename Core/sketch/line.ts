@@ -1,11 +1,11 @@
+import { CollectionMethods } from ".";
+import { Validate } from "../../Dev/lib";
 import { expect, invalid_path } from "../expect";
-import { Point } from "./point";
-import { SketchElement, StoffObjectData } from "./types";
-import * as SketchElementCollectionMethods from "./collection/index";
 import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";
 import { EPS } from "../numerics";
-import { same_sketch } from "@/todo/expect_methods/exports";
-import { CollectionMethods } from ".";
+import * as SketchElementCollectionMethods from "./collection/index";
+import { Point } from "./point";
+import { SketchElement, StoffObjectData } from "./types";
 
 export class Line {
     public data: StoffObjectData = {};
@@ -379,7 +379,7 @@ export class Line {
             );
         }
 
-        expect(same_sketch(...this._endpoints));
+        expect(Validate.same_sketch(...this._endpoints));
     }
 
     length() {

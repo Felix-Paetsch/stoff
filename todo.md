@@ -151,7 +151,11 @@ svg.use_gradient(): SVGGradient
 [] circles padding invariant
 [] do we want lines or lines()??
 [] sketch points, lines as methods?
+[] on hovering sketch area i would like to see the sketch data
+[] change render sketch input to an object
+[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave hull
+[] in insert mode make tab always jsut do insert tab

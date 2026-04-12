@@ -1,8 +1,9 @@
 export * from "./colors";
 export * from "./expect";
-export * from "./sketch";
-export * from "./numerics";
-export * from "./geometry";
 export * from "./files";
+export * from "./geometry";
+export * from "./numerics";
+export * from "./sketch";
+export * from "./types";
 
 export * as Utils from "./utils";

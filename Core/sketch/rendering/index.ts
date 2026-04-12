@@ -1,15 +1,15 @@
 import { SVG_Builder } from "@/Core/files/svg/svg_builder";
 
-import { line_attributes, point_attributes } from "./defaults";
 import {
     LineRenderAttributes,
     PointRenderAttributes,
 } from "@/Core/files/svg/render_attributes";
-import { Sketch } from "@/Core/sketch/sketch";
-import { Line } from "@/Core/sketch/line";
-import { Json } from "@/Core/types";
-import { Point } from "@/Core/sketch/point";
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
+import { Line } from "@/Core/sketch/line";
+import { Point } from "@/Core/sketch/point";
+import { Sketch } from "@/Core/sketch/sketch";
+import { Json } from "@/Core/types";
+import { line_attributes, point_attributes } from "./defaults";
 
 export function render_sketch(
     s: Sketch,
@@ -149,6 +149,10 @@ function recalculate_render_dimensions(
     height: number;
     bounding_box: BoundingBox;
 } {
+    if (bounding_box.width == 0 || bounding_box.height == 0) {
+        bounding_box = new BoundingBox(0, 0, 1, 1);
+    }
+
     if (width == null && height == null) {
         return {
             width: bounding_box.width,

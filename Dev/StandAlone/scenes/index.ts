@@ -1,8 +1,11 @@
 import { Polyline, Vector } from "@/Core/geometry";
 import { Sketch } from "../../../Core/sketch/sketch";
+import { Out, Recording } from "../../lib";
 
 export default function (): Sketch | Sketch[] | void {
     const s = new Sketch();
+
+    const r = Recording.start(s);
 
     const p = s.add_point(0, 0);
     const q = s.add_point(1, 1);
@@ -13,6 +16,14 @@ export default function (): Sketch | Sketch[] | void {
     );
 
     s.line_between_points(p, q, shape);
+
+    // Out.put("hey", Out.prefix("string"));
+    // Out.put(s, Out.prefix("sketch"));
+    // Out.put(["hey"], Out.prefix("json"));
+    // Out.put(new Error("Fake"), Out.prefix("error"));
+
+    Out.put(r);
+    Out.put(s);
 
     const t = s.copy().sketch;
     t.add_point(5, 0);

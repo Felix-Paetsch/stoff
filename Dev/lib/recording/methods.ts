@@ -5,7 +5,7 @@ import { LiveRecording, Recording } from "./recording";
 
 const active_recordings: Map<Sketch, LiveRecording> = new Map();
 
-export function start_recording(target: Sketch): LiveRecording {
+export function start(target: Sketch): LiveRecording {
     expect(!active_recordings.get(target), "Already recording");
 
     const rec = new LiveRecording(target);
@@ -14,7 +14,7 @@ export function start_recording(target: Sketch): LiveRecording {
     return rec;
 }
 
-export function stop_recording(target: Sketch): LiveRecording {
+export function stop(target: Sketch): LiveRecording {
     const rec = active_recordings.get(target);
     if (!rec) throw expect(!rec, "Not currently recording");
 
