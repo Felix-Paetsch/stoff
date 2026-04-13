@@ -1,14 +1,11 @@
 import {
-    CollectionMethods,
-    deg_to_rad,
-    Sketch,
-    Vector,
-} from "../../../Core/index";
-import {
     Bowl_Measurements,
     calculate_sidelengths,
 } from "./calculate_sidelengths";
-import { BowlCozyConfig } from "./index";
+import { BowlCozyConfig } from ".";
+import { Sketch } from "@/Core/sketch/sketch";
+import { get_points } from "@/Core/sketch/collection";
+import { deg_to_rad, Vector } from "@/geometry_oldy
 
 export function draw_base_pattern(s: Sketch, cfg: BowlCozyConfig) {
     const mea = calculate_sidelengths(cfg);
@@ -20,12 +17,12 @@ export function draw_base_pattern(s: Sketch, cfg: BowlCozyConfig) {
 
 function draw_darts(s: Sketch) {
     for (let i = 0; i < 4; i++) {
-        const center = CollectionMethods.get_points(s, {
+        const center = get_points(s, {
             side: "" + i,
             type: "center",
         })[0]!;
 
-        const dart = CollectionMethods.get_points(s, {
+        const dart = get_points(s, {
             side: "" + i,
             dart: "true",
         });
@@ -50,10 +47,10 @@ function draw_center_points(s: Sketch, m: Bowl_Measurements) {
 
 function draw_top_square(s: Sketch, m: Bowl_Measurements) {
     const pts = [
-        s.add_point(0, 0),
-        s.add_point(m.top_sidelength, 0),
-        s.add_point(m.top_sidelength, m.top_sidelength),
-        s.add_point(0, m.top_sidelength),
+        s.point(0, 0),
+        s.point(m.top_sidelength, 0),
+        s.point(m.top_sidelength, m.top_sidelength),
+        s.point(0, m.top_sidelength),
     ] as const;
 
     for (let i = 0; i < pts.length; i++) {

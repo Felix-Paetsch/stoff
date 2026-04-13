@@ -1,9 +1,9 @@
-import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter";
 import { sketch_element_collection_as_array } from "..";
-import { SketchElement, SketchElementCollection } from "../../types";
 import { Line } from "../../line";
 import { Point } from "../../point";
 import { Sketch } from "../../sketch";
+import { SketchElement, SketchElementCollection } from "../../types";
+import { filterLine, filterPoint, LineFilter, PointFilter } from "./filter";
 
 export function unique<T extends SketchElement>(
     ec: SketchElementCollection<T>,
@@ -173,10 +173,10 @@ export function get_lines_between_points(
     let points: Point[] = get_points(ec);
 
     if (find_where == "collection_points_any_lines") {
-        lines = sketch!.lines;
+        lines = sketch!.lines();
     }
     if (find_where == "any_points_collection_lines") {
-        points = sketch!.points;
+        points = sketch!.points();
     }
 
     const testedFilters: [boolean, boolean][] = points.map((p) => [

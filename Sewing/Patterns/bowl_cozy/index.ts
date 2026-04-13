@@ -1,48 +1,36 @@
-import { z } from "zod";
+import { CollectionMethods, Sketch } from "../../../Core/index";
+import { Out, Recording } from "../../../Dev/lib";
 import { definePattern } from "../types";
 import { draw_base_pattern } from "./draw_base_pattern";
-import { Sketch } from "@/Core/sketch/sketch";
-import { hot_debug_render } from "@/todo/debug/debug_render";
-import { start_global_recording } from "@/todo/debug/recording";
-import {
-    get_lines_between_points,
-    get_points,
-    not,
-    PointFilter,
-} from "@/Core/sketch/collection";
 
-export const BowlCozyConfigSchema = z.object({
-    w_top: z.number(),
-    w_bottom: z.number(),
-    depth: z.number(),
-});
+export type BowlCozyConfig = {
+    width_top: number;
+    width_bottom: number;
+    depth: number;
+};
 
-export type BowlCozyConfig = z.infer<typeof BowlCozyConfigSchema>;
-export const BowlCozyPattern = definePattern({
-    name: "Bowl Cozy",
-    config_schema: BowlCozyConfigSchema,
-    construct: (cfg: BowlCozyConfig) => {
-        const gr = start_global_recording();
-        hot_debug_render(gr);
+export const BowlCozyPattern = definePattern(
+    "Bowl Cozy",
+    (cfg: BowlCozyConfig) => {
+        const gr = Recording.start_global_recording();
+        Out.put(gr);
 
         const sT = new Sketch();
 
         draw_base_pattern(sT, cfg);
 
-        get_lines_between_points(
-            get_points(
+        CollectionMethods.get_lines_between_points(
+            CollectionMethods.get_points(
                 sT,
-                not({
+                CollectionMethods.notP({
                     type: "center",
-                } as PointFilter),
+                }),
             ),
             true,
             true,
             "collection_points_any_lines",
         );
 
-        return {
-            result: sT,
-        };
+        return sT;
     },
-});
+);

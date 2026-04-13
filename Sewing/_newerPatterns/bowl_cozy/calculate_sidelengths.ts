@@ -1,5 +1,7 @@
+// Here could be an image in the folder which shows the things
+
+import { pythagoras, pythagorasN } from "@/geometry_old/1dd
 import { BowlCozyConfig } from ".";
-import { Triangle } from "../../../Core/index";
 
 export type Bowl_Measurements = {
     top_sidelength: number;
@@ -8,18 +10,18 @@ export type Bowl_Measurements = {
 };
 
 export function calculate_sidelengths(cfg: BowlCozyConfig): Bowl_Measurements {
-    const diag_bottom = Triangle.pythagoras(cfg.width_top, cfg.width_bottom);
+    const diag_bottom = pythagoras(cfg.w_bottom, cfg.w_bottom);
 
     // Calculating the triangle from a bottom corner to the top edge
     const h = cfg.depth;
-    const d = (cfg.width_top - diag_bottom) / 2;
+    const d = (cfg.w_top - diag_bottom) / 2;
 
     // The length from top to bottom when sewn together
-    const len_tb = Triangle.pythagoras(d, h);
+    const len_tb = pythagoras(d, h);
 
     // Länge der Abnäherbasis (/2)
-    const abnäherbasis_2 = Triangle.pythagorasN(len_tb, d);
-    const top_sl = cfg.width_top + abnäherbasis_2 * 2;
+    const abnäherbasis_2 = pythagorasN(len_tb, d);
+    const top_sl = cfg.w_top + abnäherbasis_2 * 2;
 
     return {
         top_sidelength: top_sl,

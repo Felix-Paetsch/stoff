@@ -1,44 +1,17 @@
-import { Sketch } from "@/Core/sketch/sketch";
-import { z } from "zod";
+import { Json, Sketch } from "../../Core";
 
-export type PatternResult<DataS = null, DataF = null> =
-    | {
-          result: Sketch | Sketch[];
-          success?: true;
-          data?: DataS;
-      }
-    | {
-          reason?: string;
-          success: false;
-          data?: DataF;
-      };
-
-export type PatternFunction<DesignConfig, DataS = null, DataF = null> = (
-    design_config: DesignConfig,
-) => PatternResult<DataS, DataF>;
-
-export type Pattern<
-    Name extends string,
-    DesignConfig,
-    DataS = null,
-    DataF = null,
-> = {
-    name: Name;
-    config_schema: z.ZodType<DesignConfig>;
-    construct: PatternFunction<DesignConfig, DataS, DataF>;
+export type PatternFunction<T extends Json> = (config: T) => Sketch | Sketch[];
+export type Pattern<T extends Json> = {
+    name: string;
+    pattern: PatternFunction<T>;
 };
 
-export type DesignConfig<P extends Pattern<any, any, any>> =
-    P extends Pattern<any, infer D, any> ? D : never;
-
-export type Measurements<P extends Pattern<any, any, any>> =
-    P extends Pattern<any, any, infer M> ? M : never;
-
-export type PatternName<P extends Pattern<any, any, any>> =
-    P extends Pattern<infer N, any, any> ? N : never;
-
-export function definePattern<N extends string, DC, DataS = null, DataF = null>(
-    pattern: Pattern<N, DC, DataS, DataF>,
-) {
-    return pattern;
+export function definePattern<T extends Json>(
+    name: string,
+    pattern: PatternFunction<T>,
+): Pattern<T> {
+    return {
+        name,
+        pattern,
+    };
 }

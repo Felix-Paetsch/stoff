@@ -32,6 +32,10 @@ export function not(
     };
 }
 
+export function notP(filer: PointFilter): PointFilter {
+    return not(filer);
+}
+
 export function and(...filter: LineFilter[]): LineFilter;
 export function and(...filter: PointFilter[]): PointFilter;
 export function and(
@@ -46,6 +50,10 @@ export function and(
     };
 }
 
+export function andP(...filter: PointFilter[]): PointFilter {
+    return and(...filter);
+}
+
 export function or(...filter: LineFilter[]): LineFilter;
 export function or(...filter: PointFilter[]): PointFilter;
 export function or(
@@ -58,6 +66,10 @@ export function or(
 
         return filter.some((f) => filterLine(f as LineFilter, o));
     };
+}
+
+export function orP(...filter: PointFilter[]): PointFilter {
+    return or(...filter);
 }
 
 export function filterLine(filter: LineFilter, line: Line) {

@@ -80,6 +80,11 @@ Figure out geometry export structure
 [] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
 [] improve/clean gitignores
 [] organize justfiles with recipies. Can also call with :: then!!
+more thng with many arguments to object arguemtns, e.g.
+CollectionMethods.get_points
+[] why currently no img in global recording for current sewing project?
+[] actually perform the clean setup to get into developing for sewing (also for testing stuff for me and so on)
+- ignore other things in typecheck
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
