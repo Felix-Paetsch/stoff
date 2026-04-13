@@ -5,7 +5,7 @@ import json
 import os
 from typing import Any, TypedDict
 
-from python.image_similarity import image_similarity
+from python.image_similarity import image_similarity, print_failing_similarity_reports
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -239,6 +239,9 @@ def perform_test(test_dict: TestDictionary) -> TestResult:
         }
 
     if not all_images_are_similar(output_img, reference_img):
+        print("Similarities not matching!")
+        # print_failing_similarity_reports(output_img, reference_img)
+
         return {
             "test": test_dict["test"],
             "success": False,
@@ -248,6 +251,7 @@ def perform_test(test_dict: TestDictionary) -> TestResult:
                 "reference": reference_img,
             },
         }
+
 
     output_json = [x[1] for x in output_assets if x[0] == "json"]
     reference_json = [x[1] for x in reference_assets if x[0] == "json"]

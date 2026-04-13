@@ -20,5 +20,9 @@ watch:
     ./watch.sh "just test::run" 
 
 similarity:
-    ../../watch.sh --fileEndings py "python python/image_similarity.py"
+    ../../watch.sh --fileEndings py,ts "python python/image_similarity.py"
 
+show *args:
+    #!/bin/bash -i
+    cd ../../
+    ./watch.sh "cd ./Dev/Test/ && npx tsx ./show_test.ts {{args}}"

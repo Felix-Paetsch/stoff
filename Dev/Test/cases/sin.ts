@@ -1,5 +1,4 @@
-import { Polyline, Vector } from "../../../Core/index";
-import { Sketch } from "../../../Core/sketch/sketch";
+import { Polyline, Sketch, Vector } from "../../../Core/index";
 import { TestCase } from "../build_tests";
 
 const test: TestCase = function () {
@@ -11,7 +10,7 @@ const test: TestCase = function () {
 
     const shape = Polyline.from_function(
         (x) => new Vector(x, Math.sin(Math.PI * x)),
-    );
+    ).resample(0, 0.1);
 
     s.data.test = "afsd";
 
