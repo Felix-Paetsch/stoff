@@ -60,7 +60,6 @@ export type CJson = {
           value: {
               svg: string;
               stack: string;
-              annotation: Json;
           }[];
       }
     | {

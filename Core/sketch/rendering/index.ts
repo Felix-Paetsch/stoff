@@ -150,6 +150,19 @@ function recalculate_render_dimensions(
     bounding_box: BoundingBox;
 } {
     if (bounding_box.width == 0 || bounding_box.height == 0) {
+        const bb_w = bounding_box.width || 1;
+        const bb_h = bounding_box.height || 1;
+        const bb_center = bounding_box.center().is_finite()
+            ? bounding_box.center()
+            : Vector.ZERO;
+        const offset = new Vector(bb_w / 2, bb_h / 2);
+        bounding_box = BoundingBox.from_points([
+            bb_center.add(offset),
+            bb_center.subtract(offset),
+        ]);
+    }
+
+    if (bounding_box.height == 0) {
         bounding_box = new BoundingBox(0, 0, 1, 1);
     }
 

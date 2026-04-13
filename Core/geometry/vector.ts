@@ -36,6 +36,10 @@ export class Vector {
         return this._y;
     }
 
+    is_finite() {
+        return Number.isFinite(this._x) && Number.isFinite(this._y);
+    }
+
     to_array() {
         return [this.x, this.y];
     }

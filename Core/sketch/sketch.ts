@@ -1,4 +1,5 @@
 import { CollectionMethods, Copy } from ".";
+import { Validate } from "../../Dev/lib";
 import { expect } from "../expect";
 import { Polygon, Shape, Vector } from "../geometry";
 import { default_data_callback } from "./copy";
@@ -159,7 +160,7 @@ export class Sketch {
         delete_join: boolean = false,
         data_callback: Copy.CopySketchObjectDataCallback = Copy.default_data_callback,
     ) {
-        expect(same_sketch(line1, line2, this));
+        expect(Validate.same_sketch(line1, line2, this));
 
         let new_endpoints: [Point, Point];
         let handedness = line1.right_handed;

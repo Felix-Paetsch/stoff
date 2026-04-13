@@ -33,8 +33,9 @@
     "exclude": [
         "node_modules",
         "dist",
-        "Sewing/DevServer",
+
         "Dev/Server",
+        "Sewing/_*",
         "todo"
     ],
     "ts-node": {

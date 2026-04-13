@@ -9,3 +9,6 @@ build:
 
 watch-server:
     cd Dev/Server && npm run start
+
+sewing:
+    ./watch.sh "npx tsx ./Sewing/Patterns/index.ts"

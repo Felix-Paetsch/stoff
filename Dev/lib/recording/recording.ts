@@ -4,6 +4,8 @@ import { wrap_sketch_methods } from "../utils/wrap_sketch_methods";
 import { Snapshot } from "./types";
 
 export class Recording {
+    public is_hot: boolean = false;
+
     protected taking_snapshot: boolean = false;
     readonly snapshots: Snapshot[];
 
@@ -29,6 +31,7 @@ export class Recording {
 
 export class LiveRecording extends Recording {
     private toggle: Toggle;
+    public override is_hot: boolean = true;
 
     constructor(record: Sketch, double_shot: boolean = false) {
         super();
@@ -56,14 +59,12 @@ export class LiveRecording extends Recording {
     }
 
     stop() {
+        this.is_hot = false;
         this.toggle(false);
     }
 
     start() {
+        this.is_hot = true;
         this.toggle(true);
-    }
-
-    to_recording() {
-        return new Recording(this.snapshots);
     }
 }

@@ -18,7 +18,7 @@ export type PutMetaData = {
 };
 
 export const live_recordings: {
-    what: Recording.LiveRecording;
+    what: Recording.Recording;
     meta: PutMetaData;
 }[] = [];
 
@@ -37,7 +37,7 @@ export function put(
         meta.stack = Utils.stack_trace(1);
     }
 
-    if (what instanceof Recording.LiveRecording) {
+    if (what instanceof Recording.Recording && what.is_hot) {
         live_recordings.push({
             what,
             meta,
@@ -56,7 +56,8 @@ export function put(
 
 export function put_live_recordings() {
     live_recordings.forEach((rec) => {
-        put(rec.what.to_recording(), rec.meta);
+        rec.what.is_hot = false;
+        put(rec.what, rec.meta);
     });
     live_recordings.length = 0;
 }

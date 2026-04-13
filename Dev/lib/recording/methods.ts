@@ -46,6 +46,8 @@ export function start_global_recording(): Recording {
         taking_snapshot: false,
     };
 
+    global_recording.rec.is_hot = true;
+
     const wrapper = (method: () => EvaluationResult, object: Sketch) => {
         if (!global_recording)
             throw new Error("There is no global recording currently");
@@ -66,7 +68,9 @@ export function start_global_recording(): Recording {
     const toggle1 = wrap_sketch_prototype_methods(Sketch, wrapper);
 
     global_recording.toggle = (to?: boolean) => {
-        return toggle1(to);
+        const ret = toggle1(to);
+        global_recording!.rec.is_hot = ret;
+        return ret;
     };
 
     return global_recording.rec;
