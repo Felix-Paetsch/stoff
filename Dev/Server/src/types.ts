@@ -70,4 +70,47 @@ export type CJson = {
               stack: string;
           };
       }
+    | {
+          type: "failedTest";
+          value: FailedTest[];
+      }
 );
+
+// FailedTests
+
+export type NoReferenceReason = {
+    type: "NoReference";
+};
+
+export type WrongArtifactAmountReason = {
+    type: "WrongArtifactAmount";
+};
+
+export type NoMatchingJsonReason = {
+    type: "NoMatchingJson";
+    out: unknown[];
+    reference: unknown[];
+};
+
+export type NoMatchingImgReason = {
+    type: "NoMatchingImg";
+    out: string[];
+    reference: string[];
+};
+
+export type BuildErrorReason = {
+    type: "BuildError";
+    error: string;
+};
+
+export type FailureReason =
+    | NoReferenceReason
+    | WrongArtifactAmountReason
+    | NoMatchingJsonReason
+    | NoMatchingImgReason
+    | BuildErrorReason;
+
+export type FailedTest = {
+    test: string;
+    reason: FailureReason;
+};

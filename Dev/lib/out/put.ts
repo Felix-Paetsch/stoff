@@ -105,7 +105,6 @@ function serialize_put(
                 return {
                     svg: render_sketch(s.sketch, 500, 500, 30, true).svg(),
                     stack: s.stackTrace,
-                    annotation: s.annotation,
                 };
             }),
         };

@@ -1,21 +1,5 @@
 {
     "type": "module",
-    "scripts": {
-        "dev::test": "echo 'todo'",
-        "dev::test::watch": "echo 'todo'",
-        "dev::build_tests": "echo 'todo'",
-        "dev::confirm_new_tests": "echo 'todo",
-
-        "dev::typecheck": "npx tsc -p tsconfig.json --noEmit",
-        "dev::typecheck::watch": "npx nodemon --exec npm run dev::typecheck",
-
-        "sew::server": "cd ./DevEnv/DevServer/ && npm run dev",
-        "sew::server::typecheck": "cd ./DevEnv/DevServer/ && npm run dev::typecheck",
-        "sew::server::lint": "cd ./DevEnv/DevServer/ && npm run dev::lint",
-        "sew::server::lint::watch": "cd ./DevEnv/DevServer/ && npm run dev::lint::watch",
-        "sew::server::typecheck::watch": "cd ./DevEnv/DevServer/ && npm run dev::typecheck::watch",
-        "sew::server::typecheck_lint::watch": "cd ./DevEnv/DevServer/ && npm run dev::typecheck_lint::watch"
-    },
     "devDependencies": {
         "@tailwindcss/cli": "^4.1.11",
         "@types/fluent-ffmpeg": "^2.1.27",

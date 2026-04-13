@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
+import { compareStrings } from "./compareStrings.js";
 import type {
     CJson,
     Config,
@@ -37,41 +38,6 @@ app.use(express.static(SRC_PUBLIC_DIR));
 app.use(express.static(PUBLIC_BUILD_DIR));
 app.use(express.static(PUBLIC_BUILD_ROOT));
 
-function compareStrings(a: string, b: string): number {
-    const aParts = a.split(".");
-    const bParts = b.split(".");
-
-    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-        const aPart = aParts[i] ?? "";
-        const bPart = bParts[i] ?? "";
-
-        if (aPart === bPart) continue;
-
-        const regex = /(\d+)|(\D+)/g;
-        const aTokens = (aPart.match(regex) || []).map((p) =>
-            /^\d+$/.test(p) ? parseInt(p, 10) : p,
-        );
-        const bTokens = (bPart.match(regex) || []).map((p) =>
-            /^\d+$/.test(p) ? parseInt(p, 10) : p,
-        );
-
-        for (let j = 0; j < Math.max(aTokens.length, bTokens.length); j++) {
-            const aToken = aTokens[j] ?? "";
-            const bToken = bTokens[j] ?? "";
-
-            if (typeof aToken === "number" && typeof bToken === "number") {
-                if (aToken !== bToken) return aToken - bToken;
-            } else {
-                const strA = String(aToken).toLowerCase();
-                const strB = String(bToken).toLowerCase();
-                const cmp = strA.localeCompare(strB);
-                if (cmp !== 0) return cmp;
-            }
-        }
-    }
-    return 0;
-}
-
 function getKind(ext: string): FileKind {
     const e = ext.toLowerCase();
 
@@ -87,7 +53,7 @@ function getKind(ext: string): FileKind {
         return "json";
     }
 
-    if (e === ".cjson") {
+    if (/\.[a-z]json$/.test(e)) {
         return "cjson";
     }
 

@@ -1,3 +1,4 @@
+import { compareStrings } from "../compareStrings.js";
 import { renderFileCard } from "../fileProcessor.js";
 import type { Config, FileRecord, ServerMessage } from "../types.js";
 
@@ -8,41 +9,6 @@ const statusEl = document.getElementById("status") as HTMLDivElement;
 // @ts-ignore
 const cards = new Map<string, HTMLElement>();
 
-function compareTitles(a: string, b: string): number {
-    const aParts = a.split(".");
-    const bParts = b.split(".");
-
-    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-        const aPart = aParts[i] ?? "";
-        const bPart = bParts[i] ?? "";
-
-        if (aPart === bPart) continue;
-
-        const regex = /(\d+)|(\D+)/g;
-        const aTokens = (aPart.match(regex) || []).map((p) =>
-            /^\d+$/.test(p) ? parseInt(p, 10) : p,
-        );
-        const bTokens = (bPart.match(regex) || []).map((p) =>
-            /^\d+$/.test(p) ? parseInt(p, 10) : p,
-        );
-
-        for (let j = 0; j < Math.max(aTokens.length, bTokens.length); j++) {
-            const aToken = aTokens[j] ?? "";
-            const bToken = bTokens[j] ?? "";
-
-            if (typeof aToken === "number" && typeof bToken === "number") {
-                if (aToken !== bToken) return aToken - bToken;
-            } else {
-                const strA = String(aToken).toLowerCase();
-                const strB = String(bToken).toLowerCase();
-                const cmp = strA.localeCompare(strB);
-                if (cmp !== 0) return cmp;
-            }
-        }
-    }
-    return 0;
-}
-
 // @ts-ignore
 function insertCardSorted(el: HTMLElement, title: string): void {
     // @ts-ignore
@@ -50,7 +16,7 @@ function insertCardSorted(el: HTMLElement, title: string): void {
 
     for (const child of children) {
         const childTitle = child.dataset.title ?? "";
-        if (compareTitles(title, childTitle) < 0) {
+        if (compareStrings(title, childTitle) < 0) {
             grid.insertBefore(el, child);
             return;
         }
@@ -120,7 +86,7 @@ function connect(): void {
             cards.clear();
 
             const sorted = [...msg.files].sort((a, b) =>
-                compareTitles(a.title, b.title),
+                compareStrings(a.title, b.title),
             );
             for (const file of sorted) {
                 upsertFile(file);

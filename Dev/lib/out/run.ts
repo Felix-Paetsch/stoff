@@ -6,12 +6,12 @@ export function run_wrapped<T>(fn: () => T): T {
     } catch (e: any) {
         if (e instanceof Error) {
             put(e, {
-                title: "_Programm Error",
+                title: "#Programm Error",
                 prefix: false,
             });
         } else {
             put(typeof e, {
-                title: "_Programm Error",
+                title: "#Programm Error",
                 prefix: false,
             });
         }
@@ -28,12 +28,12 @@ export async function run_async_wrapped<T>(fn: () => Promise<T>): Promise<T> {
     } catch (e: any) {
         if (e instanceof Error) {
             put(e, {
-                title: "_Programm Error",
+                title: "#Programm Error",
                 prefix: false,
             });
         } else {
             put(typeof e, {
-                title: "_Programm Error",
+                title: "#Programm Error",
                 prefix: false,
             });
         }

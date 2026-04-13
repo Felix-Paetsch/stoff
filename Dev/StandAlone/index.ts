@@ -2,14 +2,12 @@ import { SVG_Builder } from "@/Core/files/svg/svg_builder";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { Json } from "../../Core/index";
 import { Sketch } from "../../Core/sketch/sketch";
 import { Out } from "../lib";
 
-export type Scene = () =>
-    | void
-    | Sketch
-    | SVG_Builder
-    | (Sketch | SVG_Builder)[];
+export type SceneResult = void | string | Json | Sketch | SVG_Builder | Error;
+export type Scene = () => SceneResult | SceneResult[];
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -43,11 +41,11 @@ const scene: Scene = sceneExport.default;
 const res = Out.run_wrapped(scene);
 
 if (res && !Array.isArray(res)) {
-    Out.put(res, "_out");
+    Out.put(res, "~out");
 }
 
 if (Array.isArray(res)) {
     for (let i = 0; i < res.length; i++) {
-        Out.put(res[i]!, "xout" + i);
+        Out.put(res[i]!, "~out" + i);
     }
 }

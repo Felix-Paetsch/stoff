@@ -1,29 +1,30 @@
-import { Vector } from "../vector";
-import { Polygon } from "./polygon";
-import { Polyline } from "./polyline";
-import { BoundingBox } from "../bounding_box";
+import { Geometry, Radians, Ray } from "..";
 import { EPS } from "../../numerics";
-import { Fraction } from "../interval";
-import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { Geometry, Ray } from "..";
 import {
-    closest_points,
-    f64_to_vec_array,
-    intersects,
-    intersect,
-    self_intersects,
     buffer,
+    closest_points,
     f64_arrays_to_f64,
+    f64_to_vec_array,
+    intersect,
+    intersects,
+    self_intersects,
     split_f64_array,
 } from "../../rust/exports";
+import { BoundingBox } from "../bounding_box";
 import {
     make_line_to_relevant_polyline_for_closest_vec,
     make_ray_to_relevant_polyline_for_closest_vec,
 } from "../geometry/closest_vector";
-import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
-import { merge } from "./algorithms/merge";
-import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
+import { Fraction } from "../interval";
 import { Line } from "../line";
+import { Vector } from "../vector";
+import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
+import { shape_corners } from "./algorithms/corners";
+import { vectors_from_polyline_function } from "./algorithms/from_function";
+import { merge } from "./algorithms/merge";
+import { Polygon } from "./polygon";
+import { Polyline } from "./polyline";
+import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
 
 export namespace Shape {
     export type PolylineFunction = (t: Fraction) => Vector;
@@ -387,6 +388,10 @@ export abstract class Shape {
         if (this.vertex_count < 3) return false;
         let r = self_intersects(this.positions, this instanceof Polygon);
         return r;
+    }
+
+    corners(threshold_angle: Radians = Math.PI / 6): Shape.ShapePosition[] {
+        return shape_corners(this.typesafe(), threshold_angle);
     }
 
     static intersection_positions(

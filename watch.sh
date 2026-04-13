@@ -4,7 +4,7 @@ set -uo pipefail
 print_help() {
   cat <<'EOF'
 Usage:
-  ./watch-and-build.sh [options] "<command>"
+  ./watch.sh [options] "<command>"
 
 Description:
   Watches the directory the script was called from and reruns the command when
@@ -41,9 +41,9 @@ Behavior:
   - Hidden files/directories and node_modules are always excluded.
 
 Examples:
-  ./watch-and-build.sh "npm run build"
-  ./watch-and-build.sh --cooldown 2 "npm run lint"
-  ./watch-and-build.sh --fileEndings ts,tsx --exclude dist --exclude "*.js" "npm test"
+  ./watch.sh "npm run build"
+  ./watch.sh --cooldown 2 "npm run lint"
+  ./watch.sh --fileEndings ts,tsx --exclude dist --exclude "*.js" "npm test"
 EOF
 }
 

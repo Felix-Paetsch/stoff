@@ -269,3 +269,32 @@ a:hover {
 .cjson.expanded-traces{
     width: max-content;
 }
+
+
+/* TEST CASES */
+
+.cjson:has(.failedTest) .meta{
+    pointer-events: none;
+}
+
+.cjson:has(.failedTest) .toggleBtn{
+    display:none;
+}
+
+.cjson .failedTest{
+    padding: 16px;
+    background: rgba(100, 0, 30, 0.4);
+}
+
+.cjson .failedTest .test-name {
+    font-weight: bold;
+}
+
+.cjson .failedTest .test-sep {
+    margin: 0px 4px;
+    display: inline-block;
+}
+
+.cjson .failedTest .failureReason {
+    font-style: italic;
+}

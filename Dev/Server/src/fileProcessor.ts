@@ -98,6 +98,16 @@ export function renderCJsonFileCard(data: CJson): string {
         <pre class="json-block"><code class="language-json">${escapeHtml(data.value.stack)}</code></pre>
       </div>
     `;
+    } else if (data.type == "failedTest") {
+        const rendered = data.value.map((t) => {
+            return `<div class="failed-test-row"><span class="test-name">${t.test}</span><span class="test-sep"> | </span><span class="failureReason">${t.reason.type}</span></div>`;
+        });
+
+        body = `
+      <div class="body failedTest">
+        ${rendered.join("")}
+      </div>
+    `;
     } else {
         const svg_map_fn = (
             d: (typeof data)["value"][number],
