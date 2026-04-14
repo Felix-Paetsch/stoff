@@ -1,7 +1,6 @@
-import { Gradient, interpolate_colors } from "@/Core/colors";
-import { SVG_Builder } from "./svg_builder";
-import { unique_string } from "@/Core/utils/unique";
+import { Gradient, interpolate_colors, Utils } from "@/Core";
 import { BoundingBox, Interval, Radians, Vector } from "../../geometry";
+import { SVG_Builder } from "./svg_builder";
 
 export class SVGGradient {
     constructor(
@@ -87,7 +86,7 @@ export class SVGGradient {
             y2 = `${by2 * 100}%`;
         }
 
-        const id = `gradient_${unique_string()}`;
+        const id = `gradient_${Utils.unique_string()}`;
         this.svgBuilder.add_def(`<linearGradient
   id="${id}"
   gradientUnits="${gradientUnits}"

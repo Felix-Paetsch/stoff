@@ -1,6 +1,6 @@
-import { CONF } from "@/config";
+import { EPS } from "@/Core";
+import { CONF } from "config";
 import { Polygon, Polyline, Vector } from "../..";
-import { EPS } from "@/Core/numerics";
 
 export function resample_strict<T extends Polygon | Polyline>(
     s: T,

@@ -1,12 +1,12 @@
-import { Sketch } from "@/Core/sketch/sketch";
+import { Sketch } from "@/Core";
 
 export default function () {
     const r = new Sketch();
     const points = [
-        r.point(0, 0),
-        r.point(0, 1),
-        r.point(1, 0),
-        r.point(1, 1),
+        r.add_point(0, 0),
+        r.add_point(0, 1),
+        r.add_point(1, 0),
+        r.add_point(1, 1),
     ] as const;
 
     for (let i = 0; i < points.length; i++) {

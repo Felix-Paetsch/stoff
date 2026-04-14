@@ -1,8 +1,7 @@
-import { SVG_Builder } from "@/Core/files/svg/svg_builder";
+import { Json, SVG_Builder } from "@/Core";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Json } from "../../Core/index";
 import { Sketch } from "../../Core/sketch/sketch";
 import { Out } from "../lib";
 

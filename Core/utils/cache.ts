@@ -1,4 +1,4 @@
-import { Json } from "@/Core/types";
+import { Json } from "@/Core";
 import { uuid } from "./unique";
 
 type Dependency = string;

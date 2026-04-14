@@ -1,7 +1,5 @@
-import { Sketch } from "@/Core/sketch/sketch";
+import { CollectionMethods, Polyline, Sketch, Vector } from "@/Core";
 import { BoundShirtSideMeasurements } from "./measurement_utils";
-import { Vector } from "@/geometry_oldy
-import { get_lines_between_points } from "@/Core/sketch/collection";
 
 export function construct_base_tshirt_parts(
     mea: BoundShirtSideMeasurements,
@@ -15,9 +13,9 @@ export function construct_base_tshirt_parts(
 }
 
 function construct_main_body(sketch: Sketch, mea: BoundShirtSideMeasurements) {
-    const A = sketch.point(0, 0);
+    const A = sketch.add_point(0, 0);
     A.data.name = "a";
-    const B = sketch.point(0, mea("center"));
+    const B = sketch.add_point(0, mea("center"));
     B.data.name = "b";
 
     const A_to_B = sketch.line_between_points(A, B);
@@ -50,11 +48,10 @@ function construct_main_body(sketch: Sketch, mea: BoundShirtSideMeasurements) {
         position: "main",
     };
 
-    const B_to_F = sketch.line_at_angle(
+    const B_to_F = sketch.add_line(
+        new Polyline([Vector.ZERO, Vector.LEFT.scale(mea("point_width") / 2)]),
         B,
-        -Math.PI / 2,
-        mea("point_width") / 2,
-    ).line;
+    );
 
     const F = B_to_F.other_endpoint(B);
     F.data = {
@@ -78,9 +75,9 @@ function construct_main_body(sketch: Sketch, mea: BoundShirtSideMeasurements) {
 }
 
 function construct_side(sketch: Sketch, mea: BoundShirtSideMeasurements) {
-    const R = sketch.point(-60, 15);
+    const R = sketch.add_point(-60, 15);
     R.data.name = "r";
-    const S = sketch.point(-60, 15 + mea("side_height"));
+    const S = sketch.add_point(-60, 15 + mea("side_height"));
     S.data.name = "s";
 
     const rest_len = mea("waist") / 2 - mea("point_width") / 2;
@@ -104,14 +101,18 @@ function construct_side(sketch: Sketch, mea: BoundShirtSideMeasurements) {
         position: "side",
     };
 
-    const AngledMainHCLine = get_lines_between_points(
+    const AngledMainHCLine = CollectionMethods.get_lines_between_points(
         sketch,
-        { name: "h" },
-        { name: "c" },
+        {
+            point1: {
+                name: "h",
+            },
+            point2: {
+                name: "c",
+            },
+        },
     )[0]!;
-    const C = sketch.add_point(
-        H.add(AngledMainHCLine.get_line_vector().invert()),
-    );
+    const C = sketch.add_point(H.add(AngledMainHCLine.line_vector().invert()));
     C.data = {
         name: "c",
         position: "side",

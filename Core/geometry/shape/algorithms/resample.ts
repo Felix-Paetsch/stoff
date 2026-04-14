@@ -1,6 +1,6 @@
-import { CONF } from "../../../../config";
+import { EPS } from "Core/numerics/index";
 import { Radians, Shape, Spline, Vector } from "../..";
-import { EPS } from "@/Core/numerics";
+import { CONF } from "../../../../config";
 
 function find_previous_distinct_point(
     line: Vector[],

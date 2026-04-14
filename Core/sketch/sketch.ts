@@ -1,7 +1,7 @@
 import { CollectionMethods, Copy } from ".";
 import { Validate } from "../../Dev/lib";
 import { expect } from "../expect";
-import { Polygon, Shape, Vector } from "../geometry";
+import { LinearTransform, Polygon, Shape, Vector } from "../geometry";
 import { default_data_callback } from "./copy";
 import { Line } from "./line";
 import { Point } from "./point";
@@ -99,13 +99,37 @@ export class Sketch {
         expect(!shape.is_empty());
 
         if (!from) {
-            if (to instanceof Vector && shape instanceof Polygon) {
-                from = this.add_point(to);
-                to = from;
+            if (to instanceof Vector) {
+                const offset = Vector.subtract(to, shape.as_polyline().last()!);
+                shape = shape.typesafe().map((v) => v.add(offset));
+                from = shape.verticies[0]!;
             } else {
-                from = this.add_point(shape.verticies[0]!);
+                from = shape.verticies[0]!;
+                to = shape.as_polyline().last()!;
             }
-        } else if (!(from instanceof Point)) {
+        } else {
+            if (to instanceof Vector) {
+                const trafo = LinearTransform.affine_orthogonal(
+                    [from, shape.verticies[0]!],
+                    [to, shape.as_polyline().last()!],
+                );
+
+                shape = shape.typesafe().map(trafo);
+            } else {
+                const offset = Vector.subtract(
+                    from,
+                    shape.as_polyline().first()!,
+                );
+                shape = shape.typesafe().map((v) => v.add(offset));
+                to = shape.as_polyline().last()!;
+            }
+        }
+
+        if (!(to instanceof Vector)) {
+            to = this.add_point(to);
+        }
+
+        if (!(from instanceof Vector)) {
             from = this.add_point(from);
         }
 

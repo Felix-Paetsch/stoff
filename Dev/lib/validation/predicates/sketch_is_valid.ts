@@ -1,10 +1,12 @@
 import {
     expect,
+    Line,
     merge_validations,
+    Point,
+    Sketch,
     ValidationFunction,
     ValidationResult,
-} from "@/Core/expect";
-import { Line, Point, Sketch } from "@/Core/sketch";
+} from "@/Core";
 import { same_sketch } from "./same_sketch";
 
 let currently_validating = false;

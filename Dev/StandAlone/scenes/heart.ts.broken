@@ -1,6 +1,6 @@
 // import { interpolate_colors } from "@/Core/colors";
-import { Vector } from "@/Core/geometry";
-import { Sketch } from "@/Core/sketch/sketch";
+
+import { Sketch, Vector } from "@/Core";
 
 export default function () {
     const s = new Sketch();

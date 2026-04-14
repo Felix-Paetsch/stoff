@@ -1,11 +1,9 @@
-import { SketchElement, SketchElementCollection } from "../../types";
+import { mirror_type, MirrorData } from "Core/geometry/linear_transformations";
 import { sketch_element_collection_as_array } from "..";
 import { Point } from "../../point";
-import {
-    mirror_type,
-    MirrorData,
-} from "@/Core/geometry/linear_transformations";
-import { LinearTransform } from "@/Core/geometry";
+import { SketchElement, SketchElementCollection } from "../../types";
+
+import { LinearTransform } from "Core/geometry";
 
 export function delete_sketch_elements(ec: SketchElementCollection): void {
     const nec = sketch_element_collection_as_array(ec);

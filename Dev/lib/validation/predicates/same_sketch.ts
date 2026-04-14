@@ -1,4 +1,4 @@
-import { merge_validations } from "@/Core/expect";
+import { merge_validations } from "Core/expect";
 import { Sketch } from "../../../../Core/index";
 
 export * from "./sketch_is_valid";

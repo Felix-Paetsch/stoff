@@ -29,10 +29,8 @@ Figure out geometry export structure
 
 [] better color utilities (gradients) for rendering
 [] dst render/writer engine
-[] DST / stitching subdir with my methods
 [] Annotation System; maybe have DST annotations as a start
 [] DST debug/dev env; maybe with live knobs and dials
-[] live buttons for leonie?? e.g. to help her finding the correct numbers for her pattern
 
 [] custom annotation functions
 - stamping out
@@ -51,11 +49,7 @@ Figure out geometry export structure
 [] fix debug scenes
 [] good api for base shapes as polygons? n-gon?
 
-[] rewire commands
-[] build testing out
-- each test has an expect image and a calculated image (or error)
 [] debug dev run can take optional argumetns for tracking, etc
-[] fix/use config file
 [] fix gitignore
 
 [] radial distance functions
@@ -74,20 +68,17 @@ Figure out geometry export structure
 [] caching where needed. Evt connected component faster
 [] circles padding invariant
 [] do we want lines or lines()??
-[] sketch points, lines as methods?
-[] on hovering sketch area i would like to see the sketch data
 [] change render sketch input to an object instead of many render args
 [] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
 [] improve/clean gitignores
-[] organize justfiles with recipies. Can also call with :: then!!
-more thng with many arguments to object arguemtns, e.g.
-CollectionMethods.get_points
-[] why currently no img in global recording for current sewing project?
-[] actually perform the clean setup to get into developing for sewing (also for testing stuff for me and so on)
 - ignore other things in typecheck
+[] starting the server initially, connecting is really slow
+[] expect namespace?
+expect.that(...)
+[] color namespace?
+Color.hex()
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave hull
 [] in insert mode make tab always jsut do insert tab
-

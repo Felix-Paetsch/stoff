@@ -1,4 +1,4 @@
-import { Color, Gradient } from "@/Core/colors";
+import { Color, Gradient } from "Core/colors";
 
 export type TextRenderAttributes = {
     font_family: string;
@@ -25,7 +25,7 @@ export type TextRenderAttributes = {
 export const defaultTextRenderAttributes: TextRenderAttributes = {
     font_family: "Arial",
     font_size: 12,
-    fill: "black",
+    fill: "black" as const,
     font_weight: "normal",
     text_anchor: "start",
     render_priority: 100,
@@ -42,8 +42,8 @@ export type PointRenderAttributes = {
 
 export const defaultPointRenderAttributes: PointRenderAttributes = {
     radius: 5,
-    fill: "white",
-    stroke: "black",
+    fill: "white" as const,
+    stroke: "black" as const,
     stroke_width: 2,
     opacity: 1,
     render_priority: 80,
@@ -57,7 +57,7 @@ export type LineRenderAttributes = {
 };
 
 export const defaultLineRenderAttributes: LineRenderAttributes = {
-    stroke: "black",
+    stroke: "black" as const,
     stroke_width: 2,
     opacity: 1,
     render_priority: 30,

@@ -70,44 +70,44 @@ export function points_by_key(ec: SketchElementCollection, key: string) {
     }, {});
 }
 
+export type FindPosition =
+    | "collection_points_any_lines"
+    | "collection_points_collection_lines"
+    | "any_points_collection_lines";
+
+export type PointsBetweenLinesArgs = {
+    line1: LineFilter;
+    line2: LineFilter;
+    point: PointFilter;
+    where: FindPosition;
+};
+
 export function get_points_between_lines(
     ec: SketchElementCollection,
-    line1Filter: LineFilter,
-    line2Filter: LineFilter,
-    find_where:
-        | "collection_points_any_lines"
-        | "collection_points_collection_lines"
-        | "any_points_collection_lines"
-        | "any_points_any_lines" = "any_points_collection_lines", // Mostly unreasonable
+    args: Partial<PointsBetweenLinesArgs> = {},
 ): Point[] {
     const nec = sketch_element_collection_as_array(ec);
     const sketch = get_sketch(...nec);
 
-    if (!sketch && find_where !== "collection_points_collection_lines") {
-        throw new Error("Sketch of collection not specified!");
-    }
-    if (find_where === "any_points_any_lines") {
-        return get_points_between_lines(
-            sketch.get_sketch_elements(),
-            line1Filter,
-            line2Filter,
-            "collection_points_collection_lines",
-        );
+    const where: FindPosition = args.where ?? "any_points_collection_lines";
+
+    if (!sketch && where !== "collection_points_collection_lines") {
+        throw new Error("Sketch of collection could not be found!");
     }
 
     let lines: Line[] = get_lines(nec);
     let points: Point[] = get_points(nec);
 
-    if (find_where == "collection_points_any_lines") {
+    if (where == "collection_points_any_lines") {
         lines = sketch!.lines();
     }
-    if (find_where == "any_points_collection_lines") {
+    if (where == "any_points_collection_lines") {
         points = sketch!.points();
     }
 
     const testedFilters: [boolean, boolean][] = lines.map((l) => [
-        filterLine(line1Filter, l),
-        filterLine(line2Filter, l),
+        filterLine(args.line1 ?? true, l),
+        filterLine(args.line2 ?? true, l),
     ]);
 
     let result: SketchElementCollection<Point> = [];
@@ -119,7 +119,8 @@ export function get_points_between_lines(
                 ((testedFilters[i]![0] && testedFilters[j]![1]) ||
                     (testedFilters[i]![1] && testedFilters[j]![0])) &&
                 points.includes(p) &&
-                !result.includes(p)
+                !result.includes(p) &&
+                filterPoint(args.point ?? true, p)
             ) {
                 result.push(p);
             }
@@ -131,68 +132,60 @@ export function get_points_between_lines(
 
 export function get_point_between_lines(
     ec: SketchElementCollection,
-    line1Filter: LineFilter,
-    line2Filter: LineFilter,
-    find_where:
-        | "collection_points_any_lines"
-        | "collection_points_collection_lines"
-        | "any_points_collection_lines"
-        | "any_points_any_lines" = "any_points_collection_lines", // Mostly unreasonable
+    args: Partial<PointsBetweenLinesArgs> = {},
 ): Point | null {
-    return (
-        get_points_between_lines(ec, line1Filter, line2Filter, find_where)[0] ??
-        null
-    );
+    return get_points_between_lines(ec, args)[0] ?? null;
 }
+
+export type LinesBetweenPointsArgs = {
+    point1: PointFilter;
+    point2: PointFilter;
+    line: LineFilter;
+    where: FindPosition;
+};
 
 export function get_lines_between_points(
     ec: SketchElementCollection,
-    point1Filter: PointFilter = true,
-    point2Filter: PointFilter = true,
-    find_where:
-        | "collection_points_any_lines"
-        | "collection_points_collection_lines"
-        | "any_points_collection_lines"
-        | "any_points_any_lines" = "any_points_collection_lines", // Mostly unreasonable
+    args: Partial<LinesBetweenPointsArgs> = {},
 ): Line[] {
     const nec = sketch_element_collection_as_array(ec);
     const sketch = get_sketch(...nec);
-    if (!sketch && find_where !== "collection_points_collection_lines") {
+
+    const where: FindPosition = args.where ?? "any_points_collection_lines";
+
+    if (!sketch && where !== "collection_points_collection_lines") {
         throw new Error("Sketch of collection not specified!");
-    }
-    if (find_where === "any_points_any_lines") {
-        return get_lines_between_points(
-            sketch.get_sketch_elements(),
-            point1Filter,
-            point1Filter,
-            "collection_points_collection_lines",
-        );
     }
 
     let lines: Line[] = get_lines(ec);
     let points: Point[] = get_points(ec);
 
-    if (find_where == "collection_points_any_lines") {
+    if (where == "collection_points_any_lines") {
         lines = sketch!.lines();
     }
-    if (find_where == "any_points_collection_lines") {
+    if (where == "any_points_collection_lines") {
         points = sketch!.points();
     }
 
     const testedFilters: [boolean, boolean][] = points.map((p) => [
-        filterPoint(point1Filter, p),
-        filterPoint(point2Filter, p),
+        filterPoint(args.point1 ?? true, p),
+        filterPoint(args.point2 ?? true, p),
     ]);
 
     let result: SketchElementCollection<Line> = [];
+    const line_filter = (l: Line) =>
+        lines.includes(l) && filterLine(args.line ?? true, l);
+
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
             if (
                 (testedFilters[i]![0] && testedFilters[j]![1]) ||
                 (testedFilters[i]![1] && testedFilters[j]![0])
             ) {
-                const common = points[i]!.common_lines(points[j]!);
-                result.push(...common.filter((c) => lines.includes(c)));
+                const common = points[i]!.common_lines(points[j]!).filter(
+                    line_filter,
+                );
+                result.push(...common);
             }
         }
     }
@@ -202,22 +195,9 @@ export function get_lines_between_points(
 
 export function get_line_between_points(
     ec: SketchElementCollection,
-    point1Filter: PointFilter = true,
-    point2Filter: PointFilter = true,
-    find_where:
-        | "collection_points_any_lines"
-        | "collection_points_collection_lines"
-        | "any_points_collection_lines"
-        | "any_points_any_lines" = "any_points_collection_lines", // Mostly unreasonable
+    args: Partial<LinesBetweenPointsArgs> = {},
 ): Line | null {
-    return (
-        get_lines_between_points(
-            ec,
-            point1Filter,
-            point2Filter,
-            find_where,
-        )[0] ?? null
-    );
+    return get_lines_between_points(ec, args)[0] ?? null;
 }
 
 export function get_common_points(

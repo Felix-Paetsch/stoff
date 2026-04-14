@@ -60,6 +60,10 @@ export class Line {
         return [...this._endpoints];
     }
 
+    line_vector(): Vector {
+        return this.p2.subtract(this.p1);
+    }
+
     get shape() {
         return this._shape;
     }

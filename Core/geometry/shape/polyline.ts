@@ -1,12 +1,12 @@
-import { EPS } from "@/Core/numerics";
+import { EPS } from "@/Core";
+import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
+import { remove_dub } from "./algorithms/remove_dub";
+import { resample_line_points } from "./algorithms/resample";
+import { resample_strict } from "./algorithms/resample_strict";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
-import { resample_line_points } from "./algorithms/resample";
-import { Radians } from "../types";
-import { resample_strict } from "./algorithms/resample_strict";
-import { remove_dub } from "./algorithms/remove_dub";
 
 export class Polyline extends Shape {
     constructor(positions: Float64Array | Vector[]) {

@@ -26,10 +26,11 @@
         "rootDir": "./",
         "baseUrl": "./",
         "paths": {
-            "@/*": ["./*"]
+            "@/Core": ["./Core/index"],
+            "@/Dev": ["./Dev/lib"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Dev/StandAlone/scenes/index.ts.broken", "Dev/StandAlone/scenes/heart.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",

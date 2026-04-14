@@ -73,7 +73,12 @@ for (const result of test_results) {
 // To is the file name without ending
 async function to_file(what: TestReturnResultPrimitive, to: string) {
     if (what instanceof Sketch) {
-        what = render_sketch(what, 500, 500, 30);
+        what = render_sketch(what, {
+            width: 500,
+            height: 500,
+            padding: 30,
+            debug: true,
+        });
     }
 
     if (what instanceof SVG_Builder) {

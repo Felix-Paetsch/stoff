@@ -1,7 +1,7 @@
 // Sometimes line segments are just to short. This function returns a best line segment which has sufficient length
 // If there is a very small turn here however there can still be problems. Or if the line is to short
 
-import { EPS } from "@/Core/numerics";
+import { EPS } from "Core/numerics";
 import { Shape, Vector } from "../..";
 import { LineSegment } from "../../types";
 import { Polygon } from "../polygon";

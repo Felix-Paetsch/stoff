@@ -1,18 +1,15 @@
+import { Bounds } from "Core/numerics";
+import { area, contains, contains_properly } from "Core/rust/exports";
+import { centroid, coordinate_position, interior_point, winding } from "Core/rust/pkg/stoff_rust";
+import { FiniteGeometry, Shape } from "..";
+import { as_polyline } from "../geometry/utils";
+import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { Polyline } from "./polyline";
-import { resample_polygon_points } from "./algorithms/resample";
-import { Radians } from "../types";
-import { resample_strict } from "./algorithms/resample_strict";
 import { remove_dub } from "./algorithms/remove_dub";
-import { FiniteGeometry, Shape } from "..";
-import { contains } from "@/Core/rust/exports";
-import { as_polyline } from "../geometry/utils";
-import { area, contains_properly } from "@/Core/rust/exports";
-import { centroid, interior_point } from "@/Core/rust/pkg/stoff_rust";
-import { coordinate_position } from "@/Core/rust/pkg/stoff_rust";
-import { winding } from "@/Core/rust/pkg/stoff_rust";
-import { Bounds } from "@/Core/numerics";
+import { resample_polygon_points } from "./algorithms/resample";
+import { resample_strict } from "./algorithms/resample_strict";
+import { Polyline } from "./polyline";
 
 export class Polygon extends Shape {
     // A polygon has the last line segment implicit. However a duplicate point doesn't matter.

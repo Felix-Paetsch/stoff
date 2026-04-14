@@ -1,15 +1,17 @@
 import { patternConfig } from "./config";
 
-import { Out } from "../../Dev/lib";
+import { Out } from "@/Dev";
 import { BowlCozyPattern } from "./bowl_cozy/index";
+import { TShirtPattern } from "./tshirt/index";
+import { Pattern } from "./types";
 
-const patterns = [BowlCozyPattern] as const;
+const patterns = [BowlCozyPattern, TShirtPattern] as const;
 
 const pattern = patterns.find((p) => p.name === patternConfig.pattern);
 
 if (!pattern) {
     console.log(
-        `Pattern "${patternConfig}" not found! All available patterns are:`,
+        `Pattern "${patternConfig.pattern}" not found! All available patterns are:`,
     );
     patterns.forEach((p) => {
         console.log(`- ${p.name}`);
@@ -18,7 +20,10 @@ if (!pattern) {
 }
 
 Out.clear();
-const res = Out.run_wrapped(pattern.pattern, patternConfig);
+
+const typedPattern: (typeof patterns)[number] &
+    Pattern<(typeof patternConfig)["pattern"], any> = pattern;
+const res = Out.run_wrapped(typedPattern.pattern, patternConfig);
 
 if (Array.isArray(res)) {
     for (let i = 0; i < res.length; i++) {

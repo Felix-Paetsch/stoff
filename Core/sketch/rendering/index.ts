@@ -1,32 +1,36 @@
-import { SVG_Builder } from "@/Core/files/svg/svg_builder";
-
+import { Json } from "@/Core";
+import { SVG_Builder } from "Core/files/index";
 import {
     LineRenderAttributes,
     PointRenderAttributes,
-} from "@/Core/files/svg/render_attributes";
-import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
-import { Line } from "@/Core/sketch/line";
-import { Point } from "@/Core/sketch/point";
-import { Sketch } from "@/Core/sketch/sketch";
-import { Json } from "@/Core/types";
+} from "Core/files/svg/render_attributes";
+import { BoundingBox, FiniteGeometry, Polygon } from "Core/geometry/index";
+import { Vector } from "Core/geometry/vector";
+import { Line } from "../line";
+import { Point } from "../point";
+import { Sketch } from "../sketch";
 import { line_attributes, point_attributes } from "./defaults";
+
+export type RenderSketchArgs = {
+    width?: number;
+    height?: number;
+    padding?: number;
+    debug?: boolean;
+};
 
 export function render_sketch(
     s: Sketch,
-    width: number | null = null,
-    height: number | null = null,
-    padding: number = 0,
-    debug: boolean = false,
+    args: RenderSketchArgs = {},
 ): SVG_Builder {
     function if_debug<T>(fn: () => T) {
-        if (debug) return fn();
+        if (args.debug) return fn();
         return null;
     }
 
     const bb = s.bounding_box();
     const real_render_dimensions = recalculate_render_dimensions(
-        width,
-        height,
+        args.width ?? null,
+        args.height ?? null,
         bb,
     );
 
@@ -34,6 +38,7 @@ export function render_sketch(
         (x * real_render_dimensions.bounding_box.width) /
         real_render_dimensions.width;
 
+    const padding = args.padding ?? 0;
     const svg = new SVG_Builder(
         real_render_dimensions.width,
         real_render_dimensions.height,

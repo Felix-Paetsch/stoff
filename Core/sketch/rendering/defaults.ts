@@ -1,6 +1,6 @@
 // All sizes here are given as Pixels and will be converted to image space
 
-import { Color, Gradient } from "@/Core/colors";
+import { Color, Gradient } from "@/Core";
 
 export const point_attributes = {
     stroke: "black" as Color,

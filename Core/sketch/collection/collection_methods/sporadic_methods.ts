@@ -1,7 +1,7 @@
-import { get_lines, get_points } from "./getter_methods";
+import { BoundingBox, FiniteGeometry, Polygon, Vector } from "Core/geometry";
 import { connected_component, sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
-import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
+import { get_lines, get_points } from "./getter_methods";
 
 export function get_bounding_box(ec: SketchElementCollection): BoundingBox {
     const nec = sketch_element_collection_as_array(ec);

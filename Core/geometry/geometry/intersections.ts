@@ -1,4 +1,4 @@
-import { EPS } from "@/Core/numerics";
+import { EPS } from "Core/numerics";
 import { Vector } from "..";
 import { closest_vectors, Geometry } from "../geometry";
 import { Shape } from "../shape/shape";

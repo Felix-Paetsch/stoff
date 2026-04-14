@@ -89,7 +89,14 @@ function serialize_put(
     }
 
     if (what instanceof Sketch) {
-        return serialize_put(render_sketch(what, 500, 500, 30, true));
+        return serialize_put(
+            render_sketch(what, {
+                width: 500,
+                height: 500,
+                padding: 30,
+                debug: true,
+            }),
+        );
     }
 
     if (what instanceof SVG_Builder) {
@@ -104,7 +111,12 @@ function serialize_put(
             type: "recording" as const,
             value: what.snapshots.map((s) => {
                 return {
-                    svg: render_sketch(s.sketch, 500, 500, 30, true).svg(),
+                    svg: render_sketch(s.sketch, {
+                        width: 500,
+                        height: 500,
+                        padding: 30,
+                        debug: true,
+                    }).svg(),
                     stack: s.stackTrace,
                 };
             }),

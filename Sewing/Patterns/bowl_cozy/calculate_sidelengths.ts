@@ -1,5 +1,5 @@
+import { Triangle } from "@/Core";
 import { BowlCozyConfig } from ".";
-import { Triangle } from "../../../Core/index";
 
 export type Bowl_Measurements = {
     top_sidelength: number;

@@ -1,15 +1,15 @@
-import { Json, Sketch } from "../../Core";
+import { Json, Sketch } from "@/Core";
 
 export type PatternFunction<T extends Json> = (config: T) => Sketch | Sketch[];
-export type Pattern<T extends Json> = {
-    name: string;
+export type Pattern<S extends string, T extends Json> = {
+    name: S;
     pattern: PatternFunction<T>;
 };
 
-export function definePattern<T extends Json>(
-    name: string,
+export function definePattern<S extends string, T extends Json>(
+    name: S,
     pattern: PatternFunction<T>,
-): Pattern<T> {
+): Pattern<S, T> {
     return {
         name,
         pattern,

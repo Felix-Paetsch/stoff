@@ -3,15 +3,11 @@ import { BaseMeasurements } from "../base_measurements";
 export function ShirtDerivedMeasurements(mea: BaseMeasurements) {
     const half = mea.under_bust / 2;
 
-    const bustWidthFront =
-        mea.bust_width - (half + 2);
-    const bustWidthBack =
-        mea.bust_width - bustWidthFront;
+    const bustWidthFront = mea.bust_width - (half + 2);
+    const bustWidthBack = mea.bust_width - bustWidthFront;
 
-    const waistWidthFront =
-        mea.waist_width - (half - 5);
-    const waistWidthBack =
-        mea.waist_width - waistWidthFront;
+    const waistWidthFront = mea.waist_width - (half - 5);
+    const waistWidthBack = mea.waist_width - waistWidthFront;
 
     const ratio = bustWidthFront / bustWidthBack;
 
@@ -27,10 +23,12 @@ export function ShirtDerivedMeasurements(mea: BaseMeasurements) {
         bust_width_back: bustWidthBack,
         waist_width_front: waistWidthFront,
         waist_width_back: waistWidthBack,
-        ratio
-    }
+        ratio,
+    };
 }
-export type ShirtDerivedMeasurements = ReturnType<typeof ShirtDerivedMeasurements>;
+export type ShirtDerivedMeasurements = ReturnType<
+    typeof ShirtDerivedMeasurements
+>;
 
 type SDMK = keyof ShirtDerivedMeasurements;
 const shorthand_map = {
@@ -47,7 +45,11 @@ const shorthand_map = {
     belly: ["belly_front", "belly_back"],
 } as const;
 
-export function ExtractShirtSideMeasurement(sdm: ShirtDerivedMeasurements, key: keyof typeof shorthand_map | SDMK, side: "front" | "back" = "front") {
+export function ExtractShirtSideMeasurement(
+    sdm: ShirtDerivedMeasurements,
+    key: keyof typeof shorthand_map | SDMK,
+    side: "front" | "back" = "front",
+) {
     if (!Object.keys(shorthand_map).includes(key)) {
         return sdm[key as SDMK] as ShirtDerivedMeasurements[SDMK];
     }
@@ -60,14 +62,28 @@ export function ExtractShirtSideMeasurement(sdm: ShirtDerivedMeasurements, key: 
     return sdm[shorthand_result[side == "front" ? 0 : 1]];
 }
 
-export function is_shirt_derived_measurements(m: BaseMeasurements): m is ShirtDerivedMeasurements {
+export function is_shirt_derived_measurements(
+    m: BaseMeasurements,
+): m is ShirtDerivedMeasurements {
     const m_keys = Object.keys(m);
-    return Object.keys(shorthand_map).every(sh_key => m_keys.includes(sh_key));
+    return Object.keys(shorthand_map).every((sh_key) =>
+        m_keys.includes(sh_key),
+    );
 }
 
-export function BoundShirtSideMeasurements(mea: BaseMeasurements | ShirtDerivedMeasurements, bound_side?: "front" | "back") {
-    const derived_mea = is_shirt_derived_measurements(mea) ? mea : ShirtDerivedMeasurements(mea);
-    return (key: keyof typeof shorthand_map | SDMK, side: "front" | "back" | undefined = bound_side) => ExtractShirtSideMeasurement(derived_mea, key, side)
+export function BoundShirtSideMeasurements(
+    mea: BaseMeasurements | ShirtDerivedMeasurements,
+    bound_side?: "front" | "back",
+) {
+    const derived_mea = is_shirt_derived_measurements(mea)
+        ? mea
+        : ShirtDerivedMeasurements(mea);
+    return (
+        key: keyof typeof shorthand_map | SDMK,
+        side: "front" | "back" | undefined = bound_side,
+    ) => ExtractShirtSideMeasurement(derived_mea, key, side);
 }
 
-export type BoundShirtSideMeasurements = ReturnType<typeof BoundShirtSideMeasurements>
+export type BoundShirtSideMeasurements = ReturnType<
+    typeof BoundShirtSideMeasurements
+>;

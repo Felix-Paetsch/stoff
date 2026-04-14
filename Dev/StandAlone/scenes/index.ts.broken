@@ -1,20 +1,17 @@
-import { Sketch } from "@/Core/sketch/sketch";
-import { copy_line } from "@/Core/sketch/sketch/line_methods";
+import { Copy, Polyline, Sketch, Vector } from "@/Core";
 
 export default function () {
-    console.log("ENTER");
     const s = new Sketch();
-    const pts = [s.point(0, 0), s.point(1, 0)] as const;
+    const pts = [s.add_point(0, 0), s.add_point(1, 0)] as const;
 
-    const l = s.line_from_function_graph(...pts, (x) =>
-        Math.sin(3 * Math.PI * x),
+    const graph = Polyline.from_function(
+        (x) => new Vector(x, Math.sin(3 * Math.PI * x)),
     );
+    const l = s.add_line(graph, ...pts);
 
-    // s.dev.hot_at_url("/hot_simple");
-
-    copy_line(l, l.p1, l.p2).smooth_out(0.2).smooth_out(0.2).smooth_out(0.2);
-    copy_line(l, l.p1, l.p2).smooth_out(0.2).smooth_out(0.2);
-    copy_line(l, l.p1, l.p2).smooth_out(0.2);
+    Copy.line(l, l.p1, l.p2).smooth_out(0.2).smooth_out(0.2).smooth_out(0.2);
+    Copy.line(l, l.p1, l.p2).smooth_out(0.2).smooth_out(0.2);
+    Copy.line(l, l.p1, l.p2).smooth_out(0.2);
 
     console.log("EXIT");
     return s;

@@ -1,5 +1,5 @@
-import { CollectionMethods, Sketch } from "../../../Core/index";
-import { Out, Recording } from "../../../Dev/lib";
+import { CollectionMethods, Sketch } from "@/Core";
+import { Out, Recording } from "@/Dev";
 import { definePattern } from "../types";
 import { draw_base_pattern } from "./draw_base_pattern";
 
@@ -10,7 +10,7 @@ export type BowlCozyConfig = {
 };
 
 export const BowlCozyPattern = definePattern(
-    "Bowl Cozy",
+    "Bowl Cozy" as const,
     (cfg: BowlCozyConfig) => {
         const gr = Recording.start_global_recording();
         Out.put(gr);
@@ -26,9 +26,9 @@ export const BowlCozyPattern = definePattern(
                     type: "center",
                 }),
             ),
-            true,
-            true,
-            "collection_points_any_lines",
+            {
+                where: "collection_points_any_lines",
+            },
         );
 
         return sT;

@@ -1,4 +1,6 @@
+import { colorToHex, Gradient, Polygon, Polyline, Vector } from "@/Core";
 import { Json } from "../../types";
+import { SVGGradient } from "./gradient";
 import {
     defaultLineRenderAttributes,
     defaultPointRenderAttributes,
@@ -9,9 +11,6 @@ import {
     PolygonRenderAttributes,
     TextRenderAttributes,
 } from "./render_attributes";
-import { colorToHex, Gradient } from "@/Core/colors";
-import { SVGGradient } from "./gradient";
-import { Polygon, Polyline, Vector } from "@/Core/geometry";
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
