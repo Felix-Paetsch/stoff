@@ -159,39 +159,39 @@ export type Color =
 
 export type Gradient = [Color, Color];
 
-export function interpolate_colors(
+export function interpolate(
     color1: Color,
     color2: Color,
     ratio?: number,
 ): Color;
-export function interpolate_colors(
+export function interpolate(
     color1: Gradient,
     color2: Color,
     ratio?: number,
 ): Gradient;
-export function interpolate_colors(
+export function interpolate(
     color1: Color,
     color2: Gradient,
     ratio?: number,
 ): Gradient;
-export function interpolate_colors(
+export function interpolate(
     color1: Gradient,
     color2: Gradient,
     ratio?: number,
 ): Gradient;
-export function interpolate_colors(
+export function interpolate(
     color1: Color | Gradient,
     color2: Color | Gradient,
     ratio?: number,
 ): Gradient | Color;
-export function interpolate_colors(
+export function interpolate(
     color1: Color | Gradient,
     color2: Color | Gradient,
     ratio: number = 0.5,
 ): Color | Gradient {
     if (!is_gradient(color1) && !is_gradient(color2)) {
-        const rgb1 = colorToRgb(color1);
-        const rgb2 = colorToRgb(color2);
+        const rgb1 = toRgb(color1);
+        const rgb2 = toRgb(color2);
 
         const r = Math.round(rgb1[0] * (1 - ratio) + rgb2[0] * ratio);
         const g = Math.round(rgb1[1] * (1 - ratio) + rgb2[1] * ratio);
@@ -207,19 +207,19 @@ export function interpolate_colors(
     }
 
     if (!is_gradient(color1)) {
-        return (interpolate_colors as any)(color2, color1, 1 - ratio);
+        return (interpolate as any)(color2, color1, 1 - ratio);
     }
 
     if (is_gradient(color2)) {
         return [
-            interpolate_colors(color1[0], color2[0], ratio),
-            interpolate_colors(color1[1], color2[1], ratio),
+            interpolate(color1[0], color2[0], ratio),
+            interpolate(color1[1], color2[1], ratio),
         ];
     }
 
     return [
-        interpolate_colors(color1[0], color2, ratio),
-        interpolate_colors(color1[1], color2, ratio),
+        interpolate(color1[0], color2, ratio),
+        interpolate(color1[1], color2, ratio),
     ];
 }
 
@@ -243,7 +243,7 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
     ];
 }
 
-export function colorToRgb(col: Color): [number, number, number, number] {
+export function toRgb(col: Color): [number, number, number, number] {
     if (col in namedColors) {
         return [...namedColors[col as keyof typeof namedColors], 1];
     } else if (col.charAt(0) === "#") {
@@ -318,8 +318,8 @@ function bytesToHex(bytes: number[]) {
         .join("");
 }
 
-export function colorToHex(col: Color): `#${string}` {
-    const rgba = colorToRgb(col);
+export function toHex(col: Color): `#${string}` {
+    const rgba = toRgb(col);
     if (rgba[3] == 1) {
         return `#${bytesToHex(rgba.slice(0, 3))}`;
     }
@@ -327,8 +327,8 @@ export function colorToHex(col: Color): `#${string}` {
     return `#${bytesToHex(rgba)}`;
 }
 
-export function colorToHsl(col: Color): [number, number, number, number] {
-    const [r, g, b, a] = colorToRgb(col);
+export function toHsl(col: Color): [number, number, number, number] {
+    const [r, g, b, a] = toRgb(col);
 
     const rNorm = r / 255;
     const gNorm = g / 255;

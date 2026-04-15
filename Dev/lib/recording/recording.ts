@@ -33,7 +33,10 @@ export class LiveRecording extends Recording {
     private toggle: Toggle;
     public override is_hot: boolean = true;
 
-    constructor(record: Sketch, double_shot: boolean = false) {
+    constructor(
+        record: Sketch,
+        double_shot: "snap_before_and_after" | "snap_after" = "snap_after",
+    ) {
         super();
 
         const r = this;
@@ -41,7 +44,7 @@ export class LiveRecording extends Recording {
             const taking_snapshot = r.taking_snapshot;
             if (!taking_snapshot) {
                 r.taking_snapshot = true;
-                if (double_shot) r.snapshot(record);
+                if (double_shot == "snap_before_and_after") r.snapshot(record);
             }
             const result = ev();
             if (!taking_snapshot) {
@@ -60,11 +63,11 @@ export class LiveRecording extends Recording {
 
     stop() {
         this.is_hot = false;
-        this.toggle(false);
+        this.toggle("off");
     }
 
     start() {
         this.is_hot = true;
-        this.toggle(true);
+        this.toggle("on");
     }
 }

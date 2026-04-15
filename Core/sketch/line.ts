@@ -179,14 +179,7 @@ export class Line {
         return this.shape.closest_shape_position(to)!.vec;
     }
 
-    position_at_length(
-        at:
-            | number
-            | {
-                  at: number;
-                  relative: boolean;
-              },
-    ): Vector {
+    position_at_length(at: number | [number, "relative" | "absolute"]): Vector {
         return this.shape.shape_point_descriptor_to_shape_position(at)!.vec;
     }
 
@@ -195,10 +188,7 @@ export class Line {
             | Point
             | Vector
             | number
-            | {
-                  at: number;
-                  relative: boolean;
-              }
+            | [number, "relative" | "absolute"]
             | Shape.ShapePosition,
     ): {
         line_segments: [Line, Line];

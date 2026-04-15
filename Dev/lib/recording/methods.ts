@@ -1,5 +1,9 @@
 import { expect, Sketch } from "../../../Core/index";
-import { EvaluationResult, Toggle } from "../utils/prototype_modification";
+import {
+    EvaluationResult,
+    Toggle,
+    ToggleState,
+} from "../utils/prototype_modification";
 import { wrap_sketch_prototype_methods } from "../utils/wrap_sketch_methods";
 import { LiveRecording, Recording } from "./recording";
 
@@ -42,7 +46,7 @@ export function start_global_recording(): Recording {
     expect(!global_recording, "Already recording");
     global_recording = {
         rec: new Recording(),
-        toggle: () => true,
+        toggle: () => "on",
         taking_snapshot: false,
     };
 
@@ -67,9 +71,9 @@ export function start_global_recording(): Recording {
 
     const toggle1 = wrap_sketch_prototype_methods(Sketch, wrapper);
 
-    global_recording.toggle = (to?: boolean) => {
+    global_recording.toggle = (to?: ToggleState) => {
         const ret = toggle1(to);
-        global_recording!.rec.is_hot = ret;
+        global_recording!.rec.is_hot = ret == "on";
         return ret;
     };
 

@@ -1,4 +1,4 @@
-import { colorToHex, Gradient, Polygon, Polyline, Vector } from "@/Core";
+import { Color, Polygon, Polyline, Vector } from "@/Core";
 import { Json } from "../../types";
 import { SVGGradient } from "./gradient";
 import {
@@ -64,7 +64,7 @@ export class SVG_Builder {
 <text ${ras} x="${position.x}" y="${position.y}"
       font-family="${escapeXml(full_attributes.font_family)}"
       font-size="${full_attributes.font_size}"
-      fill="${colorToHex(full_attributes.fill)}"
+      fill="${Color.toHex(full_attributes.fill)}"
       font-weight="${full_attributes.font_weight}"
       text-anchor="${full_attributes.text_anchor}">${escapeXml(text)}</text>`;
         }, full_attributes.render_priority);
@@ -92,10 +92,10 @@ export class SVG_Builder {
             );
 
             const strokeString = full_attributes.stroke
-                ? `stroke="${colorToHex(full_attributes.stroke)}" stroke-width="${full_attributes.stroke_width}"`
+                ? `stroke="${Color.toHex(full_attributes.stroke)}" stroke-width="${full_attributes.stroke_width}"`
                 : 'stroke="none"';
             const fillString = full_attributes.fill
-                ? `fill="${colorToHex(full_attributes.fill)}"`
+                ? `fill="${Color.toHex(full_attributes.fill)}"`
                 : 'fill="none"';
 
             return `<circle cx="${position.x}" ${ras} cy="${position.y}" r="${full_attributes.radius}" ${strokeString} ${fillString} opacity="${full_attributes.opacity}"/>`;
@@ -128,7 +128,7 @@ export class SVG_Builder {
             if (!full_attributes.stroke) {
                 return "";
             } else if (typeof full_attributes.stroke == "string") {
-                return `<polyline points="${pointsString}" ${ras} style="fill:none; stroke: ${colorToHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
+                return `<polyline points="${pointsString}" ${ras} style="fill:none; stroke: ${Color.toHex(full_attributes.stroke)}; stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
             }
 
             let gradient: SVGGradient;
@@ -139,7 +139,7 @@ export class SVG_Builder {
                 sections = full_attributes.stroke[1] as number;
             } else {
                 gradient = new SVGGradient(
-                    full_attributes.stroke as Gradient,
+                    full_attributes.stroke as Color.Gradient,
                     this,
                 );
                 sections = 1;
@@ -193,7 +193,7 @@ export class SVG_Builder {
             if (!full_attributes.fill) {
                 res = "";
             } else if (typeof full_attributes.fill == "string") {
-                const fillString = `fill="${colorToHex(full_attributes.fill)}"`;
+                const fillString = `fill="${Color.toHex(full_attributes.fill)}"`;
                 res = `<polygon ${ras} stroke="none" ${fillString} opacity="${full_attributes.opacity}" points="${pointsString}" />`;
             } else {
                 throw new Error(

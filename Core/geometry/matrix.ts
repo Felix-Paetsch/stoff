@@ -5,8 +5,12 @@ export class Matrix {
     // 1, 3
     // 2, 4
     private entries: [number, number, number, number];
-    constructor(vec1: Vector, vec2: Vector, column_wise: boolean = true) {
-        if (column_wise) {
+    constructor(
+        vec1: Vector,
+        vec2: Vector,
+        primary_direction: "row" | "column" = "column",
+    ) {
+        if (primary_direction == "column") {
             this.entries = [vec1.x, vec1.y, vec2.x, vec2.y];
         } else {
             this.entries = [vec1.x, vec2.x, vec1.y, vec2.y];
@@ -24,7 +28,7 @@ export class Matrix {
         return new Matrix(
             new Vector(entries[0], entries[1]),
             new Vector(entries[2], entries[3]),
-            true,
+            "row",
         );
     }
 

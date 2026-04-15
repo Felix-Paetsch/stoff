@@ -9,22 +9,15 @@ Figure out geometry export structure
 
 
 [] figure out what to do with eps; also give it better meaning
-[] also have max iteration bounds in eps file
-- expensive
-- inexpensive
-
 [] fix and figure out faces (?)
     or just ignore?
 
-[] testing, testing, testing
 [] get back into caching
 - speed utilities
 - speed debug utilies
 [] unify (looks of) things with the same name
 - gen_lines?
 
-[] make some boolean args strings
-- relative, absolute
 [] debug also handedness
 
 [] better color utilities (gradients) for rendering
@@ -60,25 +53,22 @@ Figure out geometry export structure
 [] unify what angle mean
 [] more suffisticated Numerics.eps
 [] Clean up geometry methods
-[] figure out more with numerics, maybe neeeed to give custom values..
-[] for what do I need geo?
-[] rust code actions
 [] from points vs from verticies?
 [] figure out more abt what to do with sample spacing..
 [] caching where needed. Evt connected component faster
 [] circles padding invariant
 [] do we want lines or lines()??
-[] change render sketch input to an object instead of many render args
-[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
 [] improve/clean gitignores
 - ignore other things in typecheck
-[] starting the server initially, connecting is really slow
 [] expect namespace?
 expect.that(...)
-[] color namespace?
-Color.hex()
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave hull
 [] in insert mode make tab always jsut do insert tab
+
+### nvim
+
+[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
+[] rust code actions

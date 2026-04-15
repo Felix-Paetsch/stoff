@@ -38,10 +38,7 @@ export namespace Shape {
     export type Shape = Polyline | Polygon;
     export type ShapePointDescriptor =
         | number
-        | {
-              at: number;
-              relative: boolean;
-          }
+        | [number, "relative" | "absolute"]
         | Vector
         | Shape.ShapePosition
         | "start"
@@ -103,8 +100,11 @@ export abstract class Shape {
         return this._bb;
     }
 
-    sample(at: number, relative: boolean = true): Vector {
-        return this.shape_position_at_length(at, relative).vec;
+    sample(
+        at: number,
+        is_relative: "relative" | "absolute" = "relative",
+    ): Vector {
+        return this.shape_position_at_length(at, is_relative).vec;
     }
 
     as_polyline(): Polyline {
@@ -243,12 +243,12 @@ export abstract class Shape {
 
     shape_position_at_length(
         at: number,
-        relative: boolean = true,
+        relative: "relative" | "absolute" = "relative",
     ): Shape.ShapePosition {
         const l = this.as_polyline();
 
         const totalLength = l.length();
-        let targetDistance = relative ? at * totalLength : at;
+        let targetDistance = relative === "relative" ? at * totalLength : at;
         if (targetDistance < 0) {
             targetDistance = totalLength - targetDistance;
         }
@@ -475,8 +475,8 @@ export abstract class Shape {
                 frac: 1,
             };
         }
-        if ("at" in d) {
-            return this.shape_position_at_length(d.at, d.relative);
+        if (Array.isArray(d)) {
+            return this.shape_position_at_length(d[0], d[1]);
         }
         return d;
     }

@@ -1,4 +1,4 @@
-export * from "./colors";
+export * as Color from "./colors";
 export * from "./expect";
 export * from "./files";
 export * from "./geometry";

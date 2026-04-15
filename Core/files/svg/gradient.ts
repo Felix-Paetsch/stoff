@@ -1,10 +1,10 @@
-import { Gradient, interpolate_colors, Utils } from "@/Core";
+import { Color, Utils } from "@/Core";
 import { BoundingBox, Interval, Radians, Vector } from "../../geometry";
 import { SVG_Builder } from "./svg_builder";
 
 export class SVGGradient {
     constructor(
-        readonly gradient: Gradient,
+        readonly gradient: Color.Gradient,
         private svgBuilder: SVG_Builder,
     ) {}
 
@@ -22,8 +22,8 @@ export class SVGGradient {
               },
     ): string {
         const g = [
-            interpolate_colors(this.gradient[0], this.gradient[1], from),
-            interpolate_colors(this.gradient[0], this.gradient[1], to),
+            Color.interpolate(this.gradient[0], this.gradient[1], from),
+            Color.interpolate(this.gradient[0], this.gradient[1], to),
         ];
 
         let x1: string | number,
