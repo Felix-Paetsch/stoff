@@ -1,5 +1,5 @@
 export * as Color from "./colors";
-export * from "./expect";
+export * as Expect from "./expect";
 export * from "./files";
 export * from "./geometry";
 export * from "./numerics";

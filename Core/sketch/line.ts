@@ -1,6 +1,6 @@
+import { Expect } from "@/Core";
 import { CollectionMethods } from ".";
 import { Validate } from "../../Dev/lib";
-import { expect, invalid_path } from "../expect";
 import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";
 import { EPS } from "../numerics";
 import * as SketchElementCollectionMethods from "./collection/index";
@@ -43,16 +43,16 @@ export class Line {
     }
 
     get sketch() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return this.p1.sketch;
     }
 
     get p1() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return this._endpoints[0];
     }
     get p2() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return this._endpoints[1];
     }
 
@@ -69,9 +69,9 @@ export class Line {
     }
 
     update_shape(shape: Shape.Shape) {
-        expect(!shape.is_empty());
+        Expect.that(!shape.is_empty());
         if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
-            expect(this.p1.equals(this.p2));
+            Expect.that(this.p1.equals(this.p2));
             const diff = Vector.subtract(this.p1, shape.verticies[0]!);
             if (diff.length() < EPS.tiny) return;
             this._shape = shape.map((v) => v.add(diff));
@@ -93,7 +93,7 @@ export class Line {
     }
 
     set_endpoints(p1: Point, p2: Point) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         this.p1.__unregister_line(this);
 
         if (this.p1 !== this.p2) {
@@ -140,7 +140,7 @@ export class Line {
     }
 
     remove() {
-        expect(!this._is_removed, "Line is already removed");
+        Expect.that(!this._is_removed, "Line is already removed");
         this.p1.__unregister_line(this);
         this.p2.__unregister_line(this);
         this.sketch.__unregister_line(this);
@@ -148,8 +148,8 @@ export class Line {
     }
 
     other_endpoint(pt: SketchElement): Point {
-        expect(this.is_adjacent(pt), "Line is not adjacent to thing");
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(this.is_adjacent(pt), "Line is not adjacent to thing");
+        Expect.that(!this._is_removed, "Line is removed");
 
         if (pt instanceof Line)
             return this.other_endpoint(this.common_endpoint(pt)!);
@@ -157,22 +157,22 @@ export class Line {
     }
 
     endpoint_from_orientation(bool: boolean = true) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return bool ? this.p1 : this.p2;
     }
 
     has_endpoint(pt: Point) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return this.p1 == pt || this.p2 == pt;
     }
 
     set_changed_endpoint(p1: Point, p2: Point) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         if (this.p1 == p1) return this.set_endpoints(p1, p2);
         if (this.p2 == p1) return this.set_endpoints(p2, p1);
         if (this.p1 == p2) return this.set_endpoints(p2, p1);
         if (this.p2 == p2) return this.set_endpoints(p1, p2);
-        expect(invalid_path("No endpoint belonged to line"));
+        Expect.that(Expect.invalid_path("No endpoint belonged to line"));
     }
 
     closest_position(to: Vector): Vector {
@@ -213,16 +213,16 @@ export class Line {
     }
 
     replace_endpoint(old_pt: Point, new_pt: Point) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         if (this.p1 == old_pt) return this.set_endpoints(new_pt, this.p2);
         if (this.p2 == old_pt) return this.set_endpoints(this.p1, new_pt);
         if (this.p1 == new_pt) return this.set_endpoints(old_pt, this.p2);
         if (this.p2 == new_pt) return this.set_endpoints(this.p1, old_pt);
-        expect(invalid_path("Both endpoints dont belong to line"));
+        Expect.that(Expect.invalid_path("Both endpoints dont belong to line"));
     }
 
     adjacent_lines() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         return SketchElementCollectionMethods.unique(
             this.p1.adjacent_lines().concat(this.p2.adjacent_lines()),
         ).filter((l: Line) => l !== this);
@@ -237,7 +237,7 @@ export class Line {
         // point, (point | undefined): test if first point is p1
         // UB if not touching
 
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
 
         if (args[0] instanceof Point) {
             return this.p1 == args[0];
@@ -261,7 +261,7 @@ export class Line {
         // shape x shape with three points in common: true
         // UB else
 
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
 
         if (line.p1 == line.p2 && line.p1 == this.p1 && line.p1 == this.p2) {
             let same_orientation =
@@ -307,7 +307,7 @@ export class Line {
     }
 
     swap_orientation() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
 
         this._endpoints = [this._endpoints[1], this._endpoints[0]];
         this._shape = this._shape.reverse();
@@ -317,13 +317,13 @@ export class Line {
     }
 
     swap_handedness() {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         this.right_handed = !this.right_handed;
         return this;
     }
 
     set_handedness(cmpr: boolean | Line): boolean {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         if (typeof cmpr == "boolean") {
             return (this.right_handed = cmpr);
         }
@@ -336,7 +336,7 @@ export class Line {
     }
 
     is_adjacent(thing: SketchElement) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
 
         if (thing instanceof Point) {
             return thing == this.p1 || thing == this.p2;
@@ -346,7 +346,7 @@ export class Line {
     }
 
     common_endpoint(line: Line) {
-        expect(!this._is_removed, "Line is removed");
+        Expect.that(!this._is_removed, "Line is removed");
         if (this.p1 == line.p1 || this.p1 == line.p2) {
             return this.p1;
         }
@@ -358,22 +358,22 @@ export class Line {
     }
 
     validate_self() {
-        expect(!this.shape.is_empty());
+        Expect.that(!this.shape.is_empty());
         if (this.shape instanceof Polygon) {
-            expect(
+            Expect.that(
                 this.shape.root()!.distance_squared(this.p1) < EPS.tiny &&
                     this.shape.root()!.distance_squared(this.p2) < EPS.tiny,
                 "Polygon sample points dont start and end at p1/p2",
             );
         } else {
-            expect(
+            Expect.that(
                 this.shape.first()!.distance_squared(this.p1) < EPS.tiny &&
                     this.shape.last()!.distance_squared(this.p2) < EPS.tiny,
                 "Line sample points dont start and end at p1/p2",
             );
         }
 
-        expect(Validate.same_sketch(...this._endpoints));
+        Expect.that(Validate.same_sketch(...this._endpoints));
     }
 
     length() {
@@ -393,7 +393,7 @@ export class Line {
     }
 
     connected_component() {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return CollectionMethods.connected_component(this.sketch, this);
     }
 

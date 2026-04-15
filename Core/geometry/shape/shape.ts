@@ -96,7 +96,7 @@ export abstract class Shape {
 
     bounding_box(): BoundingBox {
         if (this._bb) return this._bb;
-        this._bb = BoundingBox.from_points(this.verticies);
+        this._bb = BoundingBox.from_vectors(this.verticies);
         return this._bb;
     }
 
@@ -207,7 +207,7 @@ export abstract class Shape {
         return true;
     }
 
-    static from_function(fn: Shape.ShapeFunction): Shape {
+    static from_function(fn: Shape.ShapeFunction): Shape.Shape {
         const vectors = vectors_from_polyline_function(fn);
         const line = new Polyline(vectors);
 

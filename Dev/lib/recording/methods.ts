@@ -1,4 +1,4 @@
-import { expect, Sketch } from "../../../Core/index";
+import { Expect, Sketch } from "../../../Core/index";
 import {
     EvaluationResult,
     Toggle,
@@ -10,7 +10,7 @@ import { LiveRecording, Recording } from "./recording";
 const active_recordings: Map<Sketch, LiveRecording> = new Map();
 
 export function start(target: Sketch): LiveRecording {
-    expect(!active_recordings.get(target), "Already recording");
+    Expect.that(!active_recordings.get(target), "Already recording");
 
     const rec = new LiveRecording(target);
     active_recordings.set(target, rec);
@@ -20,7 +20,7 @@ export function start(target: Sketch): LiveRecording {
 
 export function stop(target: Sketch): LiveRecording {
     const rec = active_recordings.get(target);
-    if (!rec) throw expect(!rec, "Not currently recording");
+    if (!rec) throw Expect.that(!rec, "Not currently recording");
 
     rec.stop();
     return rec;
@@ -32,7 +32,7 @@ export function is_recording(target: Sketch): boolean {
 
 export function get_recording(target: Sketch): LiveRecording {
     const rec = active_recordings.get(target);
-    if (!rec) throw expect(!rec, "Not currently recording");
+    if (!rec) throw Expect.that(!rec, "Not currently recording");
     return rec;
 }
 
@@ -43,7 +43,7 @@ let global_recording: {
 } | null = null;
 
 export function start_global_recording(): Recording {
-    expect(!global_recording, "Already recording");
+    Expect.that(!global_recording, "Already recording");
     global_recording = {
         rec: new Recording(),
         toggle: () => "on",
@@ -81,14 +81,14 @@ export function start_global_recording(): Recording {
 }
 
 export function stop_global_recording(): Recording {
-    if (!global_recording) throw expect("Not currently recording");
+    if (!global_recording) throw Expect.that("Not currently recording");
     const r = global_recording;
     global_recording = null;
     return r.rec;
 }
 
 export function get_global_recording(): Recording {
-    if (!global_recording) throw expect("Not currently recording");
+    if (!global_recording) throw Expect.that("Not currently recording");
     return global_recording.rec;
 }
 

@@ -46,7 +46,7 @@ export class Polyline extends Shape {
         return new Polygon(this.positions);
     }
 
-    static from_verticies(vec: Vector[]): Polyline {
+    static from_vectors(vec: Vector[]): Polyline {
         const length = vec.length * 2;
         const positions = new Float64Array(length);
 
@@ -85,7 +85,7 @@ export class Polyline extends Shape {
         }
         res.push(sp2.vec);
 
-        return Polyline.from_verticies(res);
+        return Polyline.from_vectors(res);
     }
 
     map(
@@ -101,7 +101,7 @@ export class Polyline extends Shape {
             res[i] = fn(ver[i]!, current_l / l, current_l);
         }
 
-        return Polyline.from_verticies(res);
+        return Polyline.from_vectors(res);
     }
 
     is_straight(): boolean {

@@ -1,6 +1,6 @@
-import { Radians } from "./types";
-import { expect } from "../expect";
+import { Expect } from "@/Core";
 import { EPS } from "../numerics";
+import { Radians } from "./types";
 
 export type Triangle = {
     a: number;
@@ -225,7 +225,7 @@ export function from_specification(triangle: TriangleSpecification): Triangle {
 
     /* ------------------------------ Validation ------------------------------ */
 
-    expect(
+    Expect.that(
         A !== undefined &&
             B !== undefined &&
             C !== undefined &&

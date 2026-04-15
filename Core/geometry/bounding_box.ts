@@ -33,15 +33,22 @@ export class BoundingBox {
         return new BoundingBox(Infinity, Infinity, -Infinity, -Infinity);
     }
 
-    static from_points(points: Vector[]) {
+    static from_vectors(points: Vector[]) {
         if (points.length === 0) {
             return BoundingBox.empty();
         }
 
-        const min_x = Math.min(...points.map((p) => p.x));
-        const min_y = Math.min(...points.map((p) => p.y));
-        const max_x = Math.max(...points.map((p) => p.x));
-        const max_y = Math.max(...points.map((p) => p.y));
+        let min_x = Infinity,
+            min_y = Infinity,
+            max_x = -Infinity,
+            max_y = -Infinity;
+
+        for (const p of points) {
+            min_x = Math.min(min_x, p.x);
+            min_y = Math.min(min_y, p.y);
+            max_x = Math.max(max_x, p.x);
+            max_y = Math.max(max_y, p.y);
+        }
 
         return new BoundingBox(min_x, min_y, max_x, max_y);
     }
@@ -67,7 +74,7 @@ export class BoundingBox {
     }
 
     static merge(boxes: BoundingBox[]) {
-        return BoundingBox.from_points(
+        return BoundingBox.from_vectors(
             boxes
                 .filter((b) => !b.is_empty)
                 .flatMap((b) => [

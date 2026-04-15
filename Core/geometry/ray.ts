@@ -15,7 +15,7 @@ export class Ray {
         this.direction = direction!;
     }
 
-    static from_points(src: Vector, passing: Vector) {
+    static from_vectors(src: Vector, passing: Vector) {
         return new Ray(src, passing.subtract(src));
     }
 
@@ -44,7 +44,7 @@ export class Ray {
     }
 
     mirror_at(...data: Parameters<typeof Vector.prototype.mirror_at>) {
-        return Ray.from_points(
+        return Ray.from_vectors(
             this.src.mirror_at(...data),
             this.src.add(this.direction).mirror_at(...data),
         );

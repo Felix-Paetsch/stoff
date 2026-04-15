@@ -1,4 +1,4 @@
-import { expect, Line, Point, Sketch, Vector } from "../../../Core/index";
+import { Expect, Line, Point, Sketch, Vector } from "../../../Core/index";
 
 export function catmull_rom_controlpoints(
     sketch: Sketch,
@@ -7,7 +7,7 @@ export function catmull_rom_controlpoints(
     end_velocity: Vector | null = null,
     relative: boolean = true,
 ) {
-    expect(points.length > 1);
+    Expect.that(points.length > 1);
 
     if (start_velocity == null) {
         start_velocity = points[1]!.subtract(points[0]!);

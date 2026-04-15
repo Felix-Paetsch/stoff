@@ -1,9 +1,9 @@
-import { expect } from "../expect";
-import { Sketch } from "./sketch";
-import { Line } from "./line";
-import { StoffObjectData } from "./types";
-import { BoundingBox, Vector } from "../geometry";
+import { Expect } from "@/Core";
 import { CollectionMethods } from ".";
+import { BoundingBox, Vector } from "../geometry";
+import { Line } from "./line";
+import { Sketch } from "./sketch";
+import { StoffObjectData } from "./types";
 
 export class Point extends Vector {
     private _adjacent_lines: Line[] = [];
@@ -29,7 +29,7 @@ export class Point extends Vector {
     }
 
     connected_component() {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return CollectionMethods.connected_component(this.sketch, this);
     }
 
@@ -42,22 +42,22 @@ export class Point extends Vector {
     }
 
     adjacent_lines() {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return [...this._adjacent_lines];
     }
 
     adjacent_points() {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         const pt = this._adjacent_lines.map((l) => l.other_endpoint(this));
         return pt.filter((p, i) => pt.indexOf(p) == i);
     }
 
     bounding_box() {
-        return BoundingBox.from_points([this]);
+        return BoundingBox.from_vectors([this]);
     }
 
     get sketch() {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return this._sketch;
     }
 
@@ -66,7 +66,7 @@ export class Point extends Vector {
     }
 
     common_lines(point: Point) {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return this._adjacent_lines.filter((l) =>
             point.adjacent_lines().includes(l),
         );
@@ -75,7 +75,7 @@ export class Point extends Vector {
     set(x: number, y: number): Point;
     set(x: Vector): Point;
     set(x: number | Vector, y: number = 0): Point {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
 
         if (x instanceof Vector) {
             return this.set(x.x, x.y);
@@ -90,7 +90,7 @@ export class Point extends Vector {
     move_to(x: number, y: number): Point;
     move_to(x: Vector): Point;
     move_to(x: number | Vector, y: number = 0) {
-        expect(!this._is_removed, "Point is removed");
+        Expect.that(!this._is_removed, "Point is removed");
         return (this.set as any)(x, y);
     }
 
@@ -105,7 +105,7 @@ export class Point extends Vector {
     }
 
     remove() {
-        expect(!this._is_removed, "Point is already removed");
+        Expect.that(!this._is_removed, "Point is already removed");
         this._adjacent_lines.forEach((l) => l.remove());
         this.sketch.__unregister_point(this);
         this._is_removed = true;

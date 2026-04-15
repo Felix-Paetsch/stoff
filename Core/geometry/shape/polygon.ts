@@ -1,6 +1,11 @@
 import { Bounds } from "Core/numerics";
 import { area, contains, contains_properly } from "Core/rust/exports";
-import { centroid, coordinate_position, interior_point, winding } from "Core/rust/pkg/stoff_rust";
+import {
+    centroid,
+    coordinate_position,
+    interior_point,
+    winding,
+} from "Core/rust/pkg/stoff_rust";
 import { FiniteGeometry, Shape } from "..";
 import { as_polyline } from "../geometry/utils";
 import { Radians } from "../types";
@@ -40,7 +45,7 @@ export class Polygon extends Shape {
         return false;
     }
 
-    static from_verticies(vec: Vector[]): Polygon {
+    static from_vectors(vec: Vector[]): Polygon {
         const length = vec.length * 2;
         const positions = new Float64Array(length);
 
@@ -67,7 +72,7 @@ export class Polygon extends Shape {
             res.push(fn(ver[i]!, current_l / l, current_l));
         }
 
-        return Polygon.from_verticies(res);
+        return Polygon.from_vectors(res);
     }
 
     root(): Vector | null {
@@ -205,6 +210,6 @@ export class Polygon extends Shape {
 
         res.push(sp2.vec);
 
-        return Polyline.from_verticies(res);
+        return Polyline.from_vectors(res);
     }
 }

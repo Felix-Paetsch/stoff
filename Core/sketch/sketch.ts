@@ -1,6 +1,6 @@
+import { Expect } from "@/Core";
 import { CollectionMethods, Copy } from ".";
 import { Validate } from "../../Dev/lib";
-import { expect } from "../expect";
 import { LinearTransform, Polygon, Shape, Vector } from "../geometry";
 import { default_data_callback } from "./copy";
 import { Line } from "./line";
@@ -96,7 +96,7 @@ export class Sketch {
         from?: Point | Vector | null,
         to?: Point | Vector | null,
     ): Line {
-        expect(!shape.is_empty());
+        Expect.that(!shape.is_empty());
 
         if (!from) {
             if (to instanceof Vector) {
@@ -125,11 +125,11 @@ export class Sketch {
             }
         }
 
-        if (!(to instanceof Vector)) {
+        if (!(to instanceof Point)) {
             to = this.add_point(to);
         }
 
-        if (!(from instanceof Vector)) {
+        if (!(from instanceof Point)) {
             from = this.add_point(from);
         }
 
@@ -162,7 +162,7 @@ export class Sketch {
         data_callback = default_data_callback,
     ) {
         if (pt1 == pt2) return pt1;
-        expect(pt1.equals(pt2));
+        Expect.that(pt1.equals(pt2));
 
         pt2.data = data_callback(pt2.data, pt1.data, pt2, pt1);
 
@@ -184,7 +184,7 @@ export class Sketch {
         delete_join: boolean = false,
         data_callback: Copy.CopySketchObjectDataCallback = Copy.default_data_callback,
     ) {
-        expect(Validate.same_sketch(line1, line2, this));
+        Expect.that(Validate.same_sketch(line1, line2, this));
 
         let new_endpoints: [Point, Point];
         let handedness = line1.right_handed;

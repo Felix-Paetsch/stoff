@@ -1,10 +1,10 @@
-import { LineSegment } from "./types";
-import { Shape } from "./shape/shape";
-import { Polygon } from "./shape/polygon";
-import { Vector } from "./vector";
+import { convex_hull as convex_hull_rust } from "../rust/exports";
 import { BoundingBox } from "./bounding_box";
 import { as_polyline, merge_float_arrays } from "./geometry/utils";
-import { convex_hull as convex_hull_rust } from "../rust/exports";
+import { Polygon } from "./shape/polygon";
+import { Shape } from "./shape/shape";
+import { LineSegment } from "./types";
+import { Vector } from "./vector";
 
 export type FiniteGeometry = Vector | LineSegment | Shape;
 
@@ -13,9 +13,9 @@ export function bounding_box(...geometries: FiniteGeometry[]) {
         geometries.map((g) => {
             if (g instanceof Vector) return new BoundingBox(g.x, g.y, g.x, g.y);
             if (g instanceof Shape) {
-                return BoundingBox.from_points(g.verticies);
+                return BoundingBox.from_vectors(g.verticies);
             }
-            return BoundingBox.from_points(g);
+            return BoundingBox.from_vectors(g);
         }),
     );
 }

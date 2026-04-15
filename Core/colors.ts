@@ -1,3 +1,6 @@
+import { Fraction } from "./geometry/interval";
+import { Interval } from "./index";
+
 const namedColors = {
     aliceblue: [240, 248, 255],
     antiquewhite: [250, 235, 215],
@@ -155,7 +158,8 @@ export type Color =
     | `rgb(${number},${number},${number})`
     | `rgba(${number},${number},${number},${number})`
     | `#${string}`
-    | `hsl(${number},${number},${number})`;
+    | `hsl(${number},${number},${number})`
+    | `hsla(${number},${number},${number},${number})`;
 
 export type Gradient = [Color, Color];
 
@@ -259,7 +263,7 @@ export function toRgb(col: Color): [number, number, number, number] {
             const g = parseInt(hex.substring(2, 4), 16);
             const b = parseInt(hex.substring(4, 6), 16);
             const a = parseInt(hex.substring(6, 8), 16);
-            return [r, g, b, a];
+            return [r, g, b, a / 255];
         }
         if (hex.length == 3) {
             const r1 = hex.substring(0, 1);
@@ -279,10 +283,17 @@ export function toRgb(col: Color): [number, number, number, number] {
             const g = parseInt(g1 + g1, 16);
             const a1 = hex.substring(3, 4);
             const a = parseInt(a1 + a1, 16);
-            return [r, g, b, a];
+            return [r, g, b, a / 255];
         }
-    } else if (col.startsWith("rgb")) {
+    } else if (col.startsWith("rgba")) {
         // Extract RGB values
+        return col.match(/\d+\.?\d*/g)?.map(Number) as [
+            number,
+            number,
+            number,
+            number,
+        ];
+    } else if (col.startsWith("rgb")) {
         return [
             ...(col.match(/\d+\.?\d*/g)?.map(Number) as [
                 number,
@@ -291,22 +302,26 @@ export function toRgb(col: Color): [number, number, number, number] {
             ]),
             1,
         ];
-    } else if (col.startsWith("rgba")) {
-        return col.match(/\d+\.?\d*/g)?.map(Number) as [
-            number,
-            number,
-            number,
-            number,
+    } else if (col.startsWith("hsla")) {
+        const [h, s, l, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [
+            0, 0, 0, 1,
         ];
+        return [...hslToRgb(h!, s!, l!), a!];
     } else if (col.startsWith("hsl")) {
         const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
         return [...hslToRgb(h!, s!, l!), 1];
-    } else if (col.startsWith("hsla")) {
-        const [h, s, l, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-        return [...hslToRgb(h!, s!, l!), a!];
     }
 
-    return [0, 0, 0, 0];
+    return [0, 0, 0, 1];
+}
+
+export function fromRgb(
+    color: [number, number, number, number] | [number, number, number],
+): Color {
+    if (color.length == 3 || color[3] == 1) {
+        return `rgb(${Math.round(color[0])},${Math.round(color[1])},${Math.round(color[2])})`;
+    }
+    return `rgba(${Math.round(color[0])},${Math.round(color[1])},${color[2]},${color[3]})`;
 }
 
 function bytesToHex(bytes: number[]) {
@@ -324,7 +339,7 @@ export function toHex(col: Color): `#${string}` {
         return `#${bytesToHex(rgba.slice(0, 3))}`;
     }
 
-    return `#${bytesToHex(rgba)}`;
+    return `#${bytesToHex([...rgba.slice(0, 3), 255 * rgba[3]])}`;
 }
 
 export function toHsl(col: Color): [number, number, number, number] {
@@ -362,4 +377,60 @@ export function toHsl(col: Color): [number, number, number, number] {
     }
 
     return [Math.round(h), Math.round(s * 100), Math.round(l * 100), a];
+}
+
+export function fromHsl(
+    color: [number, number, number, number] | [number, number, number],
+): Color {
+    if (color.length == 3 || color[3] == 1) {
+        return `hsl(${Math.round(color[0])},${Math.round(color[1])},${Math.round(color[2])})`;
+    }
+    return `hsla(${Math.round(color[0])},${Math.round(color[1])},${color[2]},${color[3]})`;
+}
+
+export function toHexString(color: Color) {
+    return toHex(color);
+}
+
+export function toHslString(color: Color) {
+    return fromHsl(toHsl(color));
+}
+
+export function toRgbString(color: Color) {
+    return fromRgb(toRgb(color));
+}
+
+export function toString(color: Color): string & Color {
+    if (typeof color === "string") return color;
+    return toHex(color);
+}
+
+export function setOpacity(color: Color, opacity: Fraction): Color {
+    const rgba = toRgb(color);
+    return fromRgb([
+        rgba[0],
+        rgba[1],
+        rgba[2],
+        Interval.clamp([0, 1], opacity),
+    ]);
+}
+
+export function setLuminocity(color: Color, luminocity: number): Color {
+    const hsla = toHsl(color);
+    return fromHsl([
+        hsla[0],
+        hsla[1],
+        Interval.clamp([0, 100], luminocity),
+        hsla[3],
+    ]);
+}
+
+export function setHue(color: Color, hue: number): Color {
+    const hsla = toHsl(color);
+    return fromHsl([Interval.clamp([0, 359], hue), hsla[1], hsla[2], hsla[3]]);
+}
+
+export function setSaturation(color: Color, sat: number): Color {
+    const hsla = toHsl(color);
+    return fromHsl([hsla[0], Interval.clamp([0, 100], sat), hsla[2], hsla[3]]);
 }

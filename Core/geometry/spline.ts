@@ -1,5 +1,5 @@
+import { Expect } from "@/Core";
 import { Shape, Vector } from ".";
-import { expect } from "../expect";
 import { Fraction } from "./interval";
 
 export function bezier(
@@ -10,11 +10,11 @@ export function bezier(
         degree = static_points.length - 1;
     }
 
-    expect(
+    Expect.that(
         (static_points.length - 1) % degree === 0,
         "The number of input points -1 must be a multiple of the degree",
     );
-    expect(degree >= 1 && Number.isInteger(degree));
+    Expect.that(degree >= 1 && Number.isInteger(degree));
 
     const points = [...static_points];
     let segments: Vector[][] = [];
@@ -54,7 +54,7 @@ export function hermite(
     // Returns a fn creating the hermite spline through the given poitns with the right velocity
     // relative means whether the velocity is given as a vector from (0, 0) or from the current control pt
 
-    expect(
+    Expect.that(
         points.length == velocities.length,
         "Number of points and velocities must be equal",
     );
@@ -97,7 +97,7 @@ export function catmull_rom(
     end_velocity: Vector | null = null,
     relative: boolean = true,
 ): Shape.PolylineFunction {
-    expect(points.length > 1);
+    Expect.that(points.length > 1);
 
     if (start_velocity == null) {
         start_velocity = points[1]!.subtract(points[0]!);
@@ -127,7 +127,7 @@ export function bezier_smooth_cubic(
     tangents: Vector[],
     relative = true,
 ) {
-    expect(
+    Expect.that(
         tangents.length == points.length,
         "We require same amt of points and tangents",
     );

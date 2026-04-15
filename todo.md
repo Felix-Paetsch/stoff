@@ -1,72 +1,94 @@
 
 # Next
 
-Create a files index.ts export
-Figure out geometry export structure
+
+Viz start and end of runs (optionally)
+Implement leonies offset method
+    - return polygon with biggest length
 
 
 # All
 
-
-[] figure out what to do with eps; also give it better meaning
-[] fix and figure out faces (?)
-    or just ignore?
-
-[] get back into caching
-- speed utilities
-- speed debug utilies
+[] embroidery as png
+    -> rather sketch embroidery as png(?)
+    -> problem is DST doesnt have own colors...
+    -> a class in embroidery for embroidery with colors?
+    -> not sooo pressing rn
 [] unify (looks of) things with the same name
+[] Out render cjson embroidery
+    - png?
+    - progress slider
+[] Out render dst(?)
+    - clean up server?
 - gen_lines?
+[] writing dst should have center _in_the_center_
 
 [] debug also handedness
+[] better intergration embroidery <-> explorer?
+    - maybe a Embroidery.out() method or smth
 
 [] better color utilities (gradients) for rendering
-[] dst render/writer engine
 [] Annotation System; maybe have DST annotations as a start
-[] DST debug/dev env; maybe with live knobs and dials
 
-[] custom annotation functions
-- stamping out
-
-[] get faces to work again
-
-[] point styles in sketch rendering (?)
 [] if needed: resample polylines for svg builder to lower threshhold
 [] svg builder faces with gradients
 
 [] optimization with caching length to each entry of polyine?
 [] get rid of some dependencies
+
+[] unify what angle mean
+[] circles padding invariant
+[] do we want lines or lines()??
+
+
+### Reintroduce features
+
+[] Caching
+[] Faces
+[] Render as video
+
 [] reintroduce colors for
 - patterns
 - dst
-[] fix debug scenes
-[] good api for base shapes as polygons? n-gon?
 
+### Future features - non sewing
+
+- speed utilities
+- speed debug utilies
 [] debug dev run can take optional argumetns for tracking, etc
-[] fix gitignore
+
+### Future features - sewing
+
+
+
+### Future features - embroidery
+
+[] Make outline method
+- a script
 
 [] radial distance functions
 - making a path of points by angular binary search around the last point
 - can use this to make mandelbrot!
     - would maybe have to find the best angular point for this though?
 - can use for auto-digitize lines?
-[] unify what angle mean
-[] more suffisticated Numerics.eps
-[] Clean up geometry methods
-[] from points vs from verticies?
-[] figure out more abt what to do with sample spacing..
-[] caching where needed. Evt connected component faster
-[] circles padding invariant
-[] do we want lines or lines()??
-[] improve/clean gitignores
-- ignore other things in typecheck
-[] expect namespace?
-expect.that(...)
+
+[] good api for base shapes as polygons? n-gon?
+[] svg parsing
+- svgson
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave hull
-[] in insert mode make tab always jsut do insert tab
+
+### Future features - General
+
+[] SVG parser thing?
+[] custom annotation functions
+- stamping out
+[] better gradients
+[] More svg options (?)
+    - point styles in sketch rendering (?)
+    - face gradients
 
 ### nvim
 

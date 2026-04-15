@@ -11,6 +11,10 @@ export function lerp(a: number, b: number, amt: Fraction): number {
     return a * (1 - amt) + b * amt;
 }
 
+export function lerp_abs(a: number, b: number, amt: number): number {
+    return lerp(a, b, amt / (b - a));
+}
+
 export function merge(i: Interval, ...intervals: Interval[]): Interval {
     const [x, y] = intervals.reduce(
         ([x, y], [x2, y2]) => [Math.min(x, x2), Math.max(y, y2)],
@@ -23,4 +27,8 @@ export function overlap(...intervals: Interval[]): Interval {
     const x = Math.max(...intervals.map((i) => i[0]));
     const y = Math.min(...intervals.map((i) => i[1]));
     return [Math.min(x, y), Math.max(x, y)];
+}
+
+export function clamp(at: Interval, number: number): number {
+    return Math.min(Math.max(number, at[0]), at[1]);
 }

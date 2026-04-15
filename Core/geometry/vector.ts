@@ -17,13 +17,6 @@ export class Vector {
             x = x.x;
         }
 
-        if (
-            !(typeof x === "number" && !isNaN(x)) ||
-            !(typeof y === "number" && !isNaN(y))
-        ) {
-            throw new Error("Vector entries are not proper numbers!");
-        }
-
         this._x = x;
         this._y = y;
     }

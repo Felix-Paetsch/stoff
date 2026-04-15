@@ -1,12 +1,12 @@
 export type ValidationResult = boolean | string | null | undefined | void;
 export type ValidationFunction = () => ValidationResult;
 
-export const expect = (
+export const that = (
     bool: ValidationResult | ValidationFunction,
     error: string = "Assert Failed",
 ): boolean => {
     if (typeof bool == "string") {
-        return expect(false, bool);
+        return that(false, bool);
     }
 
     if (bool === false) {

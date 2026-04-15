@@ -1,5 +1,4 @@
 import { Polyline, Vector } from "Core/geometry/index";
-import fs from "node:fs";
 import { DST_Stitches } from "./index";
 
 function decode_record(
@@ -63,9 +62,7 @@ function push_color(result: DST_Stitches, colorRuns: Polyline[]): Polyline[] {
     return [];
 }
 
-export function parse_dst_file(f: string): DST_Stitches {
-    const buf = fs.readFileSync(f);
-
+export function parse_dst_buffer(buf: Buffer): DST_Stitches {
     if (buf.length < 512) {
         throw new Error("Invalid DST file: file too small");
     }

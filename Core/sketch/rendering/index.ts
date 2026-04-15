@@ -34,9 +34,13 @@ export function render_sketch(
         bb,
     );
 
-    const px_to_unit = (x: number) =>
+    const px_to_unit_x = (x: number) =>
         (x * real_render_dimensions.bounding_box.width) /
         real_render_dimensions.width;
+
+    const px_to_unit_y = (y: number) =>
+        (y * real_render_dimensions.bounding_box.height) /
+        real_render_dimensions.height;
 
     const padding = args.padding ?? 0;
     const svg = new SVG_Builder(
@@ -49,8 +53,7 @@ export function render_sketch(
         padding,
     );
 
-    // This doesnt necc cover the whole svg, but _enought_ for out purposes currently
-    const offset = new Vector(px_to_unit(padding * 2), px_to_unit(padding * 2));
+    const offset = new Vector(px_to_unit_x(padding), px_to_unit_y(padding));
     svg.render_polygon(
         FiniteGeometry.rectangle(
             real_render_dimensions.bounding_box.top_left.subtract(offset),
@@ -66,7 +69,7 @@ export function render_sketch(
     s.lines().forEach((line) => {
         const lineStyles: Partial<LineRenderAttributes> = {
             ...line_attributes,
-            stroke_width: px_to_unit(line_attributes.stroke_width),
+            stroke_width: px_to_unit_x(line_attributes.stroke_width),
         };
 
         if (line.right_handed) {
@@ -93,8 +96,8 @@ export function render_sketch(
 
     const pointStyles: Partial<PointRenderAttributes> = {
         ...point_attributes,
-        radius: px_to_unit(point_attributes.radius),
-        stroke_width: px_to_unit(point_attributes.stroke_width),
+        radius: px_to_unit_x(point_attributes.radius),
+        stroke_width: px_to_unit_x(point_attributes.stroke_width),
     };
 
     s.points().forEach((pt) => {
@@ -154,28 +157,24 @@ function recalculate_render_dimensions(
     height: number;
     bounding_box: BoundingBox;
 } {
-    if (bounding_box.width == 0 || bounding_box.height == 0) {
-        const bb_w = bounding_box.width || 1;
-        const bb_h = bounding_box.height || 1;
-        const bb_center = bounding_box.center().is_finite()
-            ? bounding_box.center()
-            : Vector.ZERO;
+    if (bounding_box.width === 0 || bounding_box.height === 0) {
+        const bb_w = bounding_box.width === 0 ? 1 : bounding_box.width;
+        const bb_h = bounding_box.height === 0 ? 1 : bounding_box.height;
+        const center = bounding_box.center();
+        const bb_center = center.is_finite() ? center : Vector.ZERO;
         const offset = new Vector(bb_w / 2, bb_h / 2);
-        bounding_box = BoundingBox.from_points([
+
+        bounding_box = BoundingBox.from_vectors([
             bb_center.add(offset),
             bb_center.subtract(offset),
         ]);
-    }
-
-    if (bounding_box.height == 0) {
-        bounding_box = new BoundingBox(0, 0, 1, 1);
     }
 
     if (width == null && height == null) {
         return {
             width: bounding_box.width,
             height: bounding_box.height,
-            bounding_box: bounding_box,
+            bounding_box,
         };
     }
 
@@ -183,20 +182,21 @@ function recalculate_render_dimensions(
         return {
             width: width!,
             height: (width! * bounding_box.height) / bounding_box.width,
-            bounding_box: bounding_box,
+            bounding_box,
         };
     }
 
     if (width == null) {
         return {
-            height: height!,
             width: (height! * bounding_box.width) / bounding_box.height,
-            bounding_box: bounding_box,
+            height: height!,
+            bounding_box,
         };
     }
 
     let source_aspect_ratio = bounding_box.width / bounding_box.height;
     const target_aspect_ratio = width / height;
+
     if (Number.isNaN(source_aspect_ratio)) {
         source_aspect_ratio = target_aspect_ratio;
     }
@@ -204,6 +204,7 @@ function recalculate_render_dimensions(
     if (source_aspect_ratio < target_aspect_ratio) {
         const delta_w_source =
             target_aspect_ratio * bounding_box.height - bounding_box.width;
+
         return {
             width,
             height,
@@ -217,7 +218,8 @@ function recalculate_render_dimensions(
     }
 
     const delta_h_source =
-        (1 / target_aspect_ratio) * bounding_box.width - bounding_box.height;
+        bounding_box.width / target_aspect_ratio - bounding_box.height;
+
     return {
         width,
         height,
