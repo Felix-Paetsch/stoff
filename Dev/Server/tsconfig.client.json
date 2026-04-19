@@ -6,8 +6,16 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "public-build",
-    "rootDir": "src",
-    "allowSyntheticDefaultImports": true
+    "baseUrl": "../../",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+        "@/Core": ["./Core/index"],
+        "@/Dev": ["./Dev/Lib"]
+    }
   },
-  "include": ["src/public/*.ts", "src/fileProcessor.ts", "src/types.ts"]
+  "include": [
+        "../../Core/",
+        "../../Dev/",
+        "../../Embroidery/Lib",
+    ]
 }

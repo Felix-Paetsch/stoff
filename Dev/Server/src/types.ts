@@ -73,6 +73,13 @@ export type CJson = {
           type: "failedTest";
           value: FailedTest[];
       }
+    | {
+          type: "embroidery";
+          value: {
+              color: string;
+              runs: [number, number][][];
+          }[];
+      }
 );
 
 // FailedTests

@@ -1,6 +1,7 @@
 import { compareStrings } from "../compareStrings.js";
-import { renderFileCard } from "../fileProcessor.js";
 import type { Config, FileRecord, ServerMessage } from "../types.js";
+import { renderFileCard } from "./cards/fileProcessor.js";
+import { updateCJson } from "./cards/utilts.js";
 
 const grid = document.getElementById("grid") as HTMLDivElement;
 // @ts-ignore
@@ -91,7 +92,7 @@ function connect(): void {
             for (const file of sorted) {
                 upsertFile(file);
             }
-            reHighlight();
+            updateCJson();
             return;
         }
 
@@ -102,9 +103,7 @@ function connect(): void {
                 reHighlight();
             } else if (msg.file.kind == "svg") {
             } else if (msg.file.kind == "cjson") {
-                reHighlight();
-                // @ts-ignore
-                globalThis.rebuildRenderGroups();
+                updateCJson();
             }
             return;
         }
@@ -115,7 +114,7 @@ function connect(): void {
     });
 }
 
-function reHighlight() {
+export function reHighlight() {
     document.querySelectorAll("pre code").forEach((el) => {
         if (!el.classList.contains("hljs")) {
             // @ts-ignore

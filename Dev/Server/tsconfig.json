@@ -1,16 +1,22 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+    "lib": ["ES2022", "DOM"],
+    "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "allowSyntheticDefaultImports": true
+    "baseUrl": "../../",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+        "@/Core": ["./Core/index"],
+        "@/Dev": ["./Dev/Lib"]
+    }
   },
-  "include": ["src/**/*", "config.json"]
+  "include": [
+        "../../Core/",
+        "../../Dev/",
+        "../../Embroidery/Lib",
+    ]
 }
-
-

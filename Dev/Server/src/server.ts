@@ -38,6 +38,35 @@ app.use(express.static(SRC_PUBLIC_DIR));
 app.use(express.static(PUBLIC_BUILD_DIR));
 app.use(express.static(PUBLIC_BUILD_ROOT));
 
+app.use("/files", express.static(WATCHED_DIR));
+
+// Add this new middleware
+app.use((req, res, next) => {
+    if (req.method !== "GET") {
+        return next();
+    }
+
+    if (path.extname(req.path)) {
+        return next();
+    }
+
+    const jsPath = path.join(PUBLIC_BUILD_ROOT, req.path + ".js");
+
+    fs.access(jsPath)
+        .then(() => {
+            res.setHeader("Content-Type", "application/javascript");
+            res.sendFile(jsPath);
+        })
+        .catch(() => {
+            next();
+        });
+});
+
+// Then your static serves
+app.use(express.static(SRC_PUBLIC_DIR));
+app.use(express.static(PUBLIC_BUILD_DIR));
+app.use(express.static(PUBLIC_BUILD_ROOT));
+
 function getKind(ext: string): FileKind {
     const e = ext.toLowerCase();
 

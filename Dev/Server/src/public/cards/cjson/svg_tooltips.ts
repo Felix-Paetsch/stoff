@@ -102,15 +102,14 @@ function changeVisibility(new_groups: string[]) {
 /* DOM scanning                                                       */
 /* ------------------------------------------------------------------ */
 
-function rebuildRenderGroups() {
+export function rebuildSVGRenderGroups() {
     render_groups.clear();
     currently_display = ["base"];
 
-    const svg_children = document.querySelectorAll(
-        ".card > .svg-body svg > *",
-    ) as NodeListOf<HTMLElement>;
+    const svg_children = document.querySelectorAll(".card > .svg-body svg > *");
 
-    for (const c of svg_children) {
+    for (let i = 0; i < svg_children.length; i++) {
+        const c: HTMLElement = svg_children[i]! as any;
         c.style.pointerEvents = "auto";
 
         if (!c.hasAttribute("hover_stuff")) {
@@ -135,9 +134,6 @@ function rebuildRenderGroups() {
 
     changeVisibility(["base"]);
 }
-
-// @ts-ignore
-globalThis.rebuildRenderGroups = rebuildRenderGroups;
 
 /* ------------------------------------------------------------------ */
 /* Event delegation                                                   */
@@ -195,7 +191,7 @@ function init() {
     initialized = true;
 
     ensureTooltip();
-    rebuildRenderGroups();
+    rebuildSVGRenderGroups();
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseleave", onMouseLeave);
@@ -208,15 +204,6 @@ function init() {
     document.addEventListener("scroll", () => {
         hideTooltip();
         changeVisibility(["base"]);
-    });
-
-    observer = new MutationObserver(() => {
-        rebuildRenderGroups();
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
     });
 }
 
