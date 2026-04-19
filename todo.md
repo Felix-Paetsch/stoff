@@ -1,30 +1,7 @@
-
-# Next
-
-1. Pressing play button at end should start playing
-2. Playback speed modifier
-
-
-# All
-
-[] embroidery as png
-    -> rather sketch embroidery as png(?)
-    -> problem is DST doesnt have own colors...
-    -> a class in embroidery for embroidery with colors?
-    -> not sooo pressing rn
 [] unify (looks of) things with the same name
-[] Out render cjson embroidery
-    - png?
-    - progress slider
-[] Out render dst(?)
-    - clean up server?
 - gen_lines?
-[] writing dst should have center _in_the_center_
 
 [] debug also handedness
-[] better intergration embroidery <-> explorer?
-    - maybe a Embroidery.out() method or smth
-
 [] better color utilities (gradients) for rendering
 [] Annotation System; maybe have DST annotations as a start
 

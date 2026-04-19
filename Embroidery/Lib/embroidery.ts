@@ -48,7 +48,13 @@ export class Embroidery {
     }
 
     to_dst(): DST {
-        return new DST(this.threads.map((t) => t.runs));
+        const center = this.bounding_box().center;
+
+        return new DST(
+            this.threads.map((t) =>
+                t.runs.map((p) => p.map((v) => v.subtract(center))),
+            ),
+        );
     }
 
     from_dst(dst: DST, colors: Color.Color[] = []) {
