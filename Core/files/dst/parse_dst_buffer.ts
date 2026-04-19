@@ -1,4 +1,4 @@
-import { Polyline, Vector } from "Core/geometry/index";
+import { Polyline, Vector } from "../../geometry/index";
 import { DST_Stitches } from "./index";
 
 function decode_record(

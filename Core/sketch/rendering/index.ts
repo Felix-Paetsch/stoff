@@ -160,7 +160,7 @@ function recalculate_render_dimensions(
     if (bounding_box.width === 0 || bounding_box.height === 0) {
         const bb_w = bounding_box.width === 0 ? 1 : bounding_box.width;
         const bb_h = bounding_box.height === 0 ? 1 : bounding_box.height;
-        const center = bounding_box.center();
+        const center = bounding_box.center;
         const bb_center = center.is_finite() ? center : Vector.ZERO;
         const offset = new Vector(bb_w / 2, bb_h / 2);
 

@@ -1,9 +1,6 @@
 import { Line, Shape, Sketch, Vector } from "@/Core";
-import { Out } from "@/Dev";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 
 export type TestConfig = {};
 
@@ -36,13 +33,13 @@ export const TestEmbr = defineEmbroidery(
             },
         ]);
 
-        const b = embr.to_png({
-            width: 1000,
-            padding: 20,
-        });
-        const p = path.join(Out.dir(), "embr.png");
-        writeFileSync(p, b);
+        // const b = embr.to_png({
+        //     width: 1000,
+        //     padding: 20,
+        // });
+        // const p = path.join(Out.dir(), "embr.png");
+        // writeFileSync(p, b);
 
-        return sT;
+        return [embr, sT];
     },
 );

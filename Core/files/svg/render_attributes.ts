@@ -1,4 +1,4 @@
-import { Color, Gradient } from "Core/colors";
+import { Color, Gradient } from "../../colors";
 
 export type TextRenderAttributes = {
     font_family: string;

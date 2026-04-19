@@ -1,8 +1,6 @@
 import { BoundingBox, Color, DST, Polyline, Sketch } from "@/Core";
-import {
-    render_embroidery_as_png,
-    RenderEmbroideryArgs,
-} from "./render_embroidery_as_png";
+import { render_partial_embroidery_as_png } from "./render/entry";
+import { RenderEmbroideryArgs } from "./render/render_partial_embroidery_as_png";
 
 export type Thread = {
     color: Color.Color;
@@ -53,10 +51,6 @@ export class Embroidery {
         return new DST(this.threads.map((t) => t.runs));
     }
 
-    to_png(args: Partial<RenderEmbroideryArgs> = {}): Buffer {
-        return render_embroidery_as_png(this, args);
-    }
-
     from_dst(dst: DST, colors: Color.Color[] = []) {
         for (let i = 0; i < dst.threads.length; i++) {
             const color = colors[i] ?? "black";
@@ -76,6 +70,38 @@ export class Embroidery {
         return BoundingBox.from_vectors(
             this.threads.flatMap((t) => t.runs).flatMap((l) => l.verticies),
         );
+    }
+
+    stitch_count() {
+        let res = 0;
+        for (const t of this.threads) {
+            for (const r of t.runs) {
+                res += r.verticies.length + 1;
+            }
+        }
+
+        return res;
+    }
+
+    to_png(
+        args: {
+            width?: number;
+            height?: number;
+            padding?: number;
+        } = {},
+    ): Buffer {
+        return this.render_partial_png(this.stitch_count(), {
+            ...args,
+            crossmark: false,
+            start_end_markers: false,
+        });
+    }
+
+    render_partial_png(
+        upto: number,
+        args: Partial<RenderEmbroideryArgs> = {},
+    ): Buffer {
+        return render_partial_embroidery_as_png(this, upto, args);
     }
 
     static stitchToCm = 1 / 100;

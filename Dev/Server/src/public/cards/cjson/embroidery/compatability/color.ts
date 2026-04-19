@@ -1,4 +1,4 @@
-import { Interval } from "./index";
+import * as Interval from "./interval";
 
 const namedColors = {
     aliceblue: [240, 248, 255],

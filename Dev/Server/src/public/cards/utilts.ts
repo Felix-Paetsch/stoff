@@ -1,5 +1,5 @@
 import { reHighlight } from "../client.js";
-import { recomputeEmbroideryDisplay } from "./cjson/embroidery/embroidery.js";
+import { recomputeEmbroideryDisplay } from "./cjson/embroidery/index.js";
 import { rebuildSVGRenderGroups } from "./cjson/svg_tooltips.js";
 
 export function escapeHtml(value: string): string {

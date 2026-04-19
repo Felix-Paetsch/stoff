@@ -1,3 +1,6 @@
-import _CONF from "config.json" with { type: "json" };
+export const CONF = {
+    UNITS_PER_CM: 50,
+    PX_PER_CM: 16,
 
-export const CONF = _CONF;
+    DEFAULT_LINE_SEGMENT_LENGTH: 0.01,
+} as const;

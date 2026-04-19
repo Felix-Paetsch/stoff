@@ -3,20 +3,13 @@
     "target": "ES2022",
     "module": "CommonJS",
     "lib": ["ES2022", "DOM"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "baseUrl": "../../",
     "allowSyntheticDefaultImports": true,
-    "paths": {
-        "@/Core": ["./Core/index"],
-        "@/Dev": ["./Dev/Lib"]
-    }
   },
   "include": [
-        "../../Core/",
-        "../../Dev/",
-        "../../Embroidery/Lib",
+        "src"
     ]
 }

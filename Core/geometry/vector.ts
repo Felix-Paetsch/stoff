@@ -33,7 +33,7 @@ export class Vector {
         return Number.isFinite(this._x) && Number.isFinite(this._y);
     }
 
-    to_array() {
+    to_array(): [number, number] {
         return [this.x, this.y];
     }
 

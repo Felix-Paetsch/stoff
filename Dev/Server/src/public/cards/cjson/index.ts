@@ -1,6 +1,6 @@
 import { CJson } from "../../../types.js";
 import { escapeHtml, json_to_string } from "../utilts.js";
-import { render_embroidery } from "./embroidery/embroidery.js";
+import { render_embroidery } from "./embroidery/index.js";
 import { render_recording } from "./recordings.js";
 
 export function renderCJsonFileCard(data: CJson): string {

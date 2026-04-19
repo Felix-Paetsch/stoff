@@ -1,3 +1,4 @@
+import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
 import * as path from "path";
 import {
@@ -11,6 +12,14 @@ import { CJson } from "../../Server/src/types";
 import { Recording } from "../index";
 import { dir } from "./index";
 
+export type Putable =
+    | Sketch
+    | Json
+    | Recording.Recording
+    | string
+    | SVG_Builder
+    | Error
+    | Embroidery;
 export type PutMetaData = {
     title?: string;
     prefix?: boolean;
@@ -22,10 +31,7 @@ export const live_recordings: {
     meta: PutMetaData;
 }[] = [];
 
-export function put(
-    what: Sketch | Json | Recording.Recording | string | SVG_Builder | Error,
-    meta?: PutMetaData | string,
-) {
+export function put(what: Putable, meta?: PutMetaData | string) {
     if (typeof meta == "string") {
         meta = { title: meta, prefix: false };
     }
@@ -78,9 +84,7 @@ function serialize_meta_data(meta: PutMetaData) {
     } as const;
 }
 
-function serialize_put(
-    what: Sketch | Json | Recording.Recording | string | SVG_Builder | Error,
-) {
+function serialize_put(what: Putable) {
     if (typeof what == "string") {
         return {
             type: "text",
@@ -130,6 +134,20 @@ function serialize_put(
                 name: what.name,
                 stack: what.stack || "<no stack trace available>",
             },
+        };
+    }
+
+    if (what instanceof Embroidery) {
+        return {
+            type: "embroidery" as const,
+            value: what.threads.map((t) => {
+                return {
+                    color: t.color,
+                    runs: t.runs.map((r) =>
+                        r.verticies.map((v) => v.to_array()),
+                    ),
+                };
+            }),
         };
     }
 

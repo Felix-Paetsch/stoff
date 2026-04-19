@@ -1,5 +1,3 @@
-import { Color, Polyline, Vector } from "@/Core";
-import { Embroidery } from "../../../../../../../Embroidery/Lib/embroidery";
 import { CJson } from "../../../../types.js";
 import { update_embroidery_image } from "./canvas.js";
 
@@ -11,16 +9,15 @@ export function render_embroidery(
     const str = JSON.stringify(data.value).replaceAll('"', "&quot;");
 
     return `
-      <div class="body embroidery" x-data="${str}"
->
+      <div class="body embroidery" x-data="${str}">
         <div class="slider-section">
-            <input type="range" 
-             class="slider" 
-             min="0" 
-             max="0" 
-             value="0"
->
+            <input type="range"
+             class="slider"
+             min="0"
+             max="0"
+             value="0">
             <div class="slider-play slider_is_pause"><span class="slider_is_pause_icon">&#9654</span><span class="slider_is_play_icon">&#9208</span></div>
+            <div class="slider-speed">x1</div>
         </div>
         <div class="embroidery-img-section"><canvas width="500" height="500"></canvas></div>
       </div>
@@ -32,17 +29,23 @@ export type Threads = {
     runs: [number, number][][];
 }[];
 
+const SPEED_MULTIPLIERS = [0.5, 1, 4, 8] as const;
+
 export type EmbroideryData = {
     root: HTMLDivElement;
     canvas: HTMLCanvasElement;
-    embr: Embroidery;
+    threads: Threads;
     current_stitch_index: number;
     slider: HTMLInputElement;
     toggle_btn: HTMLDivElement;
+    speed_btn: HTMLDivElement;
+    speed_multiplier: (typeof SPEED_MULTIPLIERS)[number];
     auto_increment_interval: number | null;
 };
 
 let embroideries: EmbroideryData[] = [];
+
+const BASE_INTERVAL_MS = 10;
 
 export function recomputeEmbroideryDisplay() {
     const newEmbr = Array.from(
@@ -59,44 +62,36 @@ function set_up_embroidery(e: HTMLDivElement): EmbroideryData {
     const toggle_btn = e.getElementsByClassName(
         "slider-play",
     )[0]! as HTMLDivElement;
+    const speed_btn = e.getElementsByClassName(
+        "slider-speed",
+    )[0]! as HTMLDivElement;
 
     const embr: EmbroideryData = {
         root: e,
         canvas: e.getElementsByTagName("canvas")[0]!,
-        embr: new Embroidery(
-            threads.map((t) => {
-                return {
-                    color: t.color as Color.Color,
-                    runs: t.runs.map(
-                        (r) =>
-                            new Polyline(r.map(([x, y]) => new Vector(x, y))),
-                    ),
-                };
-            }),
-        ),
+        threads,
         current_stitch_index: -1,
         slider,
         toggle_btn,
+        speed_btn,
+        speed_multiplier: 1,
         auto_increment_interval: null,
     };
 
-    const max_index = Math.max(0, embr.embr.stitch_count() - 1);
+    const max_index = Math.max(0, calculate_stitch_count(threads));
 
     slider.min = "0";
     slider.max = String(max_index);
     slider.value = String(max_index);
+
+    speed_btn.textContent = `x${embr.speed_multiplier}`;
 
     slider.oninput = () => {
         stop_auto_increment(embr);
         update_embroidery_image(embr, slider.valueAsNumber);
     };
 
-    toggle_btn.onclick = () => {
-        if (slider.valueAsNumber >= max_index) {
-            toggle_btn.classList.add("slider_is_pause");
-            return;
-        }
-
+    function toggle_play() {
         const is_pause = toggle_btn.classList.toggle("slider_is_pause");
 
         if (is_pause) {
@@ -104,7 +99,27 @@ function set_up_embroidery(e: HTMLDivElement): EmbroideryData {
             return;
         }
 
+        if (slider.valueAsNumber >= max_index) {
+            slider.value = "0";
+        }
+
         start_auto_increment(embr);
+    }
+
+    slider.addEventListener("keydown", (event) => {
+        if (event.key === " ") {
+            event.preventDefault();
+            toggle_play();
+        }
+    });
+
+    toggle_btn.onclick = toggle_play;
+
+    speed_btn.onclick = () => {
+        const current_index = SPEED_MULTIPLIERS.indexOf(embr.speed_multiplier);
+        const next_index = (current_index + 1) % SPEED_MULTIPLIERS.length;
+        embr.speed_multiplier = SPEED_MULTIPLIERS[next_index];
+        speed_btn.textContent = `x${embr.speed_multiplier}`;
     };
 
     update_embroidery_image(embr, max_index);
@@ -114,20 +129,23 @@ function set_up_embroidery(e: HTMLDivElement): EmbroideryData {
 
 function start_auto_increment(e: EmbroideryData) {
     stop_auto_increment(e);
+    e.toggle_btn.classList.remove("slider_is_pause");
 
     const max_index = Number(e.slider.max);
 
     e.auto_increment_interval = window.setInterval(() => {
         const current = e.slider.valueAsNumber;
-        const next = current + 1;
+        const stitches_per_tick = e.speed_multiplier * 2;
+        const next = Math.min(current + stitches_per_tick, max_index);
+
+        e.slider.value = String(next);
+        update_embroidery_image(e, next);
+
         if (next >= max_index) {
             stop_auto_increment(e);
             e.toggle_btn.classList.add("slider_is_pause");
         }
-
-        e.slider.value = String(next);
-        update_embroidery_image(e, next);
-    }, 10);
+    }, BASE_INTERVAL_MS);
 }
 
 function stop_auto_increment(e: EmbroideryData) {
@@ -135,4 +153,17 @@ function stop_auto_increment(e: EmbroideryData) {
         window.clearInterval(e.auto_increment_interval);
         e.auto_increment_interval = null;
     }
+
+    e.toggle_btn.classList.add("slider_is_pause");
+}
+
+function calculate_stitch_count(threads: Threads): number {
+    let res = 0;
+    for (const t of threads) {
+        for (const r of t.runs) {
+            res += r.length + 1;
+        }
+    }
+
+    return res;
 }

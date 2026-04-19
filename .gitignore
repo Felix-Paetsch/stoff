@@ -3,28 +3,19 @@
 **.png
 **.svg
 **.mp4
-node_modules
 **node_modules
 **.blend**
 **__pycache__/
 **.py[cod]
 **.fbx
 .vscode
-.prettierrc
-**fontawesome**
 
-Tools/Blender/assets
-___frames_**
-**/TWoutput.css
-
-renders
-notes
 **/secrets.md
-**Leonie
 
-!Data/PreviewPictures/**/*.svg
-dist
+!/Sewing/Data/PreviewPictures/**/*.svg
 **/*.pdf
 
 rust/pkg
 rust/target
+
+**fontawesome**

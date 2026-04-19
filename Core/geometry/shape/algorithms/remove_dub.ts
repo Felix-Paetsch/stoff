@@ -1,5 +1,5 @@
-import { EPS } from "Core/numerics/index";
 import { Polygon, Polyline, Vector } from "../..";
+import { EPS } from "../../../numerics/index";
 
 const dub_distance = EPS.tiny;
 

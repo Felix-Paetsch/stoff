@@ -27,7 +27,7 @@
         "baseUrl": "./",
         "paths": {
             "@/Core": ["./Core/index"],
-            "@/Dev": ["Dev/lib"]
+            "@/Dev": ["Dev/Lib"]
         }
     },
     "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Dev/StandAlone/scenes/index.ts.broken", "Dev/StandAlone/scenes/heart.ts.broken"],

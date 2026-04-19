@@ -1,80 +1,22 @@
-import { Color, Interval, LinearTransform, Vector } from "@/Core";
+import { Interval, LinearTransform, Vector } from "@/Core";
 import { createCanvas } from "canvas";
-import { Embroidery } from "./embroidery";
+import { Embroidery } from "../embroidery";
+import {
+    render_partial_embroidery,
+    RenderEmbroideryArgs,
+} from "./render_partial_embroidery_as_png";
 
-function shadeColor(color: Color.Color, percent: number): Color.Color {
-    const hsl = Color.toHsl(color);
-    hsl[2] += percent;
-    hsl[2] = Interval.clamp([0, 100], hsl[2]);
-    return Color.fromHsl(hsl);
-}
-
-export type RenderEmbroideryArgs = {
-    width?: number;
-    height?: number;
-    padding?: number;
-};
-
-export function render_embroidery_as_png(
+export function render_partial_embroidery_as_png(
     embr: Embroidery,
+    upto: number,
     args: Partial<RenderEmbroideryArgs> = {},
 ): Buffer {
-    const { widthPx, heightPx, abs_to_px } = recalculate_render_dimensions(
-        embr,
-        args,
-    );
+    const { widthPx, heightPx } = recalculate_render_dimensions(embr, args);
 
     const canvas = createCanvas(widthPx, heightPx);
     const context = canvas.getContext("2d");
 
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, widthPx, heightPx);
-
-    context.lineWidth = abs_to_px(2.5); // 0.1mm width
-    context.lineJoin = "round";
-    context.lineCap = "round";
-
-    for (const thread of embr.threads) {
-        const color = Color.toHexString(
-            Color.setLuminocity(Color.setOpacity(thread.color, 0.8), 50),
-        );
-        const endColor = Color.toHexString(shadeColor(color, -20));
-        const midColor = Color.toHexString(shadeColor(color, 20));
-
-        const runs = thread.runs.map((p) => p.map(abs_to_px).verticies);
-
-        for (const run of runs) {
-            for (let i = 1; i < run.length; i++) {
-                const prevStitch = run[i - 1]!;
-                const currStitch = run[i]!;
-
-                const dx = currStitch.x - prevStitch.x;
-                const dy = currStitch.y - prevStitch.y;
-                const gWidth = Math.sqrt(dx * dx + dy * dy);
-
-                const gradient = context.createRadialGradient(
-                    prevStitch.x,
-                    prevStitch.y,
-                    0,
-                    prevStitch.x,
-                    prevStitch.y,
-                    gWidth,
-                );
-
-                gradient.addColorStop(0, endColor);
-                gradient.addColorStop(0.05, color);
-                gradient.addColorStop(0.5, midColor);
-                gradient.addColorStop(0.9, color);
-                gradient.addColorStop(1, endColor);
-
-                context.strokeStyle = gradient;
-                context.beginPath();
-                context.moveTo(prevStitch.x, prevStitch.y);
-                context.lineTo(currStitch.x, currStitch.y);
-                context.stroke();
-            }
-        }
-    }
+    render_partial_embroidery(context, embr, upto, args);
 
     return canvas.toBuffer("image/png");
 }

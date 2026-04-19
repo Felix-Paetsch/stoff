@@ -1,6 +1,6 @@
-import { BoundingBox, Polyline, Vector } from "Core/geometry/index";
 import fs from "node:fs";
 import path from "node:path";
+import { BoundingBox, Polyline, Vector } from "../../geometry/index";
 import { parse_dst_buffer } from "./parse_dst_buffer";
 import { write_dst_buffer } from "./write_dst_buffer";
 

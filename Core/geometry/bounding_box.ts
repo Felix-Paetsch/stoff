@@ -66,7 +66,7 @@ export class BoundingBox {
         return BoundingBox.merge([this, ...others]);
     }
 
-    center() {
+    get center() {
         return new Vector(
             (this.min_x + this.max_x) / 2,
             (this.min_y + this.max_y) / 2,

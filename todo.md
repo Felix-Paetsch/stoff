@@ -1,10 +1,8 @@
 
 # Next
 
-
-Viz start and end of runs (optionally)
-Implement leonies offset method
-    - return polygon with biggest length
+1. Pressing play button at end should start playing
+2. Playback speed modifier
 
 
 # All

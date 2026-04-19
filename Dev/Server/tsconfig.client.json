@@ -6,16 +6,9 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "public-build",
-    "baseUrl": "../../",
     "allowSyntheticDefaultImports": true,
-    "paths": {
-        "@/Core": ["./Core/index"],
-        "@/Dev": ["./Dev/Lib"]
-    }
   },
   "include": [
-        "../../Core/",
-        "../../Dev/",
-        "../../Embroidery/Lib",
+        "src"
     ]
 }

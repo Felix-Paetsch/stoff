@@ -226,6 +226,15 @@ a:hover {
     background-color: var(--accent2);
     border-radius: 4px;
     cursor: pointer;
+    width: 28px;
+    height: 28px;
+
+    text-align:center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    overflow: hidden;
 }
 
 .cjson .slider-play.slider_is_pause .slider_is_play_icon{
@@ -241,8 +250,7 @@ a:hover {
     line-height: 16px;
     text-align: center;
     display: inline-block;
-    min-width: 20px;
-    height: 20px;
+    width: 20px;
 }
 
 .slider_is_pause_icon {
@@ -250,8 +258,24 @@ a:hover {
     line-height: 16px;
     text-align: center;
     display: inline-block;
-    min-width: 20px;
-    height: 20px;
+    width: 20px;
+}
+
+.cjson .embroidery .slider-speed {
+    padding: 4px;
+    background-color: var(--accent2);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 28px;
+    width: 40px;
+
+    user-select: none;
+    text-align:center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-left: 8px;
 }
 
 .embroidery-img-section canvas{

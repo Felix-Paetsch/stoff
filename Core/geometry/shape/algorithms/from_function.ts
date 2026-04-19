@@ -1,6 +1,6 @@
-import { Bounds } from "Core/numerics/index";
 import { Shape, Vector } from "../..";
-import CONF from "../../../../config.json" with { type: "json" };
+import { CONF } from "../../../../config";
+import { Bounds } from "../../../numerics/index";
 import { Fraction } from "../../interval";
 
 type FunctionSample = {
