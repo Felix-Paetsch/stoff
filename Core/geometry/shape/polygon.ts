@@ -212,4 +212,8 @@ export class Polygon extends Shape {
 
         return Polyline.from_vectors(res);
     }
+
+    static override empty() {
+        return new Polyline([]);
+    }
 }

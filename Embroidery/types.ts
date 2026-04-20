@@ -1,7 +1,7 @@
-import { Json, Sketch, SVG_Builder } from "@/Core";
+import { DST, Json, Sketch, SVG_Builder } from "@/Core";
 import { Embroidery } from "./Lib/embroidery";
 
-export type EmbroideryReturnPrimitive = Sketch | Embroidery | SVG_Builder;
+export type EmbroideryReturnPrimitive = Sketch | Embroidery | SVG_Builder | DST;
 export type EmbroideryReturnType =
     | EmbroideryReturnPrimitive
     | EmbroideryReturnPrimitive[];

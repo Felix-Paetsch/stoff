@@ -1,18 +1,17 @@
-import { EPS, Vector, ZERO } from "@/geometry_oldy
-import { PolygonVectors, PolylineVectors } from "@/geometry_old/shapess
-import CONF from "../config.json" with { type: "json" };
+import { EPS, Polygon, Polyline, Vector } from "@/Core";
+import { CONF } from "config";
 
 export function polyline_smooth_out(
-    line: PolylineVectors,
+    line: Polyline,
     ker_size: number = 0.1,
     sample_spacing: number | null = null,
-): PolylineVectors {
+): Polyline {
     const step = sample_spacing ?? CONF.DEFAULT_LINE_SEGMENT_LENGTH;
 
-    if (line.length === 0) return [];
-    if (line.length === 1) return [line[0]!];
+    if (line.vertex_count === 0) return Polyline.empty();
+    if (line.vertex_count === 1) return line;
 
-    const pts = line;
+    const pts = line.verticies;
 
     // build arc-lengths
     const arc: number[] = [0];
@@ -21,10 +20,10 @@ export function polyline_smooth_out(
     }
 
     const L = arc[arc.length - 1]!;
-    if (L <= EPS.COARSE) return [pts[0]!, pts[pts.length - 1]!];
+    if (L <= EPS.tiny) return new Polyline([pts[0]!, pts[pts.length - 1]!]);
 
     const sample_count = Math.max(1, Math.ceil(L / step));
-    const out: PolylineVectors = [];
+    const out: Vector[] = [];
 
     let seg_i = 0;
 
@@ -44,7 +43,7 @@ export function polyline_smooth_out(
         const w0 = s - ker_size;
         const w1 = s + ker_size;
 
-        let acc = ZERO;
+        let acc = Vector.ZERO;
         let total_w = 0;
 
         // left spill → first point
@@ -68,7 +67,7 @@ export function polyline_smooth_out(
             if (a1 < w0) continue;
 
             const len = a1 - a0;
-            if (len <= EPS.TINY) continue;
+            if (len <= EPS.tiny) continue;
 
             const t0 = Math.max(0, (w0 - a0) / len);
             const t1 = Math.min(1, (w1 - a0) / len);
@@ -93,23 +92,22 @@ export function polyline_smooth_out(
             total_w += w;
         }
 
-        out.push(total_w > EPS.TINY ? acc.scale(1 / total_w) : pts[seg_i]!);
+        out.push(total_w > EPS.tiny ? acc.scale(1 / total_w) : pts[seg_i]!);
     }
 
-    return out;
+    return new Polyline(out);
 }
 
 export function polygon_smooth_out(
-    line: PolygonVectors,
+    gon: Polygon,
     ker_size: number = 0.1,
     sample_spacing: number | null = null,
-): PolygonVectors {
+): Polygon {
     const step = sample_spacing ?? CONF.DEFAULT_LINE_SEGMENT_LENGTH;
 
-    if (line.length === 0) return [];
-    if (line.length === 1) return [line[0]!];
+    if (gon.vertex_count < 2) return gon;
 
-    const pts = line;
+    const pts = gon.verticies;
     const n = pts.length;
 
     // build arc-lengths INCLUDING closing segment
@@ -121,10 +119,10 @@ export function polygon_smooth_out(
     }
 
     const L = arc[arc.length - 1]!;
-    if (L <= EPS.COARSE) return [...pts];
+    if (L <= EPS.tiny) return new Polygon([...pts]);
 
     const sample_count = Math.max(1, Math.ceil(L / step));
-    const out: PolylineVectors = [];
+    const out: Vector[] = [];
 
     const wrap = (s: number) => {
         s %= L;
@@ -138,7 +136,7 @@ export function polygon_smooth_out(
         const w1 = s + ker_size;
         const window_len = w1 - w0;
 
-        let acc = ZERO;
+        let acc = Vector.ZERO;
         let total_w = 0;
 
         // ---- FULL WRAPS ----
@@ -146,13 +144,13 @@ export function polygon_smooth_out(
             const full_wraps = Math.floor(window_len / L);
 
             if (full_wraps > 0) {
-                let full_acc = ZERO;
+                let full_acc = Vector.ZERO;
 
                 for (let j = 0; j < n; j++) {
                     const a = pts[j]!;
                     const b = pts[(j + 1) % n]!;
                     const len = a.distance(b);
-                    if (len <= EPS.TINY) continue;
+                    if (len <= EPS.tiny) continue;
 
                     const mid = a.add(b).scale(0.5);
                     full_acc = full_acc.add(mid.scale(len));
@@ -166,7 +164,7 @@ export function polygon_smooth_out(
         // ---- REMAINDER WINDOW ----
         const rem_len = window_len % L;
 
-        if (rem_len > EPS.TINY) {
+        if (rem_len > EPS.tiny) {
             const base = w1 - rem_len;
             const a0 = wrap(base);
             const a1 = wrap(base + rem_len);
@@ -188,7 +186,7 @@ export function polygon_smooth_out(
                     if (seg_a1 < ia) continue;
 
                     const len = seg_a1 - seg_a0;
-                    if (len <= EPS.TINY) continue;
+                    if (len <= EPS.tiny) continue;
 
                     const t0 = Math.max(0, (ia - seg_a0) / len);
                     const t1 = Math.min(1, (ib - seg_a0) / len);
@@ -209,17 +207,17 @@ export function polygon_smooth_out(
             }
         }
 
-        out.push(total_w > EPS.TINY ? acc.scale(1 / total_w) : pts[0]!);
+        out.push(total_w > EPS.tiny ? acc.scale(1 / total_w) : pts[0]!);
     }
 
-    return out;
+    return new Polygon(out);
 }
 
 export function compute_polyline_center_point(points: Vector[]): Vector {
-    if (points.length === 0) return ZERO;
+    if (points.length === 0) return Vector.ZERO;
     if (points.length === 1) return points[0]!;
 
-    let acc = ZERO;
+    let acc = Vector.ZERO;
     let len = 0;
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -228,5 +226,5 @@ export function compute_polyline_center_point(points: Vector[]): Vector {
         acc = acc.add(points[i]!.add(points[i + 1]!).scale(d));
     }
 
-    return len > EPS.TINY ? acc.scale(1 / (2 * len)) : points[0]!;
+    return len > EPS.tiny ? acc.scale(1 / (2 * len)) : points[0]!;
 }

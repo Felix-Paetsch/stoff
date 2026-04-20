@@ -21,6 +21,10 @@ export class Embroidery {
         this.threads[this.threads.length - 1]!.runs.push(...pl);
     }
 
+    get runs(): Polyline[] {
+        return this.threads.flatMap((t) => t.runs);
+    }
+
     color_change(to: Color.Color = "black") {
         this.threads.push({
             color: to,
@@ -52,7 +56,11 @@ export class Embroidery {
 
         return new DST(
             this.threads.map((t) =>
-                t.runs.map((p) => p.map((v) => v.subtract(center))),
+                t.runs.map((p) =>
+                    p.map((v) =>
+                        v.subtract(center).scale(Embroidery.CmToStitch),
+                    ),
+                ),
             ),
         );
     }
@@ -62,14 +70,31 @@ export class Embroidery {
             const color = colors[i] ?? "black";
             this.threads.push({
                 color,
-                runs: dst.threads[i]!,
+                runs: dst.threads[i]!.map((p) =>
+                    p.map((v) => v.scale(Embroidery.stitchToCm)),
+                ),
             });
         }
     }
 
-    size_cm() {
+    static from_dst(dst: DST, colors: Color.Color[] = []) {
+        const embr = new Embroidery();
+        for (let i = 0; i < dst.threads.length; i++) {
+            const color = colors[i] ?? "black";
+            embr.threads.push({
+                color,
+                runs: dst.threads[i]!.map((p) =>
+                    p.map((v) => v.scale(Embroidery.stitchToCm)),
+                ),
+            });
+        }
+
+        return embr;
+    }
+
+    size(): [number, number] {
         const bb = this.bounding_box();
-        return [Math.round(bb.width) / 10000, Math.round(bb.height) / 10000];
+        return [Math.round(bb.width), Math.round(bb.height)];
     }
 
     bounding_box() {

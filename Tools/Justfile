@@ -1,0 +1,4 @@
+buffer *args:
+    #!/usr/bin/env bash
+    cd ../
+    npx tsx ./Tools/buffer.ts {{args}}

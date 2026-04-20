@@ -40,9 +40,10 @@ export class DST {
         return write_dst_buffer(this, name);
     }
 
-    to_file(f: string) {
+    to_file(f: string): string {
         const name = path.basename(f, path.extname(f));
         fs.writeFileSync(f, this.serialize(name));
+        return f;
     }
 
     static from_file(f: string) {

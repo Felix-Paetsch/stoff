@@ -45,7 +45,7 @@ export type EmbroideryData = {
 
 let embroideries: EmbroideryData[] = [];
 
-const BASE_INTERVAL_MS = 10;
+const BASE_INTERVAL_MS = 20;
 
 export function recomputeEmbroideryDisplay() {
     const newEmbr = Array.from(

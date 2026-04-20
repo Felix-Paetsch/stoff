@@ -151,4 +151,8 @@ export class Polyline extends Shape {
     reverse(): Polyline {
         return new Polyline([...this.verticies].reverse());
     }
+
+    static override empty() {
+        return new Polyline([]);
+    }
 }

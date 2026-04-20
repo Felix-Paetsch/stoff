@@ -1,9 +1,10 @@
 import { Out } from "@/Dev";
 import { embroideryConfig } from "./config";
+import { BufferDST } from "./Projects/buffer/index";
+import { ReplacementFractal } from "./Projects/replacement_fractal/index";
 import { TestEmbr } from "./Projects/test/index";
-import { EmbroideryProject } from "./types";
 
-const projects = [TestEmbr] as const;
+const projects = [TestEmbr, ReplacementFractal, BufferDST] as const;
 
 const project = projects.find((p) => p.name === embroideryConfig.project);
 
@@ -19,8 +20,13 @@ if (!project) {
 
 Out.clear();
 
-const typedProject: (typeof projects)[number] &
-    EmbroideryProject<(typeof embroideryConfig)["project"], any> = project;
+type ProjectUnion = (typeof projects)[number];
+type SelectedProject = Extract<
+    ProjectUnion,
+    { name: (typeof embroideryConfig)["project"] }
+>;
+
+const typedProject: SelectedProject = project;
 const res = Out.run_wrapped(typedProject.embroidery, embroideryConfig);
 
 if (Array.isArray(res)) {

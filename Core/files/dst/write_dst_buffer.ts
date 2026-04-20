@@ -130,10 +130,20 @@ function makeHeader(
     let maxY = 0;
 
     if (allPoints.length > 0) {
-        minX = Math.min(...allPoints.map((v) => roundCoord(v.x)));
-        maxX = Math.max(...allPoints.map((v) => roundCoord(v.x)));
-        minY = Math.min(...allPoints.map((v) => roundCoord(v.y)));
-        maxY = Math.max(...allPoints.map((v) => roundCoord(v.y)));
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
+
+        for (let i = 0; i < allPoints.length; i++) {
+            const x = roundCoord(allPoints[i]!.x);
+            const y = roundCoord(allPoints[i]!.y);
+
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+        }
     }
 
     const first = allPoints[0];

@@ -2,6 +2,7 @@ import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
 import * as path from "path";
 import {
+    DST,
     Json,
     render_sketch,
     Sketch,
@@ -19,7 +20,8 @@ export type Putable =
     | string
     | SVG_Builder
     | Error
-    | Embroidery;
+    | Embroidery
+    | DST;
 export type PutMetaData = {
     title?: string;
     prefix?: boolean;
@@ -135,6 +137,10 @@ function serialize_put(what: Putable) {
                 stack: what.stack || "<no stack trace available>",
             },
         };
+    }
+
+    if (what instanceof DST){
+        what = Embroidery.from_dst(what);
     }
 
     if (what instanceof Embroidery) {

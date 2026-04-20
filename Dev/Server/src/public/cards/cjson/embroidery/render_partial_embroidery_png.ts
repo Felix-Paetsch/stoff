@@ -51,7 +51,7 @@ export function render_partial_embroidery(
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, widthPx, heightPx);
 
-    ctx.lineWidth = abs_to_px(2.5); // 1 = 0.1mm width
+    ctx.lineWidth = abs_to_px(0.025);
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
 
@@ -129,13 +129,15 @@ export function render_partial_embroidery(
         }
     }
 
-    annotations.push({
-        type: "cursor",
-        at: last_position,
-    });
+    if (upto < embr.stitch_count()) {
+        annotations.push({
+            type: "cursor",
+            at: last_position,
+        });
+    }
 
-    const markerSize = abs_to_px(30);
-    const crossWidth = abs_to_px(6);
+    const markerSize = abs_to_px(0.2);
+    const crossWidth = abs_to_px(0.06);
     const half = markerSize / 2;
 
     const triangleBase = markerSize + crossWidth;

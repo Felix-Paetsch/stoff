@@ -1,3 +1,22 @@
+# Tomorrow (Today)
+
+- Fix smooth out method ~ the arguments are so messed up and everything?
+- on hover of image -> what to x and y and width and height mean?
+    - probably bb.. but hmm
+    - display cursor x,y instead?
+embroidery from dst file / to dst file
+
+- L systems
+    - stochastic L-systems
+https://en.wikipedia.org/wiki/L-system
+"random" L-system rule inference
+Design elements like branches, etc.
+Parametric L systems,...
+
+---------
+
+
+
 [] unify (looks of) things with the same name
 - gen_lines?
 
@@ -15,12 +34,17 @@
 [] circles padding invariant
 [] do we want lines or lines()??
 
+[] fractal curve research
+
+Seeded randomness
+
 
 ### Reintroduce features
 
 [] Caching
 [] Faces
 [] Render as video
+[] For sewing patterns include the sketch validation
 
 [] reintroduce colors for
 - patterns
@@ -54,6 +78,12 @@
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
 [] concave hull
+
+- script for making touching lines cross over
+
+[] analyzing
+- stitch density
+- line density
 
 ### Future features - General
 

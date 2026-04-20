@@ -480,4 +480,8 @@ export abstract class Shape {
         }
         return d;
     }
+
+    static empty(): Shape.Shape {
+        return new Polyline([]);
+    }
 }

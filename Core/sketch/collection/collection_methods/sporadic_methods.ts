@@ -13,7 +13,7 @@ export function convex_hull(ec: SketchElementCollection): Polygon | null {
     const lns = get_lines(ec);
 
     return FiniteGeometry.convex_hull(
-        ...pts.concat(lns.flatMap((l) => l.shape.verticies)),
+        pts.concat(lns.flatMap((l) => l.shape.verticies)),
     );
 }
 

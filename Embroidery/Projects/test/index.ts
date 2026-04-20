@@ -28,17 +28,10 @@ export const TestEmbr = defineEmbroidery(
 
         const embr = new Embroidery([
             {
-                color: "red",
+                color: "blue",
                 runs: sT.lines().map((l) => l.shape.as_polyline()),
             },
         ]);
-
-        // const b = embr.to_png({
-        //     width: 1000,
-        //     padding: 20,
-        // });
-        // const p = path.join(Out.dir(), "embr.png");
-        // writeFileSync(p, b);
 
         return [embr, sT];
     },

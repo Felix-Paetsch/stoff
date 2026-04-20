@@ -113,3 +113,13 @@ export function mirror(md: MirrorData): LinearTransformation {
     if (md === null) return mirror(Vector.ZERO);
     return (x: Vector) => md.add(md.subtract(x));
 }
+
+export function compose(...lt: LinearTransformation[]): LinearTransformation {
+    return (v: Vector) => {
+        for (let i = 0; i < lt.length; i++) {
+            v = lt[i]!(v);
+        }
+
+        return v;
+    };
+}

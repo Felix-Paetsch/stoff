@@ -1,4 +1,4 @@
-export const patternConfig = {
+const constPatternConfig = {
     pattern: "TShirt",
 
     "Darts fitted": "0_nothing",
@@ -43,3 +43,15 @@ export const patternConfig = {
     ellbow_width: 26,
     ellbow_length: 32,
 } as const;
+
+type DeepMutable<T> = T extends Function
+    ? T
+    : T extends readonly (infer U)[]
+      ? DeepMutable<U>[]
+      : T extends object
+        ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+        : T;
+
+export const patternConfig = constPatternConfig as any as DeepMutable<
+    typeof constPatternConfig
+>;

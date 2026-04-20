@@ -1,5 +1,6 @@
 mod standalone 'Dev/StandAlone/standalone.just'
 mod test 'Dev/Test/test.just'
+mod tools 'Tools/Justfile'
 
 typecheck:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
