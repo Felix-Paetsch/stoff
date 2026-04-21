@@ -4,7 +4,8 @@ import { Embroidery } from "./Lib/embroidery";
 export type EmbroideryReturnPrimitive = Sketch | Embroidery | SVG_Builder | DST;
 export type EmbroideryReturnType =
     | EmbroideryReturnPrimitive
-    | EmbroideryReturnPrimitive[];
+    | EmbroideryReturnPrimitive[]
+    | void;
 
 export type EmbroideryFunction<T extends Json> = (
     config: T,

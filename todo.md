@@ -13,6 +13,12 @@ https://en.wikipedia.org/wiki/L-system
 Design elements like branches, etc.
 Parametric L systems,...
 
+Idea: use can iteration to generate a fractal or thing, applying it to the sample points of a polyline resulting in an already closed shape
+percolation clusters
+self avaoiding walks
+finite subdivision
+fractal flames
+
 ---------
 
 
@@ -31,7 +37,7 @@ Parametric L systems,...
 [] get rid of some dependencies
 
 [] unify what angle mean
-[] circles padding invariant
+[] circles padding invariant (when rendering svgs)
 [] do we want lines or lines()??
 
 [] fractal curve research
@@ -62,9 +68,6 @@ Seeded randomness
 
 ### Future features - embroidery
 
-[] Make outline method
-- a script
-
 [] radial distance functions
 - making a path of points by angular binary search around the last point
 - can use this to make mandelbrot!
@@ -77,13 +80,38 @@ Seeded randomness
 
 ??? Embroidery?
 [] Chaikins algorithm (later for embroidery; doable via geo)
-[] concave hull
 
 - script for making touching lines cross over
 
 [] analyzing
 - stitch density
 - line density
+
+[] tuck down stitch/end stitch
+countour stitch
+maze fill
+stem stitch
+
+ZMK-like embroidery file analysis
+    - stitches per area
+    - thread per area
+    - 
+
+https://ko-fi.com/s/bab05e779e
+
+> 
+> 
+> I am curious about what algorithm you used for generating this.
+> 
+> If I had to guess, it's an ordered point cloud mutated by simulated annealing plus an image similarity heuristic (assuming it's based on a reference image).
+> 2
+> u/sudhabin avatar
+> sudhabin
+> OP •
+> 2d ago
+> 
+> It uses a weighted Nearest Neighbor search to build a single continuous path through high-density pixel areas. It then applies a Gaussian convolution and Catmull-Rom splines to smooth.
+> 2
 
 ### Future features - General
 

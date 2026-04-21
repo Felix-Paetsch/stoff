@@ -1,5 +1,5 @@
 export const constEmbroideryConfig = {
-    project: "Buffer",
+    project: "LSystem",
     file: "./out/out.dst",
     buffer: 1,
     concavity: 2,

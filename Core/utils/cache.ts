@@ -1,5 +1,5 @@
 import { Json } from "@/Core";
-import { uuid } from "./unique";
+import { Random } from "../random";
 
 type Dependency = string;
 type DependencyMap = Map<Dependency, Dependency[]>;
@@ -32,7 +32,7 @@ export class Cache {
 
     tag(obj: {}): string {
         if ((obj as any).__tag) return (obj as any).__tag;
-        (obj as any).__tag = uuid();
+        (obj as any).__tag = Random.uuid();
         return (obj as any).__tag;
     }
 
