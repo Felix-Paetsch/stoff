@@ -267,7 +267,7 @@ export class SVG_Builder {
 
         return `
             <svg width="${width}" height="${height}" viewBox="${view}" xmlns="http://www.w3.org/2000/svg">
-                <defs>${this.defs}</defs>
+                ${this.defs.length > 0 ? "<defs>" + this.defs + "</defs>" : ""}
                 ${items}
             </svg>
         `;

@@ -22,7 +22,7 @@ export const TestEmbr = defineEmbroidery(
                         ),
                 );
                 const l = new Line([p1, p2], shape);
-                l.update_shape(l.shape.resample(0, 4));
+                l.update_shape(l.shape.resample_smooth(0, 4));
             }
         }
 

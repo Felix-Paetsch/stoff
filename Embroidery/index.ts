@@ -1,6 +1,7 @@
 import { Out } from "@/Dev";
 import { embroideryConfig } from "./config";
 import { BufferDST } from "./Projects/buffer/index";
+import { BufferOutlineDST } from "./Projects/buffer_outline/index";
 import { GraphsProject } from "./Projects/graphs/index";
 import { LSystemProject } from "./Projects/lsystem/index";
 import { ReplacementFractal } from "./Projects/replacement_fractal/index";
@@ -10,6 +11,7 @@ const projects = [
     TestEmbr,
     ReplacementFractal,
     BufferDST,
+    BufferOutlineDST,
     LSystemProject,
     GraphsProject,
 ] as const;

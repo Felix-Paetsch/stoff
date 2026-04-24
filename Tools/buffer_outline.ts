@@ -1,19 +1,16 @@
 import { Out } from "@/Dev";
-import { BufferDST } from "Embroidery/Projects/buffer/index";
+import { BufferOutlineDST } from "Embroidery/Projects/buffer_outline/index";
 
-type BufferDSTOptions = {
+type BufferOutlineDSTOptions = {
     file: string;
     buffer: number | number[];
-    concavity?: number;
-    length_threshold?: number;
-    smooth_hull?: number;
     smooth_buffer?: number;
 };
 
 function printUsage(): void {
     console.log(`
 Usage:
-  just tools::buffer <dstFileName> <bufferList> [options]
+  just tools::bufferOutline <dstFileName> <bufferList> [options]
 
 Arguments:
   dstFileName              Path to the DST file
@@ -22,15 +19,12 @@ Arguments:
                            Example: 3,1,3.2,8
 
 Options:
-  --concavity, -c          Number
-  --length-threshold, -lt  Number
-  --smooth-hull, -sh       Number
   --smooth-buffer, -sb     Number
   --help, -h               Show this help
 
 Examples:
-  just tools::buffer file.dst 3,1,3.2,8 --concavity 3.2 --smooth-hull 5
-  just tools::buffer "'file test.dst'" 3,1,3.2,8 -c 3.2 -lt 10 -sh 5 -sb 2
+  just tools::bufferOutline file.dst 3,1,3.2,8 --smooth-buffer 5
+  just tools::bufferOutline "'file test.dst'" 3,1,3.2,8 -sb 2
 `);
 }
 
@@ -62,7 +56,7 @@ function parseBuffer(value: string): number | number[] {
     return arr;
 }
 
-function parseArgs(argv: string[]): BufferDSTOptions {
+function parseArgs(argv: string[]): BufferOutlineDSTOptions {
     if (argv.includes("--help") || argv.includes("-h")) {
         printUsage();
         process.exit(0);
@@ -78,7 +72,7 @@ function parseArgs(argv: string[]): BufferDSTOptions {
     const file = argv[0]!;
     const buffer = parseBuffer(argv[1]!);
 
-    const options: BufferDSTOptions = {
+    const options: BufferOutlineDSTOptions = {
         file,
         buffer,
     };
@@ -88,39 +82,6 @@ function parseArgs(argv: string[]): BufferDSTOptions {
         const arg = argv[i];
 
         switch (arg) {
-            case "--concavity":
-            case "-c": {
-                const value = argv[i + 1];
-                if (value == null) {
-                    throw new Error(`Missing value for ${arg}`);
-                }
-                options.concavity = parseNumber(value, arg);
-                i += 2;
-                break;
-            }
-
-            case "--length-threshold":
-            case "-lt": {
-                const value = argv[i + 1];
-                if (value == null) {
-                    throw new Error(`Missing value for ${arg}`);
-                }
-                options.length_threshold = parseNumber(value, arg);
-                i += 2;
-                break;
-            }
-
-            case "--smooth-hull":
-            case "-sh": {
-                const value = argv[i + 1];
-                if (value == null) {
-                    throw new Error(`Missing value for ${arg}`);
-                }
-                options.smooth_hull = parseNumber(value, arg);
-                i += 2;
-                break;
-            }
-
             case "--smooth-buffer":
             case "-sb": {
                 const value = argv[i + 1];
@@ -146,5 +107,5 @@ const args = process.argv.slice(2);
 options = parseArgs(args);
 
 Out.clear();
-BufferDST.embroidery(options);
+BufferOutlineDST.embroidery(options);
 console.log("Done!");

@@ -1,4 +1,13 @@
-import { BoundingBox, Color, DST, Polyline, Shape, Sketch } from "@/Core";
+import {
+    BoundingBox,
+    Color,
+    DST,
+    PlainLine,
+    Polyline,
+    Shape,
+    Sketch,
+    Vector,
+} from "@/Core";
 import { render_partial_embroidery_as_png } from "./render/entry";
 import { RenderEmbroideryArgs } from "./render/render_partial_embroidery_as_png";
 
@@ -66,8 +75,11 @@ export class Embroidery {
         return new DST(
             this.threads.map((t) =>
                 t.runs.map((p) =>
-                    p.map((v) =>
-                        v.subtract(center).scale(Embroidery.CmToStitch),
+                    p.map((v: Vector) =>
+                        v
+                            .subtract(center)
+                            .scale(Embroidery.CmToStitch)
+                            .mirror_at(PlainLine.HORIZONTAL),
                     ),
                 ),
             ),
@@ -93,7 +105,11 @@ export class Embroidery {
             embr.threads.push({
                 color,
                 runs: dst.threads[i]!.map((p) =>
-                    p.map((v) => v.scale(Embroidery.stitchToCm)),
+                    p.map((v) =>
+                        v
+                            .scale(Embroidery.stitchToCm)
+                            .mirror_at(PlainLine.HORIZONTAL),
+                    ),
                 ),
             });
         }
@@ -144,6 +160,6 @@ export class Embroidery {
         return render_partial_embroidery_as_png(this, upto, args);
     }
 
-    static stitchToCm = 1 / 100;
-    static CmToStitch = 100;
+    static stitchToCm = 0.01 as const;
+    static CmToStitch = 100 as const;
 }

@@ -1,11 +1,11 @@
 export const constEmbroideryConfig = {
-    project: "LSystem",
-    file: "./out/out.dst",
-    buffer: 1,
-    concavity: 2,
-    length_theshold: 0.1,
-    smooth_hull: 0.01,
-    smooth_buffer: 0.2,
+    project: "Buffer",
+    file: "./out/Fuchs Grafiti.DST",
+    buffer: [0.15, -0.15],
+    concavity: 0.1,
+    length_theshold: 0.3,
+    smooth_hull: 0,
+    smooth_buffer: 0,
 } as const;
 
 type DeepMutable<T> = T extends Function

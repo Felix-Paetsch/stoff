@@ -73,8 +73,11 @@ export class Line {
         if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
             Expect.that(this.p1.equals(this.p2));
             const diff = Vector.subtract(this.p1, shape.vertices[0]!);
-            if (diff.length() < EPS.tiny) return;
-            this._shape = shape.map((v) => v.add(diff));
+            if (diff.length() < EPS.tiny) {
+                this._shape = shape;
+            } else {
+                this._shape = shape.map((v) => v.add(diff));
+            }
             return;
         }
 

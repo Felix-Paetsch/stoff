@@ -13,9 +13,9 @@ export function render_embroidery(
         <div class="slider-section">
             <input type="range"
              class="slider"
-             min="0"
-             max="0"
-             value="0">
+             min="1"
+             max="1"
+             value="1">
             <div class="slider-play slider_is_pause"><span class="slider_is_pause_icon">&#9654</span><span class="slider_is_play_icon">&#9208</span></div>
             <div class="slider-speed">x1</div>
         </div>
@@ -45,7 +45,7 @@ export type EmbroideryData = {
 
 let embroideries: EmbroideryData[] = [];
 
-const BASE_INTERVAL_MS = 20;
+const BASE_INTERVAL_MS = 60;
 
 export function recomputeEmbroideryDisplay() {
     const newEmbr = Array.from(
@@ -70,7 +70,7 @@ function set_up_embroidery(e: HTMLDivElement): EmbroideryData {
         root: e,
         canvas: e.getElementsByTagName("canvas")[0]!,
         threads,
-        current_stitch_index: -1,
+        current_stitch_index: 0,
         slider,
         toggle_btn,
         speed_btn,
@@ -78,9 +78,9 @@ function set_up_embroidery(e: HTMLDivElement): EmbroideryData {
         auto_increment_interval: null,
     };
 
-    const max_index = Math.max(0, calculate_stitch_count(threads));
+    const max_index = Math.max(0, calculate_stitch_count(threads) - 1);
 
-    slider.min = "0";
+    slider.min = "1";
     slider.max = String(max_index);
     slider.value = String(max_index);
 

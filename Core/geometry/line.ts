@@ -105,6 +105,6 @@ export class Line {
         return point;
     }
 
-    static HORIZONTAL = new Line(Vector.UP, Vector.DOWN);
-    static VERTICAL = new Line(Vector.LEFT, Vector.RIGHT);
+    static HORIZONTAL = new Line(Vector.LEFT, Vector.RIGHT);
+    static VERTICAL = new Line(Vector.UP, Vector.DOWN);
 }

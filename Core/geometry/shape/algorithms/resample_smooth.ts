@@ -166,7 +166,7 @@ function spline_for_polygon_segment(
     return Spline.hermite([p1, p2], [t1, t2], true);
 }
 
-export function resample_line_points(
+export function resample_line_points_smooth(
     line: Vector[],
     smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
     sample_spacing: number | null = null,
@@ -243,16 +243,18 @@ export function resample_line_points(
             );
         }
 
-        const traveled_on_current_segment = distance_to_next_res_pt;
         const total_line_segment_length = line[current_left_index]!.distance(
             line[current_left_index + 1]!,
         );
+        const traveled_on_current_segment =
+            total_line_segment_length -
+            (distance_to_next_sample_pt - distance_to_next_res_pt);
 
         const fraction =
             traveled_on_current_segment / total_line_segment_length;
         res.push(current_spline(fraction));
 
-        distance_to_next_sample_pt -= traveled_on_current_segment;
+        distance_to_next_sample_pt -= distance_to_next_res_pt;
         distance_to_next_res_pt = sample_spacing;
     }
 
@@ -264,7 +266,7 @@ export function resample_line_points(
     return res;
 }
 
-export function resample_polygon_points(
+export function resample_polygon_points_smooth(
     line: Vector[],
     smoothness_angle: Radians = Math.PI * 1.2,
     sample_spacing: number | null = null,
@@ -351,20 +353,18 @@ export function resample_polygon_points(
             );
         }
 
-        const traveled_on_current_segment = distance_to_next_res_pt;
         const total_line_segment_length = polygon[current_left_index]!.distance(
             polygon[(current_left_index + 1) % n]!,
         );
+        const traveled_on_current_segment =
+            total_line_segment_length -
+            (distance_to_next_sample_pt - distance_to_next_res_pt);
 
         const fraction =
             traveled_on_current_segment / total_line_segment_length;
-        const sample = current_spline(fraction);
+        res.push(current_spline(fraction));
 
-        if (res[res.length - 1]!.distance(sample) > EPS.tiny) {
-            res.push(sample);
-        }
-
-        distance_to_next_sample_pt -= traveled_on_current_segment;
+        distance_to_next_sample_pt -= distance_to_next_res_pt;
         distance_to_next_res_pt = sample_spacing;
     }
 

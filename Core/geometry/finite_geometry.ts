@@ -48,6 +48,7 @@ export function concave_hull(
     const length_threshold = options.length_threshold
         ? Math.max(options.length_threshold, 0)
         : 0;
+
     const gon = concave_hull_rust(positions, concavity, length_threshold);
 
     if (!gon) return null;

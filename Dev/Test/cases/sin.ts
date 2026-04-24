@@ -10,7 +10,7 @@ const test: TestCase = function () {
 
     const shape = Polyline.from_function(
         (x) => new Vector(x, Math.sin(Math.PI * x)),
-    ).resample(0, 0.1);
+    ).resample_smooth(0, 0.1);
 
     s.data.test = "afsd";
 

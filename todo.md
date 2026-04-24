@@ -1,29 +1,20 @@
-Modify gitignore
+Do next:
+- strict offset
+- remove crossings from polyline/gon
 
+
+Fix 1D embroidery line not rendering
 
 Graph as class? Parametric?
+Vertex vs Node?
 
-Technically rendering embroidery has some bugs
-- the first frame
-- the last frame
-are both currently "to much"
-slow down embr viz speed
-Vertex? Node?
-
-Graph.identify equal points
 Graph.remove_crossings (should also work when a point is on another pt; should also automaticall identify points)
-
-Graph.Graph?
-bind method to static graph class?
-where to put double_run?
-- more into GraphUtils
+- should insert points as crossings
 
 https://dl.acm.org/doi/fullHtml/10.1145/3394105
 https://github.com/jianweiguo/IPML2d
 
-
-Rust:
-g.extend_with_edges() in the initialization
+The buffer thing -> automaticall create satin between two lines.
 
 
 # Tomorrow (Today)

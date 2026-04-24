@@ -72,18 +72,17 @@ export class Point extends Vector {
         );
     }
 
-    set(x: number, y: number): Point;
-    set(x: Vector): Point;
-    set(x: number | Vector, y: number = 0): Point {
+    _unsafe_move_to(x: number, y: number): Point;
+    _unsafe_move_to(x: Vector): Point;
+    _unsafe_move_to(x: number | Vector, y: number = 0): Point {
         Expect.that(!this._is_removed, "Point is removed");
 
         if (x instanceof Vector) {
-            return this.set(x.x, x.y);
+            return this._unsafe_move_to(x.x, x.y);
         }
 
         this._x = x;
         this._y = y;
-        this._adjacent_lines.forEach((l) => l.update_shape(l.shape));
         return this;
     }
 
@@ -91,7 +90,15 @@ export class Point extends Vector {
     move_to(x: Vector): Point;
     move_to(x: number | Vector, y: number = 0) {
         Expect.that(!this._is_removed, "Point is removed");
-        return (this.set as any)(x, y);
+
+        if (x instanceof Vector) {
+            return this.move_to(x.x, x.y);
+        }
+
+        this._x = x;
+        this._y = y;
+        this._adjacent_lines.forEach((l) => l.update_shape(l.shape));
+        return this;
     }
 
     offset_by(x: number, y: number): Point;

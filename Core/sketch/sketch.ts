@@ -154,6 +154,12 @@ export class Sketch {
         return new Line([p1, p2], shape.typesafe());
     }
 
+    transform(fn: (v: Vector) => Vector) {
+        this._points.forEach((p) => p._unsafe_move_to(fn(p)));
+        this._lines.forEach((l) => l.update_shape(l.shape.map(fn)));
+        return this;
+    }
+
     // ===============
 
     merge_points(

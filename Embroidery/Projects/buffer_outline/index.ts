@@ -1,38 +1,25 @@
-import { DST, FiniteGeometry, Polygon, SVG_Builder } from "@/Core";
+import { DST, Polygon } from "@/Core";
 import { Out } from "@/Dev";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
-import { writeFileSync } from "fs";
 import path from "path/win32";
 import { polygon_smooth_out } from "ShapeManipulation/smooth_out";
 
-export const BufferDST = defineEmbroidery(
-    "Buffer" as const,
+export const BufferOutlineDST = defineEmbroidery(
+    "BufferOutline" as const,
     (cfg: {
         file: string;
         buffer: number | number[];
-        concavity?: number;
-        length_threshold?: number;
-        smooth_hull?: number;
         smooth_buffer?: number;
     }) => {
         const embr = Embroidery.from_dst(DST.from_file(cfg.file));
-        Out.put(embr);
-
         const res = new Embroidery();
 
-        let hull = FiniteGeometry.concave_hull(embr.runs, {
-            concavity: cfg.concavity,
-            length_threshold: cfg.length_threshold,
-        })!;
-
-        if (cfg.smooth_hull) {
-            hull = polygon_smooth_out(hull, cfg.smooth_hull);
-        }
+        let outline = embr.runs[0]!.to_polygon();
 
         if (cfg.buffer instanceof Array) {
             cfg.buffer.forEach((b) => {
-                let buff_line = select_correct_buffer(hull.buffer(b));
+                let buff_line = select_correct_buffer(outline.buffer(b));
 
                 if (cfg.smooth_buffer) {
                     buff_line = polygon_smooth_out(
@@ -44,7 +31,7 @@ export const BufferDST = defineEmbroidery(
                 res.run(buff_line.to_polyline());
             });
         } else {
-            let buff_line = select_correct_buffer(hull.buffer(cfg.buffer));
+            let buff_line = select_correct_buffer(outline.buffer(cfg.buffer));
 
             if (cfg.smooth_buffer) {
                 buff_line = polygon_smooth_out(buff_line, cfg.smooth_buffer);
@@ -55,31 +42,11 @@ export const BufferDST = defineEmbroidery(
 
         res.to_dst().to_file("./out/buffer_" + path.basename(cfg.file));
 
-        const bb = res.bounding_box();
-        const svg = new SVG_Builder(
-            bb.width * Embroidery.CmToStitch,
-            bb.height * Embroidery.CmToStitch,
-            [
-                bb.top_left.scale(Embroidery.CmToStitch),
-                bb.bottom_right.scale(Embroidery.CmToStitch),
-            ],
-            0,
-        );
-
-        res.runs.forEach((r) => {
-            const mapped_line = r.map((v) => v.scale(Embroidery.CmToStitch));
-            svg.render_polygon(mapped_line.as_polygon());
-        });
-
-        Out.put(svg);
+        res.color_change("blue");
+        res.run(...embr.runs);
         Out.put(res);
 
-        writeFileSync(
-            "./out/buffer_" + path.parse(cfg.file).name + ".svg",
-            svg.svg(),
-        );
-
-        return;
+        return res;
     },
 );
 

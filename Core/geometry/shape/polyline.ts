@@ -3,7 +3,7 @@ import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { remove_dub } from "./algorithms/remove_dub";
-import { resample_line_points } from "./algorithms/resample";
+import { resample_line_points_smooth } from "./algorithms/resample_smooth";
 import { resample_strict } from "./algorithms/resample_strict";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
@@ -127,12 +127,12 @@ export class Polyline extends Shape {
         return new Polyline(vectors);
     }
 
-    resample(
+    resample_smooth(
         smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
         sample_spacing: number | null = null,
     ): Polyline {
         return new Polyline(
-            resample_line_points(
+            resample_line_points_smooth(
                 this.vertices,
                 smoothness_angle,
                 sample_spacing,
@@ -140,7 +140,7 @@ export class Polyline extends Shape {
         );
     }
 
-    resample_strict(sample_spacing: number | null = null): Polyline {
+    resample(sample_spacing: number | null = null): Polyline {
         return resample_strict(this, sample_spacing);
     }
 

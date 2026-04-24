@@ -37,8 +37,8 @@ function decode_record(
     if (b1 & 0x40) dy -= 3;
     if (b1 & 0x20) dy += 27;
     if (b1 & 0x10) dy -= 27;
-    if (b2 & 0x80) dy += 81;
-    if (b2 & 0x40) dy -= 81;
+    if (b2 & 0x20) dy += 81;
+    if (b2 & 0x10) dy -= 81;
 
     // Control flags
     const end = (b2 & 0xf3) === 0xf3;

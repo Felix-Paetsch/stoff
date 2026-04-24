@@ -14,96 +14,146 @@ function padRight(value: string, width: number, ch = " ") {
 
 function signedField(value: number, width: number) {
     const sign = value >= 0 ? "+" : "-";
-    return `${sign}${padLeft(Math.abs(Math.round(value)), width - 1, " ")}`;
+    return `${sign}${padLeft(Math.abs(Math.trunc(value)), width - 1, " ")}`;
 }
 
-function roundCoord(n: number) {
-    return Math.round(n);
+function quantizeCoord(n: number) {
+    const r = n >= 0 ? Math.floor(n + 0.5) : Math.ceil(n - 0.5);
+    return Object.is(r, -0) ? 0 : r;
 }
 
-function splitRelative(dx: number, dy: number) {
+function splitAbsoluteMove(
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+) {
+    const totalDx = toX - fromX;
+    const totalDy = toY - fromY;
+
     const steps = Math.max(
         1,
-        Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 121),
+        Math.ceil(Math.max(Math.abs(totalDx), Math.abs(totalDy)) / 121),
     );
 
     const parts: Array<{ dx: number; dy: number }> = [];
-    let usedX = 0;
-    let usedY = 0;
+    let prevX = fromX;
+    let prevY = fromY;
 
-    for (let i = 0; i < steps; i++) {
-        const remainingSteps = steps - i;
-        const partX = Math.round((dx - usedX) / remainingSteps);
-        const partY = Math.round((dy - usedY) / remainingSteps);
-        parts.push({ dx: partX, dy: partY });
-        usedX += partX;
-        usedY += partY;
+    for (let i = 1; i <= steps; i++) {
+        const nextX =
+            i === steps ? toX : quantizeCoord(fromX + (totalDx * i) / steps);
+        const nextY =
+            i === steps ? toY : quantizeCoord(fromY + (totalDy * i) / steps);
+
+        parts.push({
+            dx: nextX - prevX,
+            dy: nextY - prevY,
+        });
+
+        prevX = nextX;
+        prevY = nextY;
     }
 
     return parts;
 }
 
-function encodeRecord(dx0: number, dy0: number, kind: CommandKind): Buffer {
+function encodeRecord(dx: number, dy: number, kind: CommandKind): Buffer {
     if (kind === "end") {
         return Buffer.from([0x00, 0x00, 0xf3]);
     }
 
-    let dx = dx0;
-    let dy = dy0;
+    const calculateOffsets = (
+        num0: number,
+    ): [number, number, number, number, number] => {
+        let num = Math.trunc(num0);
 
-    if (Math.abs(dx) > 121 || Math.abs(dy) > 121) {
-        throw new Error(`DST record out of range: dx=${dx}, dy=${dy}`);
-    }
+        if (num < -121 || num > 121) {
+            throw new Error(`DST axis out of range: ${num}`);
+        }
+
+        // [pm1, pm3, pm9, pm27, pm81]
+        const res: [number, number, number, number, number] = [0, 0, 0, 0, 0];
+
+        if (num > 40) {
+            res[4] = 1;
+            num -= 81;
+        } else if (num < -40) {
+            res[4] = -1;
+            num += 81;
+        }
+
+        if (num > 13) {
+            res[3] = 1;
+            num -= 27;
+        } else if (num < -13) {
+            res[3] = -1;
+            num += 27;
+        }
+
+        if (num > 4) {
+            res[2] = 1;
+            num -= 9;
+        } else if (num < -4) {
+            res[2] = -1;
+            num += 9;
+        }
+
+        if (num > 1) {
+            res[1] = 1;
+            num -= 3;
+        } else if (num < -1) {
+            res[1] = -1;
+            num += 3;
+        }
+
+        if (num > 0) {
+            res[0] = 1;
+            num -= 1;
+        } else if (num < 0) {
+            res[0] = -1;
+            num += 1;
+        }
+
+        if (num !== 0) {
+            throw new Error(`Could not encode DST axis exactly: ${num0}`);
+        }
+
+        return res;
+    };
+
+    const x = calculateOffsets(dx);
+    const y = calculateOffsets(dy);
 
     let b1 = 0;
     let b2 = 0;
     let b3 = 0x03;
 
-    const apply = (
-        amount: number,
-        axis: "x" | "y",
-        positiveBit: [1 | 2 | 3, number],
-        negativeBit: [1 | 2 | 3, number],
-    ) => {
-        const target = axis === "x" ? "x" : "y";
-        let v = target === "x" ? dx : dy;
+    // Byte 1: y+1 y-1 y+9 y-9 - x-9 x+9 x-1 x+1
+    if (x[0] === 1) b1 |= 1 << 0;
+    if (x[0] === -1) b1 |= 1 << 1;
+    if (x[2] === 1) b1 |= 1 << 2;
+    if (x[2] === -1) b1 |= 1 << 3;
+    if (y[2] === -1) b1 |= 1 << 4;
+    if (y[2] === 1) b1 |= 1 << 5;
+    if (y[0] === -1) b1 |= 1 << 6;
+    if (y[0] === 1) b1 |= 1 << 7;
 
-        const setBit = ([byteIndex, bit]: [1 | 2 | 3, number]) => {
-            if (byteIndex === 1) b1 |= 1 << bit;
-            else if (byteIndex === 2) b2 |= 1 << bit;
-            else b3 |= 1 << bit;
-        };
+    // Byte 2: y+3 y-3 y+27 y-27 - x-27 x+27 x-3 x+3
+    if (x[1] === 1) b2 |= 1 << 0;
+    if (x[1] === -1) b2 |= 1 << 1;
+    if (x[3] === 1) b2 |= 1 << 2;
+    if (x[3] === -1) b2 |= 1 << 3;
+    if (y[3] === -1) b2 |= 1 << 4;
+    if (y[3] === 1) b2 |= 1 << 5;
+    if (y[1] === -1) b2 |= 1 << 6;
+    if (y[1] === 1) b2 |= 1 << 7;
 
-        while (v >= amount) {
-            setBit(positiveBit);
-            v -= amount;
-        }
-        while (v <= -amount) {
-            setBit(negativeBit);
-            v += amount;
-        }
-
-        if (target === "x") dx = v;
-        else dy = v;
-    };
-
-    apply(81, "x", [3, 2], [3, 3]);
-    apply(27, "x", [2, 2], [2, 3]);
-    apply(9, "x", [1, 2], [1, 3]);
-    apply(3, "x", [2, 0], [2, 1]);
-    apply(1, "x", [1, 0], [1, 1]);
-
-    apply(81, "y", [3, 5], [3, 4]);
-    apply(27, "y", [2, 5], [2, 4]);
-    apply(9, "y", [1, 5], [1, 4]);
-    apply(3, "y", [2, 7], [2, 6]);
-    apply(1, "y", [1, 7], [1, 6]);
-
-    if (dx !== 0 || dy !== 0) {
-        throw new Error(
-            `Could not encode DST delta exactly: dx=${dx}, dy=${dy}`,
-        );
-    }
+    // Byte 3: c0 c1 y+81 y-81 - x-81 x+81 set set
+    if (x[4] === 1) b3 |= 1 << 2;
+    if (x[4] === -1) b3 |= 1 << 3;
+    if (y[4] === -1) b3 |= 1 << 4;
+    if (y[4] === 1) b3 |= 1 << 5;
 
     if (kind === "jump") {
         b3 |= 1 << 7;
@@ -116,42 +166,16 @@ function encodeRecord(dx0: number, dy0: number, kind: CommandKind): Buffer {
 }
 
 function makeHeader(
-    dst: DST,
     name: string,
     stitchCount: number,
     colorCount: number,
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+    finalX: number,
+    finalY: number,
 ) {
-    const runs = dst.runs;
-    const allPoints = runs.flatMap((r) => r.vertices ?? []);
-
-    let minX = 0;
-    let maxX = 0;
-    let minY = 0;
-    let maxY = 0;
-
-    if (allPoints.length > 0) {
-        let minX = Infinity;
-        let maxX = -Infinity;
-        let minY = Infinity;
-        let maxY = -Infinity;
-
-        for (let i = 0; i < allPoints.length; i++) {
-            const x = roundCoord(allPoints[i]!.x);
-            const y = roundCoord(allPoints[i]!.y);
-
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-        }
-    }
-
-    const first = allPoints[0];
-    const last = allPoints[allPoints.length - 1];
-
-    const ax = first && last ? roundCoord(last.x) - roundCoord(first.x) : 0;
-    const ay = first && last ? roundCoord(last.y) - roundCoord(first.y) : 0;
-
     const lines = [
         `LA:${padRight(name, 16, " ")}`,
         `ST:${padLeft(stitchCount, 7, "0")}`,
@@ -160,8 +184,8 @@ function makeHeader(
         `-X:${padLeft(Math.max(0, -minX), 5, "0")}`,
         `+Y:${padLeft(Math.max(0, maxY), 5, "0")}`,
         `-Y:${padLeft(Math.max(0, -minY), 5, "0")}`,
-        `AX:${signedField(ax, 6)}`,
-        `AY:${signedField(ay, 6)}`,
+        `AX:${signedField(finalX, 6)}`,
+        `AY:${signedField(finalY, 6)}`,
         `MX:${signedField(0, 6)}`,
         `MY:${signedField(0, 6)}`,
         `PD:******`,
@@ -169,12 +193,14 @@ function makeHeader(
 
     const headerText = lines.join("\r") + "\r";
     const header = Buffer.alloc(512, 0x20);
+
     Buffer.from(headerText, "ascii").copy(
         header,
         0,
         0,
         Math.min(512, headerText.length),
     );
+
     return header;
 }
 
@@ -184,24 +210,50 @@ export function write_dst_buffer(dst: DST, name = "Untitled"): Buffer {
     let currentX = 0;
     let currentY = 0;
 
-    const emitMove = (dx: number, dy: number, kind: "stitch" | "jump") => {
-        for (const part of splitRelative(dx, dy)) {
+    let minX = 0;
+    let maxX = 0;
+    let minY = 0;
+    let maxY = 0;
+
+    const updateBounds = () => {
+        minX = Math.min(minX, currentX);
+        maxX = Math.max(maxX, currentX);
+        minY = Math.min(minY, currentY);
+        maxY = Math.max(maxY, currentY);
+    };
+
+    const emitAbsoluteTo = (
+        x01mm: number,
+        y01mm: number,
+        kind: "stitch" | "jump",
+    ) => {
+        const targetX = quantizeCoord(x01mm);
+        const targetY = quantizeCoord(y01mm);
+
+        if (targetX === currentX && targetY === currentY) {
+            return;
+        }
+
+        for (const part of splitAbsoluteMove(
+            currentX,
+            currentY,
+            targetX,
+            targetY,
+        )) {
+            if (part.dx === 0 && part.dy === 0) continue;
+
             records.push(encodeRecord(part.dx, part.dy, kind));
             currentX += part.dx;
             currentY += part.dy;
+            updateBounds();
         }
     };
 
-    const emitJumpTo = (x: number, y: number) => {
-        const dx = x - currentX;
-        const dy = y - currentY;
-        emitMove(dx, dy, "jump");
+    const emitJumpTo = (x01mm: number, y01mm: number) => {
+        emitAbsoluteTo(x01mm, y01mm, "jump");
     };
-
-    const emitStitchTo = (x: number, y: number) => {
-        const dx = x - currentX;
-        const dy = y - currentY;
-        emitMove(dx, dy, "stitch");
+    const emitStitchTo = (x01mm: number, y01mm: number) => {
+        emitAbsoluteTo(x01mm, y01mm, "stitch");
     };
 
     const emitTrim = () => {
@@ -210,10 +262,12 @@ export function write_dst_buffer(dst: DST, name = "Untitled"): Buffer {
             { dx: -4, dy: -4 },
             { dx: 2, dy: 2 },
         ];
+
         for (const s of trimSeq) {
             records.push(encodeRecord(s.dx, s.dy, "jump"));
             currentX += s.dx;
             currentY += s.dy;
+            updateBounds();
         }
     };
 
@@ -224,14 +278,12 @@ export function write_dst_buffer(dst: DST, name = "Untitled"): Buffer {
             const verts = polyline.vertices ?? [];
             if (verts.length === 0) continue;
 
-            const startX = roundCoord(verts[0]!.x);
-            const startY = roundCoord(verts[0]!.y);
-
-            emitJumpTo(startX, startY);
+            emitJumpTo(verts[0]!.x, verts[0]!.y);
+            emitStitchTo(verts[0]!.x, verts[0]!.y);
 
             for (let i = 1; i < verts.length; i++) {
                 const v = verts[i]!;
-                emitStitchTo(roundCoord(v.x), roundCoord(v.y));
+                emitStitchTo(v.x, v.y);
             }
 
             emitTrim();
@@ -239,16 +291,22 @@ export function write_dst_buffer(dst: DST, name = "Untitled"): Buffer {
 
         if (ti < dst.threads.length - 1) {
             records.push(encodeRecord(0, 0, "color"));
+            updateBounds();
         }
     }
 
     records.push(encodeRecord(0, 0, "end"));
 
     const header = makeHeader(
-        dst,
         name,
         records.length,
         Math.max(0, dst.threads.length - 1),
+        minX,
+        maxX,
+        minY,
+        maxY,
+        currentX,
+        currentY,
     );
 
     return Buffer.concat([header, ...records]);

@@ -10,7 +10,7 @@ update:
 
 run:
     #!/bin/bash -i
-    just --justfile test.just build
+    just build
     mamba activate stoff
     python compare_tests.py
 
