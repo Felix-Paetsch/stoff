@@ -48,31 +48,31 @@ export namespace Shape {
 export abstract class Shape {
     private _length: number | null = null;
     private _positions: Float64Array | null = null;
-    private _verticies: Vector[] | null = null;
+    private _vertices: Vector[] | null = null;
     private _bb: BoundingBox | null = null;
 
     constructor(positions: Float64Array | Vector[]) {
         if (positions instanceof Float64Array) {
             this._positions = positions;
         } else {
-            this._verticies = positions;
+            this._vertices = positions;
         }
     }
 
-    get verticies(): Vector[] {
-        if (this._verticies) return this._verticies;
+    get vertices(): Vector[] {
+        if (this._vertices) return this._vertices;
 
-        this._verticies = f64_to_vec_array(this.positions);
-        return this._verticies;
+        this._vertices = f64_to_vec_array(this.positions);
+        return this._vertices;
     }
 
     get positions(): Float64Array {
         if (this._positions) return this._positions;
 
-        this._positions = new Float64Array(this.verticies.length * 2);
-        for (let i = 0; i < this.verticies.length; i++) {
-            this._positions[2 * i]! = this.verticies[i]!.x;
-            this._positions[2 * i + 1]! = this.verticies[i]!.y;
+        this._positions = new Float64Array(this.vertices.length * 2);
+        for (let i = 0; i < this.vertices.length; i++) {
+            this._positions[2 * i]! = this.vertices[i]!.x;
+            this._positions[2 * i + 1]! = this.vertices[i]!.y;
         }
 
         return this._positions;
@@ -85,7 +85,7 @@ export abstract class Shape {
 
         const l = this.as_polyline();
         let len = 0;
-        let ver = l.verticies;
+        let ver = l.vertices;
         for (let i = 0; i < ver.length - 1; i++) {
             len += ver[i]!.distance(ver[i + 1]!);
         }
@@ -96,7 +96,7 @@ export abstract class Shape {
 
     bounding_box(): BoundingBox {
         if (this._bb) return this._bb;
-        this._bb = BoundingBox.from_vectors(this.verticies);
+        this._bb = BoundingBox.from_vectors(this.vertices);
         return this._bb;
     }
 
@@ -134,8 +134,8 @@ export abstract class Shape {
     }
 
     get vertex_count(): number {
-        if (this._verticies) {
-            return this._verticies.length;
+        if (this._vertices) {
+            return this._vertices.length;
         }
 
         return this._positions!.length / 2;
@@ -151,7 +151,7 @@ export abstract class Shape {
             return true;
         }
 
-        const pts = l.verticies;
+        const pts = l.vertices;
         const n = pts.length;
 
         let sign = 0;
@@ -181,7 +181,7 @@ export abstract class Shape {
             return false;
         }
 
-        const pts = l.verticies;
+        const pts = l.vertices;
         const n = pts.length;
 
         let sign = 0;
@@ -253,7 +253,7 @@ export abstract class Shape {
             targetDistance = totalLength - targetDistance;
         }
 
-        const vec = l.verticies;
+        const vec = l.vertices;
 
         let currentDistance = 0;
         for (let i = 0; i < vec.length - 1; i++) {
@@ -455,7 +455,7 @@ export abstract class Shape {
         if (typeof d == "number") return this.shape_position_at_length(d);
         if (d == "start") {
             return {
-                vec: this.verticies[0]!,
+                vec: this.vertices[0]!,
                 index: 0,
                 frac: 0,
             };
@@ -470,7 +470,7 @@ export abstract class Shape {
             }
 
             return {
-                vec: this.verticies[0]!,
+                vec: this.vertices[0]!,
                 index: this.vertex_count - 1,
                 frac: 1,
             };

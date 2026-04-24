@@ -63,7 +63,7 @@ export function render_partial_embroidery(
         const endColor = Color.toHexString(shadeColor(color, -20));
         const midColor = Color.toHexString(shadeColor(color, 20));
 
-        const runs = thread.runs.map((p) => p.map(abs_to_px).verticies);
+        const runs = thread.runs.map((p) => p.map(abs_to_px).vertices);
 
         for (const run of runs) {
             if (stitchesLeft < 1) break;

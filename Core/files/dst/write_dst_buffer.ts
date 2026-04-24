@@ -122,7 +122,7 @@ function makeHeader(
     colorCount: number,
 ) {
     const runs = dst.runs;
-    const allPoints = runs.flatMap((r) => r.verticies ?? []);
+    const allPoints = runs.flatMap((r) => r.vertices ?? []);
 
     let minX = 0;
     let maxX = 0;
@@ -221,7 +221,7 @@ export function write_dst_buffer(dst: DST, name = "Untitled"): Buffer {
         const thread = dst.threads[ti]!;
 
         for (const polyline of thread) {
-            const verts = polyline.verticies ?? [];
+            const verts = polyline.vertices ?? [];
             if (verts.length === 0) continue;
 
             const startX = roundCoord(verts[0]!.x);

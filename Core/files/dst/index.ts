@@ -15,7 +15,7 @@ export class DST {
 
     bounding_box() {
         return BoundingBox.from_vectors(
-            ([] as Vector[]).concat(...this.runs.map((r) => r.verticies)),
+            ([] as Vector[]).concat(...this.runs.map((r) => r.vertices)),
         );
     }
 

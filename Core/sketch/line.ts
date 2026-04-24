@@ -72,7 +72,7 @@ export class Line {
         Expect.that(!shape.is_empty());
         if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
             Expect.that(this.p1.equals(this.p2));
-            const diff = Vector.subtract(this.p1, shape.verticies[0]!);
+            const diff = Vector.subtract(this.p1, shape.vertices[0]!);
             if (diff.length() < EPS.tiny) return;
             this._shape = shape.map((v) => v.add(diff));
             return;
@@ -112,7 +112,7 @@ export class Line {
 
     mirror() {
         if (this.shape.is_polygon()) {
-            const transform = LinearTransform.mirror(this.shape.verticies[0]!);
+            const transform = LinearTransform.mirror(this.shape.vertices[0]!);
             this.update_shape(this.shape.map(transform));
         } else {
             const transform = LinearTransform.mirror([this.p1, this.p2]);
@@ -401,7 +401,7 @@ export class Line {
         return {
             p1: this.p1.toJSON(),
             p2: this.p2.toJSON(),
-            sample_points: this.shape.verticies,
+            sample_points: this.shape.vertices,
         };
     }
 

@@ -8,15 +8,15 @@ export function remove_dub<T extends Polygon | Polyline>(s: T): T {
         return s;
     }
 
-    const verticies = s.as_polyline().verticies;
-    const res: Vector[] = [verticies[0]!];
+    const vertices = s.as_polyline().vertices;
+    const res: Vector[] = [vertices[0]!];
 
-    for (let i = 1; i < verticies.length; i++) {
+    for (let i = 1; i < vertices.length; i++) {
         if (
-            verticies[verticies.length - 1]!.distance_squared(verticies[i]!) >
+            vertices[vertices.length - 1]!.distance_squared(vertices[i]!) >
             dub_distance * dub_distance
         ) {
-            res.push(verticies[i]!);
+            res.push(vertices[i]!);
         }
     }
 

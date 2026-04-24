@@ -1,17 +1,32 @@
+Modify gitignore
+
+
+Graph as class? Parametric?
+
+Technically rendering embroidery has some bugs
+- the first frame
+- the last frame
+are both currently "to much"
+slow down embr viz speed
+Vertex? Node?
+
+Graph.identify equal points
+Graph.remove_crossings (should also work when a point is on another pt; should also automaticall identify points)
+
+Graph.Graph?
+bind method to static graph class?
+where to put double_run?
+- more into GraphUtils
+
+https://dl.acm.org/doi/fullHtml/10.1145/3394105
+https://github.com/jianweiguo/IPML2d
+
+
+Rust:
+g.extend_with_edges() in the initialization
+
+
 # Tomorrow (Today)
-
-- Fix smooth out method ~ the arguments are so messed up and everything?
-- on hover of image -> what to x and y and width and height mean?
-    - probably bb.. but hmm
-    - display cursor x,y instead?
-embroidery from dst file / to dst file
-
-- L systems
-    - stochastic L-systems
-https://en.wikipedia.org/wiki/L-system
-"random" L-system rule inference
-Design elements like branches, etc.
-Parametric L systems,...
 
 Idea: use can iteration to generate a fractal or thing, applying it to the sample points of a polyline resulting in an already closed shape
 percolation clusters
@@ -19,9 +34,23 @@ self avaoiding walks
 finite subdivision
 fractal flames
 
+organize code
+
 ---------
 
+Graphs
+- tsp (use rust)
+- minimum spanning tree
+- ...
 
+Plotting image with embroidery as optiomization function over the input variables
+
+Ein path initializer on an image
+- make points
+- traveling salesman
+- minimum spanning tree
+
+Then post processing stepts like MST, numerical optimizer,...
 
 [] unify (looks of) things with the same name
 - gen_lines?
@@ -127,3 +156,4 @@ https://ko-fi.com/s/bab05e779e
 
 [] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
 [] rust code actions
+[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)

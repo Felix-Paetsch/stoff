@@ -11,8 +11,8 @@ export function get_appreciable_line_segment(
     s: Polygon | Polyline,
     line_segment_index: number,
 ): LineSegment | null {
-    const verticies = s.as_polyline().verticies;
-    if (line_segment_index > verticies.length - 2 || line_segment_index < 0)
+    const vertices = s.as_polyline().vertices;
+    if (line_segment_index > vertices.length - 2 || line_segment_index < 0)
         return null;
 
     let left_right: [number, number] = [
@@ -21,33 +21,33 @@ export function get_appreciable_line_segment(
     ];
 
     if (
-        verticies[left_right[0]]!.distance(verticies[left_right[1]]!) > EPS.tiny
+        vertices[left_right[0]]!.distance(vertices[left_right[1]]!) > EPS.tiny
     ) {
-        return [verticies[left_right[0]]!, verticies[left_right[1]]!];
+        return [vertices[left_right[0]]!, vertices[left_right[1]]!];
     }
 
     const center = Vector.add(
-        verticies[line_segment_index]!,
-        verticies[line_segment_index + 1]!,
+        vertices[line_segment_index]!,
+        vertices[line_segment_index + 1]!,
     ).scale(0.5);
 
     while (
         left_right[0] > 0 &&
-        verticies[left_right[0]]!.distance(center) < EPS.tiny
+        vertices[left_right[0]]!.distance(center) < EPS.tiny
     ) {
         left_right[0]--;
     }
 
     while (
-        left_right[1] < verticies.length - 1 &&
-        verticies[left_right[1]]!.distance(center) < EPS.tiny
+        left_right[1] < vertices.length - 1 &&
+        vertices[left_right[1]]!.distance(center) < EPS.tiny
     ) {
         left_right[1]++;
     }
 
     return [
-        Vector.lerp_abs(center, verticies[left_right[0]]!, EPS.tiny),
-        Vector.lerp_abs(center, verticies[left_right[1]]!, EPS.tiny),
+        Vector.lerp_abs(center, vertices[left_right[0]]!, EPS.tiny),
+        Vector.lerp_abs(center, vertices[left_right[1]]!, EPS.tiny),
     ];
 }
 
@@ -62,23 +62,23 @@ export function get_appreciable_corner(
     )
         return null;
 
-    const verticies = s.verticies;
-    const center = verticies[at]!;
+    const vertices = s.vertices;
+    const center = vertices[at]!;
 
     let left_right: [number, number] = [prev_index(s, at)!, next_index(s, at)!];
 
     if (
-        verticies[left_right[0]]!.distance(center) > EPS.tiny &&
-        verticies[left_right[1]]!.distance(center) > EPS.tiny
+        vertices[left_right[0]]!.distance(center) > EPS.tiny &&
+        vertices[left_right[1]]!.distance(center) > EPS.tiny
     ) {
         return [
-            [verticies[left_right[0]]!, center],
-            [center, verticies[left_right[1]]!],
+            [vertices[left_right[0]]!, center],
+            [center, vertices[left_right[1]]!],
         ];
     }
 
     while (
-        verticies[left_right[0]]!.distance(center) < EPS.tiny &&
+        vertices[left_right[0]]!.distance(center) < EPS.tiny &&
         left_right[0] !== at
     ) {
         let p = prev_index(s, at);
@@ -87,7 +87,7 @@ export function get_appreciable_corner(
     }
 
     while (
-        verticies[left_right[1]]!.distance(center) < EPS.tiny &&
+        vertices[left_right[1]]!.distance(center) < EPS.tiny &&
         left_right[1] !== at
     ) {
         let p = next_index(s, at);
@@ -96,13 +96,13 @@ export function get_appreciable_corner(
     }
 
     return [
-        [verticies[left_right[0]]!, center],
-        [center, verticies[left_right[1]]!],
+        [vertices[left_right[0]]!, center],
+        [center, vertices[left_right[1]]!],
     ];
 }
 
 function next_index(s: Shape.Shape, current_index: number): null | number {
-    if (current_index < s.verticies.length - 1) {
+    if (current_index < s.vertices.length - 1) {
         return current_index + 1;
     }
     if (s instanceof Polygon) {
@@ -116,7 +116,7 @@ function prev_index(s: Shape.Shape, current_index: number): null | number {
         return current_index - 1;
     }
     if (s instanceof Polygon) {
-        return s.verticies.length - 1;
+        return s.vertices.length - 1;
     }
     return null;
 }

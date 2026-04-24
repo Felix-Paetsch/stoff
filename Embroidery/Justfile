@@ -1,0 +1,5 @@
+run:
+    cd ../ && ./watch.sh "npx tsx ./Embroidery/index.ts"
+
+build:
+    cd Lib/rust && wasm-pack build --target nodejs

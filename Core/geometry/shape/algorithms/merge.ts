@@ -29,20 +29,20 @@ export function merge(sh1: Shape, sh2: Shape): Shape {
         const min = Math.min(...distances);
 
         if (distances[0] == min) {
-            return new Polyline(sh1.verticies.concat(sh2.verticies));
+            return new Polyline(sh1.vertices.concat(sh2.vertices));
         }
 
         if (distances[1] == min) {
             return new Polyline(
-                [...sh1.verticies].reverse().concat(sh2.verticies),
+                [...sh1.vertices].reverse().concat(sh2.vertices),
             );
         }
 
         if (distances[2] == min) {
-            return new Polyline(sh2.verticies.concat(sh1.verticies).reverse());
+            return new Polyline(sh2.vertices.concat(sh1.vertices).reverse());
         }
 
-        return new Polyline(sh1.verticies.concat([...sh2.verticies].reverse()));
+        return new Polyline(sh1.vertices.concat([...sh2.vertices].reverse()));
     }
 
     if (sh2 instanceof Polyline) {
@@ -55,23 +55,23 @@ export function merge(sh1: Shape, sh2: Shape): Shape {
         const res: Vector[] = [];
 
         for (let i = 0; i <= closest[0].index; i++) {
-            res.push(sh1.verticies[i]!);
+            res.push(sh1.vertices[i]!);
         }
 
         res.push(closest[0].vec);
 
-        for (let i = 0; i < sh2t.verticies.length; i++) {
+        for (let i = 0; i < sh2t.vertices.length; i++) {
             res.push(
-                sh2t.verticies[
-                    (closest[1].index + 1 + i) % sh2t.verticies.length
+                sh2t.vertices[
+                    (closest[1].index + 1 + i) % sh2t.vertices.length
                 ]!,
             );
         }
 
         res.push(closest[1].vec);
 
-        for (let i = closest[0].index + 1; i < sh1.verticies.length; i++) {
-            res.push(sh1.verticies[i]!);
+        for (let i = closest[0].index + 1; i < sh1.vertices.length; i++) {
+            res.push(sh1.vertices[i]!);
         }
 
         return new Polyline(res);
@@ -83,21 +83,21 @@ export function merge(sh1: Shape, sh2: Shape): Shape {
     const res: Vector[] = [];
 
     for (let i = 0; i <= closest[0].index; i++) {
-        res.push(sh1t.verticies[i]!);
+        res.push(sh1t.vertices[i]!);
     }
 
     res.push(closest[0].vec);
 
-    for (let i = 0; i < sh2t.verticies.length; i++) {
+    for (let i = 0; i < sh2t.vertices.length; i++) {
         res.push(
-            sh2t.verticies[(closest[1].index + 1 + i) % sh2t.verticies.length]!,
+            sh2t.vertices[(closest[1].index + 1 + i) % sh2t.vertices.length]!,
         );
     }
 
     res.push(closest[1].vec);
 
-    for (let i = closest[0].index + 1; i < sh1t.verticies.length; i++) {
-        res.push(sh1t.verticies[i]!);
+    for (let i = closest[0].index + 1; i < sh1t.vertices.length; i++) {
+        res.push(sh1t.vertices[i]!);
     }
 
     return new Polygon(res);

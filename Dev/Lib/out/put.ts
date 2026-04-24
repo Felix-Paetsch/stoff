@@ -150,7 +150,7 @@ function serialize_put(what: Putable) {
                 return {
                     color: t.color,
                     runs: t.runs.map((r) =>
-                        r.verticies.map((v) => v.to_array()),
+                        r.vertices.map((v) => v.to_array()),
                     ),
                 };
             }),

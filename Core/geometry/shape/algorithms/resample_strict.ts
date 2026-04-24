@@ -18,16 +18,16 @@ export function resample_strict<T extends Polygon | Polyline>(
         return s;
     }
 
-    const verticies = s.as_polyline().verticies;
+    const vertices = s.as_polyline().vertices;
 
-    const res: Vector[] = [verticies[0]!];
+    const res: Vector[] = [vertices[0]!];
     let remaining = sample_spacing;
     let current_left_index = 0;
     let snagged_from_current_segment = 0;
 
-    while (current_left_index < verticies.length - 1) {
-        const d = verticies[current_left_index]!.distance(
-            verticies[current_left_index + 1]!,
+    while (current_left_index < vertices.length - 1) {
+        const d = vertices[current_left_index]!.distance(
+            vertices[current_left_index + 1]!,
         );
         if (d < remaining - snagged_from_current_segment) {
             current_left_index++;
@@ -38,8 +38,8 @@ export function resample_strict<T extends Polygon | Polyline>(
 
         res.push(
             Vector.lerp_abs(
-                verticies[current_left_index]!,
-                verticies[current_left_index + 1]!,
+                vertices[current_left_index]!,
+                vertices[current_left_index + 1]!,
                 snagged_from_current_segment + remaining,
             ),
         );
@@ -48,7 +48,7 @@ export function resample_strict<T extends Polygon | Polyline>(
         remaining = sample_spacing;
     }
 
-    res.push(verticies[verticies.length - 1]!);
+    res.push(vertices[vertices.length - 1]!);
     if (s instanceof Polygon) {
         return new Polygon(res) as T;
     }

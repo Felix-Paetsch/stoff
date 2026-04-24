@@ -123,7 +123,7 @@ export class SVG_Builder {
                 data,
             );
 
-            let pointsString = vectors_to_string(line.verticies);
+            let pointsString = vectors_to_string(line.vertices);
 
             if (!full_attributes.stroke) {
                 return "";
@@ -158,7 +158,7 @@ export class SVG_Builder {
                     to: subline.last()!,
                 });
 
-                const sublinePoints = vectors_to_string(subline.verticies);
+                const sublinePoints = vectors_to_string(subline.vertices);
 
                 res += `<polyline points="${sublinePoints}" style="fill:none; stroke: url(#${gradient_id}); stroke-width: ${full_attributes.stroke_width}" opacity="${full_attributes.opacity}" />`;
             }
@@ -187,7 +187,7 @@ export class SVG_Builder {
                 data,
             );
 
-            let pointsString = vectors_to_string(gon.verticies);
+            let pointsString = vectors_to_string(gon.vertices);
 
             let res: string;
             if (!full_attributes.fill) {

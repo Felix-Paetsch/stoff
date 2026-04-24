@@ -48,7 +48,7 @@ function sketch_points_as_enpoints(s: Sketch, l: Line) {
 }
 
 function no_nan_values(l: Line) {
-    l.shape.verticies.forEach((v) => {
+    l.shape.vertices.forEach((v) => {
         Expect.that(
             !isNaN(v.x) && !isNaN(v.y),
             "Some line sample points are NaN.",

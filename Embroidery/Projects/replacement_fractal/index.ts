@@ -31,22 +31,22 @@ export function replacement_fractal(
     iterations: number = 1,
 ): Polyline {
     if (iterations == 1) {
-        const verticies = l.verticies;
+        const vertices = l.vertices;
 
-        const vert: Vector[] = [verticies[0]!];
-        for (let i = 1; i < verticies.length; i++) {
+        const vert: Vector[] = [vertices[0]!];
+        for (let i = 1; i < vertices.length; i++) {
             let trafo = LinearTransform.affine_orthogonal(
                 [replace_with.first()!, replace_with.last()!],
-                [verticies[i - 1]!, verticies[i]!],
+                [vertices[i - 1]!, vertices[i]!],
             );
 
             if (i % 2 == 0) {
                 trafo = LinearTransform.compose(
                     trafo,
-                    LinearTransform.mirror([verticies[i - 1]!, verticies[i]!]),
+                    LinearTransform.mirror([vertices[i - 1]!, vertices[i]!]),
                 );
             }
-            vert.push(...replace_with.map(trafo).verticies.slice(1));
+            vert.push(...replace_with.map(trafo).vertices.slice(1));
         }
         return new Polyline(vert);
     }

@@ -64,7 +64,7 @@ export class Polygon extends Shape {
     ): Polygon {
         const res: Vector[] = [];
 
-        const ver = this.verticies;
+        const ver = this.vertices;
         const l = this.length();
         let current_l = 0;
 
@@ -76,7 +76,7 @@ export class Polygon extends Shape {
     }
 
     root(): Vector | null {
-        return this.verticies.length > 0 ? this.verticies[0]! : null;
+        return this.vertices.length > 0 ? this.vertices[0]! : null;
     }
 
     static override from_function(fn: Shape.PolylineFunction): Polygon {
@@ -91,7 +91,7 @@ export class Polygon extends Shape {
     ): Polygon {
         return new Polygon(
             resample_polygon_points(
-                this.verticies,
+                this.vertices,
                 smoothness_angle,
                 sample_spacing,
             ),
@@ -114,9 +114,9 @@ export class Polygon extends Shape {
         if (!to_shape_position) return this;
 
         let res: Vector[] = [to_shape_position.vec].concat(
-            this.verticies.slice(to_shape_position.index + 1),
+            this.vertices.slice(to_shape_position.index + 1),
         );
-        res = res.concat(this.verticies.slice(0, to_shape_position.index + 1));
+        res = res.concat(this.vertices.slice(0, to_shape_position.index + 1));
         return new Polygon(res);
     }
 
@@ -180,7 +180,7 @@ export class Polygon extends Shape {
 
     reverse(): Polygon {
         if (this.is_empty()) return this;
-        const vert: Vector[] = this.verticies.slice(1).reverse();
+        const vert: Vector[] = this.vertices.slice(1).reverse();
         return new Polygon([this.root() as Vector].concat(vert));
     }
 
@@ -205,7 +205,7 @@ export class Polygon extends Shape {
             i = (i + 1) % this.vertex_count
         ) {
             guard();
-            res.push(this.verticies[i]!);
+            res.push(this.vertices[i]!);
         }
 
         res.push(sp2.vec);
@@ -214,6 +214,6 @@ export class Polygon extends Shape {
     }
 
     static override empty() {
-        return new Polyline([]);
+        return new Polygon([]);
     }
 }

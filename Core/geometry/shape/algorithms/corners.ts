@@ -10,7 +10,7 @@ export function shape_corners(
 ): Shape.ShapePosition[] {
     const all_corners: Shape.ShapePosition[] = [];
 
-    for (let i = 0; i < s.verticies.length; i++) {
+    for (let i = 0; i < s.vertices.length; i++) {
         const corner = get_appreciable_corner(s, i);
         if (!corner) continue;
         if (
@@ -64,7 +64,7 @@ function mix_eps_corners(
     let max_index = c[c.length - 1]!.index;
     let avg = Math.floor((min_index + max_index) / 2);
     return {
-        vec: s.verticies[avg]!,
+        vec: s.vertices[avg]!,
         index: avg,
         frac: 0,
     };

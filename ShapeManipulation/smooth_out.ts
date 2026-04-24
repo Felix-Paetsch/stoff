@@ -11,7 +11,7 @@ export function polyline_smooth_out(
     if (line.vertex_count === 0) return Polyline.empty();
     if (line.vertex_count === 1) return line;
 
-    const pts = line.verticies;
+    const pts = line.vertices;
 
     // build arc-lengths
     const arc: number[] = [0];
@@ -107,7 +107,7 @@ export function polygon_smooth_out(
 
     if (gon.vertex_count < 2) return gon;
 
-    const pts = gon.verticies;
+    const pts = gon.vertices;
     const n = pts.length;
 
     // build arc-lengths INCLUDING closing segment

@@ -102,15 +102,15 @@ export class Sketch {
             if (to instanceof Vector) {
                 const offset = Vector.subtract(to, shape.as_polyline().last()!);
                 shape = shape.typesafe().map((v) => v.add(offset));
-                from = shape.verticies[0]!;
+                from = shape.vertices[0]!;
             } else {
-                from = shape.verticies[0]!;
+                from = shape.vertices[0]!;
                 to = shape.as_polyline().last()!;
             }
         } else {
             if (to instanceof Vector) {
                 const trafo = LinearTransform.affine_orthogonal(
-                    [from, shape.verticies[0]!],
+                    [from, shape.vertices[0]!],
                     [to, shape.as_polyline().last()!],
                 );
 

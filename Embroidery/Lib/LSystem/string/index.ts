@@ -6,7 +6,10 @@ import {
     StringToCharUnion,
 } from "./types";
 
-export function string_LSystem<T extends [string, string][]>(
+// The third entry is the weigth of the rule if several apply
+export function string_LSystem<
+    T extends [string, string][] | [string, string, number][],
+>(
     rules: T,
 ): StringLSystem<
     StringToCharUnion<T[number][0]> | StringToCharUnion<T[number][1]>
@@ -24,7 +27,9 @@ export function string_LSystem<T extends [string, string][]>(
     };
 }
 
-function parse_rule(r: [string, string]): StringProductionRule {
+function parse_rule(
+    r: [string, string] | [string, string, number],
+): StringProductionRule {
     if (!r[0].includes("<")) {
         return {
             apply: () => ({
@@ -40,9 +45,16 @@ function parse_rule(r: [string, string]): StringProductionRule {
                     };
                 }
 
+                if (r.length == 2) {
+                    return {
+                        precidence: r[0].length,
+                        weight: 1,
+                    };
+                }
+
                 return {
-                    precidence: r[0].length,
-                    weight: 1,
+                    precidence: 1,
+                    weight: r[2],
                 };
             },
         };
@@ -77,9 +89,17 @@ function parse_rule(r: [string, string]): StringProductionRule {
                 };
             }
 
+            if (r.length == 2) {
+                return {
+                    // Higher precidence as context sensitive
+                    precidence: 10e8 + r[0].length - 2,
+                    weight: 1,
+                };
+            }
+
             return {
-                precidence: r[0].length - 2,
-                weight: 1,
+                precidence: 2,
+                weight: r[2],
             };
         },
     };

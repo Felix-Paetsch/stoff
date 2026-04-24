@@ -1,4 +1,4 @@
-import { BoundingBox, Color, DST, Polyline, Sketch } from "@/Core";
+import { BoundingBox, Color, DST, Polyline, Shape, Sketch } from "@/Core";
 import { render_partial_embroidery_as_png } from "./render/entry";
 import { RenderEmbroideryArgs } from "./render/render_partial_embroidery_as_png";
 
@@ -10,7 +10,7 @@ export type Thread = {
 export class Embroidery {
     constructor(public threads: Thread[] = []) {}
 
-    run(...pl: Polyline[]) {
+    run(...pl: Shape.Shape[]) {
         if (this.threads.length == 0) {
             this.threads.push({
                 color: "black",
@@ -18,7 +18,9 @@ export class Embroidery {
             });
         }
 
-        this.threads[this.threads.length - 1]!.runs.push(...pl);
+        this.threads[this.threads.length - 1]!.runs.push(
+            ...pl.map((p) => p.as_polyline()),
+        );
     }
 
     get runs(): Polyline[] {
@@ -26,6 +28,13 @@ export class Embroidery {
     }
 
     color_change(to: Color.Color = "black") {
+        if (
+            this.threads.length > 0 &&
+            this.threads[this.threads.length - 1]?.runs.length == 0
+        ) {
+            this.threads.pop();
+        }
+
         this.threads.push({
             color: to,
             runs: [],
@@ -99,7 +108,7 @@ export class Embroidery {
 
     bounding_box() {
         return BoundingBox.from_vectors(
-            this.threads.flatMap((t) => t.runs).flatMap((l) => l.verticies),
+            this.threads.flatMap((t) => t.runs).flatMap((l) => l.vertices),
         );
     }
 
@@ -107,7 +116,7 @@ export class Embroidery {
         let res = 0;
         for (const t of this.threads) {
             for (const r of t.runs) {
-                res += r.verticies.length + 1;
+                res += r.vertices.length + 1;
             }
         }
 

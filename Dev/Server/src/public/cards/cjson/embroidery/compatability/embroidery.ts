@@ -21,7 +21,7 @@ export type Embroidery = {
         color: Color;
         runs: {
             map: (fn: (v: Vector) => Vector) => {
-                verticies: Vector[];
+                vertices: Vector[];
             };
         }[];
     }[];
@@ -73,14 +73,14 @@ export function to_embroidery_interface(threads: Threads): Embroidery {
         threads: threads.map((t) => {
             const runs = t.runs.map((r) => {
                 return {
-                    verticies: r.map((p) => new Vector(p[0], p[1])),
+                    vertices: r.map((p) => new Vector(p[0], p[1])),
                 };
             });
             return {
                 color: t.color as Color,
                 runs: runs.map((r) => ({
                     map: (fn) => ({
-                        verticies: r.verticies.map(fn),
+                        vertices: r.vertices.map(fn),
                     }),
                 })),
             };

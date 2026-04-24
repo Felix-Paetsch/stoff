@@ -16,7 +16,7 @@ export function bounding_box(geometries: FiniteGeometry[]) {
         geometries.map((g) => {
             if (g instanceof Vector) return new BoundingBox(g.x, g.y, g.x, g.y);
             if (g instanceof Shape) {
-                return BoundingBox.from_vectors(g.verticies);
+                return BoundingBox.from_vectors(g.vertices);
             }
             return BoundingBox.from_vectors(g);
         }),

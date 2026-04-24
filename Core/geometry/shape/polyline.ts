@@ -76,11 +76,11 @@ export class Polyline extends Shape {
 
         if (is_increasing) {
             for (let i = sp1.index + 1; i < sp2.index + 1; i++) {
-                res.push(this.verticies[i]!);
+                res.push(this.vertices[i]!);
             }
         } else {
             for (let i = sp2.index; i > sp1.index; i--) {
-                res.push(this.verticies[i]!);
+                res.push(this.vertices[i]!);
             }
         }
         res.push(sp2.vec);
@@ -93,7 +93,7 @@ export class Polyline extends Shape {
     ): Polyline {
         const res: Vector[] = new Array(this.vertex_count);
 
-        const ver = this.verticies;
+        const ver = this.vertices;
         const l = this.length();
         let current_l = 0;
 
@@ -110,10 +110,10 @@ export class Polyline extends Shape {
         }
 
         const endpoint_vec = this.last()!.subtract(this.first()!);
-        const verticies = this.verticies;
+        const vertices = this.vertices;
 
-        for (let i = 0; i < verticies.length - 1; i++) {
-            const vec = verticies[i + 1]!.subtract(verticies[i]!);
+        for (let i = 0; i < vertices.length - 1; i++) {
+            const vec = vertices[i + 1]!.subtract(vertices[i]!);
             const cross = vec.cross(endpoint_vec);
 
             if (!EPS.is_zero(cross)) return false;
@@ -133,7 +133,7 @@ export class Polyline extends Shape {
     ): Polyline {
         return new Polyline(
             resample_line_points(
-                this.verticies,
+                this.vertices,
                 smoothness_angle,
                 sample_spacing,
             ),
@@ -149,7 +149,7 @@ export class Polyline extends Shape {
     }
 
     reverse(): Polyline {
-        return new Polyline([...this.verticies].reverse());
+        return new Polyline([...this.vertices].reverse());
     }
 
     static override empty() {
