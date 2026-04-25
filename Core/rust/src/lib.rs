@@ -5,7 +5,6 @@ mod concave_hull;
 mod contains;
 mod convex_hull;
 mod coords;
-mod intersection_bools;
 mod intersections;
 mod polygons_and_points;
 mod utils;

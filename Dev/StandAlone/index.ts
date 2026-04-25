@@ -1,11 +1,19 @@
 import { Json, SVG_Builder } from "@/Core";
+import { Embroidery } from "Embroidery/Lib/embroidery";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Sketch } from "../../Core/sketch/sketch";
 import { Out } from "../lib";
 
-export type SceneResult = void | string | Json | Sketch | SVG_Builder | Error;
+export type SceneResult =
+    | void
+    | string
+    | Json
+    | Sketch
+    | SVG_Builder
+    | Error
+    | Embroidery;
 export type Scene = () => SceneResult | SceneResult[];
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

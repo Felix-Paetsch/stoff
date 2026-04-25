@@ -66,8 +66,10 @@ export function rectangle(v1: Vector, v2: Vector): Polygon {
 
 export function circle(center: Vector, radius: number): Polygon {
     return Polygon.from_function((t) => {
-        return new Vector(radius * Math.sin(t), radius * Math.cos(t)).add(
-            center,
-        );
+        const adjusted_t = t * 2 * Math.PI;
+        return new Vector(
+            radius * Math.sin(adjusted_t),
+            radius * Math.cos(adjusted_t),
+        ).add(center);
     });
 }

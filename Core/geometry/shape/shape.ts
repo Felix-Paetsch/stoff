@@ -5,8 +5,9 @@ import {
     closest_points,
     f64_arrays_to_f64,
     f64_to_vec_array,
-    intersect,
+    intersect_wasm,
     intersects,
+    self_intersections_wasm,
     self_intersects,
     split_f64_array,
 } from "../../rust/exports";
@@ -366,6 +367,18 @@ export abstract class Shape {
         return Shape.intersection_positions(this, gShape).map((p) => p[0]);
     }
 
+    self_intersection_positions(): [
+        Shape.ShapePosition,
+        Shape.ShapePosition,
+    ][] {
+        if (this.vertex_count < 3) return [];
+        let r = self_intersections_wasm(
+            this.positions,
+            this instanceof Polygon,
+        );
+        return decode_intersection_positions(r!);
+    }
+
     intersects(g: Geometry.Geometry): boolean {
         let gShape: Shape;
 
@@ -394,6 +407,33 @@ export abstract class Shape {
         return shape_corners(this.typesafe(), threshold_angle);
     }
 
+    self_intersection_free(): Shape.Shape {
+        throw new Error();
+        // const compact_self_intersections = this.self_intersection_positions();
+        // if (compact_self_intersections.length == 0) return this.typesafe();
+        //
+        // const self_intersections = compact_self_intersections.concat(
+        //     compact_self_intersections.map(i => [i[1], i[0]])
+        // );
+        //
+        // const res: Vector[] = [this.vertices[0]!];
+        //
+        // let current_vertex = 0;
+        // let current_direction = +1;
+        // while (true){
+        //     const intersection_positions = self_intersections.filter(i => i[0].index == current_vertex).sort(
+        //         ([a,_],[b,__]) => (a.frac - b.frac) * current_direction
+        //     );
+        //     if (sel)
+        // }
+        //
+        // throw new Error();
+    }
+
+    proper_components(): Shape[] {
+        throw new Error();
+    }
+
     static intersection_positions(
         sh1: Shape,
         sh2: Shape,
@@ -401,28 +441,15 @@ export abstract class Shape {
         const shl1 = sh1.as_polyline();
         const shl2 = sh2.as_polyline();
 
-        const ip_arr = intersect(shl1.positions, shl2.positions);
+        const ip_arr = intersect_wasm(
+            shl1.positions,
+            sh1 instanceof Polygon,
+            shl2.positions,
+            sh2 instanceof Polygon,
+        );
         if (!ip_arr) return [];
 
-        const ip = decode_intersection_positions(ip_arr!);
-        if (ip.length < 2) return ip;
-
-        if (sh2 instanceof Polygon) {
-            ip.sort(([_, a], [__, b]) => b.index + b.frac - a.index - a.frac);
-            if (ip[0]![0].vec.distance(ip[ip.length - 1]![0].vec) < EPS.tiny) {
-                ip.pop();
-            }
-        }
-
-        ip.sort(([a, _], [b, __]) => b.index + b.frac - a.index - a.frac);
-
-        if (sh1 instanceof Polygon) {
-            if (ip[0]![0].vec.distance(ip[ip.length - 1]![0].vec) < EPS.tiny) {
-                ip.pop();
-            }
-        }
-
-        return ip;
+        return decode_intersection_positions(ip_arr!);
     }
 
     static merge(sh1: Polygon, sh2: Polygon): Polygon;

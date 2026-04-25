@@ -35,15 +35,23 @@ export class Polyline extends Shape {
     }
 
     to_polygon() {
-        if (this.positions.length < 3) {
+        if (this.vertex_count < 3) {
             return new Polygon(this.positions);
         }
 
         if (this.first()!.equals(this.last()!)) {
-            return new Polygon(this.positions.slice(0, -1));
+            return new Polygon(this.vertices.slice(0, -1));
         }
 
-        return new Polygon(this.positions);
+        return new Polygon(this.vertices);
+    }
+
+    override proper_components(): [Polyline, ...Polygon[]] {
+        throw new Error();
+    }
+
+    remove_loops(): Polyline {
+        throw new Error();
     }
 
     static from_vectors(vec: Vector[]): Polyline {
