@@ -9,7 +9,7 @@ export function get_bounding_box(ec: SketchElementCollection): BoundingBox {
 }
 
 export function convex_hull(ec: SketchElementCollection): Polygon | null {
-    const pts: Vector[] = get_points(ec);
+    const pts: Vector[] = get_points(ec).map(p => p.vec);
     const lns = get_lines(ec);
 
     return FiniteGeometry.convex_hull(

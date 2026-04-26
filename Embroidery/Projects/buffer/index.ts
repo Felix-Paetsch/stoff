@@ -71,7 +71,8 @@ export const BufferDST = defineEmbroidery(
             svg.render_polygon(mapped_line.as_polygon());
         });
 
-        Out.put(svg);
+        res.color_change("red");
+        embr.runs.forEach(r => res.run(r));
         Out.put(res);
 
         writeFileSync(

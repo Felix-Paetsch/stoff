@@ -56,11 +56,11 @@ function draw_top_square(s: Sketch, m: Bowl_Measurements) {
         const p2 = pts[(i + 1) % pts.length]!;
 
         const p_left = s.add_point(
-            Vector.lerp_abs(p1, p2, m.top_sidelength / 2 - m.dart_base),
+            Vector.lerp_abs(p1.vec, p2.vec, m.top_sidelength / 2 - m.dart_base),
         );
-        const p_mid = s.add_point(Vector.add(p1, p2).scale(0.5));
+        const p_mid = s.add_point(Vector.add(p1.vec, p2.vec).scale(0.5));
         const p_right = s.add_point(
-            Vector.lerp_abs(p1, p2, m.top_sidelength / 2 + m.dart_base),
+            Vector.lerp_abs(p1.vec, p2.vec, m.top_sidelength / 2 + m.dart_base),
         );
 
         p1.data.type = "top_corner";

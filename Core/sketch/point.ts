@@ -5,16 +5,17 @@ import { Line } from "./line";
 import { Sketch } from "./sketch";
 import { StoffObjectData } from "./types";
 
-export class Point extends Vector {
+export class Point {
     private _adjacent_lines: Line[] = [];
     public data: StoffObjectData = {};
 
     private _is_removed = false;
+    private _vector: Vector;
     constructor(
         private _sketch: Sketch,
         ...args: ConstructorParameters<typeof Vector>
     ) {
-        super(...args);
+        this._vector = new Vector(...args);
 
         this.data = {};
         this.sketch.__register_point(this);
@@ -24,8 +25,8 @@ export class Point extends Vector {
         return this._is_removed;
     }
 
-    vector() {
-        return new Vector(this);
+    get vec() {
+        return this._vector;
     }
 
     connected_component() {
@@ -53,7 +54,7 @@ export class Point extends Vector {
     }
 
     bounding_box() {
-        return BoundingBox.from_vectors([this]);
+        return BoundingBox.from_vectors([this.vec]);
     }
 
     get sketch() {
@@ -72,18 +73,18 @@ export class Point extends Vector {
         );
     }
 
-    _unsafe_move_to(x: number, y: number): Point;
-    _unsafe_move_to(x: Vector): Point;
-    _unsafe_move_to(x: number | Vector, y: number = 0): Point {
+    _unsafe_move_to(x: number, y: number): Vector;
+    _unsafe_move_to(x: Vector): Vector;
+    _unsafe_move_to(x: number | Vector, y: number = 0): Vector {
         Expect.that(!this._is_removed, "Point is removed");
 
         if (x instanceof Vector) {
-            return this._unsafe_move_to(x.x, x.y);
+            this._vector = this._unsafe_move_to(x.x, x.y);
+        } else {
+            this._vector = new Vector(x,y);
         }
 
-        this._x = x;
-        this._y = y;
-        return this;
+        return this._vector;
     }
 
     move_to(x: number, y: number): Point;
@@ -92,11 +93,11 @@ export class Point extends Vector {
         Expect.that(!this._is_removed, "Point is removed");
 
         if (x instanceof Vector) {
-            return this.move_to(x.x, x.y);
+            this._vector = new Vector(x.x, x.y);
+        } else {
+            this._vector = new Vector(x,y);
         }
 
-        this._x = x;
-        this._y = y;
         this._adjacent_lines.forEach((l) => l.update_shape(l.shape));
         return this;
     }
@@ -105,10 +106,10 @@ export class Point extends Vector {
     offset_by(x: Vector): Point;
     offset_by(x: number | Vector, y: number = 0) {
         if (x instanceof Vector) {
-            return this.move_to(this.add(x));
+            return this.move_to(this.vec.add(x));
         }
 
-        return this.move_to(this.x + x, this.y + y);
+        return this.move_to(this.vec.x + x, this.vec.y + y);
     }
 
     remove() {
