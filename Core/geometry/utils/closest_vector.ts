@@ -1,10 +1,10 @@
-import { Geometry } from "..";
+import * as Geometry from "../geometry";
 import { Line } from "../line";
 import { Ray } from "../ray";
 import { Polyline } from "../shape/polyline";
 import { Shape } from "../shape/shape";
 import { Vector } from "../vector";
-import { as_polyline } from "./utils";
+import { as_polyline } from "./misc";
 
 export function closest_vectors(
     on: Geometry.Geometry,

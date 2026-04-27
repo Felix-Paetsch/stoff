@@ -2,6 +2,9 @@ Do next:
 - strict offset
 - remove crossings from polyline/gon
 
+Learn git, lazygit
+- merging
+
 
 Fix 1D embroidery line not rendering
 

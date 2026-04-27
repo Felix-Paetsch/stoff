@@ -1,8 +1,9 @@
-import { LinearTransform, Ray } from ".";
 import { EPS } from "../numerics";
 import { Line } from "./line";
+import * as LinearTransform from "./linear_transformations";
 import { MirrorData } from "./linear_transformations";
 import { Matrix } from "./matrix";
+import { Ray } from "./ray";
 import { Radians } from "./types";
 
 export class Vector {

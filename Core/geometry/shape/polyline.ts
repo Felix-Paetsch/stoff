@@ -1,4 +1,4 @@
-import { EPS } from "@/Core";
+import { EPS } from "Core/numerics/eps";
 import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
@@ -162,5 +162,13 @@ export class Polyline extends Shape {
 
     static override empty() {
         return new Polyline([]);
+    }
+
+    as_polyline(): Polyline {
+        return this;
+    }
+
+    as_polygon(): Polygon {
+        return this.to_polygon();
     }
 }

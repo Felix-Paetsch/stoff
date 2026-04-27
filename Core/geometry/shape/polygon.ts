@@ -6,15 +6,16 @@ import {
     interior_point,
     winding,
 } from "Core/rust/pkg/stoff_rust";
-import { FiniteGeometry, Shape } from "..";
-import { as_polyline } from "../geometry/utils";
+import * as FiniteGeometry from "../finite_geometry";
 import { Radians } from "../types";
+import { as_polyline } from "../utils/misc";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { remove_dub } from "./algorithms/remove_dub";
 import { resample_polygon_points_smooth } from "./algorithms/resample_smooth";
 import { resample_strict } from "./algorithms/resample_strict";
 import { Polyline } from "./polyline";
+import { Shape } from "./shape";
 
 export class Polygon extends Shape {
     // A polygon has the last line segment implicit. However a duplicate point doesn't matter.
@@ -215,5 +216,13 @@ export class Polygon extends Shape {
 
     static override empty() {
         return new Polygon([]);
+    }
+
+    as_polyline(): Polyline {
+        return this.to_polyline();
+    }
+
+    as_polygon(): Polygon {
+        return this;
     }
 }

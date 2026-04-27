@@ -28,9 +28,8 @@ export function affine_linear(
     f_out: [Vector, Vector, Vector],
 ): LinearTransformation {
     // Copy for when manipulation points
-    const centralization_vec = f_in[2];
     const centralize_src = (x: Vector) => {
-        return x.subtract(centralization_vec);
+        return x.subtract(f_in[2]);
     };
     const decentralize_trg = (x: Vector) => {
         return x.add(f_out[2]);

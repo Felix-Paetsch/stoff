@@ -1,4 +1,4 @@
-import { Interval } from "./index";
+import { Interval } from "./geometry/index";
 
 const namedColors = {
     aliceblue: [240, 248, 255],

@@ -1,4 +1,3 @@
-import { Geometry, Radians, Ray } from "..";
 import { EPS } from "../../numerics";
 import {
     buffer,
@@ -12,12 +11,15 @@ import {
     split_f64_array,
 } from "../../rust/exports";
 import { BoundingBox } from "../bounding_box";
+import * as Geometry from "../geometry";
+import { Fraction } from "../interval";
+import { Line } from "../line";
+import { Ray } from "../ray";
+import { Radians } from "../types";
 import {
     make_line_to_relevant_polyline_for_closest_vec,
     make_ray_to_relevant_polyline_for_closest_vec,
-} from "../geometry/closest_vector";
-import { Fraction } from "../interval";
-import { Line } from "../line";
+} from "../utils/closest_vector";
 import { Vector } from "../vector";
 import {
     get_appreciable_corner,
@@ -56,6 +58,7 @@ export abstract class Shape {
     private _bb: BoundingBox | null = null;
 
     constructor(positions: Float64Array | Vector[]) {
+        // console.log(new Polygon());
         if (positions instanceof Float64Array) {
             this._positions = positions;
         } else {
@@ -111,27 +114,9 @@ export abstract class Shape {
         return this.shape_position_at_length(at, is_relative).vec;
     }
 
-    as_polyline(): Polyline {
-        if (this instanceof Polyline) {
-            return this;
-        }
-        if (this instanceof Polygon) {
-            return this.to_polyline();
-        }
+    abstract as_polyline(): Polyline;
 
-        throw new Error("Unknown shape");
-    }
-
-    as_polygon(): Polygon {
-        if (this instanceof Polygon) {
-            return this;
-        }
-        if (this instanceof Polyline) {
-            return this.to_polygon();
-        }
-
-        throw new Error("Unknown shape");
-    }
+    abstract as_polygon(): Polygon;
 
     typesafe(): Polygon | Polyline {
         return this as any;

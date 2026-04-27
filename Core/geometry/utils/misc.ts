@@ -1,6 +1,7 @@
-import { Polyline, Vector } from "..";
 import { FiniteGeometry } from "../finite_geometry";
+import { Polyline } from "../shape/polyline";
 import { Shape } from "../shape/shape";
+import { Vector } from "../vector";
 
 export function as_polyline(g: FiniteGeometry) {
     if (g instanceof Shape) {

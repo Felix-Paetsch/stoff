@@ -3,10 +3,10 @@ import {
     convex_hull as convex_hull_rust,
 } from "../rust/exports";
 import { BoundingBox } from "./bounding_box";
-import { as_polyline, merge_float_arrays } from "./geometry/utils";
 import { Polygon } from "./shape/polygon";
 import { Shape } from "./shape/shape";
 import { LineSegment } from "./types";
+import { as_polyline, merge_float_arrays } from "./utils/misc";
 import { Vector } from "./vector";
 
 export type FiniteGeometry = Vector | LineSegment | Shape;

@@ -10,13 +10,13 @@ import {
     Utils,
 } from "../../../Core/index";
 import { CJson } from "../../Server/src/types";
-import { Recording } from "../index";
-import { dir } from "./index";
+import { Recording } from "../recording/index";
+import { dir } from "./dir";
 
 export type Putable =
     | Sketch
     | Json
-    | Recording.Recording
+    | Recording
     | string
     | SVG_Builder
     | Error
@@ -29,7 +29,7 @@ export type PutMetaData = {
 };
 
 export const live_recordings: {
-    what: Recording.Recording;
+    what: Recording;
     meta: PutMetaData;
 }[] = [];
 
@@ -45,7 +45,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
         meta.stack = Utils.stack_trace(1);
     }
 
-    if (what instanceof Recording.Recording && what.is_hot) {
+    if (what instanceof Recording && what.is_hot) {
         live_recordings.push({
             what,
             meta,
@@ -112,7 +112,7 @@ function serialize_put(what: Putable) {
         } as const;
     }
 
-    if (what instanceof Recording.Recording) {
+    if (what instanceof Recording) {
         return {
             type: "recording" as const,
             value: what.snapshots.map((s) => {

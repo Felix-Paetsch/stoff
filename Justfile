@@ -6,6 +6,9 @@ mod embroidery 'Embroidery/Justfile'
 typecheck:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
 
+check_circular_dependencies:
+    npx madge --circular --extensions ts .
+
 build:
     cd Core/rust && wasm-pack build --target nodejs
 

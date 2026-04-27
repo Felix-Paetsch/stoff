@@ -1,16 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { outputDir } from "./dir";
 
 export { prefix, put } from "./put";
 export * from "./run";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const outputDir = path.join(__dirname, "../../Server/watch");
-
-export function dir(): string {
-    return outputDir;
-}
 
 export function clear(
     extensionsToClear: string[] = [
