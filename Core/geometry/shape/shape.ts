@@ -19,7 +19,10 @@ import {
 import { Fraction } from "../interval";
 import { Line } from "../line";
 import { Vector } from "../vector";
-import { get_appreciable_line_segment } from "./algorithms/appreciable_line_segment";
+import {
+    get_appreciable_corner,
+    get_appreciable_line_segment,
+} from "./algorithms/appreciable_line_segment";
 import { shape_corners } from "./algorithms/corners";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { merge } from "./algorithms/merge";
@@ -407,29 +410,6 @@ export abstract class Shape {
         return shape_corners(this.typesafe(), threshold_angle);
     }
 
-    self_intersection_free(): Shape.Shape {
-        throw new Error();
-        // const compact_self_intersections = this.self_intersection_positions();
-        // if (compact_self_intersections.length == 0) return this.typesafe();
-        //
-        // const self_intersections = compact_self_intersections.concat(
-        //     compact_self_intersections.map(i => [i[1], i[0]])
-        // );
-        //
-        // const res: Vector[] = [this.vertices[0]!];
-        //
-        // let current_vertex = 0;
-        // let current_direction = +1;
-        // while (true){
-        //     const intersection_positions = self_intersections.filter(i => i[0].index == current_vertex).sort(
-        //         ([a,_],[b,__]) => (a.frac - b.frac) * current_direction
-        //     );
-        //     if (sel)
-        // }
-        //
-        // throw new Error();
-    }
-
     proper_components(): Shape[] {
         throw new Error();
     }
@@ -510,5 +490,19 @@ export abstract class Shape {
 
     static empty(): Shape.Shape {
         return new Polyline([]);
+    }
+
+    static _get_appreciable_line_segment(
+        shape: Shape,
+        line_segment_index: number,
+    ) {
+        return get_appreciable_line_segment(
+            shape.typesafe(),
+            line_segment_index,
+        );
+    }
+
+    static _get_appreciable_corner(shape: Polygon | Polyline, at: number) {
+        return get_appreciable_corner(shape.typesafe(), at);
     }
 }

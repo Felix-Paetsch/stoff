@@ -2,7 +2,7 @@ import {
     BoundingBox,
     Color,
     DST,
-    PlainLine,
+    PlaneLine,
     Polyline,
     Shape,
     Sketch,
@@ -79,7 +79,7 @@ export class Embroidery {
                         v
                             .subtract(center)
                             .scale(Embroidery.CmToStitch)
-                            .mirror_at(PlainLine.HORIZONTAL),
+                            .mirror_at(PlaneLine.HORIZONTAL),
                     ),
                 ),
             ),
@@ -108,7 +108,7 @@ export class Embroidery {
                     p.map((v) =>
                         v
                             .scale(Embroidery.stitchToCm)
-                            .mirror_at(PlainLine.HORIZONTAL),
+                            .mirror_at(PlaneLine.HORIZONTAL),
                     ),
                 ),
             });
