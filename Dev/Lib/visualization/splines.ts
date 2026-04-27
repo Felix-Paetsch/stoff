@@ -38,7 +38,7 @@ export function hermite_controlpoints(
     velocities: Vector[],
     relative: boolean = false,
     //@ts-ignore
-    pt_callback = (pt: Vector, i: number) => {},
+    pt_callback = (pt: Point, i: number) => {},
     //@ts-ignore
     ln_callback = (ln: Line, i: number) => {},
 ) {
@@ -86,7 +86,7 @@ export function bezier_plot_controlpoints(
     sketch: Sketch,
     control_points: Vector[],
     //@ts-ignore
-    pt_callback = (pt: Vector, i: number) => {},
+    pt_callback = (pt: Point, i: number) => {},
     //@ts-ignore
     ln_callback = (ln: Line, i: number) => {},
 ) {

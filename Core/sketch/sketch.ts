@@ -110,14 +110,14 @@ export class Sketch {
         } else {
             if (to instanceof Vector) {
                 const trafo = LinearTransform.affine_orthogonal(
-                    [from, shape.vertices[0]!],
+                    [from instanceof Vector ? from : from.vec, shape.vertices[0]!],
                     [to, shape.as_polyline().last()!],
                 );
 
                 shape = shape.typesafe().map(trafo);
             } else {
                 const offset = Vector.subtract(
-                    from,
+                    from instanceof Vector ? from : from.vec,
                     shape.as_polyline().first()!,
                 );
                 shape = shape.typesafe().map((v) => v.add(offset));
@@ -155,7 +155,7 @@ export class Sketch {
     }
 
     transform(fn: (v: Vector) => Vector) {
-        this._points.forEach((p) => p._unsafe_move_to(fn(p)));
+        this._points.forEach((p) => p._unsafe_move_to(fn(p.vec)));
         this._lines.forEach((l) => l.update_shape(l.shape.map(fn)));
         return this;
     }
@@ -168,7 +168,7 @@ export class Sketch {
         data_callback = default_data_callback,
     ) {
         if (pt1 == pt2) return pt1;
-        Expect.that(pt1.equals(pt2));
+        Expect.that(pt1.vec.equals(pt2.vec));
 
         pt2.data = data_callback(pt2.data, pt1.data, pt2, pt1);
 

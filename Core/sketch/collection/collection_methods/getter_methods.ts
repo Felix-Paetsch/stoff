@@ -22,6 +22,13 @@ export function get_lines(
     ) as Line[];
 }
 
+export function get_line(
+    ec: SketchElementCollection,
+    filter: LineFilter = true,
+): Line | null {
+    return get_lines(ec, filter)[0] ?? null;
+}
+
 export function get_points(
     ec: SketchElementCollection,
     filter: PointFilter = true,
@@ -30,6 +37,13 @@ export function get_points(
     return nec.filter(
         (e) => e instanceof Point && filterPoint(filter, e as Point),
     ) as Point[];
+}
+
+export function get_point(
+    ec: SketchElementCollection,
+    filter: PointFilter = true,
+): Point | null {
+    return get_points(ec, filter)[0] ?? null;
 }
 
 export function get_sketch(...els: { sketch: Sketch }[]): Sketch {

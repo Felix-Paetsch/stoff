@@ -40,7 +40,7 @@ export namespace Shape {
         frac: Fraction; // Fraction to next
     };
     export type Shape = Polyline | Polygon;
-    export type ShapePointDescriptor =
+    export type ShapePositionDescriptor =
         | number
         | [number, "relative" | "absolute"]
         | Vector
@@ -286,7 +286,7 @@ export abstract class Shape {
         };
     }
 
-    normal_vector(at: Shape.ShapePointDescriptor): Vector | null {
+    normal_vector(at: Shape.ShapePositionDescriptor): Vector | null {
         const at_descr = this.shape_point_descriptor_to_shape_position(at);
         if (!at_descr) return null;
 
@@ -296,7 +296,7 @@ export abstract class Shape {
         return l[1].subtract(l[0]).orthonormal();
     }
 
-    normal_line(at: Shape.ShapePointDescriptor): Line | null {
+    normal_line(at: Shape.ShapePositionDescriptor): Line | null {
         const at_descr = this.shape_point_descriptor_to_shape_position(at);
         if (!at_descr) return null;
 
@@ -307,17 +307,17 @@ export abstract class Shape {
         return Line.from_direction(at_descr.vec, dir);
     }
 
-    tangent_vector(at: Shape.ShapePosition | Vector): Vector | null {
+    tangent_vector(at: Shape.ShapePositionDescriptor): Vector | null {
         const at_descr = this.shape_point_descriptor_to_shape_position(at);
         if (!at_descr) return null;
 
         const l = get_appreciable_line_segment(this.typesafe(), at_descr.index);
         if (!l) return null;
 
-        return l[1].subtract(l[0]).to_len(1);
+        return l[1].subtract(l[0]).normalize();
     }
 
-    tangent_line(at: Shape.ShapePosition | Vector): Line | null {
+    tangent_line(at: Shape.ShapePositionDescriptor): Line | null {
         const at_descr = this.shape_point_descriptor_to_shape_position(at);
         if (!at_descr) return null;
 
@@ -336,6 +336,8 @@ export abstract class Shape {
         const p2 = sh2.as_polygon();
 
         const closest = closest_points(p1.positions, p2.positions);
+
+        console.log(closest, p1.positions, p2.positions);
         if (!closest) return null;
 
         return [
@@ -455,7 +457,7 @@ export abstract class Shape {
     abstract reverse(): Shape;
 
     shape_point_descriptor_to_shape_position(
-        d: Shape.ShapePointDescriptor,
+        d: Shape.ShapePositionDescriptor,
     ): Shape.ShapePosition | null {
         if (this.vertex_count == 0) return null;
         if (d instanceof Vector) return this.closest_shape_position(d);

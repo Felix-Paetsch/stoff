@@ -120,7 +120,7 @@ function spline_for_line_segment(
     const t1 = leftTangentPoint ? p1.subtract(leftTangentPoint) : segment;
     const t2 = rightTangentPoint ? rightTangentPoint.subtract(p2) : segment;
 
-    return Spline.hermite([p1, p2], [t1, t2], true);
+    return Spline.hermite([p1, p2], [t1, t2]);
 }
 
 function spline_for_polygon_segment(
@@ -163,7 +163,7 @@ function spline_for_polygon_segment(
     const t1 = leftTangentPoint ? p1.subtract(leftTangentPoint) : segment;
     const t2 = rightTangentPoint ? rightTangentPoint.subtract(p2) : segment;
 
-    return Spline.hermite([p1, p2], [t1, t2], true);
+    return Spline.hermite([p1, p2], [t1, t2]);
 }
 
 export function resample_line_points_smooth(

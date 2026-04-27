@@ -15,12 +15,14 @@ export function connected_component(
     if (root_el instanceof Point) {
         currently_visiting_point = root_el;
     } else {
+        if (!lns.includes(root_el)) return [];
         if (pts.includes(root_el.p1)) {
             currently_visiting_point = root_el.p1;
         } else if (pts.includes(root_el.p2)) {
             currently_visiting_point = root_el.p2;
+        } else {
+            return [root_el];
         }
-        return [root_el];
     }
 
     const visited_points: Point[] = [];

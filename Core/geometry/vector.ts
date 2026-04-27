@@ -6,8 +6,8 @@ import { Matrix } from "./matrix";
 import { Radians } from "./types";
 
 export class Vector {
-    protected _x!: number;
-    protected _y!: number;
+    readonly x!: number;
+    readonly y!: number;
 
     constructor(from: Vector);
     constructor(x: number, y: number);
@@ -17,20 +17,12 @@ export class Vector {
             x = x.x;
         }
 
-        this._x = x;
-        this._y = y;
-    }
-
-    get x() {
-        return this._x;
-    }
-
-    get y() {
-        return this._y;
+        this.x = x;
+        this.y = y;
     }
 
     is_finite() {
-        return Number.isFinite(this._x) && Number.isFinite(this._y);
+        return Number.isFinite(this.x) && Number.isFinite(this.y);
     }
 
     to_array(): [number, number] {

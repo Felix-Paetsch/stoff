@@ -19,7 +19,7 @@ export function mirror<
 
     for (const el of nec) {
         if (el instanceof Point) {
-            el.move_to(trafo(el));
+            el.move_to(trafo(el.vec));
             continue;
         }
 

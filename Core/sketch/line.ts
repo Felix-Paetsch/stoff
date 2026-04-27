@@ -61,7 +61,7 @@ export class Line {
     }
 
     line_vector(): Vector {
-        return this.p2.subtract(this.p1);
+        return this.p2.vec.subtract(this.p1.vec);
     }
 
     get shape() {
@@ -71,8 +71,8 @@ export class Line {
     update_shape(shape: Shape.Shape) {
         Expect.that(!shape.is_empty());
         if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
-            Expect.that(this.p1.equals(this.p2));
-            const diff = Vector.subtract(this.p1, shape.vertices[0]!);
+            Expect.that(this.p1.vec.equals(this.p2.vec));
+            const diff = Vector.subtract(this.p1.vec, shape.vertices[0]!);
             if (diff.length() < EPS.tiny) {
                 this._shape = shape;
             } else {
@@ -82,15 +82,15 @@ export class Line {
         }
 
         if (
-            shape.first()!.distance(this.p1) < EPS.tiny &&
-            shape.last()!.distance(this.p2) < EPS.tiny
+            shape.first()!.distance(this.p1.vec) < EPS.tiny &&
+            shape.last()!.distance(this.p2.vec) < EPS.tiny
         ) {
             this._shape = shape;
             return;
         }
         const trafo = LinearTransform.affine_orthogonal(
             [shape.first()!, shape.last()!],
-            [this.p1, this.p2],
+            [this.p1.vec, this.p2.vec],
         );
         this._shape = shape.map(trafo);
     }
@@ -118,7 +118,7 @@ export class Line {
             const transform = LinearTransform.mirror(this.shape.vertices[0]!);
             this.update_shape(this.shape.map(transform));
         } else {
-            const transform = LinearTransform.mirror([this.p1, this.p2]);
+            const transform = LinearTransform.mirror([this.p1.vec, this.p2.vec]);
             this.update_shape(this.shape.map(transform));
         }
 
@@ -128,9 +128,9 @@ export class Line {
     flip() {
         let trafo: LinearTransform.LinearTransformation;
         if (!this.is_closed()) {
-            trafo = LinearTransform.affine_orthogonal(this._endpoints, [
-                this.p2,
-                this.p1,
+            trafo = LinearTransform.affine_orthogonal(this._endpoints.map(e => e.vec) as [Vector, Vector], [
+                this.p2.vec,
+                this.p1.vec,
             ]);
             this._shape = this._shape.map(trafo);
         } else {
@@ -197,6 +197,10 @@ export class Line {
         line_segments: [Line, Line];
         point: Point;
     } {
+        if (at instanceof Point){
+            at = at.vec;
+        }
+
         const descriptor =
             this.shape.shape_point_descriptor_to_shape_position(at)!;
         const pt =
@@ -364,14 +368,14 @@ export class Line {
         Expect.that(!this.shape.is_empty());
         if (this.shape instanceof Polygon) {
             Expect.that(
-                this.shape.root()!.distance_squared(this.p1) < EPS.tiny &&
-                    this.shape.root()!.distance_squared(this.p2) < EPS.tiny,
+                this.shape.root()!.distance_squared(this.p1.vec) < EPS.tiny &&
+                    this.shape.root()!.distance_squared(this.p2.vec) < EPS.tiny,
                 "Polygon sample points dont start and end at p1/p2",
             );
         } else {
             Expect.that(
-                this.shape.first()!.distance_squared(this.p1) < EPS.tiny &&
-                    this.shape.last()!.distance_squared(this.p2) < EPS.tiny,
+                this.shape.first()!.distance_squared(this.p1.vec) < EPS.tiny &&
+                    this.shape.last()!.distance_squared(this.p2.vec) < EPS.tiny,
                 "Line sample points dont start and end at p1/p2",
             );
         }
@@ -402,8 +406,8 @@ export class Line {
 
     toJSON() {
         return {
-            p1: this.p1.toJSON(),
-            p2: this.p2.toJSON(),
+            p1: this.p1.vec.toJSON(),
+            p2: this.p2.vec.toJSON(),
             sample_points: this.shape.vertices,
         };
     }
@@ -411,7 +415,7 @@ export class Line {
     static straight(...endpoints: [Point, Point]) {
         return new Line(
             endpoints,
-            new Polyline(endpoints.map((p) => p.vector())),
+            new Polyline(endpoints.map((p) => p.vec)),
         );
     }
 }

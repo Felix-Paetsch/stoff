@@ -69,8 +69,8 @@ export class Polyline extends Shape {
     }
 
     slice(
-        from: Shape.ShapePointDescriptor,
-        to: Shape.ShapePointDescriptor,
+        from: Shape.ShapePositionDescriptor,
+        to: Shape.ShapePositionDescriptor,
     ): Polyline {
         if (this.vertex_count == 0) return new Polyline(new Float64Array());
 

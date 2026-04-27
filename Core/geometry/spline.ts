@@ -49,7 +49,7 @@ function eval_bezier(points: Vector[], t: Fraction): Vector {
 export function hermite(
     points: Vector[],
     velocities: Vector[],
-    relative: boolean = true,
+    velocity_type: "relative" | "absolute" = "relative",
 ): Shape.PolylineFunction {
     // Returns a fn creating the hermite spline through the given poitns with the right velocity
     // relative means whether the velocity is given as a vector from (0, 0) or from the current control pt
@@ -60,7 +60,7 @@ export function hermite(
     );
 
     let new_velocities = velocities;
-    if (!relative) {
+    if (velocity_type === "absolute") {
         new_velocities = [];
         for (let i = 0; i < points.length; i++) {
             new_velocities.push(velocities[i]!.subtract(points[i]!));
@@ -95,13 +95,13 @@ export function catmull_rom(
     points: Vector[],
     start_velocity: Vector | null = null,
     end_velocity: Vector | null = null,
-    relative: boolean = true,
+    velocity_type: "relative" | "absolute" = "relative",
 ): Shape.PolylineFunction {
     Expect.that(points.length > 1);
 
     if (start_velocity == null) {
         start_velocity = points[1]!.subtract(points[0]!);
-    } else if (!relative) {
+    } else if (velocity_type === "absolute") {
         start_velocity = start_velocity.subtract(points[0]!);
     }
 
@@ -114,12 +114,12 @@ export function catmull_rom(
         end_velocity = points[points.length - 1]!.subtract(
             points[points.length - 2]!,
         );
-    } else if (!relative) {
+    } else if (velocity_type === "absolute") {
         end_velocity = end_velocity.subtract(points[points.length - 1]!);
     }
 
     velocities.push(end_velocity);
-    return hermite(points, velocities, true);
+    return hermite(points, velocities);
 }
 
 export function bezier_smooth_cubic(

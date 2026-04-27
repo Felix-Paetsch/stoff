@@ -106,7 +106,7 @@ export class Polygon extends Shape {
         return remove_dub(this);
     }
 
-    move_root(to: Shape.ShapePointDescriptor): Polygon {
+    move_root(to: Shape.ShapePositionDescriptor): Polygon {
         if (this.is_empty()) return this;
 
         const to_shape_position =
@@ -185,8 +185,8 @@ export class Polygon extends Shape {
     }
 
     slice(
-        from: Shape.ShapePointDescriptor,
-        to: Shape.ShapePointDescriptor,
+        from: Shape.ShapePositionDescriptor,
+        to: Shape.ShapePositionDescriptor,
     ): Polyline {
         if (this.vertex_count == 0) return new Polyline([]);
 

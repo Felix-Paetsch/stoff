@@ -102,7 +102,7 @@ export function render_sketch(
 
     s.points().forEach((pt) => {
         svg.render_point(
-            pt,
+            pt.vec,
             pointStyles,
             if_debug(() => get_point_render_data(pt)),
         );
@@ -127,8 +127,8 @@ export function get_point_render_data(
     extra_data: Record<string, Json> = {},
 ) {
     return Object.assign({}, point.data, {
-        _x: Math.round(point.x * 1000) / 1000,
-        _y: Math.round(point.y * 1000) / 1000,
+        _x: Math.round(point.vec.x * 1000) / 1000,
+        _y: Math.round(point.vec.y * 1000) / 1000,
         ...extra_data,
     });
 }

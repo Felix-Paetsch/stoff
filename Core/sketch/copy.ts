@@ -99,7 +99,7 @@ export function sketch_element_collection(
 
     CollectionMethods.get_points(all_elements).forEach((pt) => {
         const new_pt = target_sketch.add_point(
-            pt.add(offset || new Vector(0, 0)),
+            pt.vec.add(offset || new Vector(0, 0)),
         );
 
         new_pt.data = data_callback({}, pt.data, new_pt, pt);
