@@ -1,6 +1,4 @@
-mod compatibility_layer;
-mod double_run;
-mod identify_equal_nodes;
-mod minimum_spanning_tree;
-mod utils;
+mod global_compatability_layer;
+mod graphs;
+mod modify_polyline_intersections;
 mod vertex;

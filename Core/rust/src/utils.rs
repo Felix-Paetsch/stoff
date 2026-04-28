@@ -1,8 +1,19 @@
-use geo::{Coord, Geometry, LineString, Polygon};
+use geo::{Coord, LineString, Point};
 
-pub fn vecf64_to_linestring(coords: &[f64]) -> Option<LineString> {
-    if !coords.len().is_multiple_of(2) {
-        return None;
+#[derive(PartialEq)]
+pub enum GeneralizedLine {
+    Empty,
+    Point(Point),
+    Polyline(LineString),
+}
+
+pub fn vecf64_to_generalized_line(coords: &[f64]) -> GeneralizedLine {
+    if coords.len() == 0 {
+        return GeneralizedLine::Empty;
+    }
+
+    if coords.len() == 2 {
+        return GeneralizedLine::Point(Point::new(coords[0], coords[1]));
     }
 
     let points: Vec<_> = coords
@@ -10,7 +21,32 @@ pub fn vecf64_to_linestring(coords: &[f64]) -> Option<LineString> {
         .map(|chunk| geo::Point::new(chunk[0], chunk[1]))
         .collect();
 
-    Some(LineString::from(points))
+    GeneralizedLine::Polyline(LineString::from(points))
+}
+
+// The line strings are expected to be prefixed with a nan each
+pub fn vecf64_to_generalized_line_vec(coords: &[f64]) -> Vec<GeneralizedLine> {
+    let mut result = Vec::new();
+    let mut current = Vec::new();
+    let mut started = false;
+
+    for &v in coords {
+        if v.is_nan() {
+            if started {
+                result.push(vecf64_to_generalized_line(&current));
+                current.clear();
+            }
+            started = true;
+        } else {
+            current.push(v);
+        }
+    }
+
+    if started && !current.is_empty() {
+        result.push(vecf64_to_generalized_line(&current));
+    }
+
+    result
 }
 
 pub fn coords_to_vecf64<'a, I>(coords: I) -> Vec<f64>
@@ -21,31 +57,6 @@ where
         .into_iter()
         .flat_map(|point| [point.x, point.y])
         .collect()
-}
-
-// The line strings are expected to be prefixed with a nan each
-pub fn vecf64_to_linestring_vec(coords: &[f64]) -> Option<Vec<LineString>> {
-    let mut result = Vec::new();
-    let mut current = Vec::new();
-    let mut started = false;
-
-    for &v in coords {
-        if v.is_nan() {
-            if started {
-                result.push(vecf64_to_linestring(&current)?);
-                current.clear();
-            }
-            started = true;
-        } else {
-            current.push(v);
-        }
-    }
-
-    if started && !current.is_empty() {
-        result.push(vecf64_to_linestring(&current)?);
-    }
-
-    Some(result)
 }
 
 pub fn coords_vec_to_vecf64<'a, I, J>(lines: I) -> Vec<f64>
@@ -61,12 +72,4 @@ where
     }
 
     result
-}
-
-pub fn linestring_as_geometry(l: LineString) -> Geometry {
-    if l.is_closed() {
-        Polygon::new(l, vec![]).into()
-    } else {
-        l.into()
-    }
 }

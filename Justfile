@@ -9,8 +9,12 @@ typecheck:
 check_circular_dependencies:
     npx madge --circular --extensions ts .
 
-build:
+build_core: 
     cd Core/rust && wasm-pack build --target nodejs
+
+build_all:
+    cd Core/rust && wasm-pack build --target nodejs
+    cd Embroidery/Lib/rust && wasm-pack build --target nodejs
 
 watch-server:
     cd Dev/Server && npm run start

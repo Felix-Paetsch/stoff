@@ -5,12 +5,10 @@ use petgraph::{
 };
 use std::collections::HashSet;
 use wasm_bindgen::prelude::*;
-use web_sys::console;
 
-use crate::{
-    compatibility_layer::{vecf64_to_undirected_graph, vertex_vec_to_vecf64},
-    vertex::Vertex,
-};
+use crate::vertex::Vertex;
+
+use super::graph_compatibility_layer::{vecf64_to_undirected_graph, vertex_vec_to_vecf64};
 
 #[wasm_bindgen]
 pub fn double_run_graph(graph_data: &[f64], starting_at_node: u32) -> Option<Vec<f64>> {

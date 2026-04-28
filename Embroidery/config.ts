@@ -1,5 +1,5 @@
 export const constEmbroideryConfig = {
-    project: "Buffer",
+    project: "BufferOutline",
     file: "./out/Fuchs Grafiti.DST",
     buffer: [0.15, -0.15],
     concavity: 0.1,

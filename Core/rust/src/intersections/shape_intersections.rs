@@ -2,7 +2,7 @@ use super::utils::{
     build_indexed_segments, canonical_pair_intersection, flatten_intersections,
     push_unique_intersection, segment_intersections, sort_intersections, Intersection,
 };
-use crate::utils::vecf64_to_linestring;
+use crate::utils::{vecf64_to_generalized_line, GeneralizedLine};
 use geo::LineString;
 use rstar::RTree;
 use wasm_bindgen::prelude::*;
@@ -14,8 +14,28 @@ pub fn intersect_wasm(
     coords2: &[f64],
     is_polygon2: bool,
 ) -> Option<Vec<f64>> {
-    let line1 = vecf64_to_linestring(coords1)?;
-    let line2 = vecf64_to_linestring(coords2)?;
+    let mut line1 = vecf64_to_generalized_line(coords1);
+    let mut line2 = vecf64_to_generalized_line(coords2);
+
+    if line1 == GeneralizedLine::Empty || line2 == GeneralizedLine::Empty {
+        return Some(Vec::new());
+    }
+
+    if let GeneralizedLine::Point(p1) = line1 {
+        line1 = GeneralizedLine::Polyline(LineString::new(vec![p1.0, p1.0]));
+    }
+
+    if let GeneralizedLine::Point(p2) = line2 {
+        line2 = GeneralizedLine::Polyline(LineString::new(vec![p2.0, p2.0]));
+    }
+
+    let GeneralizedLine::Polyline(line1) = line1 else {
+        unreachable!();
+    };
+
+    let GeneralizedLine::Polyline(line2) = line2 else {
+        unreachable!();
+    };
 
     let mut intersections = find_shape_intersections(&line1, is_polygon1, &line2, is_polygon2);
 
@@ -29,8 +49,8 @@ pub fn find_shape_intersections(
     line2: &LineString,
     is_polygon2: bool,
 ) -> Vec<Intersection> {
-    let segs1 = build_indexed_segments(&line1, is_polygon1);
-    let segs2 = build_indexed_segments(&line2, is_polygon2);
+    let segs1 = build_indexed_segments(line1, is_polygon1);
+    let segs2 = build_indexed_segments(line2, is_polygon2);
 
     if segs1.is_empty() || segs2.is_empty() {
         return Vec::new();

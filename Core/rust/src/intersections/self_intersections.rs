@@ -3,14 +3,23 @@ use super::utils::{
     flatten_intersections, push_unique_intersection, segment_intersections, sort_intersections,
     Intersection,
 };
-use crate::utils::vecf64_to_linestring;
+use crate::utils::{vecf64_to_generalized_line, GeneralizedLine};
 use geo::LineString;
 use rstar::RTree;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn self_intersections_wasm(coords: &[f64], is_polygon: bool) -> Option<Vec<f64>> {
-    let line = vecf64_to_linestring(coords)?;
+    let line = vecf64_to_generalized_line(coords);
+
+    if line == GeneralizedLine::Empty {
+        return Some(Vec::new());
+    }
+
+    let GeneralizedLine::Polyline(line) = line else {
+        unreachable!();
+    };
+
     let mut intersections = find_self_intersections(&line, is_polygon);
 
     sort_intersections(&mut intersections);

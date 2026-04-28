@@ -58,7 +58,6 @@ export abstract class Shape {
     private _bb: BoundingBox | null = null;
 
     constructor(positions: Float64Array | Vector[]) {
-        // console.log(new Polygon());
         if (positions instanceof Float64Array) {
             this._positions = positions;
         } else {
@@ -227,6 +226,14 @@ export abstract class Shape {
         const res = Shape.closest_shape_positions(this, fShape);
         if (!res) return res;
 
+        // console.log(
+        //     "CLOSEST SHAPE POST",
+        //     res,
+        //     this.vertices[0],
+        //     this.vertices[this.vertex_count - 1],
+        //     this.vertex_count,
+        // );
+
         return res[0];
     }
 
@@ -322,7 +329,6 @@ export abstract class Shape {
 
         const closest = closest_points(p1.positions, p2.positions);
 
-        console.log(closest, p1.positions, p2.positions);
         if (!closest) return null;
 
         return [

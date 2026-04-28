@@ -43,6 +43,10 @@ pub fn length(c: Coord) -> f64 {
     (c.x * c.x + c.y * c.y).sqrt()
 }
 
+pub fn distance(a: Coord, b: Coord) -> f64 {
+    length(subtract(a, b))
+}
+
 pub fn length_squared(c: Coord) -> f64 {
     c.x * c.x + c.y * c.y
 }
