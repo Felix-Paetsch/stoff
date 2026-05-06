@@ -1,0 +1,1 @@
+fn(std::vec::Vec<geometry::vertex::Vertex>) -> geometry::polygon::Polygon {geometry::polygon::Polygon}

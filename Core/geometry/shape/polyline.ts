@@ -1,4 +1,5 @@
 import { EPS } from "Core/numerics/eps";
+import { WASMCompatability } from "Rust/exports";
 import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
@@ -170,5 +171,12 @@ export class Polyline extends Shape {
 
     as_polygon(): Polygon {
         return this.to_polygon();
+    }
+
+    static override from_wasm_vecf64(from: Float64Array): Polyline {
+        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
+        if (obj instanceof Polyline) return obj;
+        if (obj instanceof Vector) return new Polyline([obj]);
+        return obj.as_polyline();
     }
 }

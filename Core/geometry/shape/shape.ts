@@ -1,15 +1,13 @@
-import { EPS } from "../../numerics";
 import {
-    buffer,
-    closest_points,
-    f64_arrays_to_f64,
-    f64_to_vec_array,
-    intersect_wasm,
-    intersects,
-    self_intersections_wasm,
-    self_intersects,
-    split_f64_array,
-} from "../../rust/exports";
+    wasm_geometry_buffer_geometries,
+    wasm_geometry_closest_shape_positions,
+    wasm_geometry_geometries_intersect,
+    wasm_geometry_shape_intersections,
+    wasm_geometry_shape_selfintersections,
+    wasm_geometry_shape_selfintersects,
+    WASMCompatability,
+} from "Rust/exports";
+import { EPS } from "../../numerics";
 import { BoundingBox } from "../bounding_box";
 import * as Geometry from "../geometry";
 import { Fraction } from "../interval";
@@ -68,7 +66,9 @@ export abstract class Shape {
     get vertices(): Vector[] {
         if (this._vertices) return this._vertices;
 
-        this._vertices = f64_to_vec_array(this.positions);
+        this._vertices = WASMCompatability.Geometry.vecf64_to_vertex_vec(
+            this.positions,
+        );
         return this._vertices;
     }
 
@@ -327,7 +327,10 @@ export abstract class Shape {
         const p1 = sh1.as_polygon();
         const p2 = sh2.as_polygon();
 
-        const closest = closest_points(p1.positions, p2.positions);
+        const closest = wasm_geometry_closest_shape_positions(
+            p1.to_wasm_vecf64(),
+            p2.to_wasm_vecf64(),
+        );
 
         if (!closest) return null;
 
@@ -368,10 +371,7 @@ export abstract class Shape {
         Shape.ShapePosition,
     ][] {
         if (this.vertex_count < 3) return [];
-        let r = self_intersections_wasm(
-            this.positions,
-            this instanceof Polygon,
-        );
+        let r = wasm_geometry_shape_selfintersections(this.to_wasm_vecf64());
         return decode_intersection_positions(r!);
     }
 
@@ -390,13 +390,18 @@ export abstract class Shape {
             gShape = new Polyline([g]);
         }
 
-        return intersects(this.positions, gShape.positions);
+        return (
+            wasm_geometry_geometries_intersect(
+                this.to_wasm_vecf64(),
+                gShape.to_wasm_vecf64(),
+            ) || false
+        );
     }
 
     self_intersects(): boolean {
         if (this.vertex_count < 3) return false;
-        let r = self_intersects(this.positions, this instanceof Polygon);
-        return r;
+        let r = wasm_geometry_shape_selfintersects(this.to_wasm_vecf64());
+        return r || false;
     }
 
     corners(threshold_angle: Radians = Math.PI / 6): Shape.ShapePosition[] {
@@ -414,11 +419,9 @@ export abstract class Shape {
         const shl1 = sh1.as_polyline();
         const shl2 = sh2.as_polyline();
 
-        const ip_arr = intersect_wasm(
-            shl1.positions,
-            sh1 instanceof Polygon,
-            shl2.positions,
-            sh2 instanceof Polygon,
+        const ip_arr = wasm_geometry_shape_intersections(
+            shl1.to_wasm_vecf64(),
+            shl2.to_wasm_vecf64(),
         );
         if (!ip_arr) return [];
 
@@ -439,10 +442,13 @@ export abstract class Shape {
     }
 
     static buffer(shapes: Shape[], distance: number): Polygon[] {
-        const positions = shapes.map((s) => s.as_polyline().positions);
-        const f64res = buffer(f64_arrays_to_f64(positions), distance);
-        const vec_res = split_f64_array(f64res);
-        return vec_res.map((r) => new Polygon(r));
+        const f64 = WASMCompatability.Geometry.geometry_vec_to_vecf64(
+            shapes as Shape.Shape[],
+        );
+        const buffer_res = wasm_geometry_buffer_geometries(f64, distance)!;
+        const res =
+            WASMCompatability.Geometry.vecf64_to_geometry_vec(buffer_res);
+        return res as Polygon[];
     }
 
     abstract reverse(): Shape;
@@ -497,5 +503,15 @@ export abstract class Shape {
 
     static _get_appreciable_corner(shape: Polygon | Polyline, at: number) {
         return get_appreciable_corner(shape.typesafe(), at);
+    }
+
+    to_wasm_vecf64(): Float64Array {
+        return WASMCompatability.Geometry.geometry_to_vecf64(this.typesafe());
+    }
+
+    static from_wasm_vecf64(from: Float64Array): Shape.Shape {
+        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
+        if (obj instanceof Vector) return new Polygon([obj]);
+        return obj as Shape.Shape;
     }
 }

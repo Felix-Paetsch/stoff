@@ -1,0 +1,1 @@
+std::iter::Map<impl std::iter::DoubleEndedIterator + std::iter::Iterator<Item = &geo::Coord>, {closure@src/geometry/algorithms/buffer.rs:35:24: 35:27}>

@@ -1,0 +1,1 @@
+std::boxed::Box<(dyn std::iter::Iterator<Item = geometry::line_segment::LineSegment> + 'static)>

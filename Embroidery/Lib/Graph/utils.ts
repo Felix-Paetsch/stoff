@@ -1,11 +1,8 @@
 import { EPS, Polygon } from "@/Core";
 import {
-    double_run_graph,
-    f64_to_undirected_graph,
-    f64_to_vec_array,
-    identify_equal_nodes,
-    undirected_graph_to_f64_array,
-} from "../rust/exports";
+    wasm_graph_double_run_graph,
+    wasm_graph_identify_equal_nodes,
+} from "Rust/exports";
 import { Graph } from "./graph";
 
 export function double_run(what: Graph, starting_at: number = 0): Polygon {
@@ -14,18 +11,16 @@ export function double_run(what: Graph, starting_at: number = 0): Polygon {
         starting_at = 0;
     }
 
-    const graph = undirected_graph_to_f64_array(what);
-    const gon_array = double_run_graph(graph, starting_at)!;
-    const gon_vert = f64_to_vec_array(gon_array);
-
-    return new Polygon(gon_vert);
+    const graph = what.to_wasm_vecf64();
+    const gon_array = wasm_graph_double_run_graph(graph, starting_at)!;
+    return Polygon.from_wasm_vecf64(gon_array);
 }
 
-export function identify_equal_verticies(
+export function identify_equal_vertices(
     graph: Graph,
     tolerance: number = EPS.tiny,
 ): Graph {
-    const encoded = undirected_graph_to_f64_array(graph);
-    const gon_array = identify_equal_nodes(encoded, tolerance)!;
-    return f64_to_undirected_graph(gon_array);
+    const encoded = graph.to_wasm_vecf64();
+    const res = wasm_graph_identify_equal_nodes(encoded, tolerance);
+    return Graph.from_wasm_vecf64(res!);
 }

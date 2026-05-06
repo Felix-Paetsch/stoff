@@ -33,7 +33,7 @@ export const LSystemProject = defineEmbroidery(
         );
 
         const graph = interpreted.graph;
-        const identified = GraphUtils.identify_equal_verticies(graph);
+        const identified = GraphUtils.identify_equal_vertices(graph);
         identified.remove_duplicate_edges();
 
         let shape_tree = GraphUtils.double_run(identified);

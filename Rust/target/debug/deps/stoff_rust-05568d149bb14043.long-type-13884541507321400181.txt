@@ -1,0 +1,1 @@
+graphs::graph::Graph: std::convert::From<petgraph::Graph<geometry::vertex::Vertex, (), petgraph::Undirected>>

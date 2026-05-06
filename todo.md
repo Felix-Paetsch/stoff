@@ -1,3 +1,22 @@
+Graphs to graph
+
+
+
+Rust numerics
+Less copying (cloning) with rust (due to the type conversions)
+Better naming for WASM methods, as there will be lots of them(!)
+
+
+LineSegment to class?
+
+Change many of the scaled eps things: E.g. when taking the closest point we just dont want to run into floating point problems
+
+To learn with RUST:
+when to copy and when not to
+when to wrap types
+...
+
+
 Do next:
 - strict offset
 - remove crossings from polyline/gon

@@ -1,0 +1,1 @@
+&std::iter::Map<std::slice::Iter<'_, intersections::utils::Intersection>, {closure@src/buffer.rs:23:60: 23:63}>

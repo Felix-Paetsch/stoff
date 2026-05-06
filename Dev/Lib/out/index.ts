@@ -25,3 +25,7 @@ export function clear(
         }
     });
 }
+
+export function dir(){
+    return outputDir
+}

@@ -1,3 +1,4 @@
+import { WASMCompatability } from "Rust/exports";
 import { EPS } from "../numerics";
 import { Line } from "./line";
 import * as LinearTransform from "./linear_transformations";
@@ -261,4 +262,14 @@ export class Vector {
     static LEFT = new Vector(-1, 0);
     static RIGHT = new Vector(1, 0);
     static DOWN = new Vector(0, 1);
+
+    to_wasm_vecf64(): Float64Array {
+        return WASMCompatability.Geometry.geometry_to_vecf64(this);
+    }
+
+    static from_wasm_vecf64(from: Float64Array): Vector {
+        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
+        if (obj instanceof Vector) return obj;
+        throw new Error("Cant convert shape to Vector!");
+    }
 }

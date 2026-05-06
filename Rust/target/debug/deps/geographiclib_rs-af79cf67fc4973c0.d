@@ -1,0 +1,10 @@
+/home/Felix/work/Stoff/Core/rust/target/debug/deps/geographiclib_rs-af79cf67fc4973c0.d: /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/lib.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_capability.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_line.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geomath.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/polygon_area.rs
+
+/home/Felix/work/Stoff/Core/rust/target/debug/deps/libgeographiclib_rs-af79cf67fc4973c0.rmeta: /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/lib.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_capability.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_line.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geomath.rs /home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/polygon_area.rs
+
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/lib.rs:
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic.rs:
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_capability.rs:
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geodesic_line.rs:
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/geomath.rs:
+/home/Felix/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/geographiclib-rs-0.2.7/src/polygon_area.rs:

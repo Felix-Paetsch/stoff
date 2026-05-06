@@ -1,11 +1,9 @@
 import { Vector } from "@/Core";
 import {
-    f64_to_undirected_graph,
-    minimum_spanning_tree_on_graph,
-    minimum_spanning_tree_on_vertices,
-    undirected_graph_to_f64_array,
-    vec_array_to_f64_array,
-} from "../rust/exports";
+    wasm_graph_minimum_spanning_tree,
+    wasm_graph_minimum_spanning_tree_on_vertices,
+    WASMCompatability,
+} from "Rust/exports";
 
 export class Graph {
     constructor(
@@ -14,9 +12,9 @@ export class Graph {
     ) {}
 
     minimum_spanning_tree(): Graph {
-        const graph = undirected_graph_to_f64_array(this);
-        const mst = minimum_spanning_tree_on_graph(graph)!;
-        return f64_to_undirected_graph(mst);
+        const g = this.to_wasm_vecf64();
+        const res = wasm_graph_minimum_spanning_tree(g);
+        return WASMCompatability.Graph.vecf64_to_graph(res!);
     }
 
     add_vertex(v: Vector) {
@@ -71,12 +69,18 @@ export class Graph {
     }
 
     static minimum_spanning_tree(on: Vector[] | Graph): Graph {
-        if (Array.isArray(on)) {
-            const arr = vec_array_to_f64_array(on);
-            const mst = minimum_spanning_tree_on_vertices(arr)!;
-            return f64_to_undirected_graph(mst);
-        }
+        if (on instanceof Graph) return on.minimum_spanning_tree();
 
-        return on.minimum_spanning_tree();
+        const arr = WASMCompatability.Geometry.vertex_vec_to_vecf64(on);
+        const res = wasm_graph_minimum_spanning_tree_on_vertices(arr);
+        return WASMCompatability.Graph.vecf64_to_graph(res!);
+    }
+
+    to_wasm_vecf64(): Float64Array {
+        return WASMCompatability.Graph.graph_to_vecf64(this);
+    }
+
+    static from_wasm_vecf64(from: Float64Array): Graph {
+            return WASMCompatability.Graph.vecf64_to_graph(from)!;
     }
 }

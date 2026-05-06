@@ -1,11 +1,14 @@
 import { Bounds } from "Core/numerics";
-import { area, contains, contains_properly } from "Core/rust/exports";
 import {
-    centroid,
-    coordinate_position,
-    interior_point,
-    winding,
-} from "Core/rust/pkg/stoff_rust";
+    wasm_geometry_centroid,
+    wasm_geometry_coordiante_position,
+    wasm_geometry_interior_point,
+    wasm_geometry_polygon_area,
+    wasm_geometry_polygon_contains_geometry,
+    wasm_geometry_polygon_contains_geometry_properly,
+    wasm_geometry_winding_order,
+    WASMCompatability,
+} from "Rust/exports";
 import * as FiniteGeometry from "../finite_geometry";
 import { Radians } from "../types";
 import { as_polyline } from "../utils/misc";
@@ -123,49 +126,64 @@ export class Polygon extends Shape {
 
     contains(what: FiniteGeometry.FiniteGeometry): boolean {
         if (this.is_empty()) return false;
-        let other: Shape = as_polyline(what);
+        let other = as_polyline(what);
 
-        return contains(this.positions, other.positions);
+        return (
+            wasm_geometry_polygon_contains_geometry(
+                this.to_wasm_vecf64(),
+                other.to_wasm_vecf64(),
+            ) || false
+        );
     }
 
     contains_properly(what: FiniteGeometry.FiniteGeometry): boolean {
         if (this.is_empty()) return false;
-        let other: Shape = as_polyline(what);
+        let other = as_polyline(what);
 
-        return contains_properly(this.positions, other.positions);
+        return (
+            wasm_geometry_polygon_contains_geometry_properly(
+                this.to_wasm_vecf64(),
+                other.to_wasm_vecf64(),
+            ) || false
+        );
     }
 
     area(): number {
         if (this.vertex_count < 3) {
             return 0;
         }
-        return area(this.positions);
+        return wasm_geometry_polygon_area(this.to_wasm_vecf64()) || 0;
     }
 
     interior_point(): Vector | null {
-        const ip = interior_point(this.positions);
+        const ip = wasm_geometry_interior_point(this.to_wasm_vecf64());
         if (!ip) return null;
 
-        return new Vector(ip[0]!, ip[1]!);
+        return Vector.from_wasm_vecf64(ip);
     }
 
     centroid(): Vector | null {
-        const ip = centroid(this.positions);
-        if (!ip) return null;
+        const c = wasm_geometry_centroid(this.to_wasm_vecf64());
+        if (!c) return null;
 
-        return new Vector(ip[0]!, ip[1]!);
+        return Vector.from_wasm_vecf64(c);
     }
 
     coordinate_position(v: Vector): "outside" | "inside" | "on_boundary" {
         if (this.is_empty()) return "outside";
-        const pos = coordinate_position(this.positions, v.x, v.y);
+        const pos = wasm_geometry_coordiante_position(
+            this.to_wasm_vecf64(),
+            v.x,
+            v.y,
+        );
+
         if (pos == -1) return "outside";
         if (pos == 0) return "inside";
         return "on_boundary";
     }
 
     orientation(): "cw" | "ccw" | "none" {
-        const res = winding(this.positions);
+        const res = wasm_geometry_winding_order(this.to_wasm_vecf64());
         if (res == 0) return "none";
         if (res == 1) return "cw";
         return "ccw";
@@ -224,5 +242,12 @@ export class Polygon extends Shape {
 
     as_polygon(): Polygon {
         return this;
+    }
+
+    static override from_wasm_vecf64(from: Float64Array): Polygon {
+        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
+        if (obj instanceof Polygon) return obj;
+        if (obj instanceof Vector) return new Polygon([obj]);
+        return obj.as_polygon();
     }
 }
