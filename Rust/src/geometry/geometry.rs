@@ -10,8 +10,11 @@ impl Geometry {
     pub fn geometry_vec_to_vecf64(g: &[Geometry]) -> Vec<f64> {
         let mut out = Vec::new();
 
-        for geometry in g {
-            out.push(f64::NAN);
+        for (i, geometry) in g.iter().enumerate() {
+            if i > 0 {
+                out.push(f64::NAN);
+            }
+
             out.extend(Vec::<f64>::from(geometry));
         }
 
@@ -24,24 +27,25 @@ impl Geometry {
         }
 
         let mut result = Vec::new();
-        let mut start = None;
+        let mut start = 0usize;
 
         for (i, value) in v.iter().enumerate() {
             if value.is_nan() {
-                if let Some(s) = start {
-                    let geometry = Geometry::try_from(&v[s..i]).ok()?;
-                    result.push(geometry);
+                if i == start {
+                    return None;
                 }
-                start = Some(i + 1);
+
+                let geometry = Geometry::try_from(&v[start..i]).ok()?;
+                result.push(geometry);
+                start = i + 1;
             }
         }
 
-        let s = start?;
-        if s > v.len() {
+        if start == v.len() {
             return None;
         }
 
-        let geometry = Geometry::try_from(&v[s..]).ok()?;
+        let geometry = Geometry::try_from(&v[start..]).ok()?;
         result.push(geometry);
 
         Some(result)
@@ -84,6 +88,10 @@ impl TryFrom<&[f64]> for Geometry {
 
         let tag = values[0];
 
+        if tag.is_nan() {
+            return Err("geometry tag cannot be NaN".to_string());
+        }
+
         if tag.fract() != 0.0 {
             return Err("geometry tag must be an integer value".to_string());
         }
@@ -93,12 +101,14 @@ impl TryFrom<&[f64]> for Geometry {
                 if values.len() != 3 {
                     return Err("Point geometry must contain tag, x, y".to_string());
                 }
+
                 Ok(Geometry::Point(Vertex::new(values[1], values[2])))
             }
             1 => {
                 if values.len() < 3 {
                     return Err("Polyline must contain at least one x,y pair".to_string());
                 }
+
                 if !(values.len() - 1).is_multiple_of(2) {
                     return Err(
                         "Polyline coordinate data must contain an even number of values"
@@ -117,6 +127,7 @@ impl TryFrom<&[f64]> for Geometry {
                 if values.len() < 3 {
                     return Err("Polygon must contain at least one x,y pair".to_string());
                 }
+
                 if !(values.len() - 1).is_multiple_of(2) {
                     return Err(
                         "Polygon coordinate data must contain an even number of values".to_string(),
@@ -130,7 +141,7 @@ impl TryFrom<&[f64]> for Geometry {
 
                 Ok(Geometry::Polygon(Polygon::new(vertices)))
             }
-            _ => Err("geometry tag must be 0, 1, 2, or 3".to_string()),
+            _ => Err("geometry tag must be 0, 1, or 2".to_string()),
         }
     }
 }

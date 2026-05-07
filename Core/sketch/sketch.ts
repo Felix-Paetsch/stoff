@@ -1,8 +1,8 @@
 import { Expect } from "@/Core";
-import { CollectionMethods, Copy } from ".";
+import { CollectionMethods } from ".";
 import { Validate } from "../../Dev/lib";
 import { LinearTransform, Polygon, Shape, Vector } from "../geometry";
-import { default_data_callback } from "./copy";
+import * as Copy from "./copy";
 import { Line } from "./line";
 import { Point } from "./point";
 import {
@@ -110,7 +110,10 @@ export class Sketch {
         } else {
             if (to instanceof Vector) {
                 const trafo = LinearTransform.affine_orthogonal(
-                    [from instanceof Vector ? from : from.vec, shape.vertices[0]!],
+                    [
+                        from instanceof Vector ? from : from.vec,
+                        shape.vertices[0]!,
+                    ],
                     [to, shape.as_polyline().last()!],
                 );
 
@@ -165,7 +168,7 @@ export class Sketch {
     merge_points(
         pt1: Point,
         pt2: Point,
-        data_callback = default_data_callback,
+        data_callback = Copy.default_data_callback,
     ) {
         if (pt1 == pt2) return pt1;
         Expect.that(pt1.vec.equals(pt2.vec));
@@ -310,18 +313,13 @@ export class Sketch {
         return true;
     }
 
-    copy(data_callback = Copy.default_data_callback): {
-        sketch: Sketch;
-    } & Copy.CopyResult {
-        const t = new Sketch();
-        const res = Copy.sketch(this, t, data_callback);
-        return {
-            ...res,
-            sketch: t,
-        };
-    }
-
     toString() {
         return "[Sketch]" as const;
     }
+
+    // static copy_point: typeof Copy.point = Copy.point;
+    // static copy_sketch: typeof Copy.sketch = Copy.sketch;
+    // static copy_line: typeof Copy.line = Copy.line;
+    // static copy_sketch_element_collection: typeof Copy.sketch_element_collection =
+    //     Copy.sketch_element_collection;
 }

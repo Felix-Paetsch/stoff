@@ -1,4 +1,14 @@
-Graphs to graph
+Bugfixes:
+- validate adjacency and related predicats for with looped lines
+
+
+# Todoooo
+
+1. test leonies stuff
+2. improved buffer
+3. offset method for leonie
+4. evaluate discord channel
+5. implement fixes for problems I found and noted in discord channel
 
 
 
@@ -26,9 +36,6 @@ Learn git, lazygit
 
 
 Fix 1D embroidery line not rendering
-
-Graph as class? Parametric?
-Vertex vs Node?
 
 Graph.remove_crossings (should also work when a point is on another pt; should also automaticall identify points)
 - should insert points as crossings
@@ -154,6 +161,18 @@ https://ko-fi.com/s/bab05e779e
 > 
 > It uses a weighted Nearest Neighbor search to build a single continuous path through high-density pixel areas. It then applies a Gaussian convolution and Catmull-Rom splines to smooth.
 > 2
+
+Tilings (with L-Systems? PixelArt?)
+Pixelart
+Method for auto merging paths/shapes/autopathing
+Method to confine run within shape
+Take grading of thread into account when trying to calculate hue/etc of image
+Voroni diagrams
+Symmetric mandalas
+Flocking and life simulations
+Algorithmic...
+- botany (biology)
+- ...
 
 ### Future features - General
 

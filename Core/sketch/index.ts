@@ -4,7 +4,7 @@ export { Sketch } from "./sketch";
 
 export { render_sketch } from "./rendering/index";
 
-export * from "./types";
 export * as CollectionMethods from "./collection";
+export * from "./types";
 
 export * as Copy from "./copy";

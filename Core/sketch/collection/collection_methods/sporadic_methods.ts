@@ -1,4 +1,7 @@
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "Core/geometry";
+import {
+    sketch_element_collection as copy_sketch_element_collection
+} from "Core/sketch/copy";
 import { connected_component, sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
 import { get_lines, get_points } from "./getter_methods";
@@ -9,7 +12,7 @@ export function get_bounding_box(ec: SketchElementCollection): BoundingBox {
 }
 
 export function convex_hull(ec: SketchElementCollection): Polygon | null {
-    const pts: Vector[] = get_points(ec).map(p => p.vec);
+    const pts: Vector[] = get_points(ec).map((p) => p.vec);
     const lns = get_lines(ec);
 
     return FiniteGeometry.convex_hull(
@@ -66,3 +69,5 @@ export function inner_line_hull(ec: SketchElementCollection): SketchElement[] {
 
     return lines.concat(points);
 }
+
+export const copy = copy_sketch_element_collection;

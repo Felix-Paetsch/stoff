@@ -46,7 +46,8 @@ export function get_point(
     return get_points(ec, filter)[0] ?? null;
 }
 
-export function get_sketch(...els: { sketch: Sketch }[]): Sketch {
+export function get_sketch(ec: SketchElementCollection): Sketch {
+    const els = sketch_element_collection_as_array(ec);
     if (els.length == 0) {
         return new Sketch();
     }
@@ -101,7 +102,7 @@ export function get_points_between_lines(
     args: Partial<PointsBetweenLinesArgs> = {},
 ): Point[] {
     const nec = sketch_element_collection_as_array(ec);
-    const sketch = get_sketch(...nec);
+    const sketch = get_sketch(nec);
 
     const where: FindPosition = args.where ?? "any_points_collection_lines";
 
@@ -163,7 +164,7 @@ export function get_lines_between_points(
     args: Partial<LinesBetweenPointsArgs> = {},
 ): Line[] {
     const nec = sketch_element_collection_as_array(ec);
-    const sketch = get_sketch(...nec);
+    const sketch = get_sketch(nec);
 
     const where: FindPosition = args.where ?? "any_points_collection_lines";
 

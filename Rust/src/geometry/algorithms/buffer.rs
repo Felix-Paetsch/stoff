@@ -1,5 +1,6 @@
 use geo::{Buffer, GeometryCollection};
 use wasm_bindgen::prelude::*;
+use web_sys::console;
 
 use crate::geometry::{geometry::Geometry, polygon::Polygon, polyline::Polyline};
 

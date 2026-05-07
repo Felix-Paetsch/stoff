@@ -19,7 +19,8 @@ export const BufferOutlineDST = defineEmbroidery(
 
         if (cfg.buffer instanceof Array) {
             cfg.buffer.forEach((b) => {
-                let buff_line = select_correct_buffer(outline.buffer(b));
+                const buffer_res = outline.buffer(b);
+                let buff_line = select_correct_buffer(buffer_res);
 
                 if (cfg.smooth_buffer) {
                     buff_line = polygon_smooth_out(

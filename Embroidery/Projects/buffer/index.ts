@@ -72,7 +72,7 @@ export const BufferDST = defineEmbroidery(
         });
 
         res.color_change("red");
-        embr.runs.forEach(r => res.run(r));
+        embr.runs.forEach((r) => res.run(r));
         Out.put(res);
 
         writeFileSync(

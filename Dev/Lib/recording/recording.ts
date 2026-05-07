@@ -1,4 +1,4 @@
-import { Sketch, Utils } from "../../../Core/index";
+import { Copy, Sketch, Utils } from "../../../Core/index";
 import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 import { wrap_sketch_methods } from "../utils/wrap_sketch_methods";
 import { Snapshot } from "./types";
@@ -17,7 +17,7 @@ export class Recording {
         const cold_snapshot = !this.taking_snapshot;
         if (cold_snapshot) this.taking_snapshot = true;
 
-        const copy = s.copy().sketch;
+        const copy = Copy.sketch(s).sketch;
 
         const stackTrace = Utils.stack_trace(stack_trace_slice);
 
