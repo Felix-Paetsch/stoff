@@ -1,1 +1,0 @@
-std::iter::Map<std::vec::IntoIter<geo::Coord>, fn(geo::LineString) -> geo::Geometry {utils::linestring_as_geometry}>

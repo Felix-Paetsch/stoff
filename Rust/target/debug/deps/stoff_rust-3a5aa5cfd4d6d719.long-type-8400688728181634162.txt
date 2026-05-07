@@ -1,1 +1,0 @@
-fn(std::vec::Vec<geometry::vertex::Vertex>) -> geometry::polyline::Polyline {geometry::polyline::Polyline}

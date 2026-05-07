@@ -1,1 +1,0 @@
-std::iter::FilterMap<std::iter::Enumerate<impl std::iter::Iterator<Item = geometry::line_segment::LineSegment> + '_>, {closure@src/geometry/algorithms/intersections/utils.rs:75:25: 75:39}>

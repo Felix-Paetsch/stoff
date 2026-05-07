@@ -1,1 +1,0 @@
-std::option::Option<geometry::generalized_line::GeneralizedLine>: std::convert::From<std::result::Result<_, _>>

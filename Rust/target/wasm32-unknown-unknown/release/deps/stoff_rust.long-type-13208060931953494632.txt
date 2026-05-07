@@ -1,4 +1,0 @@
-From<global::get_global_object::Global>
-From<web_sys::js_sys::AsyncIterator<T>>
-From<web_sys::js_sys::Iterator::looks_like_iterator::MaybeIterator>
-From<web_sys::js_sys::WebAssembly::Global>
