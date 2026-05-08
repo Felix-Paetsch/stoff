@@ -114,10 +114,10 @@ export function make_line_to_relevant_polyline_for_closest_vec(
 
     const bb = s.bounding_box();
     const points = [
-        bb.top_left,
-        bb.top_right,
-        bb.bottom_left,
-        bb.bottom_right,
+        bb.top_left.add(new Vector(-1, -1)),
+        bb.top_right.add(new Vector(1, -1)),
+        bb.bottom_right.add(new Vector(1, 1)),
+        bb.bottom_left.add(new Vector(-1, 1)),
     ].map((v) => l.project(v));
 
     if (
@@ -140,11 +140,12 @@ export function make_ray_to_relevant_polyline_for_closest_vec(
 
     const bb = s.bounding_box();
     const line = r.to_line();
+
     let points = [
-        bb.top_left,
-        bb.top_right,
-        bb.bottom_left,
-        bb.bottom_right,
+        bb.top_left.add(new Vector(-1, -1)),
+        bb.top_right.add(new Vector(1, -1)),
+        bb.bottom_right.add(new Vector(1, 1)),
+        bb.bottom_left.add(new Vector(-1, 1)),
     ].map((v) => line.project(v));
 
     for (let i = 0; i < 4; i++) {

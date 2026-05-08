@@ -470,7 +470,7 @@ export abstract class Shape {
             if (this instanceof Polyline) {
                 return {
                     vec: this.last()!,
-                    index: this.vertex_count - 1,
+                    index: this.vertex_count - 2,
                     frac: 1,
                 };
             }

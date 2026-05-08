@@ -5,6 +5,7 @@ export const Bounds = {
         const it_fn = iteration_guard_gen(max_it_num);
         return () => {
             it_fn.next();
+            return true;
         };
     },
 };

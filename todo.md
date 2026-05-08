@@ -1,8 +1,16 @@
-Bugfixes:
-- validate adjacency and related predicats for with looped lines
+1. Where to put compute...?
+2. use this to build Leonies method
+3. use this to build my method
+
+
+# Question
+
+Where to put misc methods / The things in unstructured
 
 
 # Todoooo
+
+It seems like currently we have two formatter after another when saving in JS!
 
 1. test leonies stuff
 2. improved buffer

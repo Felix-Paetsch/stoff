@@ -15,10 +15,10 @@ export function lerp_abs(a: number, b: number, amt: number): number {
     return lerp(a, b, amt / (b - a));
 }
 
-export function merge(i: Interval, ...intervals: Interval[]): Interval {
+export function merge(...intervals: Interval[]): Interval {
     const [x, y] = intervals.reduce(
         ([x, y], [x2, y2]) => [Math.min(x, x2), Math.max(y, y2)],
-        i,
+        [Infinity, -Infinity],
     );
     return [x, y];
 }
@@ -31,4 +31,21 @@ export function overlap(...intervals: Interval[]): Interval {
 
 export function clamp(at: Interval, number: number): number {
     return Math.min(Math.max(number, at[0]), at[1]);
+}
+
+export function generic_position(range: Interval, excluding: number[]): number {
+    const min_guaranteed_len =
+        (0.9 * (range[1] - range[0])) / (excluding.length + 1);
+    excluding = [...excluding];
+    excluding.sort();
+    excluding.push(range[1]);
+    excluding.unshift(range[0]);
+
+    for (let i = 0; i < excluding.length - 1; i++) {
+        if (excluding[i + 1]! - excluding[i]! > min_guaranteed_len) {
+            return (excluding[i + 1]! + excluding[i]!) / 2;
+        }
+    }
+
+    return (range[1] + range[0]) / 2;
 }

@@ -81,7 +81,7 @@ export class Point {
         if (x instanceof Vector) {
             this._vector = this._unsafe_move_to(x.x, x.y);
         } else {
-            this._vector = new Vector(x,y);
+            this._vector = new Vector(x, y);
         }
 
         return this._vector;
@@ -95,7 +95,7 @@ export class Point {
         if (x instanceof Vector) {
             this._vector = new Vector(x.x, x.y);
         } else {
-            this._vector = new Vector(x,y);
+            this._vector = new Vector(x, y);
         }
 
         this._adjacent_lines.forEach((l) => l.update_shape(l.shape));
@@ -124,5 +124,13 @@ export class Point {
             if (!this._adjacent_lines.includes(ls[i]!)) return false;
         }
         return true;
+    }
+
+    outgoing_vector(l: Line) {
+        Expect.that(this.adjacent_lines().includes(l));
+        if (l.same_orientation(this)) {
+            return l.shape.tangent_vector("start")!;
+        }
+        return l.shape.tangent_vector("end")!.invert();
     }
 }

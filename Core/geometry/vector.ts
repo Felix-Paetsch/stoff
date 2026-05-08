@@ -212,22 +212,22 @@ export class Vector {
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
-        offset_range: boolean,
+        range: "0To2Pi" | "minusPiToPi",
     ): Radians;
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
         reference: Vector,
-        offset_range: boolean,
+        range: "0To2Pi" | "minusPiToPi",
     ): Radians;
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
-        reference: Vector | boolean = Vector.ZERO,
-        offset_range: boolean = false,
+        reference: Vector | "0To2Pi" | "minusPiToPi" = Vector.ZERO,
+        range: "0To2Pi" | "minusPiToPi" = "0To2Pi",
     ) {
-        if (typeof reference == "boolean") {
-            offset_range = reference;
+        if (typeof reference == "string") {
+            range = reference;
             reference = Vector.ZERO;
         }
 
@@ -248,7 +248,9 @@ export class Vector {
             angle = 2 * Math.PI - angle; // Clockwise angle adjustment
         }
 
-        if (angle > Math.PI && !offset_range) angle = angle - 2 * Math.PI;
+        if (angle > Math.PI && range == "minusPiToPi") {
+            angle = angle - 2 * Math.PI;
+        }
 
         return angle;
     }
