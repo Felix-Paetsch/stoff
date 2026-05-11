@@ -109,7 +109,7 @@ export function make_line_to_relevant_polyline_for_closest_vec(
     s: Shape,
 ): Polyline {
     if (s.positions.length == 0) {
-        return Polyline.from_vectors([Vector.ZERO]);
+        return Polyline.empty();
     }
 
     const bb = s.bounding_box();
@@ -124,10 +124,10 @@ export function make_line_to_relevant_polyline_for_closest_vec(
         points[0]!.distance_squared(points[2]!) >=
         points[1]!.distance_squared(points[3]!)
     ) {
-        return Polyline.from_vectors([points[0]!, points[2]!]);
+        return new Polyline([points[0]!, points[2]!]);
     }
 
-    return Polyline.from_vectors([points[1]!, points[3]!]);
+    return new Polyline([points[1]!, points[3]!]);
 }
 
 export function make_ray_to_relevant_polyline_for_closest_vec(
@@ -135,7 +135,7 @@ export function make_ray_to_relevant_polyline_for_closest_vec(
     s: Shape,
 ): Polyline {
     if (s.positions.length == 0) {
-        return Polyline.from_vectors([Vector.ZERO]);
+        return Polyline.empty();
     }
 
     const bb = s.bounding_box();
@@ -158,8 +158,8 @@ export function make_ray_to_relevant_polyline_for_closest_vec(
         points[0]!.distance_squared(points[2]!) >=
         points[1]!.distance_squared(points[3]!)
     ) {
-        return Polyline.from_vectors([points[0]!, points[2]!]);
+        return new Polyline([points[0]!, points[2]!]);
     }
 
-    return Polyline.from_vectors([points[1]!, points[3]!]);
+    return new Polyline([points[1]!, points[3]!]);
 }

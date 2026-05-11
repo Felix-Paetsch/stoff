@@ -1,10 +1,10 @@
 import { DST, FiniteGeometry, Polygon, SVG_Builder } from "@/Core";
 import { Out } from "@/Dev";
+import { smooth_out } from "Algorithms/smooth_out";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
 import { writeFileSync } from "fs";
 import path from "path/win32";
-import { polygon_smooth_out } from "ShapeManipulation/smooth_out";
 
 export const BufferDST = defineEmbroidery(
     "Buffer" as const,
@@ -27,7 +27,7 @@ export const BufferDST = defineEmbroidery(
         })!;
 
         if (cfg.smooth_hull) {
-            hull = polygon_smooth_out(hull, cfg.smooth_hull);
+            hull = smooth_out(hull, cfg.smooth_hull);
         }
 
         if (cfg.buffer instanceof Array) {
@@ -35,10 +35,7 @@ export const BufferDST = defineEmbroidery(
                 let buff_line = select_correct_buffer(hull.buffer(b));
 
                 if (cfg.smooth_buffer) {
-                    buff_line = polygon_smooth_out(
-                        buff_line,
-                        cfg.smooth_buffer,
-                    );
+                    buff_line = smooth_out(buff_line, cfg.smooth_buffer);
                 }
                 buff_line = buff_line.resample(0.05);
                 res.run(buff_line.to_polyline());
@@ -47,7 +44,7 @@ export const BufferDST = defineEmbroidery(
             let buff_line = select_correct_buffer(hull.buffer(cfg.buffer));
 
             if (cfg.smooth_buffer) {
-                buff_line = polygon_smooth_out(buff_line, cfg.smooth_buffer);
+                buff_line = smooth_out(buff_line, cfg.smooth_buffer);
             }
             buff_line = buff_line.resample(0.05);
             res.run(buff_line.to_polyline());

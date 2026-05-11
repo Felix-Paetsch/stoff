@@ -22,22 +22,21 @@
         "isolatedModules": false,
         "declaration": false,
         "allowImportingTsExtensions": false,
-        "outDir": "./dist",
+        "outDir": "./out/build",
         "rootDir": "./",
         "baseUrl": "./",
         "paths": {
-            "@/Core": ["./Core/index"],
-            "@/Dev": ["Dev/Lib"]
+            "@/Core": ["Core/index"],
+            "@/Dev": ["Dev/Lib"],
+            "@/Algorithms": ["Algorithms/index"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Dev/StandAlone/scenes/index.ts.broken", "Dev/StandAlone/scenes/heart.ts.broken"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/self_intersection_free.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",
 
         "Dev/Server",
-        "Sewing/_*",
-        "todo"
     ],
     "ts-node": {
         "esm": true,

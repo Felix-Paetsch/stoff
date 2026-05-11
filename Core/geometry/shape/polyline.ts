@@ -55,23 +55,9 @@ export class Polyline extends Shape {
         throw new Error();
     }
 
-    static from_vectors(vec: Vector[]): Polyline {
-        const length = vec.length * 2;
-        const positions = new Float64Array(length);
-
-        let idx = 0;
-        // Fill from loops, calculations, etc.
-        for (const vertex of vec) {
-            positions[idx++] = vertex.x;
-            positions[idx++] = vertex.y;
-        }
-
-        return new Polyline(positions);
-    }
-
     slice(
         from: Shape.ShapePositionDescriptor,
-        to: Shape.ShapePositionDescriptor,
+        to: Shape.ShapePositionDescriptor = "end",
     ): Polyline {
         if (this.vertex_count == 0) return new Polyline(new Float64Array());
 
@@ -94,7 +80,7 @@ export class Polyline extends Shape {
         }
         res.push(sp2.vec);
 
-        return Polyline.from_vectors(res);
+        return new Polyline(res);
     }
 
     map(
@@ -110,7 +96,7 @@ export class Polyline extends Shape {
             res[i] = fn(ver[i]!, current_l / l, current_l);
         }
 
-        return Polyline.from_vectors(res);
+        return new Polyline(res);
     }
 
     is_straight(): boolean {

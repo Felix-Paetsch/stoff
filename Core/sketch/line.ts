@@ -118,7 +118,10 @@ export class Line {
             const transform = LinearTransform.mirror(this.shape.vertices[0]!);
             this.update_shape(this.shape.map(transform));
         } else {
-            const transform = LinearTransform.mirror([this.p1.vec, this.p2.vec]);
+            const transform = LinearTransform.mirror([
+                this.p1.vec,
+                this.p2.vec,
+            ]);
             this.update_shape(this.shape.map(transform));
         }
 
@@ -128,10 +131,10 @@ export class Line {
     flip() {
         let trafo: LinearTransform.LinearTransformation;
         if (!this.is_closed()) {
-            trafo = LinearTransform.affine_orthogonal(this._endpoints.map(e => e.vec) as [Vector, Vector], [
-                this.p2.vec,
-                this.p1.vec,
-            ]);
+            trafo = LinearTransform.affine_orthogonal(
+                this._endpoints.map((e) => e.vec) as [Vector, Vector],
+                [this.p2.vec, this.p1.vec],
+            );
             this._shape = this._shape.map(trafo);
         } else {
             this._shape = this._shape.reverse();
@@ -175,7 +178,8 @@ export class Line {
         if (this.p2 == p1) return this.set_endpoints(p2, p1);
         if (this.p1 == p2) return this.set_endpoints(p2, p1);
         if (this.p2 == p2) return this.set_endpoints(p1, p2);
-        Expect.that(Expect.invalid_path("No endpoint belonged to line"));
+
+        Expect.invalid_path("No endpoint belonged to line");
     }
 
     closest_position(to: Vector): Vector {
@@ -197,7 +201,7 @@ export class Line {
         line_segments: [Line, Line];
         point: Point;
     } {
-        if (at instanceof Point){
+        if (at instanceof Point) {
             at = at.vec;
         }
 
@@ -413,9 +417,6 @@ export class Line {
     }
 
     static straight(...endpoints: [Point, Point]) {
-        return new Line(
-            endpoints,
-            new Polyline(endpoints.map((p) => p.vec)),
-        );
+        return new Line(endpoints, new Polyline(endpoints.map((p) => p.vec)));
     }
 }

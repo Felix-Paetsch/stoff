@@ -36,7 +36,7 @@ export class Sketch {
     }
 
     bounding_box() {
-        return CollectionMethods.get_bounding_box(this);
+        return CollectionMethods.bounding_box(this);
     }
 
     points() {

@@ -1,5 +1,4 @@
-import { Vector } from "@/Core";
-import { Graph } from "Embroidery/Lib/index";
+import { Graph, Vector } from "@/Core";
 import { defineEmbroidery } from "Embroidery/types";
 
 export const GraphsProject = defineEmbroidery("Graphs" as const, (_cfg: {}) => {
@@ -16,6 +15,6 @@ export const GraphsProject = defineEmbroidery("Graphs" as const, (_cfg: {}) => {
     // Double Run (stating at: 0) = Polygon
 
     console.log(pts);
-    const mst = Graph.minimum_spanning_tree(pts);
+    const mst = Graph.minimum_spanning_tree_on_vertices(pts);
     console.log(mst);
 });

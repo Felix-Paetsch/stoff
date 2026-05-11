@@ -1,9 +1,9 @@
-import { deg_to_rad, Radians, Vector } from "@/Core";
+import { deg_to_rad, Graph, Radians, Vector } from "@/Core";
+import { double_run_graph } from "Algorithms/double_run_graph";
+import { smooth_out } from "Algorithms/smooth_out";
 import { Embroidery } from "Embroidery/Lib/embroidery";
-import { Graph, GraphUtils } from "Embroidery/Lib/index";
 import { string_LSystem } from "Embroidery/Lib/LSystem/string/index";
 import { defineEmbroidery } from "Embroidery/types";
-import { polygon_smooth_out } from "ShapeManipulation/smooth_out";
 
 export const LSystemProject = defineEmbroidery(
     "LSystem" as const,
@@ -19,7 +19,7 @@ export const LSystemProject = defineEmbroidery(
             evaluated,
             {
                 angle: 0,
-                graph: new Graph([Vector.ZERO]),
+                graph: new Graph.Graph([Vector.ZERO]),
                 position: 0,
                 stack: [],
             },
@@ -33,11 +33,11 @@ export const LSystemProject = defineEmbroidery(
         );
 
         const graph = interpreted.graph;
-        const identified = GraphUtils.identify_equal_vertices(graph);
-        identified.remove_duplicate_edges();
+        Graph.identify_nodes(graph, (a, b) => a.equals(b));
+        Graph.remove_dublicate_edges(graph);
 
-        let shape_tree = GraphUtils.double_run(identified);
-        shape_tree = polygon_smooth_out(shape_tree, 0.3, 0.4);
+        let shape_tree = double_run_graph(graph);
+        shape_tree = smooth_out(shape_tree, 0.3, 0.4);
 
         for (let i = 0; i < 10; i++) {
             console.log(
@@ -70,16 +70,20 @@ function rotate_on(on: string, by: Radians): Interpretation<{ angle: number }> {
 function draw_with_angle(
     on: string,
     len: number = 1,
-): Interpretation<{ angle: number; graph: Graph; position: number }> {
+): Interpretation<{
+    angle: number;
+    graph: Graph.VertexGraph;
+    position: number;
+}> {
     return [
         on,
         (s) => {
-            const start = s.graph.vertices[s.position]!;
-            s.graph.vertices.push(
+            const start = s.graph.node_data(s.position)!;
+            s.graph.add_node(
                 Vector.add(start, Vector.UP.rotate(s.angle).scale(len)),
             );
-            s.graph.edges.push([s.position, s.graph.vertices.length - 1]);
-            s.position = s.graph.vertices.length - 1;
+            s.graph.add_edge(s.position, s.graph.nodes.length - 1);
+            s.position = s.graph.nodes.length - 1;
         },
     ];
 }

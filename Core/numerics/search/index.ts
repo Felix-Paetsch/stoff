@@ -1,7 +1,7 @@
-import { newton } from "./newton";
-import { binary } from "./binary";
-import { proportional_binary } from "./proportional_binary";
-import { monotone_boundary_computation } from "./boundary_computation";
+export { binary } from "./binary";
+export { monotone_boundary_computation } from "./boundary_computation";
+export { newton } from "./newton";
+export { proportional_binary } from "./proportional_binary";
 
 export type TerminationCriteria = {
     iterations?: number;
@@ -20,11 +20,4 @@ export type SearchResult = {
         | "distance"
         | "hard_stop"
         | "method_error";
-};
-
-export const Search = {
-    newton: newton,
-    binary: binary,
-    proportional_binary: proportional_binary,
-    monotone_boundary_computation: monotone_boundary_computation,
 };

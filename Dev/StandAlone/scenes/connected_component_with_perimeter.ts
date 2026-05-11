@@ -1,5 +1,5 @@
 import { CollectionMethods, Sketch } from "@/Core";
-import { compute_connected_component_perimeters } from "Unstructured/compute_connected_component_perimeters";
+import { compute_connected_component_perimeters } from "Algorithms/compute_connected_component_perimeters";
 
 export default function () {
     const r = new Sketch();

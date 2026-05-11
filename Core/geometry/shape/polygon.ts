@@ -49,20 +49,6 @@ export class Polygon extends Shape {
         return false;
     }
 
-    static from_vectors(vec: Vector[]): Polygon {
-        const length = vec.length * 2;
-        const positions = new Float64Array(length);
-
-        let idx = 0;
-        // Fill from loops, calculations, etc.
-        for (const vertex of vec) {
-            positions[idx++] = vertex.x;
-            positions[idx++] = vertex.y;
-        }
-
-        return new Polygon(positions);
-    }
-
     map(
         fn: (vec: Vector, len_rel: number, len_abs: number) => Vector,
     ): Polygon {
@@ -76,7 +62,7 @@ export class Polygon extends Shape {
             res.push(fn(ver[i]!, current_l / l, current_l));
         }
 
-        return Polygon.from_vectors(res);
+        return new Polygon(res);
     }
 
     root(): Vector | null {
@@ -205,7 +191,7 @@ export class Polygon extends Shape {
 
     slice(
         from: Shape.ShapePositionDescriptor,
-        to: Shape.ShapePositionDescriptor,
+        to: Shape.ShapePositionDescriptor = "end",
     ): Polyline {
         if (this.vertex_count == 0) return new Polyline([]);
 
@@ -229,7 +215,7 @@ export class Polygon extends Shape {
 
         res.push(sp2.vec);
 
-        return Polyline.from_vectors(res);
+        return new Polyline(res);
     }
 
     static override empty() {

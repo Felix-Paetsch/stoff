@@ -1,3 +1,43 @@
+to vs into?
+
+breitensuche, tiefensuche, associated data?
+min spanning tree on verticies
+
+graph connected components
+graph connected component_graphs
+
+degrees for nodes?
+maybe vertex and edges are just numbers but they can have data?
+but then how do we code minimal spanning tree?
+get degrees for verticies
+
+=> graph toolbox?
+=> in general a graph subsystem?
+=> Make a list of potentially important methods on graphs and where to find them
+
+
+- interpolate lines vs interpolate shapes?
+    methods on lines vs methods on shapes? when both? I mean in this case they do a bit different stuff still
+
+- reorganize project
+- fill in leonies methods
+- restructure test files
+- graph accessor methods
+- suborganize
+    - algorithms
+    - ...
+
+- put cut/glue/unfold/to A4 printable to leonie/sewing
+
+- collect what code should go where
+
+
+
+
+
+
+
+
 1. Where to put compute...?
 2. use this to build Leonies method
 3. use this to build my method
@@ -181,6 +221,19 @@ Flocking and life simulations
 Algorithmic...
 - botany (biology)
 - ...
+
+
+
+
+Use pixelart algo to first figure out where lines should roughtly go and then have a smooth_out functoin based on the iamge
+
+https://giventofly.github.io/pixelit/#examples
+
+For dst: Allow different lines ber stitch path, but joined together by point 
+doublerun and many other custom run types can/should be a custom fucntion to apply to a polyline
+A funtion to confine a polyline/gon to our outside of a space
+
+Pearlin noise or fractal noise and then height lines
 
 ### Future features - General
 

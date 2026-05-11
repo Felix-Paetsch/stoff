@@ -15,8 +15,25 @@ export const that = (
     return true;
 };
 
+export function defined<T>(
+    value: T,
+    error: string = "Value is not defined",
+): Exclude<T, undefined> {
+    if (value === undefined) throw new Error(error);
+    return value as Exclude<T, undefined>;
+}
+
+type Falsy = false | 0 | 0n | "" | null | undefined;
+export function truthy<T>(
+    value: T,
+    error: string = "Value is not truthy",
+): Exclude<T, Falsy> {
+    if (!Boolean(value)) throw new Error(error);
+    return value as Exclude<T, Falsy>;
+}
+
 export function invalid_path(str = "Invalid path reached!") {
-    return str;
+    return that(str);
 }
 
 export function validation_failed(v: ValidationResult) {

@@ -1,5 +1,5 @@
 import { Interval } from "../../geometry";
-import { Quadrature } from "../quadrature";
+import { gauss_legendre } from "../quadrature/gauss-legendre";
 
 export function arc_length_intergrand(f: (x: number) => number) {
     return (x: number) => {
@@ -9,5 +9,5 @@ export function arc_length_intergrand(f: (x: number) => number) {
 }
 
 export function arc_length(f: (x: number) => number, range: Interval.Interval) {
-    return Quadrature.gauss_legendre(arc_length_intergrand(f), range);
+    return gauss_legendre(arc_length_intergrand(f), range);
 }

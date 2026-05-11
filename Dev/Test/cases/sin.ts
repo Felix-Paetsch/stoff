@@ -1,4 +1,4 @@
-import { Polyline, Sketch, Vector } from "../../../Core/index";
+import { Copy, Polyline, Sketch, Vector } from "../../../Core/index";
 import { TestCase } from "../build_tests";
 
 const test: TestCase = function () {
@@ -16,7 +16,7 @@ const test: TestCase = function () {
 
     s.line_between_points(p, q, shape);
 
-    const t = s.copy().sketch;
+    const t = Copy.sketch(s).sketch;
     t.add_point(5, 0);
 
     return [s, t];

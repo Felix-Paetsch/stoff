@@ -1,2 +1,3 @@
 export * as Geometry from "./geometry/index";
-export * as Graph from "./graphs";
+export * as Graph from "./graph/index";
+
