@@ -1,3 +1,7 @@
+sketches and resampling lns/gons dont go well together
+also resampling is sloooow, I guess it is to fine. When doing strict resampling you dont need to resample on straight lines
+fix offset sharp
+
 to vs into?
 
 breitensuche, tiefensuche, associated data?

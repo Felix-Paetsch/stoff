@@ -7,6 +7,7 @@ import {
     Line,
     PlaneLine,
     Point,
+    Shape,
     SketchElement,
     SketchElementCollection,
     Vector,
@@ -98,10 +99,9 @@ function compute_single_connected_component_perimeter(
         };
     }
 
-    const left_most = compute_left_most_lines(lns);
     const incidence_nodes = create_incidence_nodes(pts, lns);
     const starting_LineWithDirection = compute_starting_LineWithDirection(
-        left_most,
+        lns,
         incidence_nodes,
     );
 
@@ -448,140 +448,142 @@ function create_incidence_nodes(pts: Point[], lns: Line[]): IncidenceNode[] {
     return Array.from(node_by_point.values());
 }
 
-function compute_left_most_lines(lns: Line[]): Line[] {
-    const x_lns = lns.map((l) => [l, l.bounding_box().min_x] as [Line, number]);
-    let min_ln = x_lns[0]!;
-    for (let i = 1; i < x_lns.length; i++) {
-        if (min_ln[1] > x_lns[i]![1]) {
-            min_ln = x_lns[i]!;
-        }
-    }
-
-    return x_lns.filter(([_, b]) => b == min_ln[1]).map((l) => l[0]);
-}
-
-type SweepAxis = "horizontal" | "vertical";
-
 function compute_starting_LineWithDirection(
     lns: Line[],
     nodes: IncidenceNode[],
 ): LineWithDirection {
-    const w_lns = lns.map((l) => [l, l.bounding_box()] as [Line, BoundingBox]);
-    let min_ln = w_lns[0]!;
-    for (let i = 1; i < w_lns.length; i++) {
-        if (min_ln[1].min_x > w_lns[i]![1].min_x) {
-            min_ln = w_lns[i]!;
-        }
-    }
+    const bb_lns = lns.map((l) => [l, l.bounding_box()] as [Line, BoundingBox]);
+    const cc_bb = BoundingBox.merge(bb_lns.map((l) => l[1]));
 
-    const x_min_lns = w_lns.filter((w) => w[1].min_x == min_ln[1].min_x);
-    x_min_lns.sort((a, b) => a[1].width - b[1].width);
-
-    if (x_min_lns[0]![1].width < EPS.tiny) {
-        return compute_starting_LineWithDirection_bySweep(
-            x_min_lns[0]![0],
+    if (cc_bb.width < EPS.tiny) {
+        return compute_starting_LineWithDirection_horizontal(
+            bb_lns,
+            cc_bb,
             nodes,
-            "horizontal",
         );
     }
 
-    // Take a vertical line in generic x-position, intersect all candidate lines,
-    // and choose the one with the highest intersection (hit from above first).
-    const x_line_intervals: Interval.Interval[] = x_min_lns.map(
-        ([_, b]) => [b.min_x, b.max_x] as Interval.Interval,
-    );
-    const range = Interval.merge(...x_line_intervals);
-    const x_exclude = x_min_lns.flatMap(([l, b]) => [
-        b.min_x,
-        b.max_x,
-        l.p1.vec.x,
-        l.p2.vec.x,
-    ]);
-
-    const pos = Interval.generic_position(range, x_exclude);
-    const test_plain_line = new PlaneLine([
-        new Vector(pos, 0),
-        new Vector(pos, 1),
-    ]);
-
-    const intersections = x_min_lns.map(([l]) => {
-        const ips = l.shape.intersection_positions(test_plain_line);
-        ips.sort((a, b) => a.vec.y - b.vec.y);
-        if (ips.length > 0) return ips[0]!;
-        return null;
-    });
-
-    const correct_line_index = intersections.findIndex((p) => {
-        if (p == null) return false;
-        return intersections.every((i) => i == null || i.vec.y >= p.vec.y);
-    });
-
-    return compute_starting_LineWithDirection_bySweep(
-        x_min_lns[correct_line_index]![0],
-        nodes,
-        "vertical",
-    );
+    return compute_starting_LineWithDirection_vertical(bb_lns, cc_bb, nodes);
 }
 
-function compute_starting_LineWithDirection_bySweep(
-    l: Line,
+function compute_starting_LineWithDirection_horizontal(
+    lns: [Line, BoundingBox][],
+    totalBB: BoundingBox,
     nodes: IncidenceNode[],
-    axis: SweepAxis,
-): LineWithDirection {
-    const lbb = l.bounding_box();
+) {
+    const avoid_positions = lns.flatMap(([l, _]) => [l.p1.vec.y, l.p2.vec.y]);
+    const range: Interval.Interval = [totalBB.min_y, totalBB.max_y];
+    let incidence_angle = 0;
 
-    const sweepExtent: Interval.Interval =
-        axis === "horizontal" ? [lbb.min_y, lbb.max_y] : [lbb.min_x, lbb.max_x];
+    const infinite_loop_guard = Bounds.guard_inf_loop();
+    let target_intersection: [Line, Shape.ShapePosition] = null as any;
 
-    const sweepSize = sweepExtent[1] - sweepExtent[0];
-    if (sweepSize < EPS.tiny) {
-        throw new Error("Sketch contained a line with too tiny bounding box");
-    }
-
-    const avoid_positions =
-        axis === "horizontal"
-            ? [l.p1.vec.y, l.p2.vec.y]
-            : [l.p1.vec.x, l.p2.vec.x];
-
-    let pos = Interval.generic_position(sweepExtent, avoid_positions);
-
-    while (true) {
-        const plainLine =
-            axis === "horizontal"
-                ? new PlaneLine(new Vector(0, pos), new Vector(1, pos))
-                : new PlaneLine(new Vector(pos, 0), new Vector(pos, 1));
-
-        const intersections = l.shape.intersection_positions(plainLine);
-
-        intersections.sort((a, b) =>
-            axis === "horizontal" ? a.vec.x - b.vec.x : a.vec.y - b.vec.y,
+    while (infinite_loop_guard()) {
+        const generic_pos = Interval.generic_position(range, avoid_positions);
+        const pl = new PlaneLine(
+            new Vector(0, generic_pos),
+            new Vector(1, generic_pos),
+        );
+        const intersections: [Line, Shape.ShapePosition][] = lns.flatMap(
+            ([l]) => {
+                return l.shape
+                    .intersection_positions(pl)
+                    .map((p) => [l, p] as [Line, Shape.ShapePosition]);
+            },
+        );
+        intersections.sort((a, b) => a[1].vec.x - b[1].vec.x);
+        const minI = intersections[0]!;
+        const tangent = minI[0].shape.tangent_vector(minI[1])!;
+        incidence_angle = PlaneLine.incidence_angle(
+            pl,
+            PlaneLine.from_direction(Vector.ZERO, tangent),
         );
 
-        const firstIntersection = intersections[0]!;
-        const outgoing_vector = axis === "horizontal" ? Vector.LEFT : Vector.UP;
-        const tangent_vector = l.shape.tangent_vector(firstIntersection)!;
-
-        const angle = Vector.angle_clockwise(
-            outgoing_vector,
-            tangent_vector,
-            "minusPiToPi",
-        );
-
-        if (Math.abs(angle) > EPS.tiny ** 2) {
-            if (angle > 0) {
-                const node = nodes.find((n) => n.point == l.p1)!;
-                return node.lines.find(
-                    (line) => line.line == l && line.anchor == "line_p1",
-                )!;
-            }
-
-            const node = nodes.find((n) => n.point == l.p2)!;
-            return node.lines.find(
-                (line) => line.line == l && line.anchor == "line_p2",
-            )!;
+        if (Math.abs(incidence_angle) > EPS.tiny) {
+            target_intersection = minI;
+            break;
         }
 
-        avoid_positions.push(pos);
-        pos = Interval.generic_position(sweepExtent, avoid_positions);
+        avoid_positions.push(generic_pos);
     }
+
+    const tangent = target_intersection[0].shape.tangent_vector(
+        target_intersection[1],
+    )!;
+    const angle = Vector.angle_clockwise(Vector.LEFT, tangent, "minusPiToPi");
+
+    if (angle >= 0) {
+        const node = nodes.find((n) => n.point == target_intersection[0].p1)!;
+        return node.lines.find(
+            (line) =>
+                line.line == target_intersection[0] && line.anchor == "line_p1",
+        )!;
+    }
+
+    const node = nodes.find((n) => n.point == target_intersection[0].p2)!;
+    return node.lines.find(
+        (line) =>
+            line.line == target_intersection[0] && line.anchor == "line_p2",
+    )!;
+}
+
+function compute_starting_LineWithDirection_vertical(
+    lns: [Line, BoundingBox][],
+    totalBB: BoundingBox,
+    nodes: IncidenceNode[],
+) {
+    const avoid_positions = lns.flatMap(([l, _]) => [l.p1.vec.x, l.p2.vec.x]);
+    const range: Interval.Interval = [totalBB.min_x, totalBB.max_x];
+    let incidence_angle = 0;
+
+    const infinite_loop_guard = Bounds.guard_inf_loop();
+    let target_intersection: [Line, Shape.ShapePosition] = null as any;
+
+    while (infinite_loop_guard()) {
+        const generic_pos = Interval.generic_position(range, avoid_positions);
+        const pl = new PlaneLine(
+            new Vector(generic_pos, 0),
+            new Vector(generic_pos, 1),
+        );
+        const intersections: [Line, Shape.ShapePosition][] = lns.flatMap(
+            ([l]) => {
+                return l.shape
+                    .intersection_positions(pl)
+                    .map((p) => [l, p] as [Line, Shape.ShapePosition]);
+            },
+        );
+        intersections.sort((a, b) => a[1].vec.y - b[1].vec.y);
+        const minI = intersections[0]!;
+        const tangent = minI[0].shape.tangent_vector(minI[1])!;
+        incidence_angle = PlaneLine.incidence_angle(
+            pl,
+            PlaneLine.from_direction(Vector.ZERO, tangent),
+        );
+
+        if (Math.abs(incidence_angle) > EPS.tiny) {
+            target_intersection = minI;
+            break;
+        }
+
+        avoid_positions.push(generic_pos);
+    }
+
+    const tangent = target_intersection[0].shape.tangent_vector(
+        target_intersection[1],
+    )!;
+    const angle = Vector.angle_clockwise(Vector.UP, tangent, "minusPiToPi");
+
+    if (angle >= 0) {
+        const node = nodes.find((n) => n.point == target_intersection[0].p1)!;
+        return node.lines.find(
+            (line) =>
+                line.line == target_intersection[0] && line.anchor == "line_p1",
+        )!;
+    }
+
+    const node = nodes.find((n) => n.point == target_intersection[0].p2)!;
+    return node.lines.find(
+        (line) =>
+            line.line == target_intersection[0] && line.anchor == "line_p2",
+    )!;
 }

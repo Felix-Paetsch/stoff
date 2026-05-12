@@ -118,7 +118,7 @@ export class Sketch {
                 );
 
                 shape = shape.typesafe().map(trafo);
-            } else {
+            } else if (!to) {
                 const offset = Vector.subtract(
                     from instanceof Vector ? from : from.vec,
                     shape.as_polyline().first()!,

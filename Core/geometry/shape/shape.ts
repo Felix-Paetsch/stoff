@@ -432,7 +432,7 @@ export abstract class Shape {
     static merge(sh1: Polyline, sh2: Polygon): Polyline;
     static merge(sh1: Polygon, sh2: Polyline): Polyline;
     static merge(sh1: Polyline, sh2: Polyline): Polyline;
-    static merge(sh1: Shape, sh2: Shape): Shape;
+    static merge(sh1: Shape, sh2: Shape): Shape.Shape;
     static merge(sh1: Shape, sh2: Shape): Shape {
         return merge(sh1, sh2);
     }

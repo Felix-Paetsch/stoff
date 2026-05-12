@@ -1,3 +1,4 @@
+import { add_seam_allowance } from "Sewing/Lib/add_seam_allowance";
 import { BaseMeasurements } from "../base_measurements";
 import { definePattern } from "../types";
 import { construct_base_tshirt_parts } from "./construct_base_parts";
@@ -30,6 +31,7 @@ export const TShirtPattern = definePattern(
         //    - Note that this is typesafe, so you can only input valid keys
         const mea = BoundShirtSideMeasurements(cfg, "back");
         const r = construct_base_tshirt_parts(mea);
+        add_seam_allowance(r, 5);
 
         return r;
     },

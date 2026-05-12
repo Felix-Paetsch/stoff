@@ -12,6 +12,11 @@ export function get_appreciable_line_segment(
     line_segment_index: number,
 ): LineSegment | null {
     const vertices = s.as_polyline().vertices;
+    if (s instanceof Polygon) {
+        line_segment_index =
+            (s.vertex_count + (line_segment_index % s.vertex_count)) %
+            s.vertex_count;
+    }
     if (line_segment_index > vertices.length - 2 || line_segment_index < 0)
         return null;
 

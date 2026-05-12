@@ -107,4 +107,14 @@ export class Line {
 
     static HORIZONTAL = new Line(Vector.LEFT, Vector.RIGHT);
     static VERTICAL = new Line(Vector.UP, Vector.DOWN);
+
+    static incidence_angle(l1: Line, l2: Line) {
+        const l1_vec = l1.points[0].subtract(l1.points[1]);
+        const l2_vec = l2.points[0].subtract(l2.points[1]);
+        let angle = Vector.angle(l1_vec, l2_vec);
+        if (angle > Math.PI) {
+            angle -= Math.PI;
+        }
+        return angle;
+    }
 }
