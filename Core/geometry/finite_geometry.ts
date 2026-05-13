@@ -1,4 +1,5 @@
 import {
+    wasm_geometry_buffer_geometries_with_style,
     wasm_geometry_concave_hull_geometries,
     wasm_geometry_concave_hull_shape,
     wasm_geometry_concave_hull_vertices,
@@ -9,7 +10,7 @@ import { BoundingBox } from "./bounding_box";
 import { Polygon } from "./shape/polygon";
 import { Shape } from "./shape/shape";
 import { LineSegment } from "./types";
-import { as_polyline } from "./utils/misc";
+import { as_polyline, as_shape } from "./utils/misc";
 import { Vector } from "./vector";
 
 export type FiniteGeometry = Vector | LineSegment | Shape;
@@ -39,6 +40,7 @@ export type ConcaveHullOptions = {
     concavity: number;
     length_threshold: number;
 };
+
 export function concave_hull(
     geometries: FiniteGeometry[],
     options: Partial<ConcaveHullOptions> = {},
@@ -107,4 +109,79 @@ export function circle(center: Vector, radius: number): Polygon {
             radius * Math.cos(adjusted_t),
         ).add(center);
     });
+}
+
+export type BufferLineJoinStyle =
+    | "bevel"
+    | "miter"
+    | "round"
+    | ["miter", number]
+    | ["round", number];
+export type BufferLineCapStyle =
+    | "butt"
+    | "round"
+    | "square"
+    | ["round", number];
+
+export function buffer(
+    what: FiniteGeometry[],
+    distance: number,
+    joinstyle: BufferLineJoinStyle = "round",
+    capstyle: BufferLineCapStyle = "round",
+) {
+    const shapes = what.map((s) => as_shape(s));
+
+    const f64 = WASMCompatability.Geometry.geometry_vec_to_vecf64(
+        shapes as Shape.Shape[],
+    );
+
+    const [line_join_number, line_join_value] =
+        bufferLineJoinStyle_to_number(joinstyle);
+    const [line_cap_number, line_cap_value] =
+        bufferLineCapStyle_to_number(capstyle);
+
+    const buffer_res = wasm_geometry_buffer_geometries_with_style(
+        f64,
+        distance,
+        line_join_number,
+        line_join_value,
+        line_cap_number,
+        line_cap_value,
+    )!;
+    const res = WASMCompatability.Geometry.vecf64_to_geometry_vec(buffer_res);
+    return res as Polygon[];
+}
+
+function bufferLineJoinStyle_to_number(
+    b: BufferLineJoinStyle,
+): [number, number] {
+    if (b == "bevel") {
+        return [1, NaN];
+    }
+
+    if (b == "round") {
+        b = ["round", 0.2];
+    }
+
+    if (b == "miter") {
+        b = ["miter", 1];
+    }
+
+    return [b[0] == "miter" ? 2 : 0, b[1]];
+}
+
+function bufferLineCapStyle_to_number(b: BufferLineCapStyle): [number, number] {
+    if (b == "butt") {
+        return [1, NaN];
+    }
+
+    if (b == "square") {
+        return [2, NaN];
+    }
+
+    if (b == "round") {
+        b = ["round", 0.2];
+    }
+
+    return [0, b[1]];
 }

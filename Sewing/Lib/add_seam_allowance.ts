@@ -16,7 +16,6 @@ export function add_seam_allowance(s: Sketch, amt: number) {
             }
         }
 
-        const modded_shape = shape.as_polygon();
-        s.add_line(modded_shape.buffer(amt)[0]!);
+        s.add_line(shape.buffer(amt, ["miter", 1.5], "square")[0]!);
     });
 }

@@ -1,5 +1,4 @@
 import {
-    wasm_geometry_buffer_geometries,
     wasm_geometry_closest_shape_positions,
     wasm_geometry_geometries_intersect,
     wasm_geometry_shape_intersections,
@@ -9,7 +8,12 @@ import {
 } from "Rust/exports";
 import { EPS } from "../../numerics";
 import { BoundingBox } from "../bounding_box";
-import * as Geometry from "../geometry";
+import {
+    buffer,
+    BufferLineCapStyle,
+    BufferLineJoinStyle,
+} from "../finite_geometry";
+import { Geometry } from "../index";
 import { Fraction } from "../interval";
 import { Line } from "../line";
 import { Ray } from "../ray";
@@ -437,18 +441,13 @@ export abstract class Shape {
         return merge(sh1, sh2);
     }
 
-    buffer(distance: number): Polygon[] {
-        return Shape.buffer([this], distance);
-    }
+    buffer(
+        distance: number,
 
-    static buffer(shapes: Shape[], distance: number): Polygon[] {
-        const f64 = WASMCompatability.Geometry.geometry_vec_to_vecf64(
-            shapes as Shape.Shape[],
-        );
-        const buffer_res = wasm_geometry_buffer_geometries(f64, distance)!;
-        const res =
-            WASMCompatability.Geometry.vecf64_to_geometry_vec(buffer_res);
-        return res as Polygon[];
+        joinstyle: BufferLineJoinStyle = "round",
+        capstyle: BufferLineCapStyle = "round",
+    ): Polygon[] {
+        return buffer([this], distance, joinstyle, capstyle);
     }
 
     abstract reverse(): Shape;
