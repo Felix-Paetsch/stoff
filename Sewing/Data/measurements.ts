@@ -9,15 +9,15 @@ const leonie: BaseMeasurements = {
 
     shoulder_length: 15,
     shoulder_width: 39,
-    bust_width: 0,
-    under_bust: 82,
+  //  bust_width: 0,
+  //  under_bust: 82,
     bust_width_front: 51,
     bust_width_back: 44,
     bust_point_width: 18,
     bust_point_height: 17.5,
     shoulderblade_width: 13.5,
     shoulderblade_height: 16.5,
-    waist_width: 0,
+  //  waist_width: 0,
     waist_height: 17.5,
     shoulder_height_front: 45,
     shoulder_height_back: 43,
@@ -81,49 +81,49 @@ const _debby = {
     "ellbow_length": 34.5,
     //  "ratio":0
 } as const;
+*/
 
-
-const _felix = {
-    "over_bust_front": 50,
-    "over_bust_back": 40,
+const felix: BaseMeasurements = {
+    "over_bust_front": 49,
+    "over_bust_back": 47,
     "shoulder_length": 16,
     "shoulder_width": 46,
-    "shoulder_w_point": 50,
-    "bust_width": 91,
-    //"bust_width_front": 45,
-    //"bust_width_back": 46, // 40
+   // "shoulder_w_point": 50,
+   // "bust_width": 91,
+    "bust_width_front": 48,
+    "bust_width_back": 46, // 40
     "bust_point_width": 22,
     "bust_point_height": 18,
     "shoulderblade_width": 17,
-    "shoulderblade_height": 20,
-    "waist_width": 80,
-    //"waist_width_front": 43,
-    //"waist_width_back": 37,
-    "waist_height": 26,
-    "shoulder_height_front": 45,
+    "shoulderblade_height": 18,
+    //"waist_width": 80,
+    "waist_width_front": 49,
+    "waist_width_back": 36,
+    "waist_height": 23.5,
+    "shoulder_height_front": 44,
     "shoulder_height_back": 45,
-    "center_height_front": 32.5,
-    "center_height_back": 43,
-    "across_front": 37,
-    "across_back": 36.5,
-    "diagonal_front": 45,
-    "diagonal_back": 45.5, // muss noch gemessen werden, nur spekuliert
-    "side_height": 22,
-    "bottom_width_front": 48,
-    "bottom_width_back": 53,
-    "under_bust": 83,
+    "center_height_front": 30,
+    "center_height_back": 39,
+    "across_front": 49,
+    "across_back": 47,
+    "diagonal_front": 41.5,
+    "diagonal_back": 44, 
+    "side_height": 20,
+    "bottom_width_front": 47,
+    "bottom_width_back": 52,
+    //"under_bust": 83,
     //"belly": 90,
     "belly_front": 46,
     "belly_back": 40,
     "arm": 35,
-    "arm length": 61,
+    "arm_length": 61,
     "wristwidth": 23.5,
     "ellbow_width": 26,
     "ellbow_length": 35,
     //  "ratio":0
 } as const;
 
-
+/*
 const _isa = {
     "shoulder_length": 16,//7.5,
     "shoulder_width": 47.5,
@@ -164,5 +164,6 @@ export const people_measurements = {
     // Debby: debby,
     // Felix: felix,
     Leonie: leonie,
+    Felix: felix
     // Isa: isa
 } as const;

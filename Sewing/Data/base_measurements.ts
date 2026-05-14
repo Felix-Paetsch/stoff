@@ -6,13 +6,13 @@ export type BaseMeasurements = {
 
     shoulder_length: number;
     shoulder_width: number;
-    bust_width: number;
-    under_bust: number;
+   // bust_width: number;
+  //  under_bust: number;
     bust_point_width: number;
     bust_point_height: number;
     shoulderblade_width: number;
     shoulderblade_height: number;
-    waist_width: number;
+ //   waist_width: number;
     waist_height: number;
     waist_width_front: number;
     waist_width_back: number;
