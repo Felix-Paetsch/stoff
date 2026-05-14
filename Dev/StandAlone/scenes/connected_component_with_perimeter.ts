@@ -1,5 +1,5 @@
+import { SketchAlgorithms } from "@/Algorithms";
 import { CollectionMethods, Sketch } from "@/Core";
-import { compute_connected_component_perimeters } from "Algorithms/compute_connected_component_perimeters";
 
 export default function () {
     const r = new Sketch();
@@ -69,7 +69,7 @@ export default function () {
         ln.data.name = l;
     });
 
-    const perim = compute_connected_component_perimeters(r)[0]!;
+    const perim = SketchAlgorithms.connected_component_perimeters(r)[0]!;
     console.log(perim.walk.map((l) => l.data));
 
     return r;

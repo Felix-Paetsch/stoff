@@ -1,0 +1,227 @@
+import {
+    CollectionMethods,
+    EPS,
+    Line,
+    Point,
+    Shape,
+    Sketch,
+    SketchElement,
+    Utils,
+    Vector,
+} from "@/Core";
+import {
+    connected_component_perimeters,
+    ConnectedComponentPerimeter,
+    Loop,
+} from "Algorithms/sketch/compute_connected_component_perimeters";
+
+export function self_intersection_free<E extends Shape.Shape>(s: E): E {
+    if (s.is_empty()) return s;
+    const sketch = shape_to_sketch(s);
+    const res = run_sketch_element_collection_self_intersection_free(
+        CollectionMethods.sketch_element_collection_as_array(sketch),
+    );
+}
+
+type LoopRun = {
+    type: "loop";
+    lines: {
+        line: Line;
+        traversal_orientation: boolean;
+        start_point: Point;
+        end_point: Point;
+    }[];
+}; // A LoopRun is always cw oriented!
+type SingleEndedRun = {
+    type: "single_ended";
+    lines: [Line, boolean][];
+};
+type DoubleEndedRun = {
+    type: "double_ended";
+    lines: [Line, boolean][];
+};
+type Run = LoopRun | SingleEndedRun | DoubleEndedRun;
+
+function run_sketch_element_collection_self_intersection_free(
+    sec: SketchElement[],
+) {
+    const cc_perimeters = connected_component_perimeters(sec);
+    return cc_perimeters.map(run_cc_perimeter_self_intersection_free);
+}
+
+function run_cc_perimeter_self_intersection_free(
+    perim: ConnectedComponentPerimeter,
+): Run {
+    const loop_runs = perim.loops.map(run_loop_self_intersection_free);
+    const loose_runs = perim.loose_segments.map(
+        run_loose_segment_self_intersection_free,
+    );
+}
+
+function run_loop_self_intersection_free(l: Loop): Run {
+    const inner = run_sketch_element_collection_self_intersection_free(
+        l.interior,
+    );
+
+    let own_run: Run = {
+        type: "loop",
+        lines: l.lines.map((ln, i) => {
+            const orientation = l.line_orientations[i]!;
+            return {
+                line: ln,
+                traversal_orientation: orientation,
+                start_point: ln.endpoint_from_orientation(orientation),
+                end_point: ln.endpoint_from_orientation(!orientation),
+            };
+        }),
+    };
+
+    for (const inner_run of inner) {
+        own_run = merge_runs(own_run, inner_run);
+    }
+    return own_run;
+}
+
+function merge_runs(r1: Run, r2: Run): Run {
+    // this assumes that r1 and r2 touch!
+    if (r1.type == "loop" && r2.type == "loop") {
+        return merge_loop_runs(r1, r2);
+    }
+}
+
+function merge_loop_runs(l1: LoopRun, l2: LoopRun): LoopRun {
+    const lines1 = l1.lines;
+    const lines2 = l2.lines;
+
+    outer: for (let i = 0; i < lines1.length; i++) {
+        for (let j = 0; j < lines2.length; j++) {
+            const li = lines1[i]!;
+            const lj = lines2[j]!;
+            if (li!.start_point == lj!.start_point) {
+                const prev_li =
+                    lines1[(i - 1 + lines1.length) % lines1.length]!;
+                let tangent_vector_prev_li: Vector;
+                if (prev_li.traversal_orientation) {
+                    tangent_vector_prev_li = prev_li.line.shape
+                        .tangent_vector("end")!
+                        .invert();
+                } else {
+                    tangent_vector_prev_li =
+                        prev_li.line.shape.tangent_vector("start")!;
+                }
+
+                let tangent_vector_current_li: Vector;
+                if (li.traversal_orientation) {
+                    tangent_vector_current_li = li.line.shape
+                        .tangent_vector("end")!
+                        .invert();
+                } else {
+                    tangent_vector_current_li =
+                        li.line.shape.tangent_vector("start")!;
+                }
+
+                let tangent_vector;
+
+                break outer;
+            }
+        }
+    }
+}
+
+type ShapeSketchPoint = {
+    point: Point;
+    shape_positions: Shape.ShapePosition[];
+};
+
+function shape_to_sketch(s: Shape): Sketch {
+    const sketch = new Sketch();
+
+    const self_ints = s.self_intersection_positions().flatMap((x) => x);
+    self_ints.push(
+        s.shape_point_descriptor_to_shape_position("start")!,
+        s.shape_point_descriptor_to_shape_position("end")!,
+    );
+
+    const identifies = identify_intersections(self_ints);
+
+    const sketchPoints: ShapeSketchPoint[] = identifies.map((int) => {
+        const p = sketch.add_point(Vector.ZERO);
+
+        let avg = Vector.ZERO;
+        for (let i of int) {
+            avg = avg.add(i.vec);
+            if (i.index == 0 && i.frac == 0) {
+                p.data.is_start = "true";
+            }
+
+            if (i.index == s.vertex_count - 1 && i.frac == 1) {
+                p.data.is_end = "true";
+            }
+        }
+        avg = avg.scale(1 / int.length);
+        p.move_to(avg);
+
+        return {
+            point: p,
+            shape_positions: int,
+        };
+    });
+
+    self_ints.sort((a, b) => 2 * (a.index - b.index) + a.frac - b.frac);
+    for (let i = 0; i < self_ints.length - 1; i++) {
+        const int1 = self_ints[i]!;
+        const int2 = self_ints[i + 1]!;
+
+        let shape: Shape.Shape = s.typesafe().slice(int1, int2);
+        if (shape.length() < EPS.tiny) {
+            // The points agree anyway
+            continue;
+        }
+
+        if (shape.first()!.equals(shape.last()!)) {
+            shape = shape.as_polygon();
+            if (shape.orientation() == "ccw") {
+                shape = shape.reverse();
+            }
+        }
+
+        const p1 = sketchPoints.find((sp) =>
+            sp.shape_positions.includes(int1),
+        )!.point;
+        const p2 = sketchPoints.find((sp) =>
+            sp.shape_positions.includes(int2),
+        )!.point;
+
+        sketch.add_line(shape, p1, p2);
+    }
+
+    return sketch;
+}
+
+function identify_intersections(
+    positions: Shape.ShapePosition[],
+): Shape.ShapePosition[][] {
+    const uf = new Utils.UnionFind(positions.length);
+
+    for (let i = 0; i < positions.length; i++) {
+        for (let j = i + 1; j < positions.length; j++) {
+            if (positions[i]!.vec.distance(positions[j]!.vec) < EPS.tiny) {
+                uf.union(i, j);
+            }
+        }
+    }
+
+    const groups = new Map<number, Shape.ShapePosition[]>();
+
+    for (let i = 0; i < positions.length; i++) {
+        const root = uf.find(i);
+        const group = groups.get(root);
+        if (group) {
+            group.push(positions[i]!);
+        } else {
+            groups.set(root, [positions[i]!]);
+        }
+    }
+
+    return [...groups.values()];
+}

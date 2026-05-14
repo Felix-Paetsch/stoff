@@ -1,14 +1,9 @@
 sketches and resampling lns/gons dont go well together
 also resampling is sloooow, I guess it is to fine. When doing strict resampling you dont need to resample on straight lines
-fix offset sharp
 
 to vs into?
 
 breitensuche, tiefensuche, associated data?
-min spanning tree on verticies
-
-graph connected components
-graph connected component_graphs
 
 degrees for nodes?
 maybe vertex and edges are just numbers but they can have data?

@@ -1,6 +1,6 @@
+import { SketchAlgorithms } from "@/Algorithms";
 import { Copy, Expect, Line, Point, Sketch } from "@/Core";
 import { Validate } from "@/Dev";
-import { order_by_endpoints } from "Algorithms/order_lines";
 import { LineGroup } from "./calculate_cut_groups";
 
 export type CutPart = {
@@ -16,7 +16,7 @@ export function cut_with_fixed_point(
     grp1: LineGroup,
     grp2: LineGroup,
 ): [CutPart, CutPart] {
-    const ordered = Expect.truthy(order_by_endpoints(...lines));
+    const ordered = Expect.truthy(SketchAlgorithms.order_lines(...lines));
 
     Expect.that(
         [ordered.points[0], ordered.points[ordered.points.length - 1]].includes(
@@ -83,7 +83,7 @@ export function cut_without_fixed_point(
     grp1: LineGroup,
     grp2: LineGroup,
 ): [CutPart, CutPart] {
-    const ordered = Expect.truthy(order_by_endpoints(...lines));
+    const ordered = Expect.truthy(SketchAlgorithms.order_lines(...lines));
     Expect.that(Validate.same_sketch(s, ...lines));
 
     const copied_points = ordered.points.map((p) => Copy.point(p));

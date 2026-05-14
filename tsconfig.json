@@ -31,7 +31,7 @@
             "@/Algorithms": ["Algorithms/index"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/self_intersection_free.ts.broken"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/shape/self_intersection_free.ts.broken", "Algorithms/shape/modify_self_intersections.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",

@@ -1,6 +1,5 @@
+import { GraphAlgorithms, ShapeAlgorithms } from "@/Algorithms";
 import { deg_to_rad, Graph, Radians, Vector } from "@/Core";
-import { double_run_graph } from "Algorithms/double_run_graph";
-import { smooth_out } from "Algorithms/smooth_out";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { string_LSystem } from "Embroidery/Lib/LSystem/string/index";
 import { defineEmbroidery } from "Embroidery/types";
@@ -36,8 +35,8 @@ export const LSystemProject = defineEmbroidery(
         Graph.identify_nodes(graph, (a, b) => a.equals(b));
         Graph.remove_dublicate_edges(graph);
 
-        let shape_tree = double_run_graph(graph);
-        shape_tree = smooth_out(shape_tree, 0.3, 0.4);
+        let shape_tree = GraphAlgorithms.double_run_graph(graph);
+        shape_tree = ShapeAlgorithms.smooth_out(shape_tree, 0.3, 0.4);
 
         for (let i = 0; i < 10; i++) {
             console.log(

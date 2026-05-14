@@ -1,6 +1,6 @@
 import { Graph, Line, Point } from "@/Core";
 
-export function order_by_endpoints(...lines: Line[]): {
+export function order_lines(...lines: Line[]): {
     lines: Line[];
     orientations: boolean[];
     points: Point[];

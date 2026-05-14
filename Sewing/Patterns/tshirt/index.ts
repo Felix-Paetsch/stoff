@@ -1,3 +1,5 @@
+import { DST } from "@/Core";
+import { Out } from "@/Dev";
 import { add_seam_allowance } from "Sewing/Lib/add_seam_allowance";
 import { BaseMeasurements } from "../base_measurements";
 import { definePattern } from "../types";
@@ -31,7 +33,15 @@ export const TShirtPattern = definePattern(
         //    - Note that this is typesafe, so you can only input valid keys
         const mea = BoundShirtSideMeasurements(cfg, "back");
         const r = construct_base_tshirt_parts(mea);
-        add_seam_allowance(r, 5);
+        add_seam_allowance(r, 0.7);
+
+        const dst = new DST();
+        for (const l of r.sketch.lines()) {
+            l.update_shape(l.shape.resample(0.04));
+            dst.run(l.shape.as_polyline().map((v) => v.scale(100)));
+        }
+        Out.put(dst);
+        dst.to_file("out/leonie.dst");
 
         return r;
     },

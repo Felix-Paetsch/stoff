@@ -1,8 +1,8 @@
+import { SketchAlgorithms } from "@/Algorithms";
 import { Expect, Polyline, Shape, Sketch } from "@/Core";
-import { compute_connected_component_perimeters } from "Algorithms/compute_connected_component_perimeters";
 
 export function add_seam_allowance(s: Sketch, amt: number) {
-    const perims = compute_connected_component_perimeters(s);
+    const perims = SketchAlgorithms.connected_component_perimeters(s);
     perims.map((p) => {
         Expect.that(p.walk.length == p.loops[0]!.lines.length);
 

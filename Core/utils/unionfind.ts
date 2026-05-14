@@ -14,11 +14,11 @@ export class UnionFind {
         return this.parent[x]!;
     }
 
-    union(a: number, b: number): void {
+    union(a: number, b: number): boolean {
         let ra = this.find(a);
         let rb = this.find(b);
 
-        if (ra === rb) return;
+        if (ra === rb) return false;
 
         const rankA = this.rank[ra]!;
         const rankB = this.rank[rb]!;
@@ -31,5 +31,7 @@ export class UnionFind {
             this.parent[rb] = ra;
             this.rank[ra]!++;
         }
+
+        return true;
     }
 }

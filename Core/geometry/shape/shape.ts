@@ -93,14 +93,26 @@ export abstract class Shape {
             return this._length;
         }
 
+        this._length = this.length_until("end");
+        return this._length!;
+    }
+
+    length_until(until: Shape.ShapePositionDescriptor): number | null {
+        const at_descr = this.shape_point_descriptor_to_shape_position(until);
+        if (!at_descr) return null;
+
         const l = this.as_polyline();
         let len = 0;
         let ver = l.vertices;
-        for (let i = 0; i < ver.length - 1; i++) {
+        for (let i = 0; i < at_descr.index; i++) {
             len += ver[i]!.distance(ver[i + 1]!);
         }
 
-        this._length = len;
+        if (at_descr.frac > 0) {
+            len +=
+                ver[at_descr.index]!.distance(ver[at_descr.index + 1]!) *
+                at_descr.frac;
+        }
         return len;
     }
 
@@ -249,6 +261,11 @@ export abstract class Shape {
 
         const totalLength = l.length();
         let targetDistance = relative === "relative" ? at * totalLength : at;
+
+        if (this instanceof Polygon) {
+            targetDistance = targetDistance % totalLength;
+        }
+
         if (targetDistance < 0) {
             targetDistance = totalLength - targetDistance;
         }
@@ -322,6 +339,83 @@ export abstract class Shape {
 
         const dir = l[1].subtract(l[0]);
         return Line.from_direction(at_descr.vec, dir);
+    }
+
+    curvature(
+        at: Shape.ShapePositionDescriptor,
+        scale: number = EPS.tiny,
+    ): number | null {
+        const at_descr = this.shape_point_descriptor_to_shape_position(at);
+        if (!at_descr) return null;
+
+        const at_len = this.length_until(at_descr)!;
+        const total_len = this.length();
+
+        let actual_scale = scale;
+
+        if (this instanceof Polyline) {
+            actual_scale = Math.min(scale, at_len, total_len - at_len);
+
+            // Keep your original "factor of 2" guard first.
+            if (actual_scale < scale / 2) {
+                actual_scale = scale / 2;
+            }
+        }
+
+        if (actual_scale <= 0) return null;
+
+        let prev: Vector;
+        let next: Vector;
+
+        const prev_len = at_len - actual_scale;
+        const next_len = at_len + actual_scale;
+
+        if (this instanceof Polygon) {
+            prev = this.shape_position_at_length(prev_len).vec;
+            next = this.shape_position_at_length(next_len).vec;
+        } else {
+            const poly = this as any as Polyline;
+
+            if (prev_len >= 0) {
+                prev = poly.shape_position_at_length(prev_len).vec;
+            } else {
+                const start = poly.first();
+                if (!start) return null;
+
+                const tangent = poly.tangent_vector("start");
+                if (!tangent) return null;
+
+                prev = start.subtract(tangent.scale(-prev_len));
+            }
+
+            if (next_len <= total_len) {
+                next = poly.shape_position_at_length(next_len).vec;
+            } else {
+                const end = poly.last();
+                if (!end) return null;
+
+                const tangent = poly.tangent_vector("end");
+                if (!tangent) return null;
+
+                next = end.add(tangent.scale(next_len - total_len));
+            }
+        }
+
+        const a = at_descr.vec.distance(prev);
+        const b = at_descr.vec.distance(next);
+        const c = next.distance(prev);
+
+        if (EPS.is_zero(a) || EPS.is_zero(b) || EPS.is_zero(c)) {
+            return 0;
+        }
+
+        const area = new Polygon([prev, next, at_descr.vec]).area();
+        if (EPS.is_zero(area)) {
+            return 0;
+        }
+
+        const curvature = (4 * area) / (a * b * c);
+        return (curvature * scale) / actual_scale;
     }
 
     static closest_shape_positions(

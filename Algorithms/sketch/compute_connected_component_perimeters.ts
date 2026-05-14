@@ -26,6 +26,7 @@ export type LooseSegment = {
 
 export type Loop = {
     lines: Line[];
+    line_orientations: boolean[]; // agree with cw loop or not
     points: Point[];
     attachments: Attachment[];
     interior: SketchElement[];
@@ -58,14 +59,15 @@ export type ConnectedComponentPerimeter = {
  *       __lines__ appear only once and go from one end to the other
  *       __points__ also go from the same first end to the other and have length of the lines + 1
  * __loop__ a loop is a clockwise collection of line segments which are closed
- *       __lines__ clockwise oriented lines forming a loop. Potentially only one line (polygon) in which case clockwise-ness is not guaranteed
+ *       __lines__ clockwise oriented lines forming a loop. Potentially only one line (polygon)
+ *       __line_orientations__ whether p1 to p2 is in clockwise orientation
  *       __points__ clockwise orderet starting at the start point of the first line with regard to the line sequence (and not if it acutally is line.p1)
  *           same number of points as lines
  *       __attachments__ contact points to other (outside) loops and segments
  *       __interior__ collection of lines and points of the connected component which are situated properly within the loop. In particular the edge points are not included
  *
  * */
-export function compute_connected_component_perimeters(
+export function connected_component_perimeters(
     on: SketchElementCollection,
 ): ConnectedComponentPerimeter[] {
     const sec_array = CollectionMethods.sketch_element_collection_as_array(on);
@@ -142,6 +144,7 @@ function build_hull_perimeter(
     const loops: Loop[] = hull_parts.loop_lines.map((lines) => {
         return {
             lines: lines.map((l) => l.line),
+            line_orientations: lines.map((l) => l.anchor == "line_p1"),
             points: lines.map((l) => l.start.point),
             attachments: [],
             interior: compute_loop_interior(lines, sketch_element_col),

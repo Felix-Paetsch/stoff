@@ -1,6 +1,6 @@
 import { EPS, Expect, Line, Shape } from "@/Core";
 import { Validate } from "@/Dev";
-import { interpolate_shapes } from "Algorithms/interpolate";
+import { interpolate_shapes } from "Algorithms/shape/interpolate";
 
 export type NumberFunction = (t: number) => number;
 export type TwoNumberFunction = (t: number) => [number, number];
