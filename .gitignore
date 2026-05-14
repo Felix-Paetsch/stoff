@@ -16,8 +16,11 @@
 !/Sewing/Data/PreviewPictures/**/*.svg
 **/*.pdf
 
-rust/pkg
-rust/target
+Rust/pkg
+Rust/target
 out
+!Dev/Lib/out
 
 **fontawesome**
+
+Tools/_outdated
