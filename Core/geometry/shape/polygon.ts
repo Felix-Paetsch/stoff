@@ -6,6 +6,7 @@ import {
     wasm_geometry_polygon_area,
     wasm_geometry_polygon_contains_geometry,
     wasm_geometry_polygon_contains_geometry_properly,
+    wasm_geometry_polygon_signed_area,
     wasm_geometry_winding_order,
     WASMCompatability,
 } from "Rust/exports";
@@ -139,6 +140,13 @@ export class Polygon extends Shape {
             return 0;
         }
         return wasm_geometry_polygon_area(this.to_wasm_vecf64()) || 0;
+    }
+
+    signed_area(): number {
+        if (this.vertex_count < 3) {
+            return 0;
+        }
+        return wasm_geometry_polygon_signed_area(this.to_wasm_vecf64()) || 0;
     }
 
     interior_point(): Vector | null {

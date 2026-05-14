@@ -34,11 +34,21 @@ type LoopRun = {
 }; // A LoopRun is always cw oriented!
 type SingleEndedRun = {
     type: "single_ended";
-    lines: [Line, boolean][];
+    lines: {
+        line: Line;
+        traversal_orientation: boolean;
+        start_point: Point;
+        end_point: Point;
+    }[];
 };
 type DoubleEndedRun = {
     type: "double_ended";
-    lines: [Line, boolean][];
+    lines: {
+        line: Line;
+        traversal_orientation: boolean;
+        start_point: Point;
+        end_point: Point;
+    }[];
 };
 type Run = LoopRun | SingleEndedRun | DoubleEndedRun;
 
@@ -90,6 +100,7 @@ function merge_runs(r1: Run, r2: Run): Run {
 }
 
 function merge_loop_runs(l1: LoopRun, l2: LoopRun): LoopRun {
+    // Note both loops are cw oriented
     const lines1 = l1.lines;
     const lines2 = l2.lines;
 
@@ -97,35 +108,95 @@ function merge_loop_runs(l1: LoopRun, l2: LoopRun): LoopRun {
         for (let j = 0; j < lines2.length; j++) {
             const li = lines1[i]!;
             const lj = lines2[j]!;
-            if (li!.start_point == lj!.start_point) {
-                const prev_li =
-                    lines1[(i - 1 + lines1.length) % lines1.length]!;
-                let tangent_vector_prev_li: Vector;
-                if (prev_li.traversal_orientation) {
-                    tangent_vector_prev_li = prev_li.line.shape
-                        .tangent_vector("end")!
-                        .invert();
-                } else {
-                    tangent_vector_prev_li =
-                        prev_li.line.shape.tangent_vector("start")!;
-                }
 
-                let tangent_vector_current_li: Vector;
-                if (li.traversal_orientation) {
-                    tangent_vector_current_li = li.line.shape
-                        .tangent_vector("end")!
-                        .invert();
-                } else {
-                    tangent_vector_current_li =
-                        li.line.shape.tangent_vector("start")!;
-                }
-
-                let tangent_vector;
-
-                break outer;
+            if (li.start_point == lj.start_point) {
+                return merge_loop_lines_into_run(l1, l2, i, j);
             }
         }
     }
+
+    throw new Error("Could not merge loop runs: no shared start_point found");
+}
+
+function merge_loop_lines_into_run<R extends Run>(
+    run: R,
+    loop: LoopRun,
+    at_run_index_start: number,
+    at_loop_index_start: number,
+): R {
+    const prev_line_run =
+        run.lines[
+            (at_run_index_start - 1 + run.lines.length) % run.lines.length
+        ]!;
+
+    let tangent_vector_prev_line_run: Vector;
+    if (prev_line_run.traversal_orientation) {
+        tangent_vector_prev_line_run = prev_line_run.line.shape
+            .tangent_vector("end")!
+            .invert();
+    } else {
+        tangent_vector_prev_line_run =
+            prev_line_run.line.shape.tangent_vector("start")!;
+    }
+
+    const current_line_run = run.lines[at_run_index_start]!;
+    let tangent_vector_current_line_run: Vector;
+    if (current_line_run.traversal_orientation) {
+        tangent_vector_current_line_run =
+            current_line_run.line.shape.tangent_vector("start")!;
+    } else {
+        tangent_vector_current_line_run = current_line_run.line.shape
+            .tangent_vector("end")!
+            .invert();
+    }
+
+    let current_line_loop = loop.lines[at_loop_index_start]!;
+    let tangent_vector_current_line_loop: Vector;
+    if (current_line_loop.traversal_orientation) {
+        tangent_vector_current_line_loop =
+            current_line_loop.line.shape.tangent_vector("start")!;
+    } else {
+        tangent_vector_current_line_loop = current_line_loop.line.shape
+            .tangent_vector("end")!
+            .invert();
+    }
+
+    const angle_run_run = Vector.angle_clockwise(
+        tangent_vector_prev_line_run,
+        tangent_vector_current_line_run,
+    );
+    const angle_run_loop = Vector.angle_clockwise(
+        tangent_vector_prev_line_run,
+        tangent_vector_current_line_loop,
+    );
+
+    if (angle_run_run > angle_run_loop) {
+        // The second loop is inside
+        loop.lines.reverse();
+        loop.lines.forEach((l) => {
+            const t = l.end_point;
+            l.end_point = l.start_point;
+            l.start_point = t;
+            l.traversal_orientation = !l.traversal_orientation;
+        });
+        at_loop_index_start = loop.lines.length - at_loop_index_start - 1;
+    }
+
+    const rotated_loop_lines = [
+        ...loop.lines.slice(at_loop_index_start),
+        ...loop.lines.slice(0, at_loop_index_start),
+    ];
+
+    const mergedLines = [
+        ...run.lines.slice(0, at_run_index_start),
+        ...rotated_loop_lines,
+        ...run.lines.slice(at_run_index_start),
+    ];
+
+    return {
+        type: run.type,
+        lines: mergedLines,
+    } as R;
 }
 
 type ShapeSketchPoint = {

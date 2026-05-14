@@ -362,8 +362,6 @@ export abstract class Shape {
             }
         }
 
-        if (actual_scale <= 0) return null;
-
         let prev: Vector;
         let next: Vector;
 
@@ -405,15 +403,7 @@ export abstract class Shape {
         const b = at_descr.vec.distance(next);
         const c = next.distance(prev);
 
-        if (EPS.is_zero(a) || EPS.is_zero(b) || EPS.is_zero(c)) {
-            return 0;
-        }
-
         const area = new Polygon([prev, next, at_descr.vec]).area();
-        if (EPS.is_zero(area)) {
-            return 0;
-        }
-
         const curvature = (4 * area) / (a * b * c);
         return (curvature * scale) / actual_scale;
     }
