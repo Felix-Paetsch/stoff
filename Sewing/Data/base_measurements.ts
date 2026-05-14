@@ -14,8 +14,12 @@ export type BaseMeasurements = {
     shoulderblade_height: number;
     waist_width: number;
     waist_height: number;
+    waist_width_front: number;
+    waist_width_back: number;
     shoulder_height_front: number;
     shoulder_height_back: number;
+    bust_width_front: number;
+    bust_width_back: number;
     center_height_front: number;
     center_height_back: number;
     across_front: number;
@@ -26,7 +30,7 @@ export type BaseMeasurements = {
     bottom_width_front: number;
     bottom_width_back: number;
     arm: number;
-    "arm length": number;
+    arm_length: number;
     wristwidth: number;
     ellbow_width: number;
     ellbow_length: number;

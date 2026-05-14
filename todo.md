@@ -3,6 +3,10 @@ also resampling is sloooow, I guess it is to fine. When doing strict resampling 
 
 to vs into?
 
+type leonies measurements better
+- derive keytype from key name string
+- only need to input name in config
+
 breitensuche, tiefensuche, associated data?
 
 degrees for nodes?

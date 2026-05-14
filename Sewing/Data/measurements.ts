@@ -1,4 +1,47 @@
-const debby = {
+import { BaseMeasurements } from "./base_measurements";
+
+
+const leonie: BaseMeasurements = {
+    over_bust_front: 45,
+    over_bust_back: 40,
+    belly_front: 45,
+    belly_back: 40,
+
+    shoulder_length: 15,
+    shoulder_width: 39,
+    bust_width: 0,
+    under_bust: 82,
+    bust_width_front: 51,
+    bust_width_back: 44,
+    bust_point_width: 18,
+    bust_point_height: 17.5,
+    shoulderblade_width: 13.5,
+    shoulderblade_height: 16.5,
+    waist_width: 0,
+    waist_height: 17.5,
+    shoulder_height_front: 45,
+    shoulder_height_back: 43,
+    center_height_front: 33,
+    center_height_back: 36,
+    across_front: 46,
+    across_back: 44.5,
+    diagonal_front: 46,
+    diagonal_back: 41,
+    side_height: 21.5,
+    bottom_width_front: 51,
+    bottom_width_back: 52,
+    waist_width_front: 40,
+    waist_width_back: 35,
+
+    arm: 31,
+    arm_length: 56.5,
+    wristwidth: 20.5,
+    ellbow_width: 26,
+    ellbow_length: 32,
+};
+
+/*
+const _debby = {
     "over_bust_front": 55,
     "over_bust_back": 46,
     "under_bust": 92.5,
@@ -40,7 +83,7 @@ const debby = {
 } as const;
 
 
-const felix = {
+const _felix = {
     "over_bust_front": 50,
     "over_bust_back": 40,
     "shoulder_length": 16,
@@ -80,46 +123,8 @@ const felix = {
     //  "ratio":0
 } as const;
 
-const leonie = {
-    "over_bust_front": 45,
-    "over_bust_back": 46,
-    "belly_front": 45,
-    "belly_back": 40,
 
-    "shoulder_length": 13,//7.5,
-    "shoulder_width": 40,
-    "bust_width": 95,
-    "under_bust": 82,
-    //"bust_width_front": 0,
-    //"bust_width_back": 0,
-    "bust_point_width": 19,
-    "bust_point_height": 17.5,
-    "shoulderblade_width": 12.5,
-    "shoulderblade_height": 14.5,
-    "waist_width": 78,
-    //"waist_width_front": 0,
-    //"waist_width_back": 0,
-    "waist_height": 20.5,
-    "shoulder_height_front": 44,
-    "shoulder_height_back": 38.5,
-    "center_height_front": 33,
-    "center_height_back": 36,
-    "across_front": 0,//34,
-    "across_back": 32,
-    "diagonal_front": 44.5,
-    "diagonal_back": 37,
-    "side_height": 21.5,
-    "bottom_width_front": 50,
-    "bottom_width_back": 55,
-    //"belly": 95,
-    "arm": 31,
-    "arm length": 56.5,
-    "wristwidth": 20.5,
-    "ellbow_width": 26,
-    "ellbow_length": 32
-} as const;
-
-const isa = {
+const _isa = {
     "shoulder_length": 16,//7.5,
     "shoulder_width": 47.5,
     "bust_width": 122.5,
@@ -153,10 +158,11 @@ const isa = {
     "ellbow_length": 31,
     "ratio": 0
 } as const;
+*/
 
 export const people_measurements = {
-    Debby: debby,
-    Felix: felix,
+    // Debby: debby,
+    // Felix: felix,
     Leonie: leonie,
-    Isa: isa
+    // Isa: isa
 } as const;
