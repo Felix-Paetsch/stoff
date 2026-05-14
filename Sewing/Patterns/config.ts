@@ -1,7 +1,7 @@
 const constPatternConfig = {
     pattern: "TShirt",
 
-    pattern_for: "Leonie",
+    pattern_for: "Felix",
 
     "Darts fitted": "0_nothing",
     "Darts standard": "0_nothing",
@@ -11,6 +11,8 @@ const constPatternConfig = {
     Main_Body: "fitted",
     Neckline: "round",
     Sleeves: "0_standard_kurz",
+    output_filepath: "out/felix_back.dst",
+    side: "back",
 } as const;
 
 type DeepMutable<T> = T extends Function

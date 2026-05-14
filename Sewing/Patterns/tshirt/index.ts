@@ -16,6 +16,8 @@ export type TShirtPatternConfig = {
     Main_Body: "fitted";
     Neckline: "round";
     Sleeves: "0_standard_kurz";
+    side: "front" | "back";
+    output_filepath: string;
 };
 
 export const TShirtPattern = definePattern(
@@ -34,7 +36,7 @@ export const TShirtPattern = definePattern(
         //    - Note that this is typesafe, so you can only input valid keys
         const mea = BoundShirtSideMeasurements(
             people_measurements[cfg.pattern_for],
-            "front",
+            cfg.side,
         );
 
         const r = construct_base_tshirt_parts(mea);
@@ -52,7 +54,7 @@ export const TShirtPattern = definePattern(
             );
         }
         Out.put(dst);
-        dst.to_file("out/leonie_front.dst");
+        dst.to_file(cfg.output_filepath);
 
         return r;
     },
