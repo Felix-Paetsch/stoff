@@ -1,8 +1,9 @@
 import { Line, Point } from "@/Core";
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "Core/geometry";
 import { sketch_element_collection as copy_sketch_element_collection } from "Core/sketch/copy";
-import { connected_component, sketch_element_collection_as_array } from "..";
+import { sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
+import { connected_component} from "./connected_components";
 import { get_lines, get_points } from "./getter_methods";
 
 export function bounding_box(ec: SketchElementCollection): BoundingBox {
@@ -47,10 +48,34 @@ export function endpoint_interior(
     return res;
 }
 
-export function connected_hull_components(
+// export function connected_hull_components(
+//     of: SketchElementCollection,
+//     inside?: SketchElementCollection,
+// ): SketchElement[][] {
+//     const of_as_array = sketch_element_collection_as_array(of);
+//     if (of_as_array.length == 0) return [];
+//
+//     if (!inside) {
+//         inside = of_as_array[0]!.sketch;
+//     }
+//     const inside_as_array = sketch_element_collection_as_array(inside);
+//
+//     const components: SketchElement[][] = [];
+//     for (const se of of_as_array) {
+//         if (components.some((c) => c.some((o) => o == se))) {
+//             continue;
+//         }
+//
+//         components.push(connected_component(inside_as_array, se));
+//     }
+//
+//     return components;
+// }
+
+export function connected_hull(
     of: SketchElementCollection,
     inside?: SketchElementCollection,
-): SketchElement[][] {
+): SketchElement[] {
     const of_as_array = sketch_element_collection_as_array(of);
     if (of_as_array.length == 0) return [];
 
@@ -68,14 +93,7 @@ export function connected_hull_components(
         components.push(connected_component(inside_as_array, se));
     }
 
-    return components;
-}
-
-export function connected_hull(
-    of: SketchElementCollection,
-    inside?: SketchElementCollection,
-): SketchElement[] {
-    return connected_hull_components(of, inside).flatMap((x) => x);
+    return components.flatMap((x) => x);
 }
 
 export function inner_line_hull(ec: SketchElementCollection): SketchElement[] {

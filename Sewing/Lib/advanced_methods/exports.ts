@@ -25,56 +25,42 @@ export type UnfoldCallback = <T extends SketchElement>(
 ) => void;
 
 // If fixed point is set, they wont be seperated there
-export function cut(s: Sketch, line: Line): [CutPart, CutPart];
+export function cut(line: Line): [CutPart, CutPart];
+export function cut(line: Line, group1: LineGroup): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
-    line: Line,
-    group1: LineGroup,
-): [CutPart, CutPart];
-export function cut(
-    s: Sketch,
     line: Line,
     group1: LineGroup,
     group2: LineGroup,
 ): [CutPart, CutPart];
 
-export function cut(s: Sketch, line: Line[]): [CutPart, CutPart];
+export function cut(line: Line[]): [CutPart, CutPart];
+export function cut(line: Line[], group1: LineGroup): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
-    line: Line[],
-    group1: LineGroup,
-): [CutPart, CutPart];
-export function cut(
-    s: Sketch,
     line: Line[],
     group1: LineGroup,
     group2: LineGroup,
 ): [CutPart, CutPart];
 
-export function cut(s: Sketch, line: Line, fix_pt: Point): [CutPart, CutPart];
+export function cut(line: Line, fix_pt: Point): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
     line: Line,
     fix_pt: Point,
     group1: LineGroup,
 ): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
     line: Line,
     fix_pt: Point,
     group1: LineGroup,
     group2: LineGroup,
 ): [CutPart, CutPart];
 
-export function cut(s: Sketch, line: Line[], fix_pt: Point): [CutPart, CutPart];
+export function cut(line: Line[], fix_pt: Point): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
     line: Line[],
     fix_pt: Point,
     group1: LineGroup,
 ): [CutPart, CutPart];
 export function cut(
-    s: Sketch,
     line: Line[],
     fix_pt: Point,
     group1: LineGroup,
@@ -82,7 +68,6 @@ export function cut(
 ): [CutPart, CutPart];
 
 export function cut(
-    s: Sketch,
     line: Line | Line[],
     fixed_pt?: Point | "smart" | LineGroup | null,
     grp1?: LineGroup | "smart",
@@ -116,7 +101,7 @@ export function cut(
     */
 
     if (line instanceof Line) {
-        return (cut as any)(s, [line], fixed_pt, grp1, grp2);
+        return (cut as any)([line], fixed_pt, grp1, grp2);
     }
 
     if (fixed_pt instanceof Point) {
@@ -140,7 +125,6 @@ export function cut(
         }
 
         return cut_with_fixed_point(
-            s,
             line,
             fixed_pt,
             cut_groups[0],
@@ -163,7 +147,7 @@ export function cut(
         );
     }
 
-    return cut_without_fixed_point(s, line, cut_groups[0], cut_groups[1]);
+    return cut_without_fixed_point(line, cut_groups[0], cut_groups[1]);
 }
 
 // Merge the points without deleting them afterwards

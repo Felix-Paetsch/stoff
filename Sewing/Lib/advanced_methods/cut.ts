@@ -1,5 +1,5 @@
 import { SketchAlgorithms } from "@/Algorithms";
-import { Copy, Expect, Line, Point, Sketch } from "@/Core";
+import { Copy, Expect, Line, Point } from "@/Core";
 import { Validate } from "@/Dev";
 import { LineGroup } from "./calculate_cut_groups";
 
@@ -10,7 +10,6 @@ export type CutPart = {
 };
 
 export function cut_with_fixed_point(
-    s: Sketch,
     lines: Line[],
     fixed_pt: Point,
     grp1: LineGroup,
@@ -23,7 +22,7 @@ export function cut_with_fixed_point(
             fixed_pt,
         ),
     );
-    Expect.that(Validate.same_sketch(s, ...lines));
+    Expect.that(Validate.same_sketch(fixed_pt, ...lines));
 
     const copied_points = ordered.points.map((p) => {
         if (p == fixed_pt) {
@@ -38,16 +37,16 @@ export function cut_with_fixed_point(
             copied_lines.push(
                 Copy.line(
                     ordered.lines[i]!,
-                    ordered.points[i]!,
-                    ordered.points[i + 1]!,
+                    copied_points[i]!,
+                    copied_points[i + 1]!,
                 ),
             );
         } else {
             copied_lines.push(
                 Copy.line(
                     ordered.lines[i]!,
-                    ordered.points[i + 1]!,
-                    ordered.points[i]!,
+                    copied_points[i + 1]!,
+                    copied_points[i]!,
                 ),
             );
         }
@@ -78,13 +77,12 @@ export function cut_with_fixed_point(
 }
 
 export function cut_without_fixed_point(
-    s: Sketch,
     lines: Line[],
     grp1: LineGroup,
     grp2: LineGroup,
 ): [CutPart, CutPart] {
     const ordered = Expect.truthy(SketchAlgorithms.order_lines(...lines));
-    Expect.that(Validate.same_sketch(s, ...lines));
+    Expect.that(Validate.same_sketch(...lines));
 
     const copied_points = ordered.points.map((p) => Copy.point(p));
     const copied_lines: Line[] = [];
@@ -93,16 +91,16 @@ export function cut_without_fixed_point(
             copied_lines.push(
                 Copy.line(
                     ordered.lines[i]!,
-                    ordered.points[i]!,
-                    ordered.points[i + 1]!,
+                    copied_points[i]!,
+                    copied_points[i + 1]!,
                 ),
             );
         } else {
             copied_lines.push(
                 Copy.line(
                     ordered.lines[i]!,
-                    ordered.points[i + 1]!,
-                    ordered.points[i]!,
+                    copied_points[i + 1]!,
+                    copied_points[i]!,
                 ),
             );
         }

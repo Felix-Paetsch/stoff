@@ -17,7 +17,7 @@ export function calculate_cut_groups_no_fixed_point(
     }
 
     const line_endpoint_hull = CollectionMethods.endpoint_hull(lines);
-    const components = CollectionMethods.connected_hull_components(
+    const components = CollectionMethods.connected_components(
         CollectionMethods.connected_hull(lines).filter(
             (x) => !line_endpoint_hull.includes(x),
         ),
@@ -51,7 +51,7 @@ export function calculate_cut_groups_with_fixed_point(
     }
 
     const line_endpoint_hull = CollectionMethods.endpoint_hull(lines);
-    const component_objects = CollectionMethods.connected_hull_components(
+    const component_objects = CollectionMethods.connected_components(
         CollectionMethods.connected_hull(lines).filter(
             (x) => !line_endpoint_hull.includes(x),
         ),
