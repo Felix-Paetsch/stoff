@@ -44,7 +44,7 @@ pub fn find_self_intersections(shape: &Shape) -> Vec<Intersection> {
 }
 
 #[wasm_bindgen]
-pub fn self_intersections_wasm(shape_data: &[f64]) -> Option<Vec<f64>> {
+pub fn wasm_geometry_shape_self_intersections(shape_data: &[f64]) -> Option<Vec<f64>> {
     let geom = Geometry::deserialize(shape_data)?;
     let shape = Shape::from_geometry(geom)?;
 

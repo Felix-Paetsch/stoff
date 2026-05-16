@@ -1,12 +1,12 @@
+import { EPS } from "Core/numerics/index";
 import {
     wasm_geometry_closest_shape_positions,
     wasm_geometry_geometries_intersect,
     wasm_geometry_shape_intersections,
-    wasm_geometry_shape_selfintersections,
-    wasm_geometry_shape_selfintersects,
+    wasm_geometry_shape_self_intersections,
+    wasm_geometry_shape_self_intersects,
     WASMCompatability,
 } from "Rust/exports";
-import { EPS } from "../../numerics";
 import { BoundingBox } from "../bounding_box";
 import {
     buffer,
@@ -459,7 +459,7 @@ export abstract class Shape {
         Shape.ShapePosition,
     ][] {
         if (this.vertex_count < 3) return [];
-        let r = wasm_geometry_shape_selfintersections(this.to_wasm_vecf64());
+        let r = wasm_geometry_shape_self_intersections(this.to_wasm_vecf64());
         return decode_intersection_positions(r!);
     }
 
@@ -488,7 +488,7 @@ export abstract class Shape {
 
     self_intersects(): boolean {
         if (this.vertex_count < 3) return false;
-        let r = wasm_geometry_shape_selfintersects(this.to_wasm_vecf64());
+        let r = wasm_geometry_shape_self_intersects(this.to_wasm_vecf64());
         return r || false;
     }
 

@@ -31,7 +31,7 @@ pub fn wasm_geometry_geometries_intersect(geo1: &[f64], geo2: &[f64]) -> Option<
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_shape_selfintersects(s: &[f64]) -> Option<bool> {
+pub fn wasm_geometry_shape_self_intersects(s: &[f64]) -> Option<bool> {
     let geom = Geometry::deserialize(s)?;
     let shape = Shape::from_geometry(geom)?;
     Some(self_intersects(shape))
