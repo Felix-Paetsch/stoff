@@ -7,9 +7,48 @@ use crate::geometry::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShapePosition {
-    pub start_index: usize,
-    pub fraction: f64,
-    pub vec: Vector,
+    start_index: usize,
+    fraction: f64,
+    vec: Vector,
+}
+
+impl ShapePosition {
+    pub fn new(index: usize, fraction: f64, vec: Vector) -> ShapePosition {
+        debug_assert!(fraction.is_finite() && fraction >= 0.0 && fraction <= 1.0);
+        ShapePosition {
+            start_index: index,
+            fraction,
+            vec,
+        }
+    }
+
+    pub fn sort(v: &mut [ShapePosition]) {
+        v.sort_by(|a, b| {
+            a.index()
+                .cmp(&b.index())
+                .then_with(|| a.frac().total_cmp(&b.frac()))
+        });
+    }
+
+    pub fn vec(&self) -> Vector {
+        self.vec
+    }
+
+    pub fn x(&self) -> f64 {
+        self.vec().x()
+    }
+
+    pub fn y(&self) -> f64 {
+        self.vec().y()
+    }
+
+    pub fn index(&self) -> usize {
+        self.start_index
+    }
+
+    pub fn frac(&self) -> f64 {
+        self.fraction
+    }
 }
 
 impl PartialEq for ShapePosition {
@@ -52,22 +91,26 @@ pub fn shape_position_from_descriptor(
         return None;
     }
 
-    match descr {
-        ShapePositionDescriptor::ShapePosition(p) => Some(p),
-        ShapePositionDescriptor::Start => Some(ShapePosition {
-            start_index: 0,
-            fraction: 0.0,
-            vec: shape.vertices()[0],
-        }),
-        ShapePositionDescriptor::End => Some(ShapePosition {
-            start_index: shape.vertices().len() - 2,
-            fraction: 1.0,
-            vec: shape.vertices().last().unwrap().clone(),
-        }),
-        ShapePositionDescriptor::RelativeLength(l) => shape_position_from_descriptor(
-            ShapePositionDescriptor::Length(l * shape.length()),
-            shape,
-        ),
+    let pos: ShapePosition = match descr {
+        ShapePositionDescriptor::ShapePosition(p) => p,
+        ShapePositionDescriptor::Start => ShapePosition::new(0, 0.0, shape.vertices()[0]),
+        ShapePositionDescriptor::End => {
+            if shape.is_polygon() {
+                ShapePosition::new(shape.vertices().len() - 1, 1.0, shape.vertices()[0])
+            } else {
+                ShapePosition::new(
+                    shape.vertices().len() - 2,
+                    1.0,
+                    *shape.vertices().last().unwrap(),
+                )
+            }
+        }
+        ShapePositionDescriptor::RelativeLength(l) => {
+            return shape_position_from_descriptor(
+                ShapePositionDescriptor::Length(l * shape.length()),
+                shape,
+            )
+        }
         ShapePositionDescriptor::Length(l) => {
             let mut current_len = 0.0;
             for (start_index, line) in shape.lines().iter().enumerate() {
@@ -83,14 +126,16 @@ pub fn shape_position_from_descriptor(
                     fraction = 0.5
                 }
 
-                return Some(ShapePosition {
+                return Some(ShapePosition::new(
                     start_index,
                     fraction,
-                    vec: Vector::lerp(line.start, line.end, fraction),
-                });
+                    Vector::lerp(line.start, line.end, fraction),
+                ));
             }
-            None
+            return None;
         }
-        ShapePositionDescriptor::Vector(v) => Some(closest_point_position_on_shape(v, shape)),
-    }
+        ShapePositionDescriptor::Vector(v) => return closest_point_position_on_shape(v, shape),
+    };
+
+    Some(pos)
 }

@@ -211,8 +211,16 @@ export abstract class Shape {
         return true;
     }
 
-    static from_function(fn: Shape.ShapeFunction): Shape.Shape {
-        const vectors = vectors_from_polyline_function(fn);
+    static from_function(
+        fn: Shape.ShapeFunction,
+        start_points?: number,
+        sample_spacing?: number,
+    ): Shape.Shape {
+        const vectors = vectors_from_polyline_function(
+            fn,
+            sample_spacing,
+            start_points,
+        );
         const line = new Polyline(vectors);
 
         if (line.is_polygon()) {

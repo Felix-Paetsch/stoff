@@ -5,7 +5,7 @@ use crate::geometry::{
 // The first and last vertex are not necessarily identical.
 // A polygon can't have precicely one vertex
 #[derive(Clone)]
-pub struct Polygon(pub Vec<Vector>);
+pub struct Polygon(Vec<Vector>);
 
 impl Polygon {
     pub fn new(mut ver: Vec<Vector>) -> Polygon {

@@ -14,7 +14,7 @@ impl HasPosition for SpadeVector {
     type Scalar = f64;
 
     fn position(&self) -> Point2<f64> {
-        Point2::new(self.vertex.x, self.vertex.y)
+        Point2::new(self.vertex.x(), self.vertex.y())
     }
 }
 
@@ -60,7 +60,7 @@ pub fn delaunay_triangulation(vertices: &[Vector]) -> Graph<Vector, (), Undirect
 
 #[wasm_bindgen]
 pub fn wasm_graph_delaunay(vertex_data: &[f64]) -> Vec<u32> {
-    let vertices = vecf64_to_vertex_vec(vertex_data).unwrap();
+    let vertices = vecf64_to_vertex_vec(vertex_data);
     let delaunay = delaunay_triangulation(&vertices);
     let (_, edges) = delaunay.into_nodes_edges();
 

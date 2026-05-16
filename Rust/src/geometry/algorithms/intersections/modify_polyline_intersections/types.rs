@@ -1,6 +1,6 @@
 use crate::geometry::vector::Vector;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum EdgeGrouping {
     NoOffset,
     Offset,
@@ -15,12 +15,13 @@ impl EdgeGrouping {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum NextEdgeRule {
     Adjacent,
     Skip,
 }
 
+#[derive(Debug)]
 pub struct ShapeGraphEdge {
     pub subshape: Vec<Vector>,
     pub next_node_index: usize,
@@ -46,6 +47,7 @@ impl ShapeGraphEdge {
     }
 }
 
+#[derive(Debug)]
 pub struct TraversalShapeGraphNode {
     pub edges: Vec<ShapeGraphEdge>,
     pub grouping: EdgeGrouping,

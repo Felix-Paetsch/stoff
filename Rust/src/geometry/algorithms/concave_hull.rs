@@ -2,7 +2,7 @@ use geo::{concave_hull::ConcaveHullOptions, ConcaveHull};
 use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
-    geometry::Geometry, geometry_compatability_layer::vecf64_to_vertex_vec, polygon::Polygon,
+    geometry_compatability_layer::vecf64_to_vertex_vec, geometry_enum::Geometry, polygon::Polygon,
     shape::Shape, shape_trait::ShapeT, vector::Vector,
 };
 
@@ -78,11 +78,11 @@ pub fn wasm_geometry_concave_hull_vertices(
     coords: &[f64],
     concavity: f64,
     length_threshold: f64,
-) -> Option<Vec<f64>> {
-    let vertices = vecf64_to_vertex_vec(coords)?;
+) -> Vec<f64> {
+    let vertices = vecf64_to_vertex_vec(coords);
     let gon = concave_hull_with_options_vertices(&vertices, concavity, length_threshold);
     let geom = Geometry::from(gon);
-    Some(geom.serialize())
+    geom.serialize()
 }
 
 #[wasm_bindgen]
@@ -90,8 +90,8 @@ pub fn wasm_geometry_concave_hull_shape(
     coords: &[f64],
     concavity: f64,
     length_threshold: f64,
-) -> Option<Vec<f64>> {
-    let shape = Geometry::deserialize(coords)?;
+) -> Vec<f64> {
+    let shape = Geometry::deserialize(coords);
     let gon = match shape {
         Geometry::Point(p) => Polygon::new(vec![p]),
         _ => {
@@ -101,7 +101,7 @@ pub fn wasm_geometry_concave_hull_shape(
     };
 
     let geom = Geometry::from(gon);
-    Some(geom.serialize())
+    geom.serialize()
 }
 
 #[wasm_bindgen]

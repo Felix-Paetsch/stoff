@@ -50,7 +50,7 @@ pub fn wasm_graph_minimum_spanning_tree(graph_data: &[f64]) -> Vec<u32> {
 
 #[wasm_bindgen]
 pub fn wasm_graph_minimum_spanning_tree_of_vertices(vertex_data: &[f64]) -> Vec<u32> {
-    let verticies = vecf64_to_vertex_vec(vertex_data).unwrap();
+    let verticies = vecf64_to_vertex_vec(vertex_data);
     let mst = minimum_spanning_tree_from_vertices(&verticies);
 
     let (_, edges) = mst.into_nodes_edges();

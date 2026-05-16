@@ -1,3 +1,5 @@
+use web_sys::console;
+
 use crate::geometry::{
     algorithms::intersections::modify_polyline_intersections::{
         build_shape_graph::build_shape_graph,
@@ -16,7 +18,7 @@ pub fn walk_polyline_with_intersections(l: &Polyline) -> Polyline {
 }
 
 fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyline {
-    let shape_graph = match build_shape_graph(&l) {
+    let shape_graph = match build_shape_graph(l) {
         Some(g) => g,
         None => return Polyline::empty(),
     };
@@ -32,6 +34,11 @@ fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyl
             }
         })
         .collect();
+
+    // let output = format!("========\n{:?}=====", shape_graph_with_orientation);
+    // console::log_1(&output.into());
+
+    let mut max_iterations = shape_graph_with_orientation.len();
 
     loop {
         shape_graph_with_orientation[0].visited[0] = true;
@@ -72,13 +79,19 @@ fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyl
         for node in shape_graph_with_orientation.iter_mut() {
             node.visited.fill(false);
         }
+
+        if max_iterations == 0 {
+            return l.clone();
+        } else {
+            max_iterations -= 1;
+        }
     }
 
     walk_shape_graph_with_orientation(&mut shape_graph_with_orientation, edge_rule)
 }
 
 fn walk_shape_graph_with_orientation(
-    g: &mut Vec<TraversalShapeGraphNode>,
+    g: &mut [TraversalShapeGraphNode],
     edge_rule: NextEdgeRule,
 ) -> Polyline {
     for node in g.iter_mut() {
@@ -98,7 +111,7 @@ fn walk_shape_graph_with_orientation(
 
         next_node.visited[next_node_edge_index] = true;
         let next_next_edge_index =
-            compute_next_edge_index(&next_node, next_node_edge_index, edge_rule);
+            compute_next_edge_index(next_node, next_node_edge_index, edge_rule);
         match next_next_edge_index {
             Some(index) => {
                 next_node.visited[index] = true;
@@ -109,7 +122,7 @@ fn walk_shape_graph_with_orientation(
         }
     }
 
-    Polyline(res)
+    Polyline::new(res)
 }
 
 fn compute_next_edge_index(
@@ -117,33 +130,42 @@ fn compute_next_edge_index(
     index: usize,
     next_edge_rule: NextEdgeRule,
 ) -> Option<usize> {
-    let unmodded_next_index = match (g.grouping, next_edge_rule) {
-        (EdgeGrouping::NoOffset, NextEdgeRule::Adjacent) => {
-            if index.is_multiple_of(2) {
-                index + 1
-            } else {
-                index + g.edges.len() - 1
-            }
+    let unmodded_next_index: usize = {
+        if g.edges.len() == 1 {
+            return None;
         }
-        (EdgeGrouping::Offset, NextEdgeRule::Adjacent) => {
-            if !index.is_multiple_of(2) {
-                index + 1
-            } else {
-                index + g.edges.len() - 1
-            }
-        }
-        (EdgeGrouping::NoOffset, NextEdgeRule::Skip) => {
-            if index.is_multiple_of(2) {
-                index + 2
-            } else {
-                index + g.edges.len() - 2
-            }
-        }
-        (EdgeGrouping::Offset, NextEdgeRule::Skip) => {
-            if !index.is_multiple_of(2) {
-                index + 2
-            } else {
-                index + g.edges.len() - 2
+        if g.edges.len() == 2 {
+            index + 1
+        } else {
+            match (g.grouping, next_edge_rule) {
+                (EdgeGrouping::NoOffset, NextEdgeRule::Adjacent) => {
+                    if index.is_multiple_of(2) {
+                        index + 1
+                    } else {
+                        index + g.edges.len() - 1
+                    }
+                }
+                (EdgeGrouping::Offset, NextEdgeRule::Adjacent) => {
+                    if !index.is_multiple_of(2) {
+                        index + 1
+                    } else {
+                        index + g.edges.len() - 1
+                    }
+                }
+                (EdgeGrouping::NoOffset, NextEdgeRule::Skip) => {
+                    if index.is_multiple_of(2) {
+                        index + 2
+                    } else {
+                        index + g.edges.len() - 2
+                    }
+                }
+                (EdgeGrouping::Offset, NextEdgeRule::Skip) => {
+                    if !index.is_multiple_of(2) {
+                        index + 2
+                    } else {
+                        index + g.edges.len() - 2
+                    }
+                }
             }
         }
     };

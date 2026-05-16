@@ -1,5 +1,5 @@
 use crate::{
-    geometry::{geometry::Geometry, shape::Shape, vector::Vector},
+    geometry::{geometry_enum::Geometry, shape::Shape, vector::Vector},
     graph::transmittable_graph_edges::{EdgeF, TransmittableEdges},
 };
 
@@ -104,8 +104,8 @@ impl TransmittableGraph {
             TransmittableNodes::Vector(nodes) => {
                 for node in nodes {
                     out.push(node.id as f64);
-                    out.push(node.data.x);
-                    out.push(node.data.y);
+                    out.push(node.data.x());
+                    out.push(node.data.y());
                 }
             }
         }
@@ -215,7 +215,7 @@ impl TransmittableGraph {
                         index += 1;
                     }
 
-                    let geometry = Geometry::deserialize(&serialized[shape_start..index]).unwrap();
+                    let geometry = Geometry::deserialize(&serialized[shape_start..index]);
                     let shape = Shape::from_geometry(geometry).unwrap();
 
                     edges.push(EdgeF {

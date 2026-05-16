@@ -1,25 +1,15 @@
 import { EPS, Polygon, Polyline, Shape, Vector } from "@/Core";
 import { CONF } from "config";
 
-export function smooth_out(
-    what: Polygon,
-    ker_size?: number,
-    sample_spacing?: number,
-): Polygon;
-export function smooth_out(
-    what: Polyline,
-    ker_size?: number,
-    sample_spacing?: number,
-): Polyline;
-export function smooth_out(
-    what: Shape,
+export function smooth_out<S extends Shape.Shape>(
+    what: S,
     ker_size: number = 0.1,
     sample_spacing?: number,
-) {
+): S {
     if (what instanceof Polyline) {
-        return polyline_smooth_out(what, ker_size, sample_spacing);
+        return polyline_smooth_out(what, ker_size, sample_spacing) as S;
     }
-    return polygon_smooth_out(what as any, ker_size, sample_spacing);
+    return polygon_smooth_out(what as any, ker_size, sample_spacing) as S;
 }
 
 function polyline_smooth_out(

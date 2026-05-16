@@ -4,17 +4,17 @@ use crate::geometry::{
     algorithms::intersections::modify_polyline_intersections::index::{
         walk_polyline_with_intersections, walk_polyline_without_intersections,
     },
-    geometry::Geometry,
+    geometry_enum::Geometry,
     shape::Shape,
     shape_trait::ShapeT,
 };
 
 #[wasm_bindgen]
-pub fn wasm_geometry_walk_shape_without_self_intersection(geom: &[f64]) -> Option<Vec<f64>> {
-    let geom = Geometry::deserialize(geom)?;
-    let shape = Shape::from_geometry(geom)?;
+pub fn wasm_geometry_walk_shape_without_self_intersection(geom: &[f64]) -> Vec<f64> {
+    let geom = Geometry::deserialize(geom);
+    let shape = Shape::from_geometry(geom).unwrap();
 
-    let shape_was_polyline = shape.is_polygon();
+    let shape_was_polyline = shape.is_polyline();
     let pl = shape.into_polyline();
     let walk = walk_polyline_without_intersections(&pl);
 
@@ -23,15 +23,15 @@ pub fn wasm_geometry_walk_shape_without_self_intersection(geom: &[f64]) -> Optio
     } else {
         Geometry::from(walk.into_polygon())
     };
-    Some(res.serialize())
+    res.serialize()
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_walk_shape_with_self_intersection(geom: &[f64]) -> Option<Vec<f64>> {
-    let geom = Geometry::deserialize(geom)?;
-    let shape = Shape::from_geometry(geom)?;
+pub fn wasm_geometry_walk_shape_with_self_intersection(geom: &[f64]) -> Vec<f64> {
+    let geom = Geometry::deserialize(geom);
+    let shape = Shape::from_geometry(geom).unwrap();
 
-    let shape_was_polyline = shape.is_polygon();
+    let shape_was_polyline = shape.is_polyline();
     let pl = shape.into_polyline();
     let walk = walk_polyline_with_intersections(&pl);
 
@@ -40,5 +40,5 @@ pub fn wasm_geometry_walk_shape_with_self_intersection(geom: &[f64]) -> Option<V
     } else {
         Geometry::from(walk.into_polygon())
     };
-    Some(res.serialize())
+    res.serialize()
 }

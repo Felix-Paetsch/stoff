@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 use geo::{Intersects, Validation};
 
-use crate::geometry::{geometry::Geometry, shape::Shape};
+use crate::geometry::{geometry_enum::Geometry, shape::Shape};
 
 pub fn intersects(l1: Geometry, l2: Geometry) -> bool {
     let geogeom1: geo::Geometry = l1.into();
@@ -24,15 +24,15 @@ pub fn self_intersects(s: Shape) -> bool {
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_geometries_intersect(geo1: &[f64], geo2: &[f64]) -> Option<bool> {
-    let geom1 = Geometry::deserialize(geo1)?;
-    let geom2 = Geometry::deserialize(geo2)?;
-    Some(intersects(geom1, geom2))
+pub fn wasm_geometry_geometries_intersect(geo1: &[f64], geo2: &[f64]) -> bool {
+    let geom1 = Geometry::deserialize(geo1);
+    let geom2 = Geometry::deserialize(geo2);
+    intersects(geom1, geom2)
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_shape_self_intersects(s: &[f64]) -> Option<bool> {
-    let geom = Geometry::deserialize(s)?;
-    let shape = Shape::from_geometry(geom)?;
-    Some(self_intersects(shape))
+pub fn wasm_geometry_shape_self_intersects(s: &[f64]) -> bool {
+    let geom = Geometry::deserialize(s);
+    let shape = Shape::from_geometry(geom).unwrap();
+    self_intersects(shape)
 }

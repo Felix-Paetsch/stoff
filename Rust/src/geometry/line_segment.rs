@@ -1,6 +1,6 @@
 use crate::{
     geometry::{polyline::Polyline, vector::Vector},
-    numerics::eps::scaled_epsilon,
+    numerics::eps::{scaled_epsilon, EPS_ABS},
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -69,6 +69,15 @@ impl LineSegment {
     pub fn vector(&self) -> Vector {
         self.end.subtract(self.start)
     }
+
+    pub fn lerp(&self, f: f64) -> Vector {
+        let v = self.vector();
+        if v.length() < EPS_ABS {
+            self.start.add(v.scale(0.5))
+        } else {
+            self.start.add(v.scale(f))
+        }
+    }
 }
 
 impl From<geo::Line> for LineSegment {
@@ -91,6 +100,6 @@ impl From<LineSegment> for geo::Line {
 
 impl From<LineSegment> for Polyline {
     fn from(l: LineSegment) -> Self {
-        Polyline(vec![l.start, l.end])
+        Polyline::new(vec![l.start, l.end])
     }
 }

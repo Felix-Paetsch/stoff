@@ -6,6 +6,6 @@ pub mod shape_utils;
 pub mod vector;
 
 pub mod algorithms;
-pub mod geometry;
 pub mod geometry_compatability_layer;
+pub mod geometry_enum;
 pub mod line_segment;

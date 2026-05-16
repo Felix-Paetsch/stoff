@@ -4,7 +4,7 @@ use crate::geometry::{
     algorithms::closest_shape_positions::{
         closest_point_position_on_shape, closest_shape_positions,
     },
-    geometry::Geometry,
+    geometry_enum::Geometry,
     shape::Shape,
     vector::Vector,
 };
@@ -20,12 +20,12 @@ pub fn wasm_geometry_closest_point_position_on_shape(
     let geom = Geometry::try_from(shape).ok()?;
     let shape = Shape::from_geometry(geom)?;
 
-    let res = closest_point_position_on_shape(point, &shape);
+    let res = closest_point_position_on_shape(point, &shape)?;
     Some(vec![
-        res.vec.x,
-        res.vec.y,
-        res.start_index as f64,
-        res.fraction,
+        res.vec().x(),
+        res.vec().y(),
+        res.index() as f64,
+        res.frac(),
     ])
 }
 
@@ -39,13 +39,13 @@ pub fn wasm_geometry_closest_shape_positions(shape1: &[f64], shape2: &[f64]) -> 
 
     let res = closest_shape_positions(&shape1, &shape2);
     Some(vec![
-        res[0].vec.x,
-        res[0].vec.y,
-        res[0].start_index as f64,
-        res[0].fraction,
-        res[1].vec.x,
-        res[1].vec.y,
-        res[1].start_index as f64,
-        res[1].fraction,
+        res[0].vec().x(),
+        res[0].vec().y(),
+        res[0].index() as f64,
+        res[0].frac(),
+        res[1].vec().x(),
+        res[1].vec().y(),
+        res[1].index() as f64,
+        res[1].frac(),
     ])
 }

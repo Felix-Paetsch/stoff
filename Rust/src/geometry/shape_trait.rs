@@ -1,5 +1,5 @@
 use crate::geometry::{
-    geometry::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
+    geometry_enum::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
     vector::Vector,
 };
 
@@ -23,12 +23,12 @@ pub trait ShapeT: Sized {
         if verts.last().unwrap() == verts.first().unwrap() && verts.len() > 3 {
             verts.pop();
         }
-        Polygon(verts)
+        Polygon::new(verts)
     }
 
     fn into_polyline(self) -> Polyline {
         match self.is_polyline() {
-            true => Polyline(self.into_vertices()),
+            true => Polyline::new(self.into_vertices()),
             false => {
                 let mut verts: Vec<Vector> = self.into_vertices();
                 if verts.len() == 0 {
@@ -36,7 +36,7 @@ pub trait ShapeT: Sized {
                 }
 
                 verts.push(verts[0]);
-                Polyline(verts)
+                Polyline::new(verts)
             }
         }
     }

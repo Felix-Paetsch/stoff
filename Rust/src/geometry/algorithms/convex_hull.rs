@@ -2,7 +2,7 @@ use geo::ConvexHull;
 use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
-    geometry::Geometry, geometry_compatability_layer::vecf64_to_vertex_vec, polygon::Polygon,
+    geometry_compatability_layer::vecf64_to_vertex_vec, geometry_enum::Geometry, polygon::Polygon,
     vector::Vector,
 };
 
@@ -14,9 +14,9 @@ pub fn convex_hull(of: Vec<Vector>) -> Polygon {
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_convex_hull(of: &[f64]) -> Option<Vec<f64>> {
-    let vecs = vecf64_to_vertex_vec(of)?;
+pub fn wasm_geometry_convex_hull(of: &[f64]) -> Vec<f64> {
+    let vecs = vecf64_to_vertex_vec(of);
     let hull = convex_hull(vecs);
     let hull_geom = Geometry::from(hull);
-    Some(hull_geom.serialize())
+    hull_geom.serialize()
 }

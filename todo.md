@@ -1,6 +1,6 @@
 6. Resume
 
-
+Rust asserts
 Rust relative imports?
 
 Rust: Intersections based on ShapeT

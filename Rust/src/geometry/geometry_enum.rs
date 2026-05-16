@@ -1,4 +1,4 @@
-use crate::geometry::{polygon::Polygon, polyline::Polyline, vector::Vector};
+use crate::geometry::{polygon::Polygon, polyline::Polyline, shape_trait::ShapeT, vector::Vector};
 
 pub enum Geometry {
     Point(Vector),
@@ -55,8 +55,8 @@ impl Geometry {
         self.into()
     }
 
-    pub fn deserialize(from: &[f64]) -> Option<Geometry> {
-        Geometry::try_from(from).ok()
+    pub fn deserialize(from: &[f64]) -> Geometry {
+        Geometry::from(from)
     }
 }
 
@@ -78,70 +78,40 @@ impl From<Polyline> for Geometry {
     }
 }
 
-impl TryFrom<&[f64]> for Geometry {
-    type Error = String;
-
-    fn try_from(values: &[f64]) -> Result<Self, Self::Error> {
-        if values.is_empty() {
-            return Err("geometry slice is empty".to_string());
-        }
+impl From<&[f64]> for Geometry {
+    fn from(values: &[f64]) -> Self {
+        debug_assert!(!values.is_empty());
 
         let tag = values[0];
 
-        if tag.is_nan() {
-            return Err("geometry tag cannot be NaN".to_string());
-        }
-
-        if tag.fract() != 0.0 {
-            return Err("geometry tag must be an integer value".to_string());
-        }
+        debug_assert!(!tag.is_nan() && tag.fract() == 0.0);
 
         match tag as i32 {
             0 => {
-                if values.len() != 3 {
-                    return Err("Point geometry must contain tag, x, y".to_string());
-                }
-
-                Ok(Geometry::Point(Vector::new(values[1], values[2])))
+                debug_assert!(values.len() == 3);
+                Geometry::Point(Vector::new(values[1], values[2]))
             }
             1 => {
-                if values.len() < 3 {
-                    return Err("Polyline must contain at least one x,y pair".to_string());
-                }
-
-                if !(values.len() - 1).is_multiple_of(2) {
-                    return Err(
-                        "Polyline coordinate data must contain an even number of values"
-                            .to_string(),
-                    );
-                }
+                debug_assert!(values.len() % 2 == 1);
 
                 let vertices: Vec<Vector> = values[1..]
                     .chunks_exact(2)
                     .map(|chunk| Vector::new(chunk[0], chunk[1]))
                     .collect();
 
-                Ok(Geometry::Polyline(Polyline::new(vertices)))
+                Geometry::Polyline(Polyline::new(vertices))
             }
             2 => {
-                if values.len() < 3 {
-                    return Err("Polygon must contain at least one x,y pair".to_string());
-                }
-
-                if !(values.len() - 1).is_multiple_of(2) {
-                    return Err(
-                        "Polygon coordinate data must contain an even number of values".to_string(),
-                    );
-                }
+                debug_assert!(values.len() % 2 == 1);
 
                 let vertices: Vec<Vector> = values[1..]
                     .chunks_exact(2)
                     .map(|chunk| Vector::new(chunk[0], chunk[1]))
                     .collect();
 
-                Ok(Geometry::Polygon(Polygon::new(vertices)))
+                Geometry::Polygon(Polygon::new(vertices))
             }
-            _ => Err("geometry tag must be 0, 1, or 2".to_string()),
+            _ => unreachable!(),
         }
     }
 }
@@ -149,25 +119,25 @@ impl TryFrom<&[f64]> for Geometry {
 impl From<&Geometry> for Vec<f64> {
     fn from(geometry: &Geometry) -> Self {
         match geometry {
-            Geometry::Point(vertex) => vec![0.0, vertex.x, vertex.y],
+            Geometry::Point(vertex) => vec![0.0, vertex.x(), vertex.y()],
             Geometry::Polyline(polyline) => {
-                let mut values = Vec::with_capacity(1 + polyline.0.len() * 2);
+                let mut values = Vec::with_capacity(1 + polyline.vertices().len() * 2);
                 values.push(1.0);
 
-                for vertex in &polyline.0 {
-                    values.push(vertex.x);
-                    values.push(vertex.y);
+                for vertex in polyline.vertices() {
+                    values.push(vertex.x());
+                    values.push(vertex.y());
                 }
 
                 values
             }
             Geometry::Polygon(polygon) => {
-                let mut values = Vec::with_capacity(1 + polygon.0.len() * 2);
+                let mut values = Vec::with_capacity(1 + polygon.vertices().len() * 2);
                 values.push(2.0);
 
-                for vertex in &polygon.0 {
-                    values.push(vertex.x);
-                    values.push(vertex.y);
+                for vertex in polygon.vertices() {
+                    values.push(vertex.x());
+                    values.push(vertex.y());
                 }
 
                 values

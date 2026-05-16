@@ -2,11 +2,11 @@ use geo::CoordsIter;
 
 use crate::geometry::shape_trait::ShapeT;
 
-use super::{line_segment::LineSegment, polygon::Polygon, vector::Vector};
+use super::{line_segment::LineSegment, vector::Vector};
 
 // A polyline cant have precicely one vertex
 #[derive(Clone)]
-pub struct Polyline(pub Vec<Vector>);
+pub struct Polyline(Vec<Vector>);
 
 impl Polyline {
     pub fn new(mut ver: Vec<Vector>) -> Polyline {
@@ -51,6 +51,6 @@ impl From<Polyline> for geo::LineString {
 
 impl From<geo::LineString> for Polyline {
     fn from(pl: geo::LineString) -> Polyline {
-        Polyline(pl.coords_iter().map(|c| Vector::from(c)).collect())
+        Polyline::new(pl.coords_iter().map(|c| Vector::from(c)).collect())
     }
 }

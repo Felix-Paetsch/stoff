@@ -1,43 +1,36 @@
 use rstar::{RTreeObject, AABB};
 
-use crate::geometry::shape_trait::ShapeT;
 use crate::geometry::{
-    line_segment::LineSegment, polygon::Polygon, polyline::Polyline, shape::Shape, vector::Vector,
+    line_segment::LineSegment, shape_trait::ShapeT, shape_utils::shape_position::ShapePosition,
+    vector::Vector,
 };
 use crate::numerics::eps::{approx_eq, clamp01_with_eps, scaled_epsilon};
 
-#[derive(Clone, Debug, Copy)]
-pub struct Intersection {
-    pub vec: Vector,
-    pub index_l1: usize,
-    pub frac_l1: f64,
-    pub index_l2: usize,
-    pub frac_l2: f64,
-}
+pub type Intersection = [ShapePosition; 2];
 
 #[derive(Debug, Clone, Copy)]
 pub struct IndexedSegment {
     pub index: usize,
-    pub order: usize,
     pub line: LineSegment,
-    pub next_index: usize,
-    pub next_order: usize,
-    pub end_is_owned_by_next: bool,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct ShapePosition {
-    index: usize,
-    order: usize,
-    frac: f64,
+#[derive(Debug, Clone)]
+pub struct ShapeProgressIndex {
+    cumulative_lengths: Vec<f64>,
+    total_length: f64,
+    is_polygon: bool,
+    segment_count: usize,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ProgressKey(i64);
 
 impl IndexedSegment {
     pub fn envelope_with_pad(&self) -> AABB<[f64; 2]> {
-        let min_x = self.line.start.x.min(self.line.end.x);
-        let min_y = self.line.start.y.min(self.line.end.y);
-        let max_x = self.line.start.x.max(self.line.end.x);
-        let max_y = self.line.start.y.max(self.line.end.y);
+        let min_x = self.line.start.x().min(self.line.end.x());
+        let min_y = self.line.start.y().min(self.line.end.y());
+        let max_x = self.line.start.x().max(self.line.end.x());
+        let max_y = self.line.start.y().max(self.line.end.y());
 
         let pad = scaled_epsilon(self.line.segment_scale());
 
@@ -53,167 +46,222 @@ impl RTreeObject for IndexedSegment {
     }
 }
 
-pub fn shape_is_polygon(shape: &Shape) -> bool {
-    matches!(shape, Shape::Polygon(_))
+impl ShapeProgressIndex {
+    pub fn new(shape: &impl ShapeT) -> Self {
+        let lines = shape.lines();
+        let mut cumulative_lengths = Vec::with_capacity(lines.len() + 1);
+        let mut acc = 0.0;
+        cumulative_lengths.push(acc);
+
+        for seg in &lines {
+            let len = seg.end.subtract(seg.start).length();
+            acc += len;
+            cumulative_lengths.push(acc);
+        }
+
+        Self {
+            cumulative_lengths,
+            total_length: acc,
+            is_polygon: shape.is_polygon(),
+            segment_count: lines.len(),
+        }
+    }
+
+    pub fn progress_of(&self, pos: &ShapePosition) -> f64 {
+        let idx = pos.index().min(self.segment_count);
+        let base = self.cumulative_lengths[idx.min(self.segment_count)];
+
+        if idx >= self.segment_count {
+            return base;
+        }
+
+        let seg_len = self.cumulative_lengths[idx + 1] - self.cumulative_lengths[idx];
+        let frac = normalize_frac(pos.frac());
+
+        let p = base + frac * seg_len;
+
+        if self.is_polygon && self.total_length > 0.0 && approx_eq(p, self.total_length, 1.0) {
+            0.0
+        } else {
+            p
+        }
+    }
+
+    pub fn key_of(&self, pos: &ShapePosition) -> ProgressKey {
+        let p = self.progress_of(pos);
+        let scale = self.total_length.max(1.0);
+        let eps = scaled_epsilon(scale).max(1e-12);
+        ProgressKey((p / eps).round() as i64)
+    }
 }
 
-pub fn build_indexed_segments(shape: &Shape) -> Vec<IndexedSegment> {
-    let is_polygon = shape_is_polygon(shape);
-
-    let mut segments: Vec<IndexedSegment> = shape
+pub fn build_indexed_segments(shape: &impl ShapeT) -> Vec<IndexedSegment> {
+    shape
         .lines()
         .into_iter()
         .enumerate()
-        .filter_map(|(index, seg)| {
-            if is_degenerate_segment(&seg) {
-                return None;
+        .filter_map(|(index, line)| {
+            if is_degenerate_segment(&line) {
+                None
+            } else {
+                Some(IndexedSegment { index, line })
             }
-
-            Some(IndexedSegment {
-                index,
-                order: 0,
-                line: seg,
-                next_index: index,
-                next_order: index,
-                end_is_owned_by_next: false,
-            })
         })
-        .collect();
-
-    let len = segments.len();
-    let indices: Vec<usize> = segments.iter().map(|s| s.index).collect();
-
-    for (order, seg) in segments.iter_mut().enumerate() {
-        let next_order = if is_polygon || order + 1 < len {
-            (order + 1) % len.max(1)
-        } else {
-            order
-        };
-
-        seg.order = order;
-        seg.next_order = next_order;
-        seg.next_index = indices[next_order];
-        seg.end_is_owned_by_next = is_polygon || order + 1 < len;
-    }
-
-    segments
+        .collect()
 }
 
-pub fn build_indexed_segments_polyline(line: &Polyline) -> Vec<IndexedSegment> {
-    build_indexed_segments(&Shape::Polyline(line.clone()))
-}
-
-pub fn build_indexed_segments_polygon(poly: &Polygon) -> Vec<IndexedSegment> {
-    build_indexed_segments(&Shape::Polygon(poly.clone()))
-}
-
-pub fn are_adjacent_by_order(
+pub fn are_adjacent_segments(
     a: &IndexedSegment,
     b: &IndexedSegment,
     is_polygon: bool,
-    segment_count: usize,
+    original_segment_count: usize,
 ) -> bool {
-    if a.order == b.order {
+    if a.index == b.index {
         return true;
     }
 
-    if a.order + 1 == b.order || b.order + 1 == a.order {
+    if a.index + 1 == b.index || b.index + 1 == a.index {
         return true;
     }
 
     is_polygon
-        && segment_count >= 2
-        && ((a.order == 0 && b.order + 1 == segment_count)
-            || (b.order == 0 && a.order + 1 == segment_count))
+        && original_segment_count >= 2
+        && ((a.index == 0 && b.index + 1 == original_segment_count)
+            || (b.index == 0 && a.index + 1 == original_segment_count))
 }
 
-pub fn flatten_intersections(intersections: &[Intersection]) -> Vec<f64> {
-    let mut out = Vec::with_capacity(intersections.len() * 6);
+pub fn sort_intersections(
+    intersections: &mut [Intersection],
+    shape1_progress: &ShapeProgressIndex,
+    shape2_progress: &ShapeProgressIndex,
+) {
+    intersections.sort_by(|a, b| {
+        let a0 = shape1_progress.key_of(&a[0]);
+        let a1 = shape2_progress.key_of(&a[1]);
+        let b0 = shape1_progress.key_of(&b[0]);
+        let b1 = shape2_progress.key_of(&b[1]);
 
-    for i in intersections {
-        out.push(i.vec.x);
-        out.push(i.vec.y);
-        out.push(i.index_l1 as f64);
-        out.push(i.frac_l1);
-        out.push(i.index_l2 as f64);
-        out.push(i.frac_l2);
-    }
-
-    out
-}
-
-pub fn sort_intersections(intersections: &mut [Intersection]) {
-    intersections.sort_by_key(|i| {
-        (
-            i.index_l1,
-            frac_key(i.frac_l1),
-            i.index_l2,
-            frac_key(i.frac_l2),
-            frac_key(i.vec.x),
-            frac_key(i.vec.y),
-        )
+        a0.cmp(&b0)
+            .then_with(|| a1.cmp(&b1))
+            .then_with(|| frac_key(a[0].x()).cmp(&frac_key(b[0].x())))
+            .then_with(|| frac_key(a[0].y()).cmp(&frac_key(b[0].y())))
+            .then_with(|| frac_key(a[1].x()).cmp(&frac_key(b[1].x())))
+            .then_with(|| frac_key(a[1].y()).cmp(&frac_key(b[1].y())))
     });
 }
 
-pub fn push_unique_intersection(out: &mut Vec<Intersection>, candidate: Intersection) {
-    for existing in out.iter() {
-        if existing.index_l1 == candidate.index_l1
-            && existing.index_l2 == candidate.index_l2
-            && frac_key(existing.frac_l1) == frac_key(candidate.frac_l1)
-            && frac_key(existing.frac_l2) == frac_key(candidate.frac_l2)
-        {
-            return;
-        }
+pub fn push_unique_intersection(
+    out: &mut Vec<Intersection>,
+    candidate: Intersection,
+    shape1_progress: &ShapeProgressIndex,
+    shape2_progress: &ShapeProgressIndex,
+) {
+    let c0 = shape1_progress.key_of(&candidate[0]);
+    let c1 = shape2_progress.key_of(&candidate[1]);
+
+    if out.iter().any(|existing| {
+        shape1_progress.key_of(&existing[0]) == c0 && shape2_progress.key_of(&existing[1]) == c1
+    }) {
+        return;
     }
 
     out.push(candidate);
 }
 
+pub fn flatten_intersections(intersections: &[Intersection]) -> Vec<f64> {
+    let mut out = Vec::with_capacity(intersections.len() * 6);
+
+    for [a, b] in intersections {
+        out.push(a.x());
+        out.push(a.y());
+        out.push(a.index() as f64);
+        out.push(a.frac());
+        out.push(b.index() as f64);
+        out.push(b.frac());
+    }
+
+    out
+}
+
 pub fn canonical_pair_intersection(
-    raw: Intersection,
+    pt: Vector,
     seg1: &IndexedSegment,
     seg2: &IndexedSegment,
     same_shape: bool,
+    shape1_is_polygon: bool,
+    shape2_is_polygon: bool,
+    shape1_segment_count: usize,
+    shape2_segment_count: usize,
 ) -> Option<Intersection> {
-    let pos1 = canonical_position(seg1, raw.frac_l1);
-    let pos2 = canonical_position(seg2, raw.frac_l2);
+    let frac1 = point_fraction_on_segment(pt, &seg1.line)?;
+    let frac2 = point_fraction_on_segment(pt, &seg2.line)?;
 
-    let mut out = Intersection {
-        vec: raw.vec,
-        index_l1: pos1.index,
-        frac_l1: pos1.frac,
-        index_l2: pos2.index,
-        frac_l2: pos2.frac,
-    };
+    let mut out = [
+        canonical_shape_position(seg1, frac1, shape1_is_polygon, shape1_segment_count),
+        canonical_shape_position(seg2, frac2, shape2_is_polygon, shape2_segment_count),
+    ];
 
-    if same_shape && (pos2.order, frac_key(pos2.frac)) < (pos1.order, frac_key(pos1.frac)) {
-        std::mem::swap(&mut out.index_l1, &mut out.index_l2);
-        std::mem::swap(&mut out.frac_l1, &mut out.frac_l2);
+    if same_shape && out[1] < out[0] {
+        out.swap(0, 1);
     }
 
-    if same_shape && out.index_l1 == out.index_l2 && frac_key(out.frac_l1) == frac_key(out.frac_l2)
-    {
+    if same_shape && out[0] == out[1] {
         return None;
     }
 
     Some(out)
 }
 
-fn canonical_position(seg: &IndexedSegment, frac: f64) -> ShapePosition {
-    let eps = scaled_epsilon(1.0);
+pub fn canonical_shape_position(
+    seg: &IndexedSegment,
+    frac: f64,
+    is_polygon: bool,
+    segment_count: usize,
+) -> ShapePosition {
+    let f = normalize_frac(frac);
 
-    if seg.end_is_owned_by_next && approx_eq(frac, 1.0, 1.0 + eps) {
-        ShapePosition {
-            index: seg.next_index,
-            order: seg.next_order,
-            frac: 0.0,
-        }
+    if approx_eq(f, 1.0, 1.0 + scaled_epsilon(1.0))
+        && owns_end_by_next(seg.index, is_polygon, segment_count)
+    {
+        ShapePosition::new(
+            next_index(seg.index, is_polygon, segment_count),
+            0.0,
+            seg.line.end,
+        )
     } else {
-        ShapePosition {
-            index: seg.index,
-            order: seg.order,
-            frac: normalize_frac(frac),
+        ShapePosition::new(seg.index, f, seg.line.lerp(f))
+    }
+}
+
+pub fn dedup_shape_positions_on_shape(
+    positions: Vec<ShapePosition>,
+    progress: &ShapeProgressIndex,
+) -> Vec<ShapePosition> {
+    let mut out: Vec<ShapePosition> = Vec::new();
+
+    for pos in positions {
+        let key = progress.key_of(&pos);
+        if out.iter().any(|p| progress.key_of(p) == key) {
+            continue;
         }
+        out.push(pos);
+    }
+
+    out.sort_by(|a, b| progress.key_of(a).cmp(&progress.key_of(b)));
+    out
+}
+
+fn owns_end_by_next(index: usize, is_polygon: bool, segment_count: usize) -> bool {
+    is_polygon || index + 1 < segment_count
+}
+
+fn next_index(index: usize, is_polygon: bool, segment_count: usize) -> usize {
+    if is_polygon {
+        (index + 1) % segment_count
+    } else if index + 1 < segment_count {
+        index + 1
+    } else {
+        index
     }
 }
 
@@ -231,6 +279,10 @@ fn normalize_frac(t: f64) -> f64 {
 
 pub fn frac_key(t: f64) -> i64 {
     (t * 1_000_000_000.0).round() as i64
+}
+
+pub fn point_key(pt: Vector) -> (i64, i64) {
+    (frac_key(pt.x()), frac_key(pt.y()))
 }
 
 pub fn is_degenerate_segment(seg: &LineSegment) -> bool {
@@ -252,7 +304,7 @@ pub fn point_fraction_on_segment(pt: Vector, seg: &LineSegment) -> Option<f64> {
         };
     }
 
-    let line_tol = eps * (1.0 + d.length_squared());
+    let line_tol = eps * (1.0 + len2.sqrt());
     if d.cross(v).abs() > line_tol {
         return None;
     }
@@ -261,20 +313,7 @@ pub fn point_fraction_on_segment(pt: Vector, seg: &LineSegment) -> Option<f64> {
     clamp01_with_eps(t, eps)
 }
 
-fn make_intersection(pt: Vector, seg1: &LineSegment, seg2: &LineSegment) -> Option<Intersection> {
-    let frac_l1 = point_fraction_on_segment(pt, seg1)?;
-    let frac_l2 = point_fraction_on_segment(pt, seg2)?;
-
-    Some(Intersection {
-        vec: pt,
-        index_l1: 0,
-        frac_l1,
-        index_l2: 0,
-        frac_l2,
-    })
-}
-
-pub fn segment_intersections(seg1: &LineSegment, seg2: &LineSegment) -> Vec<Intersection> {
+pub fn segment_intersection_points(seg1: &LineSegment, seg2: &LineSegment) -> Vec<Vector> {
     let d1 = seg1.end.subtract(seg1.start);
     let d2 = seg2.end.subtract(seg2.start);
 
@@ -286,41 +325,25 @@ pub fn segment_intersections(seg1: &LineSegment, seg2: &LineSegment) -> Vec<Inte
 
     if seg1_is_point && seg2_is_point {
         if seg1.start.approx_equals(seg2.start) {
-            return vec![Intersection {
-                vec: Vector::lerp(seg1.start, seg2.start, 0.5),
-                index_l1: 0,
-                frac_l1: 0.0,
-                index_l2: 0,
-                frac_l2: 0.0,
-            }];
+            return vec![Vector::lerp(seg1.start, seg2.start, 0.5)];
         }
         return vec![];
     }
 
     if seg1_is_point {
-        if let Some(frac_l2) = point_fraction_on_segment(seg1.start, seg2) {
-            return vec![Intersection {
-                vec: seg1.start,
-                index_l1: 0,
-                frac_l1: 0.0,
-                index_l2: 0,
-                frac_l2,
-            }];
-        }
-        return vec![];
+        return if point_fraction_on_segment(seg1.start, seg2).is_some() {
+            vec![seg1.start]
+        } else {
+            vec![]
+        };
     }
 
     if seg2_is_point {
-        if let Some(frac_l1) = point_fraction_on_segment(seg2.start, seg1) {
-            return vec![Intersection {
-                vec: seg2.start,
-                index_l1: 0,
-                frac_l1,
-                index_l2: 0,
-                frac_l2: 0.0,
-            }];
-        }
-        return vec![];
+        return if point_fraction_on_segment(seg2.start, seg1).is_some() {
+            vec![seg2.start]
+        } else {
+            vec![]
+        };
     }
 
     if let Some(hit) = proper_segment_intersection(seg1, seg2) {
@@ -332,7 +355,7 @@ pub fn segment_intersections(seg1: &LineSegment, seg2: &LineSegment) -> Vec<Inte
         .collect()
 }
 
-fn proper_segment_intersection(seg1: &LineSegment, seg2: &LineSegment) -> Option<Intersection> {
+fn proper_segment_intersection(seg1: &LineSegment, seg2: &LineSegment) -> Option<Vector> {
     let p = seg1.start;
     let q = seg2.start;
     let r = seg1.end.subtract(seg1.start);
@@ -361,18 +384,20 @@ fn proper_segment_intersection(seg1: &LineSegment, seg2: &LineSegment) -> Option
             }
 
             let mid_t = 0.5 * (lo + hi);
-            let pt = seg1.start.add(r.scale(mid_t));
-            return make_intersection(pt, seg1, seg2);
+            return Some(seg1.start.add(r.scale(mid_t)));
         }
 
         return None;
     }
 
-    let t = qmp.cross(s) / rxs;
-    let t = clamp01_with_eps(t, eps)?;
+    let t = clamp01_with_eps(qmp.cross(s) / rxs, eps)?;
+    let u = clamp01_with_eps(qmp.cross(r) / rxs, eps)?;
 
-    let pt = p.add(r.scale(t));
-    make_intersection(pt, seg1, seg2)
+    if !(0.0..=1.0).contains(&t) || !(0.0..=1.0).contains(&u) {
+        return None;
+    }
+
+    Some(p.add(r.scale(t)))
 }
 
 fn project_fraction(pt: Vector, seg: &LineSegment) -> Option<f64> {
@@ -386,10 +411,7 @@ fn project_fraction(pt: Vector, seg: &LineSegment) -> Option<f64> {
     Some(pt.subtract(seg.start).dot(d) / len2)
 }
 
-fn fallback_near_parallel_intersection(
-    seg1: &LineSegment,
-    seg2: &LineSegment,
-) -> Option<Intersection> {
+fn fallback_near_parallel_intersection(seg1: &LineSegment, seg2: &LineSegment) -> Option<Vector> {
     let candidates = [
         seg1.start,
         seg1.end,
@@ -403,11 +425,11 @@ fn fallback_near_parallel_intersection(
         if point_fraction_on_segment(pt, seg1).is_some()
             && point_fraction_on_segment(pt, seg2).is_some()
         {
-            return make_intersection(pt, seg1, seg2);
+            return Some(pt);
         }
     }
 
-    overlap_midpoint_if_collinearish(seg1, seg2).and_then(|pt| make_intersection(pt, seg1, seg2))
+    overlap_midpoint_if_collinearish(seg1, seg2)
 }
 
 fn overlap_midpoint_if_collinearish(seg1: &LineSegment, seg2: &LineSegment) -> Option<Vector> {

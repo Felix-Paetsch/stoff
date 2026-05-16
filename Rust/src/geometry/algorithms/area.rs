@@ -1,7 +1,7 @@
 use geo::Area;
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry::Geometry, polygon::Polygon, shape_trait::ShapeT};
+use crate::geometry::{geometry_enum::Geometry, polygon::Polygon, shape_trait::ShapeT};
 
 impl Polygon {
     pub fn area(&self) -> f64 {

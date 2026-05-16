@@ -1,5 +1,5 @@
 use crate::geometry::{
-    geometry::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
+    geometry_enum::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
     shape_trait::ShapeT, vector::Vector,
 };
 

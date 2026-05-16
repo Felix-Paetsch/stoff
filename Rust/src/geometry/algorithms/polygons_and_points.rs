@@ -4,7 +4,7 @@ use geo::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry::Geometry, polygon::Polygon, vector::Vector};
+use crate::geometry::{geometry_enum::Geometry, polygon::Polygon, vector::Vector};
 
 pub fn interior_point(polygon: Polygon) -> Option<Vector> {
     let geogon = geo::Polygon::from(polygon);

@@ -6,7 +6,10 @@ use crate::{
     numerics::eps::{clamp01_with_eps, scaled_epsilon},
 };
 
-pub fn closest_point_position_on_shape(point: Vector, shape: &impl ShapeT) -> ShapePosition {
+pub fn closest_point_position_on_shape(
+    point: Vector,
+    shape: &impl ShapeT,
+) -> Option<ShapePosition> {
     let mut closest_position: Option<ShapePosition> = None;
     let mut closest_distance = f64::INFINITY;
 
@@ -15,15 +18,11 @@ pub fn closest_point_position_on_shape(point: Vector, shape: &impl ShapeT) -> Sh
 
         if proj.distance < closest_distance {
             closest_distance = proj.distance;
-            closest_position = Some(ShapePosition {
-                vec: proj.vertex,
-                start_index: index,
-                fraction: proj.fraction,
-            });
+            closest_position = Some(ShapePosition::new(index, proj.fraction, proj.vertex));
         }
     }
 
-    closest_position.unwrap()
+    closest_position
 }
 
 pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition; 2] {
@@ -38,17 +37,8 @@ pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition
             if res.distance < min_distance {
                 min_distance = res.distance;
 
-                closest_p1 = Some(ShapePosition {
-                    vec: res.v1,
-                    start_index: line1_index,
-                    fraction: res.frac1,
-                });
-
-                closest_p2 = Some(ShapePosition {
-                    vec: res.v2,
-                    start_index: line2_index,
-                    fraction: res.frac2,
-                });
+                closest_p1 = Some(ShapePosition::new(line1_index, res.frac1, res.v1));
+                closest_p2 = Some(ShapePosition::new(line2_index, res.frac2, res.v2));
             }
         }
     }

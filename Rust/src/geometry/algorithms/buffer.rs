@@ -2,7 +2,7 @@ use geo::{buffer::BufferStyle, Buffer, GeometryCollection};
 use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
-    geometry::Geometry, polygon::Polygon, polyline::Polyline, shape_trait::ShapeT,
+    geometry_enum::Geometry, polygon::Polygon, polyline::Polyline, shape_trait::ShapeT,
 };
 
 pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon> {

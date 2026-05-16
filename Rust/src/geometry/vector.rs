@@ -2,13 +2,27 @@ use crate::numerics::eps::approx_eq;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
-    pub x: f64,
-    pub y: f64,
+    x: f64,
+    y: f64,
 }
 
 impl Vector {
     pub fn new(x: f64, y: f64) -> Vector {
+        debug_assert!(x.is_finite() && y.is_finite());
+
         Vector { x, y }
+    }
+
+    pub fn into_array(&self) -> [f64; 2] {
+        [self.x, self.y]
+    }
+
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    pub fn y(&self) -> f64 {
+        self.y
     }
 
     pub fn normalize(&self) -> Vector {
@@ -17,24 +31,15 @@ impl Vector {
     }
 
     pub fn add(self, other: Vector) -> Vector {
-        Vector {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
+        Vector::new(self.x + other.x, self.y + other.y)
     }
 
     pub fn subtract(self, other: Vector) -> Vector {
-        Vector {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
+        Vector::new(self.x - other.x, self.y - other.y)
     }
 
     pub fn scale(self, factor: f64) -> Vector {
-        Vector {
-            x: self.x * factor,
-            y: self.y * factor,
-        }
+        Vector::new(self.x * factor, self.y * factor)
     }
 
     pub fn dot(self, other: Vector) -> f64 {
@@ -110,10 +115,7 @@ impl Vector {
     pub fn rotate(self, angle: f64) -> Vector {
         let (sin, cos) = angle.sin_cos();
 
-        Vector {
-            x: self.x * cos + self.y * sin,
-            y: -self.x * sin + self.y * cos,
-        }
+        Vector::new(self.x * cos + self.y * sin, -self.x * sin + self.y * cos)
     }
 }
 
@@ -135,39 +137,27 @@ impl From<Vector> for geo::Point {
 
 impl From<geo::Coord> for Vector {
     fn from(coord: geo::Coord) -> Self {
-        Vector {
-            x: coord.x,
-            y: coord.y,
-        }
+        Vector::new(coord.x, coord.y)
     }
 }
 
 impl From<&geo::Coord> for Vector {
     fn from(coord: &geo::Coord) -> Self {
-        Vector {
-            x: coord.x,
-            y: coord.y,
-        }
+        Vector::new(coord.x, coord.y)
     }
 }
 
 impl From<geo::Point> for Vector {
     fn from(point: geo::Point) -> Self {
         let coord = point.0;
-        Vector {
-            x: coord.x,
-            y: coord.y,
-        }
+        Vector::new(coord.x, coord.y)
     }
 }
 
 impl From<&geo::Point> for Vector {
     fn from(point: &geo::Point) -> Self {
         let coord = point.0;
-        Vector {
-            x: coord.x,
-            y: coord.y,
-        }
+        Vector::new(coord.x, coord.y)
     }
 }
 
