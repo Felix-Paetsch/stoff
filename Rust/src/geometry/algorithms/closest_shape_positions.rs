@@ -1,53 +1,24 @@
-use std::cmp::Ordering;
-
 use crate::{
-    geometry::{line_segment::LineSegment, shape::Shape, vertex::Vertex},
+    geometry::{
+        line_segment::LineSegment, shape::Shape, shape_trait::ShapeT,
+        shape_utils::shape_position::ShapePosition, vector::Vector,
+    },
     numerics::eps::{clamp01_with_eps, scaled_epsilon},
 };
 
-#[derive(Clone, Copy, Debug)]
-pub struct ShapePosition {
-    pub vec: Vertex,
-    pub index: usize,
-    pub frac: f64,
-}
-
-impl PartialEq for ShapePosition {
-    fn eq(&self, other: &Self) -> bool {
-        self.index == other.index && self.frac == other.frac
-    }
-}
-
-impl Eq for ShapePosition {}
-
-impl PartialOrd for ShapePosition {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for ShapePosition {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.index.cmp(&other.index) {
-            Ordering::Equal => self.frac.total_cmp(&other.frac),
-            ord => ord,
-        }
-    }
-}
-
-pub fn closest_point_position_on_shape(point: Vertex, shape: &Shape) -> ShapePosition {
+pub fn closest_point_position_on_shape(point: Vector, shape: &impl ShapeT) -> ShapePosition {
     let mut closest_position: Option<ShapePosition> = None;
     let mut closest_distance = f64::INFINITY;
 
-    for (index, segment) in shape.lines().enumerate() {
+    for (index, segment) in shape.lines().into_iter().enumerate() {
         let proj = segment.project(point);
 
         if proj.distance < closest_distance {
             closest_distance = proj.distance;
             closest_position = Some(ShapePosition {
                 vec: proj.vertex,
-                index,
-                frac: proj.fraction,
+                start_index: index,
+                fraction: proj.fraction,
             });
         }
     }
@@ -60,8 +31,8 @@ pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition
     let mut closest_p1: Option<ShapePosition> = None;
     let mut closest_p2: Option<ShapePosition> = None;
 
-    for (line1_index, segment1) in shape1.lines().enumerate() {
-        for (line2_index, segment2) in shape2.lines().enumerate() {
+    for (line1_index, segment1) in shape1.lines().into_iter().enumerate() {
+        for (line2_index, segment2) in shape2.lines().into_iter().enumerate() {
             let res = closest_line_segment_points(&segment1, &segment2);
 
             if res.distance < min_distance {
@@ -69,14 +40,14 @@ pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition
 
                 closest_p1 = Some(ShapePosition {
                     vec: res.v1,
-                    index: line1_index,
-                    frac: res.frac1,
+                    start_index: line1_index,
+                    fraction: res.frac1,
                 });
 
                 closest_p2 = Some(ShapePosition {
                     vec: res.v2,
-                    index: line2_index,
-                    frac: res.frac2,
+                    start_index: line2_index,
+                    fraction: res.frac2,
                 });
             }
         }
@@ -90,9 +61,9 @@ pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition
 
 struct ClosestLineSegmentPoints {
     pub frac1: f64,
-    pub v1: Vertex,
+    pub v1: Vector,
     pub frac2: f64,
-    pub v2: Vertex,
+    pub v2: Vector,
     pub distance: f64,
 }
 
@@ -156,8 +127,8 @@ fn closest_line_segment_points(l1: &LineSegment, l2: &LineSegment) -> ClosestLin
             let u = qp.cross(r) / rxs;
 
             if let (Some(t), Some(u)) = (clamp01_with_eps(t, eps), clamp01_with_eps(u, eps)) {
-                let v1 = Vertex::lerp(l1.start, l1.end, t);
-                let v2 = Vertex::lerp(l2.start, l2.end, u);
+                let v1 = Vector::lerp(l1.start, l1.end, t);
+                let v2 = Vector::lerp(l2.start, l2.end, u);
                 let d = v1.distance(v2);
 
                 return ClosestLineSegmentPoints {

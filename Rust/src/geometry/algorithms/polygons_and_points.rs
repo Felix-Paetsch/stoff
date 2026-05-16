@@ -4,18 +4,18 @@ use geo::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry::Geometry, polygon::Polygon, vertex::Vertex};
+use crate::geometry::{geometry::Geometry, polygon::Polygon, vector::Vector};
 
-pub fn interior_point(polygon: Polygon) -> Option<Vertex> {
+pub fn interior_point(polygon: Polygon) -> Option<Vector> {
     let geogon = geo::Polygon::from(polygon);
     let interior = geogon.interior_point();
-    interior.map(Vertex::from)
+    interior.map(Vector::from)
 }
 
-pub fn centroid(polygon: Polygon) -> Option<Vertex> {
+pub fn centroid(polygon: Polygon) -> Option<Vector> {
     let geogon = geo::Polygon::from(polygon);
     let centr = geogon.centroid();
-    centr.map(Vertex::from)
+    centr.map(Vector::from)
 }
 
 pub enum PointPosition {
@@ -24,7 +24,7 @@ pub enum PointPosition {
     Inside,
 }
 
-pub fn coordinate_position(polygon: Polygon, vertex: Vertex) -> PointPosition {
+pub fn coordinate_position(polygon: Polygon, vertex: Vector) -> PointPosition {
     let geogon = geo::Polygon::from(polygon);
     let geocoord = geo::Coord::from(vertex);
 
@@ -57,7 +57,7 @@ pub fn wasm_geometry_centroid(gon: &[f64]) -> Option<Vec<f64>> {
 #[wasm_bindgen]
 pub fn wasm_geometry_coordiante_position(gon: &[f64], x: f64, y: f64) -> Option<i8> {
     let geom = Geometry::try_from(gon).ok()?;
-    let vert = Vertex::new(x, y);
+    let vert = Vector::new(x, y);
 
     match geom {
         Geometry::Polygon(gon) => match coordinate_position(gon, vert) {

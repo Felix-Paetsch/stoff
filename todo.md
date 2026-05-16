@@ -1,5 +1,11 @@
-CollectionMethods.map()
-So many collection_methods.get() things..
+6. Resume
+
+
+Rust relative imports?
+
+Rust: Intersections based on ShapeT
+So many collection_methods.get() things.. (Why still "get_"?)
+Iterating over nonemtpy lines
 
 sketches and resampling lns/gons dont go well together
 also resampling is sloooow, I guess it is to fine. When doing strict resampling you dont need to resample on straight lines

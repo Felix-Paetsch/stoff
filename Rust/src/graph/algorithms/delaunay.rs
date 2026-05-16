@@ -2,15 +2,15 @@ use petgraph::{Graph, Undirected};
 use spade::{DelaunayTriangulation, HasPosition, Point2, Triangulation};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry_compatability_layer::vecf64_to_vertex_vec, vertex::Vertex};
+use crate::geometry::{geometry_compatability_layer::vecf64_to_vertex_vec, vector::Vector};
 
 #[derive(Clone, Copy, Debug)]
-struct SpadeVertex {
+struct SpadeVector {
     index: usize,
-    vertex: Vertex,
+    vertex: Vector,
 }
 
-impl HasPosition for SpadeVertex {
+impl HasPosition for SpadeVector {
     type Scalar = f64;
 
     fn position(&self) -> Point2<f64> {
@@ -18,8 +18,8 @@ impl HasPosition for SpadeVertex {
     }
 }
 
-pub fn delaunay_triangulation(vertices: &[Vertex]) -> Graph<Vertex, (), Undirected> {
-    let mut graph = Graph::<Vertex, (), Undirected>::new_undirected();
+pub fn delaunay_triangulation(vertices: &[Vector]) -> Graph<Vector, (), Undirected> {
+    let mut graph = Graph::<Vector, (), Undirected>::new_undirected();
 
     if vertices.is_empty() {
         return graph;
@@ -36,10 +36,10 @@ pub fn delaunay_triangulation(vertices: &[Vertex]) -> Graph<Vertex, (), Undirect
         .iter()
         .copied()
         .enumerate()
-        .map(|(index, vertex)| SpadeVertex { index, vertex })
+        .map(|(index, vertex)| SpadeVector { index, vertex })
         .collect();
 
-    let triangulation = match DelaunayTriangulation::<SpadeVertex>::bulk_load_stable(spade_vertices)
+    let triangulation = match DelaunayTriangulation::<SpadeVector>::bulk_load_stable(spade_vertices)
     {
         Ok(t) => t,
         Err(_) => return graph,

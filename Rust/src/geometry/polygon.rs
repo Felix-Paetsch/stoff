@@ -1,12 +1,14 @@
-use crate::geometry::{line_segment::LineSegment, polyline::Polyline, vertex::Vertex};
+use crate::geometry::{
+    line_segment::LineSegment, polyline::Polyline, shape_trait::ShapeT, vector::Vector,
+};
 
 // The first and last vertex are not necessarily identical.
 // A polygon can't have precicely one vertex
 #[derive(Clone)]
-pub struct Polygon(pub Vec<Vertex>);
+pub struct Polygon(pub Vec<Vector>);
 
 impl Polygon {
-    pub fn new(mut ver: Vec<Vertex>) -> Polygon {
+    pub fn new(mut ver: Vec<Vector>) -> Polygon {
         if ver.len() == 1 {
             ver.push(ver[0]);
         }
@@ -17,8 +19,10 @@ impl Polygon {
     pub fn empty() -> Polygon {
         Polygon(vec![])
     }
+}
 
-    pub fn lines(&self) -> impl Iterator<Item = LineSegment> + '_ {
+impl ShapeT for Polygon {
+    fn lines(&self) -> Vec<LineSegment> {
         self.0
             .windows(2)
             .map(|window| LineSegment::new(window[0], window[1]))
@@ -28,12 +32,25 @@ impl Polygon {
                     .zip(self.0.last())
                     .map(|(first, last)| LineSegment::new(*last, *first)),
             )
+            .collect()
+    }
+
+    fn vertices(&self) -> &[Vector] {
+        &self.0
+    }
+
+    fn into_vertices(self) -> Vec<Vector> {
+        self.0
+    }
+
+    fn is_polyline(&self) -> bool {
+        true
     }
 }
 
 impl From<Polygon> for geo::Polygon {
     fn from(poly: Polygon) -> geo::Polygon {
-        let polyline = Polyline::from(poly);
+        let polyline = poly.into_polyline();
         let exterior: geo::LineString = polyline.into();
         geo::Polygon::new(exterior, vec![])
     }
@@ -43,22 +60,6 @@ impl From<geo::Polygon> for Polygon {
     fn from(poly: geo::Polygon) -> Polygon {
         let (outer, _) = poly.into_inner();
         let polyline = Polyline::from(outer);
-        Polygon::from(polyline)
-    }
-}
-
-impl From<Polygon> for Vec<Vertex> {
-    fn from(p: Polygon) -> Self {
-        p.0
-    }
-}
-
-impl From<Polyline> for Polygon {
-    fn from(v: Polyline) -> Self {
-        let mut verts: Vec<Vertex> = v.0;
-        if verts.last().unwrap() == verts.first().unwrap() && verts.len() > 3 {
-            verts.pop();
-        }
-        Polygon(verts)
+        polyline.into_polygon()
     }
 }

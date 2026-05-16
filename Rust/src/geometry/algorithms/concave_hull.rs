@@ -3,11 +3,11 @@ use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
     geometry::Geometry, geometry_compatability_layer::vecf64_to_vertex_vec, polygon::Polygon,
-    polyline::Polyline, shape::Shape, vertex::Vertex,
+    shape::Shape, shape_trait::ShapeT, vector::Vector,
 };
 
 pub fn concave_hull_with_options_vertices(
-    vecs: &[Vertex],
+    vecs: &[Vector],
     concavity: f64,
     length_threshold: f64,
 ) -> Polygon {
@@ -58,11 +58,8 @@ pub fn concave_hull_with_options_geometries(
                 let coord: geo::Coord = (*p).into();
                 geo::LineString(vec![coord, coord])
             }
-            Geometry::Polyline(l) => l.clone().into(),
-            Geometry::Polygon(g) => {
-                let line: Polyline = g.clone().into();
-                line.into()
-            }
+            Geometry::Polyline(l) => l.clone().into_geo_linestring(),
+            Geometry::Polygon(g) => g.clone().into_geo_linestring(),
         })
         .collect();
 

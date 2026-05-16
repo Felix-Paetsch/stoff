@@ -1,6 +1,6 @@
 use crate::geometry::{
     geometry::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
-    vertex::Vertex,
+    shape_trait::ShapeT, vector::Vector,
 };
 
 pub enum Shape {
@@ -9,27 +9,6 @@ pub enum Shape {
 }
 
 impl Shape {
-    pub fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_> {
-        match self {
-            Shape::Polyline(l) => Box::new(l.lines()),
-            Shape::Polygon(g) => Box::new(g.lines()),
-        }
-    }
-
-    pub fn verticies(&self) -> Box<dyn Iterator<Item = &Vertex> + '_> {
-        match self {
-            Shape::Polyline(l) => Box::new(l.0.iter()),
-            Shape::Polygon(g) => Box::new(g.0.iter()),
-        }
-    }
-
-    pub fn into_verticies(self) -> Vec<Vertex> {
-        match self {
-            Shape::Polyline(l) => l.0,
-            Shape::Polygon(g) => g.0,
-        }
-    }
-
     pub fn from_geometry(geom: Geometry) -> Option<Shape> {
         match geom {
             Geometry::Point(_) => None,
@@ -39,29 +18,32 @@ impl Shape {
     }
 }
 
-impl From<Shape> for Geometry {
-    fn from(s: Shape) -> Geometry {
-        match s {
-            Shape::Polygon(g) => Geometry::Polygon(g),
-            Shape::Polyline(l) => Geometry::Polyline(l),
+impl ShapeT for Shape {
+    fn lines(&self) -> Vec<LineSegment> {
+        match self {
+            Shape::Polyline(l) => l.lines(),
+            Shape::Polygon(g) => g.lines(),
         }
     }
-}
 
-impl From<Shape> for Polyline {
-    fn from(s: Shape) -> Polyline {
-        match s {
-            Shape::Polygon(g) => Polyline::from(g),
-            Shape::Polyline(l) => l,
+    fn vertices(&self) -> &[Vector] {
+        match self {
+            Shape::Polyline(l) => l.vertices(),
+            Self::Polygon(g) => g.vertices(),
         }
     }
-}
 
-impl From<Shape> for Polygon {
-    fn from(s: Shape) -> Polygon {
-        match s {
-            Shape::Polygon(g) => g,
-            Shape::Polyline(l) => Polygon::from(l),
+    fn into_vertices(self) -> Vec<Vector> {
+        match self {
+            Shape::Polyline(l) => l.into_vertices(),
+            Self::Polygon(g) => g.into_vertices(),
+        }
+    }
+
+    fn is_polyline(&self) -> bool {
+        match self {
+            Shape::Polyline(_) => true,
+            Self::Polygon(_) => false,
         }
     }
 }

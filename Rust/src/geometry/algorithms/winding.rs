@@ -1,7 +1,9 @@
 use geo::Winding;
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry::Geometry, polygon::Polygon, polyline::Polyline};
+use crate::geometry::{
+    geometry::Geometry, polygon::Polygon, polyline::Polyline, shape_trait::ShapeT,
+};
 
 pub enum WindingOrder {
     Clockwise,
@@ -9,8 +11,7 @@ pub enum WindingOrder {
 }
 
 pub fn winding_order(gon: Polygon) -> Option<WindingOrder> {
-    let line: Polyline = gon.into();
-    let geoline: geo::LineString = line.into();
+    let geoline: geo::LineString = gon.into_geo_linestring();
 
     match geoline.winding_order() {
         None => None,

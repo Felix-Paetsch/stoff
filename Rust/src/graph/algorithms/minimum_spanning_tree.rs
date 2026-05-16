@@ -5,14 +5,14 @@ use petgraph::{Graph, Undirected};
 use wasm_bindgen::prelude::*;
 
 use crate::geometry::geometry_compatability_layer::vecf64_to_vertex_vec;
-use crate::geometry::vertex::Vertex;
+use crate::geometry::vector::Vector;
 use crate::graph::algorithms::delaunay::delaunay_triangulation;
 use crate::graph::transmittable_graph::{NodeF, TransmittableGraph};
 use crate::graph::transmittable_graph_edges::EdgeF;
 
 use petgraph::graph::EdgeIndex;
 
-pub fn minimum_spanning_tree_from_vertices(v: &[Vertex]) -> Graph<Vertex, (), Undirected> {
+pub fn minimum_spanning_tree_from_vertices(v: &[Vector]) -> Graph<Vector, (), Undirected> {
     let delaunay = delaunay_triangulation(v);
 
     let mut edge_weights = vec![0.0; delaunay.edge_count()];
@@ -24,12 +24,12 @@ pub fn minimum_spanning_tree_from_vertices(v: &[Vertex]) -> Graph<Vertex, (), Un
         edge_weights[edge_idx.index()] = va.distance(vb);
     }
 
-    let weighted: Graph<Vertex, f64, Undirected> = delaunay.map_owned(
+    let weighted: Graph<Vector, f64, Undirected> = delaunay.map_owned(
         |_, node| node,
         |edge_idx: EdgeIndex, _| edge_weights[edge_idx.index()],
     );
 
-    let mst_weighted: Graph<Vertex, f64, Undirected> =
+    let mst_weighted: Graph<Vector, f64, Undirected> =
         Graph::from_elements(min_spanning_tree(&weighted));
 
     mst_weighted.map_owned(|_, node| node, |_, _| ())

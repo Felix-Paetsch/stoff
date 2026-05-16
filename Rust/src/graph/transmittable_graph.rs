@@ -1,5 +1,5 @@
 use crate::{
-    geometry::{geometry::Geometry, shape::Shape, vertex::Vertex},
+    geometry::{geometry::Geometry, shape::Shape, vector::Vector},
     graph::transmittable_graph_edges::{EdgeF, TransmittableEdges},
 };
 
@@ -12,7 +12,7 @@ pub type NodeFs<NodeType = ()> = Vec<NodeF<NodeType>>;
 
 pub enum TransmittableNodes {
     Id(NodeFs),
-    Vertex(NodeFs<Vertex>),
+    Vector(NodeFs<Vector>),
 }
 
 pub struct TransmittableGraph {
@@ -23,25 +23,25 @@ pub struct TransmittableGraph {
 /*
  *
  * The serialized form of a transmittable graph looks as follows:
- * [NoeType, EdgeType, VertexCount, ...serializedVerticies, ...serializedEdges]
+ * [NoeType, EdgeType, VectorCount, ...serializedVerticies, ...serializedEdges]
  *
  * Sending **FROM JS TO WASM** it looks like this:
  * ===============================================
  *
  * NodeType:
  *    0 - Id
- *    1 - Vertex
+ *    1 - Vector
  *
  * EdgeType:
  *    0 - Id
  *    1 - Shape
  *    2 - Length
  *
- * VertexCount: u32 as f64, how many verticies there are
+ * VectorCount: u32 as f64, how many verticies there are
  *
  * serializedVerticies:
  *    Id - NOTHING
- *    Vertex - a list of ...[v.x, v.y]
+ *    Vector - a list of ...[v.x, v.y]
  *    (In both cases total length is known and the indices are infered by order 0, ...)
  *
  * serializedEdges:
@@ -76,7 +76,7 @@ impl TransmittableGraph {
     pub fn serialize(&self) -> Vec<f64> {
         let node_type = match &self.nodes {
             TransmittableNodes::Id(_) => 0.0,
-            TransmittableNodes::Vertex(_) => 1.0,
+            TransmittableNodes::Vector(_) => 1.0,
         };
 
         let edge_type = match &self.edges {
@@ -87,7 +87,7 @@ impl TransmittableGraph {
 
         let node_count = match &self.nodes {
             TransmittableNodes::Id(nodes) => nodes.len(),
-            TransmittableNodes::Vertex(nodes) => nodes.len(),
+            TransmittableNodes::Vector(nodes) => nodes.len(),
         };
 
         let mut out = Vec::new();
@@ -101,7 +101,7 @@ impl TransmittableGraph {
                     out.push(node.id as f64);
                 }
             }
-            TransmittableNodes::Vertex(nodes) => {
+            TransmittableNodes::Vector(nodes) => {
                 for node in nodes {
                     out.push(node.id as f64);
                     out.push(node.data.x);
@@ -176,11 +176,11 @@ impl TransmittableGraph {
 
                     nodes.push(NodeF {
                         id: id as u32,
-                        data: Vertex::new(x, y),
+                        data: Vector::new(x, y),
                     });
                 }
 
-                TransmittableNodes::Vertex(nodes)
+                TransmittableNodes::Vector(nodes)
             }
             _ => unreachable!(),
         };

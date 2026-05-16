@@ -1,7 +1,7 @@
-use crate::geometry::{polygon::Polygon, polyline::Polyline, vertex::Vertex};
+use crate::geometry::{polygon::Polygon, polyline::Polyline, vector::Vector};
 
 pub enum Geometry {
-    Point(Vertex),
+    Point(Vector),
     Polyline(Polyline),
     Polygon(Polygon),
 }
@@ -60,8 +60,8 @@ impl Geometry {
     }
 }
 
-impl From<Vertex> for Geometry {
-    fn from(v: Vertex) -> Self {
+impl From<Vector> for Geometry {
+    fn from(v: Vector) -> Self {
         Geometry::Point(v)
     }
 }
@@ -102,7 +102,7 @@ impl TryFrom<&[f64]> for Geometry {
                     return Err("Point geometry must contain tag, x, y".to_string());
                 }
 
-                Ok(Geometry::Point(Vertex::new(values[1], values[2])))
+                Ok(Geometry::Point(Vector::new(values[1], values[2])))
             }
             1 => {
                 if values.len() < 3 {
@@ -116,9 +116,9 @@ impl TryFrom<&[f64]> for Geometry {
                     );
                 }
 
-                let vertices: Vec<Vertex> = values[1..]
+                let vertices: Vec<Vector> = values[1..]
                     .chunks_exact(2)
-                    .map(|chunk| Vertex::new(chunk[0], chunk[1]))
+                    .map(|chunk| Vector::new(chunk[0], chunk[1]))
                     .collect();
 
                 Ok(Geometry::Polyline(Polyline::new(vertices)))
@@ -134,9 +134,9 @@ impl TryFrom<&[f64]> for Geometry {
                     );
                 }
 
-                let vertices: Vec<Vertex> = values[1..]
+                let vertices: Vec<Vector> = values[1..]
                     .chunks_exact(2)
-                    .map(|chunk| Vertex::new(chunk[0], chunk[1]))
+                    .map(|chunk| Vector::new(chunk[0], chunk[1]))
                     .collect();
 
                 Ok(Geometry::Polygon(Polygon::new(vertices)))
@@ -179,7 +179,7 @@ impl From<&Geometry> for Vec<f64> {
 impl From<Geometry> for geo::Geometry {
     fn from(geometry: Geometry) -> Self {
         match geometry {
-            Geometry::Point(p) => geo::Geometry::Point(Vertex::into(p)),
+            Geometry::Point(p) => geo::Geometry::Point(Vector::into(p)),
             Geometry::Polyline(l) => geo::Geometry::LineString(Polyline::into(l)),
             Geometry::Polygon(g) => geo::Geometry::Polygon(Polygon::into(g)),
         }

@@ -1,7 +1,7 @@
-use crate::geometry::vertex::Vertex;
+use crate::geometry::vector::Vector;
 
 // vertices given as (x,y) array
-pub fn vecf64_to_vertex_vec(vec: &[f64]) -> Option<Vec<Vertex>> {
+pub fn vecf64_to_vertex_vec(vec: &[f64]) -> Option<Vec<Vector>> {
     if !vec.len().is_multiple_of(2) {
         return None;
     }
@@ -16,13 +16,13 @@ pub fn vecf64_to_vertex_vec(vec: &[f64]) -> Option<Vec<Vertex>> {
             return None;
         }
 
-        out.push(Vertex { x, y });
+        out.push(Vector { x, y });
     }
 
     Some(out)
 }
 
-pub fn vertex_vec_to_vecf64(vertices: &[Vertex]) -> Vec<f64> {
+pub fn vertex_vec_to_vecf64(vertices: &[Vector]) -> Vec<f64> {
     let mut out = Vec::with_capacity(vertices.len() * 2);
 
     for v in vertices {
@@ -34,7 +34,7 @@ pub fn vertex_vec_to_vecf64(vertices: &[Vertex]) -> Vec<f64> {
 }
 
 // Linestrings are expected to be prefixed with a nan each
-pub fn vecf64_to_vertex_vec_vec(coords: &[f64]) -> Option<Vec<Vec<Vertex>>> {
+pub fn vecf64_to_vertex_vec_vec(coords: &[f64]) -> Option<Vec<Vec<Vector>>> {
     if coords.is_empty() {
         return Some(Vec::new());
     }
@@ -62,7 +62,7 @@ pub fn vecf64_to_vertex_vec_vec(coords: &[f64]) -> Option<Vec<Vec<Vertex>>> {
     Some(result)
 }
 
-pub fn vertex_vec_vec_to_vecf64(linestrings: &[Vec<Vertex>]) -> Vec<f64> {
+pub fn vertex_vec_vec_to_vecf64(linestrings: &[Vec<Vector>]) -> Vec<f64> {
     let total_coords = linestrings.iter().map(|ls| ls.len() * 2 + 1).sum();
 
     let mut out = Vec::with_capacity(total_coords);

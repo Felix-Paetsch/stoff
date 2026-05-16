@@ -1,13 +1,15 @@
 use geo::CoordsIter;
 
-use crate::geometry::{line_segment::LineSegment, polygon::Polygon, vertex::Vertex};
+use crate::geometry::shape_trait::ShapeT;
+
+use super::{line_segment::LineSegment, polygon::Polygon, vector::Vector};
 
 // A polyline cant have precicely one vertex
 #[derive(Clone)]
-pub struct Polyline(pub Vec<Vertex>);
+pub struct Polyline(pub Vec<Vector>);
 
 impl Polyline {
-    pub fn new(mut ver: Vec<Vertex>) -> Polyline {
+    pub fn new(mut ver: Vec<Vector>) -> Polyline {
         if ver.len() == 1 {
             ver.push(ver[0]);
         }
@@ -18,11 +20,26 @@ impl Polyline {
     pub fn empty() -> Polyline {
         Polyline(vec![])
     }
+}
 
-    pub fn lines(&self) -> impl Iterator<Item = LineSegment> + '_ {
+impl ShapeT for Polyline {
+    fn lines(&self) -> Vec<LineSegment> {
         self.0
             .windows(2)
             .map(|window| LineSegment::new(window[0], window[1]))
+            .collect()
+    }
+
+    fn vertices(&self) -> &[Vector] {
+        &self.0
+    }
+
+    fn is_polyline(&self) -> bool {
+        true
+    }
+
+    fn into_vertices(self) -> Vec<Vector> {
+        self.0
     }
 }
 
@@ -34,18 +51,6 @@ impl From<Polyline> for geo::LineString {
 
 impl From<geo::LineString> for Polyline {
     fn from(pl: geo::LineString) -> Polyline {
-        Polyline(pl.coords_iter().map(|c| Vertex::from(c)).collect())
-    }
-}
-
-impl From<Polyline> for Vec<Vertex> {
-    fn from(v: Polyline) -> Self {
-        v.0
-    }
-}
-
-impl From<Polygon> for Polyline {
-    fn from(v: Polygon) -> Self {
-        Polyline(v.0)
+        Polyline(pl.coords_iter().map(|c| Vector::from(c)).collect())
     }
 }

@@ -6,7 +6,7 @@ use crate::geometry::{
     },
     geometry::Geometry,
     shape::Shape,
-    vertex::Vertex,
+    vector::Vector,
 };
 
 #[wasm_bindgen]
@@ -15,13 +15,18 @@ pub fn wasm_geometry_closest_point_position_on_shape(
     point_y: f64,
     shape: &[f64],
 ) -> Option<Vec<f64>> {
-    let point = Vertex::new(point_x, point_y);
+    let point = Vector::new(point_x, point_y);
 
     let geom = Geometry::try_from(shape).ok()?;
     let shape = Shape::from_geometry(geom)?;
 
     let res = closest_point_position_on_shape(point, &shape);
-    Some(vec![res.vec.x, res.vec.y, res.index as f64, res.frac])
+    Some(vec![
+        res.vec.x,
+        res.vec.y,
+        res.start_index as f64,
+        res.fraction,
+    ])
 }
 
 #[wasm_bindgen]
@@ -36,11 +41,11 @@ pub fn wasm_geometry_closest_shape_positions(shape1: &[f64], shape2: &[f64]) -> 
     Some(vec![
         res[0].vec.x,
         res[0].vec.y,
-        res[0].index as f64,
-        res[0].frac,
+        res[0].start_index as f64,
+        res[0].fraction,
         res[1].vec.x,
         res[1].vec.y,
-        res[1].index as f64,
-        res[1].frac,
+        res[1].start_index as f64,
+        res[1].fraction,
     ])
 }

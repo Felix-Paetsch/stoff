@@ -1,7 +1,9 @@
 pub mod polygon;
 pub mod polyline;
 pub mod shape;
-pub mod vertex;
+pub mod shape_trait;
+pub mod shape_utils;
+pub mod vector;
 
 pub mod algorithms;
 pub mod geometry;

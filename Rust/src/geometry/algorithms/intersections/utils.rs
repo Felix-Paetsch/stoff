@@ -1,13 +1,14 @@
 use rstar::{RTreeObject, AABB};
 
+use crate::geometry::shape_trait::ShapeT;
 use crate::geometry::{
-    line_segment::LineSegment, polygon::Polygon, polyline::Polyline, shape::Shape, vertex::Vertex,
+    line_segment::LineSegment, polygon::Polygon, polyline::Polyline, shape::Shape, vector::Vector,
 };
 use crate::numerics::eps::{approx_eq, clamp01_with_eps, scaled_epsilon};
 
 #[derive(Clone, Debug, Copy)]
 pub struct Intersection {
-    pub vec: Vertex,
+    pub vec: Vector,
     pub index_l1: usize,
     pub frac_l1: f64,
     pub index_l2: usize,
@@ -61,6 +62,7 @@ pub fn build_indexed_segments(shape: &Shape) -> Vec<IndexedSegment> {
 
     let mut segments: Vec<IndexedSegment> = shape
         .lines()
+        .into_iter()
         .enumerate()
         .filter_map(|(index, seg)| {
             if is_degenerate_segment(&seg) {
@@ -235,7 +237,7 @@ pub fn is_degenerate_segment(seg: &LineSegment) -> bool {
     seg.start == seg.end
 }
 
-pub fn point_fraction_on_segment(pt: Vertex, seg: &LineSegment) -> Option<f64> {
+pub fn point_fraction_on_segment(pt: Vector, seg: &LineSegment) -> Option<f64> {
     let d = seg.end.subtract(seg.start);
     let v = pt.subtract(seg.start);
     let len2 = d.length_squared();
@@ -259,7 +261,7 @@ pub fn point_fraction_on_segment(pt: Vertex, seg: &LineSegment) -> Option<f64> {
     clamp01_with_eps(t, eps)
 }
 
-fn make_intersection(pt: Vertex, seg1: &LineSegment, seg2: &LineSegment) -> Option<Intersection> {
+fn make_intersection(pt: Vector, seg1: &LineSegment, seg2: &LineSegment) -> Option<Intersection> {
     let frac_l1 = point_fraction_on_segment(pt, seg1)?;
     let frac_l2 = point_fraction_on_segment(pt, seg2)?;
 
@@ -285,7 +287,7 @@ pub fn segment_intersections(seg1: &LineSegment, seg2: &LineSegment) -> Vec<Inte
     if seg1_is_point && seg2_is_point {
         if seg1.start.approx_equals(seg2.start) {
             return vec![Intersection {
-                vec: Vertex::lerp(seg1.start, seg2.start, 0.5),
+                vec: Vector::lerp(seg1.start, seg2.start, 0.5),
                 index_l1: 0,
                 frac_l1: 0.0,
                 index_l2: 0,
@@ -373,7 +375,7 @@ fn proper_segment_intersection(seg1: &LineSegment, seg2: &LineSegment) -> Option
     make_intersection(pt, seg1, seg2)
 }
 
-fn project_fraction(pt: Vertex, seg: &LineSegment) -> Option<f64> {
+fn project_fraction(pt: Vector, seg: &LineSegment) -> Option<f64> {
     let d = seg.end.subtract(seg.start);
     let len2 = d.length_squared();
 
@@ -393,8 +395,8 @@ fn fallback_near_parallel_intersection(
         seg1.end,
         seg2.start,
         seg2.end,
-        Vertex::lerp(seg1.start, seg1.end, 0.5),
-        Vertex::lerp(seg2.start, seg2.end, 0.5),
+        Vector::lerp(seg1.start, seg1.end, 0.5),
+        Vector::lerp(seg2.start, seg2.end, 0.5),
     ];
 
     for pt in candidates {
@@ -408,7 +410,7 @@ fn fallback_near_parallel_intersection(
     overlap_midpoint_if_collinearish(seg1, seg2).and_then(|pt| make_intersection(pt, seg1, seg2))
 }
 
-fn overlap_midpoint_if_collinearish(seg1: &LineSegment, seg2: &LineSegment) -> Option<Vertex> {
+fn overlap_midpoint_if_collinearish(seg1: &LineSegment, seg2: &LineSegment) -> Option<Vector> {
     let d1 = seg1.end.subtract(seg1.start);
     let len1 = d1.length();
     let scale = seg1.segment_scale().max(seg2.segment_scale());

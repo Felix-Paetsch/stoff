@@ -1,10 +1,11 @@
+use wasm_bindgen::prelude::*;
+
 use super::utils::{
     build_indexed_segments, canonical_pair_intersection, flatten_intersections,
     push_unique_intersection, segment_intersections, sort_intersections, Intersection,
 };
 use crate::geometry::{geometry::Geometry, shape::Shape};
 use rstar::RTree;
-use wasm_bindgen::prelude::*;
 
 pub fn find_shape_intersections(shape1: &Shape, shape2: &Shape) -> Vec<Intersection> {
     let segs1 = build_indexed_segments(shape1);

@@ -3,10 +3,10 @@ use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
     geometry::Geometry, geometry_compatability_layer::vecf64_to_vertex_vec, polygon::Polygon,
-    vertex::Vertex,
+    vector::Vector,
 };
 
-pub fn convex_hull(of: Vec<Vertex>) -> Polygon {
+pub fn convex_hull(of: Vec<Vector>) -> Polygon {
     let gon = Polygon::new(of);
     let geo_gon = geo::Polygon::from(gon);
     let hull = geo_gon.convex_hull();

@@ -1,7 +1,9 @@
 use geo::{buffer::BufferStyle, Buffer, GeometryCollection};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry::Geometry, polygon::Polygon, polyline::Polyline};
+use crate::geometry::{
+    geometry::Geometry, polygon::Polygon, polyline::Polyline, shape_trait::ShapeT,
+};
 
 pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon> {
     let geoms: Vec<geo::Geometry> = geometries
@@ -19,7 +21,7 @@ pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon>
         .into_iter()
         .map(|poly| {
             let (exterior, _) = poly.into_inner();
-            Polygon::from(Polyline::from(exterior))
+            Polyline::from(exterior).into_polygon()
         })
         .collect()
 }
@@ -36,15 +38,15 @@ pub fn wasm_geometry_buffer_geometries(geometries: &[f64], distance: f64) -> Opt
 }
 
 pub enum LineJoin {
-    Bevel(),
+    Bevel,
     Miter(f64),
     Round(f64),
 }
 
 pub enum LineCap {
-    Butt(),
+    Butt,
     Round(f64),
-    Square(),
+    Square,
 }
 
 pub fn buffer_geometries_with_style(
@@ -65,11 +67,11 @@ pub fn buffer_geometries_with_style(
     let style = BufferStyle::new(distance)
         .line_cap(match cap_style {
             LineCap::Round(f) => geo::buffer::LineCap::Round(f),
-            LineCap::Butt() => geo::buffer::LineCap::Butt,
-            LineCap::Square() => geo::buffer::LineCap::Square,
+            LineCap::Butt => geo::buffer::LineCap::Butt,
+            LineCap::Square => geo::buffer::LineCap::Square,
         })
         .line_join(match join_style {
-            LineJoin::Bevel() => geo::buffer::LineJoin::Bevel,
+            LineJoin::Bevel => geo::buffer::LineJoin::Bevel,
             LineJoin::Miter(f) => geo::buffer::LineJoin::Miter(f),
             LineJoin::Round(f) => geo::buffer::LineJoin::Round(f),
         });
@@ -80,7 +82,7 @@ pub fn buffer_geometries_with_style(
         .into_iter()
         .map(|poly| {
             let (exterior, _) = poly.into_inner();
-            Polygon::from(Polyline::from(exterior))
+            Polyline::from(exterior).into_polygon()
         })
         .collect()
 }
@@ -97,15 +99,15 @@ pub fn wasm_geometry_buffer_geometries_with_style(
     let shapes = Geometry::vecf64_to_geometry_vec(geometries)?;
     let join_style = match join_style {
         0 => LineJoin::Round(join_value),
-        1 => LineJoin::Bevel(),
+        1 => LineJoin::Bevel,
         2 => LineJoin::Miter(join_value),
         _ => unreachable!(),
     };
 
     let cap_style = match cap_style {
         0 => LineCap::Round(cap_value),
-        1 => LineCap::Butt(),
-        2 => LineCap::Square(),
+        1 => LineCap::Butt,
+        2 => LineCap::Square,
         _ => unreachable!(),
     };
 

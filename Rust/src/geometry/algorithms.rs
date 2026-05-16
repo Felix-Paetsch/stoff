@@ -1,6 +1,6 @@
 mod area;
 mod buffer;
-mod closest_shape_positions;
+pub mod closest_shape_positions;
 mod closest_shape_positions_wasm;
 mod concave_hull;
 mod contains;

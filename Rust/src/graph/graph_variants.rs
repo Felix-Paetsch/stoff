@@ -3,17 +3,17 @@ use std::collections::HashMap;
 use petgraph::{graph::NodeIndex, Graph, Undirected};
 
 use crate::{
-    geometry::vertex::Vertex,
+    geometry::vector::Vector,
     graph::{
         transmittable_graph::{NodeF, TransmittableGraph, TransmittableNodes},
         transmittable_graph_edges::{EdgeF, TransmittableEdges},
     },
 };
 
-impl From<TransmittableGraph> for Graph<NodeF<Vertex>, EdgeF, Undirected> {
+impl From<TransmittableGraph> for Graph<NodeF<Vector>, EdgeF, Undirected> {
     fn from(g: TransmittableGraph) -> Self {
         match (g.nodes, g.edges) {
-            (TransmittableNodes::Vertex(nodes), TransmittableEdges::Id(edges)) => {
+            (TransmittableNodes::Vector(nodes), TransmittableEdges::Id(edges)) => {
                 create_petgraph(nodes, edges)
             }
             _ => unreachable!(),

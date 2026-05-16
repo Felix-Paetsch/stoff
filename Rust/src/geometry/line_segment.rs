@@ -1,31 +1,31 @@
 use crate::{
-    geometry::{polyline::Polyline, vertex::Vertex},
+    geometry::{polyline::Polyline, vector::Vector},
     numerics::eps::scaled_epsilon,
 };
 
 #[derive(Debug, Clone, Copy)]
 pub struct LineSegment {
-    pub start: Vertex,
-    pub end: Vertex,
+    pub start: Vector,
+    pub end: Vector,
 }
 
 pub struct ProjectionResult {
-    pub vertex: Vertex,
+    pub vertex: Vector,
     pub fraction: f64,
     pub distance: f64,
 }
 
 impl LineSegment {
-    pub fn new(start: Vertex, end: Vertex) -> Self {
+    pub fn new(start: Vector, end: Vector) -> Self {
         LineSegment { start, end }
     }
 
     pub fn segment_scale(&self) -> f64 {
         let geom = self.start.subtract(self.end).length();
-        Vertex::pair_scale(self.start, self.end).max(geom).max(1.0)
+        Vector::pair_scale(self.start, self.end).max(geom).max(1.0)
     }
 
-    pub fn project(&self, point: Vertex) -> ProjectionResult {
+    pub fn project(&self, point: Vector) -> ProjectionResult {
         let seg = self.end.subtract(self.start);
         let seg_len2 = seg.length_squared();
 
@@ -33,7 +33,7 @@ impl LineSegment {
         let eps = scaled_epsilon(seg_scale);
 
         if seg_len2 <= eps * eps {
-            let center = Vertex::lerp(self.start, self.end, 0.5);
+            let center = Vector::lerp(self.start, self.end, 0.5);
 
             let d_start = point.distance(self.start);
             let d_end = point.distance(self.end);
@@ -56,7 +56,7 @@ impl LineSegment {
 
         let t = point.subtract(self.start).dot(seg) / seg_len2;
         let t = t.clamp(0.0, 1.0);
-        let proj = Vertex::lerp(self.start, self.end, t);
+        let proj = Vector::lerp(self.start, self.end, t);
         let d = point.distance(proj);
 
         ProjectionResult {
@@ -64,6 +64,10 @@ impl LineSegment {
             fraction: t,
             distance: d,
         }
+    }
+
+    pub fn vector(&self) -> Vector {
+        self.end.subtract(self.start)
     }
 }
 
