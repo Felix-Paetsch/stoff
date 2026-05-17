@@ -1,16 +1,7 @@
 import { Color, Polygon, Polyline, Vector } from "@/Core";
 import { Json } from "../../types";
 import { SVGGradient } from "./gradient";
-import {
-    defaultLineRenderAttributes,
-    defaultPointRenderAttributes,
-    defaultPolygonRenderAttributes,
-    defaultTextRenderAttributes,
-    LineRenderAttributes,
-    PointRenderAttributes,
-    PolygonRenderAttributes,
-    TextRenderAttributes,
-} from "./render_attributes";
+import * as RenderAttributes from "./render_attributes";
 
 export type RenderGroupData = {
     belongs_to_render_groups: string[];
@@ -42,13 +33,13 @@ export class SVG_Builder {
     render_text(
         text: string,
         position: Vector,
-        attributes: Partial<TextRenderAttributes> = {},
+        attributes: Partial<RenderAttributes.TextRenderAttributes> = {},
         data: Json = null,
         belongs_to_render_groups: string[] = ["base"],
         show_render_groups_on_hover: string[] = [],
     ) {
         const full_attributes = {
-            ...defaultTextRenderAttributes,
+            ...RenderAttributes.defaultTextRenderAttributes,
             ...attributes,
         };
         this.custom((crg) => {
@@ -72,13 +63,13 @@ export class SVG_Builder {
 
     render_point(
         position: Vector,
-        attributes: Partial<PointRenderAttributes> = {},
+        attributes: Partial<RenderAttributes.PointRenderAttributes> = {},
         data: Json = null,
         belongs_to_render_groups: string[] = ["base"],
         show_render_groups_on_hover: string[] = [],
     ) {
         const full_attributes = {
-            ...defaultPointRenderAttributes,
+            ...RenderAttributes.defaultPointRenderAttributes,
             ...attributes,
         };
 
@@ -104,13 +95,13 @@ export class SVG_Builder {
 
     render_polyline(
         line: Polyline,
-        attributes: Partial<LineRenderAttributes> = {},
+        attributes: Partial<RenderAttributes.LineRenderAttributes> = {},
         data: Json = null,
         belongs_to_render_groups: string[] = ["base"],
         show_render_groups_on_hover: string[] = [],
     ) {
         const full_attributes = {
-            ...defaultLineRenderAttributes,
+            ...RenderAttributes.defaultLineRenderAttributes,
             ...attributes,
         };
 
@@ -168,13 +159,13 @@ export class SVG_Builder {
 
     render_polygon(
         gon: Polygon,
-        attributes: Partial<PolygonRenderAttributes> = {},
+        attributes: Partial<RenderAttributes.PolygonRenderAttributes> = {},
         data: Json = null,
         belongs_to_render_groups: string[] = ["base"],
         show_render_groups_on_hover: string[] = [],
     ) {
         const full_attributes = {
-            ...defaultPolygonRenderAttributes,
+            ...RenderAttributes.defaultPolygonRenderAttributes,
             ...attributes,
         };
 
@@ -374,7 +365,8 @@ function compute_render_group_css(
 }
 
 function data_to_string(data: Json) {
-    return JSON.stringify(data).replace(/\\/g, "\\\\").replace(/"/g, "&quot;");
+    if (typeof data == "string") return data.replace(/"/g, "&quot;");
+    return JSON.stringify(data).replace(/"/g, "&quot;");
 }
 
 function float_to_string(f: number): string {
@@ -388,4 +380,23 @@ function escapeXml(s: string) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&apos;");
+}
+
+export namespace SVG_Builder {
+    export type LineRenderAttributes = RenderAttributes.LineRenderAttributes;
+    export const defaultLineRenderAttributes =
+        RenderAttributes.defaultLineRenderAttributes;
+
+    export type PointRenderAttributes = RenderAttributes.PointRenderAttributes;
+    export const defaultPointRenderAttributes =
+        RenderAttributes.defaultPointRenderAttributes;
+
+    export type PolygonRenderAttributes =
+        RenderAttributes.PolygonRenderAttributes;
+    export const defaultPolygonRenderAttributes =
+        RenderAttributes.defaultPolygonRenderAttributes;
+
+    export type TextRenderAttributes = RenderAttributes.TextRenderAttributes;
+    export const defaultTextRenderAttributes =
+        RenderAttributes.defaultTextRenderAttributes;
 }

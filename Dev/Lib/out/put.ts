@@ -4,8 +4,8 @@ import * as path from "path";
 import {
     DST,
     Json,
-    render_sketch,
     Sketch,
+    SketchRendering,
     SVG_Builder,
     Utils,
 } from "../../../Core/index";
@@ -96,7 +96,7 @@ function serialize_put(what: Putable) {
 
     if (what instanceof Sketch) {
         return serialize_put(
-            render_sketch(what, {
+            SketchRendering.render(what, {
                 width: 500,
                 height: 500,
                 padding: 30,
@@ -117,7 +117,7 @@ function serialize_put(what: Putable) {
             type: "recording" as const,
             value: what.snapshots.map((s) => {
                 return {
-                    svg: render_sketch(s.sketch, {
+                    svg: SketchRendering.render(s.sketch, {
                         width: 500,
                         height: 500,
                         padding: 30,
@@ -139,7 +139,7 @@ function serialize_put(what: Putable) {
         };
     }
 
-    if (what instanceof DST){
+    if (what instanceof DST) {
         what = Embroidery.from_dst(what);
     }
 

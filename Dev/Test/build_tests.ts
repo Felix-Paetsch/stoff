@@ -4,7 +4,7 @@ import fs, { writeFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
-import { Json, render_sketch, Sketch, SVG_Builder } from "../../Core/index";
+import { Json, Sketch, SketchRendering, SVG_Builder } from "../../Core/index";
 
 export type TestReturnResultPrimitive = Json | Sketch | SVG_Builder;
 export type TestReturnResult =
@@ -73,7 +73,7 @@ for (const result of test_results) {
 // To is the file name without ending
 async function to_file(what: TestReturnResultPrimitive, to: string) {
     if (what instanceof Sketch) {
-        what = render_sketch(what, {
+        what = SketchRendering.render(what, {
             width: 500,
             height: 500,
             padding: 30,

@@ -1,2 +1,0 @@
-run:
-    cd ../ && ./watch.sh "npx tsx ./Embroidery/index.ts"

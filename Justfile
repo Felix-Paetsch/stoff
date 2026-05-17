@@ -1,7 +1,6 @@
 mod standalone 'Dev/StandAlone/Justfile'
 mod test 'Dev/Test/Justfile'
 mod tools 'Tools/Justfile'
-mod embroidery 'Embroidery/Justfile'
 
 typecheck:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
@@ -20,4 +19,7 @@ watch-server:
 
 sewing:
     ./watch.sh "npx tsx ./Sewing/Patterns/index.ts"
+
+embroidery:
+    ./watch.sh "npx tsx ./Embroidery/index.ts"
 

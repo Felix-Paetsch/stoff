@@ -1,9 +1,18 @@
-6. Resume
+Organize dev scenes?
+To test different features in each scene..
+Start using tests..
 
+With colors
 Rust asserts
 Rust relative imports?
 
+Organize standalone better
+
+Ignore parallel segments for intersections?
+
 Rust: Intersections based on ShapeT
+Rust warnings
+
 So many collection_methods.get() things.. (Why still "get_"?)
 Iterating over nonemtpy lines
 

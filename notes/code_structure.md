@@ -13,6 +13,9 @@ only useful for sewing, due to
 - very nieche algorithm (folding, ..)
 - basically: I do not intend to use
 
+- sewing specific sketch display
+    - including colors
+
 ##### Embroidery
 
 only useful for embroidery due to
@@ -30,7 +33,10 @@ things which probably should go here (maybe renaming the folder for it)
 
 ##### Dev
 
-<todo>
+for development purposes
+- testing
+- out server
+- can use everything freely
 
 ##### Algorithms
 

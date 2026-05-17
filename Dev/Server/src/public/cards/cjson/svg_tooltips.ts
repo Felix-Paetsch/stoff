@@ -7,7 +7,6 @@ let tooltipEl: HTMLThing | null = null;
 let currentHoveredEl: HTMLThing | null = null;
 
 let initialized = false;
-let observer: HTMLThing | null = null;
 
 /* ------------------------------------------------------------------ */
 /* Tooltip                                                            */
