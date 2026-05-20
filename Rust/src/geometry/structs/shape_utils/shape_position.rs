@@ -1,9 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::geometry::{
-    algorithms::closest_shape_positions::closest_point_position_on_shape, shape_trait::ShapeT,
-    vector::Vector,
-};
+use crate::geometry::{algorithms::closest_point_position_on_shape, ShapeT, Vector};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShapePosition {
@@ -14,7 +11,8 @@ pub struct ShapePosition {
 
 impl ShapePosition {
     pub fn new(index: usize, fraction: f64, vec: Vector) -> ShapePosition {
-        debug_assert!(fraction.is_finite() && fraction >= 0.0 && fraction <= 1.0);
+        debug_assert!(fraction.is_finite() && (0.0..=1.0).contains(&fraction));
+
         ShapePosition {
             start_index: index,
             fraction,
@@ -49,6 +47,13 @@ impl ShapePosition {
     pub fn frac(&self) -> f64 {
         self.fraction
     }
+
+    pub fn from_descriptor(
+        descr: ShapePositionDescriptor,
+        shape: &impl ShapeT,
+    ) -> Option<ShapePosition> {
+        shape_position_from_descriptor(descr, shape)
+    }
 }
 
 impl PartialEq for ShapePosition {
@@ -74,6 +79,7 @@ impl Ord for ShapePosition {
     }
 }
 
+#[allow(dead_code)]
 pub enum ShapePositionDescriptor {
     Length(f64),
     RelativeLength(f64),
@@ -83,7 +89,7 @@ pub enum ShapePositionDescriptor {
     ShapePosition(ShapePosition),
 }
 
-pub fn shape_position_from_descriptor(
+fn shape_position_from_descriptor(
     descr: ShapePositionDescriptor,
     shape: &impl ShapeT,
 ) -> Option<ShapePosition> {

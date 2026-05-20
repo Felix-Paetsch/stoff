@@ -1,4 +1,2 @@
 mod algorithms;
-mod graph_variants;
-mod transmittable_graph;
-mod transmittable_graph_edges;
+pub mod wasm_compatibility;

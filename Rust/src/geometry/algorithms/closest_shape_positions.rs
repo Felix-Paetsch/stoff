@@ -1,8 +1,5 @@
 use crate::{
-    geometry::{
-        line_segment::LineSegment, shape::Shape, shape_trait::ShapeT,
-        shape_utils::shape_position::ShapePosition, vector::Vector,
-    },
+    geometry::{LineSegment, Shape, ShapePosition, ShapeT, Vector},
     numerics::eps::{clamp01_with_eps, scaled_epsilon},
 };
 
@@ -50,11 +47,11 @@ pub fn closest_shape_positions(shape1: &Shape, shape2: &Shape) -> [ShapePosition
 }
 
 struct ClosestLineSegmentPoints {
-    pub frac1: f64,
-    pub v1: Vector,
-    pub frac2: f64,
-    pub v2: Vector,
-    pub distance: f64,
+    frac1: f64,
+    v1: Vector,
+    frac2: f64,
+    v2: Vector,
+    distance: f64,
 }
 
 fn closest_line_segment_points(l1: &LineSegment, l2: &LineSegment) -> ClosestLineSegmentPoints {

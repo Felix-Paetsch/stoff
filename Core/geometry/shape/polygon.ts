@@ -18,6 +18,7 @@ import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { remove_dub } from "./algorithms/remove_dub";
 import { resample_polygon_points_smooth } from "./algorithms/resample_smooth";
 import { resample_strict } from "./algorithms/resample_strict";
+import { simplify } from "./algorithms/simplify";
 import { Polyline } from "./polyline";
 import { Shape } from "./shape";
 
@@ -91,6 +92,10 @@ export class Polygon extends Shape {
 
     resample(sample_spacing: number | null = null): Polygon {
         return resample_strict(this, sample_spacing);
+    }
+
+    simplify(): Polygon {
+        return simplify(this);
     }
 
     remove_dubplicates(): Polygon {

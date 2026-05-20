@@ -1,4 +1,4 @@
-use crate::geometry::vector::Vector;
+use crate::geometry::Vector;
 
 #[derive(Clone, Copy, Debug)]
 pub enum EdgeGrouping {
@@ -39,7 +39,7 @@ pub struct TraversalEdgeIdent {
 }
 
 impl ShapeGraphEdge {
-    pub fn into_traversal_edge_ident(&self) -> TraversalEdgeIdent {
+    pub fn as_traversal_edge_ident(&self) -> TraversalEdgeIdent {
         TraversalEdgeIdent {
             next_node_index: self.next_node_index,
             next_node_edge_index: self.next_node_edge_index,

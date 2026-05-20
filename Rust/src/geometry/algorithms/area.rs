@@ -1,7 +1,7 @@
 use geo::Area;
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry_enum::Geometry, polygon::Polygon, shape_trait::ShapeT};
+use crate::geometry::*;
 
 impl Polygon {
     pub fn area(&self) -> f64 {
@@ -17,7 +17,7 @@ impl Polygon {
 
 #[wasm_bindgen]
 pub fn wasm_geometry_polygon_area(coords: &[f64]) -> Option<f64> {
-    let geom = Geometry::try_from(coords).ok()?;
+    let geom = Geometry::from(coords);
     let res = match geom {
         Geometry::Point(_) => 0.0,
         Geometry::Polygon(gon) => gon.area(),
@@ -28,7 +28,7 @@ pub fn wasm_geometry_polygon_area(coords: &[f64]) -> Option<f64> {
 
 #[wasm_bindgen]
 pub fn wasm_geometry_polygon_signed_area(coords: &[f64]) -> Option<f64> {
-    let geom = Geometry::try_from(coords).ok()?;
+    let geom = Geometry::from(coords);
     let res = match geom {
         Geometry::Point(_) => 0.0,
         Geometry::Polygon(gon) => gon.area(),

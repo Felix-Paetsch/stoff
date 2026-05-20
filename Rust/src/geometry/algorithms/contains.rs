@@ -1,7 +1,7 @@
 use geo::{Contains, ContainsProperly};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry_enum::Geometry, polygon::Polygon};
+use crate::geometry::{Geometry, Polygon};
 
 pub fn polygon_contains_geometry(polygon: Polygon, geom: Geometry) -> bool {
     let geogon: geo::Polygon = polygon.into();
@@ -33,8 +33,8 @@ pub fn wasm_geometry_polygon_contains_geometry_properly(
     polygon: &[f64],
     geometry: &[f64],
 ) -> Option<bool> {
-    let gon = Geometry::try_from(polygon).ok()?;
-    let geom = Geometry::try_from(geometry).ok()?;
+    let gon = Geometry::from(polygon);
+    let geom = Geometry::from(geometry);
 
     match gon {
         Geometry::Polygon(gon) => Some(polygon_contains_geometry_properly(gon, geom)),

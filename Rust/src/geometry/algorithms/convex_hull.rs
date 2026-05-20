@@ -1,10 +1,7 @@
 use geo::ConvexHull;
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{
-    geometry_compatability_layer::vecf64_to_vertex_vec, geometry_enum::Geometry, polygon::Polygon,
-    vector::Vector,
-};
+use crate::geometry::{wasm_compatability::vecf64_to_vertex_vec, Geometry, Polygon, Vector};
 
 pub fn convex_hull(of: Vec<Vector>) -> Polygon {
     let gon = Polygon::new(of);

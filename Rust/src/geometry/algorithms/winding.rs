@@ -1,7 +1,7 @@
 use geo::Winding;
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry_enum::Geometry, polygon::Polygon, shape_trait::ShapeT};
+use crate::geometry::{Geometry, Polygon, ShapeT};
 
 pub enum WindingOrder {
     Clockwise,

@@ -1,7 +1,4 @@
-use crate::{
-    geometry::{polyline::Polyline, vector::Vector},
-    numerics::eps::{scaled_epsilon, EPS_ABS},
-};
+use crate::{geometry::*, numerics::eps::scaled_epsilon};
 
 #[derive(Debug, Clone, Copy)]
 pub struct LineSegment {
@@ -23,6 +20,10 @@ impl LineSegment {
     pub fn segment_scale(&self) -> f64 {
         let geom = self.start.subtract(self.end).length();
         Vector::pair_scale(self.start, self.end).max(geom).max(1.0)
+    }
+
+    pub fn length(&self) -> f64 {
+        self.vector().length()
     }
 
     pub fn project(&self, point: Vector) -> ProjectionResult {
@@ -71,12 +72,15 @@ impl LineSegment {
     }
 
     pub fn lerp(&self, f: f64) -> Vector {
-        let v = self.vector();
-        if v.length() < EPS_ABS {
-            self.start.add(v.scale(0.5))
-        } else {
-            self.start.add(v.scale(f))
-        }
+        self.start.add(self.vector().scale(f))
+    }
+
+    pub fn inverse_lerp(&self, v: Vector) -> f64 {
+        self.project(v).fraction
+    }
+
+    pub fn midpoint(&self) -> Vector {
+        self.lerp(0.5)
     }
 }
 

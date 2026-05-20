@@ -1,35 +1,47 @@
-use std::collections::{BTreeMap, HashMap};
-
 use rstar::RTree;
 use wasm_bindgen::prelude::*;
 
-use super::utils::{
-    are_adjacent_segments, build_indexed_segments, canonical_shape_position,
-    dedup_shape_positions_on_shape, flatten_intersections, point_fraction_on_segment, point_key,
-    segment_intersection_points, sort_intersections, Intersection, ShapeProgressIndex,
+use crate::geometry::{
+    algorithms::intersections::utils::{
+        canonical_pair_intersection, deduped_intersections, flatten_intersections, is_shape_end,
+        segments_are_adjacent, shapes_are_parallel_at_position, IndexedSegment, Intersection,
+    },
+    Geometry, LineSegment, Shape, ShapeT,
 };
-use crate::geometry::{geometry_enum::Geometry, shape::Shape, shape_trait::ShapeT, vector::Vector};
 
 pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
-    let segments = build_indexed_segments(shape);
+    let lines = shape.lines();
+    if lines.len() < 3 {
+        return Vec::new();
+    }
+
+    let mut length = 0.0;
+    let mut segments = Vec::with_capacity(lines.len());
+    let mut length_map: Vec<f64> = Vec::with_capacity(lines.len() + 1);
+    length_map.push(0.0);
+
+    for (i, segment) in lines.iter().enumerate() {
+        length += segment.length();
+        length_map.push(length);
+
+        if segment.start.eq(&segment.end) {
+            continue;
+        }
+
+        segments.push(IndexedSegment {
+            index: i,
+            line: *segment,
+        });
+    }
 
     if segments.len() < 2 {
         return Vec::new();
     }
 
-    let original_segment_count = shape.lines().len();
     let is_polygon = shape.is_polygon();
-    let progress = ShapeProgressIndex::new(shape);
-
     let tree = RTree::bulk_load(segments.clone());
 
-    let by_index: HashMap<usize, _> = segments
-        .iter()
-        .copied()
-        .map(|seg| (seg.index, seg))
-        .collect();
-
-    let mut events: BTreeMap<(i64, i64), Vec<(usize, usize, Vector)>> = BTreeMap::new();
+    let mut intersections: Vec<Intersection> = Vec::new();
 
     for seg1 in &segments {
         let env = seg1.envelope_with_pad();
@@ -39,70 +51,33 @@ pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
                 continue;
             }
 
-            if are_adjacent_segments(seg1, seg2, is_polygon, original_segment_count) {
+            if segments_are_adjacent(seg1, seg2, &length_map, is_polygon) {
                 continue;
             }
 
-            for pt in segment_intersection_points(&seg1.line, &seg2.line) {
-                let k = point_key(pt);
-                events
-                    .entry(k)
-                    .or_default()
-                    .push((seg1.index, seg2.index, pt));
+            if let Some(pt) = LineSegment::intersection(&seg1.line, &seg2.line) {
+                let Some(intersection) =
+                    canonical_pair_intersection(pt, seg1, seg2, true, shape, shape)
+                else {
+                    continue;
+                };
+
+                if is_shape_end(intersection[0], &length_map, shape)
+                    || is_shape_end(intersection[1], &length_map, shape)
+                    || !shapes_are_parallel_at_position(
+                        shape,
+                        intersection[0],
+                        shape,
+                        intersection[1],
+                    )
+                {
+                    intersections.push(intersection);
+                }
             }
         }
     }
 
-    let mut intersections = Vec::new();
-
-    for (_, raw_hits) in events {
-        let mut positions = Vec::new();
-
-        for (i, j, pt) in raw_hits {
-            let seg1 = match by_index.get(&i) {
-                Some(s) => s,
-                None => continue,
-            };
-            let seg2 = match by_index.get(&j) {
-                Some(s) => s,
-                None => continue,
-            };
-
-            if let Some(frac1) = point_fraction_on_segment(pt, &seg1.line) {
-                positions.push(canonical_shape_position(
-                    seg1,
-                    frac1,
-                    is_polygon,
-                    original_segment_count,
-                ));
-            }
-
-            if let Some(frac2) = point_fraction_on_segment(pt, &seg2.line) {
-                positions.push(canonical_shape_position(
-                    seg2,
-                    frac2,
-                    is_polygon,
-                    original_segment_count,
-                ));
-            }
-        }
-
-        let positions = dedup_shape_positions_on_shape(positions, &progress);
-
-        for a in 0..positions.len() {
-            for b in (a + 1)..positions.len() {
-                intersections.push([positions[a], positions[b]]);
-            }
-        }
-    }
-
-    intersections.dedup_by(|a, b| {
-        progress.key_of(&a[0]) == progress.key_of(&b[0])
-            && progress.key_of(&a[1]) == progress.key_of(&b[1])
-    });
-    sort_intersections(&mut intersections, &progress, &progress);
-
-    intersections
+    deduped_intersections(intersections, &length_map, &length_map, shape, shape)
 }
 
 #[wasm_bindgen]

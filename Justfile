@@ -12,7 +12,7 @@ build:
     cd Rust && wasm-pack build --target nodejs
 
 dev_build:
-    cd Rust && wasm-pack build --target nodejs --dev
+    cd Rust && cargo clippy -- -D warnings && wasm-pack build --target nodejs --dev
 
 watch-server:
     cd Dev/Server && npm run start

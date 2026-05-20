@@ -1,23 +1,21 @@
-use crate::{
-    geometry::{geometry_enum::Geometry, shape::Shape, vector::Vector},
-    graph::transmittable_graph_edges::{EdgeF, TransmittableEdges},
-};
+use super::transmittable_graph_edges::{WASMEdge, WASMTransmittableEdges};
+use crate::geometry::{Geometry, Shape, Vector};
 
 #[derive(Clone)]
-pub struct NodeF<NodeType = ()> {
+pub struct WASMNode<NodeType = ()> {
     pub id: u32,
     pub data: NodeType,
 }
-pub type NodeFs<NodeType = ()> = Vec<NodeF<NodeType>>;
+type NodeFs<NodeType = ()> = Vec<WASMNode<NodeType>>;
 
-pub enum TransmittableNodes {
+pub enum WASMTransmittableNodes {
     Id(NodeFs),
     Vector(NodeFs<Vector>),
 }
 
-pub struct TransmittableGraph {
-    pub nodes: TransmittableNodes,
-    pub edges: TransmittableEdges,
+pub struct WASMTransmittableGraph {
+    pub nodes: WASMTransmittableNodes,
+    pub edges: WASMTransmittableEdges,
 }
 
 /*
@@ -72,22 +70,22 @@ pub struct TransmittableGraph {
  *
  * */
 
-impl TransmittableGraph {
+impl WASMTransmittableGraph {
     pub fn serialize(&self) -> Vec<f64> {
         let node_type = match &self.nodes {
-            TransmittableNodes::Id(_) => 0.0,
-            TransmittableNodes::Vector(_) => 1.0,
+            WASMTransmittableNodes::Id(_) => 0.0,
+            WASMTransmittableNodes::Vector(_) => 1.0,
         };
 
         let edge_type = match &self.edges {
-            TransmittableEdges::Id(_) => 0.0,
-            TransmittableEdges::Shape(_) => 1.0,
-            TransmittableEdges::Length(_) => 2.0,
+            WASMTransmittableEdges::Id(_) => 0.0,
+            WASMTransmittableEdges::Shape(_) => 1.0,
+            WASMTransmittableEdges::Length(_) => 2.0,
         };
 
         let node_count = match &self.nodes {
-            TransmittableNodes::Id(nodes) => nodes.len(),
-            TransmittableNodes::Vector(nodes) => nodes.len(),
+            WASMTransmittableNodes::Id(nodes) => nodes.len(),
+            WASMTransmittableNodes::Vector(nodes) => nodes.len(),
         };
 
         let mut out = Vec::new();
@@ -96,12 +94,12 @@ impl TransmittableGraph {
         out.push(node_count as f64);
 
         match &self.nodes {
-            TransmittableNodes::Id(nodes) => {
+            WASMTransmittableNodes::Id(nodes) => {
                 for node in nodes {
                     out.push(node.id as f64);
                 }
             }
-            TransmittableNodes::Vector(nodes) => {
+            WASMTransmittableNodes::Vector(nodes) => {
                 for node in nodes {
                     out.push(node.id as f64);
                     out.push(node.data.x());
@@ -111,14 +109,20 @@ impl TransmittableGraph {
         }
 
         match &self.edges {
-            TransmittableEdges::Id(edges) => {
-                for edge in edges {
-                    out.push(edge.id as f64);
-                    out.push(edge.endpoints[0] as f64);
-                    out.push(edge.endpoints[1] as f64);
-                }
+            WASMTransmittableEdges::Id(edges) => {
+                let extend_with: Vec<f64> = edges
+                    .iter()
+                    .flat_map(|edge| {
+                        [
+                            edge.id as f64,
+                            edge.endpoints[0] as f64,
+                            edge.endpoints[1] as f64,
+                        ]
+                    })
+                    .collect();
+                out.extend(extend_with);
             }
-            TransmittableEdges::Shape(edges) => {
+            WASMTransmittableEdges::Shape(edges) => {
                 for edge in edges {
                     out.push(edge.id as f64);
                     out.push(edge.endpoints[0] as f64);
@@ -133,7 +137,7 @@ impl TransmittableGraph {
                     out.push(f64::NAN);
                 }
             }
-            TransmittableEdges::Length(edges) => {
+            WASMTransmittableEdges::Length(edges) => {
                 for edge in edges {
                     out.push(edge.id as f64);
                     out.push(edge.endpoints[0] as f64);
@@ -146,7 +150,7 @@ impl TransmittableGraph {
         out
     }
 
-    pub fn deserialize(serialized: &[f64]) -> TransmittableGraph {
+    pub fn deserialize(serialized: &[f64]) -> WASMTransmittableGraph {
         let node_type = serialized[0] as u32;
         let edge_type = serialized[1] as u32;
         let node_count = serialized[2] as usize;
@@ -158,13 +162,13 @@ impl TransmittableGraph {
                 let mut nodes = Vec::with_capacity(node_count);
 
                 for id in 0..node_count {
-                    nodes.push(NodeF {
+                    nodes.push(WASMNode {
                         id: id as u32,
                         data: (),
                     });
                 }
 
-                TransmittableNodes::Id(nodes)
+                WASMTransmittableNodes::Id(nodes)
             }
             1 => {
                 let mut nodes = Vec::with_capacity(node_count);
@@ -174,13 +178,13 @@ impl TransmittableGraph {
                     let y = serialized[index + 1];
                     index += 2;
 
-                    nodes.push(NodeF {
+                    nodes.push(WASMNode {
                         id: id as u32,
                         data: Vector::new(x, y),
                     });
                 }
 
-                TransmittableNodes::Vector(nodes)
+                WASMTransmittableNodes::Vector(nodes)
             }
             _ => unreachable!(),
         };
@@ -191,14 +195,14 @@ impl TransmittableGraph {
                 let mut edges = Vec::with_capacity(remaining.len() / 2);
 
                 for (id, chunk) in remaining.chunks_exact(2).enumerate() {
-                    edges.push(EdgeF {
+                    edges.push(WASMEdge {
                         id: id as u32,
                         endpoints: [chunk[0] as u32, chunk[1] as u32],
                         data: (),
                     });
                 }
 
-                TransmittableEdges::Id(edges)
+                WASMTransmittableEdges::Id(edges)
             }
             1 => {
                 let mut edges = Vec::new();
@@ -218,7 +222,7 @@ impl TransmittableGraph {
                     let geometry = Geometry::deserialize(&serialized[shape_start..index]);
                     let shape = Shape::from_geometry(geometry).unwrap();
 
-                    edges.push(EdgeF {
+                    edges.push(WASMEdge {
                         id: edge_id,
                         endpoints: [start, end],
                         data: shape,
@@ -228,36 +232,36 @@ impl TransmittableGraph {
                     index += 1;
                 }
 
-                TransmittableEdges::Shape(edges)
+                WASMTransmittableEdges::Shape(edges)
             }
             2 => {
                 let remaining = &serialized[index..];
                 let mut edges = Vec::with_capacity(remaining.len() / 3);
 
                 for (id, chunk) in remaining.chunks_exact(3).enumerate() {
-                    edges.push(EdgeF {
+                    edges.push(WASMEdge {
                         id: id as u32,
                         endpoints: [chunk[0] as u32, chunk[1] as u32],
                         data: chunk[2],
                     });
                 }
 
-                TransmittableEdges::Length(edges)
+                WASMTransmittableEdges::Length(edges)
             }
             _ => unreachable!(),
         };
 
-        TransmittableGraph { nodes, edges }
+        WASMTransmittableGraph { nodes, edges }
     }
 
-    pub fn serialize_node_subset<NodeType>(nodes: &[NodeF<NodeType>]) -> Vec<u32> {
+    pub fn serialize_node_subset<NodeType>(nodes: &[WASMNode<NodeType>]) -> Vec<u32> {
         let mut out = Vec::with_capacity(1 + nodes.len());
         out.push(0);
         out.extend(nodes.iter().map(|n| n.id));
         out
     }
 
-    pub fn serialize_edge_subset<EdgeType>(edges: &[EdgeF<EdgeType>]) -> Vec<u32> {
+    pub fn serialize_edge_subset<EdgeType>(edges: &[WASMEdge<EdgeType>]) -> Vec<u32> {
         let mut out = Vec::with_capacity(1 + edges.len());
         out.push(1);
         out.extend(edges.iter().map(|e| e.id));
@@ -265,8 +269,8 @@ impl TransmittableGraph {
     }
 
     pub fn serialize_subgraph<NodeType, EdgeType>(
-        nodes: &[NodeF<NodeType>],
-        edges: &[EdgeF<EdgeType>],
+        nodes: &[WASMNode<NodeType>],
+        edges: &[WASMEdge<EdgeType>],
     ) -> Vec<u32> {
         let mut out = Vec::with_capacity(1 + nodes.len() + edges.len());
         out.push(2);

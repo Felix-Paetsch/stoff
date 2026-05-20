@@ -1,6 +1,5 @@
-use crate::geometry::{
-    line_segment::LineSegment, polyline::Polyline, shape_trait::ShapeT, vector::Vector,
-};
+pub use super::ShapeT;
+use crate::geometry::*;
 
 // The first and last vertex are not necessarily identical.
 // A polygon can't have precicely one vertex

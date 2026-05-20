@@ -13,8 +13,16 @@ impl Vector {
         Vector { x, y }
     }
 
-    pub fn into_array(&self) -> [f64; 2] {
+    pub fn into_array(self) -> [f64; 2] {
         [self.x, self.y]
+    }
+
+    pub fn into_tuple(self) -> (f64, f64) {
+        (self.x, self.y)
+    }
+
+    pub fn from_tuple(t: (f64, f64)) -> Vector {
+        Vector::new(t.0, t.1)
     }
 
     pub fn x(&self) -> f64 {
@@ -27,7 +35,7 @@ impl Vector {
 
     pub fn normalize(&self) -> Vector {
         let len = self.length();
-        return self.scale(1.0 / len);
+        self.scale(1.0 / len)
     }
 
     pub fn add(self, other: Vector) -> Vector {
@@ -60,6 +68,10 @@ impl Vector {
 
     pub fn length_squared(self) -> f64 {
         self.x * self.x + self.y * self.y
+    }
+
+    pub fn distance_squared(self, to: Vector) -> f64 {
+        self.subtract(to).length_squared()
     }
 
     pub fn approx_equals(self, other: Vector) -> bool {

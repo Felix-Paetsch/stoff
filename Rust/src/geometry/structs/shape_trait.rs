@@ -1,7 +1,4 @@
-use crate::geometry::{
-    geometry_enum::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
-    vector::Vector,
-};
+use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Vector};
 
 pub trait ShapeT: Sized {
     fn lines(&self) -> Vec<LineSegment>;
@@ -18,9 +15,40 @@ pub trait ShapeT: Sized {
         self.vertices().len() == 0
     }
 
+    fn linesegment_at(&self, at: usize) -> Option<LineSegment> {
+        if at < self.vertices().len() - 1 {
+            Some(LineSegment {
+                start: self.vertices()[at],
+                end: self.vertices()[at + 1],
+            })
+        } else if at == self.vertices().len() - 1 && self.is_polygon() {
+            Some(LineSegment {
+                start: self.vertices()[at],
+                end: self.vertices()[0],
+            })
+        } else {
+            None
+        }
+    }
+
+    fn vertex_count(&self) -> usize {
+        self.vertices().len()
+    }
+    fn linesegment_count(&self) -> usize {
+        if self.is_empty() {
+            return 0;
+        }
+
+        if self.is_polyline() {
+            self.vertex_count() - 1
+        } else {
+            self.vertex_count()
+        }
+    }
+
     fn into_polygon(self) -> Polygon {
         let mut verts: Vec<Vector> = self.into_vertices();
-        if verts.last().unwrap() == verts.first().unwrap() && verts.len() > 3 {
+        if verts.last().unwrap() == verts.first().unwrap() && verts.len() > 2 {
             verts.pop();
         }
         Polygon::new(verts)
@@ -31,7 +59,7 @@ pub trait ShapeT: Sized {
             true => Polyline::new(self.into_vertices()),
             false => {
                 let mut verts: Vec<Vector> = self.into_vertices();
-                if verts.len() == 0 {
+                if verts.is_empty() {
                     return Polyline::empty();
                 }
 
@@ -41,6 +69,7 @@ pub trait ShapeT: Sized {
         }
     }
 
+    #[allow(dead_code)]
     fn into_geometry(self) -> Geometry {
         match self.is_polyline() {
             true => Geometry::Polyline(self.into_polyline()),
@@ -48,6 +77,7 @@ pub trait ShapeT: Sized {
         }
     }
 
+    #[allow(dead_code)]
     fn into_geo_polygon(self) -> geo::Polygon {
         self.into_polygon().into()
     }

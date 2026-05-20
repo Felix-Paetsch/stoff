@@ -1,9 +1,11 @@
-import { LineRenderAttributes } from "Core/files/svg/render_attributes";
 import * as Color from "../../colors";
 import { Line } from "../line";
 import { Point } from "../point";
+import { SketchElement } from "../types";
 
-const defaultPointRenderAttributes = {
+import { LineRenderAttributes, PointRenderAttributes } from "./styles";
+
+export const defaultPointRenderAttributes = {
     stroke: "black" as Color.Color,
     stroke_width: 3,
     fill: "white" as Color.Color,
@@ -11,72 +13,15 @@ const defaultPointRenderAttributes = {
     radius: 10,
 };
 
-export function compute_point_render_attributes(p: Point) {
-    return {
-        radius: get_value_or_else(
-            p.data,
-            "radius",
-            defaultPointRenderAttributes.radius,
-        ),
-        fill: get_value_or_else(
-            p.data,
-            "fill",
-            defaultPointRenderAttributes.fill,
-        ),
-        stroke: get_value_or_else(
-            p.data,
-            "stroke",
-            defaultPointRenderAttributes.stroke,
-        ),
-        stroke_width: get_value_or_else(
-            p.data,
-            "stroke_width",
-            defaultPointRenderAttributes.stroke_width,
-        ),
-        opacity: get_value_or_else(
-            p.data,
-            "opacity",
-            defaultPointRenderAttributes.opacity,
-        ),
-    } as const;
-}
-
-const defaultLineRenderAttributes = {
+export const defaultLineRenderAttributes = {
+    stroke: "black" as const,
     rh_stroke: [["#ccc", "rgb(0,0,100)"], 3] as [Color.Gradient, number],
     lh_stroke: [["#ccc", "rgb(100,0,0)"], 3] as [Color.Gradient, number],
     stroke_width: 5,
     opacity: 1,
 };
 
-export function compute_line_render_attributes(l: Line) {
-    let stroke: LineRenderAttributes["stroke"] = get_value_or_else(
-        l.data,
-        "stroke",
-        l.right_handed
-            ? defaultLineRenderAttributes.rh_stroke
-            : defaultLineRenderAttributes.rh_stroke,
-    );
-
-    if (stroke instanceof Array && !Color.is_gradient(stroke[0])) {
-        stroke = [stroke as any, 3];
-    }
-
-    return {
-        stroke: stroke,
-        stroke_width: get_value_or_else(
-            l.data,
-            "stroke_width",
-            defaultLineRenderAttributes.stroke_width,
-        ),
-        opacity: get_value_or_else(
-            l.data,
-            "opacity",
-            defaultPointRenderAttributes.opacity,
-        ),
-    } as const;
-}
-
-function get_value_or_else<D>(
+export function get_value_or_else<D>(
     data: Record<string, string>,
     key: string,
     or_else: D,
@@ -85,4 +30,78 @@ function get_value_or_else<D>(
 
     if (!entry) return or_else;
     return JSON.parse(entry);
+}
+
+export function get_stroke(l: Line): LineRenderAttributes["stroke"];
+export function get_stroke(p: Point): PointRenderAttributes["stroke"];
+export function get_stroke(
+    e: SketchElement,
+): LineRenderAttributes["stroke"] | PointRenderAttributes["stroke"];
+export function get_stroke(
+    e: SketchElement,
+): LineRenderAttributes["stroke"] | PointRenderAttributes["stroke"] {
+    return get_value_or_else(
+        e.data,
+        "stroke",
+        e instanceof Point
+            ? defaultPointRenderAttributes.stroke
+            : defaultLineRenderAttributes.stroke,
+    );
+}
+
+export function get_opacity<E extends SketchElement>(e: E): number {
+    return get_value_or_else(
+        e.data,
+        "opactity",
+        e instanceof Point
+            ? defaultPointRenderAttributes.opacity
+            : defaultLineRenderAttributes.opacity,
+    );
+}
+
+export function get_stroke_width<E extends SketchElement>(e: E): number {
+    return get_value_or_else(
+        e.data,
+        "stroke_width",
+        e instanceof Point
+            ? defaultPointRenderAttributes.stroke_width
+            : defaultLineRenderAttributes.stroke_width,
+    );
+}
+
+export function get_fill(e: Point): Color.Color {
+    return get_value_or_else(e.data, "fill", defaultPointRenderAttributes.fill);
+}
+
+export function get_radius(e: Point): number {
+    return get_value_or_else(
+        e.data,
+        "radius",
+        defaultPointRenderAttributes.radius,
+    );
+}
+
+export function get_styles(l: Line): LineRenderAttributes;
+export function get_styles(p: Point): PointRenderAttributes;
+export function get_styles(
+    e: SketchElement,
+): LineRenderAttributes | PointRenderAttributes;
+export function get_styles(
+    e: SketchElement,
+): LineRenderAttributes | PointRenderAttributes {
+    if (e instanceof Point) {
+        return {
+            radius: get_radius(e),
+            fill: get_fill(e),
+            stroke: get_stroke(e),
+            stroke_width: get_stroke_width(e),
+            opacity: get_opacity(e),
+        };
+    }
+
+    return {
+        stroke: get_stroke(e),
+        stroke_width: get_stroke_width(e),
+        opacity: get_opacity(e),
+    } as const;
 }

@@ -2,7 +2,7 @@ use petgraph::{Graph, Undirected};
 use spade::{DelaunayTriangulation, HasPosition, Point2, Triangulation};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{geometry_compatability_layer::vecf64_to_vertex_vec, vector::Vector};
+use crate::geometry::{wasm_compatability::vecf64_to_vertex_vec, Vector};
 
 #[derive(Clone, Copy, Debug)]
 struct SpadeVector {

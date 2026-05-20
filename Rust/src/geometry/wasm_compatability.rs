@@ -1,4 +1,4 @@
-use crate::geometry::vector::Vector;
+use crate::geometry::Vector;
 
 // vertices given as (x,y) array
 pub fn vecf64_to_vertex_vec(vec: &[f64]) -> Vec<Vector> {
@@ -16,6 +16,7 @@ pub fn vecf64_to_vertex_vec(vec: &[f64]) -> Vec<Vector> {
     out
 }
 
+#[allow(dead_code)]
 pub fn vertex_vec_to_vecf64(vertices: &[Vector]) -> Vec<f64> {
     let mut out = Vec::with_capacity(vertices.len() * 2);
     for v in vertices {
@@ -26,6 +27,7 @@ pub fn vertex_vec_to_vecf64(vertices: &[Vector]) -> Vec<f64> {
     out
 }
 
+#[allow(dead_code)]
 // Linestrings are expected to be prefixed with a nan each
 pub fn vecf64_to_vertex_vec_vec(coords: &[f64]) -> Vec<Vec<Vector>> {
     if coords.is_empty() {
@@ -53,6 +55,7 @@ pub fn vecf64_to_vertex_vec_vec(coords: &[f64]) -> Vec<Vec<Vector>> {
     result
 }
 
+#[allow(dead_code)]
 pub fn vertex_vec_vec_to_vecf64(linestrings: &[Vec<Vector>]) -> Vec<f64> {
     let total_coords = linestrings.iter().map(|ls| ls.len() * 2 + 1).sum();
     let mut out = Vec::with_capacity(total_coords);

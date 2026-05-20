@@ -1,11 +1,5 @@
-pub mod polygon;
-pub mod polyline;
-pub mod shape;
-pub mod shape_trait;
-pub mod shape_utils;
-pub mod vector;
+mod structs;
+pub use structs::*;
 
 pub mod algorithms;
-pub mod geometry_compatability_layer;
-pub mod geometry_enum;
-pub mod line_segment;
+pub mod wasm_compatability;

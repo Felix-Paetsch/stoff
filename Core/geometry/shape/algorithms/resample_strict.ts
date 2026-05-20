@@ -2,6 +2,19 @@ import { EPS } from "@/Core";
 import { Polygon, Polyline, Vector } from "../..";
 import { CONF } from "../../../../config";
 
+function is_collinear(a: Vector, b: Vector, c: Vector): boolean {
+    const abx = b.x - a.x;
+    const aby = b.y - a.y;
+    const bcx = c.x - b.x;
+    const bcy = c.y - b.y;
+
+    return Math.abs(abx * bcy - aby * bcx) <= EPS.tiny;
+}
+
+function same_point(a: Vector, b: Vector): boolean {
+    return a.distance(b) <= EPS.tiny;
+}
+
 export function resample_strict<T extends Polygon | Polyline>(
     s: T,
     sample_spacing: number | null = null,
@@ -19,8 +32,8 @@ export function resample_strict<T extends Polygon | Polyline>(
     }
 
     const vertices = s.as_polyline().vertices;
-
     const res: Vector[] = [vertices[0]!];
+
     let remaining = sample_spacing;
     let current_left_index = 0;
     let snagged_from_current_segment = 0;
@@ -39,15 +52,36 @@ export function resample_strict<T extends Polygon | Polyline>(
             continue;
         }
 
-        res.push(
-            Vector.lerp_abs(a, b, snagged_from_current_segment + remaining),
+        const candidate = Vector.lerp_abs(
+            a,
+            b,
+            snagged_from_current_segment + remaining,
         );
+
+        const last = res[res.length - 1]!;
+
+        if (!same_point(last, candidate)) {
+            const nextRef = b;
+
+            if (res.length < 2 || !is_collinear(last, candidate, nextRef)) {
+                res.push(candidate);
+            }
+        }
 
         snagged_from_current_segment += remaining;
         remaining = sample_spacing;
     }
 
-    res.push(vertices[vertices.length - 1]!);
+    const end = vertices[vertices.length - 1]!;
+    const last = res[res.length - 1]!;
+
+    if (!same_point(last, end)) {
+        if (res.length >= 2 && is_collinear(res[res.length - 2]!, last, end)) {
+            res[res.length - 1] = end;
+        } else {
+            res.push(end);
+        }
+    }
 
     if (s instanceof Polygon) {
         return new Polygon(res) as T;

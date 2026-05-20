@@ -1,4 +1,4 @@
-use crate::geometry::{polygon::Polygon, polyline::Polyline, shape_trait::ShapeT, vector::Vector};
+use crate::geometry::*;
 
 pub enum Geometry {
     Point(Vector),
@@ -35,7 +35,7 @@ impl Geometry {
                     return None;
                 }
 
-                let geometry = Geometry::try_from(&v[start..i]).ok()?;
+                let geometry = Geometry::from(&v[start..i]);
                 result.push(geometry);
                 start = i + 1;
             }
@@ -45,7 +45,7 @@ impl Geometry {
             return None;
         }
 
-        let geometry = Geometry::try_from(&v[start..]).ok()?;
+        let geometry = Geometry::from(&v[start..]);
         result.push(geometry);
 
         Some(result)

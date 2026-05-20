@@ -30,7 +30,7 @@ export function set_opacity<E extends SketchElement>(e: E, data: number) {
 }
 
 export function set_stroke_width<E extends SketchElement>(e: E, data: number) {
-    e.data[get_data_key("stoke_width")] = JSON.stringify(data);
+    e.data[get_data_key("stroke_width")] = JSON.stringify(data);
 }
 
 export function set_fill(e: Point, data: Color.Color) {

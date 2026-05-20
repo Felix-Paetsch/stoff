@@ -1,12 +1,9 @@
-use web_sys::console;
-
 use crate::geometry::{
     algorithms::intersections::modify_polyline_intersections::{
         build_shape_graph::build_shape_graph,
         types::{EdgeGrouping, NextEdgeRule, TraversalEdgeIdent, TraversalShapeGraphNode},
     },
-    polyline::Polyline,
-    vector::Vector,
+    Polyline, Vector,
 };
 
 pub fn walk_polyline_without_intersections(l: &Polyline) -> Polyline {
@@ -43,7 +40,7 @@ fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyl
     loop {
         shape_graph_with_orientation[0].visited[0] = true;
         let mut current_edge: TraversalEdgeIdent =
-            shape_graph_with_orientation[0].edges[0].into_traversal_edge_ident();
+            shape_graph_with_orientation[0].edges[0].as_traversal_edge_ident();
 
         // Walk from beginning to end
         loop {
@@ -57,7 +54,7 @@ fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyl
             match next_next_edge_index {
                 Some(index) => {
                     next_node.visited[index] = true;
-                    current_edge = next_node.edges[index].into_traversal_edge_ident();
+                    current_edge = next_node.edges[index].as_traversal_edge_ident();
                 }
                 None => break,
             }
@@ -99,7 +96,7 @@ fn walk_shape_graph_with_orientation(
     }
 
     g[0].visited[0] = true;
-    let mut current_edge: TraversalEdgeIdent = g[0].edges[0].into_traversal_edge_ident();
+    let mut current_edge: TraversalEdgeIdent = g[0].edges[0].as_traversal_edge_ident();
 
     let mut res: Vec<Vector> = g[0].edges[0].subshape.clone();
 
@@ -116,7 +113,7 @@ fn walk_shape_graph_with_orientation(
             Some(index) => {
                 next_node.visited[index] = true;
                 res.extend(next_node.edges[index].subshape.clone());
-                current_edge = next_node.edges[index].into_traversal_edge_ident();
+                current_edge = next_node.edges[index].as_traversal_edge_ident();
             }
             None => break,
         }

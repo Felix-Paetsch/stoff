@@ -8,7 +8,7 @@ import { Sketch } from "../sketch";
 import {
     compute_line_render_attributes,
     compute_point_render_attributes,
-} from "./getters";
+} from "./get_render_attributes";
 
 export type RenderSketchArgs = {
     width?: number;
@@ -66,7 +66,7 @@ export function render(s: Sketch, args: RenderSketchArgs = {}): SVG_Builder {
         const line_attributes = compute_line_render_attributes(line);
         const lineStyles: Partial<SVG_Builder.LineRenderAttributes> = {
             ...line_attributes,
-            stroke_width: px_to_unit_x(line_attributes.stroke_width),
+            stroke_width: px_to_unit_x(line_attributes.stroke_width!),
         };
 
         const shape = line.shape;

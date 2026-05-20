@@ -4,11 +4,10 @@ use petgraph::visit::NodeRef;
 use petgraph::{Graph, Undirected};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::geometry_compatability_layer::vecf64_to_vertex_vec;
-use crate::geometry::vector::Vector;
+use crate::geometry::wasm_compatability::vecf64_to_vertex_vec;
+use crate::geometry::Vector;
 use crate::graph::algorithms::delaunay::delaunay_triangulation;
-use crate::graph::transmittable_graph::{NodeF, TransmittableGraph};
-use crate::graph::transmittable_graph_edges::EdgeF;
+use crate::graph::wasm_compatibility::{WASMEdge, WASMNode, WASMTransmittableGraph};
 
 use petgraph::graph::EdgeIndex;
 
@@ -37,15 +36,15 @@ pub fn minimum_spanning_tree_from_vertices(v: &[Vector]) -> Graph<Vector, (), Un
 
 #[wasm_bindgen]
 pub fn wasm_graph_minimum_spanning_tree(graph_data: &[f64]) -> Vec<u32> {
-    let tgraph = TransmittableGraph::deserialize(graph_data);
-    let pgraph: Graph<NodeF, EdgeF<f64>, Undirected> = tgraph.into();
+    let tgraph = WASMTransmittableGraph::deserialize(graph_data);
+    let pgraph: Graph<WASMNode, WASMEdge<f64>, Undirected> = tgraph.into();
 
     let mst = min_spanning_tree(&pgraph);
-    let mst_graph: Graph<NodeF, EdgeF<f64>, Undirected> = Graph::from_elements(mst);
+    let mst_graph: Graph<WASMNode, WASMEdge<f64>, Undirected> = Graph::from_elements(mst);
     let (_, edges) = mst_graph.into_nodes_edges();
 
-    let ret_edges: Vec<EdgeF<f64>> = edges.into_iter().map(|e| e.weight).collect();
-    TransmittableGraph::serialize_edge_subset(&ret_edges)
+    let ret_edges: Vec<WASMEdge<f64>> = edges.into_iter().map(|e| e.weight).collect();
+    WASMTransmittableGraph::serialize_edge_subset(&ret_edges)
 }
 
 #[wasm_bindgen]

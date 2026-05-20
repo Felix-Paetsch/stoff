@@ -6,6 +6,7 @@ import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { remove_dub } from "./algorithms/remove_dub";
 import { resample_line_points_smooth } from "./algorithms/resample_smooth";
 import { resample_strict } from "./algorithms/resample_strict";
+import { simplify } from "./algorithms/simplify";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
 
@@ -137,6 +138,10 @@ export class Polyline extends Shape {
 
     resample(sample_spacing: number | null = null): Polyline {
         return resample_strict(this, sample_spacing);
+    }
+
+    simplify(): Polyline {
+        return simplify(this);
     }
 
     remove_dubplicates(): Polyline {

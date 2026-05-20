@@ -1,4 +1,7 @@
 mod build_shape_graph;
-pub mod index;
+mod index;
 mod types;
 mod walk_wasm;
+
+#[allow(unused)]
+pub use index::*;

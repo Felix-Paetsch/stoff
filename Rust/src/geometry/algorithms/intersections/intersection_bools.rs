@@ -1,8 +1,7 @@
 use wasm_bindgen::prelude::*;
 
+use crate::geometry::{Geometry, Shape};
 use geo::{Intersects, Validation};
-
-use crate::geometry::{geometry_enum::Geometry, shape::Shape};
 
 pub fn intersects(l1: Geometry, l2: Geometry) -> bool {
     let geogeom1: geo::Geometry = l1.into();

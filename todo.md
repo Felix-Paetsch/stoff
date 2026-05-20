@@ -1,8 +1,19 @@
+# Plan today
+
+4. steal marching squares (allowing for multiple height lines (?))
+5. test on mandelbrot
+
+Polyline simplify: https://github.com/danieledapo/marching_squares/blob/master/src/simplify.rs
+Review current resampling algorithms
+
+https://m.youtube.com/watch?v=Ho3xr4b60Zg
 Organize dev scenes?
 To test different features in each scene..
 Start using tests..
 
-With colors
+different fill and run types
+
+Rust tests
 Rust asserts
 Rust relative imports?
 
@@ -19,6 +30,7 @@ Iterating over nonemtpy lines
 sketches and resampling lns/gons dont go well together
 also resampling is sloooow, I guess it is to fine. When doing strict resampling you dont need to resample on straight lines
 
+https://github.com/beardicus/awesome-plotters
 to vs into?
 
 type leonies measurements better
@@ -28,14 +40,8 @@ type leonies measurements better
 breitensuche, tiefensuche, associated data?
 
 degrees for nodes?
-maybe vertex and edges are just numbers but they can have data?
 but then how do we code minimal spanning tree?
 get degrees for verticies
-
-=> graph toolbox?
-=> in general a graph subsystem?
-=> Make a list of potentially important methods on graphs and where to find them
-
 
 - interpolate lines vs interpolate shapes?
     methods on lines vs methods on shapes? when both? I mean in this case they do a bit different stuff still
@@ -243,6 +249,43 @@ Algorithmic...
 - botany (biology)
 - ...
 
+
+Street maps
+stippling algorithms
+fill types
+run types
+include color in conversion from/to embroidery
+intersections up to tangency
+
+pen plotter
+
+grid algorithms / fn algorithms
+- maching squares
+- find max
+- follow flow
+- gradient flow
+- isoline flow cw/ccw
+locally interpolate based on sp
+number grid
+vector grid
+color grid
+noise fn
+
+space col algorithm
+diff. limited aggregation
+gauss kernel
+blur/edge/..
+transormation maps
+- locally zoom..
+marching triangles
+
+conrec
+dual contourig
+spline fitting
+
+
+https://adamfuhrer.bigcartel.com/?page=1
+https://adamfuhrer.com/selling-physical-art-online
 
 
 

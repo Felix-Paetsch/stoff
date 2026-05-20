@@ -4,9 +4,7 @@ use crate::geometry::{
     algorithms::intersections::modify_polyline_intersections::index::{
         walk_polyline_with_intersections, walk_polyline_without_intersections,
     },
-    geometry_enum::Geometry,
-    shape::Shape,
-    shape_trait::ShapeT,
+    Geometry, Shape, ShapeT,
 };
 
 #[wasm_bindgen]

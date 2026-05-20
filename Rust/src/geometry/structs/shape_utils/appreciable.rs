@@ -1,9 +1,6 @@
-use crate::{
-    geometry::{line_segment::LineSegment, shape_trait::ShapeT, vector::Vector},
-    numerics::eps::EPS_ABS,
-};
+use crate::{geometry::*, numerics::eps::EPS_ABS};
 
-pub fn get_appreciable_line_segment(
+pub fn appreciable_line_segment(
     shape: &impl ShapeT,
     mut line_segment_index: usize,
 ) -> Option<LineSegment> {
@@ -45,10 +42,8 @@ pub fn get_appreciable_line_segment(
     ))
 }
 
-pub fn get_appreciable_corner(
-    shape: &impl ShapeT,
-    at: usize,
-) -> Option<(LineSegment, LineSegment)> {
+#[allow(dead_code)]
+pub fn appreciable_corner(shape: &impl ShapeT, at: usize) -> Option<(LineSegment, LineSegment)> {
     let vertices = shape.vertices();
 
     if shape.is_empty() {

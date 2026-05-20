@@ -6,12 +6,7 @@ use crate::geometry::{
         modify_polyline_intersections::types::{ShapeGraph, ShapeGraphEdge},
         self_intersections::find_self_intersections,
     },
-    polyline::Polyline,
-    shape_trait::ShapeT,
-    shape_utils::shape_position::{
-        shape_position_from_descriptor, ShapePosition, ShapePositionDescriptor,
-    },
-    vector::Vector,
+    Polyline, ShapePosition, ShapePositionDescriptor, ShapeT, Vector,
 };
 
 pub fn build_shape_graph(polyline: &Polyline) -> Option<ShapeGraph> {
@@ -128,9 +123,7 @@ fn reduce_multi_nodes(g: &mut ShapeGraph) {
         //
         // We can't use old_edges anymore because we consumed it, so instead we inspect
         // the newly placed external edges at [0] and [1] of each split node.
-        for pair_idx in 0..pair_count {
-            let dst_node_index = split_node_indices[pair_idx];
-
+        for &dst_node_index in split_node_indices.iter() {
             for new_edge_index in 0..2 {
                 let edge_next_node_index = g[dst_node_index][new_edge_index].next_node_index;
                 let edge_next_node_edge_index =
@@ -319,8 +312,8 @@ pub fn compute_line_segments(
     polyline: &Polyline,
     intersections: &[ShapePosition],
 ) -> Option<Vec<Vec<Vector>>> {
-    let start = shape_position_from_descriptor(ShapePositionDescriptor::Start, polyline)?;
-    let end = shape_position_from_descriptor(ShapePositionDescriptor::End, polyline)?;
+    let start = ShapePosition::from_descriptor(ShapePositionDescriptor::Start, polyline)?;
+    let end = ShapePosition::from_descriptor(ShapePositionDescriptor::End, polyline)?;
 
     let all_positions: Vec<&ShapePosition> = std::iter::once(&start)
         .chain(intersections.iter())

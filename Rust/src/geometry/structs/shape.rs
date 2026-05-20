@@ -1,7 +1,5 @@
-use crate::geometry::{
-    geometry_enum::Geometry, line_segment::LineSegment, polygon::Polygon, polyline::Polyline,
-    shape_trait::ShapeT, vector::Vector,
-};
+pub use super::ShapeT;
+use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Vector};
 
 pub enum Shape {
     Polyline(Polyline),

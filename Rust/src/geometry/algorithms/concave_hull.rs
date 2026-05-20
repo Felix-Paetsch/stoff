@@ -1,10 +1,7 @@
 use geo::{concave_hull::ConcaveHullOptions, ConcaveHull};
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{
-    geometry_compatability_layer::vecf64_to_vertex_vec, geometry_enum::Geometry, polygon::Polygon,
-    shape::Shape, shape_trait::ShapeT, vector::Vector,
-};
+use crate::geometry::{wasm_compatability::vecf64_to_vertex_vec, *};
 
 pub fn concave_hull_with_options_vertices(
     vecs: &[Vector],
