@@ -70,8 +70,11 @@ export class Line {
 
     update_shape(shape: Shape.Shape) {
         Expect.that(!shape.is_empty());
-        if (shape instanceof Polygon || shape.first()!.equals(shape.last()!)) {
-            Expect.that(this.p1.vec.equals(this.p2.vec));
+        if (
+            shape instanceof Polygon ||
+            shape.first()!.approx_equals(shape.last()!)
+        ) {
+            Expect.that(this.p1.vec.approx_equals(this.p2.vec));
             const diff = Vector.subtract(this.p1.vec, shape.vertices[0]!);
             if (diff.length() < EPS.tiny) {
                 this._shape = shape;

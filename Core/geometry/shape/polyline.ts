@@ -4,9 +4,10 @@ import { Radians } from "../types";
 import { Vector } from "../vector";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { remove_dub } from "./algorithms/remove_dub";
-import { resample_line_points_smooth } from "./algorithms/resample_smooth";
-import { resample_strict } from "./algorithms/resample_strict";
-import { simplify } from "./algorithms/simplify";
+import { resample } from "./algorithms/resampling/resample";
+import { resample_line_points_smooth } from "./algorithms/resampling/resample_smooth";
+import { resample_strict } from "./algorithms/resampling/resample_strict";
+import { simplify } from "./algorithms/resampling/simplify";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
 
@@ -29,7 +30,10 @@ export class Polyline extends Shape {
     }
 
     is_polygon() {
-        return this.positions.length < 1 || this.first()!.equals(this.last()!);
+        return (
+            this.positions.length < 1 ||
+            this.first()!.approx_equals(this.last()!)
+        );
     }
 
     is_polyline() {
@@ -41,7 +45,7 @@ export class Polyline extends Shape {
             return new Polygon(this.positions);
         }
 
-        if (this.first()!.equals(this.last()!)) {
+        if (this.first()!.approx_equals(this.last()!)) {
             return new Polygon(this.vertices.slice(0, -1));
         }
 
@@ -137,6 +141,10 @@ export class Polyline extends Shape {
     }
 
     resample(sample_spacing: number | null = null): Polyline {
+        return resample(this, sample_spacing);
+    }
+
+    resample_strict(sample_spacing: number | null = null): Polyline {
         return resample_strict(this, sample_spacing);
     }
 

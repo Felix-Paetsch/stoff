@@ -50,12 +50,12 @@ export class Vector {
         );
     }
 
-    equals(vec: Vector) {
+    approx_equals(vec: Vector) {
         return EPS.equals(this.distance(vec), 0);
     }
 
-    static equals(vec1: Vector, vec2: Vector) {
-        return vec1.equals(vec2);
+    static approx_equals(vec1: Vector, vec2: Vector) {
+        return vec1.approx_equals(vec2);
     }
 
     mult(el: number): Vector;
@@ -71,6 +71,13 @@ export class Vector {
         }
 
         return el.transpose().mult(this);
+    }
+
+    cplx_mult(el: Vector): Vector {
+        return new Vector(
+            this.x * el.x - this.y * el.y,
+            this.x * el.y + this.y * el.x,
+        );
     }
 
     scale(a: number) {

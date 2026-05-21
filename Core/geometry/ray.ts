@@ -28,8 +28,8 @@ export class Ray {
 
     contains(vec: Vector) {
         const p = this.to_line().project(vec);
-        if (!p.equals(vec)) return false;
-        if (p.equals(this.src)) return true;
+        if (!p.approx_equals(vec)) return false;
+        if (p.approx_equals(this.src)) return true;
 
         const vec_direction = vec.subtract(this.src);
         const angle = Vector.angle(vec_direction, this.direction);

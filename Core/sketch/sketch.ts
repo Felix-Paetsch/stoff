@@ -165,7 +165,7 @@ export class Sketch {
         data_callback = Copy.default_data_callback,
     ) {
         if (pt1 == pt2) return pt1;
-        Expect.that(pt1.vec.equals(pt2.vec));
+        Expect.that(pt1.vec.approx_equals(pt2.vec));
 
         pt2.data = data_callback(pt2.data, pt1.data, pt2, pt1);
 

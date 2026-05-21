@@ -4,7 +4,10 @@ export type Json =
     | boolean
     | null
     | Json[]
-    | { [key: string]: Json };
+    | { [key: string]: Json }
+    | {
+          toJSON: () => string;
+      };
 
 export type FileKind = "image" | "svg" | "json" | "text" | "cjson" | "unknown";
 

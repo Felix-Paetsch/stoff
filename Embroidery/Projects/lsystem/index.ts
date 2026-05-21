@@ -32,7 +32,7 @@ export const LSystemProject = defineEmbroidery(
         );
 
         const graph = interpreted.graph;
-        Graph.identify_nodes(graph, (a, b) => a.equals(b));
+        Graph.identify_nodes(graph, (a, b) => a.approx_equals(b));
         Graph.remove_dublicate_edges(graph);
 
         let shape_tree = GraphAlgorithms.double_run_graph(graph);

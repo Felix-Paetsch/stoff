@@ -79,12 +79,12 @@ function get_adjusted_shape(
     const as_pl = s.as_polyline();
     const verts = [...as_pl.vertices];
 
-    if (as_pl.first()!.equals(from) && as_pl.last()!.equals(to)) {
+    if (as_pl.first()!.approx_equals(from) && as_pl.last()!.approx_equals(to)) {
         return verts;
     }
 
     if (as_pl.first()!.distance_squared(as_pl.last()!) < EPS.tiny) {
-        if (from.equals(to))
+        if (from.approx_equals(to))
             throw new Error("Shape is closed while points are distant.");
         return verts;
     }

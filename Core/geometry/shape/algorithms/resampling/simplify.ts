@@ -1,5 +1,8 @@
+import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
-import { Polygon, Polyline, Shape, Vector } from "../..";
+import { Polygon } from "../../polygon";
+import { Polyline } from "../../polyline";
+import { Shape } from "../../shape";
 
 export function simplify<T extends Shape.Shape>(poly: T): T {
     return simplify_with_eps(poly, EPS.tiny);

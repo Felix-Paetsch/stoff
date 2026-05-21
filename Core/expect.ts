@@ -15,6 +15,10 @@ export const that = (
     return true;
 };
 
+export function lazy(fn: ValidationFunction) {
+    that(fn);
+}
+
 export function defined<T>(
     value: T,
     error: string = "Value is not defined",

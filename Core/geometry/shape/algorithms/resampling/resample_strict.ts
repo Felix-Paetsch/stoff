@@ -1,19 +1,8 @@
-import { EPS } from "@/Core";
-import { Polygon, Polyline, Vector } from "../..";
-import { CONF } from "../../../../config";
-
-function is_collinear(a: Vector, b: Vector, c: Vector): boolean {
-    const abx = b.x - a.x;
-    const aby = b.y - a.y;
-    const bcx = c.x - b.x;
-    const bcy = c.y - b.y;
-
-    return Math.abs(abx * bcy - aby * bcx) <= EPS.tiny;
-}
-
-function same_point(a: Vector, b: Vector): boolean {
-    return a.distance(b) <= EPS.tiny;
-}
+import { CONF } from "config";
+import { Vector } from "Core/geometry/vector";
+import { EPS } from "Core/numerics/eps";
+import { Polygon } from "../../polygon";
+import { Polyline } from "../../polyline";
 
 export function resample_strict<T extends Polygon | Polyline>(
     s: T,
@@ -36,51 +25,54 @@ export function resample_strict<T extends Polygon | Polyline>(
 
     let remaining = sample_spacing;
     let current_left_index = 0;
-    let snagged_from_current_segment = 0;
+    let consumed_on_segment = 0;
 
     while (current_left_index < vertices.length - 1) {
         const a = vertices[current_left_index]!;
         const b = vertices[current_left_index + 1]!;
         const d = a.distance(b);
 
-        const remaining_on_segment = d - snagged_from_current_segment;
+        if (d <= EPS.tiny) {
+            current_left_index++;
+            consumed_on_segment = 0;
+            continue;
+        }
 
-        if (remaining_on_segment < remaining) {
+        const remaining_on_segment = d - consumed_on_segment;
+
+        if (remaining_on_segment + EPS.tiny < remaining) {
             current_left_index++;
             remaining -= remaining_on_segment;
-            snagged_from_current_segment = 0;
+            consumed_on_segment = 0;
             continue;
         }
 
         const candidate = Vector.lerp_abs(
             a,
             b,
-            snagged_from_current_segment + remaining,
+            consumed_on_segment + remaining,
         );
 
         const last = res[res.length - 1]!;
 
-        if (!same_point(last, candidate)) {
-            const nextRef = b;
-
-            if (res.length < 2 || !is_collinear(last, candidate, nextRef)) {
-                res.push(candidate);
-            }
+        if (!last.approx_equals(candidate)) {
+            res.push(candidate);
         }
 
-        snagged_from_current_segment += remaining;
+        consumed_on_segment += remaining;
         remaining = sample_spacing;
+
+        if (d - consumed_on_segment <= EPS.tiny) {
+            current_left_index++;
+            consumed_on_segment = 0;
+        }
     }
 
     const end = vertices[vertices.length - 1]!;
     const last = res[res.length - 1]!;
 
-    if (!same_point(last, end)) {
-        if (res.length >= 2 && is_collinear(res[res.length - 2]!, last, end)) {
-            res[res.length - 1] = end;
-        } else {
-            res.push(end);
-        }
+    if (!last.approx_equals(end)) {
+        res.push(end);
     }
 
     if (s instanceof Polygon) {

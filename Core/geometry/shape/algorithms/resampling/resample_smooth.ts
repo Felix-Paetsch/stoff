@@ -1,6 +1,8 @@
-import { Radians, Shape, Spline, Vector } from "../..";
-import { CONF } from "../../../../config";
-import { EPS } from "../../../numerics/index";
+import { CONF } from "config";
+import { Radians, Spline } from "Core/geometry/index";
+import { Vector } from "Core/geometry/vector";
+import { EPS } from "Core/numerics/eps";
+import { Shape } from "../../shape";
 
 function find_previous_distinct_point(
     line: Vector[],

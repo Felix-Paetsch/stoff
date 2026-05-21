@@ -5,8 +5,9 @@ export * from "./geometry";
 export * from "./numerics";
 export { Random } from "./random";
 export * from "./sketch";
-export * from "./types";
+export * from "./types/json";
 
 export * as Utils from "./utils";
 
 export * as Graph from "./graph";
+export * as Types from "./types";

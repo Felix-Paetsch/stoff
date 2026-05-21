@@ -41,7 +41,7 @@ function glue_ident_to_global_form(ident: GlueIdent): [Point, Point] {
     const res = glue_ident_to_unvalidated_global_form(ident);
     // Otherwise linear transform is difficult to compute
     // But this can be salvaded in the future by then only doing a normal transform
-    Expect.that(!res[0].vec.equals(res[1].vec));
+    Expect.that(!res[0].vec.approx_equals(res[1].vec));
     return res;
 }
 

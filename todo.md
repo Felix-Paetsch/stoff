@@ -1,227 +1,232 @@
-# Plan today
+# Plan
 
-4. steal marching squares (allowing for multiple height lines (?))
-5. test on mandelbrot
 
-Polyline simplify: https://github.com/danieledapo/marching_squares/blob/master/src/simplify.rs
-Review current resampling algorithms
+## Goal
 
-https://m.youtube.com/watch?v=Ho3xr4b60Zg
-Organize dev scenes?
-To test different features in each scene..
-Start using tests..
+Mandelbrot embrpodery
 
-different fill and run types
+## Steps
 
-Rust tests
-Rust asserts
-Rust relative imports?
+2. Mandelbrot Grid
+3. Display (mandelbrot) grid in browser somehow as image
+3. make linter happy
 
-Organize standalone better
+4. Generate Mandelbrot height lines
+5. Generate Embroidery
+    - several interpolation methods
+6. There should be a config whether expect methods are run
+8. TS Wasm grid methods
+9. External Is grid..
 
-Ignore parallel segments for intersections?
+## Dep resolution
 
-Rust: Intersections based on ShapeT
-Rust warnings
+TS type utils, Grid internal type (similar to graph) => Grid lerp things
+
+### Type updates
+
+- if A satisfies B then C else D
+- unreadonly const
+- deep readonly
+- shallow readonly
+
+
+# Updates
+
+- Grid Update
+- Type (restriction) update
+    - unsafe accessorts, maybe with unsafe prefix
+    - (or with by_ref prefix, currently liking this one)
+- Performance Update
+- Image Update
+    - Graph Algorithms
+    - Grid Processing
+- SVG Update
+    + Filled shapes
+    + read in data from svg
+- Leonie refactoring update
+- Algorithms refactoring update
+- NVIM "Update"
+- Expect update
+    - more expect.lazy
+    - more expect utilities
+
+# Organize
+
+- dev scenes
+- stand alone
+
+# Core
 
 So many collection_methods.get() things.. (Why still "get_"?)
-Iterating over nonemtpy lines
-
-sketches and resampling lns/gons dont go well together
-also resampling is sloooow, I guess it is to fine. When doing strict resampling you dont need to resample on straight lines
-
-https://github.com/beardicus/awesome-plotters
-to vs into?
-
-type leonies measurements better
-- derive keytype from key name string
-- only need to input name in config
-
-breitensuche, tiefensuche, associated data?
-
-degrees for nodes?
-but then how do we code minimal spanning tree?
-get degrees for verticies
-
-- interpolate lines vs interpolate shapes?
-    methods on lines vs methods on shapes? when both? I mean in this case they do a bit different stuff still
-
-- reorganize project
-- fill in leonies methods
-- restructure test files
-- graph accessor methods
-- suborganize
-    - algorithms
-    - ...
-
-- put cut/glue/unfold/to A4 printable to leonie/sewing
-
-- collect what code should go where
-
-
-
-
-
-
-
-
-1. Where to put compute...?
-2. use this to build Leonies method
-3. use this to build my method
-
-
-# Question
-
-Where to put misc methods / The things in unstructured
-
-
-# Todoooo
-
-It seems like currently we have two formatter after another when saving in JS!
-
-1. test leonies stuff
-2. improved buffer
-3. offset method for leonie
-4. evaluate discord channel
-5. implement fixes for problems I found and noted in discord channel
-
-
-
-Rust numerics
-Less copying (cloning) with rust (due to the type conversions)
-Better naming for WASM methods, as there will be lots of them(!)
-
-
+Better names e.g. for ts side of rust wasm
 LineSegment to class?
+(Scaled) EPS problems
+SVG face with gradient
+Optimizations (including caching)
+SVG rendering optimization (e.g. reducing sample points of line)
+Performance measurements
+Rendering circles should be padding invariant
+Introduce readonly in return results/inputs
+- Introduce Type utils
+SVG parsing, getting lines from an svg
 
-Change many of the scaled eps things: E.g. when taking the closest point we just dont want to run into floating point problems
+## Dev
 
-To learn with RUST:
-when to copy and when not to
-when to wrap types
-...
+Render Output as video
+More Validations?
+Speed / debug utilties
+- debug dev run with optional arguments for tracking
 
-
-Do next:
-- strict offset
-- remove crossings from polyline/gon
-
-Learn git, lazygit
-- merging
+## Questions
 
 
-Fix 1D embroidery line not rendering
+## Answers
+
+Do we want .lines or .lines()?
+=> The latter! We don't care about a bit of verbosity when we can get safety and/or readability and clarity of intent
+... readonly?
+
+# Rust
+
+- tests
+- import structure
+- less copy/clone
+- learn more abt rust design patterns
+
+# Algorithms
+
+
+## To Implement
 
 Graph.remove_crossings (should also work when a point is on another pt; should also automaticall identify points)
-- should insert points as crossings
+Space colonization
+Voroni
+Traveling salesman
+Shape packing (for putting onto fabric)
+Radial distance functions
+Following flow fields
+- Angular binary search with a score fn?
+Chaikin
+https://ko-fi.com/s/bab05e779e
+Confine run within shape, i.e. to a (kind of?) shape interesection
+Different noises (blue/... for dot spacing or as a texture)
+grid map, min
+follow flow
+- gradient flow
+- isoline flow cw/ccw
+Diffusion limited aggregation
+gauss kernel
+- blue
+- edge detection
+locally zoom shape / transform
+Chainging where shape endpoints are
+- arc length parameterized adding offset
+- interpolate shapes with endpoints at pos a and pos b (which could just be the same as above)
+- pick interior point of a line and then clockwise go around it and based on the current angle add faction of endpoint offset
+- pick start point and while traversing shape arcwise offset with distance to a geometry
+    - a) easily computable distance (point, line)
+    - b) use a flowfield and for each point move along that flow field
+    - c) so a flow field interface or smth
+Img to grid
+plot grid as svg
+
+## Maybe eventually implement / Impl unclear
+
+Percolation
+Point clustering
+Self avoiding walks
+Finite subdivision
+Fractal flames
+Pixelart + Pathing
+Embroidery pathing analysis
+Embroidery post processing
+Face map
+API for N-gons?
+Tilints (with L-Systems? Pixel art and L-Systems?)
+Pixelart tools (e.g. create from image)
+Autopatching, Shape/Path merging
+Mandalas (constructions mod symmetry)
+Flocking
+Street maps
+Stippling algorithms
+Autopath sketch as dst with different colors
+conrec
+dual conturing
+spline fitting
+
+# Embroidery
+
+
+## Features
+
+automaticall create satin between two lines
+different fill and run types
+stitch density/line density analyzation
+pull compensation
+Tuck down and end stitch
+Contour fill
+Maze fill
+Stem stitch
+ZMK-like embroidery analysis
+Thread grading (direction) for digitizing..
+
+## Todo
+
+Fix 1D embroidery line not rendering
+Colors between sketch <-> embroidery conversions
+
+# Sewing
+
+Clean up/review Leonies code (from time to time)
+Annotation System?
+Validity checks
+3D anything
+
+
+# Generative Random Input
+
+https://m.youtube.com/watch?v=Ho3xr4b60Zg
+https://github.com/beardicus/awesome-plotters
+https://giventofly.github.io/pixelit/#examples
+
+# Questions
+
+What to do with /Algorithms?
+Where to put grid?
+How to best do git (i.e. learn it)
+
+# Debug / Testing / Unsure
+
+- resampling (3 types)
+    - make sure it is not tooo sloooow
+- intersection points
+- cut/glue/unfold to A4 printable
+
+# Neovim
+
+Currently two seperate reformatter on ts causing chaos
+[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
+[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)
+
+# Research
 
 https://dl.acm.org/doi/fullHtml/10.1145/3394105
 https://github.com/jianweiguo/IPML2d
 
-The buffer thing -> automaticall create satin between two lines.
+# Inspiration
 
+https://adamfuhrer.bigcartel.com/?page=1
+https://adamfuhrer.com/selling-physical-art-online
 
-# Tomorrow (Today)
+# Potential perfomance
 
-Idea: use can iteration to generate a fractal or thing, applying it to the sample points of a polyline resulting in an already closed shape
-percolation clusters
-self avaoiding walks
-finite subdivision
-fractal flames
+- less copying
+- more caching
+- less transfer from/to rust
+- more f64 array, esp. when we do most things in rust
 
-organize code
+# Unstructured
 
----------
-
-Graphs
-- tsp (use rust)
-- minimum spanning tree
-- ...
-
-Plotting image with embroidery as optiomization function over the input variables
-
-Ein path initializer on an image
-- make points
-- traveling salesman
-- minimum spanning tree
-
-Then post processing stepts like MST, numerical optimizer,...
-
-[] unify (looks of) things with the same name
-- gen_lines?
-
-[] debug also handedness
-[] better color utilities (gradients) for rendering
-[] Annotation System; maybe have DST annotations as a start
-
-[] if needed: resample polylines for svg builder to lower threshhold
-[] svg builder faces with gradients
-
-[] optimization with caching length to each entry of polyine?
-[] get rid of some dependencies
-
-[] unify what angle mean
-[] circles padding invariant (when rendering svgs)
-[] do we want lines or lines()??
-
-[] fractal curve research
-
-Seeded randomness
-
-
-### Reintroduce features
-
-[] Caching
-[] Faces
-[] Render as video
-[] For sewing patterns include the sketch validation
-
-[] reintroduce colors for
-- patterns
-- dst
-
-### Future features - non sewing
-
-- speed utilities
-- speed debug utilies
-[] debug dev run can take optional argumetns for tracking, etc
-
-### Future features - sewing
-
-
-
-### Future features - embroidery
-
-[] radial distance functions
-- making a path of points by angular binary search around the last point
-- can use this to make mandelbrot!
-    - would maybe have to find the best angular point for this though?
-- can use for auto-digitize lines?
-
-[] good api for base shapes as polygons? n-gon?
-[] svg parsing
-- svgson
-
-??? Embroidery?
-[] Chaikins algorithm (later for embroidery; doable via geo)
-
-- script for making touching lines cross over
-
-[] analyzing
-- stitch density
-- line density
-
-[] tuck down stitch/end stitch
-countour stitch
-maze fill
-stem stitch
-
-ZMK-like embroidery file analysis
-    - stitches per area
-    - thread per area
-    - 
-
-https://ko-fi.com/s/bab05e779e
 
 > 
 > 
@@ -236,81 +241,3 @@ https://ko-fi.com/s/bab05e779e
 > 
 > It uses a weighted Nearest Neighbor search to build a single continuous path through high-density pixel areas. It then applies a Gaussian convolution and Catmull-Rom splines to smooth.
 > 2
-
-Tilings (with L-Systems? PixelArt?)
-Pixelart
-Method for auto merging paths/shapes/autopathing
-Method to confine run within shape
-Take grading of thread into account when trying to calculate hue/etc of image
-Voroni diagrams
-Symmetric mandalas
-Flocking and life simulations
-Algorithmic...
-- botany (biology)
-- ...
-
-
-Street maps
-stippling algorithms
-fill types
-run types
-include color in conversion from/to embroidery
-intersections up to tangency
-
-pen plotter
-
-grid algorithms / fn algorithms
-- maching squares
-- find max
-- follow flow
-- gradient flow
-- isoline flow cw/ccw
-locally interpolate based on sp
-number grid
-vector grid
-color grid
-noise fn
-
-space col algorithm
-diff. limited aggregation
-gauss kernel
-blur/edge/..
-transormation maps
-- locally zoom..
-marching triangles
-
-conrec
-dual contourig
-spline fitting
-
-
-https://adamfuhrer.bigcartel.com/?page=1
-https://adamfuhrer.com/selling-physical-art-online
-
-
-
-Use pixelart algo to first figure out where lines should roughtly go and then have a smooth_out functoin based on the iamge
-
-https://giventofly.github.io/pixelit/#examples
-
-For dst: Allow different lines ber stitch path, but joined together by point 
-doublerun and many other custom run types can/should be a custom fucntion to apply to a polyline
-A funtion to confine a polyline/gon to our outside of a space
-
-Pearlin noise or fractal noise and then height lines
-
-### Future features - General
-
-[] SVG parser thing?
-[] custom annotation functions
-- stamping out
-[] better gradients
-[] More svg options (?)
-    - point styles in sketch rendering (?)
-    - face gradients
-
-### nvim
-
-[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
-[] rust code actions
-[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)
