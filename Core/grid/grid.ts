@@ -95,6 +95,13 @@ export class Grid<GridType> {
         );
     }
 
+    remap_domain_in_place(
+        new_domain: [number, number, number, number],
+    ): Grid<GridType> {
+        this._dimensions = new_domain;
+        return this;
+    }
+
     subgrid(subbox: [number, number, number, number]): Grid<GridType> {
         const [x, y, w, h] = subbox;
         const [grid_w, grid_h] = this._grid_dimensions;

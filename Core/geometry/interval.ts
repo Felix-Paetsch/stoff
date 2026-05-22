@@ -4,6 +4,7 @@ export const UnitInterval: Interval = [0, 1];
 export type Fraction = number;
 
 // Input a value from *from* to get the correspondign value in *to*
+
 export function remap(from: Interval, to: Interval): (x: number) => number {
     return (x) => lerp(to[0], to[1], (x - from[0]) / (from[1] - from[0]));
 }

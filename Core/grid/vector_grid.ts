@@ -5,22 +5,22 @@ import { Grid, Lerp } from "./grid";
 export class VectorGrid extends Grid<Vector> {
     override resample(
         new_dimensions: [number, number, number, number],
-        new_sample_spacing: [number, number],
+        new_sample_amt: [number, number],
     ): VectorGrid;
     override resample(
         new_dimensions: [number, number, number, number],
-        new_sample_spacing: [number, number],
+        new_sample_amt: [number, number],
         lerp: Lerp<Vector>,
     ): VectorGrid;
     override resample(
         new_dimensions: [number, number, number, number],
-        new_sample_spacing: [number, number],
+        new_sample_amt: [number, number],
         lerp?: Lerp<Vector>,
     ): VectorGrid {
         if (!lerp) {
             lerp = Vector.lerp;
         }
-        let g = super.resample(new_dimensions, new_sample_spacing, lerp);
+        let g = super.resample(new_dimensions, new_sample_amt, lerp);
         return new VectorGrid(
             g.dimensions(),
             g.grid_dimensions(),
