@@ -1,6 +1,7 @@
 import { Vector } from "Core/geometry/vector";
-import { Grid } from "Core/grid/grid";
+import { NumberGrid } from "Core/grid/number_grid";
 import { InternalGridType } from "Core/grid/types";
+import { VectorGrid } from "Core/grid/vector_grid";
 
 export function grid_to_vecf64(g: InternalGridType): Float64Array {
     const dimensions = g.dimensions();
@@ -38,7 +39,7 @@ export function vecf64_to_grid(f: Float64Array): InternalGridType {
     const values_data = Array.from(f.slice(7));
 
     if (value_type === 0) {
-        return new Grid<number>(dimensions, grid_dimensions, values_data);
+        return new NumberGrid(dimensions, grid_dimensions, values_data);
     }
 
     const values: Vector[] = [];
@@ -46,5 +47,5 @@ export function vecf64_to_grid(f: Float64Array): InternalGridType {
         values.push(new Vector(values_data[i]!, values_data[i + 1]!));
     }
 
-    return new Grid<Vector>(dimensions, grid_dimensions, values);
+    return new VectorGrid(dimensions, grid_dimensions, values);
 }

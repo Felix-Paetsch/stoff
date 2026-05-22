@@ -22,8 +22,8 @@ export class SVGGradient {
               },
     ): string {
         const g = [
-            Color.interpolate(this.gradient[0], this.gradient[1], from),
-            Color.interpolate(this.gradient[0], this.gradient[1], to),
+            Color.lerp(this.gradient[0], this.gradient[1], from),
+            Color.lerp(this.gradient[0], this.gradient[1], to),
         ];
 
         let x1: string | number,

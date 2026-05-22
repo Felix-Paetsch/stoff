@@ -162,32 +162,20 @@ export type Color =
 
 export type Gradient = [Color, Color];
 
-export function interpolate(
-    color1: Color,
-    color2: Color,
-    ratio?: number,
-): Color;
-export function interpolate(
-    color1: Gradient,
-    color2: Color,
-    ratio?: number,
-): Gradient;
-export function interpolate(
-    color1: Color,
-    color2: Gradient,
-    ratio?: number,
-): Gradient;
-export function interpolate(
+export function lerp(color1: Color, color2: Color, ratio?: number): Color;
+export function lerp(color1: Gradient, color2: Color, ratio?: number): Gradient;
+export function lerp(color1: Color, color2: Gradient, ratio?: number): Gradient;
+export function lerp(
     color1: Gradient,
     color2: Gradient,
     ratio?: number,
 ): Gradient;
-export function interpolate(
+export function lerp(
     color1: Color | Gradient,
     color2: Color | Gradient,
     ratio?: number,
 ): Gradient | Color;
-export function interpolate(
+export function lerp(
     color1: Color | Gradient,
     color2: Color | Gradient,
     ratio: number = 0.5,
@@ -210,20 +198,17 @@ export function interpolate(
     }
 
     if (!is_gradient(color1)) {
-        return (interpolate as any)(color2, color1, 1 - ratio);
+        return (lerp as any)(color2, color1, 1 - ratio);
     }
 
     if (is_gradient(color2)) {
         return [
-            interpolate(color1[0], color2[0], ratio),
-            interpolate(color1[1], color2[1], ratio),
+            lerp(color1[0], color2[0], ratio),
+            lerp(color1[1], color2[1], ratio),
         ];
     }
 
-    return [
-        interpolate(color1[0], color2, ratio),
-        interpolate(color1[1], color2, ratio),
-    ];
+    return [lerp(color1[0], color2, ratio), lerp(color1[1], color2, ratio)];
 }
 
 export function is_gradient(c: Color | Gradient): c is Gradient {

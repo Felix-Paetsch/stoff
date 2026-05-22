@@ -7,8 +7,8 @@ Mandelbrot embrpodery
 
 ## Steps
 
-2. Mandelbrot Grid
-3. Display (mandelbrot) grid in browser somehow as image
+4. render vector grid as svg
+    - iterate over src and draw an error for each thing. an arrow has a color and length, each scaled so that its not overly extorted
 3. make linter happy
 
 4. Generate Mandelbrot height lines
@@ -118,6 +118,7 @@ Diffusion limited aggregation
 gauss kernel
 - blue
 - edge detection
+flow lines
 locally zoom shape / transform
 Chainging where shape endpoints are
 - arc length parameterized adding offset

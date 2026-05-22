@@ -3,8 +3,9 @@ export type Interval = [number, number];
 export const UnitInterval: Interval = [0, 1];
 export type Fraction = number;
 
+// Input a value from *from* to get the correspondign value in *to*
 export function remap(from: Interval, to: Interval): (x: number) => number {
-    return (x) => lerp(from[0], from[1], (x - to[0]) / (to[1] - to[0]));
+    return (x) => lerp(to[0], to[1], (x - from[0]) / (from[1] - from[0]));
 }
 
 export function lerp(a: number, b: number, amt: Fraction): number {
@@ -21,6 +22,21 @@ export function merge(...intervals: Interval[]): Interval {
         [Infinity, -Infinity],
     );
     return [x, y];
+}
+
+export function cover(nums: number[]): Interval {
+    let max = -Infinity;
+    let min = Infinity;
+    nums.forEach((v) => {
+        if (v > max) {
+            max = v;
+        }
+
+        if (v < min) {
+            min = v;
+        }
+    });
+    return [min, max];
 }
 
 export function overlap(...intervals: Interval[]): Interval {

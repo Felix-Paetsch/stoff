@@ -10,4 +10,6 @@ export * from "./types/json";
 export * as Utils from "./utils";
 
 export * as Graph from "./graph";
+export * as Grid from "./grid";
 export * as Types from "./types";
+

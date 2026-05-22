@@ -1,20 +1,11 @@
 import { Interval } from "Core/geometry/index";
-import { Vector } from "Core/geometry/vector";
 import * as Expect from "../expect";
-import * as Types from "../types";
-import { internal_is_number_grid } from "./types";
 
 export type Lerp<T> = (a: T, b: T, t: number) => T;
-type LerpImplRestArgument<GridType> = Types.AsRestParameter<
-    Types.BaseAndIfThenAlso<
-        Lerp<GridType>,
-        Types.IsUnionMember<GridType, number | Vector>,
-        undefined
-    >
->;
 
 export class Grid<GridType> {
     constructor(
+        // x, y, w, h
         private _dimensions: [number, number, number, number],
         private _grid_dimensions: [number, number],
         private _values: GridType[],
@@ -126,11 +117,7 @@ export class Grid<GridType> {
         return new Grid<GridType>([...this._dimensions], [w, h], values);
     }
 
-    sample_at(
-        x: number,
-        y: number,
-        ...lerp_impl: LerpImplRestArgument<GridType>
-    ): GridType {
+    sample_at(x: number, y: number, lerp: Lerp<GridType>): GridType {
         const [grid_x, grid_y, grid_w, grid_h] = this._dimensions;
         const [w, h] = this._grid_dimensions;
 
@@ -153,16 +140,16 @@ export class Grid<GridType> {
             );
         });
 
-        const nx = grid_w === 0 ? 0 : (x - grid_x) / grid_w;
-        const ny = grid_h === 0 ? 0 : (y - grid_y) / grid_h;
+        const w_remap = Interval.remap([grid_x, grid_x + grid_w], [0, w - 1]);
+        const h_remap = Interval.remap([grid_y, grid_y + grid_h], [0, h - 1]);
 
-        const sx = nx * Math.max(w - 1, 0);
-        const sy = ny * Math.max(h - 1, 0);
+        const sx = w_remap(x);
+        const sy = h_remap(y);
 
-        const x0 = Math.floor(sx);
-        const y0 = Math.floor(sy);
-        const x1 = Math.min(x0 + 1, w - 1);
-        const y1 = Math.min(y0 + 1, h - 1);
+        const x0 = Interval.clamp([0, w - 1], Math.floor(sx));
+        const y0 = Interval.clamp([0, h - 1], Math.floor(sy));
+        const x1 = Interval.clamp([0, w - 1], Math.ceil(sx));
+        const y1 = Interval.clamp([0, h - 1], Math.ceil(sy));
 
         const tx = sx - x0;
         const ty = sy - y0;
@@ -172,7 +159,6 @@ export class Grid<GridType> {
         const v01 = this.value_at(x0, y1);
         const v11 = this.value_at(x1, y1);
 
-        const lerp = get_lerp_implementation(this, ...lerp_impl);
         const a = lerp(v00, v10, tx);
         const b = lerp(v01, v11, tx);
 
@@ -182,7 +168,7 @@ export class Grid<GridType> {
     resample(
         new_dimensions: [number, number, number, number],
         new_sample_spacing: [number, number],
-        ...lerp_impl: LerpImplRestArgument<GridType>
+        lerp: Lerp<GridType>,
     ): Grid<GridType> {
         const [new_w, new_h] = new_sample_spacing;
 
@@ -190,8 +176,6 @@ export class Grid<GridType> {
             Expect.that(new_w > 0, "new sample width must be > 0");
             Expect.that(new_h > 0, "new sample height must be > 0");
         });
-
-        const lerp = get_lerp_implementation(this, ...lerp_impl);
 
         const [x, y, w, h] = new_dimensions;
         const values: GridType[] = [];
@@ -208,44 +192,5 @@ export class Grid<GridType> {
         }
 
         return new Grid<GridType>(new_dimensions, [new_w, new_h], values);
-    }
-
-    static from_function<GridType>(
-        dimensions: [number, number, number, number],
-        grid_dimensions: [number, number],
-        fn: (pos: Vector) => GridType,
-    ): Grid<GridType> {
-        const [x, y, w, h] = dimensions;
-        const [grid_w, grid_h] = grid_dimensions;
-
-        const values: GridType[] = [];
-
-        for (let j = 0; j < grid_h; j++) {
-            const fy = grid_h === 1 ? 0.5 : j / (grid_h - 1);
-            const abs_y = y + fy * h;
-
-            for (let i = 0; i < grid_w; i++) {
-                const fx = grid_w === 1 ? 0.5 : i / (grid_w - 1);
-                const abs_x = x + fx * w;
-
-                values.push(fn(new Vector(abs_x, abs_y)));
-            }
-        }
-
-        return new Grid<GridType>(dimensions, grid_dimensions, values);
-    }
-}
-
-function get_lerp_implementation<GridType>(
-    g: Grid<GridType>,
-    ...provided_implementation: LerpImplRestArgument<GridType>
-): Lerp<GridType> {
-    let impl = provided_implementation[0];
-    if (impl) return impl;
-
-    if (internal_is_number_grid(g as any)) {
-        return Interval.lerp as any;
-    } else {
-        return Vector.lerp as any;
     }
 }

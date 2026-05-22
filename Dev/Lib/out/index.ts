@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { outputDir } from "./dir";
 
+export * from "./file";
 export { prefix, put } from "./put";
 export * from "./run";
 
@@ -26,6 +27,6 @@ export function clear(
     });
 }
 
-export function dir(){
-    return outputDir
+export function dir() {
+    return outputDir;
 }
