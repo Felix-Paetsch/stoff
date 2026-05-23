@@ -69,9 +69,8 @@ More Namespaces
 So many collection_methods.get() things.. (Why still "get_"?)
 Put sketch and so on behind a "."?
 THings that take in x,y should take in vec? or Not?
-Geometry.Vector
-Geometry.Line
-Sketch.Sketch
+- only when it is a vec indeed
+Shape.Sample to Shape.Sample at?
 Better names e.g. for ts side of rust wasm
 LineSegment to class?
 (Scaled) EPS problems

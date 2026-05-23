@@ -13,7 +13,7 @@ import {
     BufferLineCapStyle,
     BufferLineJoinStyle,
 } from "../finite_geometry";
-import { Geometry } from "../index";
+import { Geometry, Interval } from "../index";
 import { Fraction } from "../interval";
 import { Line } from "../line";
 import { Ray } from "../ray";
@@ -28,8 +28,15 @@ import {
     get_appreciable_line_segment,
 } from "./algorithms/appreciable_line_segment";
 import { shape_corners } from "./algorithms/corners";
+import { curvature } from "./algorithms/curvature";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { merge } from "./algorithms/merge";
+import {
+    compute_length_map,
+    length_at,
+    LengthMap,
+    position_at_length,
+} from "./length_map";
 import { Polygon } from "./polygon";
 import { Polyline } from "./polyline";
 import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
@@ -54,7 +61,7 @@ export namespace Shape {
 }
 
 export abstract class Shape {
-    private _length: number | null = null;
+    private _length_map: LengthMap | null = null;
     private _positions: Float64Array | null = null;
     private _vertices: Vector[] | null = null;
     private _bb: BoundingBox | null = null;
@@ -88,32 +95,23 @@ export abstract class Shape {
         return this._positions;
     }
 
-    length(): number {
-        if (this._length !== null) {
-            return this._length;
+    length_map_ref(): LengthMap {
+        if (this._length_map == null) {
+            this._length_map = compute_length_map(this.vertices);
         }
 
-        this._length = this.length_until("end");
-        return this._length!;
+        return this._length_map;
+    }
+
+    length(): number {
+        const m = this.length_map_ref();
+        return m[m.length - 1]!;
     }
 
     length_until(until: Shape.ShapePositionDescriptor): number | null {
-        const at_descr = this.shape_point_descriptor_to_shape_position(until);
-        if (!at_descr) return null;
-
-        const l = this.as_polyline();
-        let len = 0;
-        let ver = l.vertices;
-        for (let i = 0; i < at_descr.index; i++) {
-            len += ver[i]!.distance(ver[i + 1]!);
-        }
-
-        if (at_descr.frac > 0) {
-            len +=
-                ver[at_descr.index]!.distance(ver[at_descr.index + 1]!) *
-                at_descr.frac;
-        }
-        return len;
+        const pos = this.shape_point_descriptor_to_shape_position(until);
+        if (pos === null) return null;
+        return length_at(this.length_map_ref(), pos);
     }
 
     bounding_box(): BoundingBox {
@@ -125,8 +123,10 @@ export abstract class Shape {
     sample(
         at: number,
         is_relative: "relative" | "absolute" = "relative",
-    ): Vector {
-        return this.shape_position_at_length(at, is_relative).vec;
+    ): Vector | null {
+        let r = this.shape_position_at_length(at, is_relative);
+        if (!r) return r;
+        return r.vec;
     }
 
     abstract as_polyline(): Polyline;
@@ -250,21 +250,13 @@ export abstract class Shape {
         const res = Shape.closest_shape_positions(this, fShape);
         if (!res) return res;
 
-        // console.log(
-        //     "CLOSEST SHAPE POST",
-        //     res,
-        //     this.vertices[0],
-        //     this.vertices[this.vertex_count - 1],
-        //     this.vertex_count,
-        // );
-
         return res[0];
     }
 
     shape_position_at_length(
         at: number,
         relative: "relative" | "absolute" = "relative",
-    ): Shape.ShapePosition {
+    ): Shape.ShapePosition | null {
         const l = this.as_polyline();
 
         const totalLength = l.length();
@@ -275,35 +267,21 @@ export abstract class Shape {
         }
 
         if (targetDistance < 0) {
-            targetDistance = totalLength - targetDistance;
+            targetDistance = totalLength + targetDistance;
         }
 
-        const vec = l.vertices;
+        targetDistance = Interval.clamp([0, totalLength], targetDistance);
 
-        let currentDistance = 0;
-        for (let i = 0; i < vec.length - 1; i++) {
-            const segmentLength = vec[i]!.distance(vec[i + 1]!);
-            const nextDistance = currentDistance + segmentLength;
-
-            if (targetDistance <= nextDistance) {
-                const t =
-                    segmentLength === 0
-                        ? 0
-                        : (targetDistance - currentDistance) / segmentLength;
-                return {
-                    vec: Vector.lerp(vec[i]!, vec[i + 1]!, t),
-                    index: i,
-                    frac: t,
-                };
-            }
-
-            currentDistance = nextDistance;
-        }
+        const pos = position_at_length(this.length_map_ref(), targetDistance);
+        const vec = Vector.lerp(
+            this.vertices[pos.index]!,
+            this.vertices[pos.index + 1]!,
+            pos.frac,
+        );
 
         return {
-            vec: vec[vec.length - 1]!,
-            index: vec.length - 2,
-            frac: 1,
+            ...pos,
+            vec,
         };
     }
 
@@ -353,67 +331,7 @@ export abstract class Shape {
         at: Shape.ShapePositionDescriptor,
         scale: number = EPS.tiny,
     ): number | null {
-        const at_descr = this.shape_point_descriptor_to_shape_position(at);
-        if (!at_descr) return null;
-
-        const at_len = this.length_until(at_descr)!;
-        const total_len = this.length();
-
-        let actual_scale = scale;
-
-        if (this instanceof Polyline) {
-            actual_scale = Math.min(scale, at_len, total_len - at_len);
-
-            // Keep your original "factor of 2" guard first.
-            if (actual_scale < scale / 2) {
-                actual_scale = scale / 2;
-            }
-        }
-
-        let prev: Vector;
-        let next: Vector;
-
-        const prev_len = at_len - actual_scale;
-        const next_len = at_len + actual_scale;
-
-        if (this instanceof Polygon) {
-            prev = this.shape_position_at_length(prev_len).vec;
-            next = this.shape_position_at_length(next_len).vec;
-        } else {
-            const poly = this as any as Polyline;
-
-            if (prev_len >= 0) {
-                prev = poly.shape_position_at_length(prev_len).vec;
-            } else {
-                const start = poly.first();
-                if (!start) return null;
-
-                const tangent = poly.tangent_vector("start");
-                if (!tangent) return null;
-
-                prev = start.subtract(tangent.scale(-prev_len));
-            }
-
-            if (next_len <= total_len) {
-                next = poly.shape_position_at_length(next_len).vec;
-            } else {
-                const end = poly.last();
-                if (!end) return null;
-
-                const tangent = poly.tangent_vector("end");
-                if (!tangent) return null;
-
-                next = end.add(tangent.scale(next_len - total_len));
-            }
-        }
-
-        const a = at_descr.vec.distance(prev);
-        const b = at_descr.vec.distance(next);
-        const c = next.distance(prev);
-
-        const area = new Polygon([prev, next, at_descr.vec]).area();
-        const curvature = (4 * area) / (a * b * c);
-        return (curvature * scale) / actual_scale;
+        return curvature(this.typesafe(), at, scale);
     }
 
     static closest_shape_positions(

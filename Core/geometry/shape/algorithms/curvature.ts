@@ -33,11 +33,11 @@ export function curvature(
     const next_len = at_len + actual_scale;
 
     if (shape instanceof Polygon) {
-        prev = shape.shape_position_at_length(prev_len).vec;
-        next = shape.shape_position_at_length(next_len).vec;
+        prev = shape.shape_position_at_length(prev_len)!.vec;
+        next = shape.shape_position_at_length(next_len)!.vec;
     } else {
         if (prev_len >= 0) {
-            prev = shape.shape_position_at_length(prev_len).vec;
+            prev = shape.shape_position_at_length(prev_len)!.vec;
         } else {
             const start = shape.first();
             if (!start) return null;
@@ -49,7 +49,7 @@ export function curvature(
         }
 
         if (next_len <= total_len) {
-            next = shape.shape_position_at_length(next_len).vec;
+            next = shape.shape_position_at_length(next_len)!.vec;
         } else {
             const end = shape.last();
             if (!end) return null;
@@ -99,11 +99,11 @@ export function signed_curvature(
     const next_len = at_len + actual_scale;
 
     if (shape instanceof Polygon) {
-        prev = shape.shape_position_at_length(prev_len).vec;
-        next = shape.shape_position_at_length(next_len).vec;
+        prev = shape.shape_position_at_length(prev_len)!.vec;
+        next = shape.shape_position_at_length(next_len)!.vec;
     } else {
         if (prev_len >= 0) {
-            prev = shape.shape_position_at_length(prev_len).vec;
+            prev = shape.shape_position_at_length(prev_len)!.vec;
         } else {
             const start = shape.first();
             if (!start) return null;
@@ -115,7 +115,7 @@ export function signed_curvature(
         }
 
         if (next_len <= total_len) {
-            next = shape.shape_position_at_length(next_len).vec;
+            next = shape.shape_position_at_length(next_len)!.vec;
         } else {
             const end = shape.last();
             if (!end) return null;

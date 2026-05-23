@@ -10,6 +10,6 @@ export function interpolate_shapes(
     p2: NumberFunction = (x) => x,
 ): Shape.ShapeFunction {
     return (t: number) => {
-        return Vector.lerp(line1.sample(p1(t)), line2.sample(p2(t)), f(t));
+        return Vector.lerp(line1.sample(p1(t))!, line2.sample(p2(t))!, f(t));
     };
 }
