@@ -27,16 +27,22 @@
         "baseUrl": "./",
         "paths": {
             "@/Core": ["Core/index"],
+            "@/Core/files": ["Core/files"],
+            "@/Core/geometry": ["Core/geometry/index"],
+            "@/Core/sketch": ["Core/sketch/index"],
+            "@/Core/grid": ["Core/grid/index"],
+            "@/Core/graph": ["Core/graph/index"],
+            "@/Core/colors": ["Core/colors"],
+
             "@/Dev": ["Dev/Lib"],
             "@/Algorithms": ["Algorithms/index"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/shape/self_intersection_free.ts.broken", "Algorithms/shape/modify_self_intersections.ts.broken"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/shape/self_intersection_free.ts.broken", "Algorithms/shape/modify_self_intersections.ts"],
     "exclude": [
         "node_modules",
         "dist",
-
-        "Dev/Server",
+        "Dev/Server"
     ],
     "ts-node": {
         "esm": true,

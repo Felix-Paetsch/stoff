@@ -2,26 +2,26 @@
 // This section is thus under MIT License
 
 use crate::{
-    geometry::{Polygon, Polyline, ShapeT, Vector},
+    geometry::{Polygon, Polyline, Shape, ShapeT, Vector},
     numerics::eps::EPS_ABS,
 };
 
 impl Polygon {
-    fn simplify(&self) -> Polygon {
+    pub fn simplify(&self) -> Polygon {
         self.clone().into_simplified()
     }
 
-    fn into_simplified(self) -> Polygon {
+    pub fn into_simplified(self) -> Polygon {
         self.into_polyline().into_simplified().into_polygon()
     }
 }
 
 impl Polyline {
-    fn simplify(&self) -> Polyline {
+    pub fn simplify(&self) -> Polyline {
         self.clone().into_simplified()
     }
 
-    fn into_simplified(self) -> Polyline {
+    pub fn into_simplified(self) -> Polyline {
         let coords: Vec<(f64, f64)> = self
             .into_vertices()
             .into_iter()
@@ -34,10 +34,20 @@ impl Polyline {
     }
 }
 
-/// Simplify a given polyline by reducing the amount of points that do not
-/// actually contribute a lot of details to the overall shape.
-pub fn simplify(poly: &[(f64, f64)]) -> Vec<(f64, f64)> {
-    simplify_with_eps(poly, EPS_ABS)
+impl Shape {
+    pub fn simplify(&self) -> Shape {
+        match self {
+            Self::Polyline(l) => Self::Polyline(l.simplify()),
+            Self::Polygon(g) => Self::Polygon(g.simplify()),
+        }
+    }
+
+    pub fn into_simplified(self) -> Shape {
+        match self {
+            Self::Polyline(l) => Self::Polyline(l.into_simplified()),
+            Self::Polygon(g) => Self::Polygon(g.into_simplified()),
+        }
+    }
 }
 
 pub fn simplify_with_eps(poly: &[(f64, f64)], eps: f64) -> Vec<(f64, f64)> {

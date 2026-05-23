@@ -1,4 +1,4 @@
-import { Sketch } from "../../../Core/index";
+import { Sketch } from "@/Core/sketch";
 import {
     EvaluationResult,
     MethodName,

@@ -1,4 +1,5 @@
-import { FiniteGeometry, Sketch, SketchRendering, Vector } from "@/Core";
+import { FiniteGeometry, Vector } from "@/Core/geometry";
+import { Sketch, SketchRendering } from "@/Core/sketch";
 
 export default function () {
     const circle = FiniteGeometry.circle(Vector.ZERO, 10);

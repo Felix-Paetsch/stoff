@@ -1,4 +1,4 @@
-import { Interval, LinearTransform, Vector } from "@/Core";
+import { Interval, LinearTransform, Vector } from "@/Core/geometry";
 import { createCanvas } from "canvas";
 import { Embroidery } from "../embroidery";
 import {

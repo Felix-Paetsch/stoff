@@ -1,4 +1,4 @@
-use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Vector};
+use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Shape, Vector};
 
 pub trait ShapeT: Sized {
     fn lines(&self) -> Vec<LineSegment>;
@@ -66,6 +66,14 @@ pub trait ShapeT: Sized {
                 verts.push(verts[0]);
                 Polyline::new(verts)
             }
+        }
+    }
+
+    #[allow(unused)]
+    fn into_shape(self) -> Shape {
+        match self.is_polyline() {
+            true => Shape::Polyline(self.into_polyline()),
+            false => Shape::Polygon(self.into_polygon()),
         }
     }
 

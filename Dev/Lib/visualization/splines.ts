@@ -1,4 +1,6 @@
-import { Expect, Line, Point, Sketch, Vector } from "../../../Core/index";
+import { Expect } from "@/Core";
+import { Vector } from "@/Core/geometry";
+import { Line, Point, Sketch } from "@/Core/sketch";
 
 export function catmull_rom_controlpoints(
     sketch: Sketch,

@@ -1,4 +1,4 @@
-import { Expect } from "@/Core";
+import { Expect } from "Core/expect";
 import { CollectionMethods } from ".";
 import { BoundingBox, Vector } from "../geometry";
 import { Line } from "./line";

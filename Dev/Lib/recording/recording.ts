@@ -1,4 +1,5 @@
-import { Copy, Sketch, Utils } from "../../../Core/index";
+import { Utils } from "@/Core";
+import { Copy, Sketch } from "@/Core/sketch";
 import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 import { wrap_sketch_methods } from "../utils/wrap_sketch_methods";
 import { Snapshot } from "./types";

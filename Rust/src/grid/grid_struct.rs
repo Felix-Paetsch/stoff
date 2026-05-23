@@ -32,6 +32,7 @@ impl<T> Grid<T> {
         }
     }
 
+    #[allow(unused)]
     pub fn set_value_at(&mut self, x: usize, y: usize, value: T) {
         let w = self.grid_dimensions[0];
         let idx = y * w + x;
@@ -45,6 +46,7 @@ impl<T> Grid<T> {
         &self.values[idx]
     }
 
+    #[allow(unused)]
     pub fn value_at_mut(&mut self, x: usize, y: usize) -> &T {
         let w = self.grid_dimensions[0];
 
@@ -52,6 +54,7 @@ impl<T> Grid<T> {
         &mut self.values[idx]
     }
 
+    #[allow(unused)]
     pub fn map<U, F>(&self, mut f: F) -> Grid<U>
     where
         F: FnMut(usize, usize, &T) -> U,
@@ -76,6 +79,7 @@ impl<T> Grid<T> {
         }
     }
 
+    #[allow(unused)]
     pub fn map_in_place<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut T),
@@ -85,6 +89,7 @@ impl<T> Grid<T> {
         }
     }
 
+    #[allow(unused)]
     pub fn map_owned<U, F>(self, f: F) -> Grid<U>
     where
         F: FnMut(T) -> U,
@@ -110,6 +115,7 @@ impl<T> Grid<T> {
         self.values.iter()
     }
 
+    #[allow(unused)]
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
         self.values.iter_mut()
     }
@@ -118,6 +124,7 @@ impl<T> Grid<T> {
         self.values
     }
 
+    #[allow(unused)]
     pub fn into_values_2d(self) -> Vec<Vec<T>> {
         let [w, h] = self.grid_dimensions;
         let mut values = self.values.into_iter();
@@ -130,6 +137,7 @@ impl<T> Grid<T> {
         rows
     }
 
+    #[allow(unused)]
     pub fn into_subgrid(self, subbox: [usize; 4]) -> Grid<T> {
         let [x, y, w, h] = subbox;
         let [grid_w, grid_h] = self.grid_dimensions;
@@ -156,6 +164,7 @@ impl<T> Grid<T> {
         }
     }
 
+    #[allow(unused)]
     pub fn into_remap_domain(self, new_domain: [f64; 4]) -> Grid<T> {
         Grid {
             dimensions: new_domain,
@@ -169,6 +178,7 @@ impl<T> Grid<T>
 where
     T: Copy,
 {
+    #[allow(unused)]
     pub fn remap_domain(&self, new_domain: [f64; 4]) -> Grid<T> {
         Grid {
             dimensions: new_domain,
@@ -177,6 +187,7 @@ where
         }
     }
 
+    #[allow(unused)]
     pub fn subgrid(&self, subbox: [usize; 4]) -> Grid<T> {
         let [x, y, w, h] = subbox;
         let [grid_w, grid_h] = self.grid_dimensions;
@@ -206,6 +217,7 @@ impl<T> Grid<T>
 where
     T: Lerp + Copy,
 {
+    #[allow(unused)]
     pub fn sample_at(&self, x: f64, y: f64) -> T {
         let [grid_x, grid_y, grid_w, grid_h] = self.dimensions;
         let [w, h] = self.grid_dimensions;
@@ -261,6 +273,7 @@ where
         T::lerp(a, b, ty)
     }
 
+    #[allow(unused)]
     pub fn resample(&self, new_dimensions: [f64; 4], new_sample_spacing: [usize; 2]) -> Grid<T> {
         let [new_w, new_h] = new_sample_spacing;
         debug_assert!(new_w > 0, "new sample width must be > 0");

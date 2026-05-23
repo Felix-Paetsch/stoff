@@ -1,13 +1,13 @@
+import { Color } from "@/Core";
+import { DST } from "@/Core/files";
 import {
     BoundingBox,
-    Color,
-    DST,
     PlaneLine,
     Polyline,
     Shape,
-    Sketch,
     Vector,
-} from "@/Core";
+} from "@/Core/geometry";
+import { Sketch } from "@/Core/sketch";
 import { render_partial_embroidery_as_png } from "./render/entry";
 import { RenderEmbroideryArgs } from "./render/render_partial_embroidery_as_png";
 
@@ -126,6 +126,11 @@ export class Embroidery {
         return BoundingBox.from_vectors(
             this.threads.flatMap((t) => t.runs).flatMap((l) => l.vertices),
         );
+    }
+
+    dimensions(): [number, number] {
+        const bb = this.bounding_box();
+        return [bb.width, bb.height];
     }
 
     stitch_count() {

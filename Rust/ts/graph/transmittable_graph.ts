@@ -1,4 +1,5 @@
-import { Shape, Vector } from "@/Core";
+import { Shape } from "Core/geometry/index";
+import { Vector } from "Core/geometry/vector";
 import { Graph } from "Core/graph/index";
 import { geometry_to_vecf64, vecf64_to_geometry } from "../geometry/index";
 import { TransmittableGraph } from "./types";

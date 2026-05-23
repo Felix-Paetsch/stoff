@@ -1,9 +1,9 @@
-import { Color, Gradient } from "../../colors";
+import * as Color from "../../colors";
 
 export type TextRenderAttributes = {
     font_family: string;
     font_size: number;
-    fill: Color;
+    fill: Color.Color;
     font_weight:
         | "normal"
         | "bold"
@@ -33,8 +33,8 @@ export const defaultTextRenderAttributes: TextRenderAttributes = {
 
 export type PointRenderAttributes = {
     radius: number;
-    fill: Color | null;
-    stroke: Color | null;
+    fill: Color.Color | null;
+    stroke: Color.Color | null;
     stroke_width: number;
     opacity: number;
     render_priority: number;
@@ -50,7 +50,7 @@ export const defaultPointRenderAttributes: PointRenderAttributes = {
 };
 
 export type LineRenderAttributes = {
-    stroke: Color | Gradient | [Gradient, number] | null;
+    stroke: Color.Color | Color.Gradient | [Color.Gradient, number] | null;
     stroke_width: number;
     opacity: number;
     render_priority: number;
@@ -64,8 +64,8 @@ export const defaultLineRenderAttributes: LineRenderAttributes = {
 };
 
 export type PolygonRenderAttributes = {
-    fill: Color | Gradient | null;
-    stroke: Color | Gradient | [Gradient, number] | null;
+    fill: Color.Color | Color.Gradient | null;
+    stroke: Color.Color | Color.Gradient | [Color.Gradient, number] | null;
     stroke_width: number;
     opacity: number;
     render_priority: number;

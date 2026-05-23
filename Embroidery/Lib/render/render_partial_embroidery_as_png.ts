@@ -1,4 +1,5 @@
-import { Color, Interval, LinearTransform, Vector } from "@/Core";
+import { Color } from "@/Core";
+import { Interval, LinearTransform, Vector } from "@/Core/geometry";
 import { CanvasRenderingContext2D } from "canvas";
 import { Embroidery } from "../embroidery";
 

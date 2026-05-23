@@ -1,6 +1,6 @@
-import { Polygon } from "@/Core";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
+import { Polygon } from "../polygon";
 import { Polyline } from "../polyline";
 import { Shape } from "../shape";
 

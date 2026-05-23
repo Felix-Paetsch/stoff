@@ -1,5 +1,6 @@
 import { ShapeAlgorithms } from "@/Algorithms";
-import { DST, FiniteGeometry, Polygon, SVG_Builder } from "@/Core";
+import { DST, SVG_Builder } from "@/Core/files";
+import { FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
 import { Out } from "@/Dev";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
@@ -70,7 +71,9 @@ export const BufferDST = defineEmbroidery(
         );
 
         res.runs.forEach((r) => {
-            const mapped_line = r.map((v) => v.scale(Embroidery.CmToStitch));
+            const mapped_line = r.map((v: Vector) =>
+                v.scale(Embroidery.CmToStitch),
+            );
             svg.render_polygon(mapped_line.as_polygon());
         });
 

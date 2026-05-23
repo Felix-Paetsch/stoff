@@ -1,5 +1,5 @@
 import { SketchAlgorithms } from "@/Algorithms";
-import { CollectionMethods, Sketch } from "@/Core";
+import { CollectionMethods, Sketch } from "@/Core/sketch";
 
 export default function () {
     const r = new Sketch();

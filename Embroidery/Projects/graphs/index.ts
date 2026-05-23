@@ -1,4 +1,5 @@
-import { Graph, Vector } from "@/Core";
+import { Graph } from "@/Core";
+import { Vector } from "@/Core/geometry";
 import { defineEmbroidery } from "Embroidery/types";
 
 export const GraphsProject = defineEmbroidery("Graphs" as const, (_cfg: {}) => {

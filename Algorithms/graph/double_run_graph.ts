@@ -1,4 +1,5 @@
-import { EPS, Graph, LinearTransform, Polyline, Shape } from "@/Core";
+import { EPS, Graph } from "@/Core";
+import { LinearTransform, Polyline, Shape } from "@/Core/geometry";
 import { Vector } from "Core/geometry/vector";
 
 export function double_run_graph<

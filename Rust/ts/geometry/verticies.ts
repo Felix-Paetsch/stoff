@@ -1,4 +1,4 @@
-import { Vector } from "@/Core";
+import { Vector } from "Core/geometry/vector";
 
 export function vecf64_to_vertex_vec(arr: Float64Array): Vector[] {
     const res: Vector[] = new Array(arr.length / 2);

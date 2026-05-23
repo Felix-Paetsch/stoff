@@ -1,6 +1,9 @@
 // import { interpolate_colors } from "@/Core/colors";
 
-import { Sketch, Vector } from "@/Core";
+import { SketchAlgorithms } from "@/Algorithms";
+import { Vector } from "@/Core/geometry";
+import { Sketch } from "@/Core/sketch";
+import { Performance } from "@/Dev";
 
 export default function () {
     const s = new Sketch();
@@ -92,21 +95,34 @@ export default function () {
         // );
     }
 
-    for (let i = 1; i < 8; i++) {
-        const new_lines = [];
-        for (let j = 0; j < lines.length - 1; j++) {
-            const l1 = lines[j]!;
-            const l2 = lines[(j + 1) % lines.length]!;
+    Performance.time(() => {
+        let max = 8; // 8;
+        for (let i = 1; i < max; i++) {
+            const new_lines = [];
+            for (let j = 0; j < lines.length - 1; j++) {
+                const l1 = lines[j]!;
+                const l2 = lines[(j + 1) % lines.length]!;
 
-            const newLine = s.interpolate_lines(l1, l2);
-            new_lines.push(newLine);
+                console.log(l1.shape.vertex_count, l2.shape.vertex_count);
+                const newLine = Performance.time(
+                    () => SketchAlgorithms.interpolate_lines(l1, l2),
+                    "Interpolate",
+                );
+                new_lines.push(newLine);
+                console.log(
+                    newLine.shape.vertex_count,
+                    l1.shape.vertex_count,
+                    l2.shape.vertex_count,
+                );
+                console.log("------");
 
-            // newLine.set_color(
-            //     interpolate_colors(l1.get_color(), l2.get_color()),
-            // );
+                // newLine.set_color(
+                //     interpolate_colors(l1.get_color(), l2.get_color()),
+                // );
+            }
+            lines = new_lines;
         }
-        lines = new_lines;
-    }
+    });
 
     return s;
 }

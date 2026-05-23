@@ -1,1 +1,1 @@
-export * from "./transmittable_grid";;
+export * from "./transmittable_grid";

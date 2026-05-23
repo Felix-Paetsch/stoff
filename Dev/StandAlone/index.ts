@@ -1,4 +1,5 @@
-import { Json, SVG_Builder } from "@/Core";
+import { Json } from "@/Core";
+import { SVG_Builder } from "@/Core/files";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import fs from "fs";
 import path from "path";

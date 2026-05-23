@@ -1,5 +1,5 @@
-import { Json } from "@/Core";
 import { Random } from "../random";
+import { Json } from "../types";
 
 type Dependency = string;
 type DependencyMap = Map<Dependency, Dependency[]>;

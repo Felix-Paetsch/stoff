@@ -1,14 +1,9 @@
+import { Json, Utils } from "@/Core";
+import { DST, SVG_Builder } from "@/Core/files";
+import { Sketch, SketchRendering } from "@/Core/sketch";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
 import * as path from "path";
-import {
-    DST,
-    Json,
-    Sketch,
-    SketchRendering,
-    SVG_Builder,
-    Utils,
-} from "../../../Core/index";
 import { CJson } from "../../Server/src/types";
 import { Recording } from "../recording/index";
 import { dir } from "./dir";

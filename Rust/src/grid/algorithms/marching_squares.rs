@@ -253,6 +253,7 @@ fn marching_squares_multi(grid: &Grid<f64>, levels: &[f64]) -> Vec<Shape> {
     out
 }
 
+#[allow(clippy::too_many_arguments)]
 fn emit_cell_segments(
     z: f64,
     ulz: f64,
@@ -409,7 +410,7 @@ fn build_contours(mut segments: SegmentsMap, quantizer: Quantizer) -> Vec<Shape>
         }
     }
 
-    shapes
+    shapes.into_iter().map(|s| s.into_simplified()).collect()
 }
 
 fn lower_bound(values: &[f64], target: f64) -> usize {

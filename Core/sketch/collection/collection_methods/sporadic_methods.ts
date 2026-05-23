@@ -1,9 +1,10 @@
-import { Line, Point } from "@/Core";
 import { BoundingBox, FiniteGeometry, Polygon, Vector } from "Core/geometry";
-import { sketch_element_collection as copy_sketch_element_collection } from "Core/sketch/copy";
+import { Copy } from "Core/sketch/copy";
+import { Line } from "Core/sketch/line";
+import { Point } from "Core/sketch/point";
 import { sketch_element_collection_as_array } from "..";
 import { SketchElement, SketchElementCollection } from "../../types";
-import { connected_component} from "./connected_components";
+import { connected_component } from "./connected_components";
 import { get_lines, get_points } from "./getter_methods";
 
 export function bounding_box(ec: SketchElementCollection): BoundingBox {
@@ -37,9 +38,9 @@ export function endpoint_interior(
     ec: SketchElementCollection,
 ): SketchElement[] {
     const nec = sketch_element_collection_as_array(ec);
-    const points = nec.filter((p) => p instanceof Point);
+    const points: Point[] = nec.filter((p) => p instanceof Point);
     const res: SketchElement[] = [...points];
-    const lines = nec.filter((l) => l instanceof Line);
+    const lines: Line[] = nec.filter((l) => l instanceof Line);
 
     lines.forEach((l) => {
         if (points.includes(l.p1) && points.includes(l.p2)) res.push(l);
@@ -114,4 +115,4 @@ export function inner_line_hull(ec: SketchElementCollection): SketchElement[] {
     return lines.concat(points);
 }
 
-export const copy = copy_sketch_element_collection;
+export const copy = Copy.sketch_element_collection;

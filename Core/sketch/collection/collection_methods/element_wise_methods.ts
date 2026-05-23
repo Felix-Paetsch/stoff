@@ -7,8 +7,8 @@ import {
 import { Point } from "../../point";
 import { SketchElement, SketchElementCollection } from "../../types";
 
-import { Line } from "@/Core";
 import { LinearTransform, Vector } from "Core/geometry";
+import { Line } from "../../line";
 
 export function delete_sketch_elements(ec: SketchElementCollection): void {
     const nec = sketch_element_collection_as_array(ec);

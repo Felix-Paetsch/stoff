@@ -1,4 +1,5 @@
-import { Expect, Line, Point, Sketch } from "@/Core";
+import { Expect } from "@/Core";
+import { Line, Point, Sketch } from "@/Core/sketch";
 import { same_sketch } from "./same_sketch";
 
 let currently_validating = false;
@@ -13,7 +14,7 @@ export function validate_sketch(sk: Sketch) {
 
     sk.points().map((p) => validation_fns.push(() => validate_point(p, sk)));
 
-    const res = Expect.merge_validations(validation_fns);
+    const res = Expect.all(validation_fns);
 
     currently_validating = false || !reset_validating;
     return res;
@@ -28,14 +29,14 @@ function validate_line(l: Line, s: Sketch): Expect.ValidationResult {
             () => endpoints_have_line(l),
         ];
 
-    return Expect.merge_validations(validations);
+    return Expect.all(validations);
 }
 
 function validate_point(p: Point, s: Sketch) {
     const validations: (Expect.ValidationFunction | Expect.ValidationResult)[] =
         [() => same_sketch(p, s), () => adjacent_lines_have_endpoint(p)];
 
-    return Expect.merge_validations(validations);
+    return Expect.all(validations);
 }
 
 // TEST CASES LINES

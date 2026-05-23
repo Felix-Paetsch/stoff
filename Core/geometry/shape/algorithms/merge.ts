@@ -77,7 +77,7 @@ export function merge(sh1: Shape, sh2: Shape): Shape {
         return new Polyline(res);
     }
 
-    const sh1t = (sh2 as Polygon).to_polyline();
+    const sh1t = (sh1 as Polygon).to_polyline();
     const sh2t = sh2 as Polygon;
     const closest = Shape.closest_shape_positions(sh1t, sh2t)!;
     const res: Vector[] = [];

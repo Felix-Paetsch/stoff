@@ -18,4 +18,3 @@ export * as Spline from "./spline";
 export { Polygon } from "./shape/polygon";
 export { Polyline } from "./shape/polyline";
 export { Shape } from "./shape/shape";
-

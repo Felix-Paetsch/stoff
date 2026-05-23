@@ -1,4 +1,5 @@
-import { Expect, Shape } from "@/Core";
+import { Expect } from "@/Core";
+import { Shape } from "@/Core/geometry";
 import {
     wasm_geometry_walk_shape_with_self_intersection,
     wasm_geometry_walk_shape_without_self_intersection,

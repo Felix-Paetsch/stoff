@@ -1,4 +1,4 @@
-import { Polygon, Polyline, Vector } from "@/Core";
+import { Polygon, Polyline, Vector } from "Core/geometry/index";
 
 type WASMGeometry = Vector | Polygon | Polyline;
 

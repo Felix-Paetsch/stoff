@@ -12,6 +12,7 @@ pub struct WASMTransmittableGrid {
 }
 
 impl WASMTransmittableGrid {
+    #[allow(unused)]
     pub fn serialize(&self) -> Vec<f64> {
         let value_type = match &self.values {
             WASMTransmittableGridValues::Float(_) => 0.0,
@@ -40,6 +41,7 @@ impl WASMTransmittableGrid {
         out
     }
 
+    #[allow(unused)]
     pub fn into_serialized(self) -> Vec<f64> {
         let value_type = match self.values {
             WASMTransmittableGridValues::Float(_) => 0.0,

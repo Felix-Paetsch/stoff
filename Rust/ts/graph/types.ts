@@ -1,4 +1,4 @@
-import { Shape, Vector } from "@/Core";
+import { Shape, Vector } from "Core/geometry";
 import { Graph } from "Core/graph/graph";
 
 export type TransmittableNodes = undefined | Vector;

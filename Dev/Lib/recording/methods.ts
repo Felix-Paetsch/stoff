@@ -1,4 +1,5 @@
-import { Expect, Sketch } from "../../../Core/index";
+import { Expect } from "@/Core";
+import { Sketch } from "Core/sketch/sketch";
 import {
     EvaluationResult,
     Toggle,

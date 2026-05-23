@@ -1,4 +1,5 @@
-import * as Color from "../../colors";
+import { Color } from "@/Core";
+
 export type LineRenderAttributes = {
     stroke: [Color.Gradient, number] | Color.Gradient | Color.Color;
     stroke_width: number;

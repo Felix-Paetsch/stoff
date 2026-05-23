@@ -1,8 +1,7 @@
-import { Expect } from "@/Core";
-import { CollectionMethods } from ".";
+import { Expect } from "Core/expect";
+import { CollectionMethods, Copy } from ".";
 import { Validate } from "../../Dev/lib";
 import { LinearTransform, Polygon, Shape, Vector } from "../geometry";
-import * as Copy from "./copy";
 import { Line } from "./line";
 import { Point } from "./point";
 import {

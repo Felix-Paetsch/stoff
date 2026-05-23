@@ -1,10 +1,12 @@
 // Run all tests
 
+import { Json } from "@/Core";
+import { SVG_Builder } from "@/Core/files";
+import { Sketch, SketchRendering } from "@/Core/sketch";
 import fs, { writeFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
-import { Json, Sketch, SketchRendering, SVG_Builder } from "../../Core/index";
 
 export type TestReturnResultPrimitive = Json | Sketch | SVG_Builder;
 export type TestReturnResult =

@@ -1,4 +1,4 @@
-import { Sketch } from "../../../Core/index";
+import { Sketch } from "@/Core/sketch";
 
 export type Snapshot = {
     sketch: Sketch;

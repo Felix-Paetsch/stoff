@@ -1,4 +1,6 @@
-import { EPS, Expect, Line, Shape } from "@/Core";
+import { EPS, Expect } from "@/Core";
+import { Shape } from "@/Core/geometry";
+import { Line } from "@/Core/sketch";
 import { Validate } from "@/Dev";
 import { interpolate_shapes } from "Algorithms/shape/interpolate";
 

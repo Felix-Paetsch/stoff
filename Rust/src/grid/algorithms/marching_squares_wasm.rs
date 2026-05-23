@@ -15,6 +15,8 @@ pub fn wasm_grid_marching_squares(grid: &[f64], contour_argument: &[f64]) -> Vec
     //     0 - integers
     //     1 - value (stored in 2)
     //     2 - values (stored in rest)
+    //
+    //     Potentially it coult return the levels
 
     let grid = wasm_compatibility::WASMTransmittableGrid::deserialize(grid);
     let f64_grid: Grid<f64> = grid.into();

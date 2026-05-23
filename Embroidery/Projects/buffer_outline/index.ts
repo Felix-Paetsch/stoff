@@ -1,5 +1,6 @@
 import { ShapeAlgorithms } from "@/Algorithms";
-import { DST, Polygon } from "@/Core";
+import { DST } from "@/Core/files";
+import { Polygon } from "@/Core/geometry";
 import { Out } from "@/Dev";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";

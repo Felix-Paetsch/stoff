@@ -1,6 +1,6 @@
-import { Sketch } from "../../../Core/index";
-import { validate_sketch } from "./predicates/sketch_is_valid";
+import { Sketch } from "@/Core/sketch";
 import { wrap_sketch_prototype_methods } from "../utils/wrap_sketch_methods";
+import { validate_sketch } from "./predicates/sketch_is_valid";
 
 export function auto_validate_sketches(SC: new (...args: any[]) => Sketch) {
     let currently_internal = false;

@@ -1,4 +1,4 @@
-import { Sketch } from "@/Core";
+import { Sketch } from "@/Core/sketch";
 
 export default function () {
     const r = new Sketch();

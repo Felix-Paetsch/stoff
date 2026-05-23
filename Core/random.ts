@@ -1,4 +1,4 @@
-import { Interval } from "@/Core";
+import { Interval } from "./geometry/index";
 
 function sfc32(uint128Hex: string) {
     let a = parseInt(uint128Hex.substring(0, 8), 16);

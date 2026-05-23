@@ -1,32 +1,55 @@
 import { Vector } from "Core/geometry/vector";
-import { NumberGrid } from "Core/grid/number_grid";
-import { InternalGridType } from "Core/grid/types";
-import { VectorGrid } from "Core/grid/vector_grid";
+import {
+    InterpolationGrid,
+    number_interpolator,
+    vector_interpolator,
+} from "Core/grid/index";
+import {
+    InternalGridType,
+    InternalInterpolationGridType,
+} from "Core/grid/types";
 
 export function grid_to_vecf64(g: InternalGridType): Float64Array {
-    const dimensions = g.dimensions();
-    const [grid_w, grid_h] = g.grid_dimensions();
-    const values = g.values_by_ref();
+    const dimensions = g.dimensions_ref;
+    const [grid_w, grid_h] = g.lattice_dimensions_ref;
+    const values = g.values_ref;
+    const isVectorGrid = values[0] instanceof Vector;
 
-    const isVectorGrid = values.length > 0 && values[0] instanceof Vector;
+    if (typeof values[0] == "boolean") throw new Error("unhandled yet!");
 
-    const out: number[] = [];
-    out.push(isVectorGrid ? 1 : 0);
-    out.push(...dimensions);
-    out.push(grid_w, grid_h);
+    const headerLength = 7;
+    const valueLength = isVectorGrid
+        ? (values as Vector[]).length * 2
+        : (values as number[]).length;
+
+    const out = new Float64Array(headerLength + valueLength);
+    let i = 0;
+
+    out[i++] = isVectorGrid ? 1 : 0;
+
+    out[i++] = dimensions[0];
+    out[i++] = dimensions[1];
+    out[i++] = dimensions[2];
+    out[i++] = dimensions[3];
+
+    out[i++] = grid_w;
+    out[i++] = grid_h;
 
     if (isVectorGrid) {
         for (const v of values as Vector[]) {
-            out.push(v.x, v.y);
+            out[i++] = v.x;
+            out[i++] = v.y;
         }
     } else {
-        out.push(...(values as number[]));
+        for (const value of values as number[]) {
+            out[i++] = value;
+        }
     }
 
-    return new Float64Array(out);
+    return out;
 }
 
-export function vecf64_to_grid(f: Float64Array): InternalGridType {
+export function vecf64_to_grid(f: Float64Array): InternalInterpolationGridType {
     const value_type = f[0]!;
     const dimensions: [number, number, number, number] = [
         f[1]!,
@@ -36,16 +59,27 @@ export function vecf64_to_grid(f: Float64Array): InternalGridType {
     ];
     const grid_dimensions: [number, number] = [f[5]!, f[6]!];
 
-    const values_data = Array.from(f.slice(7));
-
     if (value_type === 0) {
-        return new NumberGrid(dimensions, grid_dimensions, values_data);
+        const values = Array.from(f.subarray(7));
+        return new InterpolationGrid(
+            dimensions,
+            grid_dimensions,
+            values,
+            number_interpolator(),
+        );
     }
 
+    const values_data = f.subarray(7);
     const values: Vector[] = [];
+
     for (let i = 0; i < values_data.length; i += 2) {
         values.push(new Vector(values_data[i]!, values_data[i + 1]!));
     }
 
-    return new VectorGrid(dimensions, grid_dimensions, values);
+    return new InterpolationGrid(
+        dimensions,
+        grid_dimensions,
+        values,
+        vector_interpolator(),
+    );
 }

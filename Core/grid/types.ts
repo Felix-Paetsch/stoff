@@ -1,8 +1,10 @@
-import { Grid } from "./grid";
-import { NumberGrid } from "./number_grid";
-import { VectorGrid } from "./vector_grid";
+import { Vector } from "Core/geometry/vector";
+import { Grid } from "./grids/grid";
+import { InterpolationGrid } from "./grids/interpolation_grid";
 
-export type InternalGridType = NumberGrid | VectorGrid;
-export type LerpGrid<T> = Grid<T> & {
-    sample_at: (x: number, y: number) => T;
-};
+export type InternalInterpolationGridType =
+    | InterpolationGrid<number>
+    | InterpolationGrid<boolean>
+    | InterpolationGrid<Vector>;
+
+export type InternalGridType = Grid<number> | Grid<boolean> | Grid<Vector>;

@@ -1,4 +1,4 @@
-import { Fraction, Shape, Vector } from "@/Core";
+import { Fraction, Shape, Vector } from "@/Core/geometry";
 
 export type NumberFunction = (t: Fraction) => Fraction;
 

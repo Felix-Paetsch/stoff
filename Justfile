@@ -5,6 +5,9 @@ mod tools 'Tools/Justfile'
 typecheck:
     ./watch.sh "npx tsc -p tsconfig.json --noEmit"
 
+dev_typecheck:
+    ./watch.sh "npx tsc -p dev_tsconfig.json --noEmit"
+
 check_circular_dependencies:
     npx madge --circular --extensions ts .
 

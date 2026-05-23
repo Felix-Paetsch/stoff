@@ -1,4 +1,4 @@
-import { Expect } from "@/Core";
+import { Expect } from "Core/expect";
 import { CollectionMethods } from ".";
 import { Validate } from "../../Dev/lib";
 import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";

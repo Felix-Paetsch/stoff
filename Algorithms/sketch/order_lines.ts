@@ -1,4 +1,5 @@
-import { Graph, Line, Point } from "@/Core";
+import { Graph } from "@/Core";
+import { Line, Point } from "@/Core/sketch";
 
 export function order_lines(...lines: Line[]): {
     lines: Line[];

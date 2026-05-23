@@ -1,5 +1,25 @@
-# Plan
+## Performance update
 
+- time a method
+- see the results somewhere collected while it happens - writing to a file prolly
+- time_after/optionally on a conditional
+    or: queries for time
+
+
+## Todo
+
+- export namespaces from files directly, like expect or color
+- Make merging faster and rust accelerated
+- Boolean grids
+    - masking
+    - concave hull
+- Tie on, tie off
+- by ref for shapes
+- map_in_place for shapes
+- Geometry.Vector, Geometry. everywhere
+- resampling on rust side
+- improve nearest position/intersections with b trees and early returns
+- why is interpolation so fkng slow with the hearts?
 
 ## Goal
 
@@ -7,28 +27,14 @@ Mandelbrot embrpodery
 
 ## Steps
 
-4. render vector grid as svg
-    - iterate over src and draw an error for each thing. an arrow has a color and length, each scaled so that its not overly extorted
-3. make linter happy
+1. Generate a rough outline estimate by points
+2. Do a concave hull
 
-4. Generate Mandelbrot height lines
+
 5. Generate Embroidery
     - several interpolation methods
 6. There should be a config whether expect methods are run
 8. TS Wasm grid methods
-9. External Is grid..
-
-## Dep resolution
-
-TS type utils, Grid internal type (similar to graph) => Grid lerp things
-
-### Type updates
-
-- if A satisfies B then C else D
-- unreadonly const
-- deep readonly
-- shallow readonly
-
 
 # Updates
 
@@ -57,7 +63,15 @@ TS type utils, Grid internal type (similar to graph) => Grid lerp things
 
 # Core
 
+Namespaces should (could) be grouped early so I dont have to do import * as ...
+More Namespaces
+
 So many collection_methods.get() things.. (Why still "get_"?)
+Put sketch and so on behind a "."?
+THings that take in x,y should take in vec? or Not?
+Geometry.Vector
+Geometry.Line
+Sketch.Sketch
 Better names e.g. for ts side of rust wasm
 LineSegment to class?
 (Scaled) EPS problems
@@ -65,10 +79,13 @@ SVG face with gradient
 Optimizations (including caching)
 SVG rendering optimization (e.g. reducing sample points of line)
 Performance measurements
+Grid dimensions to lattice and vice versa
+Split and reform index <-> array
 Rendering circles should be padding invariant
 Introduce readonly in return results/inputs
 - Introduce Type utils
 SVG parsing, getting lines from an svg
+Resampling strict keeping sharp corners
 
 ## Dev
 
@@ -79,6 +96,13 @@ Speed / debug utilties
 
 ## Questions
 
+What to do with algorithms?
+It seems a bit abitrary that concave hull and so on are in Core and note algorithms
+In place vs into?
+- i guess in place what it has the same data type?
+How to do views into rust memory / work with arrays mostly there?
+
+Grid.Algorithms
 
 ## Answers
 
@@ -103,6 +127,10 @@ Space colonization
 Voroni
 Traveling salesman
 Shape packing (for putting onto fabric)
+Boolean grid clusters
+Boolean grid
+- and /or
+More keys for lerp: Nearest neighbor
 Radial distance functions
 Following flow fields
 - Angular binary search with a score fn?
@@ -110,7 +138,7 @@ Chaikin
 https://ko-fi.com/s/bab05e779e
 Confine run within shape, i.e. to a (kind of?) shape interesection
 Different noises (blue/... for dot spacing or as a texture)
-grid map, min
+grid max, min / optimize
 follow flow
 - gradient flow
 - isoline flow cw/ccw
@@ -136,6 +164,7 @@ plot grid as svg
 Percolation
 Point clustering
 Self avoiding walks
+Local extreme for closest points
 Finite subdivision
 Fractal flames
 Pixelart + Pathing
@@ -160,7 +189,7 @@ spline fitting
 
 ## Features
 
-automaticall create satin between two lines
+automatically create satin between two lines
 different fill and run types
 stitch density/line density analyzation
 pull compensation
@@ -193,7 +222,6 @@ https://giventofly.github.io/pixelit/#examples
 # Questions
 
 What to do with /Algorithms?
-Where to put grid?
 How to best do git (i.e. learn it)
 
 # Debug / Testing / Unsure
@@ -218,13 +246,20 @@ https://github.com/jianweiguo/IPML2d
 
 https://adamfuhrer.bigcartel.com/?page=1
 https://adamfuhrer.com/selling-physical-art-online
+https://www.reddit.com/r/Machine_Embroidery/comments/1t30y06/recent_bag_tags_ive_made/
+https://retro.moe/posts/embroidery-outrun/
 
 # Potential perfomance
 
 - less copying
+    - from, to rust; e.g. by simplifying polygons first (at least rust -> js)
 - more caching
 - less transfer from/to rust
+- chaching lengths to vec along shape
 - more f64 array, esp. when we do most things in rust
+- view into rust memory for shapes
+- early abbort nearest positions when we find intersections
+- use b-trees for nearest positions, shape intersections
 
 # Unstructured
 

@@ -1,5 +1,5 @@
-import { merge_validations } from "Core/expect";
-import { Sketch } from "../../../../Core/index";
+import { Expect } from "@/Core";
+import { Sketch } from "@/Core/sketch";
 
 export * from "./sketch_is_valid";
 
@@ -15,7 +15,7 @@ export function same_sketch(
     if (els.length == 0) return true;
     const sketch = extract_sketch(els[0]!);
 
-    return merge_validations(els.map((e) => extract_sketch(e) === sketch));
+    return Expect.all(els.map((e) => extract_sketch(e) === sketch));
 }
 
 function extract_sketch(

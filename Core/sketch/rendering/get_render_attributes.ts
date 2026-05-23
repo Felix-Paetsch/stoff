@@ -1,5 +1,5 @@
+import * as Color from "@/Core/colors";
 import { LineRenderAttributes } from "Core/files/svg/render_attributes";
-import * as Color from "../../colors";
 import { Line } from "../line";
 import { Point } from "../point";
 import {

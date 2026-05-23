@@ -1,5 +1,6 @@
 import { ShapeAlgorithms } from "@/Algorithms";
-import { Polygon, Shape, Sketch, Vector } from "@/Core";
+import { Polygon, Shape, Vector } from "@/Core/geometry";
+import { Sketch } from "@/Core/sketch";
 
 export default function () {
     const r = new Sketch();

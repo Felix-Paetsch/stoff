@@ -1,41 +1,47 @@
-import { Color, Grid, Interval, Sketch, Vector } from "@/Core";
+import { GridAlgorithms } from "@/Algorithms";
+import { Interval, Vector } from "@/Core/geometry";
+import { GridRendering, NumberGrid, VectorGrid } from "@/Core/grid";
+import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 
 export default function () {
-    const s = new Sketch();
-
-    const grid = Grid.VectorGrid.from_function(
-        [-5, -5, 10, 10],
-        [50, 50],
+    const vec_grid = VectorGrid.from_function(
+        [-2, -1.5, 3, 3],
+        [500, 500],
         (c: Vector) => {
-            // let z = Vector.ZERO;
+            let z = Vector.ZERO;
 
-            // for (let i = 0; i < 100; i++) {
-            //     z = z.cplx_mult(z).add(c);
-            //     if (z.length() > 100) return z;
-            // }
+            for (let i = 0; i < 100; i++) {
+                z = z.cplx_mult(z).add(c);
+                if (z.length() > 100) return z;
+            }
 
-            return c.cplx_mult(c).cplx_mult(c);
+            return z;
         },
     );
+    vec_grid.remap_domain_in_place([0, 0, 8, 8]);
+    Out.put(GridRendering.vector_grid(vec_grid));
 
-    const bufA = Grid.GridRendering.vector_grid(grid);
-    Out.put(bufA);
+    const num_grid = NumberGrid.from(vec_grid, (v) =>
+        Interval.clamp([0, 100], Math.log1p(5 * v.length())),
+    );
 
-    const buf = Grid.GridRendering.lerp_grid_png(grid, (l) => {
-        const l_ln = Math.log1p(l.length());
-
-        const clmp_interval: Interval.Interval = [0, 3];
-        const remap = Interval.remap(clmp_interval, Interval.UnitInterval);
-
-        const int = Color.lerp(
-            "black",
-            "white",
-            Interval.clamp(Interval.UnitInterval, remap(l_ln + 0.00001)),
-        );
-        return int;
-    });
+    const buf = GridRendering.number_grid_png(num_grid);
     Out.file(buf, "mandelbrot.png");
+
+    num_grid.remap_domain_in_place([0, 0, 8, 8]);
+
+    const s = new Sketch();
+    for (let i = 0; i < 5; i++) {
+        const bool_grid = num_grid.map((v) => v < 4 + i);
+
+        const outline = GridAlgorithms.concave_outline(bool_grid, {
+            concavity: 1,
+            length_threshold: 0.0001,
+        });
+
+        s.add_line(outline.resample_strict(0.4));
+    }
 
     return s;
 }

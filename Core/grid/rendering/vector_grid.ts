@@ -4,7 +4,7 @@ import { Fraction, Interval } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
 import { unique_string } from "Core/utils/unique";
-import { VectorGrid } from "../vector_grid";
+import { InterpolationGrid } from "../grids/interpolation_grid";
 
 export type VectorGridConfig = {
     out_dimensions: [number, number];
@@ -13,7 +13,7 @@ export type VectorGridConfig = {
 };
 
 export function vector_grid(
-    g: VectorGrid,
+    g: InterpolationGrid<Vector>,
     config: Partial<VectorGridConfig> = {},
 ): SVG_Builder {
     if (!("out_dimensions" in config)) {
@@ -72,7 +72,7 @@ export function vector_grid(
         for (let ly = 1; ly < samples[1] - 1; ly++) {
             let start = new Vector(map_x(lx), map_y(ly));
 
-            let vec = vec_map(render_grid.value_at(lx, ly));
+            let vec = vec_map(render_grid.vector_at_lattice_point(lx, ly));
             draw_arrow(
                 builder,
                 start,

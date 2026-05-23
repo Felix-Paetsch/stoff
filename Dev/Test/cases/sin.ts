@@ -1,4 +1,5 @@
-import { Copy, Polyline, Sketch, Vector } from "../../../Core/index";
+import { Polyline, Vector } from "@/Core/geometry";
+import { Copy, Sketch } from "@/Core/sketch";
 import { TestCase } from "../build_tests";
 
 const test: TestCase = function () {
