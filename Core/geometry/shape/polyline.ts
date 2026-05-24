@@ -3,12 +3,12 @@ import { EPS } from "Core/numerics/eps";
 import { WASMCompatability } from "Rust/exports";
 import { Radians } from "../types";
 import { Vector } from "../vector";
-import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { remove_dub } from "./algorithms/remove_dub";
-import { resample } from "./algorithms/resampling/resample";
-import { resample_line_points_smooth } from "./algorithms/resampling/resample_smooth";
-import { resample_strict } from "./algorithms/resampling/resample_strict";
-import { simplify } from "./algorithms/resampling/simplify";
+import { vectors_from_polyline_function } from "./internal_shape_algorithms/from_function";
+import { remove_dub } from "./internal_shape_algorithms/remove_dub";
+import { resample } from "./internal_shape_algorithms/resampling/resample";
+import { resample_line_points_smooth } from "./internal_shape_algorithms/resampling/resample_smooth";
+import { resample_strict } from "./internal_shape_algorithms/resampling/resample_strict";
+import { simplify } from "./internal_shape_algorithms/resampling/simplify";
 import { Polygon } from "./polygon";
 import { Shape } from "./shape";
 

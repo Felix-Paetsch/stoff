@@ -26,11 +26,10 @@ import { Vector } from "../vector";
 import {
     get_appreciable_corner,
     get_appreciable_line_segment,
-} from "./algorithms/appreciable_line_segment";
-import { shape_corners } from "./algorithms/corners";
-import { curvature } from "./algorithms/curvature";
-import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { merge } from "./algorithms/merge";
+} from "./internal_shape_algorithms/appreciable_line_segment";
+import { shape_corners } from "./internal_shape_algorithms/corners";
+import { curvature } from "./internal_shape_algorithms/curvature";
+import { vectors_from_polyline_function } from "./internal_shape_algorithms/from_function";
 import { LengthMap } from "./length_map";
 import { Polygon } from "./polygon";
 import { Polyline } from "./polyline";
@@ -439,15 +438,6 @@ export abstract class Shape {
         if (!ip_arr) return [];
 
         return decode_intersection_positions(ip_arr!);
-    }
-
-    static merge(sh1: Polygon, sh2: Polygon): Polygon;
-    static merge(sh1: Polyline, sh2: Polygon): Polyline;
-    static merge(sh1: Polygon, sh2: Polyline): Polyline;
-    static merge(sh1: Polyline, sh2: Polyline): Polyline;
-    static merge(sh1: Shape, sh2: Shape): Shape.Shape;
-    static merge(sh1: Shape, sh2: Shape): Shape {
-        return merge(sh1, sh2);
     }
 
     buffer(

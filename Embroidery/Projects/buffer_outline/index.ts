@@ -1,6 +1,5 @@
-import { ShapeAlgorithms } from "@/Algorithms";
 import { DST } from "@/Core/files";
-import { Polygon } from "@/Core/geometry";
+import { GeometryAlgorithms, Polygon } from "@/Core/geometry";
 import { Out } from "@/Dev";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
@@ -24,7 +23,7 @@ export const BufferOutlineDST = defineEmbroidery(
                 let buff_line = select_correct_buffer(buffer_res);
 
                 if (cfg.smooth_buffer) {
-                    buff_line = ShapeAlgorithms.smooth_out(
+                    buff_line = GeometryAlgorithms.smooth_out(
                         buff_line,
                         cfg.smooth_buffer,
                     );
@@ -36,7 +35,7 @@ export const BufferOutlineDST = defineEmbroidery(
             let buff_line = select_correct_buffer(outline.buffer(cfg.buffer));
 
             if (cfg.smooth_buffer) {
-                buff_line = ShapeAlgorithms.smooth_out(
+                buff_line = GeometryAlgorithms.smooth_out(
                     buff_line,
                     cfg.smooth_buffer,
                 );

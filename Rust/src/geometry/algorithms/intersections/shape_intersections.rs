@@ -10,23 +10,23 @@ use crate::geometry::{
 };
 
 pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> Vec<Intersection> {
-    let lines1 = shape1.lines();
-    let lines2 = shape2.lines();
-
-    if lines1.is_empty() || lines2.is_empty() {
+    if shape1.is_empty() || shape2.is_empty() {
         return Vec::new();
     }
 
     let mut length1 = 0.0;
     let mut length2 = 0.0;
 
-    let mut segs1 = Vec::with_capacity(lines1.len());
-    let mut segs2 = Vec::with_capacity(lines2.len());
-    let mut length_map1 = Vec::with_capacity(lines1.len() + 1);
-    let mut length_map2 = Vec::with_capacity(lines2.len() + 1);
+    let mut segs1 = Vec::with_capacity(shape1.linesegment_count());
+    let mut segs2 = Vec::with_capacity(shape2.linesegment_count());
+    let mut length_map1 = Vec::with_capacity(shape1.linesegment_count() + 1);
+    let mut length_map2 = Vec::with_capacity(shape2.linesegment_count() + 1);
+
+    let lines1 = shape1.lines();
+    let lines2 = shape2.lines();
 
     length_map1.push(0.0);
-    for (i, segment) in lines1.iter().enumerate() {
+    for (i, segment) in lines1.enumerate() {
         length1 += segment.length();
         length_map1.push(length1);
 
@@ -36,12 +36,12 @@ pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> V
 
         segs1.push(IndexedSegment {
             index: i,
-            line: *segment,
+            line: segment,
         });
     }
 
     length_map2.push(0.0);
-    for (i, segment) in lines2.iter().enumerate() {
+    for (i, segment) in lines2.enumerate() {
         length2 += segment.length();
         length_map2.push(length2);
 
@@ -51,7 +51,7 @@ pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> V
 
         segs2.push(IndexedSegment {
             index: i,
-            line: *segment,
+            line: segment,
         });
     }
 

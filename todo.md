@@ -1,12 +1,18 @@
-## Performance update
-
-- time a method
-- see the results somewhere collected while it happens - writing to a file prolly
-- time_after/optionally on a conditional
-    or: queries for time
-
-
 ## Todo
+
+Bundle the package
+"closest position"
+and have it reexport some things line_line, line_point, ect
+
+Build Merge Shapes method
+    - if there are many use bb for same trick as before
+    - remember positions before merging and then merging in one swoop
+
+Improve Intersection method with recursion trick
+
+-----------
+
+## Other Todo
 
 - export namespaces from files directly, like expect or color
 - Make merging faster and rust accelerated
@@ -20,6 +26,7 @@
 - resampling on rust side
 - improve nearest position/intersections with b trees and early returns
 - why is interpolation so fkng slow with the hearts?
+- closest uniform naming
 
 ## Goal
 
@@ -42,7 +49,6 @@ Mandelbrot embrpodery
 - Type (restriction) update
     - unsafe accessorts, maybe with unsafe prefix
     - (or with by_ref prefix, currently liking this one)
-- Performance Update
 - Image Update
     - Graph Algorithms
     - Grid Processing
@@ -56,6 +62,12 @@ Mandelbrot embrpodery
     - more expect.lazy
     - more expect utilities
 
+### Performance update
+
+- time a method
+- see the results somewhere collected while it happens - writing to a file prolly
+- time_after/optionally on a conditional
+    or: queries for time
 # Organize
 
 - dev scenes
@@ -140,6 +152,7 @@ Chaikin
 https://ko-fi.com/s/bab05e779e
 Confine run within shape, i.e. to a (kind of?) shape interesection
 Different noises (blue/... for dot spacing or as a texture)
+resample strict use sharp corners
 grid max, min / optimize
 follow flow
 - gradient flow
@@ -160,6 +173,7 @@ Chainging where shape endpoints are
     - c) so a flow field interface or smth
 Img to grid
 plot grid as svg
+Write tests (extensive tests) for AI based algorithms with public interface
 
 ## Maybe eventually implement / Impl unclear
 
@@ -168,6 +182,8 @@ Point clustering
 Self avoiding walks
 Local extreme for closest points
 Finite subdivision
+Outlier stripping: Efficiently get rid of longers line in polyline..
+Single axis closest line
 Shape.simplify() .into_simplified() .reverse_in_place()
 Fractal flames
 Pixelart + Pathing
@@ -251,6 +267,7 @@ https://adamfuhrer.bigcartel.com/?page=1
 https://adamfuhrer.com/selling-physical-art-online
 https://www.reddit.com/r/Machine_Embroidery/comments/1t30y06/recent_bag_tags_ive_made/
 https://retro.moe/posts/embroidery-outrun/
+http://n-e-r-v-o-u-s.com/kinematicsCloth/ 
 
 # Potential perfomance
 
@@ -261,8 +278,12 @@ https://retro.moe/posts/embroidery-outrun/
 - chaching lengths to vec along shape
 - more f64 array, esp. when we do most things in rust
 - view into rust memory for shapes
+- less copying, creation, more by reference
+    - also for shape.lines()
 - early abbort nearest positions when we find intersections
 - use b-trees for nearest positions, shape intersections
+- try brute force method on ends of recursions
+- subpolyline / readonly polyline
 
 # Unstructured
 

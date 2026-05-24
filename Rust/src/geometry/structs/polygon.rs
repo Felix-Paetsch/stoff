@@ -21,17 +21,18 @@ impl Polygon {
 }
 
 impl ShapeT for Polygon {
-    fn lines(&self) -> Vec<LineSegment> {
-        self.0
-            .windows(2)
-            .map(|window| LineSegment::new(window[0], window[1]))
-            .chain(
-                self.0
-                    .first()
-                    .zip(self.0.last())
-                    .map(|(first, last)| LineSegment::new(*last, *first)),
-            )
-            .collect()
+    fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_> {
+        Box::new(
+            self.0
+                .windows(2)
+                .map(|window| LineSegment::new(window[0], window[1]))
+                .chain(
+                    self.0
+                        .first()
+                        .zip(self.0.last())
+                        .map(|(first, last)| LineSegment::new(*last, *first)),
+                ),
+        )
     }
 
     fn vertices(&self) -> &[Vector] {
@@ -43,7 +44,7 @@ impl ShapeT for Polygon {
     }
 
     fn is_polyline(&self) -> bool {
-        true
+        false
     }
 }
 

@@ -18,3 +18,5 @@ pub use shape_trait::ShapeT;
 pub use shape_utils::appreciable;
 pub use vector::Vector;
 
+#[allow(unused)]
+pub use shape_utils::length_map;

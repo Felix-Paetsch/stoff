@@ -1,5 +1,9 @@
-import { GridAlgorithms } from "@/Algorithms";
-import { GridRendering, NumberGrid, VectorGrid } from "@/Core/grid";
+import {
+    GridAlgorithms,
+    GridRendering,
+    NumberGrid,
+    VectorGrid,
+} from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 import { Vector } from "Core/geometry/vector";

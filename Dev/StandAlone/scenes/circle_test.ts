@@ -1,6 +1,7 @@
-import { Polygon } from "@/Core/geometry";
+import { Polygon, Shape } from "@/Core/geometry";
 import { GridAlgorithms, NumberGrid } from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
+import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 
@@ -37,15 +38,22 @@ export default function () {
     });
 
     let curr_line = outlines[0]!;
-    for (let i = 1; i < outlines.length; i++) {
-        // curr_line = Shape.merge(curr_line, outlines[i]!);
-    }
+
+    Performance.time(() => {
+        for (let i = 1; i < outlines.length; i++) {
+            console.log(curr_line.vertex_count, outlines[i]!.vertex_count);
+            Shape.closest_shape_positions(curr_line, outlines[i]!);
+        }
+    }, "Closest position");
+    // Performance.time(() => {
+    //     for (let i = 1; i < outlines.length; i++) {
+    //         Shape.intersection_positions(curr_line, outlines[i]!);
+    //     }
+    // }, "Intersection position");
 
     const e = new Embroidery();
     const run = curr_line.as_polyline().resample_strict(0.3);
     e.run(run);
-
-    console.log(run.vertex_count, e.dimensions());
 
     return [s, e];
 }

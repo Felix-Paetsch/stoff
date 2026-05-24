@@ -1,7 +1,8 @@
 use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Shape, Vector};
 
 pub trait ShapeT: Sized {
-    fn lines(&self) -> Vec<LineSegment>;
+    fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_>;
+
     fn vertices(&self) -> &[Vector];
     fn into_vertices(self) -> Vec<Vector>;
 
@@ -34,6 +35,7 @@ pub trait ShapeT: Sized {
     fn vertex_count(&self) -> usize {
         self.vertices().len()
     }
+
     fn linesegment_count(&self) -> usize {
         if self.is_empty() {
             return 0;

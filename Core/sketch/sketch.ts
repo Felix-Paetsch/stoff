@@ -1,6 +1,5 @@
 import { Expect } from "Core/expect";
 import { CollectionMethods, Copy } from ".";
-import { Validate } from "../../Dev/lib";
 import { LinearTransform, Polygon, Shape, Vector } from "../geometry";
 import { Line } from "./line";
 import { Point } from "./point";
@@ -180,52 +179,52 @@ export class Sketch {
         return pt1;
     }
 
-    merge_lines(
-        line1: Line,
-        line2: Line,
-        delete_join: boolean = false,
-        data_callback: Copy.CopySketchObjectDataCallback = Copy.default_data_callback,
-    ) {
-        Expect.that(Validate.same_sketch(line1, line2, this));
-
-        let new_endpoints: [Point, Point];
-        let handedness = line1.right_handed;
-        let shape: Shape;
-
-        if (line1.p2 == line2.p1) {
-            new_endpoints = [line1.p1, line2.p2];
-            shape = Shape.merge(line1.shape, line2.shape);
-        } else if (line1.p1 == line2.p2) {
-            new_endpoints = [line2.p1, line1.p2];
-            shape = Shape.merge(line2.shape, line1.shape);
-        } else if (line1.p1 == line2.p1) {
-            handedness = !handedness;
-            new_endpoints = [line1.p2, line2.p2];
-            shape = Shape.merge(line1.shape.reverse(), line2.shape);
-        } else if (line1.p2 == line2.p2) {
-            new_endpoints = [line1.p1, line2.p1];
-            shape = Shape.merge(line1.shape, line2.shape.reverse());
-        } else {
-            throw new Error("Lines have no endpoint in common");
-        }
-
-        const new_line = new Line(new_endpoints, shape.typesafe());
-
-        new_line.set_handedness(handedness);
-        new_line.data = data_callback(line1.data, line2.data, line1, line2);
-
-        if (delete_join) {
-            line1
-                .endpoints()
-                .filter((p) => !new_endpoints.includes(p))
-                .map((p) => p.remove());
-        } else {
-            line1.remove();
-            line2.remove();
-        }
-
-        return new_line;
-    }
+    // merge_lines(
+    //     line1: Line,
+    //     line2: Line,
+    //     delete_join: boolean = false,
+    //     data_callback: Copy.CopySketchObjectDataCallback = Copy.default_data_callback,
+    // ) {
+    //     Expect.that(Validate.same_sketch(line1, line2, this));
+    //
+    //     let new_endpoints: [Point, Point];
+    //     let handedness = line1.right_handed;
+    //     let shape: Shape;
+    //
+    //     if (line1.p2 == line2.p1) {
+    //         new_endpoints = [line1.p1, line2.p2];
+    //         shape = Shape.merge(line1.shape, line2.shape);
+    //     } else if (line1.p1 == line2.p2) {
+    //         new_endpoints = [line2.p1, line1.p2];
+    //         shape = Shape.merge(line2.shape, line1.shape);
+    //     } else if (line1.p1 == line2.p1) {
+    //         handedness = !handedness;
+    //         new_endpoints = [line1.p2, line2.p2];
+    //         shape = Shape.merge(line1.shape.reverse(), line2.shape);
+    //     } else if (line1.p2 == line2.p2) {
+    //         new_endpoints = [line1.p1, line2.p1];
+    //         shape = Shape.merge(line1.shape, line2.shape.reverse());
+    //     } else {
+    //         throw new Error("Lines have no endpoint in common");
+    //     }
+    //
+    //     const new_line = new Line(new_endpoints, shape.typesafe());
+    //
+    //     new_line.set_handedness(handedness);
+    //     new_line.data = data_callback(line1.data, line2.data, line1, line2);
+    //
+    //     if (delete_join) {
+    //         line1
+    //             .endpoints()
+    //             .filter((p) => !new_endpoints.includes(p))
+    //             .map((p) => p.remove());
+    //     } else {
+    //         line1.remove();
+    //         line2.remove();
+    //     }
+    //
+    //     return new_line;
+    // }
 
     intersect_lines(
         line1: Line,

@@ -1,11 +1,8 @@
-// IF polyline, polyline, look at endpoints
-// IF polyline shape or other way, look at closest positions and insert polygon in there
-// IF polygon, polygon look at closest pos and insert polygon in there
+import { Shape } from "../shape/shape";
 
-import { Vector } from "../..";
-import { Polygon } from "../polygon";
-import { Polyline } from "../polyline";
-import { Shape } from "../shape";
+export function merge_shapes(...shapes: Shape[]): Shape {
+    throw new Error();
+}
 
 export function merge(sh1: Polygon, sh2: Polygon): Polygon;
 export function merge(sh1: Polyline, sh2: Polygon): Polyline;

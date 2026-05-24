@@ -22,11 +22,12 @@ impl Polyline {
 }
 
 impl ShapeT for Polyline {
-    fn lines(&self) -> Vec<LineSegment> {
-        self.0
-            .windows(2)
-            .map(|window| LineSegment::new(window[0], window[1]))
-            .collect()
+    fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_> {
+        Box::new(
+            self.0
+                .windows(2)
+                .map(|window| LineSegment::new(window[0], window[1])),
+        )
     }
 
     fn vertices(&self) -> &[Vector] {

@@ -3,6 +3,6 @@ export function time<T>(fn: () => T, name: string = "Timer") {
     const result = fn();
     const durationMs = performance.now() - start;
 
-    console.log(name + ":", durationMs);
+    console.log(name + ":", durationMs + "(ms)");
     return result;
 }

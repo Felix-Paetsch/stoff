@@ -2,7 +2,7 @@ export * from "./types";
 
 export * as Interval from "./interval";
 export * as LinearTransform from "./linear_transformations";
-export * as Triangle from "./triangle_data";
+export * from "./triangle_data";
 
 export { Line as PlaneLine } from "./line";
 export { Matrix } from "./matrix";
@@ -15,8 +15,9 @@ export * as FiniteGeometry from "./finite_geometry";
 export * as Geometry from "./geometry";
 export * as Spline from "./spline";
 
-export { LengthMap } from "./shape/length_map";
+export * from "./shape/length_map";
 export { Polygon } from "./shape/polygon";
 export { Polyline } from "./shape/polyline";
 export { Shape } from "./shape/shape";
 
+export * as GeometryAlgorithms from "./algorithms";

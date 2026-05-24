@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::geometry::{algorithms::closest_point_position_on_shape, ShapeT, Vector};
+use crate::geometry::{algorithms::closest::closest_point_shape_position, ShapeT, Vector};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShapePosition {
@@ -119,7 +119,7 @@ fn shape_position_from_descriptor(
         }
         ShapePositionDescriptor::Length(l) => {
             let mut current_len = 0.0;
-            for (start_index, line) in shape.lines().iter().enumerate() {
+            for (start_index, line) in shape.lines().enumerate() {
                 let len = line.start.distance(line.end);
                 if current_len + len < l {
                     current_len += len;
@@ -140,7 +140,10 @@ fn shape_position_from_descriptor(
             }
             return None;
         }
-        ShapePositionDescriptor::Vector(v) => return closest_point_position_on_shape(v, shape),
+        ShapePositionDescriptor::Vector(v) => {
+            return closest_point_shape_position::closest_point_shape_position(v, shape)
+                .map(|v| v.position)
+        }
     };
 
     Some(pos)

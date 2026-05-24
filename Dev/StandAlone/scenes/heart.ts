@@ -1,9 +1,6 @@
-// import { interpolate_colors } from "@/Core/colors";
-
-import { SketchAlgorithms } from "@/Algorithms";
 import { Color } from "@/Core";
 import { Vector } from "@/Core/geometry";
-import { Line, Sketch, SketchRendering } from "@/Core/sketch";
+import { Line, Sketch, SketchAlgorithms, SketchRendering } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 
 export default function () {

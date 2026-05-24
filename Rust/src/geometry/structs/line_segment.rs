@@ -1,4 +1,4 @@
-use crate::{geometry::*, numerics::eps::scaled_epsilon};
+use crate::geometry::*;
 
 #[derive(Debug, Clone, Copy)]
 pub struct LineSegment {
@@ -30,33 +30,7 @@ impl LineSegment {
         let seg = self.end.subtract(self.start);
         let seg_len2 = seg.length_squared();
 
-        let seg_scale = self.segment_scale();
-        let eps = scaled_epsilon(seg_scale);
-
-        if seg_len2 <= eps * eps {
-            let center = Vector::lerp(self.start, self.end, 0.5);
-
-            let d_start = point.distance(self.start);
-            let d_end = point.distance(self.end);
-            let d_center = point.distance(center);
-
-            let (vertex, fraction, distance) = if d_start <= d_end && d_start <= d_center {
-                (self.start, 0.0, d_start)
-            } else if d_end <= d_start && d_end <= d_center {
-                (self.end, 1.0, d_end)
-            } else {
-                (center, 0.5, d_center)
-            };
-
-            return ProjectionResult {
-                vertex,
-                fraction,
-                distance,
-            };
-        }
-
         let t = point.subtract(self.start).dot(seg) / seg_len2;
-        let t = t.clamp(0.0, 1.0);
         let proj = Vector::lerp(self.start, self.end, t);
         let d = point.distance(proj);
 

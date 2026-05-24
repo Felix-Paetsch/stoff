@@ -10,17 +10,20 @@ use crate::geometry::{
 };
 
 pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
-    let lines = shape.lines();
-    if lines.len() < 3 {
+    let segment_count = shape.linesegment_count();
+
+    if segment_count < 3 {
         return Vec::new();
     }
 
     let mut length = 0.0;
-    let mut segments = Vec::with_capacity(lines.len());
-    let mut length_map: Vec<f64> = Vec::with_capacity(lines.len() + 1);
+
+    let mut segments = Vec::with_capacity(segment_count);
+    let mut length_map: Vec<f64> = Vec::with_capacity(segment_count + 1);
     length_map.push(0.0);
 
-    for (i, segment) in lines.iter().enumerate() {
+    let lines = shape.lines();
+    for (i, segment) in lines.enumerate() {
         length += segment.length();
         length_map.push(length);
 
@@ -30,7 +33,7 @@ pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
 
         segments.push(IndexedSegment {
             index: i,
-            line: *segment,
+            line: segment,
         });
     }
 

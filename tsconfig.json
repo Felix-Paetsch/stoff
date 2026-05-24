@@ -34,11 +34,10 @@
             "@/Core/graph": ["Core/graph/index"],
             "@/Core/colors": ["Core/colors"],
 
-            "@/Dev": ["Dev/Lib"],
-            "@/Algorithms": ["Algorithms/index"]
+            "@/Dev": ["Dev/Lib"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Algorithms/shape/self_intersection_free.ts.broken", "Algorithms/shape/modify_self_intersections.ts"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Core/geometry/algorithms/self_intersection_free.ts.broken", "Core/geometry/algorithms/modify_self_intersections.ts", "Core/geometry/algorithms/merge_shapes.ts.broken"],
     "exclude": [
         "node_modules",
         "dist",

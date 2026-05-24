@@ -47,7 +47,7 @@ export const sketch_graphical_non_pure_methods: MethodName<Sketch>[] = [
     "clear",
     "intersect_lines",
     "line_between_points",
-    "merge_lines",
+    // "merge_lines",
     "merge_points",
     "remove",
 ];

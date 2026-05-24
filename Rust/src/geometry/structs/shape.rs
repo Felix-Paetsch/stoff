@@ -17,7 +17,7 @@ impl Shape {
 }
 
 impl ShapeT for Shape {
-    fn lines(&self) -> Vec<LineSegment> {
+    fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_> {
         match self {
             Shape::Polyline(l) => l.lines(),
             Shape::Polygon(g) => g.lines(),

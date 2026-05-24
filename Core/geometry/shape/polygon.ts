@@ -15,12 +15,12 @@ import * as FiniteGeometry from "../finite_geometry";
 import { Radians } from "../types";
 import { as_polyline } from "../utils/misc";
 import { Vector } from "../vector";
-import { vectors_from_polyline_function } from "./algorithms/from_function";
-import { remove_dub } from "./algorithms/remove_dub";
-import { resample } from "./algorithms/resampling/resample";
-import { resample_polygon_points_smooth } from "./algorithms/resampling/resample_smooth";
-import { resample_strict } from "./algorithms/resampling/resample_strict";
-import { simplify } from "./algorithms/resampling/simplify";
+import { vectors_from_polyline_function } from "./internal_shape_algorithms/from_function";
+import { remove_dub } from "./internal_shape_algorithms/remove_dub";
+import { resample } from "./internal_shape_algorithms/resampling/resample";
+import { resample_polygon_points_smooth } from "./internal_shape_algorithms/resampling/resample_smooth";
+import { resample_strict } from "./internal_shape_algorithms/resampling/resample_strict";
+import { simplify } from "./internal_shape_algorithms/resampling/simplify";
 import { Polyline } from "./polyline";
 import { Shape } from "./shape";
 

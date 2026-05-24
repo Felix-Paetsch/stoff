@@ -1,6 +1,10 @@
-import { GridAlgorithms } from "@/Algorithms";
 import { Interval, Vector } from "@/Core/geometry";
-import { GridRendering, NumberGrid, VectorGrid } from "@/Core/grid";
+import {
+    GridAlgorithms,
+    GridRendering,
+    NumberGrid,
+    VectorGrid,
+} from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 
