@@ -1,3 +1,4 @@
+import { CONF } from "config";
 import { Bounds } from "Core/numerics";
 import {
     wasm_geometry_centroid,
@@ -72,10 +73,12 @@ export class Polygon extends Shape {
         return this.vertices.length > 0 ? this.vertices[0]! : null;
     }
 
-    static override from_function(fn: Shape.PolylineFunction): Polygon {
-        const vectors = vectors_from_polyline_function(fn);
-        // First use polyine to get rid of potential duplicate point at the end
-        return new Polyline(vectors).as_polygon();
+    static override from_function(
+        fn: Shape.PolylineFunction,
+        sample_spacing: number = CONF.DEFAULT_LINE_SEGMENT_LENGTH,
+    ): Polygon {
+        const vectors = vectors_from_polyline_function(fn, sample_spacing);
+        return new Polygon(vectors);
     }
 
     resample_smooth(

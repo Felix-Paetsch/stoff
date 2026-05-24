@@ -67,6 +67,9 @@ Namespaces should (could) be grouped early so I dont have to do import * as ...
 More Namespaces
 
 So many collection_methods.get() things.. (Why still "get_"?)
+Length map better names
+Integrate algorithms into Core. Check out curvature..
+- two types of algorithms, those used internally and put onto thing as method and those exported
 Put sketch and so on behind a "."?
 THings that take in x,y should take in vec? or Not?
 - only when it is a vec indeed
@@ -165,6 +168,7 @@ Point clustering
 Self avoiding walks
 Local extreme for closest points
 Finite subdivision
+Shape.simplify() .into_simplified() .reverse_in_place()
 Fractal flames
 Pixelart + Pathing
 Embroidery pathing analysis

@@ -1,42 +1,54 @@
 import { EPS, Expect } from "@/Core";
-import { Shape } from "@/Core/geometry";
-import { Line } from "@/Core/sketch";
+import { Line, Point } from "@/Core/sketch";
 import { Validate } from "@/Dev";
-import { interpolate_shapes } from "Algorithms/shape/interpolate";
+import {
+    interpolate_shapes,
+    InterpolationFunctions,
+} from "Algorithms/shape/interpolate";
+import { CONF } from "config";
 
 export type NumberFunction = (t: number) => number;
 export type TwoNumberFunction = (t: number) => [number, number];
+
 export function interpolate_lines(
     line1: Line,
     line2: Line,
-    f: NumberFunction = (x) => x,
-    p1: NumberFunction = (x) => x,
-    p2: NumberFunction = (x) => x,
+    interpolation_fn:
+        | null
+        | NumberFunction
+        | Partial<InterpolationFunctions> = null,
+    sample_spacing: number = CONF.DEFAULT_LINE_SEGMENT_LENGTH,
 ) {
     Expect.that(Validate.same_sketch(line1, line2));
 
-    const new_shape_fn = interpolate_shapes(
+    const new_shape = interpolate_shapes(
         line1.shape,
         line2.shape,
-        f,
-        p1,
-        p2,
+        interpolation_fn,
+        sample_spacing,
     );
 
-    const line_1_index = Math.round(f(0));
-    const p_1_index = Math.round(p1(0));
-    const line_2_index = Math.round(f(1));
-    const p_2_index = Math.round(p1(1));
+    let endpoints: [Point, Point];
+    if (interpolation_fn == null || typeof interpolation_fn == "function") {
+        endpoints = [line1.p1, line2.p2];
+    } else {
+        const { f, p1, p2 } = interpolation_fn;
 
-    const pt1 = [line1, line2][line_1_index]?.endpoints()[p_1_index];
-    const pt2 = [line1, line2][line_2_index]?.endpoints()[p_2_index];
+        const p1_line_index = f ? Math.round(f(0)) : 0;
+        const p1_ep_index = p1 ? Math.round(p1(0)) : 0;
 
-    if (!pt1 || !pt2) {
-        throw new Error("Interpolation ends aren't endpoints");
+        const p2_line_index = f ? Math.round(f(1)) : 1;
+        const p2_ep_index = p2 ? Math.round(p2(1)) : 1;
+
+        const pt1 = [line1, line2][p1_line_index]?.endpoints()[p1_ep_index];
+        const pt2 = [line1, line2][p2_line_index]?.endpoints()[p2_ep_index];
+
+        Expect.that(!(!pt1 || !pt2), "Interpolation ends aren't endpoints");
+        endpoints = [pt1!, pt2!];
     }
 
-    Expect.that(pt1.vec.distance(new_shape_fn(0)) < EPS.tiny);
-    Expect.that(pt2.vec.distance(new_shape_fn(1)) < EPS.tiny);
+    Expect.that(endpoints[0].vec.distance(new_shape.first()!) < EPS.tiny);
+    Expect.that(endpoints[1].vec.distance(new_shape.last()!) < EPS.tiny);
 
-    return new Line([pt1, pt2], Shape.from_function(new_shape_fn));
+    return new Line(endpoints, new_shape);
 }

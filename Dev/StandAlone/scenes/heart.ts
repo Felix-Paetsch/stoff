@@ -1,8 +1,9 @@
 // import { interpolate_colors } from "@/Core/colors";
 
 import { SketchAlgorithms } from "@/Algorithms";
+import { Color } from "@/Core";
 import { Vector } from "@/Core/geometry";
-import { Sketch } from "@/Core/sketch";
+import { Line, Sketch, SketchRendering } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 
 export default function () {
@@ -89,36 +90,30 @@ export default function () {
         g *= scale_factor;
         b *= scale_factor;
 
-        // Set the color
-        // lines[i]!.set_color(
-        //     `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`,
-        // );
+        SketchRendering.set_stroke(
+            lines[i]!,
+            `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`,
+        );
     }
 
     Performance.time(() => {
         let max = 8; // 8;
         for (let i = 1; i < max; i++) {
-            const new_lines = [];
+            const new_lines: Line[] = [];
             for (let j = 0; j < lines.length - 1; j++) {
                 const l1 = lines[j]!;
                 const l2 = lines[(j + 1) % lines.length]!;
 
-                console.log(l1.shape.vertex_count, l2.shape.vertex_count);
-                const newLine = Performance.time(
-                    () => SketchAlgorithms.interpolate_lines(l1, l2),
-                    "Interpolate",
-                );
+                const newLine = SketchAlgorithms.interpolate_lines(l1, l2);
                 new_lines.push(newLine);
-                console.log(
-                    newLine.shape.vertex_count,
-                    l1.shape.vertex_count,
-                    l2.shape.vertex_count,
-                );
-                console.log("------");
 
-                // newLine.set_color(
-                //     interpolate_colors(l1.get_color(), l2.get_color()),
-                // );
+                SketchRendering.set_stroke(
+                    newLine,
+                    Color.lerp(
+                        SketchRendering.get_stroke(l1) as Color.Color,
+                        SketchRendering.get_stroke(l2) as Color.Color,
+                    ),
+                );
             }
             lines = new_lines;
         }

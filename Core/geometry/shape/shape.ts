@@ -31,12 +31,7 @@ import { shape_corners } from "./algorithms/corners";
 import { curvature } from "./algorithms/curvature";
 import { vectors_from_polyline_function } from "./algorithms/from_function";
 import { merge } from "./algorithms/merge";
-import {
-    compute_length_map,
-    length_at,
-    LengthMap,
-    position_at_length,
-} from "./length_map";
+import { LengthMap } from "./length_map";
 import { Polygon } from "./polygon";
 import { Polyline } from "./polyline";
 import { decode_intersection_positions } from "./rust_utils/decode_intersection_positions";
@@ -57,11 +52,12 @@ export namespace Shape {
         | Vector
         | Shape.ShapePosition
         | "start"
+        | LengthMap.Position
         | "end";
 }
 
 export abstract class Shape {
-    private _length_map: LengthMap | null = null;
+    private _length_map: LengthMap.Map | null = null;
     private _positions: Float64Array | null = null;
     private _vertices: Vector[] | null = null;
     private _bb: BoundingBox | null = null;
@@ -95,9 +91,9 @@ export abstract class Shape {
         return this._positions;
     }
 
-    length_map_ref(): LengthMap {
+    length_map_ref(): LengthMap.Map {
         if (this._length_map == null) {
-            this._length_map = compute_length_map(this.vertices);
+            this._length_map = LengthMap.compute(this.vertices);
         }
 
         return this._length_map;
@@ -111,7 +107,7 @@ export abstract class Shape {
     length_until(until: Shape.ShapePositionDescriptor): number | null {
         const pos = this.shape_point_descriptor_to_shape_position(until);
         if (pos === null) return null;
-        return length_at(this.length_map_ref(), pos);
+        return LengthMap.length_at(this.length_map_ref(), pos);
     }
 
     bounding_box(): BoundingBox {
@@ -272,7 +268,10 @@ export abstract class Shape {
 
         targetDistance = Interval.clamp([0, totalLength], targetDistance);
 
-        const pos = position_at_length(this.length_map_ref(), targetDistance);
+        const pos = LengthMap.position_at_length(
+            this.length_map_ref(),
+            targetDistance,
+        );
         const vec = Vector.lerp(
             this.vertices[pos.index]!,
             this.vertices[pos.index + 1]!,
@@ -475,6 +474,13 @@ export abstract class Shape {
                 frac: 0,
             };
         }
+        if (this.vertex_count == 1) {
+            return {
+                vec: this.vertices[0]!,
+                index: 0,
+                frac: 0,
+            };
+        }
         if (d == "end") {
             if (this instanceof Polyline) {
                 return {
@@ -493,7 +499,22 @@ export abstract class Shape {
         if (Array.isArray(d)) {
             return this.shape_position_at_length(d[0], d[1]);
         }
+        if (!("vec" in d)) {
+            return {
+                ...d,
+                vec: Vector.lerp(
+                    this.vertices[d.index]!,
+                    this.vertices[d.index + 1]!,
+                    d.frac,
+                ),
+            };
+        }
         return d;
+    }
+
+    vector_at(d: Shape.ShapePositionDescriptor): Vector | null {
+        const p = this.shape_point_descriptor_to_shape_position(d);
+        return p ? p.vec : p;
     }
 
     static empty(): Shape.Shape {

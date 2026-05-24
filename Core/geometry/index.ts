@@ -15,6 +15,8 @@ export * as FiniteGeometry from "./finite_geometry";
 export * as Geometry from "./geometry";
 export * as Spline from "./spline";
 
+export { LengthMap } from "./shape/length_map";
 export { Polygon } from "./shape/polygon";
 export { Polyline } from "./shape/polyline";
 export { Shape } from "./shape/shape";
+

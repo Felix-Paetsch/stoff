@@ -1,3 +1,5 @@
+import { EPS } from "Core/numerics/eps";
+
 // Left side is always expected to be smaller than right side
 export type Interval = [number, number];
 export const UnitInterval: Interval = [0, 1];
@@ -15,6 +17,11 @@ export function lerp(a: number, b: number, amt: Fraction): number {
 
 export function lerp_abs(a: number, b: number, amt: number): number {
     return lerp(a, b, amt / (b - a));
+}
+
+export function inverse_lerp(a: number, b: number, c: number): Fraction {
+    if (Math.abs(b - a) < EPS.tiny) return 0.5;
+    return (c - a) / (b - a);
 }
 
 export function merge(...intervals: Interval[]): Interval {

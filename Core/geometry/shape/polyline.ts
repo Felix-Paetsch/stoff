@@ -1,3 +1,4 @@
+import { CONF } from "config";
 import { EPS } from "Core/numerics/eps";
 import { WASMCompatability } from "Rust/exports";
 import { Radians } from "../types";
@@ -122,8 +123,11 @@ export class Polyline extends Shape {
         return true;
     }
 
-    static override from_function(fn: Shape.PolylineFunction): Polyline {
-        const vectors = vectors_from_polyline_function(fn);
+    static override from_function(
+        fn: Shape.PolylineFunction,
+        sample_spacing: number = CONF.DEFAULT_LINE_SEGMENT_LENGTH,
+    ): Polyline {
+        const vectors = vectors_from_polyline_function(fn, sample_spacing);
         return new Polyline(vectors);
     }
 
