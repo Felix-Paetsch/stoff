@@ -50,7 +50,8 @@ pub fn closest_linesegment_shape_position_with_length_map(
     }
 
     let lengths = length_map.lengths();
-    let vertices = shape.vertices();
+    let as_polyline = shape.clone_to_shape().into_polyline().clone();
+    let vertices = as_polyline.vertices();
     closest_linesegment_shape_position_with_length_map_recursion(
         vertices,
         lengths,
@@ -69,7 +70,7 @@ pub fn closest_linesegment_shape_position_with_length_map(
     )
 }
 
-fn closest_linesegment_shape_position_with_length_map_recursion(
+pub fn closest_linesegment_shape_position_with_length_map_recursion(
     vertices: &[Vector],
     lengths: &[f64],
     left: RecursiveLineBoundary,
@@ -78,6 +79,9 @@ fn closest_linesegment_shape_position_with_length_map_recursion(
     segment: &LineSegment,
     segment_len: f64,
 ) -> Option<ClosestLinesegmentToShapePosition> {
+    if best_dist_so_far == 0.0 {
+        return None;
+    }
     if left.vertex_index + 1 == right.vertex_index {
         let seg = LineSegment {
             start: vertices[left.vertex_index],
@@ -90,6 +94,17 @@ fn closest_linesegment_shape_position_with_length_map_recursion(
                 shape_position: ShapePosition::new(left.vertex_index, closest.frac1, closest.v1),
                 distance: closest.distance,
                 linesegment_fraction: closest.frac2,
+            })
+        } else {
+            None
+        };
+    } else if left.vertex_index == right.vertex_index {
+        let closest = closest_point_on_linesegment(*segment, vertices[left.vertex_index]);
+        return if closest.distance < best_dist_so_far {
+            Some(ClosestLinesegmentToShapePosition {
+                shape_position: ShapePosition::new(left.vertex_index, 0.0, closest.vector),
+                distance: closest.distance,
+                linesegment_fraction: closest.fraction,
             })
         } else {
             None

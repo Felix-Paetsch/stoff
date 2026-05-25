@@ -1,12 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-use crate::geometry::{
-    algorithms::closest::{
-        closest_point_shape_position::closest_point_shape_position,
-        closest_shape_shape_position::closest_shape_shape_positions,
-    },
-    Geometry, Shape, Vector,
-};
+use crate::geometry::{algorithms::closest, Geometry, Shape, Vector};
 
 #[wasm_bindgen]
 pub fn wasm_geometry_closest_point_position_on_shape(
@@ -19,7 +13,7 @@ pub fn wasm_geometry_closest_point_position_on_shape(
     let geom = Geometry::from(shape);
     let shape = Shape::from_geometry(geom)?;
 
-    let res = closest_point_shape_position(point, &shape)?.position;
+    let res = closest::closest_point_on_shape(point, &shape)?.position;
     Some(vec![
         res.vec().x(),
         res.vec().y(),
@@ -36,7 +30,7 @@ pub fn wasm_geometry_closest_shape_positions(shape1: &[f64], shape2: &[f64]) -> 
     let geom2 = Geometry::from(shape2);
     let shape2 = Shape::from_geometry(geom2)?;
 
-    let res = closest_shape_shape_positions(&shape1, &shape2)?.positions;
+    let res = closest::closest_shape_positions(&shape1, &shape2)?.positions;
 
     Some(vec![
         res[0].vec().x(),

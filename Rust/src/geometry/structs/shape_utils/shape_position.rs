@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::geometry::{algorithms::closest::closest_point_shape_position, ShapeT, Vector};
+use crate::geometry::{algorithms::closest, ShapeT, Vector};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShapePosition {
@@ -141,8 +141,7 @@ fn shape_position_from_descriptor(
             return None;
         }
         ShapePositionDescriptor::Vector(v) => {
-            return closest_point_shape_position::closest_point_shape_position(v, shape)
-                .map(|v| v.position)
+            return closest::closest_point_on_shape(v, shape).map(|v| v.position)
         }
     };
 

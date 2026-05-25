@@ -2,38 +2,35 @@ use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Shape, Vector};
 
 pub trait ShapeT: Sized {
     fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_>;
-
-    fn vertices(&self) -> &[Vector];
-    fn into_vertices(self) -> Vec<Vector>;
-
+    fn vertices(&self) -> Box<dyn Iterator<Item = Vector> + '_>;
+    fn vertex_count(&self) -> usize;
+    fn vertex_at(&self, at: usize) -> Vector;
     fn is_polyline(&self) -> bool;
+
+    fn into_vertices(self) -> Vec<Vector>;
 
     fn is_polygon(&self) -> bool {
         !self.is_polyline()
     }
 
     fn is_empty(&self) -> bool {
-        self.vertices().len() == 0
+        self.vertex_count() == 0
     }
 
     fn linesegment_at(&self, at: usize) -> Option<LineSegment> {
-        if at < self.vertices().len() - 1 {
+        if at < self.vertex_count() - 1 {
             Some(LineSegment {
-                start: self.vertices()[at],
-                end: self.vertices()[at + 1],
+                start: self.vertex_at(at),
+                end: self.vertex_at(at + 1),
             })
-        } else if at == self.vertices().len() - 1 && self.is_polygon() {
+        } else if at == self.vertex_count() - 1 && self.is_polygon() {
             Some(LineSegment {
-                start: self.vertices()[at],
-                end: self.vertices()[0],
+                start: self.vertex_at(at),
+                end: self.vertex_at(0),
             })
         } else {
             None
         }
-    }
-
-    fn vertex_count(&self) -> usize {
-        self.vertices().len()
     }
 
     fn linesegment_count(&self) -> usize {
@@ -102,5 +99,13 @@ pub trait ShapeT: Sized {
             current_len += ls.end.distance(ls.start)
         }
         current_len
+    }
+
+    fn clone_to_shape(&self) -> Shape {
+        if self.is_polyline() {
+            Shape::Polyline(Polyline::new(self.vertices().collect()))
+        } else {
+            Shape::Polygon(Polygon::new(self.vertices().collect()))
+        }
     }
 }

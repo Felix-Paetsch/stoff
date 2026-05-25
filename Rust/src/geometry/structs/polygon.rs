@@ -35,16 +35,24 @@ impl ShapeT for Polygon {
         )
     }
 
-    fn vertices(&self) -> &[Vector] {
-        &self.0
+    fn vertices(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
+        Box::new(self.0.iter().copied())
+    }
+
+    fn is_polyline(&self) -> bool {
+        false
     }
 
     fn into_vertices(self) -> Vec<Vector> {
         self.0
     }
 
-    fn is_polyline(&self) -> bool {
-        false
+    fn vertex_count(&self) -> usize {
+        self.0.len()
+    }
+
+    fn vertex_at(&self, at: usize) -> Vector {
+        self.0[at % self.vertex_count()]
     }
 }
 

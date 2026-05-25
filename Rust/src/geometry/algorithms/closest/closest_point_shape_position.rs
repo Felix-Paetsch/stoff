@@ -6,15 +6,15 @@ use crate::geometry::{
     LineSegment, ShapePosition, ShapeT, Vector,
 };
 
-pub struct ClosestPointShapePositionResult {
+pub struct ClosestPointOnShapeResult {
     pub position: ShapePosition,
     pub distance: f64,
 }
 
-pub fn closest_point_shape_position(
+pub fn closest_point_on_shape(
     point: Vector,
     shape: &impl ShapeT,
-) -> Option<ClosestPointShapePositionResult> {
+) -> Option<ClosestPointOnShapeResult> {
     let mut closest_position: Option<ShapePosition> = None;
     let mut closest_distance = f64::INFINITY;
 
@@ -27,24 +27,25 @@ pub fn closest_point_shape_position(
         }
     }
 
-    closest_position.map(|v| ClosestPointShapePositionResult {
+    closest_position.map(|v| ClosestPointOnShapeResult {
         position: v,
         distance: closest_distance,
     })
 }
 
-pub fn closest_point_shape_position_with_length_map(
+pub fn closest_point_on_shape_with_length_map(
     point: Vector,
     shape: &impl ShapeT,
     length_map: &LengthMap,
-) -> Option<ClosestPointShapePositionResult> {
+) -> Option<ClosestPointOnShapeResult> {
     if shape.vertex_count() < 50 {
-        return closest_point_shape_position(point, shape);
+        return closest_point_on_shape(point, shape);
     }
 
     let lengths = length_map.lengths();
-    let vertices = shape.vertices();
-    closest_point_shape_position_with_length_map_recursion(
+    let as_polyline = shape.clone_to_shape().into_polyline().clone();
+    let vertices = as_polyline.vertices();
+    closest_point_on_shape_with_length_map_recursion(
         vertices,
         lengths,
         RecursiveLineBoundary {
@@ -60,14 +61,14 @@ pub fn closest_point_shape_position_with_length_map(
     )
 }
 
-fn closest_point_shape_position_with_length_map_recursion(
+pub fn closest_point_on_shape_with_length_map_recursion(
     vertices: &[Vector],
     lengths: &[f64],
     left: RecursiveLineBoundary,
     right: RecursiveLineBoundary,
     best_dist_so_far: f64,
     point: Vector,
-) -> Option<ClosestPointShapePositionResult> {
+) -> Option<ClosestPointOnShapeResult> {
     if left.vertex_index + 1 == right.vertex_index {
         let seg = LineSegment {
             start: vertices[left.vertex_index],
@@ -76,9 +77,19 @@ fn closest_point_shape_position_with_length_map_recursion(
 
         let closest = closest_point_on_linesegment(seg, point);
         return if closest.distance < best_dist_so_far {
-            Some(ClosestPointShapePositionResult {
+            Some(ClosestPointOnShapeResult {
                 position: ShapePosition::new(left.vertex_index, closest.fraction, closest.vector),
                 distance: closest.distance,
+            })
+        } else {
+            None
+        };
+    } else if left.vertex_index == right.vertex_index {
+        let distance = vertices[left.vertex_index].distance(point);
+        return if distance < best_dist_so_far {
+            Some(ClosestPointOnShapeResult {
+                position: ShapePosition::new(left.vertex_index, 0.0, vertices[left.vertex_index]),
+                distance,
             })
         } else {
             None
@@ -107,7 +118,7 @@ fn closest_point_shape_position_with_length_map_recursion(
         guaranteed_distance: middle_distance,
     };
 
-    let pos_option_left = closest_point_shape_position_with_length_map_recursion(
+    let pos_option_left = closest_point_on_shape_with_length_map_recursion(
         vertices,
         lengths,
         left,
@@ -117,7 +128,7 @@ fn closest_point_shape_position_with_length_map_recursion(
     );
 
     let Some(pos1) = &pos_option_left else {
-        return closest_point_shape_position_with_length_map_recursion(
+        return closest_point_on_shape_with_length_map_recursion(
             vertices,
             lengths,
             middle,
@@ -127,7 +138,7 @@ fn closest_point_shape_position_with_length_map_recursion(
         );
     };
 
-    closest_point_shape_position_with_length_map_recursion(
+    closest_point_on_shape_with_length_map_recursion(
         vertices,
         lengths,
         middle,

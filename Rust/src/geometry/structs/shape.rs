@@ -24,7 +24,7 @@ impl ShapeT for Shape {
         }
     }
 
-    fn vertices(&self) -> &[Vector] {
+    fn vertices(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
         match self {
             Shape::Polyline(l) => l.vertices(),
             Self::Polygon(g) => g.vertices(),
@@ -42,6 +42,20 @@ impl ShapeT for Shape {
         match self {
             Shape::Polyline(_) => true,
             Self::Polygon(_) => false,
+        }
+    }
+
+    fn vertex_count(&self) -> usize {
+        match self {
+            Shape::Polyline(l) => l.vertex_count(),
+            Self::Polygon(g) => g.vertex_count(),
+        }
+    }
+
+    fn vertex_at(&self, at: usize) -> Vector {
+        match self {
+            Shape::Polyline(l) => l.vertex_at(at),
+            Self::Polygon(g) => g.vertex_at(at),
         }
     }
 }
