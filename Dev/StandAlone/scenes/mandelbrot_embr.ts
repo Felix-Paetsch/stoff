@@ -45,7 +45,7 @@ export default function () {
     const run = curr_line.as_polyline().resample_strict(0.3);
     e.run(run);
 
-    console.log(run.vertex_count, e.dimensions());
+    console.log(run.vertex_count(), e.dimensions());
 
     return [s, e];
 }

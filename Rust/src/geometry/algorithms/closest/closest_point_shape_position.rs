@@ -43,18 +43,19 @@ pub fn closest_point_on_shape_with_length_map(
     }
 
     let lengths = length_map.lengths();
-    let as_polyline = shape.clone_to_shape().into_polyline().clone();
-    let vertices = as_polyline.vertices();
     closest_point_on_shape_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         RecursiveLineBoundary {
             vertex_index: 0,
-            guaranteed_distance: Vector::distance(point, vertices[0]),
+            guaranteed_distance: Vector::distance(point, shape.vertex_at(0)),
         },
         RecursiveLineBoundary {
-            vertex_index: vertices.len() - 1,
-            guaranteed_distance: Vector::distance(point, *vertices.last().unwrap()),
+            vertex_index: shape.looping_vertex_count() - 1,
+            guaranteed_distance: Vector::distance(
+                point,
+                shape.vertex_at(shape.looping_vertex_count() - 1),
+            ),
         },
         f64::INFINITY,
         point,
@@ -62,7 +63,7 @@ pub fn closest_point_on_shape_with_length_map(
 }
 
 pub fn closest_point_on_shape_with_length_map_recursion(
-    vertices: &[Vector],
+    shape: &impl ShapeT,
     lengths: &[f64],
     left: RecursiveLineBoundary,
     right: RecursiveLineBoundary,
@@ -71,8 +72,8 @@ pub fn closest_point_on_shape_with_length_map_recursion(
 ) -> Option<ClosestPointOnShapeResult> {
     if left.vertex_index + 1 == right.vertex_index {
         let seg = LineSegment {
-            start: vertices[left.vertex_index],
-            end: vertices[right.vertex_index],
+            start: shape.vertex_at(left.vertex_index),
+            end: shape.vertex_at(right.vertex_index),
         };
 
         let closest = closest_point_on_linesegment(seg, point);
@@ -85,10 +86,14 @@ pub fn closest_point_on_shape_with_length_map_recursion(
             None
         };
     } else if left.vertex_index == right.vertex_index {
-        let distance = vertices[left.vertex_index].distance(point);
+        let distance = shape.vertex_at(left.vertex_index).distance(point);
         return if distance < best_dist_so_far {
             Some(ClosestPointOnShapeResult {
-                position: ShapePosition::new(left.vertex_index, 0.0, vertices[left.vertex_index]),
+                position: ShapePosition::new(
+                    left.vertex_index,
+                    0.0,
+                    shape.vertex_at(left.vertex_index),
+                ),
                 distance,
             })
         } else {
@@ -106,7 +111,7 @@ pub fn closest_point_on_shape_with_length_map_recursion(
         return None;
     }
 
-    let middle_distance = vertices[middle_index].distance(point);
+    let middle_distance = shape.vertex_at(middle_index).distance(point);
     if middle_distance - len_middle_right >= best_dist_so_far
         || middle_distance - len_left_middle >= best_dist_so_far
     {
@@ -119,7 +124,7 @@ pub fn closest_point_on_shape_with_length_map_recursion(
     };
 
     let pos_option_left = closest_point_on_shape_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         left,
         middle,
@@ -129,7 +134,7 @@ pub fn closest_point_on_shape_with_length_map_recursion(
 
     let Some(pos1) = &pos_option_left else {
         return closest_point_on_shape_with_length_map_recursion(
-            vertices,
+            shape,
             lengths,
             middle,
             right,
@@ -139,7 +144,7 @@ pub fn closest_point_on_shape_with_length_map_recursion(
     };
 
     closest_point_on_shape_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         middle,
         right,

@@ -4,7 +4,7 @@ use crate::geometry::{
         closest_linesegment_point::closest_point_on_linesegment, shared::RecursiveLineBoundary,
     },
     length_map::LengthMap,
-    LineSegment, ShapePosition, ShapeT, Vector,
+    LineSegment, ShapePosition, ShapeT,
 };
 
 pub struct ClosestLinesegmentToShapePosition {
@@ -50,19 +50,20 @@ pub fn closest_linesegment_shape_position_with_length_map(
     }
 
     let lengths = length_map.lengths();
-    let as_polyline = shape.clone_to_shape().into_polyline().clone();
-    let vertices = as_polyline.vertices();
     closest_linesegment_shape_position_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         RecursiveLineBoundary {
             vertex_index: 0,
-            guaranteed_distance: closest_point_on_linesegment(*ls, vertices[0]).distance,
+            guaranteed_distance: closest_point_on_linesegment(*ls, shape.vertex_at(0)).distance,
         },
         RecursiveLineBoundary {
-            vertex_index: vertices.len() - 1,
-            guaranteed_distance: closest_point_on_linesegment(*ls, *vertices.last().unwrap())
-                .distance,
+            vertex_index: shape.looping_vertex_count() - 1,
+            guaranteed_distance: closest_point_on_linesegment(
+                *ls,
+                shape.vertex_at(shape.looping_vertex_count() - 1),
+            )
+            .distance,
         },
         f64::INFINITY,
         ls,
@@ -71,7 +72,7 @@ pub fn closest_linesegment_shape_position_with_length_map(
 }
 
 pub fn closest_linesegment_shape_position_with_length_map_recursion(
-    vertices: &[Vector],
+    shape: &impl ShapeT,
     lengths: &[f64],
     left: RecursiveLineBoundary,
     right: RecursiveLineBoundary,
@@ -84,8 +85,8 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
     }
     if left.vertex_index + 1 == right.vertex_index {
         let seg = LineSegment {
-            start: vertices[left.vertex_index],
-            end: vertices[right.vertex_index],
+            start: shape.vertex_at(left.vertex_index),
+            end: shape.vertex_at(right.vertex_index),
         };
 
         let closest = closest_linesegment_points(&seg, segment);
@@ -99,7 +100,7 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
             None
         };
     } else if left.vertex_index == right.vertex_index {
-        let closest = closest_point_on_linesegment(*segment, vertices[left.vertex_index]);
+        let closest = closest_point_on_linesegment(*segment, shape.vertex_at(left.vertex_index));
         return if closest.distance < best_dist_so_far {
             Some(ClosestLinesegmentToShapePosition {
                 shape_position: ShapePosition::new(left.vertex_index, 0.0, closest.vector),
@@ -121,7 +122,8 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
         return None;
     }
 
-    let middle_distance = closest_point_on_linesegment(*segment, vertices[middle_index]).distance;
+    let middle_distance =
+        closest_point_on_linesegment(*segment, shape.vertex_at(middle_index)).distance;
     if middle_distance - len_middle_right - segment_len >= best_dist_so_far
         || middle_distance - len_left_middle - segment_len >= best_dist_so_far
     {
@@ -134,7 +136,7 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
     };
 
     let pos_option_left = closest_linesegment_shape_position_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         left,
         middle,
@@ -145,7 +147,7 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
 
     let Some(pos1) = &pos_option_left else {
         return closest_linesegment_shape_position_with_length_map_recursion(
-            vertices,
+            shape,
             lengths,
             middle,
             right,
@@ -156,7 +158,7 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
     };
 
     closest_linesegment_shape_position_with_length_map_recursion(
-        vertices,
+        shape,
         lengths,
         middle,
         right,

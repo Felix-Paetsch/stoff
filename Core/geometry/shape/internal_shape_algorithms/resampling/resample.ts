@@ -23,7 +23,7 @@ export function resample<T extends Polygon | Polyline>(
         return s;
     }
 
-    if (s.vertex_count < 2) {
+    if (s.vertex_count() < 2) {
         return s;
     }
 

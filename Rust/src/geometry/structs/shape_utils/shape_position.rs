@@ -99,18 +99,12 @@ fn shape_position_from_descriptor(
 
     let pos: ShapePosition = match descr {
         ShapePositionDescriptor::ShapePosition(p) => p,
-        ShapePositionDescriptor::Start => ShapePosition::new(0, 0.0, shape.vertices()[0]),
-        ShapePositionDescriptor::End => {
-            if shape.is_polygon() {
-                ShapePosition::new(shape.vertices().len() - 1, 1.0, shape.vertices()[0])
-            } else {
-                ShapePosition::new(
-                    shape.vertices().len() - 2,
-                    1.0,
-                    *shape.vertices().last().unwrap(),
-                )
-            }
-        }
+        ShapePositionDescriptor::Start => ShapePosition::new(0, 0.0, shape.vertex_at(0)),
+        ShapePositionDescriptor::End => ShapePosition::new(
+            shape.looping_vertex_count() - 2,
+            1.0,
+            shape.vertex_at(shape.looping_vertex_count() - 1),
+        ),
         ShapePositionDescriptor::RelativeLength(l) => {
             return shape_position_from_descriptor(
                 ShapePositionDescriptor::Length(l * shape.length()),

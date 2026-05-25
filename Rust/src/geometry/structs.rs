@@ -1,9 +1,7 @@
 mod geometry;
 mod line_segment;
 mod polygon;
-mod polygon_as_polyline;
 mod polyline;
-mod polyline_as_polygon;
 mod shape;
 mod shape_trait;
 mod shape_utils;

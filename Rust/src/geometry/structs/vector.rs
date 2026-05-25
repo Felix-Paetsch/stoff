@@ -91,6 +91,10 @@ impl Vector {
         a.add(b.subtract(a).scale(t))
     }
 
+    pub fn lerp_abs(a: Vector, b: Vector, t: f64) -> Vector {
+        Vector::lerp(a, b, t / a.distance(b))
+    }
+
     pub fn angle(a: Vector, b: Vector) -> f64 {
         let dot = a.dot(b);
         let lengths_product = a.length() * b.length();

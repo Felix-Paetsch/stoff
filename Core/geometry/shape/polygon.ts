@@ -30,6 +30,11 @@ export class Polygon extends Shape {
         super(positions);
     }
 
+    vertex_at(pos: number): Vector | undefined {
+        const c = this.vertex_count();
+        return this.vertices[((pos % c) + c) % c];
+    }
+
     to_polyline() {
         const l = this.positions.length;
 
@@ -43,14 +48,6 @@ export class Polygon extends Shape {
         newArray[l + 1] = this.positions[1]!;
 
         return new Polyline(newArray);
-    }
-
-    is_polygon(): true {
-        return true;
-    }
-
-    is_polyline(): false {
-        return false;
     }
 
     map(
@@ -149,14 +146,14 @@ export class Polygon extends Shape {
     }
 
     area(): number {
-        if (this.vertex_count < 3) {
+        if (this.vertex_count() < 3) {
             return 0;
         }
         return wasm_geometry_polygon_area(this.to_wasm_vecf64()) || 0;
     }
 
     signed_area(): number {
-        if (this.vertex_count < 3) {
+        if (this.vertex_count() < 3) {
             return 0;
         }
         return wasm_geometry_polygon_signed_area(this.to_wasm_vecf64()) || 0;
@@ -214,7 +211,7 @@ export class Polygon extends Shape {
         from: Shape.ShapePositionDescriptor,
         to: Shape.ShapePositionDescriptor = "end",
     ): Polyline {
-        if (this.vertex_count == 0) return new Polyline([]);
+        if (this.vertex_count() == 0) return new Polyline([]);
 
         const sp1 = this.shape_point_descriptor_to_shape_position(from);
         const sp2 = this.shape_point_descriptor_to_shape_position(to);
@@ -223,12 +220,12 @@ export class Polygon extends Shape {
 
         let res: Vector[] = [sp1.vec];
 
-        const guard = Bounds.guard_inf_loop(this.vertex_count + 2);
+        const guard = Bounds.guard_inf_loop(this.vertex_count() + 2);
 
         for (
             let i = sp1.index + 1;
             i != sp2.index + 1;
-            i = (i + 1) % this.vertex_count
+            i = (i + 1) % this.vertex_count()
         ) {
             guard();
             res.push(this.vertices[i]!);

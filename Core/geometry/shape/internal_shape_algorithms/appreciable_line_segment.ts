@@ -1,5 +1,6 @@
-// Sometimes line segments are just to short. This function returns a best line segment which has sufficient length
-// If there is a very small turn here however there can still be problems. Or if the line is to short
+// Sometimes line segments are just too short. This function returns a best line
+// segment which has sufficient length. If there is a very small turn here
+// however there can still be problems, or if the line is too short.
 
 import { Shape, Vector } from "../..";
 import { EPS } from "../../../numerics";
@@ -11,117 +12,143 @@ export function get_appreciable_line_segment(
     s: Polygon | Polyline,
     line_segment_index: number,
 ): LineSegment | null {
-    const vertices = s.as_polyline().vertices;
-    if (s instanceof Polygon) {
-        line_segment_index =
-            (s.vertex_count + (line_segment_index % s.vertex_count)) %
-            s.vertex_count;
-    }
-    if (line_segment_index > vertices.length - 2 || line_segment_index < 0)
+    if (s.is_empty()) {
         return null;
-
-    let left_right: [number, number] = [
-        line_segment_index,
-        line_segment_index + 1,
-    ];
-
-    if (
-        vertices[left_right[0]]!.distance(vertices[left_right[1]]!) > EPS.tiny
-    ) {
-        return [vertices[left_right[0]]!, vertices[left_right[1]]!];
     }
 
-    const center = Vector.add(
-        vertices[line_segment_index]!,
-        vertices[line_segment_index + 1]!,
-    ).scale(0.5);
+    const shape = s;
+    let left = line_segment_index % shape.linesegment_count();
+    if (left < 0) {
+        left += shape.linesegment_count();
+    }
+    let right = left + 1;
 
-    while (
-        left_right[0] > 0 &&
-        vertices[left_right[0]]!.distance(center) < EPS.tiny
-    ) {
-        left_right[0]--;
+    let max_iterations_left = shape.linesegment_count();
+
+    let vert_left = shape.vertex_at(left)!;
+    let vert_right = shape.vertex_at(right)!;
+
+    if (!vert_left.approx_equals(vert_right)) {
+        return [vert_left, vert_right];
     }
 
-    while (
-        left_right[1] < vertices.length - 1 &&
-        vertices[left_right[1]]!.distance(center) < EPS.tiny
-    ) {
-        left_right[1]++;
+    const center = Vector.lerp(vert_left, vert_right, 0.5);
+
+    while (max_iterations_left > 0 && vert_left.approx_equals(center)) {
+        const prev = prev_index(shape, left);
+        if (prev !== null) {
+            left = prev;
+            max_iterations_left -= 1;
+            vert_left = shape.vertex_at(left)!;
+        } else {
+            break;
+        }
     }
 
-    return [
-        Vector.lerp_abs(center, vertices[left_right[0]]!, EPS.tiny),
-        Vector.lerp_abs(center, vertices[left_right[1]]!, EPS.tiny),
-    ];
+    while (max_iterations_left > 0 && vert_right.approx_equals(center)) {
+        const next = next_index(shape, right);
+        if (next !== null) {
+            right = next;
+            max_iterations_left -= 1;
+            vert_right = shape.vertex_at(right)!;
+        } else {
+            break;
+        }
+    }
+
+    const res_left = center.approx_equals(vert_left)
+        ? vert_left
+        : Vector.lerp_abs(center, vert_left, EPS.tiny);
+
+    const res_right = center.approx_equals(vert_right)
+        ? vert_right
+        : Vector.lerp_abs(center, vert_right, EPS.tiny);
+
+    return [res_left, res_right];
 }
 
 export function get_appreciable_corner(
     s: Polygon | Polyline,
     at: number,
-): null | [[Vector, Vector], [Vector, Vector]] {
-    if (
-        s.is_empty() ||
-        next_index(s, at) === null ||
-        prev_index(s, at) === null
-    )
+): [[Vector, Vector], [Vector, Vector]] | null {
+    if (s.is_empty()) {
         return null;
+    }
 
-    const vertices = s.vertices;
-    const center = vertices[at]!;
+    const shape = s;
 
-    let left_right: [number, number] = [prev_index(s, at)!, next_index(s, at)!];
+    let left = prev_index(shape, at);
+    let right = next_index(shape, at);
 
-    if (
-        vertices[left_right[0]]!.distance(center) > EPS.tiny &&
-        vertices[left_right[1]]!.distance(center) > EPS.tiny
-    ) {
+    if (left === null || right === null) {
+        return null;
+    }
+
+    const center = shape.vertex_at(at)!;
+    let vert_left = shape.vertex_at(left)!;
+    let vert_right = shape.vertex_at(right)!;
+
+    if (!vert_left.approx_equals(center) && !vert_right.approx_equals(center)) {
         return [
-            [vertices[left_right[0]]!, center],
-            [center, vertices[left_right[1]]!],
+            [vert_left, center],
+            [center, vert_right],
         ];
     }
 
-    while (
-        vertices[left_right[0]]!.distance(center) < EPS.tiny &&
-        left_right[0] !== at
-    ) {
-        let p = prev_index(s, at);
-        if (!p) return null;
-        left_right[0] = p;
+    let max_iterations_left = shape.vertex_count();
+
+    while (max_iterations_left > 0 && vert_left.approx_equals(center)) {
+        const prev = prev_index(shape, left);
+        if (prev !== null) {
+            left = prev;
+            max_iterations_left -= 1;
+            vert_left = shape.vertex_at(left)!;
+        } else {
+            break;
+        }
     }
 
-    while (
-        vertices[left_right[1]]!.distance(center) < EPS.tiny &&
-        left_right[1] !== at
-    ) {
-        let p = next_index(s, at);
-        if (!p) return null;
-        left_right[1] = p;
+    while (max_iterations_left > 0 && vert_right.approx_equals(center)) {
+        const next = next_index(shape, right);
+        if (next !== null) {
+            right = next;
+            max_iterations_left -= 1;
+            vert_right = shape.vertex_at(right)!;
+        } else {
+            break;
+        }
     }
+
+    const res_left = center.approx_equals(vert_left)
+        ? vert_left
+        : Vector.lerp_abs(center, vert_left, EPS.tiny);
+
+    const res_right = center.approx_equals(vert_right)
+        ? vert_right
+        : Vector.lerp_abs(center, vert_right, EPS.tiny);
 
     return [
-        [vertices[left_right[0]]!, center],
-        [center, vertices[left_right[1]]!],
+        [res_left, center],
+        [center, res_right],
     ];
 }
 
-function next_index(s: Shape.Shape, current_index: number): null | number {
-    if (current_index < s.vertices.length - 1) {
+function next_index(s: Shape.Shape, current_index: number): number | null {
+    if (current_index + 1 < s.vertex_count()) {
         return current_index + 1;
-    }
-    if (s instanceof Polygon) {
+    } else if (s instanceof Polygon) {
         return 0;
+    } else {
+        return null;
     }
-    return null;
 }
 
-function prev_index(s: Shape.Shape, current_index: number): null | number {
+function prev_index(s: Shape.Shape, current_index: number): number | null {
     if (current_index > 0) {
         return current_index - 1;
+    } else if (s instanceof Polygon) {
+        return s.vertex_count() - 1;
+    } else {
+        return null;
     }
-    if (s instanceof Polygon) {
-        return s.vertices.length - 1;
-    }
-    return null;
 }

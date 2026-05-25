@@ -17,6 +17,11 @@ export class Polyline extends Shape {
         super(positions);
     }
 
+    vertex_at(pos: number): Vector | undefined {
+        const c = this.vertex_count();
+        return this.vertices[pos < 0 ? pos : pos + c];
+    }
+
     first() {
         if (this.positions.length == 0) return null;
         return new Vector(this.positions[0]!, this.positions[1]!);
@@ -30,19 +35,8 @@ export class Polyline extends Shape {
         );
     }
 
-    is_polygon() {
-        return (
-            this.positions.length < 1 ||
-            this.first()!.approx_equals(this.last()!)
-        );
-    }
-
-    is_polyline() {
-        return !this.is_polygon();
-    }
-
     to_polygon() {
-        if (this.vertex_count < 3) {
+        if (this.vertex_count() < 3) {
             return new Polygon(this.positions);
         }
 
@@ -53,7 +47,7 @@ export class Polyline extends Shape {
         return new Polygon(this.vertices);
     }
 
-    override proper_components(): [Polyline, ...Polygon[]] {
+    override proper_components(): any {
         throw new Error();
     }
 
@@ -65,7 +59,7 @@ export class Polyline extends Shape {
         from: Shape.ShapePositionDescriptor,
         to: Shape.ShapePositionDescriptor = "end",
     ): Polyline {
-        if (this.vertex_count == 0) return new Polyline(new Float64Array());
+        if (this.vertex_count() == 0) return new Polyline(new Float64Array());
 
         const sp1 = this.shape_point_descriptor_to_shape_position(from);
         const sp2 = this.shape_point_descriptor_to_shape_position(to);
@@ -92,7 +86,7 @@ export class Polyline extends Shape {
     map(
         fn: (vec: Vector, len_rel: number, len_abs: number) => Vector,
     ): Polyline {
-        const res: Vector[] = new Array(this.vertex_count);
+        const res: Vector[] = new Array(this.vertex_count());
 
         const ver = this.vertices;
         const l = this.length();
@@ -106,7 +100,7 @@ export class Polyline extends Shape {
     }
 
     is_straight(): boolean {
-        if (this.vertex_count < 2) {
+        if (this.vertex_count() < 2) {
             return false;
         }
 

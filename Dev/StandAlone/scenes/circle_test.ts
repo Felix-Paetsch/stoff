@@ -41,7 +41,7 @@ export default function () {
 
     Performance.time(() => {
         for (let i = 1; i < outlines.length; i++) {
-            console.log(curr_line.vertex_count, outlines[i]!.vertex_count);
+            console.log(curr_line.vertex_count(), outlines[i]!.vertex_count());
             Shape.closest_shape_positions(curr_line, outlines[i]!);
         }
     }, "Closest position");

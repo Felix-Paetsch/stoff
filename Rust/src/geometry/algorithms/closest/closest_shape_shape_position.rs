@@ -7,7 +7,7 @@ use crate::geometry::{
         shared::RecursiveLineBoundary,
     },
     length_map::LengthMap,
-    LineSegment, ShapePosition, ShapeT, Vector,
+    LineSegment, ShapePosition, ShapeT,
 };
 
 pub struct ClosestShapePositionsResult {
@@ -34,26 +34,20 @@ fn run_closest_shape_position_recursion(
     first: &impl ShapeT,
     second: &impl ShapeT,
 ) -> Option<ClosestShapePositionsResult> {
-    let first_polyline = first.clone_to_shape().into_polyline();
-    let vertices1 = first_polyline.vertices();
-
-    let second_polyline = second.clone_to_shape().into_polyline();
-    let vertices2 = second_polyline.vertices();
-
     let lengths1_map = LengthMap::new(first.lines());
     let lengths1 = lengths1_map.lengths();
     let lengths2_map = &LengthMap::new(second.lines());
     let lengths2 = lengths2_map.lengths();
 
     closest_shape_positions_recursion(
-        vertices1,
+        first,
         lengths1,
-        vertices2,
+        second,
         lengths2,
         RecursiveLineBoundary {
             vertex_index: 0,
             guaranteed_distance: closest_point_on_shape_with_length_map(
-                vertices1[0],
+                first.vertex_at(0),
                 second,
                 lengths2_map,
             )
@@ -61,9 +55,9 @@ fn run_closest_shape_position_recursion(
             .distance,
         },
         RecursiveLineBoundary {
-            vertex_index: vertices1.len() - 1,
+            vertex_index: first.looping_vertex_count() - 1,
             guaranteed_distance: closest_point_on_shape_with_length_map(
-                *vertices1.last().unwrap(),
+                first.vertex_at(first.looping_vertex_count() - 1),
                 second,
                 lengths2_map,
             )
@@ -78,9 +72,9 @@ fn run_closest_shape_position_recursion(
 // When this function is called we have already checked that the length from left to right is >=
 // best_distance_so_far
 fn closest_shape_positions_recursion(
-    vertices_sh1: &[Vector],
+    shape1: &impl ShapeT,
     lengths_sh1: &[f64],
-    vertices_sh2: &[Vector],
+    shape2: &impl ShapeT,
     lengths_sh2: &[f64],
     left_sh1: RecursiveLineBoundary,
     right_sh1: RecursiveLineBoundary,
@@ -92,26 +86,26 @@ fn closest_shape_positions_recursion(
 
     if left_sh1.vertex_index + 1 == right_sh1.vertex_index {
         let segment = LineSegment {
-            start: vertices_sh1[left_sh1.vertex_index],
-            end: vertices_sh1[right_sh1.vertex_index],
+            start: shape1.vertex_at(left_sh1.vertex_index),
+            end: shape1.vertex_at(right_sh1.vertex_index),
         };
 
         let closest_option = closest_linesegment_shape_position_with_length_map_recursion(
-            vertices_sh2,
+            shape2,
             lengths_sh2,
             RecursiveLineBoundary {
                 vertex_index: 0,
                 guaranteed_distance: closest::closest_point_on_linesegment(
                     segment,
-                    vertices_sh2[0],
+                    shape2.vertex_at(0),
                 )
                 .distance,
             },
             RecursiveLineBoundary {
-                vertex_index: vertices_sh2.len() - 1,
+                vertex_index: shape2.looping_vertex_count() - 1,
                 guaranteed_distance: closest::closest_point_on_linesegment(
                     segment,
-                    vertices_sh2[vertices_sh2.len() - 1],
+                    shape2.vertex_at(shape2.linesegment_count() - 1),
                 )
                 .distance,
             },
@@ -143,17 +137,18 @@ fn closest_shape_positions_recursion(
         return None;
     }
 
-    let middle_vertex = vertices_sh1[middle_index];
+    let middle_vertex = shape1.vertex_at(middle_index);
     let middle_closest_point = closest_point_on_shape_with_length_map_recursion(
-        vertices_sh2,
+        shape2,
         lengths_sh2,
         RecursiveLineBoundary {
             vertex_index: 0,
-            guaranteed_distance: middle_vertex.distance(vertices_sh2[0]),
+            guaranteed_distance: middle_vertex.distance(shape2.vertex_at(0)),
         },
         RecursiveLineBoundary {
-            vertex_index: vertices_sh2.len() - 1,
-            guaranteed_distance: middle_vertex.distance(vertices_sh2[vertices_sh2.len() - 1]),
+            vertex_index: shape2.looping_vertex_count() - 1,
+            guaranteed_distance: middle_vertex
+                .distance(shape2.vertex_at(shape2.looping_vertex_count() - 1)),
         },
         f64::min(
             left_sh1.guaranteed_distance - len_left_middle,
@@ -168,9 +163,9 @@ fn closest_shape_positions_recursion(
     };
 
     let pos_option_left = closest_shape_positions_recursion(
-        vertices_sh1,
+        shape1,
         lengths_sh1,
-        vertices_sh2,
+        shape2,
         lengths_sh2,
         left_sh1,
         middle,
@@ -179,9 +174,9 @@ fn closest_shape_positions_recursion(
 
     let Some(pos1) = &pos_option_left else {
         return closest_shape_positions_recursion(
-            vertices_sh1,
+            shape1,
             lengths_sh1,
-            vertices_sh2,
+            shape2,
             lengths_sh2,
             middle,
             right_sh1,
@@ -190,9 +185,9 @@ fn closest_shape_positions_recursion(
     };
 
     closest_shape_positions_recursion(
-        vertices_sh1,
+        shape1,
         lengths_sh1,
-        vertices_sh2,
+        shape2,
         lengths_sh2,
         middle,
         right_sh1,

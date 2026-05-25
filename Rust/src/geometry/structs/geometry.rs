@@ -121,7 +121,7 @@ impl From<&Geometry> for Vec<f64> {
         match geometry {
             Geometry::Point(vertex) => vec![0.0, vertex.x(), vertex.y()],
             Geometry::Polyline(polyline) => {
-                let mut values = Vec::with_capacity(1 + polyline.vertices().len() * 2);
+                let mut values = Vec::with_capacity(1 + polyline.vertex_count() * 2);
                 values.push(1.0);
 
                 for vertex in polyline.vertices() {
@@ -132,7 +132,7 @@ impl From<&Geometry> for Vec<f64> {
                 values
             }
             Geometry::Polygon(polygon) => {
-                let mut values = Vec::with_capacity(1 + polygon.vertices().len() * 2);
+                let mut values = Vec::with_capacity(1 + polygon.vertex_count() * 2);
                 values.push(2.0);
 
                 for vertex in polygon.vertices() {

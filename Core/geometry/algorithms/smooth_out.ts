@@ -20,8 +20,7 @@ function polyline_smooth_out(
 ): Polyline {
     const step = sample_spacing ?? CONF.DEFAULT_LINE_SEGMENT_LENGTH;
 
-    if (line.vertex_count === 0) return Polyline.empty();
-    if (line.vertex_count === 1) return line;
+    if (line.vertex_count() < 2) return line;
 
     const pts = line.vertices;
 
@@ -117,7 +116,7 @@ function polygon_smooth_out(
 ): Polygon {
     const step = sample_spacing ?? CONF.DEFAULT_LINE_SEGMENT_LENGTH;
 
-    if (gon.vertex_count < 2) return gon;
+    if (gon.vertex_count() < 2) return gon;
 
     const pts = gon.vertices;
     const n = pts.length;

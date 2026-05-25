@@ -33,6 +33,27 @@ pub trait ShapeT: Sized {
         }
     }
 
+    fn looping_vertex_count(&self) -> usize {
+        if self.is_empty() {
+            return 0;
+        }
+
+        if self.is_polyline() {
+            self.vertex_count()
+        } else {
+            self.vertex_count() + 1
+        }
+    }
+
+    #[allow(unused)]
+    fn vertices_looping(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
+        if self.is_empty() {
+            self.vertices()
+        } else {
+            Box::new(self.vertices().chain(std::iter::once(self.vertex_at(0))))
+        }
+    }
+
     fn linesegment_count(&self) -> usize {
         if self.is_empty() {
             return 0;
@@ -101,6 +122,7 @@ pub trait ShapeT: Sized {
         current_len
     }
 
+    #[allow(unused)]
     fn clone_to_shape(&self) -> Shape {
         if self.is_polyline() {
             Shape::Polyline(Polyline::new(self.vertices().collect()))

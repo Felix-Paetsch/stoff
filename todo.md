@@ -1,3 +1,6 @@
+2. Debug Rust
+
+
 ## Todo
 
 Bundle the package
@@ -84,6 +87,7 @@ Integrate algorithms into Core. Check out curvature..
 - two types of algorithms, those used internally and put onto thing as method and those exported
 Put sketch and so on behind a "."?
 THings that take in x,y should take in vec? or Not?
+Polyline proper components
 - only when it is a vec indeed
 Shape.Sample to Shape.Sample at?
 Better names e.g. for ts side of rust wasm

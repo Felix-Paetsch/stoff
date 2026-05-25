@@ -69,6 +69,8 @@ export abstract class Shape {
         }
     }
 
+    abstract vertex_at(pos: number): Vector | undefined;
+
     get vertices(): Vector[] {
         if (this._vertices) return this._vertices;
 
@@ -132,7 +134,15 @@ export abstract class Shape {
         return this as any;
     }
 
-    get vertex_count(): number {
+    is_polygon(): this is Polygon {
+        return this instanceof Polygon;
+    }
+
+    is_polyline(): this is Polyline {
+        return !this.is_polygon();
+    }
+
+    vertex_count(): number {
         if (this._vertices) {
             return this._vertices.length;
         }
@@ -140,13 +150,19 @@ export abstract class Shape {
         return this._positions!.length / 2;
     }
 
+    linesegment_count(): number {
+        if (this.is_empty()) return 0;
+        if (this.is_polyline()) return this.vertex_count() - 1;
+        return this.vertex_count();
+    }
+
     is_empty(): boolean {
-        return this.vertex_count == 0;
+        return this.vertex_count() == 0;
     }
 
     is_convex(): boolean {
         const l = this.as_polygon();
-        if (l.vertex_count < 3) {
+        if (l.vertex_count() < 3) {
             return true;
         }
 
@@ -176,7 +192,7 @@ export abstract class Shape {
 
     is_strictly_convex(): boolean {
         const l = this.as_polygon();
-        if (l.vertex_count < 3) {
+        if (l.vertex_count() < 3) {
             return false;
         }
 
@@ -382,7 +398,7 @@ export abstract class Shape {
         Shape.ShapePosition,
         Shape.ShapePosition,
     ][] {
-        if (this.vertex_count < 3) return [];
+        if (this.vertex_count() < 3) return [];
         let r = wasm_geometry_shape_self_intersections(this.to_wasm_vecf64());
         return decode_intersection_positions(r!);
     }
@@ -411,7 +427,7 @@ export abstract class Shape {
     }
 
     self_intersects(): boolean {
-        if (this.vertex_count < 3) return false;
+        if (this.vertex_count() < 3) return false;
         let r = wasm_geometry_shape_self_intersects(this.to_wasm_vecf64());
         return r || false;
     }
@@ -454,7 +470,7 @@ export abstract class Shape {
     shape_point_descriptor_to_shape_position(
         d: Shape.ShapePositionDescriptor,
     ): Shape.ShapePosition | null {
-        if (this.vertex_count == 0) return null;
+        if (this.vertex_count() == 0) return null;
         if (d instanceof Vector) return this.closest_shape_position(d);
         if (typeof d == "number") return this.shape_position_at_length(d);
         if (d == "start") {
@@ -464,7 +480,7 @@ export abstract class Shape {
                 frac: 0,
             };
         }
-        if (this.vertex_count == 1) {
+        if (this.vertex_count() == 1) {
             return {
                 vec: this.vertices[0]!,
                 index: 0,
@@ -475,14 +491,14 @@ export abstract class Shape {
             if (this instanceof Polyline) {
                 return {
                     vec: this.last()!,
-                    index: this.vertex_count - 2,
+                    index: this.vertex_count() - 2,
                     frac: 1,
                 };
             }
 
             return {
                 vec: this.vertices[0]!,
-                index: this.vertex_count - 1,
+                index: this.vertex_count() - 1,
                 frac: 1,
             };
         }

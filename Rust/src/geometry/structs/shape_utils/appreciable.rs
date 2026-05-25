@@ -2,93 +2,123 @@ use crate::{geometry::*, numerics::eps::EPS_ABS};
 
 pub fn appreciable_line_segment(
     shape: &impl ShapeT,
-    mut line_segment_index: usize,
+    line_segment_index: usize,
 ) -> Option<LineSegment> {
-    let vertices = shape.vertices();
-
-    if vertices.len() < 2 {
-        return None;
-    }
-
-    if shape.is_polygon() {
-        line_segment_index =
-            (vertices.len() + (line_segment_index % vertices.len())) % vertices.len();
-    }
-
-    if line_segment_index >= vertices.len().saturating_sub(1) {
-        return None;
-    }
-
-    let mut left = line_segment_index;
-    let mut right = line_segment_index + 1;
-
-    if !vertices[left].approx_equals(vertices[right]) {
-        return Some(LineSegment::new(vertices[left], vertices[right]));
-    }
-
-    let center = Vector::lerp(vertices[left], vertices[right], 0.5);
-
-    while left > 0 && vertices[left].approx_equals(center) {
-        left -= 1;
-    }
-
-    while right + 1 < vertices.len() && vertices[right].approx_equals(center) {
-        right += 1;
-    }
-
-    Some(LineSegment::new(
-        Vector::lerp(center, vertices[left], EPS_ABS),
-        Vector::lerp(center, vertices[right], EPS_ABS),
-    ))
-}
-
-#[allow(dead_code)]
-pub fn appreciable_corner(shape: &impl ShapeT, at: usize) -> Option<(LineSegment, LineSegment)> {
-    let vertices = shape.vertices();
-
     if shape.is_empty() {
         return None;
     }
 
-    let center = *vertices.get(at)?;
-    let mut left = prev_index(shape, at)?;
-    let mut right = next_index(shape, at)?;
+    let mut left = line_segment_index % shape.linesegment_count();
+    let mut right = left + 1;
 
-    if !vertices[left].approx_equals(center) && !vertices[right].approx_equals(center) {
+    let mut max_iterations_left = shape.linesegment_count();
+
+    let mut vert_left = shape.vertex_at(left);
+    let mut vert_right = shape.vertex_at(right);
+
+    if !vert_left.approx_equals(vert_right) {
+        return Some(LineSegment::new(vert_left, vert_right));
+    }
+
+    let center = Vector::lerp(vert_left, vert_right, 0.5);
+
+    while max_iterations_left > 0 && vert_left.approx_equals(center) {
+        if let Some(prev) = prev_index(shape, left) {
+            left = prev;
+            max_iterations_left -= 1;
+            vert_left = shape.vertex_at(left)
+        } else {
+            break;
+        }
+    }
+
+    while max_iterations_left > 0 && vert_right.approx_equals(center) {
+        if let Some(next) = next_index(shape, right) {
+            right = next;
+            max_iterations_left -= 1;
+            vert_right = shape.vertex_at(right)
+        } else {
+            break;
+        }
+    }
+
+    let res_left = if center.approx_equals(vert_left) {
+        vert_left
+    } else {
+        Vector::lerp_abs(center, vert_left, EPS_ABS)
+    };
+    let res_right = if center.approx_equals(vert_right) {
+        vert_right
+    } else {
+        Vector::lerp_abs(center, vert_right, EPS_ABS)
+    };
+
+    Some(LineSegment::new(res_left, res_right))
+}
+
+#[allow(dead_code)]
+pub fn appreciable_corner(shape: &impl ShapeT, at: usize) -> Option<(LineSegment, LineSegment)> {
+    if shape.is_empty() {
+        return None;
+    }
+
+    let center_index = at % shape.vertex_count();
+    let mut left = prev_index(shape, center_index)?;
+    let mut right = next_index(shape, center_index)?;
+
+    let center = shape.vertex_at(center_index);
+    let mut vert_left = shape.vertex_at(left);
+    let mut vert_right = shape.vertex_at(right);
+
+    if !vert_left.approx_equals(center) && !vert_right.approx_equals(center) {
         return Some((
-            LineSegment {
-                start: vertices[left],
-                end: center,
-            },
-            LineSegment {
-                start: center,
-                end: vertices[right],
-            },
+            LineSegment::new(vert_left, center),
+            LineSegment::new(center, vert_right),
         ));
     }
 
-    while vertices[left].approx_equals(center) && left != at {
-        left = prev_index(shape, left)?;
+    let mut max_iterations_left = shape.vertex_count();
+
+    while max_iterations_left > 0 && vert_left.approx_equals(center) {
+        if let Some(prev) = prev_index(shape, left) {
+            left = prev;
+            max_iterations_left -= 1;
+            vert_left = shape.vertex_at(left);
+        } else {
+            break;
+        }
     }
 
-    while vertices[right].approx_equals(center) && right != at {
-        right = next_index(shape, right)?;
+    while max_iterations_left > 0 && vert_right.approx_equals(center) {
+        if let Some(next) = next_index(shape, right) {
+            right = next;
+            max_iterations_left -= 1;
+            vert_right = shape.vertex_at(right);
+        } else {
+            break;
+        }
     }
+
+    let res_left = if center.approx_equals(vert_left) {
+        vert_left
+    } else {
+        Vector::lerp_abs(center, vert_left, EPS_ABS)
+    };
+
+    let res_right = if center.approx_equals(vert_right) {
+        vert_right
+    } else {
+        Vector::lerp_abs(center, vert_right, EPS_ABS)
+    };
 
     Some((
-        LineSegment {
-            start: vertices[left],
-            end: center,
-        },
-        LineSegment {
-            start: center,
-            end: vertices[right],
-        },
+        LineSegment::new(res_left, center),
+        LineSegment::new(center, res_right),
     ))
 }
 
 fn next_index(shape: &impl ShapeT, current_index: usize) -> Option<usize> {
-    if current_index + 1 < shape.vertices().len() {
+    if current_index + 1 < shape.vertex_count() {
         Some(current_index + 1)
     } else if shape.is_polygon() {
         Some(0)
@@ -101,7 +131,7 @@ fn prev_index(shape: &impl ShapeT, current_index: usize) -> Option<usize> {
     if current_index > 0 {
         Some(current_index - 1)
     } else if shape.is_polygon() {
-        Some(shape.vertices().len() - 1)
+        Some(shape.vertex_count() - 1)
     } else {
         None
     }

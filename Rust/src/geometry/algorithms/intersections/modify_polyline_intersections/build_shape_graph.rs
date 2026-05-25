@@ -331,7 +331,6 @@ pub fn compute_line_segments(
             subline.extend(
                 polyline
                     .vertices()
-                    .iter()
                     .skip(a.index() + 1)
                     .take(b.index().saturating_sub(a.index())),
             );
