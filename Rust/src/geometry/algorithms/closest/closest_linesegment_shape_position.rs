@@ -1,7 +1,13 @@
 use crate::geometry::{
-    algorithms::closest::{
-        closest_linesegment_linesegment::closest_linesegment_points,
-        closest_linesegment_point::closest_point_on_linesegment, shared::RecursiveLineBoundary,
+    algorithms::{
+        closest::{
+            closest_linesegment_linesegment::closest_linesegment_points,
+            closest_point_on_linesegment,
+        },
+        length_recursion::{
+            index::{half_shape, initial_recursion_data, shape_cant_get_within_x},
+            types::LengthRecursionData,
+        },
     },
     length_map::LengthMap,
     LineSegment, ShapePosition, ShapeT,
@@ -52,58 +58,50 @@ pub fn closest_linesegment_shape_position_with_length_map(
     let lengths = length_map.lengths();
     closest_linesegment_shape_position_with_length_map_recursion(
         shape,
-        lengths,
-        RecursiveLineBoundary {
-            vertex_index: 0,
-            guaranteed_distance: closest_point_on_linesegment(*ls, shape.vertex_at(0)).distance,
-        },
-        RecursiveLineBoundary {
-            vertex_index: shape.looping_vertex_count() - 1,
-            guaranteed_distance: closest_point_on_linesegment(
-                *ls,
-                shape.vertex_at(shape.looping_vertex_count() - 1),
-            )
-            .distance,
-        },
+        initial_recursion_data(shape, lengths, |v| {
+            closest_point_on_linesegment(*ls, v).distance
+        }),
         f64::INFINITY,
         ls,
-        ls.length(),
     )
 }
 
 pub fn closest_linesegment_shape_position_with_length_map_recursion(
     shape: &impl ShapeT,
-    lengths: &[f64],
-    left: RecursiveLineBoundary,
-    right: RecursiveLineBoundary,
+    rec_data: LengthRecursionData,
     best_dist_so_far: f64,
     segment: &LineSegment,
-    segment_len: f64,
 ) -> Option<ClosestLinesegmentToShapePosition> {
-    if best_dist_so_far == 0.0 {
+    if shape_cant_get_within_x(&rec_data, best_dist_so_far) || best_dist_so_far == 0.0 {
         return None;
     }
-    if left.vertex_index + 1 == right.vertex_index {
+
+    if rec_data.left.vertex_index + 1 == rec_data.right.vertex_index {
         let seg = LineSegment {
-            start: shape.vertex_at(left.vertex_index),
-            end: shape.vertex_at(right.vertex_index),
+            start: shape.vertex_at(rec_data.left.vertex_index),
+            end: shape.vertex_at(rec_data.right.vertex_index),
         };
 
         let closest = closest_linesegment_points(&seg, segment);
         return if closest.distance < best_dist_so_far {
             Some(ClosestLinesegmentToShapePosition {
-                shape_position: ShapePosition::new(left.vertex_index, closest.frac1, closest.v1),
+                shape_position: ShapePosition::new(
+                    rec_data.left.vertex_index,
+                    closest.frac1,
+                    closest.v1,
+                ),
                 distance: closest.distance,
                 linesegment_fraction: closest.frac2,
             })
         } else {
             None
         };
-    } else if left.vertex_index == right.vertex_index {
-        let closest = closest_point_on_linesegment(*segment, shape.vertex_at(left.vertex_index));
+    } else if rec_data.left.vertex_index == rec_data.right.vertex_index {
+        let closest =
+            closest_point_on_linesegment(*segment, shape.vertex_at(rec_data.left.vertex_index));
         return if closest.distance < best_dist_so_far {
             Some(ClosestLinesegmentToShapePosition {
-                shape_position: ShapePosition::new(left.vertex_index, 0.0, closest.vector),
+                shape_position: ShapePosition::new(rec_data.left.vertex_index, 0.0, closest.vector),
                 distance: closest.distance,
                 linesegment_fraction: closest.fraction,
             })
@@ -112,59 +110,31 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
         };
     }
 
-    let middle_index = (right.vertex_index + left.vertex_index) / 2;
-    let len_left_middle = lengths[middle_index] - lengths[left.vertex_index];
-    let len_middle_right = lengths[right.vertex_index] - lengths[middle_index];
-
-    if right.guaranteed_distance - len_middle_right - segment_len >= best_dist_so_far
-        || left.guaranteed_distance - len_left_middle - segment_len >= best_dist_so_far
-    {
-        return None;
-    }
-
-    let middle_distance =
-        closest_point_on_linesegment(*segment, shape.vertex_at(middle_index)).distance;
-    if middle_distance - len_middle_right - segment_len >= best_dist_so_far
-        || middle_distance - len_left_middle - segment_len >= best_dist_so_far
-    {
-        return None;
-    }
-
-    let middle = RecursiveLineBoundary {
-        vertex_index: middle_index,
-        guaranteed_distance: middle_distance,
-    };
+    let [left_half, right_half] = half_shape(shape, &rec_data, |v| {
+        closest_point_on_linesegment(*segment, v).distance
+    });
 
     let pos_option_left = closest_linesegment_shape_position_with_length_map_recursion(
         shape,
-        lengths,
-        left,
-        middle,
+        left_half,
         best_dist_so_far,
         segment,
-        segment_len,
     );
 
     let Some(pos1) = &pos_option_left else {
         return closest_linesegment_shape_position_with_length_map_recursion(
             shape,
-            lengths,
-            middle,
-            right,
+            right_half,
             best_dist_so_far,
             segment,
-            segment_len,
         );
     };
 
     closest_linesegment_shape_position_with_length_map_recursion(
         shape,
-        lengths,
-        middle,
-        right,
+        right_half,
         pos1.distance,
         segment,
-        segment_len,
     )
     .or(pos_option_left)
 }

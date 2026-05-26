@@ -4,7 +4,7 @@ import {
     wasm_geometry_geometries_intersect,
     wasm_geometry_shape_intersections,
     wasm_geometry_shape_self_intersections,
-    wasm_geometry_shape_self_intersects,
+        wasm_geometry_shape_self_intersects,
     WASMCompatability,
 } from "Rust/exports";
 import { BoundingBox } from "../bounding_box";

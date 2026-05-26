@@ -12,6 +12,8 @@ Build Merge Shapes method
     - remember positions before merging and then merging in one swoop
 
 Improve Intersection method with recursion trick
+Shape Recursion utils for algorithms
+- at least types
 
 -----------
 
@@ -288,6 +290,7 @@ http://n-e-r-v-o-u-s.com/kinematicsCloth/
 - use b-trees for nearest positions, shape intersections
 - try brute force method on ends of recursions
 - subpolyline / readonly polyline
+- technically closest shapeshape could be made faster by halfing both shapes in the main recursion step like with intersections
 
 # Unstructured
 

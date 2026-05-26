@@ -1,91 +1,69 @@
-use rstar::RTree;
 use wasm_bindgen::prelude::*;
 
 use crate::geometry::{
-    algorithms::intersections::utils::{
-        canonical_pair_intersection, deduped_intersections, flatten_intersections, is_shape_end,
-        segments_are_adjacent, shapes_are_parallel_at_position, IndexedSegment, Intersection,
+    algorithms::{
+        intersections::{
+            shape_intersections::find_shape_intersections_recursion,
+            utils::{deduped_self_intersections, flatten_intersections, Intersection},
+        },
+        length_recursion::{
+            index::{half_shape, initial_recursion_data},
+            types::{LengthRecursionData, RecursiveLineBoundary},
+        },
     },
-    Geometry, LineSegment, Shape, ShapeT,
+    length_map::LengthMap,
+    Geometry, Shape, ShapeT,
 };
 
 pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
-    let segment_count = shape.linesegment_count();
+    let length_map = LengthMap::new(shape.lines());
+    let intersections = find_self_intersections_recursion(
+        shape,
+        initial_recursion_data(shape, length_map.lengths(), |_| 0.0),
+    );
 
-    if segment_count < 3 {
-        return Vec::new();
+    deduped_self_intersections(intersections, length_map.lengths(), shape)
+}
+
+// Approach: Find intersections of left and right halfs as well as internal intersections
+// When checking left and right we can skip and additional index
+pub fn find_self_intersections_recursion(
+    shape: &impl ShapeT,
+    data: LengthRecursionData,
+) -> Vec<Intersection> {
+    if data.right.vertex_index - data.left.vertex_index <= 1 {
+        return vec![];
     }
 
-    let mut length = 0.0;
+    let halfed = half_shape(shape, &data, |_| 0.0);
+    let [left_half, right_half] = halfed;
 
-    let mut segments = Vec::with_capacity(segment_count);
-    let mut length_map: Vec<f64> = Vec::with_capacity(segment_count + 1);
-    length_map.push(0.0);
+    let mut self_intersections_left = find_self_intersections_recursion(shape, left_half);
+    let self_intersections_right = find_self_intersections_recursion(shape, right_half);
+    let inter_intersections = find_shape_intersections_recursion(
+        shape,
+        left_half,
+        shape,
+        LengthRecursionData {
+            lengths: data.lengths,
+            left: RecursiveLineBoundary {
+                vertex_index: right_half.left.vertex_index + 1,
+                guaranteed_distance: data.lengths[right_half.left.vertex_index + 1]
+                    - data.lengths[right_half.left.vertex_index],
+            },
+            right: right_half.right,
+        },
+    );
 
-    let lines = shape.lines();
-    for (i, segment) in lines.enumerate() {
-        length += segment.length();
-        length_map.push(length);
-
-        if segment.start.eq(&segment.end) {
-            continue;
-        }
-
-        segments.push(IndexedSegment {
-            index: i,
-            line: segment,
-        });
-    }
-
-    if segments.len() < 2 {
-        return Vec::new();
-    }
-
-    let is_polygon = shape.is_polygon();
-    let tree = RTree::bulk_load(segments.clone());
-
-    let mut intersections: Vec<Intersection> = Vec::new();
-
-    for seg1 in &segments {
-        let env = seg1.envelope_with_pad();
-
-        for seg2 in tree.locate_in_envelope_intersecting(&env) {
-            if seg2.index <= seg1.index {
-                continue;
-            }
-
-            if segments_are_adjacent(seg1, seg2, &length_map, is_polygon) {
-                continue;
-            }
-
-            if let Some(pt) = LineSegment::intersection(&seg1.line, &seg2.line) {
-                let Some(intersection) =
-                    canonical_pair_intersection(pt, seg1, seg2, true, shape, shape)
-                else {
-                    continue;
-                };
-
-                if is_shape_end(intersection[0], &length_map, shape)
-                    || is_shape_end(intersection[1], &length_map, shape)
-                    || !shapes_are_parallel_at_position(
-                        shape,
-                        intersection[0],
-                        shape,
-                        intersection[1],
-                    )
-                {
-                    intersections.push(intersection);
-                }
-            }
-        }
-    }
-
-    deduped_intersections(intersections, &length_map, &length_map, shape, shape)
+    self_intersections_left.extend(self_intersections_right);
+    self_intersections_left.extend(inter_intersections);
+    self_intersections_left
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_shape_self_intersections(shape_data: &[f64]) -> Vec<f64> {
-    let geom = Geometry::deserialize(shape_data);
+pub fn wasm_geometry_shape_self_intersections(geo: &[f64]) -> Vec<f64> {
+    let geom = Geometry::deserialize(geo);
+
     let shape = Shape::from_geometry(geom).unwrap();
 
     let intersections = find_self_intersections(&shape);

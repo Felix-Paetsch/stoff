@@ -4,7 +4,6 @@ mod closest_linesegment_shape_position;
 mod closest_point_shape_position;
 mod closest_positions_wasm;
 mod closest_shape_shape_position;
-mod shared;
 
 #[allow(unused)]
 pub use closest_linesegment_linesegment::{closest_linesegment_points, ClosestLineSegmentPoints};
@@ -23,3 +22,5 @@ pub use closest_point_shape_position::{
 };
 #[allow(unused)]
 pub use closest_shape_shape_position::{closest_shape_positions, ClosestShapePositionsResult};
+
+pub(super) use closest_point_shape_position::*;
