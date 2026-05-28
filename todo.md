@@ -106,7 +106,6 @@ Introduce readonly in return results/inputs
 - Introduce Type utils
 SVG parsing, getting lines from an svg
 Resampling strict keeping sharp corners
-
 ## Dev
 
 Render Output as video
@@ -294,6 +293,7 @@ http://n-e-r-v-o-u-s.com/kinematicsCloth/
 - subpolyline / readonly polyline
 - technically closest shapeshape could be made faster by halfing both shapes in the main recursion step like with intersections
 - evt. to deep recursions can lead to overflow
+- less recursion in hot paths
 
 # Unstructured
 

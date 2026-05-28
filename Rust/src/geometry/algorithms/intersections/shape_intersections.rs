@@ -24,7 +24,8 @@ pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> V
     let lm1 = LengthMap::new(shape1.lines());
     let lm2 = LengthMap::new(shape2.lines());
 
-    let intersections = find_shape_intersections_recursion(
+    let mut result: Vec<Intersection> = vec![];
+    find_shape_intersections_recursion(
         shape1,
         initial_recursion_data(shape1, lm1.lengths(), |v| {
             closest_point_on_shape_with_length_map(v, shape1, lm1.lengths())
@@ -37,9 +38,10 @@ pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> V
                 .unwrap()
                 .distance
         }),
+        &mut result,
     );
 
-    deduped_intersections(intersections, lm1.lengths(), lm2.lengths(), shape1, shape2)
+    deduped_intersections(result, lm1.lengths(), lm2.lengths(), shape1, shape2)
 }
 
 // We may assume both shapes have at least 2 vertices
@@ -48,12 +50,13 @@ pub fn find_shape_intersections_recursion(
     data1: LengthRecursionData,
     shape2: &impl ShapeT,
     data2: LengthRecursionData,
-) -> Vec<Intersection> {
+    result: &mut Vec<Intersection>,
+) {
     debug_assert_eq!(shape1.linesegment_count() + 1, data1.lengths.len());
     debug_assert_eq!(shape2.linesegment_count() + 1, data2.lengths.len());
 
     if shape_cant_get_within_x(&data1, 0.0) || shape_cant_get_within_x(&data2, 0.0) {
-        return vec![];
+        return;
     }
 
     // Note that single points will be caught in line segment intersections somewhere
@@ -62,10 +65,10 @@ pub fn find_shape_intersections_recursion(
         data2.right.vertex_index - data2.left.vertex_index,
     ) {
         // Reachable via external entry e.g. with self_intersections
-        (0, _) => return vec![],
-        (_, 0) => return vec![],
+        (0, _) => return,
+        (_, 0) => return,
         (1, 1) => {
-            return linesegment_linesegment_intersections(
+            if let Some(int) = linesegment_linesegment_intersections(
                 shape1,
                 &LineSegmentRecData {
                     segment: LineSegment {
@@ -84,7 +87,10 @@ pub fn find_shape_intersections_recursion(
                     left_index: data2.left.vertex_index,
                     lengths: data2.lengths,
                 },
-            )
+            ) {
+                result.push(int);
+            }
+            return;
         }
         (1, _) => {
             return linesegment_shape_intersections(
@@ -99,10 +105,11 @@ pub fn find_shape_intersections_recursion(
                 },
                 shape2,
                 data2,
-            )
+                result,
+            );
         }
         (_, 1) => {
-            let mut ints = linesegment_shape_intersections(
+            return linesegment_shape_intersections_flipped(
                 shape2,
                 &LineSegmentRecData {
                     segment: LineSegment {
@@ -114,21 +121,17 @@ pub fn find_shape_intersections_recursion(
                 },
                 shape1,
                 data1,
+                result,
             );
-            ints.iter_mut().for_each(|arr| arr.reverse());
-            return ints;
         }
         (_, _) => (),
     }
 
     let quatered = quater_shapes(shape1, &data1, shape2, &data2);
-    quatered
-        .into_iter()
-        .flat_map(|rec_data| {
-            let [first, second] = rec_data;
-            find_shape_intersections_recursion(shape1, first, shape2, second)
-        })
-        .collect()
+    quatered.into_iter().for_each(|rec_data| {
+        let [first, second] = rec_data;
+        find_shape_intersections_recursion(shape1, first, shape2, second, result)
+    })
 }
 
 struct LineSegmentRecData<'a> {
@@ -145,12 +148,13 @@ fn linesegment_shape_intersections(
     // Shape we want to find ls intestsection with
     sh: &impl ShapeT,
     rec_data: LengthRecursionData,
-) -> Vec<Intersection> {
+    result: &mut Vec<Intersection>,
+) {
     debug_assert_eq!(sh.linesegment_count() + 1, rec_data.lengths.len());
 
     match rec_data.right.vertex_index - rec_data.left.vertex_index {
         1 => {
-            return linesegment_linesegment_intersections(
+            if let Some(int) = linesegment_linesegment_intersections(
                 ls_sh,
                 ls,
                 sh,
@@ -162,7 +166,11 @@ fn linesegment_shape_intersections(
                     left_index: rec_data.left.vertex_index,
                     lengths: rec_data.lengths,
                 },
-            )
+            ) {
+                result.push(int);
+            }
+
+            return;
         }
         0 => unreachable!(),
         _ => (),
@@ -174,8 +182,52 @@ fn linesegment_shape_intersections(
 
     halfed
         .into_iter()
-        .flat_map(|rec_data| linesegment_shape_intersections(ls_sh, ls, sh, rec_data))
-        .collect()
+        .for_each(|rec_data| linesegment_shape_intersections(ls_sh, ls, sh, rec_data, result))
+}
+
+// Intersections: second belongs to linesegment, first to shape
+fn linesegment_shape_intersections_flipped(
+    // Shape belonging to ls
+    ls_sh: &impl ShapeT,
+    ls: &LineSegmentRecData,
+    // Shape we want to find ls intestsection with
+    sh: &impl ShapeT,
+    rec_data: LengthRecursionData,
+    result: &mut Vec<Intersection>,
+) {
+    debug_assert_eq!(sh.linesegment_count() + 1, rec_data.lengths.len());
+
+    match rec_data.right.vertex_index - rec_data.left.vertex_index {
+        1 => {
+            if let Some(int) = linesegment_linesegment_intersections(
+                sh,
+                &LineSegmentRecData {
+                    segment: LineSegment {
+                        start: sh.vertex_at(rec_data.left.vertex_index),
+                        end: sh.vertex_at(rec_data.right.vertex_index),
+                    },
+                    left_index: rec_data.left.vertex_index,
+                    lengths: rec_data.lengths,
+                },
+                ls_sh,
+                ls,
+            ) {
+                result.push(int);
+            }
+
+            return;
+        }
+        0 => unreachable!(),
+        _ => (),
+    };
+
+    let halfed = half_shape(sh, &rec_data, |v| {
+        closest_point_on_linesegment(ls.segment, v).distance
+    });
+
+    halfed
+        .into_iter()
+        .for_each(|rec_data| linesegment_shape_intersections(ls_sh, ls, sh, rec_data, result))
 }
 
 fn linesegment_linesegment_intersections(
@@ -183,7 +235,7 @@ fn linesegment_linesegment_intersections(
     ls1: &LineSegmentRecData,
     shape2: &impl ShapeT,
     ls2: &LineSegmentRecData,
-) -> Vec<Intersection> {
+) -> Option<Intersection> {
     if let Some(pt) = LineSegment::intersection(&ls1.segment, &ls2.segment) {
         let frac1 = ls1
             .segment
@@ -206,12 +258,12 @@ fn linesegment_linesegment_intersections(
             || is_shape_end(p2, ls2.lengths, shape2)
             || !shapes_are_parallel_at_position(shape1, p1, shape2, p2)
         {
-            vec![[p1, p2]]
+            Some([p1, p2])
         } else {
-            vec![]
+            None
         }
     } else {
-        vec![]
+        None
     }
 }
 
