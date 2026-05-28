@@ -25,7 +25,8 @@ impl<T: HasDistance> PartialOrd for HeapEntry<T> {
 
 impl<T: HasDistance> Ord for HeapEntry<T> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.2.distance().total_cmp(&other.2.distance())
+        // Rust in Max_Heap, so we want larger distance to be smaller
+        other.2.distance().total_cmp(&self.2.distance())
     }
 }
 

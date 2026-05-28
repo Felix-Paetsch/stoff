@@ -26,11 +26,32 @@ impl LineSegment {
         self.vector().length()
     }
 
+    pub fn try_project(&self, point: Vector) -> Option<ProjectionResult> {
+        let seg = self.end.subtract(self.start);
+        let seg_len2 = seg.length_squared();
+
+        let t = point.subtract(self.start).dot(seg) / seg_len2;
+        if !t.is_finite() {
+            return None;
+        }
+
+        let proj = Vector::lerp(self.start, self.end, t);
+        let d = point.distance(proj);
+
+        Some(ProjectionResult {
+            vertex: proj,
+            fraction: t,
+            distance: d,
+        })
+    }
+
     pub fn project(&self, point: Vector) -> ProjectionResult {
         let seg = self.end.subtract(self.start);
         let seg_len2 = seg.length_squared();
 
         let t = point.subtract(self.start).dot(seg) / seg_len2;
+        debug_assert!(t.is_finite());
+
         let proj = Vector::lerp(self.start, self.end, t);
         let d = point.distance(proj);
 
@@ -51,6 +72,10 @@ impl LineSegment {
 
     pub fn inverse_lerp(&self, v: Vector) -> f64 {
         self.project(v).fraction
+    }
+
+    pub fn try_inverse_lerp(&self, v: Vector) -> Option<f64> {
+        self.try_project(v).map(|a| a.fraction)
     }
 
     pub fn midpoint(&self) -> Vector {

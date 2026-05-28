@@ -8,7 +8,7 @@ use crate::geometry::{
         },
         length_recursion::{
             index::{half_shape, initial_recursion_data},
-            types::{LengthRecursionData, RecursiveLineBoundary},
+            types::LengthRecursionData,
         },
     },
     length_map::LengthMap,
@@ -42,20 +42,11 @@ pub fn find_self_intersections_recursion(
 
     let mut self_intersections_left = find_self_intersections_recursion(shape, left_half);
     let self_intersections_right = find_self_intersections_recursion(shape, right_half);
-    let inter_intersections = find_shape_intersections_recursion(
-        shape,
-        left_half,
-        shape,
-        LengthRecursionData {
-            lengths: data.lengths,
-            left: RecursiveLineBoundary {
-                vertex_index: right_half.left.vertex_index + 1,
-                guaranteed_distance: data.lengths[right_half.left.vertex_index + 1]
-                    - data.lengths[right_half.left.vertex_index],
-            },
-            right: right_half.right,
-        },
-    );
+
+    // Note that we autiomatically include the point just between the two halves.
+    // Probably not perf. critical
+    let inter_intersections =
+        find_shape_intersections_recursion(shape, left_half, shape, right_half);
 
     self_intersections_left.extend(self_intersections_right);
     self_intersections_left.extend(inter_intersections);

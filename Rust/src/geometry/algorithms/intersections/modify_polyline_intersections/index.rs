@@ -32,9 +32,6 @@ fn modify_polyline_intersections(l: &Polyline, edge_rule: NextEdgeRule) -> Polyl
         })
         .collect();
 
-    // let output = format!("========\n{:?}=====", shape_graph_with_orientation);
-    // console::log_1(&output.into());
-
     let mut max_iterations = shape_graph_with_orientation.len();
 
     loop {

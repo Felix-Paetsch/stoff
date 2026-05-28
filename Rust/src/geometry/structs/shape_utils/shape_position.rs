@@ -54,6 +54,20 @@ impl ShapePosition {
     ) -> Option<ShapePosition> {
         shape_position_from_descriptor(descr, shape)
     }
+
+    pub fn belongs_to_shape(&self, shape: &impl ShapeT) -> bool {
+        if self.start_index == 0 && shape.vertex_count() < 2 {
+            return true;
+        }
+
+        let actual_pos = Vector::lerp(
+            shape.vertex_at(self.start_index),
+            shape.vertex_at(self.start_index + 1),
+            self.fraction,
+        );
+
+        actual_pos.distance(actual_pos) < 0.00000001
+    }
 }
 
 impl PartialEq for ShapePosition {

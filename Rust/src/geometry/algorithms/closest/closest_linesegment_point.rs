@@ -1,6 +1,6 @@
 use crate::{
     geometry::{LineSegment, Vector},
-    numerics::eps::{clamp01_with_eps, scaled_epsilon},
+    numerics::eps::scaled_epsilon,
 };
 
 pub struct ClosestPointOnLinesegmentResult {
@@ -24,14 +24,10 @@ pub fn closest_point_on_linesegment(ls: LineSegment, p: Vector) -> ClosestPointO
         };
     }
 
-    let proj = ls.project(p);
-    let t = clamp01_with_eps(proj.fraction, eps).unwrap_or({
-        if proj.fraction > 1.0 {
-            1.0
-        } else {
-            0.0
-        }
-    });
+    let t = ls
+        .try_inverse_lerp(p)
+        .map(|v| v.clamp(0.0, 1.0))
+        .unwrap_or(0.5);
 
     let v = ls.lerp(t);
     let distance = p.distance(v);

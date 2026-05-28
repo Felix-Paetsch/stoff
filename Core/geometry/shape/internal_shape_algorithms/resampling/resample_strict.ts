@@ -7,6 +7,7 @@ import { Polyline } from "../../polyline";
 export function resample_strict<T extends Polygon | Polyline>(
     s: T,
     sample_spacing: number | null = null,
+    smoothness_angle: number = Math.PI,
 ): T {
     if (sample_spacing == null) {
         sample_spacing = CONF.DEFAULT_LINE_SEGMENT_LENGTH;
@@ -21,58 +22,122 @@ export function resample_strict<T extends Polygon | Polyline>(
     }
 
     const vertices = s.as_polyline().vertices;
-    const res: Vector[] = [vertices[0]!];
+    const lastIndex = vertices.length - 1;
 
-    let remaining = sample_spacing;
-    let current_left_index = 0;
-    let consumed_on_segment = 0;
+    if (lastIndex < 1) {
+        return s;
+    }
 
-    while (current_left_index < vertices.length - 1) {
-        const a = vertices[current_left_index]!;
-        const b = vertices[current_left_index + 1]!;
-        const d = a.distance(b);
+    const res: Vector[] = [];
+    const cornerIndices: number[] = [0];
 
-        if (d <= EPS.tiny) {
-            current_left_index++;
-            consumed_on_segment = 0;
+    // Find corners: interior vertices where the absolute turning angle
+    // between consecutive segments exceeds smoothness_angle.
+    for (let i = 1; i < lastIndex; i++) {
+        const prev = vertices[i - 1]!;
+        const curr = vertices[i]!;
+        const next = vertices[i + 1]!;
+
+        const v1 = curr.subtract(prev);
+        const v2 = next.subtract(curr);
+
+        if (
+            v1.length_squared() <= EPS.tiny ||
+            v2.length_squared() <= EPS.tiny
+        ) {
             continue;
         }
 
-        const remaining_on_segment = d - consumed_on_segment;
+        let angle = Vector.angle_clockwise(v1, v2, "minusPiToPi");
+        angle = Math.abs(angle);
 
-        if (remaining_on_segment + EPS.tiny < remaining) {
-            current_left_index++;
-            remaining -= remaining_on_segment;
-            consumed_on_segment = 0;
-            continue;
-        }
-
-        const candidate = Vector.lerp_abs(
-            a,
-            b,
-            consumed_on_segment + remaining,
-        );
-
-        const last = res[res.length - 1]!;
-
-        if (!last.approx_equals(candidate)) {
-            res.push(candidate);
-        }
-
-        consumed_on_segment += remaining;
-        remaining = sample_spacing;
-
-        if (d - consumed_on_segment <= EPS.tiny) {
-            current_left_index++;
-            consumed_on_segment = 0;
+        if (angle > smoothness_angle) {
+            cornerIndices.push(i);
         }
     }
 
-    const end = vertices[vertices.length - 1]!;
-    const last = res[res.length - 1]!;
+    cornerIndices.push(lastIndex);
 
-    if (!last.approx_equals(end)) {
-        res.push(end);
+    // Resample each corner-to-corner chunk independently.
+    // Each chunk keeps both endpoints, and intermediate samples are spaced
+    // evenly with spacing <= sample_spacing.
+    for (let cornerIdx = 0; cornerIdx < cornerIndices.length - 1; cornerIdx++) {
+        const startIndex = cornerIndices[cornerIdx]!;
+        const endIndex = cornerIndices[cornerIdx + 1]!;
+
+        // Compute total arc length of this chunk.
+        let totalLength = 0;
+        for (let i = startIndex; i < endIndex; i++) {
+            totalLength += vertices[i]!.distance(vertices[i + 1]!);
+        }
+
+        if (res.length === 0) {
+            res.push(vertices[startIndex]!);
+        } else {
+            const last = res[res.length - 1]!;
+            if (!last.approx_equals(vertices[startIndex]!)) {
+                res.push(vertices[startIndex]!);
+            }
+        }
+
+        if (totalLength <= EPS.tiny) {
+            const end = vertices[endIndex]!;
+            const last = res[res.length - 1]!;
+            if (!last.approx_equals(end)) {
+                res.push(end);
+            }
+            continue;
+        }
+
+        // Number of subsegments so that spacing is <= sample_spacing.
+        const segmentCount = Math.max(
+            1,
+            Math.ceil(totalLength / sample_spacing),
+        );
+        const actualSpacing = totalLength / segmentCount;
+
+        let targetDist = actualSpacing;
+        let accumulatedBeforeSegment = 0;
+
+        for (
+            let i = startIndex;
+            i < endIndex && targetDist < totalLength - EPS.tiny;
+            i++
+        ) {
+            const a = vertices[i]!;
+            const b = vertices[i + 1]!;
+            const segLen = a.distance(b);
+
+            if (segLen <= EPS.tiny) {
+                continue;
+            }
+
+            const segmentEndDist = accumulatedBeforeSegment + segLen;
+
+            while (targetDist < segmentEndDist + EPS.tiny) {
+                if (targetDist >= totalLength - EPS.tiny) {
+                    break;
+                }
+
+                const localDist = targetDist - accumulatedBeforeSegment;
+                const candidate = Vector.lerp_abs(a, b, localDist);
+                const last = res[res.length - 1]!;
+
+                if (!last.approx_equals(candidate)) {
+                    res.push(candidate);
+                }
+
+                targetDist += actualSpacing;
+            }
+
+            accumulatedBeforeSegment = segmentEndDist;
+        }
+
+        const end = vertices[endIndex]!;
+        const last = res[res.length - 1]!;
+        if (!last.approx_equals(end)) {
+            res.push(end);
+        }
     }
 
     if (s instanceof Polygon) {

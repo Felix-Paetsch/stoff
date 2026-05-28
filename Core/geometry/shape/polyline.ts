@@ -142,8 +142,11 @@ export class Polyline extends Shape {
         return resample(this, sample_spacing);
     }
 
-    resample_strict(sample_spacing: number | null = null): Polyline {
-        return resample_strict(this, sample_spacing);
+    resample_strict(
+        sample_spacing: number | null = null,
+        smoothness_angle: number = Math.PI,
+    ): Polyline {
+        return resample_strict(this, sample_spacing, smoothness_angle);
     }
 
     simplify(): Polyline {

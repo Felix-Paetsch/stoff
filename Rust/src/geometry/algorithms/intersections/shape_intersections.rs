@@ -61,6 +61,9 @@ pub fn find_shape_intersections_recursion(
         data1.right.vertex_index - data1.left.vertex_index,
         data2.right.vertex_index - data2.left.vertex_index,
     ) {
+        // Reachable via external entry e.g. with self_intersections
+        (0, _) => return vec![],
+        (_, 0) => return vec![],
         (1, 1) => {
             return linesegment_linesegment_intersections(
                 shape1,
@@ -115,9 +118,6 @@ pub fn find_shape_intersections_recursion(
             ints.iter_mut().for_each(|arr| arr.reverse());
             return ints;
         }
-        // Reachable via external entry e.g. with self_intersections
-        (0, _) => return vec![],
-        (_, 0) => return vec![],
         (_, _) => (),
     }
 
@@ -185,11 +185,22 @@ fn linesegment_linesegment_intersections(
     ls2: &LineSegmentRecData,
 ) -> Vec<Intersection> {
     if let Some(pt) = LineSegment::intersection(&ls1.segment, &ls2.segment) {
-        let frac1 = ls1.segment.inverse_lerp(pt).clamp(0.0, 1.0);
-        let frac2 = ls2.segment.inverse_lerp(pt).clamp(0.0, 1.0);
+        let frac1 = ls1
+            .segment
+            .try_inverse_lerp(pt)
+            .map(|v| v.clamp(0.0, 1.0))
+            .unwrap_or(0.5);
+        let frac2 = ls2
+            .segment
+            .try_inverse_lerp(pt)
+            .map(|v| v.clamp(0.0, 1.0))
+            .unwrap_or(0.5);
 
         let p1 = ShapePosition::new(ls1.left_index, frac1, pt);
         let p2 = ShapePosition::new(ls2.left_index, frac2, pt);
+
+        debug_assert!(p1.belongs_to_shape(shape1));
+        debug_assert!(p2.belongs_to_shape(shape2));
 
         if is_shape_end(p1, ls1.lengths, shape1)
             || is_shape_end(p2, ls2.lengths, shape2)

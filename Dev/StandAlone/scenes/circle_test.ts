@@ -1,71 +1,40 @@
-import { GeometryAlgorithms, Polygon } from "@/Core/geometry";
-import { GridAlgorithms, NumberGrid } from "@/Core/grid";
-import { Sketch } from "@/Core/sketch";
-import { Performance } from "@/Dev";
+import { FiniteGeometry, GeometryAlgorithms, Polygon } from "@/Core/geometry";
+import { Sketch, SketchRendering } from "@/Core/sketch";
 import { Vector } from "Core/geometry/vector";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 
 export default function () {
-    const num_grid = NumberGrid.from_function(
-        [-2, -2, 4, 4],
-        [500, 500],
-        (c: Vector) => {
-            let z = Vector.ZERO;
+    let circles: Polygon[] = [];
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            circles.push(
+                FiniteGeometry.circle(new Vector(i, j), 0.8).resample(0.3),
+            );
+        }
+    }
 
-            for (let i = 0; i < 1000; i++) {
-                z = z.cplx_mult(z).add(c);
-                if (z.length_squared() > 4) return i;
-            }
-
-            return 1000;
-        },
-    );
-
-    num_grid.remap_domain_in_place([0, 0, 10, 10]);
-    // Out.file(Grid.GridRendering.number_grid_png(num_grid), "escape vel.png");
-
-    const outlines: Polygon[] = [];
     const s = new Sketch();
-    [1, 2, 3, 4, 5, 7, 9, 50, 1000].forEach((x) => {
-        const bool_grid = num_grid.map((v) => v >= x);
+    circles.forEach((c) => s.add_line(c));
 
-        const outline = GridAlgorithms.concave_outline(bool_grid, {
-            concavity: 1.2,
-        }); //.resample(1.3);
+    let merged = GeometryAlgorithms.merge_shapes(circles).remove_dubplicates();
+    let se = merged.self_intersection_positions();
 
-        s.add_line(outline);
-        outlines.push(outline);
+    se.forEach(([a, b]) => {
+        SketchRendering.set_styles(s.add_point(a.vec), {
+            fill: "red",
+            radius: 5,
+        });
+        SketchRendering.set_styles(s.add_point(b.vec), {
+            fill: "blue",
+            radius: 2,
+            stroke_width: 0,
+        });
     });
 
-    let res = Performance.time(
-        () => GeometryAlgorithms.merge_shapes(outlines),
-        "Merge",
-    );
+    merged = GeometryAlgorithms.walk_with_self_intersections(merged);
 
     const e = new Embroidery();
-    res = res.as_polygon().move_root([0.15, "relative"]);
-    const run = res.as_polyline().resample_strict(0.3);
-    e.run(run);
-    console.log(e.size());
+    e.run(merged.as_polyline().resample_strict(0.3, Math.PI / 4));
 
-    // const e = new Sketch();
-    // e.add_line(outlines[0]!);
-    // e.add_line(outlines[outlines.length - 1]!);
-    //
-    // const closest = Shape.closest_shape_positions(
-    //     outlines[0]!,
-    //     outlines[outlines.length - 1]!,
-    // )!;
-    // SketchRendering.set_fill(e.add_point(closest[0]!.vec), "red");
-    // SketchRendering.set_fill(e.add_point(closest[1]!.vec), "red");
-    //
-    // let presum_closer = outlines[0]!.vertices[23]!;
-    //
-    // let closest_pos =
-    //     outlines[outlines.length - 1]!.closest_shape_position(presum_closer)!;
-    // console.log(closest_pos, closest_pos.vec.distance(presum_closer));
-    //
-    // SketchRendering.set_fill(e.add_point(presum_closer), "green");
-
-    return [e, s];
+    return [s, e];
 }

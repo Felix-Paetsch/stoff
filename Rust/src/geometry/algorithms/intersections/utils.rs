@@ -12,8 +12,8 @@ fn lerp(a: f64, b: f64, t: f64) -> f64 {
 }
 
 fn length_along_shape_at_position(length_map: &[f64], p: ShapePosition) -> f64 {
-    debug_assert!(p.index() < length_map.len());
-    length_map[p.index()] + lerp(length_map[p.index()], length_map[p.index() + 1], p.frac())
+    debug_assert!(p.index() + 1 < length_map.len());
+    lerp(length_map[p.index()], length_map[p.index() + 1], p.frac())
 }
 
 pub fn is_shape_end(p: ShapePosition, length_map: &[f64], shape: &impl ShapeT) -> bool {

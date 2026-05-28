@@ -4,7 +4,7 @@ use petgraph::unionfind::UnionFind;
 
 use crate::geometry::algorithms::closest::{self, ClosestShapePositionsResult};
 use crate::geometry::algorithms::merge_shapes::merge_polylines::merge_polylines;
-use crate::geometry::algorithms::merge_shapes::utils::{
+use crate::geometry::algorithms::merge_shapes::min_distance::{
     BoundingBoxMinDistanceOptimization, HasDistance,
 };
 use crate::geometry::length_map::LengthMap;
@@ -26,15 +26,6 @@ struct ShapeMergingData {
 // Sould be good for maybe up to 1000 Shapes
 #[allow(unused)]
 pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
-    debug_assert!((|| {
-        for shape in shapes.iter() {
-            if shape.is_polyline() {
-                return false;
-            }
-        }
-        true
-    })());
-
     shapes.retain(|x| !x.is_empty());
     let n = shapes.len();
     if n == 0 {
@@ -174,12 +165,14 @@ pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
                     &merge_usize_data,
                     &merge_position.positions[1],
                 );
+                merge_pos_next_index = Some(i);
             } else if mp.s2_index == merge_position.s2_index {
                 mp.positions[1] = adjusted_res_shape_position(
                     mp.positions[1],
                     &merge_usize_data,
                     &merge_position.positions[1],
                 );
+                merge_pos_next_index = Some(i);
             }
 
             if mp.s1_index == merge_position.s1_index {
@@ -215,6 +208,8 @@ pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
             debug_assert_ne!(mp.s1_index, mp.s2_index);
         });
     }
+
+    debug_assert_eq!(merge_positions.len(), 0);
 
     if is_polyline {
         Shape::Polyline(Polyline::new(res))
