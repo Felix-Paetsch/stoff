@@ -25,14 +25,14 @@ pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon>
 }
 
 #[wasm_bindgen]
-pub fn wasm_geometry_buffer_geometries(geometries: &[f64], distance: f64) -> Option<Vec<f64>> {
-    let shapes = Geometry::vecf64_to_geometry_vec(geometries)?;
+pub fn wasm_geometry_buffer_geometries(geometries: &[f64], distance: f64) -> Vec<f64> {
+    let shapes = Geometry::vecf64_to_geometry_vec(geometries);
     let buffered: Vec<Geometry> = buffer_geometries(&shapes, distance)
         .into_iter()
         .map(Geometry::from)
         .collect();
 
-    Some(Geometry::geometry_vec_to_vecf64(&buffered))
+    Geometry::geometry_vec_to_vecf64(&buffered)
 }
 
 pub enum LineJoin {
@@ -93,8 +93,8 @@ pub fn wasm_geometry_buffer_geometries_with_style(
     join_value: f64,
     cap_style: u8,
     cap_value: f64,
-) -> Option<Vec<f64>> {
-    let shapes = Geometry::vecf64_to_geometry_vec(geometries)?;
+) -> Vec<f64> {
+    let shapes = Geometry::vecf64_to_geometry_vec(geometries);
     let join_style = match join_style {
         0 => LineJoin::Round(join_value),
         1 => LineJoin::Bevel,
@@ -115,5 +115,5 @@ pub fn wasm_geometry_buffer_geometries_with_style(
             .map(Geometry::from)
             .collect();
 
-    Some(Geometry::geometry_vec_to_vecf64(&buffered))
+    Geometry::geometry_vec_to_vecf64(&buffered)
 }

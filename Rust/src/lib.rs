@@ -9,3 +9,6 @@ mod geometry;
 mod graph;
 mod grid;
 mod numerics;
+
+#[allow(unused)]
+pub mod debug;

@@ -59,6 +59,8 @@ pub fn closest_point_on_shape_with_length_map_recursion(
     best_dist_so_far: f64,
     point: Vector,
 ) -> Option<ClosestPointOnShapeResult> {
+    debug_assert_eq!(shape.linesegment_count() + 1, rec_data.lengths.len());
+
     if shape_cant_get_within_x(&rec_data, best_dist_so_far) {
         return None;
     }

@@ -21,6 +21,8 @@ pub use closest_point_shape_position::{
     closest_point_on_shape, closest_point_on_shape_with_length_map, ClosestPointOnShapeResult,
 };
 #[allow(unused)]
-pub use closest_shape_shape_position::{closest_shape_positions, ClosestShapePositionsResult};
+pub use closest_shape_shape_position::{
+    closest_shape_positions, closest_shape_positions_with_length_maps, ClosestShapePositionsResult,
+};
 
 pub(super) use closest_point_shape_position::*;

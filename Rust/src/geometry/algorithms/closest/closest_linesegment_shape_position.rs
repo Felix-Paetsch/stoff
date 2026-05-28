@@ -72,6 +72,8 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
     best_dist_so_far: f64,
     segment: &LineSegment,
 ) -> Option<ClosestLinesegmentToShapePosition> {
+    debug_assert_eq!(shape.linesegment_count() + 1, rec_data.lengths.len());
+
     if shape_cant_get_within_x(&rec_data, best_dist_so_far) || best_dist_so_far == 0.0 {
         return None;
     }
@@ -101,7 +103,11 @@ pub fn closest_linesegment_shape_position_with_length_map_recursion(
             closest_point_on_linesegment(*segment, shape.vertex_at(rec_data.left.vertex_index));
         return if closest.distance < best_dist_so_far {
             Some(ClosestLinesegmentToShapePosition {
-                shape_position: ShapePosition::new(rec_data.left.vertex_index, 0.0, closest.vector),
+                shape_position: ShapePosition::new(
+                    rec_data.left.vertex_index,
+                    0.0,
+                    shape.vertex_at(rec_data.left.vertex_index),
+                ),
                 distance: closest.distance,
                 linesegment_fraction: closest.fraction,
             })

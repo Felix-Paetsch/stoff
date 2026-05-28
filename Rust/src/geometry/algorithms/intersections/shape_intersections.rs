@@ -49,6 +49,9 @@ pub fn find_shape_intersections_recursion(
     shape2: &impl ShapeT,
     data2: LengthRecursionData,
 ) -> Vec<Intersection> {
+    debug_assert_eq!(shape1.linesegment_count() + 1, data1.lengths.len());
+    debug_assert_eq!(shape2.linesegment_count() + 1, data2.lengths.len());
+
     if shape_cant_get_within_x(&data1, 0.0) || shape_cant_get_within_x(&data2, 0.0) {
         return vec![];
     }
@@ -106,8 +109,8 @@ pub fn find_shape_intersections_recursion(
                     left_index: data2.left.vertex_index,
                     lengths: data2.lengths,
                 },
-                shape2,
-                data2,
+                shape1,
+                data1,
             );
             ints.iter_mut().for_each(|arr| arr.reverse());
             return ints;
@@ -136,11 +139,15 @@ struct LineSegmentRecData<'a> {
 
 // Intersections: First belongs to linesegment, second to shape
 fn linesegment_shape_intersections(
+    // Shape belonging to ls
     ls_sh: &impl ShapeT,
     ls: &LineSegmentRecData,
+    // Shape we want to find ls intestsection with
     sh: &impl ShapeT,
     rec_data: LengthRecursionData,
 ) -> Vec<Intersection> {
+    debug_assert_eq!(sh.linesegment_count() + 1, rec_data.lengths.len());
+
     match rec_data.right.vertex_index - rec_data.left.vertex_index {
         1 => {
             return linesegment_linesegment_intersections(

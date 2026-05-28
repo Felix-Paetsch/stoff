@@ -1,3 +1,4 @@
+pub mod bounding_box;
 mod geometry;
 mod line_segment;
 mod polygon;

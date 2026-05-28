@@ -6,6 +6,7 @@ mod contains;
 mod convex_hull;
 mod intersections;
 mod length_recursion;
+mod merge_shapes;
 mod polygons_and_points;
 mod simplify;
 mod winding;

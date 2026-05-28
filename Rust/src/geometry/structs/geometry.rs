@@ -21,9 +21,9 @@ impl Geometry {
         out
     }
 
-    pub fn vecf64_to_geometry_vec(v: &[f64]) -> Option<Vec<Geometry>> {
+    pub fn vecf64_to_geometry_vec(v: &[f64]) -> Vec<Geometry> {
         if v.is_empty() {
-            return Some(Vec::new());
+            return Vec::new();
         }
 
         let mut result = Vec::new();
@@ -31,9 +31,7 @@ impl Geometry {
 
         for (i, value) in v.iter().enumerate() {
             if value.is_nan() {
-                if i == start {
-                    return None;
-                }
+                debug_assert_ne!(i, start);
 
                 let geometry = Geometry::from(&v[start..i]);
                 result.push(geometry);
@@ -41,14 +39,12 @@ impl Geometry {
             }
         }
 
-        if start == v.len() {
-            return None;
-        }
+        debug_assert_ne!(start, v.len());
 
         let geometry = Geometry::from(&v[start..]);
         result.push(geometry);
 
-        Some(result)
+        result
     }
 
     pub fn serialize(&self) -> Vec<f64> {

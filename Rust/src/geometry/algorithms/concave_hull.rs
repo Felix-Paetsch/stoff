@@ -106,10 +106,10 @@ pub fn wasm_geometry_concave_hull_geometries(
     coords: &[f64],
     concavity: f64,
     length_threshold: f64,
-) -> Option<Vec<f64>> {
-    let geometries = Geometry::vecf64_to_geometry_vec(coords)?;
+) -> Vec<f64> {
+    let geometries = Geometry::vecf64_to_geometry_vec(coords);
     let gon = concave_hull_with_options_geometries(&geometries, concavity, length_threshold);
 
     let geom = Geometry::from(gon);
-    Some(geom.serialize())
+    geom.serialize()
 }

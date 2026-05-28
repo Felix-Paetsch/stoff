@@ -1,4 +1,4 @@
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct RecursiveLineBoundary {
     pub vertex_index: usize,
     pub guaranteed_distance: f64,

@@ -146,7 +146,9 @@ Graph.remove_crossings (should also work when a point is on another pt; should a
 Space colonization
 Voroni
 Traveling salesman
+resample_strict should also have an angle argument.
 Shape packing (for putting onto fabric)
+Add vertex to shape in the easiest way (the base shape if it had to go through this vertex)
 Boolean grid clusters
 Boolean grid
 - and /or
@@ -291,6 +293,7 @@ http://n-e-r-v-o-u-s.com/kinematicsCloth/
 - try brute force method on ends of recursions
 - subpolyline / readonly polyline
 - technically closest shapeshape could be made faster by halfing both shapes in the main recursion step like with intersections
+- evt. to deep recursions can lead to overflow
 
 # Unstructured
 

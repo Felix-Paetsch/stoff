@@ -31,6 +31,8 @@ pub fn find_self_intersections_recursion(
     shape: &impl ShapeT,
     data: LengthRecursionData,
 ) -> Vec<Intersection> {
+    debug_assert_eq!(shape.linesegment_count() + 1, data.lengths.len());
+
     if data.right.vertex_index - data.left.vertex_index <= 1 {
         return vec![];
     }
