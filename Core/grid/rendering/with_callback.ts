@@ -1,5 +1,5 @@
 import { Image } from "@/Core/files";
-import * as Color from "Core/colors";
+import { Color } from "Core/colors";
 import { Grid } from "../grids/grid";
 import { GridValue } from "../grids/types";
 

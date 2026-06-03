@@ -1,6 +1,6 @@
-import { Json, Utils } from "@/Core";
 import { DST, Image, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
+import * as Utils from "Core/utils/index";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
 import * as path from "path";
@@ -11,7 +11,7 @@ import { file as put_as_file } from "./file";
 
 export type Putable =
     | Sketch
-    | Json
+    | Utils.Json
     | Recording
     | string
     | SVG_Builder

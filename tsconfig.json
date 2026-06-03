@@ -26,13 +26,16 @@
         "rootDir": "./",
         "baseUrl": "./",
         "paths": {
-            "@/Core": ["Core/index"],
-            "@/Core/files": ["Core/files"],
-            "@/Core/geometry": ["Core/geometry/index"],
-            "@/Core/sketch": ["Core/sketch/index"],
-            "@/Core/grid": ["Core/grid/index"],
-            "@/Core/graph": ["Core/graph/index"],
-            "@/Core/colors": ["Core/colors"],
+            "@/Core": ["Core/api/index"],
+            "@/Core/files": ["Core/api/files"],
+            "@/Core/geometry": ["Core/api/geometry"],
+            "@/Core/sketch": ["Core/api/sketch"],
+            "@/Core/grid": ["Core/api/grid"],
+            "@/Core/graph": ["Core/api/graph"],
+            "@/Core/colors": ["Core/api/colors"],
+            "@/Core/utils": ["Core/api/utils"],
+            "@/Core/expect": ["Core/api/expect"],
+            "@/Core/numerics": ["Core/api/numerics"],
 
             "@/Dev": ["Dev/Lib"]
         }

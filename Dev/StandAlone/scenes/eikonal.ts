@@ -1,4 +1,4 @@
-import * as Color from "@/Core/colors";
+import { Color } from "@/Core/colors";
 import {
     Grid,
     GridAlgorithms,

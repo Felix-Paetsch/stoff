@@ -1,7 +1,7 @@
 import { SVG_Builder } from "Core/files/index";
 import { BoundingBox, FiniteGeometry, Polygon } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
-import { Json } from "Core/types";
+import { Json } from "Core/utils/types";
 import { Line } from "../line";
 import { Point } from "../point";
 import { Sketch } from "../sketch";

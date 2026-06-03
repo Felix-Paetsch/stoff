@@ -1,6 +1,6 @@
 import { Polygon, Polyline, Vector } from "@/Core/geometry";
-import *  as Color from "../../colors";
-import { Json } from "../../types/json";
+import { Color } from "Core/colors";
+import { Json } from "../../utils/types/json";
 import { SVGGradient } from "./gradient";
 import * as RenderAttributes from "./render_attributes";
 

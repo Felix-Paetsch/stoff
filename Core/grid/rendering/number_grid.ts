@@ -1,5 +1,5 @@
+import { Color } from "Core/colors";
 import { Interval } from "Core/geometry/index";
-import * as Color from "../../colors";
 import { Grid } from "../grids/grid";
 import { render_with_callback } from "./with_callback";
 

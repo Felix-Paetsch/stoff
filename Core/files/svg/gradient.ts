@@ -1,4 +1,5 @@
-import { Color, Utils } from "@/Core";
+import { Color } from "Core/colors";
+import * as Utils from "Core/utils";
 import { BoundingBox, Interval, Radians, Vector } from "../../geometry";
 import { SVG_Builder } from "./svg_builder";
 

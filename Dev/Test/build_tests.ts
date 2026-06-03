@@ -1,8 +1,8 @@
 // Run all tests
 
-import { Json } from "@/Core";
 import { SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
+import { Json } from "@/Core/utils";
 import fs, { writeFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";

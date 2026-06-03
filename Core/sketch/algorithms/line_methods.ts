@@ -1,10 +1,11 @@
-import { EPS, Expect } from "@/Core";
 import { Line, Point } from "@/Core/sketch";
 import { Validate } from "@/Dev";
+import { Expect } from "Core/expect";
 import {
     interpolate_shapes,
     InterpolationFunctions,
 } from "Core/geometry/algorithms/interpolate";
+import { EPS } from "Core/numerics/eps";
 import { CONF } from "config";
 
 export type NumberFunction = (t: number) => number;

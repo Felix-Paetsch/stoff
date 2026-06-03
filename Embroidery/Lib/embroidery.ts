@@ -1,4 +1,3 @@
-import { Color } from "@/Core";
 import { DST } from "@/Core/files";
 import {
     BoundingBox,
@@ -8,6 +7,7 @@ import {
     Vector,
 } from "@/Core/geometry";
 import { Sketch } from "@/Core/sketch";
+import { Color } from "Core/colors";
 import { render_partial_embroidery_as_png } from "./render/entry";
 import { RenderEmbroideryArgs } from "./render/render_partial_embroidery_as_png";
 

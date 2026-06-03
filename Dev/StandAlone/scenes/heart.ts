@@ -1,4 +1,4 @@
-import { Color } from "@/Core";
+import { Color } from "@/Core/colors";
 import { Vector } from "@/Core/geometry";
 import { Line, Sketch, SketchAlgorithms, SketchRendering } from "@/Core/sketch";
 import { Performance } from "@/Dev";

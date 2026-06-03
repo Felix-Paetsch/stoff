@@ -1,6 +1,6 @@
 import { Graph } from "@/Core";
-import { GraphAlgorithms } from "@/Core/graph";
 import { Line, Point } from "@/Core/sketch";
+import { GraphAlgorithms } from "Core/graph/index";
 
 export function order_lines(...lines: Line[]): {
     lines: Line[];

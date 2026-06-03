@@ -1,7 +1,7 @@
 import { Expect } from "Core/expect";
 import { Interval, Vector } from "Core/geometry/index";
 import { EPS } from "Core/numerics/eps";
-import { AnyReturnTypeFunction } from "Core/types/distribution";
+import { AnyReturnTypeFunction } from "Core/utils/types/distribution";
 import {
     AssociatedGrid,
     GridValue,

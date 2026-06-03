@@ -1,4 +1,4 @@
-import * as Color from "@/Core/colors";
+import { Color } from "Core/colors";
 import { Line } from "../line";
 import { Point } from "../point";
 import { SketchElement } from "../types";

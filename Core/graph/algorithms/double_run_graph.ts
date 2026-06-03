@@ -1,10 +1,12 @@
-import { EPS, Graph } from "@/Core";
 import { LinearTransform, Polyline, Shape } from "@/Core/geometry";
 import { Vector } from "Core/geometry/vector";
+import { EPS } from "Core/numerics/eps";
+import { internal_is_vertex_graph, ShapeGraph, VertexGraph } from "../types";
 
-export function double_run_graph<
-    G extends Graph.VertexGraph | Graph.ShapeGraph,
->(graph: G, starting_at_node: number = 0): Polyline {
+export function double_run_graph<G extends VertexGraph | ShapeGraph>(
+    graph: G,
+    starting_at_node: number = 0,
+): Polyline {
     if (graph.is_empty() || starting_at_node >= graph.nodes.length) {
         return Polyline.empty();
     }
@@ -13,7 +15,7 @@ export function double_run_graph<
     const visited_edges = new Set<number>();
 
     path.push(graph.nodes[starting_at_node]!.data);
-    if (Graph.internal_is_vertex_graph(graph)) {
+    if (internal_is_vertex_graph(graph)) {
         traverse_vertex_graph(graph, starting_at_node, visited_edges, path);
     } else {
         traverse_shape_graph(graph, starting_at_node, visited_edges, path);
@@ -23,7 +25,7 @@ export function double_run_graph<
 }
 
 function traverse_vertex_graph(
-    graph: Graph.VertexGraph,
+    graph: VertexGraph,
     at: number,
     visited_edges: Set<number>,
     path: Vector[],
@@ -44,7 +46,7 @@ function traverse_vertex_graph(
 }
 
 function traverse_shape_graph(
-    graph: Graph.ShapeGraph,
+    graph: ShapeGraph,
     at: number,
     visited_edges: Set<number>,
     path: Vector[],

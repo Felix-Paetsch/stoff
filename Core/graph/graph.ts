@@ -1,4 +1,5 @@
-import { Expect, Types } from "@/Core";
+import { AsRestParameter, BaseAndIfThenAlso, Extends } from "@/Core/utils";
+import { Expect } from "Core/expect";
 
 export namespace Graph {
     export type Edge<EdgeData = undefined> = {
@@ -37,13 +38,13 @@ export class Graph<NodeData = undefined, EdgeData = undefined> {
         // - no edges; no need to pass any arguments
         // - edges with data: full fledge array of edgetype
         // - edges with no data -> [number, number] array is enough
-        ...edges: Types.AsRestParameter<
-            | Types.BaseAndIfThenAlso<
+        ...edges: AsRestParameter<
+            | BaseAndIfThenAlso<
                   {
                       end_indices: [number, number];
                       data: EdgeData;
                   },
-                  Types.Extends<EdgeData, undefined>,
+                  Extends<EdgeData, undefined>,
                   [number, number]
               >[]
             | undefined

@@ -1,4 +1,3 @@
-import { Bounds, EPS } from "@/Core";
 import {
     BoundingBox,
     Interval,
@@ -13,6 +12,8 @@ import {
     SketchElement,
     SketchElementCollection,
 } from "@/Core/sketch";
+import { Bounds } from "Core/numerics/bounds";
+import { EPS } from "Core/numerics/eps";
 
 export type Attachment = {
     at: Point;

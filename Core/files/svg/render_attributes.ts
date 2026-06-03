@@ -1,4 +1,4 @@
-import * as Color from "../../colors";
+import { Color } from "Core/colors";
 
 export type TextRenderAttributes = {
     font_family: string;

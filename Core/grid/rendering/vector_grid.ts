@@ -1,4 +1,4 @@
-import * as Color from "Core/colors";
+import { Color } from "Core/colors";
 import { SVG_Builder } from "Core/files/index";
 import { Fraction, Interval } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";

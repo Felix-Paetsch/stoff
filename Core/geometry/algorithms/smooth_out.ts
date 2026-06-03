@@ -1,6 +1,6 @@
-import { EPS } from "@/Core";
-import { Polygon, Polyline, Shape, Vector } from "@/Core/geometry";
 import { CONF } from "config";
+import { Polygon, Polyline, Shape, Vector } from "Core/geometry/index";
+import { EPS } from "Core/numerics/eps";
 
 export function smooth_out<S extends Shape.Shape>(
     what: S,

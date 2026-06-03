@@ -1,4 +1,4 @@
-import * as Color from "Core/colors";
+import { Color } from "Core/colors";
 import { Expect } from "Core/expect";
 import { Grid } from "Core/grid/grids/grid";
 import { NumberGrid } from "Core/grid/grids/number_grid";

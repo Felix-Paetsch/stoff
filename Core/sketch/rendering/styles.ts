@@ -1,4 +1,4 @@
-import { Color } from "@/Core";
+import { Color } from "Core/colors";
 
 export type LineRenderAttributes = {
     stroke: [Color.Gradient, number] | Color.Gradient | Color.Color;

@@ -1,4 +1,4 @@
-import { EPS } from "../../../index";
+import { EPS } from "Core/numerics/eps";
 import { Radians } from "../../types";
 import { Vector } from "../../vector";
 import { Shape } from "../shape";

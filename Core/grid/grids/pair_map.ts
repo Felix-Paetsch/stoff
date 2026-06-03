@@ -1,5 +1,5 @@
 import { Interval, Vector } from "@/Core/geometry";
-import { AnyReturnTypeFunction } from "Core/types/index";
+import { AnyReturnTypeFunction } from "Core/utils/types/index";
 import { Grid, GridDimensions } from "./grid";
 import { AssociatedGrid, GridValue } from "./types";
 

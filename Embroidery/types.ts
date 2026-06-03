@@ -1,6 +1,6 @@
-import { Json } from "@/Core";
 import { DST, SVG_Builder } from "@/Core/files";
 import { Sketch } from "@/Core/sketch";
+import { Json } from "@/Core/utils";
 import { Embroidery } from "./Lib/embroidery";
 
 export type EmbroideryReturnPrimitive = Sketch | Embroidery | SVG_Builder | DST;
