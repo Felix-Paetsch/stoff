@@ -1,0 +1,33 @@
+import { Interval } from "@/Core/geometry";
+import * as Color from "../../colors";
+import { Grid } from "../grids/grid";
+import { Vec3 } from "../grids/types";
+import { render_with_callback } from "./with_callback";
+
+export function render_vec3_grid(
+    g: Grid<Vec3>,
+    img_dimensions: [number, number] = [500, 500],
+) {
+    let remap = Interval.remap(
+        Interval.cover(
+            g.values_ref.flat().filter((v) => Math.abs(v) < Infinity),
+        ),
+        [0, 255],
+    );
+
+    return render_with_callback(
+        g,
+        (n) => {
+            if (n.some((v) => isNaN(v))) {
+                return "black";
+            }
+
+            if (n.some((v) => !isFinite(v))) {
+                return "white";
+            }
+
+            return Color.fromRgb(n.map(remap) as [number, number, number]);
+        },
+        img_dimensions,
+    );
+}

@@ -37,7 +37,7 @@
             "@/Dev": ["Dev/Lib"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Core/geometry/algorithms/self_intersection_free.ts.broken", "Core/geometry/algorithms/modify_self_intersections.ts", "Core/geometry/algorithms/merge_shapes.ts"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Core/geometry/algorithms/self_intersection_free.ts.broken", "Core/geometry/algorithms/modify_self_intersections.ts", "Core/geometry/algorithms/merge_shapes.ts", "Rust/src/grid/algorithms/eikonal/index.rs"],
     "exclude": [
         "node_modules",
         "dist",

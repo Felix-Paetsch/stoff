@@ -372,6 +372,11 @@ export function fromHsl(
     return `hsla(${Math.round(color[0])},${Math.round(color[1])},${color[2]},${color[3]})`;
 }
 
+export function toGrayScale(color: Color): number {
+    const [r, g, b] = toRgb(color);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
 export function toHexString(color: Color) {
     return toHex(color);
 }

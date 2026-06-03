@@ -1,41 +1,31 @@
-2. Debug Rust
-
-
 ## Todo
 
-Bundle the package
-"closest position"
-and have it reexport some things line_line, line_point, ect
+- fix dependencies
+- maybe restructure exports..
 
-Build Merge Shapes method
-    - if there are many use bb for same trick as before
-    - remember positions before merging and then merging in one swoop
+https://medium.com/visual-development/how-to-fix-nasty-circular-dependency-issues-once-and-for-all-in-javascript-typescript-a04c987cf0de
 
-Improve Intersection method with recursion trick
-Shape Recursion utils for algorithms
-- at least types
 
------------
+- svg to img
+- maybe some day have alpha images _iff_ there is a need for them. Maybe for superposition or so? Maybe then have Vec4 grid?
+- allow arbitatry dimensions for img rendering
+- allow image grids with offset domain / specified w/h?
 
-## Other Todo
+- render vec grid to buffer (direction, magnitude, malformed)
+- rendering vec3: render.. as img
+- render any grid
+- make color grid work/canonical
+    - out.put, etc
+    - rendering i.g.
+- Make fast marching faster
+- Review / improve tensor /directional fast marching
+- RGBGrdi
 
-- export namespaces from files directly, like expect or color
-- Make merging faster and rust accelerated
-- Boolean grids
-    - masking
-    - concave hull
-- Tie on, tie off
-- by ref for shapes
-- map_in_place for shapes
-- Geometry.Vector, Geometry. everywhere
-- resampling on rust side
-- improve nearest position/intersections with b trees and early returns
-- why is interpolation so fkng slow with the hearts?
-- closest uniform naming
 
-## Goal
-
-Mandelbrot embrpodery
+Setting interval in eikonal to low (5,5) gives modue resoltuion error
+Second order approximations for Tensor (and directional?)
+Improve speed (as higher grid res is better)
+Grid stuff more ergonomic, e.g. automagically remap 2nd grid if needed
 
 ## Steps
 
@@ -73,6 +63,8 @@ Mandelbrot embrpodery
 - see the results somewhere collected while it happens - writing to a file prolly
 - time_after/optionally on a conditional
     or: queries for time
+   
+
 # Organize
 
 - dev scenes
@@ -105,6 +97,7 @@ Rendering circles should be padding invariant
 Introduce readonly in return results/inputs
 - Introduce Type utils
 SVG parsing, getting lines from an svg
+Rename Eikonal into FastMarching?
 Resampling strict keeping sharp corners
 ## Dev
 
@@ -135,7 +128,7 @@ Do we want .lines or .lines()?
 - import structure
 - less copy/clone
 - learn more abt rust design patterns
-
+https://www.youtube.com/watch?v=A-lbCqNT5Ew
 # Algorithms
 
 

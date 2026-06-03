@@ -1,0 +1,392 @@
+use core::f64;
+
+use crate::{
+    geometry::Vector,
+    grid::{
+        algorithms::fast_marching::initialize::FastMarchingState,
+        grid_struct::{Grid, GridPosition},
+    },
+};
+
+type Offset = [i32; 2];
+
+struct Stencil {
+    offsets: [Offset; 4],
+
+    relative_angle: f64,
+    lengths: [f64; 2],
+}
+
+struct StencilPositions {
+    left: Option<GridPosition>,
+    right: Option<GridPosition>,
+    up: Option<GridPosition>,
+    down: Option<GridPosition>,
+    far_left: Option<GridPosition>,
+    far_right: Option<GridPosition>,
+    far_up: Option<GridPosition>,
+    far_down: Option<GridPosition>,
+}
+
+impl Stencil {
+    fn compute_updated_arrival_time(
+        &self,
+        p: GridPosition,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+    ) -> f64 {
+        let sp = self.known_adjacent_stencil_positions(p, marching_state);
+        let curr = *marching_state.times_grid.value_at(p);
+
+        curr.min(Corner::calculate_arrival_time(
+            Corner {
+                left: sp.left,
+                up: sp.up,
+                far_left: sp.far_left,
+                far_up: sp.far_up,
+                distances: self.lengths,
+                relative_angle: self.relative_angle,
+                middle: p,
+            },
+            marching_state,
+            speed_grid,
+        ))
+        .min(Corner::calculate_arrival_time(
+            Corner {
+                left: sp.right,
+                up: sp.up,
+                far_left: sp.far_right,
+                far_up: sp.far_up,
+                distances: self.lengths,
+                relative_angle: f64::consts::PI * 2.0 - self.relative_angle,
+                middle: p,
+            },
+            marching_state,
+            speed_grid,
+        ))
+        .min(Corner::calculate_arrival_time(
+            Corner {
+                left: sp.left,
+                up: sp.down,
+                far_left: sp.far_left,
+                far_up: sp.far_down,
+                distances: self.lengths,
+                relative_angle: f64::consts::PI * 2.0 - self.relative_angle,
+                middle: p,
+            },
+            marching_state,
+            speed_grid,
+        ))
+        .min(Corner::calculate_arrival_time(
+            Corner {
+                left: sp.right,
+                up: sp.down,
+                far_left: sp.far_right,
+                far_up: sp.far_down,
+                distances: self.lengths,
+                relative_angle: self.relative_angle,
+                middle: p,
+            },
+            marching_state,
+            speed_grid,
+        ))
+    }
+
+    fn known_adjacent_stencil_positions(
+        &self,
+        p: GridPosition,
+        state: &FastMarchingState,
+    ) -> StencilPositions {
+        StencilPositions {
+            left: self.try_resolve_position(p, self.offsets[0], state),
+            up: self.try_resolve_position(p, self.offsets[1], state),
+            right: self.try_resolve_position(p, self.offsets[2], state),
+            down: self.try_resolve_position(p, self.offsets[3], state),
+            far_left: self.try_resolve_position(
+                p,
+                [self.offsets[0][0] * 2, self.offsets[0][1] * 2],
+                state,
+            ),
+            far_up: self.try_resolve_position(
+                p,
+                [self.offsets[1][0] * 2, self.offsets[1][1] * 2],
+                state,
+            ),
+            far_right: self.try_resolve_position(
+                p,
+                [self.offsets[2][0] * 2, self.offsets[2][1] * 2],
+                state,
+            ),
+            far_down: self.try_resolve_position(
+                p,
+                [self.offsets[3][0] * 2, self.offsets[3][1] * 2],
+                state,
+            ),
+        }
+    }
+
+    fn try_resolve_position(
+        &self,
+        origin: GridPosition,
+        offset: [i32; 2],
+        state: &FastMarchingState,
+    ) -> Option<GridPosition> {
+        let [w, h] = state.times_grid.lattice_dimensions();
+
+        let nx = origin[0] as i32 + offset[0];
+        let ny = origin[1] as i32 + offset[1];
+        if nx < 0 || ny < 0 || nx >= w as i32 || ny >= h as i32 {
+            return None;
+        }
+
+        let offset_pos: GridPosition = [
+            ((origin[0] as i32) + offset[0]) as usize,
+            ((origin[1] as i32) + offset[1]) as usize,
+        ];
+
+        if !state.status_grid.is_known(offset_pos) {
+            None
+        } else {
+            Some(offset_pos)
+        }
+    }
+}
+
+struct Corner {
+    middle: GridPosition,
+    left: Option<GridPosition>,
+    up: Option<GridPosition>,
+    far_left: Option<GridPosition>,
+    far_up: Option<GridPosition>,
+
+    distances: [f64; 2],
+    relative_angle: f64,
+}
+
+impl Corner {
+    // Calculate 1st/second order arrival time and if that doesnt work (for now?) both default axis times
+    fn calculate_arrival_time(
+        self,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+    ) -> f64 {
+        match (self.left, self.up) {
+            (None, None) => f64::INFINITY,
+            (Some(_), None) => self.left_one_dimensional_arrival_time(marching_state, speed_grid),
+            (None, Some(_)) => self.up_one_dimensional_arrival_time(marching_state, speed_grid),
+            (Some(left), Some(up)) => match (self.far_left, self.far_up) {
+                (Some(far_left), Some(far_up)) => self.second_order_arrival_time(
+                    marching_state,
+                    speed_grid,
+                    left,
+                    up,
+                    far_left,
+                    far_up,
+                ),
+                (_, _) => self.first_order_arrival_time(marching_state, speed_grid, left, up),
+            },
+        }
+    }
+
+    fn first_order_arrival_time(
+        &self,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+        left: GridPosition,
+        up: GridPosition,
+    ) -> f64 {
+        // Following
+        // https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4288158
+
+        let time_middle = *marching_state.times_grid.value_at(self.middle);
+        let time_left = *marching_state.times_grid.value_at(left);
+
+        if time_middle < time_left {
+            return self.up_one_dimensional_arrival_time(marching_state, speed_grid);
+        }
+
+        let time_up = *marching_state.times_grid.value_at(up);
+
+        if time_middle < time_up {
+            return self.left_one_dimensional_arrival_time(marching_state, speed_grid);
+        }
+
+        let speed_middle = speed_grid.value_at(self.middle);
+
+        // U_1^2 - 2U_1U_2 cos phi + U_2^2 = sin phi^2 / F^2
+        // U_i = T(x) - T_i / ||x - x_i||
+        //
+        // let w = delty x
+        // let h = delta y
+        // let A = sin phi ^2 / F(x) ^2
+
+        let cos_phi = self.relative_angle.cos();
+        let sin_phi = self.relative_angle.sin();
+
+        let [w, h] = self.distances;
+        let abc_a = w * w - 2.0 * w * h * cos_phi + h * h;
+        let abc_b =
+            -2.0 * (time_left * h * h - time_up * w * w + w * h * cos_phi * (time_up + time_left));
+        let aa = sin_phi * sin_phi / (speed_middle * speed_middle);
+        let abc_c = h * h * time_left * time_left + w * w * time_up * time_up
+            - aa * h * h * w * w
+            - 2.0 * w * h * time_up * time_left;
+
+        let p_half = 0.5 * abc_b / abc_a;
+        let q = abc_c / abc_a;
+
+        let rad = p_half * p_half - q;
+        if rad <= 0.0 {
+            return f64::INFINITY;
+        }
+
+        let pred_t = -p_half + rad.sqrt();
+        if pred_t > time_left.max(time_up) {
+            pred_t
+        } else {
+            f64::INFINITY
+        }
+    }
+
+    fn second_order_arrival_time(
+        &self,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+        left: GridPosition,
+        up: GridPosition,
+        far_left: GridPosition,
+        far_up: GridPosition,
+    ) -> f64 {
+        // The math only slightly differs from first order
+
+        let time_middle = *marching_state.times_grid.value_at(self.middle);
+        let time_left = *marching_state.times_grid.value_at(left);
+        let time_far_left = *marching_state.times_grid.value_at(far_left);
+
+        if time_middle < time_left {
+            return self.up_one_dimensional_arrival_time(marching_state, speed_grid);
+        } else if time_left <= time_far_left {
+            return self.first_order_arrival_time(marching_state, speed_grid, left, up);
+        }
+
+        let time_up = *marching_state.times_grid.value_at(up);
+        let time_far_up = *marching_state.times_grid.value_at(far_up);
+
+        if time_middle < time_up {
+            return self.left_one_dimensional_arrival_time(marching_state, speed_grid);
+        } else if time_up <= time_far_up {
+            return self.first_order_arrival_time(marching_state, speed_grid, left, up);
+        }
+
+        let speed_middle = speed_grid.value_at(self.middle);
+
+        let t_left = (4.0 * time_left - time_far_left) / 3.0;
+        let t_up = (4.0 * time_up - time_far_up) / 3.0;
+
+        // U_1^2 - 2U_1U_2 cos phi + U_2^2 = sin phi^2 / F^2
+        // U_i = T(x) - T_i / ||x - x_i||
+        //
+        // let w = delty x
+        // let h = delta y
+        // let A = sin phi ^2 / F(x) ^2 * 2/3
+
+        let cos_phi = self.relative_angle.cos();
+        let sin_phi = self.relative_angle.sin();
+
+        let [w, h] = self.distances;
+        let abc_a = w * w - 2.0 * w * h * cos_phi + h * h;
+        let abc_b = -2.0 * (t_left * h * h - t_up * w * w + w * h * cos_phi * (t_up + t_left));
+        let aa = sin_phi * sin_phi / (speed_middle * speed_middle) * 4.0 / 9.0;
+        let abc_c = h * h * t_left * t_left + w * w * t_up * t_up
+            - aa * h * h * w * w
+            - 2.0 * w * h * t_up * t_left;
+
+        let p_half = 0.5 * abc_b / abc_a;
+        let q = abc_c / abc_a;
+
+        let rad = p_half * p_half - q;
+        if rad <= 0.0 {
+            return f64::INFINITY;
+        }
+
+        let pred_t = -p_half + rad.sqrt();
+        if pred_t > time_left.max(time_up) {
+            pred_t
+        } else {
+            f64::INFINITY
+        }
+    }
+
+    fn left_one_dimensional_arrival_time(
+        &self,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+    ) -> f64 {
+        let v = self.left.unwrap();
+        Corner::one_dimensional_arrival_time(
+            *marching_state.times_grid.value_at(v),
+            *speed_grid.value_at(v),
+            *speed_grid.value_at(self.middle),
+            self.distances[0],
+        )
+    }
+
+    fn up_one_dimensional_arrival_time(
+        &self,
+        marching_state: &FastMarchingState,
+        speed_grid: &Grid<f64>,
+    ) -> f64 {
+        let v = self.up.unwrap();
+        Corner::one_dimensional_arrival_time(
+            *marching_state.times_grid.value_at(v),
+            *speed_grid.value_at(v),
+            *speed_grid.value_at(self.middle),
+            self.distances[1],
+        )
+    }
+
+    fn one_dimensional_arrival_time(
+        time_from: f64,
+        speed_from: f64,
+        speed_to: f64,
+        distance: f64,
+    ) -> f64 {
+        let avg_speed = (speed_from + speed_to) * 0.5;
+        time_from + distance / avg_speed
+    }
+}
+
+#[allow(unused)]
+pub fn multi_stencil_second_order_arrival_time_update_fn<'a>(
+    speed_grid: &'a Grid<f64>,
+) -> impl Fn(&FastMarchingState, GridPosition) -> f64 + 'a {
+    let [w, h] = speed_grid.lattice_dimensions();
+    debug_assert!(w > 2 && h > 2);
+
+    let v_middle_abs = speed_grid.vector_at([0, 0]);
+    let v_left = v_middle_abs.subtract(speed_grid.vector_at([1, 0]));
+    let v_up = v_middle_abs.subtract(speed_grid.vector_at([0, 1]));
+    let v_diag = v_left.add(v_up);
+
+    let stencils = [
+        Stencil {
+            offsets: [[-1, 0], [0, -1], [1, 0], [0, 1]],
+
+            relative_angle: f64::consts::FRAC_PI_2,
+            lengths: [v_left.length(), v_up.length()],
+        },
+        Stencil {
+            offsets: [[-1, -1], [1, -1], [1, 1], [-1, 1]],
+            relative_angle: Vector::angle(v_left, v_up),
+            lengths: [v_diag.length(), v_diag.length()],
+        },
+    ];
+
+    move |data: &FastMarchingState, p: GridPosition| {
+        debug_assert!(data.times_grid.same_dimensions(speed_grid));
+
+        stencils[0]
+            .compute_updated_arrival_time(p, data, speed_grid)
+            .min(stencils[1].compute_updated_arrival_time(p, data, speed_grid))
+    }
+}

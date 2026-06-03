@@ -133,6 +133,14 @@ impl Vector {
 
         Vector::new(self.x * cos + self.y * sin, -self.x * sin + self.y * cos)
     }
+
+    pub fn rotate90(self) -> Vector {
+        Vector::new(self.y, -self.x)
+    }
+
+    pub fn rotate270(self) -> Vector {
+        Vector::new(-self.y, self.x)
+    }
 }
 
 impl From<Vector> for geo::Coord {

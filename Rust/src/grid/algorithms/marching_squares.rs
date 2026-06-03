@@ -62,7 +62,7 @@ impl Quantizer {
 }
 
 pub fn marching_squares(grid: &Grid<f64>, z: ContourLinePositions) -> Vec<Shape> {
-    let [grid_w, grid_h] = grid.grid_dimensions();
+    let [grid_w, grid_h] = grid.lattice_dimensions();
 
     if grid_w < 2 || grid_h < 2 {
         return Vec::new();
@@ -127,8 +127,8 @@ fn contour_levels(grid: &Grid<f64>, z: ContourLinePositions) -> Vec<f64> {
 }
 
 fn marching_squares_single(grid: &Grid<f64>, z: f64) -> Vec<Shape> {
-    let [grid_x, grid_y, world_w, world_h] = grid.dimensions();
-    let [w, h] = grid.grid_dimensions();
+    let [grid_x, grid_y, world_w, world_h] = grid.domain_dimensions();
+    let [w, h] = grid.lattice_dimensions();
 
     let step_x = if w > 1 { world_w / (w - 1) as f64 } else { 0.0 };
     let step_y = if h > 1 { world_h / (h - 1) as f64 } else { 0.0 };
@@ -144,12 +144,12 @@ fn marching_squares_single(grid: &Grid<f64>, z: f64) -> Vec<Shape> {
             .push(LineSegment { start, end });
     };
 
-    let mut current_row = (0..w).map(|x| *grid.value_at(x, 0)).collect::<Vec<_>>();
+    let mut current_row = (0..w).map(|x| *grid.value_at([x, 0])).collect::<Vec<_>>();
     let mut next_row = Vec::with_capacity(w);
 
     for y in 0..(h - 1) {
         next_row.clear();
-        next_row.push(*grid.value_at(0, y + 1));
+        next_row.push(*grid.value_at([0, y + 1]));
 
         let y0 = grid_y + y as f64 * step_y;
         let y1 = grid_y + (y + 1) as f64 * step_y;
@@ -158,7 +158,7 @@ fn marching_squares_single(grid: &Grid<f64>, z: f64) -> Vec<Shape> {
             let ulz = current_row[x];
             let urz = current_row[x + 1];
             let blz = next_row[x];
-            let brz = *grid.value_at(x + 1, y + 1);
+            let brz = *grid.value_at([x + 1, y + 1]);
 
             next_row.push(brz);
 
@@ -179,8 +179,8 @@ fn marching_squares_single(grid: &Grid<f64>, z: f64) -> Vec<Shape> {
 }
 
 fn marching_squares_multi(grid: &Grid<f64>, levels: &[f64]) -> Vec<Shape> {
-    let [grid_x, grid_y, world_w, world_h] = grid.dimensions();
-    let [w, h] = grid.grid_dimensions();
+    let [grid_x, grid_y, world_w, world_h] = grid.domain_dimensions();
+    let [w, h] = grid.lattice_dimensions();
 
     let step_x = if w > 1 { world_w / (w - 1) as f64 } else { 0.0 };
     let step_y = if h > 1 { world_h / (h - 1) as f64 } else { 0.0 };
@@ -189,12 +189,12 @@ fn marching_squares_multi(grid: &Grid<f64>, levels: &[f64]) -> Vec<Shape> {
     let mut per_level_segments: MultiLevelSegmentsMap =
         (0..levels.len()).map(|_| HashMap::new()).collect();
 
-    let mut current_row = (0..w).map(|x| *grid.value_at(x, 0)).collect::<Vec<_>>();
+    let mut current_row = (0..w).map(|x| *grid.value_at([x, 0])).collect::<Vec<_>>();
     let mut next_row = Vec::with_capacity(w);
 
     for y in 0..(h - 1) {
         next_row.clear();
-        next_row.push(*grid.value_at(0, y + 1));
+        next_row.push(*grid.value_at([0, y + 1]));
 
         let y0 = grid_y + y as f64 * step_y;
         let y1 = grid_y + (y + 1) as f64 * step_y;
@@ -203,7 +203,7 @@ fn marching_squares_multi(grid: &Grid<f64>, levels: &[f64]) -> Vec<Shape> {
             let ulz = current_row[x];
             let urz = current_row[x + 1];
             let blz = next_row[x];
-            let brz = *grid.value_at(x + 1, y + 1);
+            let brz = *grid.value_at([x + 1, y + 1]);
 
             next_row.push(brz);
 

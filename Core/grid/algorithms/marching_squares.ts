@@ -1,10 +1,10 @@
-import { Grid } from "@/Core";
 import { Shape } from "@/Core/geometry";
 import { wasm_grid_marching_squares, WASMCompatability } from "Rust/exports";
+import { NumberGrid } from "../grids/number_grid";
 
 export type MarchingSquaresContourArgument = "integers" | number | number[];
 export function maching_squares(
-    g: Grid.Grid<number>,
+    g: NumberGrid,
     contour_argument: MarchingSquaresContourArgument = "integers",
 ) {
     const wasm_grid = WASMCompatability.Grid.grid_to_vecf64(g);

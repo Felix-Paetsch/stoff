@@ -15,7 +15,11 @@ export type SceneResult =
     | SVG_Builder
     | Error
     | Embroidery;
-export type Scene = () => SceneResult | SceneResult[];
+export type Scene = () =>
+    | SceneResult
+    | SceneResult[]
+    | Promise<SceneResult>
+    | Promise<SceneResult[]>;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -46,7 +50,7 @@ Out.clear();
 
 const sceneExport = await import(filePath);
 const scene: Scene = sceneExport.default;
-const res = Out.run_wrapped(scene);
+const res = await Out.run_wrapped(scene);
 
 if (res && !Array.isArray(res)) {
     Out.put(res, "~out");

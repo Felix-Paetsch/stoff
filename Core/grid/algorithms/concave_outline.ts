@@ -17,11 +17,11 @@ export function concave_outline(
     options?: Partial<FiniteGeometry.ConcaveHullOptions>,
 ): Polygon {
     const pts: Vector[] = [];
-    const dim = g.lattice_dimensions_ref;
+    const dim = g.lattice_dimensions();
 
     for (let i = 0; i < dim[0]; i++) {
         for (let j = 0; j < dim[1]; j++) {
-            if (!g.value_at_lattice_point(i, j)) continue;
+            if (!g.value_at_lattice_point([i, j])) continue;
 
             if (
                 i == 0 ||
@@ -29,10 +29,10 @@ export function concave_outline(
                 i == dim[0] - 1 ||
                 j == dim[0] - 1 ||
                 offsets.some(
-                    (o) => !g.value_at_lattice_point(i + o[0], j + o[1]),
+                    (o) => !g.value_at_lattice_point([i + o[0], j + o[1]]),
                 )
             ) {
-                pts.push(g.vector_at_lattice_point(i, j));
+                pts.push(g.vector_at_lattice_point([i, j]));
             }
         }
     }

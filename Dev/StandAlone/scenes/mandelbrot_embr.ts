@@ -1,14 +1,16 @@
 import { GeometryAlgorithms, Polygon } from "@/Core/geometry";
-import { GridAlgorithms, NumberGrid } from "@/Core/grid";
+import { Grid, GridAlgorithms } from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 
 export default function () {
-    const num_grid = NumberGrid.from_function(
-        [-2, -2, 4, 4],
-        [500, 500],
+    const num_grid = Grid.from_function(
+        {
+            domain_dimensions: [-2, -2, 4, 4],
+            lattice_dimensions: [500, 500],
+        },
         (c: Vector) => {
             let z = Vector.ZERO;
 

@@ -8,10 +8,20 @@ export type Fraction = number;
 // Input a value from *from* to get the correspondign value in *to*
 
 export function remap(from: Interval, to: Interval): (x: number) => number {
-    return (x) => lerp(to[0], to[1], (x - from[0]) / (from[1] - from[0]));
+    let div = from[1] - from[0];
+    if (div == 0) {
+        return () => (to[0] + to[1]) / 2;
+    }
+    return (x) => lerp(to[0], to[1], (x - from[0]) / div);
 }
 
 export function lerp(a: number, b: number, amt: Fraction): number {
+    if (isNaN(amt) || Math.abs(b - a) < EPS.tiny) {
+        amt = 0.5;
+    }
+    if (!isFinite(a) && !isFinite(b)) {
+        return a;
+    }
     return a * (1 - amt) + b * amt;
 }
 
@@ -20,7 +30,6 @@ export function lerp_abs(a: number, b: number, amt: number): number {
 }
 
 export function inverse_lerp(a: number, b: number, c: number): Fraction {
-    if (Math.abs(b - a) < EPS.tiny) return 0.5;
     return (c - a) / (b - a);
 }
 

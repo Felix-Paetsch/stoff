@@ -1,31 +1,36 @@
+import {
+    BooleanGrid,
+    InternalGrid,
+    Vec3,
+    Vec3Grid,
+    VectorGrid,
+} from "@/Core/grid";
 import { Vector } from "Core/geometry/vector";
-import {
-    InterpolationGrid,
-    number_interpolator,
-    vector_interpolator,
-} from "Core/grid/index";
-import {
-    InternalGridType,
-    InternalInterpolationGridType,
-} from "Core/grid/types";
+import { NumberGrid } from "Core/grid/grids/number_grid";
 
-export function grid_to_vecf64(g: InternalGridType): Float64Array {
-    const dimensions = g.dimensions_ref;
-    const [grid_w, grid_h] = g.lattice_dimensions_ref;
-    const values = g.values_ref;
-    const isVectorGrid = values[0] instanceof Vector;
+export function grid_to_vecf64(g: InternalGrid): Float64Array {
+    const dimensions = g.dimensions_ref.domain_dimensions;
+    const [grid_w, grid_h] = g.dimensions_ref.lattice_dimensions;
 
-    if (typeof values[0] == "boolean") throw new Error("unhandled yet!");
+    const gridConstructor = [
+        [VectorGrid, 2],
+        [NumberGrid, 1],
+        [BooleanGrid, 0],
+        [Vec3Grid, 3],
+    ] as const;
+
+    const grid_type_number = gridConstructor.findIndex(
+        (c) => c[0] === g.constructor,
+    );
+    const value_length = gridConstructor[grid_type_number]![1];
 
     const headerLength = 7;
-    const valueLength = isVectorGrid
-        ? (values as Vector[]).length * 2
-        : (values as number[]).length;
-
-    const out = new Float64Array(headerLength + valueLength);
+    const out = new Float64Array(
+        headerLength + value_length * g.values_ref.length,
+    );
     let i = 0;
 
-    out[i++] = isVectorGrid ? 1 : 0;
+    out[i++] = grid_type_number;
 
     out[i++] = dimensions[0];
     out[i++] = dimensions[1];
@@ -35,21 +40,31 @@ export function grid_to_vecf64(g: InternalGridType): Float64Array {
     out[i++] = grid_w;
     out[i++] = grid_h;
 
-    if (isVectorGrid) {
-        for (const v of values as Vector[]) {
+    if (g instanceof VectorGrid) {
+        for (const v of g.values_ref) {
             out[i++] = v.x;
             out[i++] = v.y;
         }
-    } else {
-        for (const value of values as number[]) {
+    } else if (g instanceof NumberGrid) {
+        for (const value of g.values_ref) {
             out[i++] = value;
+        }
+    } else if (g instanceof Vec3Grid) {
+        for (const value of g.values_ref) {
+            out[i++] = value[0];
+            out[i++] = value[1];
+            out[i++] = value[2];
+        }
+    } else {
+        for (const value of g.values_ref) {
+            out[i++] = value ? 1 : 0;
         }
     }
 
     return out;
 }
 
-export function vecf64_to_grid(f: Float64Array): InternalInterpolationGridType {
+export function vecf64_to_grid(f: Float64Array): InternalGrid {
     const value_type = f[0]!;
     const dimensions: [number, number, number, number] = [
         f[1]!,
@@ -58,28 +73,55 @@ export function vecf64_to_grid(f: Float64Array): InternalInterpolationGridType {
         f[4]!,
     ];
     const grid_dimensions: [number, number] = [f[5]!, f[6]!];
+    const values_serialized = f.subarray(7);
 
     if (value_type === 0) {
-        const values = Array.from(f.subarray(7));
-        return new InterpolationGrid(
-            dimensions,
-            grid_dimensions,
+        let values: Vector[] = [];
+        for (let i = 0; i < values_serialized.length; i += 2) {
+            values.push(
+                new Vector(values_serialized[i]!, values_serialized[i + 1]!),
+            );
+        }
+
+        return new VectorGrid(
+            {
+                domain_dimensions: dimensions,
+                lattice_dimensions: grid_dimensions,
+            },
             values,
-            number_interpolator(),
+        );
+    } else if (value_type === 1) {
+        return new NumberGrid(
+            {
+                domain_dimensions: dimensions,
+                lattice_dimensions: grid_dimensions,
+            },
+            Array.from(values_serialized),
+        );
+    } else if (value_type === 2) {
+        return new BooleanGrid(
+            {
+                domain_dimensions: dimensions,
+                lattice_dimensions: grid_dimensions,
+            },
+            Array.from(values_serialized).map((b) => b === 1),
         );
     }
 
-    const values_data = f.subarray(7);
-    const values: Vector[] = [];
-
-    for (let i = 0; i < values_data.length; i += 2) {
-        values.push(new Vector(values_data[i]!, values_data[i + 1]!));
+    let values: Vec3[] = [];
+    for (let i = 0; i < values_serialized.length; i += 3) {
+        values.push([
+            values_serialized[i]!,
+            values_serialized[i + 1]!,
+            values_serialized[i + 2]!,
+        ]);
     }
 
-    return new InterpolationGrid(
-        dimensions,
-        grid_dimensions,
+    return new Vec3Grid(
+        {
+            domain_dimensions: dimensions,
+            lattice_dimensions: grid_dimensions,
+        },
         values,
-        vector_interpolator(),
     );
 }

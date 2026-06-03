@@ -1,22 +1,30 @@
 import { Interval } from "Core/geometry/index";
 import * as Color from "../../colors";
-import { NumberGrid } from "../grids/common_grids";
-import { InterpolationGrid } from "../grids/interpolation_grid";
-import { lerp_grid_png } from "./lerp_grid";
+import { Grid } from "../grids/grid";
+import { render_with_callback } from "./with_callback";
 
-export function number_grid_png(
-    g: InterpolationGrid<number>,
+export function render_number_grid(
+    g: Grid<number>,
     img_dimensions: [number, number] = [500, 500],
-): Buffer {
+) {
     let remap = Interval.remap(
-        Interval.cover(g.values_ref),
+        Interval.cover(g.values_ref.filter((v) => Math.abs(v) < Infinity)),
         Interval.UnitInterval,
     );
 
-    return lerp_grid_png(
-        NumberGrid.promote(g),
+    return render_with_callback(
+        g,
         (n) => {
-            return Color.lerp("black", "white", remap(n));
+            if (Math.abs(n) < Infinity) {
+                return Color.lerp("black", "white", remap(n));
+            }
+            if (isNaN(n)) {
+                return "red";
+            }
+            if (n > 0) {
+                return "blue";
+            }
+            return "pink";
         },
         img_dimensions,
     );

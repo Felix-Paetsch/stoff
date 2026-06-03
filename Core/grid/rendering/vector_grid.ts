@@ -4,7 +4,7 @@ import { Fraction, Interval } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
 import { unique_string } from "Core/utils/unique";
-import { InterpolationGrid } from "../grids/interpolation_grid";
+import { Grid } from "../grids/grid";
 
 export type VectorGridConfig = {
     out_dimensions: [number, number];
@@ -12,8 +12,8 @@ export type VectorGridConfig = {
     out_viewbox_dimensions: [number, number];
 };
 
-export function vector_grid(
-    g: InterpolationGrid<Vector>,
+export function render_vector_grid(
+    g: Grid<Vector>,
     config: Partial<VectorGridConfig> = {},
 ): SVG_Builder {
     if (!("out_dimensions" in config)) {
@@ -43,7 +43,11 @@ export function vector_grid(
     const arrow_head_width = Math.min(3, max_vec_length / 2);
     const arrow_width = Math.min(2, max_vec_length / 6);
 
-    const render_grid = g.resample(g.dimensions(), samples);
+    const render_grid = g.resample({
+        domain_dimensions: g.domain_dimensions(),
+        lattice_dimensions: samples,
+    });
+
     render_grid.remap_domain_in_place([
         viewbox[0].x,
         viewbox[0].y,
@@ -72,7 +76,8 @@ export function vector_grid(
         for (let ly = 1; ly < samples[1] - 1; ly++) {
             let start = new Vector(map_x(lx), map_y(ly));
 
-            let vec = vec_map(render_grid.vector_at_lattice_point(lx, ly));
+            let vec = vec_map(render_grid.value_at_lattice_point([lx, ly]));
+
             draw_arrow(
                 builder,
                 start,

@@ -12,7 +12,7 @@ check_circular_dependencies:
     npx madge --circular --extensions ts .
 
 build:
-    cd Rust && wasm-pack build --target nodejs
+    cd Rust && wasm-pack build --target nodejs --release
 
 dev_build:
     cd Rust && cargo clippy -- -D warnings && wasm-pack build --target nodejs --dev

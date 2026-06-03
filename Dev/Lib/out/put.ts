@@ -1,5 +1,5 @@
 import { Json, Utils } from "@/Core";
-import { DST, SVG_Builder } from "@/Core/files";
+import { DST, Image, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
@@ -7,6 +7,7 @@ import * as path from "path";
 import { CJson } from "../../Server/src/types";
 import { Recording } from "../recording/index";
 import { dir } from "./dir";
+import { file as put_as_file } from "./file";
 
 export type Putable =
     | Sketch
@@ -16,7 +17,9 @@ export type Putable =
     | SVG_Builder
     | Error
     | Embroidery
+    | Image
     | DST;
+
 export type PutMetaData = {
     title?: string;
     prefix?: boolean;
@@ -48,13 +51,26 @@ export function put(what: Putable, meta?: PutMetaData | string) {
         return;
     }
     const d = dir();
+
+    if (what instanceof Image) {
+        return put_image(what, meta);
+    }
+
     const cjson: CJson = {
         ...serialize_put(what),
-        ...serialize_meta_data(meta || {}),
+        ...serialize_meta_data(meta),
     };
 
     const as_string = JSON.stringify(cjson);
     writeFileSync(path.join(d, Utils.unique_string() + ".cjson"), as_string);
+}
+
+function put_image(im: Image, meta: PutMetaData) {
+    let title = serialize_meta_data(meta).title;
+    if (!title.endsWith(".png")) {
+        title = title + ".png";
+    }
+    put_as_file(im.render(), title);
 }
 
 export function put_live_recordings() {
@@ -81,7 +97,7 @@ function serialize_meta_data(meta: PutMetaData) {
     } as const;
 }
 
-function serialize_put(what: Putable) {
+function serialize_put(what: Exclude<Putable, Image>) {
     if (typeof what == "string") {
         return {
             type: "text",
