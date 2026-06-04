@@ -1,7 +1,5 @@
-import { Interval, Vector } from "@/Core/geometry";
 import { createCanvas } from "canvas";
 import { Vec3Grid } from "Core/grid/grids/vec3_grid";
-import { EPS } from "Core/numerics/eps";
 
 export type PNGBuffer = Buffer;
 export function render(
@@ -19,29 +17,20 @@ export function render(
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
 
-    const [minX, minY, widthX, heightY] = g.domain_dimensions();
-    const w_remap = Interval.remap(
-        [-EPS.tiny, width + EPS.tiny],
-        [minX, minX + widthX],
-    );
-    const h_remap = Interval.remap(
-        [-EPS.tiny, height + EPS.tiny],
-        [minY, minY + heightY],
-    );
+    g = g.resample({
+        lattice_dimensions: img_dimensions,
+        domain_dimensions: [0, 0, img_dimensions[0], img_dimensions[1]],
+    });
 
     for (let py = 0; py < height; py++) {
-        const y = h_remap(py);
-
         for (let px = 0; px < width; px++) {
-            const x = w_remap(px);
-
-            const rgb = g.sample_at(new Vector(x, y));
+            const rgb = g.value_at_lattice_point([px, py]);
 
             const dstIdx = (py * width + px) * 4;
             data[dstIdx] = rgb[0];
             data[dstIdx + 1] = rgb[1];
             data[dstIdx + 2] = rgb[2];
-            data[dstIdx + 3] = 1;
+            data[dstIdx + 3] = 255;
             // data[dstIdx + 3] = Math.round(255 * rgba[3]);
         }
     }
