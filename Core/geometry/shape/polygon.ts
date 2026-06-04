@@ -1,4 +1,4 @@
-import { CONF } from "config";
+import { CONF } from "Core/config";
 import { Bounds } from "Core/numerics";
 import {
     wasm_geometry_centroid,

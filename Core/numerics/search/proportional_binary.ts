@@ -1,5 +1,5 @@
-import { SearchResult, TerminationCriteria } from ".";
 import { EPS } from "../eps";
+import { SearchResult, TerminationCriteria } from "./types";
 
 const TotalMaxIterations = 10001;
 

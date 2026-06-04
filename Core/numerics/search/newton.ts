@@ -1,4 +1,4 @@
-import { SearchResult, TerminationCriteria } from ".";
+import { SearchResult, TerminationCriteria } from "./types";
 
 const TotalMaxIterations = 10001;
 

@@ -1,41 +1,39 @@
 import { Expect } from "Core/expect";
 import { Vector } from "Core/geometry/vector";
-import { Grid, GridDimensions } from "../grids/grid";
 import {
     AssociatedGrid,
+    BooleanGrid,
+    GridDimensions,
     GridValue,
     is_boolean,
     is_number,
     is_vector,
+    NumberGrid,
     Vec3,
-} from "../grids/types";
+    Vec3Grid,
+    VectorGrid,
+} from "./index";
 
-import { BooleanGrid, NumberGrid, Vec3Grid, VectorGrid } from "../grids/";
-
-export function create_grid_from_values(
+function create_grid_from_values(
     dimensions_ref: GridDimensions,
     values_ref: number[],
 ): AssociatedGrid<number>;
-export function create_grid_from_values(
+function create_grid_from_values(
     dimensions_ref: GridDimensions,
     values_ref: Vector[],
 ): AssociatedGrid<Vector>;
-export function create_grid_from_values(
+function create_grid_from_values(
     dimensions_ref: GridDimensions,
     values_ref: boolean[],
 ): AssociatedGrid<boolean>;
-export function create_grid_from_values(
+function create_grid_from_values(
     dimensions_ref: GridDimensions,
     values_ref: Vec3[],
 ): AssociatedGrid<Vec3>;
-export function create_grid_from_values(
+function create_grid_from_values(
     dimensions_ref: GridDimensions,
     values_ref: GridValue[],
-): any;
-export function create_grid_from_values(
-    dimensions_ref: GridDimensions,
-    values_ref: GridValue[],
-): Grid<any> {
+): any {
     const first = Expect.defined(values_ref[0]);
 
     if (is_vector(first)) {
@@ -51,4 +49,8 @@ export function create_grid_from_values(
     }
 
     return new Vec3Grid(dimensions_ref, values_ref as Vec3[]);
+}
+
+export function register_grid_from_method(gridClass: any) {
+    gridClass.from = create_grid_from_values;
 }

@@ -1,4 +1,4 @@
-import { Vector } from "../..";
+import { Vector } from "Core/geometry/vector";
 import { Shape } from "../shape";
 
 export function decode_intersection_positions(

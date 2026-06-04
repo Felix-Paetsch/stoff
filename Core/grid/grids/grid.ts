@@ -338,30 +338,6 @@ export abstract class Grid<T extends GridValue> {
         );
     }
 
-    static from(
-        dimensions_ref: GridDimensions,
-        values_ref: number[],
-    ): AssociatedGrid<number>;
-    static from(
-        dimensions_ref: GridDimensions,
-        values_ref: Vector[],
-    ): AssociatedGrid<Vector>;
-    static from(
-        dimensions_ref: GridDimensions,
-        values_ref: boolean[],
-    ): AssociatedGrid<boolean>;
-    static from(
-        dimensions_ref: GridDimensions,
-        values_ref: Vec3[],
-    ): AssociatedGrid<Vec3>;
-    static from(dimensions_ref: GridDimensions, values_ref: GridValue[]): any;
-    static from(
-        dimensions_ref: GridDimensions,
-        values_ref: GridValue[],
-    ): Grid<any> {
-        return create_grid_from_values(dimensions_ref, values_ref);
-    }
-
     static from_function<
         F extends AnyReturnTypeFunction<[Vector], GridValueTypeUnionUtil>,
     >(dimensions: GridDimensions, fn: F): AssociatedGrid<ReturnType<F>> {
@@ -392,4 +368,31 @@ export abstract class Grid<T extends GridValue> {
     }
 }
 
-import { create_grid_from_values } from "../rendering/create_grid_from_values";
+export namespace Grid {
+    export function from(
+        dimensions_ref: GridDimensions,
+        values_ref: number[],
+    ): AssociatedGrid<number>;
+    export function from(
+        dimensions_ref: GridDimensions,
+        values_ref: Vector[],
+    ): AssociatedGrid<Vector>;
+    export function from(
+        dimensions_ref: GridDimensions,
+        values_ref: boolean[],
+    ): AssociatedGrid<boolean>;
+    export function from(
+        dimensions_ref: GridDimensions,
+        values_ref: Vec3[],
+    ): AssociatedGrid<Vec3>;
+    export function from(
+        dimensions_ref: GridDimensions,
+        values_ref: GridValue[],
+    ): any;
+    export function from(
+        _dimensions_ref: GridDimensions,
+        _values_ref: GridValue[],
+    ): any {
+        throw new Error("Overwritten elsewhere");
+    }
+}

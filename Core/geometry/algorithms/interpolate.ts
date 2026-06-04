@@ -1,5 +1,5 @@
 import { Fraction, LengthMap, Polyline, Shape, Vector } from "@/Core/geometry";
-import { CONF } from "config";
+import { CONF } from "Core/config";
 import { Expect } from "Core/expect";
 
 export type NumberFunction = (t: Fraction) => Fraction;

@@ -1,5 +1,5 @@
 import { Shape, Vector } from "../..";
-import { CONF } from "../../../../config";
+import { CONF } from "../../../config";
 import { Bounds } from "../../../numerics/index";
 import { Fraction } from "../../interval";
 

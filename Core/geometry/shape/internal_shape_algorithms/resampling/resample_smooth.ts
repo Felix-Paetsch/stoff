@@ -1,4 +1,4 @@
-import { CONF } from "config";
+import { CONF } from "Core/config";
 import { Radians, Spline } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";

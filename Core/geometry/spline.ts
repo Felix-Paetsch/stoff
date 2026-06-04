@@ -1,6 +1,7 @@
-import { Expect } from "@/Core";
-import { Shape, Vector } from ".";
+import { Expect } from "Core/expect";
 import { Fraction } from "./interval";
+import { Shape } from "./shape/shape";
+import { Vector } from "./vector";
 
 export function bezier(
     static_points: Vector[],

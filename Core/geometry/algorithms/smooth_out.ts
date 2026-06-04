@@ -1,4 +1,4 @@
-import { CONF } from "config";
+import { CONF } from "Core/config";
 import { Polygon, Polyline, Shape, Vector } from "Core/geometry/index";
 import { EPS } from "Core/numerics/eps";
 

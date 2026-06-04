@@ -2,7 +2,7 @@ import { Expect } from "Core/expect";
 import { CollectionMethods } from ".";
 import { BoundingBox, Vector } from "../geometry";
 import { Line } from "./line";
-import { Sketch } from "./sketch";
+import { type Sketch } from "./sketch";
 import { StoffObjectData } from "./types";
 
 export class Point {

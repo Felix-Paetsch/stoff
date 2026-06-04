@@ -1,4 +1,4 @@
-import { Expect } from "@/Core";
+import { Expect } from "Core/expect";
 import { EPS } from "../numerics";
 import { Radians } from "./types";
 

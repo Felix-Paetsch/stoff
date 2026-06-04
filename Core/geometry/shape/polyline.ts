@@ -1,4 +1,4 @@
-import { CONF } from "config";
+import { CONF } from "Core/config";
 import { EPS } from "Core/numerics/eps";
 import { WASMCompatability } from "Rust/exports";
 import { Radians } from "../types";
