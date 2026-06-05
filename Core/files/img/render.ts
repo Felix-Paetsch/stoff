@@ -17,10 +17,11 @@ export function render(
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
 
-    g = g.resample({
+    g = g.with_new_dimensions({
         lattice_dimensions: img_dimensions,
-        domain_dimensions: [0, 0, img_dimensions[0], img_dimensions[1]],
+        domain_dimensions: g.domain_dimensions(),
     });
+    g.remap_domain_in_place([0, 0, img_dimensions[0], img_dimensions[1]]);
 
     for (let py = 0; py < height; py++) {
         for (let px = 0; px < width; px++) {

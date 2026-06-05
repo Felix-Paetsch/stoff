@@ -1,5 +1,7 @@
 import { DST, Image, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
+import { Grid, InternalGrid } from "Core/grid/index";
+import { render_internal_grid } from "Core/grid/rendering/internal_grid";
 import * as Utils from "Core/utils/index";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
@@ -18,6 +20,7 @@ export type Putable =
     | Error
     | Embroidery
     | Image
+    | InternalGrid
     | DST;
 
 export type PutMetaData = {
@@ -52,6 +55,9 @@ export function put(what: Putable, meta?: PutMetaData | string) {
     }
     const d = dir();
 
+    if (what instanceof Grid) {
+        what = render_internal_grid(what);
+    }
     if (what instanceof Image) {
         return put_image(what, meta);
     }
@@ -97,7 +103,7 @@ function serialize_meta_data(meta: PutMetaData) {
     } as const;
 }
 
-function serialize_put(what: Exclude<Putable, Image>) {
+function serialize_put(what: Exclude<Putable, Image | Grid<any>>) {
     if (typeof what == "string") {
         return {
             type: "text",

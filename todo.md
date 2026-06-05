@@ -1,31 +1,17 @@
+# Grid Update
+
+1. Remap domain
+3. Groupn grids
+4. Map_n grids
+
+
+
 ## Todo
 
-- fix dependencies
-- maybe restructure exports..
-
-https://medium.com/visual-development/how-to-fix-nasty-circular-dependency-issues-once-and-for-all-in-javascript-typescript-a04c987cf0de
-
-
-- svg to img
-- maybe some day have alpha images _iff_ there is a need for them. Maybe for superposition or so? Maybe then have Vec4 grid?
-- allow arbitatry dimensions for img rendering
-- allow image grids with offset domain / specified w/h?
-
-- render vec grid to buffer (direction, magnitude, malformed)
-- rendering vec3: render.. as img
-- render any grid
-- make color grid work/canonical
-    - out.put, etc
-    - rendering i.g.
-- Make fast marching faster
-- Review / improve tensor /directional fast marching
-- RGBGrdi
-
-
-Setting interval in eikonal to low (5,5) gives modue resoltuion error
-Second order approximations for Tensor (and directional?)
-Improve speed (as higher grid res is better)
-Grid stuff more ergonomic, e.g. automagically remap 2nd grid if needed
+- allow to resample grid only specifying lattice dimensions
+- u8 array
+- common array interface for grids
+- image processing methods
 
 ## Steps
 
@@ -40,13 +26,15 @@ Grid stuff more ergonomic, e.g. automagically remap 2nd grid if needed
 
 # Updates
 
+- Config update
 - Grid Update
 - Type (restriction) update
     - unsafe accessorts, maybe with unsafe prefix
     - (or with by_ref prefix, currently liking this one)
 - Image Update
-    - Graph Algorithms
     - Grid Processing
+    - pixlane media
+- Image alpha update
 - SVG Update
     + Filled shapes
     + read in data from svg
@@ -145,9 +133,11 @@ Boolean grid clusters
 Boolean grid
 - and /or
 More keys for lerp: Nearest neighbor
+- Tensor & directional eikonal (for tensor matrices)
 Radial distance functions
 Following flow fields
 - Angular binary search with a score fn?
+Svg to image
 Chaikin
 https://ko-fi.com/s/bab05e779e
 Confine run within shape, i.e. to a (kind of?) shape interesection
@@ -249,6 +239,10 @@ How to best do git (i.e. learn it)
     - make sure it is not tooo sloooow
 - intersection points
 - cut/glue/unfold to A4 printable
+- KUMIKU Pattern
+    https://www.reddit.com/r/PlotterArt/comments/1h9jjpm/another_kumiko_pattern/
+
+https://pixlane.media/dev-tools/
 
 # Neovim
 

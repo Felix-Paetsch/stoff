@@ -11,6 +11,7 @@ pub fn base_second_order_arrival_time_update_fn<'a>(
 ) -> impl Fn(&FastMarchingState, GridPosition) -> f64 + 'a {
     let [w, h] = speed_grid.lattice_dimensions();
     debug_assert!(w > 2 && h > 2);
+    debug_assert!(speed_grid.iter().all(|v| *v >= 0.0));
 
     let v00 = speed_grid.vector_at([0, 0]);
     let v01 = speed_grid.vector_at([1, 0]);

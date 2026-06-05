@@ -8,7 +8,9 @@ export function render_number_grid(
     img_dimensions: [number, number] = [500, 500],
 ) {
     let remap = Interval.remap(
-        Interval.cover(g.values_ref.filter((v) => Math.abs(v) < Infinity)),
+        Interval.cover(
+            g.values_ref.as_array().filter((v) => Math.abs(v) < Infinity),
+        ),
         Interval.UnitInterval,
     );
 

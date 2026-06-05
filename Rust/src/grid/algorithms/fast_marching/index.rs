@@ -6,10 +6,8 @@ use crate::{
     grid::{
         algorithms::fast_marching::{
             arrival_time_update_fns::{
-                base::base_arrival_time_update_fn,
                 base_second_order::base_second_order_arrival_time_update_fn,
                 directional::directional_arrival_time_update_fn,
-                tensor::tensor_arrival_time_update_fn,
             },
             initialize::{initialize, FastMarchingState},
         },
@@ -45,12 +43,7 @@ pub fn solve_general_fast_marching(
 
 pub fn solve_fast_marching(times: &mut Grid<f64>, speed_map: &Grid<f64>) {
     let update_fn = base_second_order_arrival_time_update_fn(speed_map);
-    let _update_fn = base_arrival_time_update_fn(speed_map);
-    solve_general_fast_marching(times, &update_fn);
-}
-
-pub fn solve_tensor_fast_marching(times: &mut Grid<f64>, tensor_map: &Grid<Vector>) {
-    let update_fn = tensor_arrival_time_update_fn(tensor_map);
+    // let update_fn = multi_stencil_second_order_arrival_time_update_fn(speed_map);
     solve_general_fast_marching(times, &update_fn);
 }
 

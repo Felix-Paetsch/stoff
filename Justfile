@@ -9,7 +9,7 @@ dev_typecheck:
     ./watch.sh "npx tsc -p dev_tsconfig.json --noEmit"
 
 check_circular_dependencies:
-    npx madge --circular --extensions ts .
+    npx madge --circular --extensions ts --ts-config tsconfig.json .
 
 build:
     cd Rust && wasm-pack build --target nodejs --release

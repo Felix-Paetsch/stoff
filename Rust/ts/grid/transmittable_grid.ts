@@ -1,12 +1,12 @@
 import {
     BooleanGrid,
     InternalGrid,
+    NumberGrid,
     Vec3,
     Vec3Grid,
     VectorGrid,
 } from "@/Core/grid";
 import { Vector } from "Core/geometry/vector";
-import { NumberGrid } from "Core/grid/grids/number_grid";
 
 export function grid_to_vecf64(g: InternalGrid): Float64Array {
     const dimensions = g.dimensions_ref.domain_dimensions;

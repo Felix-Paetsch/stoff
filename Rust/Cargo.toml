@@ -16,6 +16,10 @@ getrandom = { version = "0.2", features = ["js"] }
 kdtree = {version = "0.7.0", default-features = false}
 web-sys = { version = "0.3", features = ["console"] }
 petgraph = "0.8"
+rustc-hash = "2.1.2"
+
+clahe = "0.1.2"
+image = "0.24"
 
 [profile.dev]
 debug = true  # Ensure this is set to true (or 1 / 2)

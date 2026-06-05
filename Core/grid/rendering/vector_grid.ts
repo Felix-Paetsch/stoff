@@ -43,7 +43,7 @@ export function render_vector_grid(
     const arrow_head_width = Math.min(3, max_vec_length / 2);
     const arrow_width = Math.min(2, max_vec_length / 6);
 
-    const render_grid = g.resample({
+    const render_grid = g.with_new_dimensions({
         domain_dimensions: g.domain_dimensions(),
         lattice_dimensions: samples,
     });

@@ -11,7 +11,7 @@ export function fast_marching(
     speeds: NumberGrid,
 ): NumberGrid {
     if (!times.same_dimensions(speeds)) {
-        speeds = speeds.resample(times.dimensions());
+        speeds = speeds.with_new_dimensions(times.dimensions());
     }
 
     const wasm_grid_times = WASMCompatability.Grid.grid_to_vecf64(times);

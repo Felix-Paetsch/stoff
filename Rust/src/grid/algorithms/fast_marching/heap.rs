@@ -1,11 +1,12 @@
+use rustc_hash::FxHashMap;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 
-use crate::grid::grid_struct::GridPosition;
+type GridPosition = [usize; 2];
 
 #[derive(Debug, Clone, Copy)]
 struct Entry {
-    key: [usize; 2],
+    key: GridPosition,
     value: f64,
 }
 
@@ -17,49 +18,50 @@ impl PartialEq for Entry {
 
 impl Eq for Entry {}
 
+impl Ord for Entry {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // Reverse for min-heap
+        other
+            .value
+            .total_cmp(&self.value)
+            .then_with(|| self.key.cmp(&other.key))
+    }
+}
+
 impl PartialOrd for Entry {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for Entry {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.value.total_cmp(&other.value) {
-            Ordering::Equal => self.key.cmp(&other.key),
-            // reverse so BinaryHeap becomes a min-heap by value
-            ord => ord.reverse(),
-        }
-    }
-}
-
 pub struct FastMarchingHeap {
     heap: BinaryHeap<Entry>,
-    best: HashMap<[usize; 2], f64>,
+    best: FxHashMap<GridPosition, Entry>,
 }
 
 impl FastMarchingHeap {
-    pub fn new() -> FastMarchingHeap {
-        FastMarchingHeap {
+    pub fn new() -> Self {
+        Self {
             heap: BinaryHeap::new(),
-            best: HashMap::new(),
+            best: FxHashMap::default(),
         }
     }
 
     pub fn insert_or_decrease_key(&mut self, key: GridPosition, value: f64) {
-        match self.best.get(&key).copied() {
-            Some(old) if value >= old => {}
+        let entry = Entry { key, value };
+        match self.best.get(&key) {
+            Some(old) if old.value <= value => {}
             _ => {
-                self.best.insert(key, value);
-                self.heap.push(Entry { key, value });
+                self.best.insert(key, entry);
+                self.heap.push(entry);
             }
         }
     }
 
     fn discard_stale_top(&mut self) {
-        while let Some(top) = self.heap.peek().copied() {
-            match self.best.get(&top.key).copied() {
-                Some(best_value) if best_value.to_bits() == top.value.to_bits() => break,
+        while let Some(&top) = self.heap.peek() {
+            match self.best.get(&top.key) {
+                Some(current) if current.value.to_bits() == top.value.to_bits() => break,
                 _ => {
                     self.heap.pop();
                 }

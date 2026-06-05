@@ -10,7 +10,10 @@ export function render_vec3_grid(
 ) {
     let remap = Interval.remap(
         Interval.cover(
-            g.values_ref.flat().filter((v) => Math.abs(v) < Infinity),
+            g.values_ref
+                .as_array()
+                .flat()
+                .filter((v) => Math.abs(v) < Infinity),
         ),
         [0, 255],
     );

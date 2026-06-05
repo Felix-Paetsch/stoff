@@ -2,23 +2,23 @@ import { Interval } from "@/Core/geometry";
 import { IterUtils } from "Core/utils/index";
 import { Grid, GridDimensions } from "./grid";
 import { remap_domain_using_iterable } from "./remap_domain";
-import { GridArray, Vec3 } from "./types";
+import { GridArray, Vec3, Vec3_u8 } from "./types";
 
-export class Vec3Grid extends Grid<Vec3> {
-    constructor(dr: GridDimensions, values: Vec3GridArray) {
+export class Vec3UInt8Grid extends Grid<Vec3_u8> {
+    constructor(dr: GridDimensions, values: Vec3UInt8GridArray) {
         super(dr, values);
     }
 
     with_new_dimensions(
         new_dimensions: Partial<GridDimensions> = {},
-    ): Vec3Grid {
+    ): Vec3UInt8Grid {
         return remap_domain_using_iterable(
             this,
             new_dimensions,
             (dims, it) =>
-                new Vec3Grid(
+                new Vec3UInt8Grid(
                     dims,
-                    Vec3GridArray.from_iterable(
+                    Vec3UInt8GridArray.from_iterable(
                         it,
                         dims.lattice_dimensions[0] * dims.lattice_dimensions[1],
                     ),
@@ -26,10 +26,13 @@ export class Vec3Grid extends Grid<Vec3> {
         );
     }
 
-    static from_iterable(dims: GridDimensions, it: Iterable<Vec3>): Vec3Grid {
-        return new Vec3Grid(
+    static from_iterable(
+        dims: GridDimensions,
+        it: Iterable<Vec3>,
+    ): Vec3UInt8Grid {
+        return new Vec3UInt8Grid(
             dims,
-            Vec3GridArray.from_iterable(
+            Vec3UInt8GridArray.from_iterable(
                 it,
                 dims.lattice_dimensions[0] * dims.lattice_dimensions[1],
             ),
@@ -37,8 +40,8 @@ export class Vec3Grid extends Grid<Vec3> {
     }
 }
 
-export class Vec3GridArray implements GridArray<Vec3> {
-    constructor(public arr: Float64Array) {}
+export class Vec3UInt8GridArray implements GridArray<Vec3_u8> {
+    constructor(public arr: Uint8Array) {}
 
     length() {
         return this.arr.length;
@@ -60,22 +63,22 @@ export class Vec3GridArray implements GridArray<Vec3> {
         ] as [number, number, number];
     }
 
-    set(at: number, v: Vec3) {
+    set(at: number, v: Vec3_u8) {
         this.arr[3 * at] = v[0];
         this.arr[3 * at + 1] = v[1];
         this.arr[3 * at + 2] = v[2];
     }
 
-    into_array(): Vec3[] {
+    into_array(): Vec3_u8[] {
         return this.as_array();
     }
 
-    lerp(a: Vec3, b: Vec3, t: number): Vec3 {
+    lerp(a: Vec3, b: Vec3, t: number): Vec3_u8 {
         return [
-            Interval.lerp(a[0], b[0], t),
-            Interval.lerp(a[1], b[1], t),
-            Interval.lerp(a[2], b[2], t),
-        ] as Vec3;
+            Math.round(Interval.lerp(a[0], b[0], t)),
+            Math.round(Interval.lerp(a[1], b[1], t)),
+            Math.round(Interval.lerp(a[2], b[2], t)),
+        ] as Vec3_u8;
     }
 
     [Symbol.iterator](): Iterator<Vec3> {
@@ -96,7 +99,7 @@ export class Vec3GridArray implements GridArray<Vec3> {
     }
 
     static from_iterable(it: Iterable<Vec3>, len: number) {
-        let res = new Float64Array(3 * len);
+        let res = new Uint8Array(3 * len);
 
         for (const [i, v] of IterUtils.enumerate(it)) {
             res[3 * i] = v[0];
@@ -104,6 +107,6 @@ export class Vec3GridArray implements GridArray<Vec3> {
             res[3 * i + 2] = v[2];
         }
 
-        return new Vec3GridArray(res);
+        return new Vec3UInt8GridArray(res);
     }
 }
