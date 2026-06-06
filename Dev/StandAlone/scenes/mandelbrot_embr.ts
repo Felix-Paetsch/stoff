@@ -7,6 +7,7 @@ import { Embroidery } from "Embroidery/Lib/embroidery";
 
 export default function () {
     const num_grid = Grid.from_function(
+        "f64",
         {
             domain_dimensions: [-2, -2, 4, 4],
             lattice_dimensions: [500, 500],
@@ -29,7 +30,7 @@ export default function () {
     const outlines: Polygon[] = [];
     const s = new Sketch();
     [1, 2, 3, 4, 5, 7, 9, 50, 1000].forEach((x) => {
-        const bool_grid = num_grid.map((v) => v >= x);
+        const bool_grid = Grid.map("boolean", num_grid, (v) => v >= x);
 
         const outline = GridAlgorithms.concave_outline(bool_grid, {
             concavity: 1.2,

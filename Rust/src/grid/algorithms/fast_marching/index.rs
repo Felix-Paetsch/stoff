@@ -47,6 +47,7 @@ pub fn solve_fast_marching(times: &mut Grid<f64>, speed_map: &Grid<f64>) {
     solve_general_fast_marching(times, &update_fn);
 }
 
+#[allow(unused)]
 pub fn solve_directional_fast_marching(times: &mut Grid<f64>, tensor_map: &Grid<Vector>) {
     let update_fn = directional_arrival_time_update_fn(tensor_map);
     solve_general_fast_marching(times, &update_fn);

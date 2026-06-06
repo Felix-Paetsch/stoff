@@ -1,9 +1,9 @@
 import { createCanvas } from "canvas";
-import { Vec3Grid } from "Core/grid/grids/vec3_grid";
+import { Vec3UInt8Grid } from "Core/grid/types";
 
 export type PNGBuffer = Buffer;
 export function render(
-    g: Vec3Grid,
+    g: Vec3UInt8Grid,
     img_dimensions: [number, number] = [500, 500],
 ): PNGBuffer {
     const [width, height] = img_dimensions;
@@ -19,7 +19,7 @@ export function render(
 
     g = g.with_new_dimensions({
         lattice_dimensions: img_dimensions,
-        domain_dimensions: g.domain_dimensions(),
+        domain_dimensions: g.dimensions_ref.domain_dimensions,
     });
     g.remap_domain_in_place([0, 0, img_dimensions[0], img_dimensions[1]]);
 

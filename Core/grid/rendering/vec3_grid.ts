@@ -1,17 +1,16 @@
 import { Interval } from "@/Core/geometry";
 import { Color } from "Core/colors";
-import { Grid } from "../grids/grid";
-import { Vec3 } from "../grids/types";
+import { Vec3Grid } from "../types";
 import { render_with_callback } from "./with_callback";
 
 export function render_vec3_grid(
-    g: Grid<Vec3>,
+    g: Vec3Grid,
     img_dimensions: [number, number] = [500, 500],
 ) {
     let remap = Interval.remap(
         Interval.cover(
-            g.values_ref
-                .as_array()
+            g
+                .values()
                 .flat()
                 .filter((v) => Math.abs(v) < Infinity),
         ),

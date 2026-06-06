@@ -1,8 +1,8 @@
-import { Grid } from "../grids/grid";
+import { BooleanGrid } from "../types";
 import { render_with_callback } from "./with_callback";
 
 export function render_boolean_grid(
-    g: Grid<boolean>,
+    g: BooleanGrid,
     img_dimensions: [number, number] = [500, 500],
 ) {
     return render_with_callback(

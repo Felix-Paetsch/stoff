@@ -167,6 +167,10 @@ impl<T> Grid<T> {
         self.values
     }
 
+    pub fn into_parts(self) -> ([f64; 4], [usize; 2], Vec<T>) {
+        (self.domain_dimensions, self.lattice_dimensions, self.values)
+    }
+
     #[allow(unused)]
     pub fn into_values_2d(self) -> Vec<Vec<T>> {
         let [w, h] = self.lattice_dimensions;

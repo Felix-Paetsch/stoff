@@ -5,6 +5,7 @@ import { Vector } from "Core/geometry/vector";
 
 export default function () {
     const grid = Grid.from_function(
+        "vector",
         {
             domain_dimensions: [-2, -2, 4, 4],
             lattice_dimensions: [500, 500],
@@ -14,7 +15,7 @@ export default function () {
         },
     );
 
-    const mapped_grid = grid.map((v) => v.length());
+    const mapped_grid = Grid.map("f64", grid, (v) => v.length());
     const im = GridRendering.render_number_grid(mapped_grid);
     Out.put(im, "mandelbrot.png");
 

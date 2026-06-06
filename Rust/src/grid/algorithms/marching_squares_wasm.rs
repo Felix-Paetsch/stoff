@@ -5,20 +5,15 @@ use crate::{
     grid::{
         algorithms::marching_squares::{marching_squares, ContourLinePositions},
         grid_struct::Grid,
-        wasm_compatibility,
+        wasm_compatibility::number_grid::WASMTransmittableNumberGrid,
     },
 };
 
 #[wasm_bindgen]
-pub fn wasm_grid_marching_squares(grid: &[f64], contour_argument: &[f64]) -> Vec<f64> {
-    // contour argument [0]
-    //     0 - integers
-    //     1 - value (stored in 2)
-    //     2 - values (stored in rest)
-    //
-    //     Potentially it coult return the levels
-
-    let grid = wasm_compatibility::WASMTransmittableGrid::deserialize(grid);
+pub fn wasm_grid_marching_squares(
+    grid: WASMTransmittableNumberGrid,
+    contour_argument: &[f64],
+) -> Vec<f64> {
     let f64_grid: Grid<f64> = grid.into();
 
     let contour_arg = match contour_argument[0] {

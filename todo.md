@@ -1,8 +1,9 @@
 # Grid Update
 
-1. Remap domain
-3. Groupn grids
-4. Map_n grids
+1. Test if everythings works now
+2. Implement that image things 
+    - imcluding wasm things on both sides
+3. Improve / Test grid API, especially in @ exports
 
 
 

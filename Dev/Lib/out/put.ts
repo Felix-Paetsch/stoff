@@ -1,7 +1,8 @@
 import { DST, Image, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
-import { Grid, InternalGrid } from "Core/grid/index";
+import { Grid } from "Core/grid/index";
 import { render_internal_grid } from "Core/grid/rendering/internal_grid";
+import { InternalGrid } from "Core/grid/types";
 import * as Utils from "Core/utils/index";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
@@ -20,7 +21,7 @@ export type Putable =
     | Error
     | Embroidery
     | Image
-    | InternalGrid
+    | Grid.InternalGrid
     | DST;
 
 export type PutMetaData = {
@@ -55,7 +56,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
     }
     const d = dir();
 
-    if (what instanceof Grid) {
+    if (is_internal_grid(what)) {
         what = render_internal_grid(what);
     }
     if (what instanceof Image) {
@@ -103,7 +104,7 @@ function serialize_meta_data(meta: PutMetaData) {
     } as const;
 }
 
-function serialize_put(what: Exclude<Putable, Image | Grid<any>>) {
+function serialize_put(what: Exclude<Putable, Image | InternalGrid>) {
     if (typeof what == "string") {
         return {
             type: "text",
@@ -178,4 +179,19 @@ function serialize_put(what: Exclude<Putable, Image | Grid<any>>) {
         type: "json" as const,
         value: what,
     };
+}
+
+function is_internal_grid(what: Putable): what is InternalGrid {
+    return (
+        typeof what == "object" &&
+        what != null &&
+        [
+            "type",
+            "dimensions_ref",
+            "values",
+            "values_2d",
+            "copy",
+            "set_value_at_lattice_point",
+        ].every((key) => key in what)
+    );
 }

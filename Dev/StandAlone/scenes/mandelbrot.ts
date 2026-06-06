@@ -1,10 +1,11 @@
 import { Interval, Vector } from "@/Core/geometry";
-import { GridAlgorithms, GridRendering, VectorGrid } from "@/Core/grid";
+import { Grid, GridAlgorithms, GridRendering } from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 
 export default function () {
-    const vec_grid = VectorGrid.from_function(
+    const vec_grid = Grid.from_function(
+        "vector",
         {
             domain_dimensions: [-2, -1.5, 3, 3],
             lattice_dimensions: [500, 500],
@@ -24,7 +25,7 @@ export default function () {
     vec_grid.remap_domain_in_place([0, 0, 8, 8]);
     Out.put(GridRendering.render_vector_grid(vec_grid));
 
-    const num_grid = vec_grid.map((v) =>
+    const num_grid = Grid.map("f64", vec_grid, (v) =>
         Interval.clamp([0, 100], Math.log1p(5 * v.length())),
     );
 
@@ -35,7 +36,7 @@ export default function () {
 
     const s = new Sketch();
     for (let i = 0; i < 5; i++) {
-        const bool_grid = num_grid.map((v) => v < 4 + i);
+        const bool_grid = Grid.map("boolean", num_grid, (v) => v < 4 + i);
 
         const outline = GridAlgorithms.concave_outline(bool_grid, {
             concavity: 1,

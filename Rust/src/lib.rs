@@ -8,7 +8,7 @@ pub fn main() {
 mod geometry;
 mod graph;
 mod grid;
-mod image;
+// mod image;
 mod numerics;
 
 #[allow(unused)]

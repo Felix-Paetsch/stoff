@@ -1,16 +1,14 @@
 import { Color } from "Core/colors";
 import { Interval } from "Core/geometry/index";
-import { Grid } from "../grids/grid";
+import { NumberGrid } from "../types";
 import { render_with_callback } from "./with_callback";
 
 export function render_number_grid(
-    g: Grid<number>,
+    g: NumberGrid,
     img_dimensions: [number, number] = [500, 500],
 ) {
     let remap = Interval.remap(
-        Interval.cover(
-            g.values_ref.as_array().filter((v) => Math.abs(v) < Infinity),
-        ),
+        Interval.cover(g.values().filter((v) => Math.abs(v) < Infinity)),
         Interval.UnitInterval,
     );
 

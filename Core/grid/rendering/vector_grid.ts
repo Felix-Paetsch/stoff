@@ -4,7 +4,7 @@ import { Fraction, Interval } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
 import { unique_string } from "Core/utils/unique";
-import { Grid } from "../grids/grid";
+import { VectorGrid } from "../types";
 
 export type VectorGridConfig = {
     out_dimensions: [number, number];
@@ -13,7 +13,7 @@ export type VectorGridConfig = {
 };
 
 export function render_vector_grid(
-    g: Grid<Vector>,
+    g: VectorGrid,
     config: Partial<VectorGridConfig> = {},
 ): SVG_Builder {
     if (!("out_dimensions" in config)) {
@@ -44,7 +44,7 @@ export function render_vector_grid(
     const arrow_width = Math.min(2, max_vec_length / 6);
 
     const render_grid = g.with_new_dimensions({
-        domain_dimensions: g.domain_dimensions(),
+        domain_dimensions: g.dimensions_ref.domain_dimensions,
         lattice_dimensions: samples,
     });
 
