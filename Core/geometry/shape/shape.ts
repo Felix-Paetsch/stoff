@@ -4,9 +4,10 @@ import {
     wasm_geometry_geometries_intersect,
     wasm_geometry_shape_intersections,
     wasm_geometry_shape_self_intersections,
-        wasm_geometry_shape_self_intersects,
+    wasm_geometry_shape_self_intersects,
     WASMCompatability,
 } from "Rust/exports";
+import { Fraction } from "../../numerics/interval";
 import { BoundingBox } from "../bounding_box";
 import {
     buffer,
@@ -14,7 +15,6 @@ import {
     BufferLineJoinStyle,
 } from "../finite_geometry";
 import { Geometry, Interval } from "../index";
-import { Fraction } from "../interval";
 import { Line } from "../line";
 import { Ray } from "../ray";
 import { Radians } from "../types";

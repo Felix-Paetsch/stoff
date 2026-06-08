@@ -1,5 +1,5 @@
 import { Expect } from "Core/expect";
-import { Fraction } from "./interval";
+import { Fraction } from "../numerics/interval";
 import { Shape } from "./shape/shape";
 import { Vector } from "./vector";
 

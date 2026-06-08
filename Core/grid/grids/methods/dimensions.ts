@@ -2,7 +2,11 @@ import { Expect } from "Core/expect";
 import { Interval } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
-import { GridDimensions, LatticePoint } from "../../types";
+import {
+    GridDimensions,
+    LatticePoint,
+    PartialGridDimensions,
+} from "../../types";
 import { IGrid } from "../igrid";
 
 export function dimensions_agree(
@@ -41,9 +45,23 @@ export function dimensions_agree(
 }
 
 export function complete_partial_subgrid_dimensions(
-    dims: Partial<GridDimensions>,
+    dims: PartialGridDimensions,
     g: IGrid<any, any>,
 ): GridDimensions {
+    if (!dims) {
+        dims = {};
+    } else if (Array.isArray(dims)) {
+        if (dims.length == 2) {
+            dims = {
+                lattice_dimensions: dims,
+            };
+        } else {
+            dims = {
+                domain_dimensions: dims,
+            };
+        }
+    }
+
     if (!dims.domain_dimensions) {
         dims.domain_dimensions = g.dimensions_ref.domain_dimensions;
     }
@@ -82,7 +100,7 @@ export function complete_partial_subgrid_dimensions(
 }
 
 export function lazy_with_new_dimensions<T, S extends string>(
-    new_dimensions_: Partial<GridDimensions>,
+    new_dimensions_: PartialGridDimensions,
     g: IGrid<T, S>,
 ): IGrid<T, S> {
     const new_dimensions = complete_partial_subgrid_dimensions(

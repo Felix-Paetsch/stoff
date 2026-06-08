@@ -1,6 +1,6 @@
 import { Expect } from "Core/expect";
+import { Fraction } from "../../numerics/interval";
 import { Interval } from "../index";
-import { Fraction } from "../interval";
 import { Vector } from "../vector";
 
 export namespace LengthMap {

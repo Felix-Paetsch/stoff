@@ -1,5 +1,5 @@
 import { CONF } from "Core/config";
-import { Radians, Spline } from "Core/geometry/index";
+import { Radians, Spline2d } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
 import { Shape } from "../../shape";
@@ -122,7 +122,7 @@ function spline_for_line_segment(
     const t1 = leftTangentPoint ? p1.subtract(leftTangentPoint) : segment;
     const t2 = rightTangentPoint ? rightTangentPoint.subtract(p2) : segment;
 
-    return Spline.hermite([p1, p2], [t1, t2]);
+    return Spline2d.hermite([p1, p2], [t1, t2]);
 }
 
 function spline_for_polygon_segment(
@@ -165,7 +165,7 @@ function spline_for_polygon_segment(
     const t1 = leftTangentPoint ? p1.subtract(leftTangentPoint) : segment;
     const t2 = rightTangentPoint ? rightTangentPoint.subtract(p2) : segment;
 
-    return Spline.hermite([p1, p2], [t1, t2]);
+    return Spline2d.hermite([p1, p2], [t1, t2]);
 }
 
 export function resample_line_points_smooth(

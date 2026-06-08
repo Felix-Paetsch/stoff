@@ -1,9 +1,45 @@
-# Grid Update
+Scenes should only have imports from barrel files inside of Core..
+
+Viewer hoering image
+- see pixel value in rgb / hsl
+- see a popup of 5x5 pixels around currently hovering image
+
+Use Einstein image as resplacement mask
+Merge lines:
+- minimizing maximal connecting line
+
+
+
+1. Splines
+- remap from partition of unity ("From partition of unity" - with optional range parameter)
+- move most of it into numerics and have spline2d in geometry
+
+- Removing (pairs of) long lines in the embroidery file
+- better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
+
+Convole with kernel in rust
+
+0. Image stuff type stuff
 
 1. Test if everythings works now
 2. Implement that image things 
     - imcluding wasm things on both sides
 3. Improve / Test grid API, especially in @ exports
+4. Directional/Tensor Eikonal
+5. Improve API... probably get rid of main barrel export
+6. Find if clahe needs fixing
+
+ImgAlgorithms
+Image -> Image writer
+Core/image
+img resample
+
+Avg brightness
+Median brightness
+"importance map for colors"
+
+There are many interesing speed map functions
+Like trying to get rid of the average color
 
 
 
@@ -27,6 +63,10 @@
 
 # Updates
 
+- Cache update
+    - cache grid/shape/putable/... between program runs Cache.cache(name, id, computation);
+    - Cache.sequential_cache()
+    - ...
 - Config update
 - Grid Update
 - Type (restriction) update

@@ -1,4 +1,4 @@
-import { Image } from "@/Core/files";
+import { GrayImage, Image, RGBImage } from "Core/image/types";
 import { Grid } from "../index";
 import { InternalGrid } from "../types";
 import { render_boolean_grid } from "./boolean_grid";
@@ -13,13 +13,13 @@ export function render_internal_grid(
         return render_number_grid(g, img_dimensions);
     }
     if (g.type == "vec3u8") {
-        return new Image(g, img_dimensions);
+        return new RGBImage(Grid.lazy_with_new_dimensions(img_dimensions, g));
     }
     if (g.type == "vec3") {
         return render_vec3_grid(g);
     }
     if (g.type == "u8") {
-        return new Image(Grid.map("vec3u8", g, (v) => [v, v, v]));
+        return new GrayImage(Grid.lazy_with_new_dimensions(img_dimensions, g));
     }
     if (g.type == "vector") {
         return render_vec3_grid(Grid.map("vec3", g, (v) => [v.x, v.y, 0]));

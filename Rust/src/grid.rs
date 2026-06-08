@@ -1,4 +1,4 @@
 mod algorithms;
 mod grid_lerp;
 pub mod grid_struct;
-mod wasm_compatibility;
+pub mod wasm_compatibility;

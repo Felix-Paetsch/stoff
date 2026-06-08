@@ -28,6 +28,7 @@
         "paths": {
             "@/Core": ["Core/api/index"],
             "@/Core/files": ["Core/api/files"],
+            "@/Core/images": ["Core/api/images"],
             "@/Core/geometry": ["Core/api/geometry"],
             "@/Core/sketch": ["Core/api/sketch"],
             "@/Core/grid": ["Core/api/grid"],

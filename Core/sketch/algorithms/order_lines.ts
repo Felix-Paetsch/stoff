@@ -1,6 +1,8 @@
-import { Graph } from "@/Core";
+import {
+    GraphAlgorithms,
+    sketch_element_collection_to_shape_graph,
+} from "@/Core/graph";
 import { Line, Point } from "@/Core/sketch";
-import { GraphAlgorithms } from "Core/graph/index";
 
 export function order_lines(...lines: Line[]): {
     lines: Line[];
@@ -23,10 +25,7 @@ export function order_lines(...lines: Line[]): {
         };
     }
 
-    const g = Graph.sketch_element_collection_to_shape_graph(
-        lines,
-        "endpoint_hull",
-    );
+    const g = sketch_element_collection_to_shape_graph(lines, "endpoint_hull");
     const tour = GraphAlgorithms.euler_tour(g);
     if (!tour) return null;
 

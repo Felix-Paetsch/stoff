@@ -8,6 +8,12 @@ export type GridDimensions = {
     domain_dimensions: [number, number, number, number];
 };
 
+export type PartialGridDimensions =
+    | null
+    | Partial<GridDimensions>
+    | [number, number]
+    | [number, number, number, number];
+
 export type Vec3 = [number, number, number];
 export type Vec3U8 = [number, number, number];
 export type u8 = number;

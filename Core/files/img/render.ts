@@ -2,7 +2,7 @@ import { createCanvas } from "canvas";
 import { Vec3UInt8Grid } from "Core/grid/types";
 
 export type PNGBuffer = Buffer;
-export function render(
+export function render_to_png(
     g: Vec3UInt8Grid,
     img_dimensions: [number, number] = [500, 500],
 ): PNGBuffer {

@@ -1,7 +1,7 @@
 import { Shape, Vector } from "../..";
 import { CONF } from "../../../config";
 import { Bounds } from "../../../numerics/index";
-import { Fraction } from "../../interval";
+import { Fraction } from "../../../numerics/interval";
 
 type FunctionSample = {
     at: Fraction;

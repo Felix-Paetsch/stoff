@@ -6,6 +6,8 @@ export * as Files from "./files";
 export * as Geometry from "./geometry";
 export * as Graph from "./graph";
 export * as Grid from "./grid";
+export * as Image from "./images";
 export * as Numerics from "./numerics";
 export * as Sketch from "./sketch";
 export * as Utils from "./utils";
+

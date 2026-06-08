@@ -1,8 +1,9 @@
-import { DST, Image, SVG_Builder } from "@/Core/files";
+import { DST, ImageIO, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
 import { Grid } from "Core/grid/index";
 import { render_internal_grid } from "Core/grid/rendering/internal_grid";
 import { InternalGrid } from "Core/grid/types";
+import { Image, is_image } from "Core/image/types";
 import * as Utils from "Core/utils/index";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";
@@ -59,7 +60,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
     if (is_internal_grid(what)) {
         what = render_internal_grid(what);
     }
-    if (what instanceof Image) {
+    if (is_image(what)) {
         return put_image(what, meta);
     }
 
@@ -77,7 +78,7 @@ function put_image(im: Image, meta: PutMetaData) {
     if (!title.endsWith(".png")) {
         title = title + ".png";
     }
-    put_as_file(im.render(), title);
+    put_as_file(ImageIO.render(im), title);
 }
 
 export function put_live_recordings() {

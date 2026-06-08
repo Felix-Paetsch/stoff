@@ -1,26 +1,13 @@
-import { Color } from "Core/colors";
 import { Grid } from "Core/grid/index";
-import { UInt8Grid, Vec3, Vec3UInt8Grid } from "Core/grid/types";
+import { Vec3 } from "Core/grid/types";
+import { RGBImage } from "Core/image/index";
+import { Image } from "Core/image/types";
+import { writeFile } from "node:fs/promises";
 import sharp from "sharp";
-import { render } from "./render";
+import { render_to_png } from "./render";
 
-export class Image {
-    constructor(
-        public pixel_grid: Vec3UInt8Grid,
-        public default_dimensions: [number, number] = [500, 500],
-    ) {}
-
-    gray_scale(): UInt8Grid {
-        return Grid.map("u8", this.pixel_grid, (c) =>
-            Color.toGrayScale(Color.fromRgb(c)),
-        );
-    }
-
-    render(dimensions: [number, number] = this.default_dimensions) {
-        return render(this.pixel_grid, dimensions);
-    }
-
-    static async load(path: string): Promise<Image> {
+export namespace ImageIO {
+    export async function load(path: string): Promise<RGBImage> {
         const { data, info } = await sharp(path)
             .removeAlpha()
             .raw()
@@ -35,7 +22,7 @@ export class Image {
             }
         }
 
-        return new Image(
+        return new RGBImage(
             Grid.from_array(
                 "vec3u8",
                 {
@@ -44,6 +31,24 @@ export class Image {
                 },
                 grid,
             ),
+        );
+    }
+
+    export function write(
+        path: string,
+        img: Image,
+        dimensions: [number, number] | null = null,
+    ) {
+        writeFile(path, render(img, dimensions));
+    }
+
+    export function render(
+        img: Image,
+        dimensions: [number, number] | null = null,
+    ) {
+        return render_to_png(
+            img.as_rgb().pixel_grid,
+            dimensions || img.pixel_grid.dimensions_ref.lattice_dimensions,
         );
     }
 }

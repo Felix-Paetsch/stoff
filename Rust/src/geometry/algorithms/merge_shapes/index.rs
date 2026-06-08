@@ -27,8 +27,7 @@ struct ShapeMergingData {
 #[allow(unused)]
 pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
     shapes.retain(|x| !x.is_empty());
-    let n = shapes.len();
-    if n == 0 {
+    if shapes.is_empty() {
         return Shape::Polyline(Polyline::empty());
     }
 
@@ -45,6 +44,11 @@ pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
 
         shapes.extend(merged_gons.into_iter().map(Shape::Polygon));
         shapes.push(Shape::Polyline(new_polyline));
+    }
+
+    let shape_count = shapes.len();
+    if shape_count == 1 {
+        return shapes.pop().unwrap();
     }
 
     let bounding_boxes: Vec<BoundingBox> = shapes
@@ -70,7 +74,8 @@ pub fn merge_shapes(mut shapes: Vec<Shape>) -> Shape {
     let mut merged_shapes_uf = UnionFind::new(shapes.len());
 
     let mut guaranteed_min_distance = f64::INFINITY;
-    for _ in 0..(n - 1) {
+
+    for _ in 0..(shape_count - 1) {
         min_distance_computer.retain_lazy(|(i, j, _)| !merged_shapes_uf.equiv(i, j));
         let closest = min_distance_computer.pop().unwrap();
 
