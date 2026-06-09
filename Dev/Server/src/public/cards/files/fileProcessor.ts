@@ -1,6 +1,6 @@
-import type { FileRecord } from "../../types.js";
-import { renderCJsonFileCard } from "./cjson/index.js";
-import { escapeHtml, json_to_string } from "./utilts.js";
+import type { FileRecord } from "../../../types.js";
+import { renderCJsonFileCard } from "../cjson/index.js";
+import { escapeHtml, json_to_string } from "../utilts.js";
 
 export function renderFileCard(file: FileRecord): string {
     const meta = `

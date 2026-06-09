@@ -1,7 +1,7 @@
 import { compareStrings } from "../compareStrings.js";
 import type { Config, FileRecord, ServerMessage } from "../types.js";
-import { renderFileCard } from "./cards/fileProcessor.js";
-import { updateCJson } from "./cards/utilts.js";
+import { renderFileCard } from "./cards/files/fileProcessor.js";
+import { updateFileCardDisplays } from "./cards/utilts.js";
 
 const grid = document.getElementById("grid") as HTMLDivElement;
 // @ts-ignore
@@ -92,25 +92,13 @@ function connect(): void {
             for (const file of sorted) {
                 upsertFile(file);
             }
-            updateCJson();
-            return;
-        }
-
-        if (msg.type === "upsert") {
+        } else if (msg.type === "upsert") {
             upsertFile(msg.file);
-
-            if (msg.file.kind == "json") {
-                reHighlight();
-            } else if (msg.file.kind == "svg") {
-            } else if (msg.file.kind == "cjson") {
-                updateCJson();
-            }
-            return;
-        }
-
-        if (msg.type === "remove") {
+        } else if (msg.type === "remove") {
             removeFile(msg.name);
         }
+
+        updateFileCardDisplays();
     });
 }
 

@@ -1,6 +1,8 @@
 import { ImageIO } from "@/Core/files";
+import { FiniteGeometry, Vector } from "@/Core/geometry";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { clahe } from "@/Core/images";
+import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 import { merge_shapes } from "Core/geometry/algorithms/merge_shapes";
 import { Convolution } from "Core/grid/algorithms/index";
@@ -48,6 +50,10 @@ export default async function () {
         Convolution.gaussian_blur(5),
     );
     Out.put(convoluted, "#2_conv1");
+
+    const sk = new Sketch();
+    sk.add_line(FiniteGeometry.circle(Vector.ZERO, 5));
+    Out.put(sk, "#1_sk");
 
     let height_lines_grid = convoluted;
 

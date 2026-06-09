@@ -67,6 +67,7 @@ Like trying to get rid of the average color
     - cache grid/shape/putable/... between program runs Cache.cache(name, id, computation);
     - Cache.sequential_cache()
     - ...
+- Viewer Update
 - Config update
 - Grid Update
 - Type (restriction) update

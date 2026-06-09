@@ -1,6 +1,7 @@
 import { reHighlight } from "../client.js";
 import { recomputeEmbroideryDisplay } from "./cjson/embroidery/index.js";
 import { rebuildSVGRenderGroups } from "./cjson/svg_tooltips.js";
+import "./files/color_tooltip.js";
 
 export function escapeHtml(value: string): string {
     return value
@@ -21,7 +22,7 @@ export function json_to_string(data: unknown): string {
     }
 }
 
-export function updateCJson() {
+export function updateFileCardDisplays() {
     reHighlight();
     rebuildSVGRenderGroups();
     recomputeEmbroideryDisplay();

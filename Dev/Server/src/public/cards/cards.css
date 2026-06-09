@@ -284,15 +284,9 @@ a:hover {
     background: white;
 }
 
-
-
-
-
-
-
-
-
-
+.card .image-body img{
+    cursor: crosshair;
+}
 
 
 
