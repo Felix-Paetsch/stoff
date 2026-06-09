@@ -19,7 +19,7 @@ export class Polyline extends Shape {
 
     vertex_at(pos: number): Vector | undefined {
         const c = this.vertex_count();
-        return this.vertices[pos < 0 ? pos : pos + c];
+        return this.vertices[pos >= 0 ? pos : pos + c];
     }
 
     first() {

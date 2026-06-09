@@ -1,13 +1,6 @@
-import {
-    EPS,
-    Expect,
-    LinearTransform,
-    Polyline,
-    Quadrature,
-    Search,
-    Shape,
-    Vector,
-} from "@/Core";
+import { Expect } from "@/Core/expect";
+import { LinearTransform, Polyline, Shape, Vector } from "@/Core/geometry";
+import { EPS, Quadrature, Search } from "@/Core/numerics";
 
 export function polyline_with_length(
     v1: Vector,

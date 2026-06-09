@@ -1,14 +1,13 @@
+import { Expect } from "@/Core/expect";
+import { PlaneLine, Vector } from "@/Core/geometry";
 import {
     CollectionMethods,
     Copy,
-    Expect,
     Line,
-    PlaneLine,
     Point,
     Sketch,
     SketchElement,
-    Vector,
-} from "@/Core";
+} from "@/Core/sketch";
 import { Validate } from "@/Dev";
 import {
     calculate_cut_groups_no_fixed_point,

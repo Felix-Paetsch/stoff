@@ -1,4 +1,4 @@
-import { Triangle } from "@/Core";
+import { Triangle } from "@/Core/geometry";
 import { BowlCozyConfig } from ".";
 
 export type Bowl_Measurements = {

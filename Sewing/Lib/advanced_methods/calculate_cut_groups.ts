@@ -1,4 +1,5 @@
-import { CollectionMethods, Expect, Line, Point } from "@/Core";
+import { Expect } from "@/Core/expect";
+import { CollectionMethods, Line, Point } from "@/Core/sketch";
 
 // Lines that belong to one side of a cut
 export type LineGroup = Line[];

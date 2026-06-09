@@ -1,6 +1,6 @@
-import { SketchAlgorithms } from "@/Algorithms";
-import { Copy, Expect, Line, Point } from "@/Core";
+import { Copy, Line, Point, SketchAlgorithms } from "@/Core/sketch";
 import { Validate } from "@/Dev";
+import { Expect } from "Core/expect";
 import { LineGroup } from "./calculate_cut_groups";
 
 export type CutPart = {

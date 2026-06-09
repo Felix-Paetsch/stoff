@@ -1,20 +1,20 @@
+import { Numerics } from "@/Core";
 import { ImageIO } from "@/Core/files";
-import { FiniteGeometry, Vector } from "@/Core/geometry";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { clahe } from "@/Core/images";
-import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
 import { merge_shapes } from "Core/geometry/algorithms/merge_shapes";
 import { Convolution } from "Core/grid/algorithms/index";
 import { UInt8Grid } from "Core/grid/types";
 import { partition_unity_gauss } from "Core/numerics/index";
+import { SamplePoint } from "Core/numerics/spline";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 
 function map_brightness(v: number): number {
     v = (v / 255) * 100;
 
-    const important_hsl_numbers = [15, 20, 70];
-    const bad_hsl_numbers = [50];
+    const important_hsl_numbers = [30, 61, 75, 80];
+    const bad_hsl_numbers = [44, 56, 65, 77];
 
     const partition = partition_unity_gauss(
         important_hsl_numbers.concat(bad_hsl_numbers),
@@ -27,9 +27,23 @@ function map_brightness(v: number): number {
         good += importance[i]!;
     }
 
-    const bad = 1 - good;
+    const bad = 255 * (1 - good) + 1;
 
-    return bad * 255 + 50;
+    return bad;
+}
+
+function map_brightness_to_speed(v: number): number {
+    const samples: SamplePoint[] = [
+        [0, 200],
+        [8, 500],
+        [30, 1000],
+        [60, 2000],
+        [100, 10000],
+    ];
+
+    const remap_method = Numerics.Spline.akima(samples);
+
+    return remap_method((v / 255) * 100);
 }
 
 export default async function () {
@@ -51,10 +65,6 @@ export default async function () {
     );
     Out.put(convoluted, "#2_conv1");
 
-    const sk = new Sketch();
-    sk.add_line(FiniteGeometry.circle(Vector.ZERO, 5));
-    Out.put(sk, "#1_sk");
-
     let height_lines_grid = convoluted;
 
     height_lines_grid.remap_domain_in_place([0, 0, 10, 10]);
@@ -62,7 +72,9 @@ export default async function () {
 
     // Eikonal
 
-    const speed_map = Grid.map("f64", height_lines_grid, map_brightness);
+    const feature_map = Grid.map("f64", height_lines_grid, map_brightness);
+    Out.put(feature_map, "#2.5_features");
+    const speed_map = Grid.map("f64", feature_map, map_brightness_to_speed);
     Out.put(speed_map, "#3_speed");
 
     const src_map = Grid.from_function(
@@ -77,7 +89,7 @@ export default async function () {
 
     // Height lines
 
-    eikonal.map_in_place((v) => 1000 * v);
+    eikonal.map_in_place((v) => 5000 * v);
     const s = new Embroidery();
     const height_lines = GridAlgorithms.maching_squares(eikonal);
     height_lines.forEach((l) => s.run(l));

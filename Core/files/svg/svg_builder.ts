@@ -56,6 +56,7 @@ export class SVG_Builder {
 <text ${ras} x="${position.x}" y="${position.y}"
       font-family="${escapeXml(full_attributes.font_family)}"
       font-size="${full_attributes.font_size}"
+      dominant-baseline="${full_attributes.dominant_baseline}"
       fill="${Color.toHex(full_attributes.fill)}"
       font-weight="${full_attributes.font_weight}"
       text-anchor="${full_attributes.text_anchor}">${escapeXml(text)}</text>`;
@@ -268,6 +269,7 @@ export class SVG_Builder {
     copy() {
         const b = new SVG_Builder();
         b.render_instructions = [...this.render_instructions];
+        b.defs = this.defs;
         return b;
     }
 

@@ -4,6 +4,7 @@ export type TextRenderAttributes = {
     font_family: string;
     font_size: number;
     fill: Color.Color;
+    dominant_baseline: string;
     font_weight:
         | "normal"
         | "bold"
@@ -29,6 +30,7 @@ export const defaultTextRenderAttributes: TextRenderAttributes = {
     font_weight: "normal",
     text_anchor: "start",
     render_priority: 100,
+    dominant_baseline: "hanging",
 };
 
 export type PointRenderAttributes = {

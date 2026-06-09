@@ -1,4 +1,5 @@
-import { Json, Sketch } from "@/Core";
+import { Sketch } from "@/Core/sketch";
+import { Json } from "@/Core/utils";
 
 export type PatternFunction<T extends Json> = (config: T) => Sketch | Sketch[];
 export type Pattern<S extends string, T extends Json> = {

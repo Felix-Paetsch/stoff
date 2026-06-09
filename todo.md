@@ -1,8 +1,7 @@
-Scenes should only have imports from barrel files inside of Core..
+Why is this one offset soo bad in the sewing thing??
 
-Viewer hoering image
-- see pixel value in rgb / hsl
-- see a popup of 5x5 pixels around currently hovering image
+Scenes should only have imports from barrel files inside of Core..
+Bound size on polylines
 
 Use Einstein image as resplacement mask
 Merge lines:
@@ -18,6 +17,8 @@ Merge lines:
 - better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
 
 Convole with kernel in rust
+- special method for blur/seperable kernel
+- "convolve_seperable"
 
 0. Image stuff type stuff
 
@@ -28,6 +29,8 @@ Convole with kernel in rust
 4. Directional/Tensor Eikonal
 5. Improve API... probably get rid of main barrel export
 6. Find if clahe needs fixing
+
+SketchRendering with better/different allowed default attributes
 
 ImgAlgorithms
 Image -> Image writer
@@ -41,14 +44,6 @@ Median brightness
 There are many interesing speed map functions
 Like trying to get rid of the average color
 
-
-
-## Todo
-
-- allow to resample grid only specifying lattice dimensions
-- u8 array
-- common array interface for grids
-- image processing methods
 
 ## Steps
 
@@ -68,6 +63,11 @@ Like trying to get rid of the average color
     - Cache.sequential_cache()
     - ...
 - Viewer Update
+    - faster
+    - different platform?
+    - more readable..
+    - dont allow to large embroidery/... files
+    - for an out/put file also a meta data file, even if it is an image, etc (ofc optional is the dir is corruped somehow or smth)
 - Config update
 - Grid Update
 - Type (restriction) update

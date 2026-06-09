@@ -1,12 +1,12 @@
+import { Expect } from "@/Core/expect";
+import { LinearTransform } from "@/Core/geometry";
 import {
     CollectionMethods,
     Copy,
-    Expect,
     Line,
-    LinearTransform,
     Point,
-    Sketch,
-} from "@/Core";
+    Sketch
+} from "@/Core/sketch";
 import { remove_underscore_attributes } from "./exports";
 
 export type GlueIdent = Line | [Point, Point] | [Line, Point];
@@ -297,5 +297,6 @@ function delete_glue_point(
         throw new Error(
             "Cant safely delete glue point! Not two adjacent lines",
         );
+
     return s.merge_lines(adjacent[0]!, adjacent[1]!, true, line_callback);
 }

@@ -1,5 +1,10 @@
 import { SVG_Builder } from "Core/files/index";
-import { BoundingBox, FiniteGeometry, Polygon } from "Core/geometry/index";
+import {
+    BoundingBox,
+    FiniteGeometry,
+    LinearTransform,
+    Polygon,
+} from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
 import { Json } from "Core/utils/types";
 import { Line } from "../line";
@@ -23,37 +28,41 @@ export function render(s: Sketch, args: RenderSketchArgs = {}): SVG_Builder {
         return null;
     }
 
-    const bb = s.bounding_box();
-    const real_render_dimensions = recalculate_render_dimensions(
+    const sketch_bounding_box = s.bounding_box();
+    const sketch_render_box = compute_sketch_render_box(
         args.width ?? null,
         args.height ?? null,
-        bb,
+        sketch_bounding_box,
     );
 
-    const px_to_unit_x = (x: number) =>
-        (x * real_render_dimensions.bounding_box.width) /
-        real_render_dimensions.width;
+    if (!args.width) {
+        args.width = sketch_render_box.width;
+    }
+    if (!args.height) {
+        args.height = sketch_render_box.height;
+    }
+    if (!args.padding) {
+        args.padding = 5;
+    }
 
-    const px_to_unit_y = (y: number) =>
-        (y * real_render_dimensions.bounding_box.height) /
-        real_render_dimensions.height;
+    const render_attributes_scale = 0.5;
+    const sketch_vec_to_svg_vec = LinearTransform.affine_orthogonal(
+        [sketch_bounding_box.top_left, sketch_bounding_box.top_right],
+        [sketch_render_box.top_left, sketch_render_box.top_right],
+    );
 
     const padding = args.padding ?? 0;
     const svg = new SVG_Builder(
-        real_render_dimensions.width,
-        real_render_dimensions.height,
-        [
-            real_render_dimensions.bounding_box.top_left,
-            real_render_dimensions.bounding_box.bottom_right,
-        ],
+        args.width!,
+        args.height!,
+        [new Vector(0, 0), new Vector(args.width, args.height)],
         padding,
     );
 
-    const offset = new Vector(px_to_unit_x(padding), px_to_unit_y(padding));
     svg.render_polygon(
         FiniteGeometry.rectangle(
-            real_render_dimensions.bounding_box.top_left.subtract(offset),
-            real_render_dimensions.bounding_box.bottom_right.add(offset),
+            sketch_render_box.top_left,
+            sketch_render_box.bottom_right,
         ),
         {
             fill: "white",
@@ -66,10 +75,11 @@ export function render(s: Sketch, args: RenderSketchArgs = {}): SVG_Builder {
         const line_attributes = compute_line_render_attributes(line);
         const lineStyles: Partial<SVG_Builder.LineRenderAttributes> = {
             ...line_attributes,
-            stroke_width: px_to_unit_x(line_attributes.stroke_width!),
+            stroke_width:
+                line_attributes.stroke_width * render_attributes_scale,
         };
 
-        const shape = line.shape;
+        const shape = line.shape.map((v) => sketch_vec_to_svg_vec(v));
         if (shape instanceof Polygon) {
             svg.render_polygon(
                 shape,
@@ -89,12 +99,13 @@ export function render(s: Sketch, args: RenderSketchArgs = {}): SVG_Builder {
         const point_attributes = compute_point_render_attributes(pt);
         const pointStyles: Partial<SVG_Builder.PointRenderAttributes> = {
             ...point_attributes,
-            radius: px_to_unit_x(point_attributes.radius),
-            stroke_width: px_to_unit_x(point_attributes.stroke_width),
+            radius: point_attributes.radius * render_attributes_scale,
+            stroke_width:
+                point_attributes.stroke_width * render_attributes_scale,
         };
 
         svg.render_point(
-            pt.vec,
+            sketch_vec_to_svg_vec(pt.vec),
             pointStyles,
             if_debug(() => get_point_render_data(pt)),
         );
@@ -175,86 +186,47 @@ export function stringify_record(
     return JSON.stringify(sorted, null, space);
 }
 
-function recalculate_render_dimensions(
+function compute_sketch_render_box(
     width: number | null,
     height: number | null,
     bounding_box: BoundingBox,
-): {
-    width: number;
-    height: number;
-    bounding_box: BoundingBox;
-} {
-    if (bounding_box.width === 0 || bounding_box.height === 0) {
-        const bb_w = bounding_box.width === 0 ? 1 : bounding_box.width;
-        const bb_h = bounding_box.height === 0 ? 1 : bounding_box.height;
-        const center = bounding_box.center;
-        const bb_center = center.is_finite() ? center : Vector.ZERO;
-        const offset = new Vector(bb_w / 2, bb_h / 2);
+): BoundingBox {
+    const sourceWidth = bounding_box.width;
+    const sourceHeight = bounding_box.height;
+    const aspectRatio = sourceWidth / sourceHeight;
 
-        bounding_box = BoundingBox.from_vectors([
-            bb_center.add(offset),
-            bb_center.subtract(offset),
-        ]);
+    const targetWidth = width === 0 ? null : width;
+    const targetHeight = height === 0 ? null : height;
+
+    if (targetWidth == null && targetHeight == null) {
+        return new BoundingBox(0, 0, sourceWidth, sourceHeight);
     }
 
-    if (width == null && height == null) {
-        return {
-            width: bounding_box.width,
-            height: bounding_box.height,
-            bounding_box,
-        };
+    if (targetWidth != null && targetHeight == null) {
+        const computedHeight = targetWidth / aspectRatio;
+        return new BoundingBox(0, 0, targetWidth, computedHeight);
     }
 
-    if (height == null) {
-        return {
-            width: width!,
-            height: (width! * bounding_box.height) / bounding_box.width,
-            bounding_box,
-        };
+    if (targetWidth == null && targetHeight != null) {
+        const computedWidth = targetHeight * aspectRatio;
+        return new BoundingBox(0, 0, computedWidth, targetHeight);
     }
 
-    if (width == null) {
-        return {
-            width: (height! * bounding_box.width) / bounding_box.height,
-            height: height!,
-            bounding_box,
-        };
-    }
+    const scale = Math.min(
+        targetWidth! / sourceWidth,
+        targetHeight! / sourceHeight,
+    );
 
-    let source_aspect_ratio = bounding_box.width / bounding_box.height;
-    const target_aspect_ratio = width / height;
+    const renderWidth = sourceWidth * scale;
+    const renderHeight = sourceHeight * scale;
 
-    if (Number.isNaN(source_aspect_ratio)) {
-        source_aspect_ratio = target_aspect_ratio;
-    }
+    const offsetX = (targetWidth! - renderWidth) / 2;
+    const offsetY = (targetHeight! - renderHeight) / 2;
 
-    if (source_aspect_ratio < target_aspect_ratio) {
-        const delta_w_source =
-            target_aspect_ratio * bounding_box.height - bounding_box.width;
-
-        return {
-            width,
-            height,
-            bounding_box: new BoundingBox(
-                bounding_box.min_x - delta_w_source / 2,
-                bounding_box.min_y,
-                bounding_box.max_x + delta_w_source / 2,
-                bounding_box.max_y,
-            ),
-        };
-    }
-
-    const delta_h_source =
-        bounding_box.width / target_aspect_ratio - bounding_box.height;
-
-    return {
-        width,
-        height,
-        bounding_box: new BoundingBox(
-            bounding_box.min_x,
-            bounding_box.min_y - delta_h_source / 2,
-            bounding_box.max_x,
-            bounding_box.max_y + delta_h_source / 2,
-        ),
-    };
+    return new BoundingBox(
+        offsetX,
+        offsetY,
+        offsetX + renderWidth,
+        offsetY + renderHeight,
+    );
 }

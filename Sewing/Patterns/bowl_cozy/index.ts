@@ -1,4 +1,4 @@
-import { CollectionMethods, Sketch } from "@/Core";
+import { CollectionMethods, Sketch } from "@/Core/sketch";
 import { Out, Recording } from "@/Dev";
 import { definePattern } from "../types";
 import { draw_base_pattern } from "./draw_base_pattern";

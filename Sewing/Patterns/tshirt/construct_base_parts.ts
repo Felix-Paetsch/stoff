@@ -1,13 +1,5 @@
-import {
-    CollectionMethods,
-    Copy,
-    Line,
-    LinearTransform,
-    Polyline,
-    Sketch,
-    Spline,
-    Vector,
-} from "@/Core";
+import { LinearTransform, Polyline, Spline2d, Vector } from "@/Core/geometry";
+import { CollectionMethods, Copy, Line, Sketch } from "@/Core/sketch";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { cut } from "Sewing/Lib/advanced_methods/exports";
 import { BoundShirtSideMeasurements } from "./measurement_utils";
@@ -383,7 +375,7 @@ function add_curve(sketch: Sketch) {
     const velocitiesCR = [tangentC, normalR].map((v) =>
         v.scale(C.vec.distance(R.vec) / 15),
     );
-    const shape_fn = Spline.hermite([C.vec, R.vec], velocitiesCR);
+    const shape_fn = Spline2d.hermite([C.vec, R.vec], velocitiesCR);
     sketch.add_line(Polyline.from_function(shape_fn), C, R);
 
     const D = CollectionMethods.get_point(sketch, { name: "d" })!;
@@ -406,7 +398,7 @@ function add_curve(sketch: Sketch) {
         v.scale(D.vec.distance(A.vec) / 20),
     );
 
-    const shape_fn2 = Spline.hermite([D.vec, A.vec], velocitiesDA);
+    const shape_fn2 = Spline2d.hermite([D.vec, A.vec], velocitiesDA);
     sketch.add_line(Polyline.from_function(shape_fn2), D, A);
 }
 
@@ -417,4 +409,3 @@ function to_dst_file(s: Sketch, path: string) {
     }
     embr.to_dst().to_file(path);
 }
-

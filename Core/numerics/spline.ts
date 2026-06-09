@@ -44,7 +44,7 @@ export function linear(sample_points: SamplePoint[]): (a: number) => number {
 
 export function cubic(
     sample_points: SamplePoint[],
-    bc: BoundaryCondition,
+    bc: BoundaryCondition = "natural",
 ): (a: number) => number {
     sortPoints(sample_points);
 
@@ -133,7 +133,7 @@ export function cubic(
 
 export function akima(
     sample_points: SamplePoint[],
-    bc: BoundaryCondition,
+    bc: BoundaryCondition = "natural",
 ): (a: number) => number {
     sortPoints(sample_points);
 

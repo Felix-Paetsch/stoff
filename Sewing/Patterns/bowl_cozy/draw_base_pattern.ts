@@ -1,4 +1,5 @@
-import { CollectionMethods, deg_to_rad, Sketch, Vector } from "@/Core";
+import { deg_to_rad, Vector } from "@/Core/geometry";
+import { CollectionMethods, Sketch } from "@/Core/sketch";
 import {
     Bowl_Measurements,
     calculate_sidelengths,

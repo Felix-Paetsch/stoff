@@ -92,13 +92,13 @@ function connect(): void {
             for (const file of sorted) {
                 upsertFile(file);
             }
+            updateFileCardDisplays();
         } else if (msg.type === "upsert") {
             upsertFile(msg.file);
+            updateFileCardDisplays();
         } else if (msg.type === "remove") {
             removeFile(msg.name);
         }
-
-        updateFileCardDisplays();
     });
 }
 
