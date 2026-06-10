@@ -8,7 +8,6 @@ import {
     InternalGrid,
     LatticePoint,
 } from "Core/grid/types";
-import { EPS } from "Core/numerics/eps";
 import { GridWindowFunction } from "./types";
 
 export function map_chunks<T, N extends GridTypeName>(
@@ -55,8 +54,8 @@ export function map_chunks<T, R extends string>(
     }
 
     const lattice_dimensions: [number, number] = [
-        Math.floor((w - 1) / ker_w + EPS.tiny),
-        Math.floor((h - 1) / ker_h + EPS.tiny),
+        Math.trunc(w / ker_w),
+        Math.trunc(h / ker_h),
     ];
 
     const [x0, y0, dx, dy] = src.dimensions_ref.domain_dimensions;

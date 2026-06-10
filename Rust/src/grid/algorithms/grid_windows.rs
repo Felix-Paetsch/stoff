@@ -50,7 +50,7 @@ impl<T> Grid<T> {
         let skipped_left = (w % window_width) / 2;
         let skipped_right = (w - skipped_left) % window_width;
         let skipped_up = (h % window_height) / 2;
-        let skipped_down = (w - skipped_up) % window_width;
+        let skipped_down = (h - skipped_up) % window_height;
 
         let prod_it = (skipped_left..w - skipped_right)
             .step_by(window_width)

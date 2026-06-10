@@ -48,11 +48,12 @@ export function map_windows<T, R extends string>(
         }
     }
 
-    let [x0, y0, dx, dy] = src.dimensions_ref.domain_dimensions;
-    let new_width = ((w - ker_size[0] + 1) / w) * dx;
-    let new_height = ((h - ker_size[1] + 1) / h) * dy;
-    let padding_x = (dx - new_width) / 2;
-    let padding_y = (dy - new_width) / 2;
+    const [x0, y0, dx, dy] = src.dimensions_ref.domain_dimensions;
+    const unit_width = dx / (w - 1);
+    const unit_height = dy / (h - 1);
+
+    const padding_x = ((ker_size[0] - 1) * unit_width) / 2;
+    const padding_y = ((ker_size[1] - 1) * unit_height) / 2;
 
     return constr(
         {
@@ -60,8 +61,8 @@ export function map_windows<T, R extends string>(
             domain_dimensions: [
                 x0 + padding_x,
                 y0 + padding_y,
-                new_width,
-                new_height,
+                dx - 2 * padding_x,
+                dy - 2 * padding_y,
             ],
         },
         res,
