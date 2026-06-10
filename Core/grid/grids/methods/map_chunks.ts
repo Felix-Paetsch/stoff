@@ -55,8 +55,8 @@ export function map_chunks<T, R extends string>(
     }
 
     const lattice_dimensions: [number, number] = [
-        Math.floor(w / ker_w + EPS.tiny),
-        Math.floor(h / ker_h + EPS.tiny),
+        Math.floor((w - 1) / ker_w + EPS.tiny),
+        Math.floor((h - 1) / ker_h + EPS.tiny),
     ];
 
     const [x0, y0, dx, dy] = src.dimensions_ref.domain_dimensions;
@@ -70,8 +70,8 @@ export function map_chunks<T, R extends string>(
         {
             lattice_dimensions,
             domain_dimensions: [
-                x0 + skipped_left * w_per_unit + new_w_per_unit / 2,
-                y0 + skipped_up * h_per_unit + new_h_per_unit / 2,
+                x0 + skipped_left * w_per_unit,
+                y0 + skipped_up * h_per_unit,
                 (lattice_dimensions[0] - 1) * new_w_per_unit,
                 (lattice_dimensions[1] - 1) * new_h_per_unit,
             ],

@@ -1,4 +1,16 @@
+# Todo
+
+1. Test grid chunk/window mapping offset is ok.
+- rust
+- ts
+.....config.test for rust?
+2. Figure out testing in rust
+3. Convolution in rust
+4. Add wasm support
+
+
 Why is this one offset soo bad in the sewing thing??
+Hovering both SVG and PNG: Cursor/Pixel position
 
 Scenes should only have imports from barrel files inside of Core..
 Bound size on polylines
@@ -12,7 +24,6 @@ Merge lines:
 1. Splines
 - remap from partition of unity ("From partition of unity" - with optional range parameter)
 - move most of it into numerics and have spline2d in geometry
-
 - Removing (pairs of) long lines in the embroidery file
 - better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
 
@@ -62,6 +73,12 @@ Like trying to get rid of the average color
     - cache grid/shape/putable/... between program runs Cache.cache(name, id, computation);
     - Cache.sequential_cache()
     - ...
+- Stoff update
+    - instructions, etc
+- Social media update
+    - recordings, etc
+- Embr files Production Update
+    - export to pdf and many other things
 - Viewer Update
     - faster
     - different platform?
@@ -69,13 +86,9 @@ Like trying to get rid of the average color
     - dont allow to large embroidery/... files
     - for an out/put file also a meta data file, even if it is an image, etc (ofc optional is the dir is corruped somehow or smth)
 - Config update
-- Grid Update
 - Type (restriction) update
     - unsafe accessorts, maybe with unsafe prefix
     - (or with by_ref prefix, currently liking this one)
-- Image Update
-    - Grid Processing
-    - pixlane media
 - Image alpha update
 - SVG Update
     + Filled shapes
@@ -110,6 +123,7 @@ Length map better names
 Integrate algorithms into Core. Check out curvature..
 - two types of algorithms, those used internally and put onto thing as method and those exported
 Put sketch and so on behind a "."?
+Merge double running algorithm in rust
 THings that take in x,y should take in vec? or Not?
 Polyline proper components
 - only when it is a vec indeed
@@ -190,15 +204,15 @@ follow flow
 - gradient flow
 - isoline flow cw/ccw
 Diffusion limited aggregation
-gauss kernel
-- blue
-- edge detection
 flow lines
+smooth out using a circle (i.e. take average of whole points inside circle instead of fixed length to average more in places with many zigzagzigsharp things)
+- can also be used i.g. for things like "just fill more here"
 locally zoom shape / transform
 Chainging where shape endpoints are
 - arc length parameterized adding offset
 - interpolate shapes with endpoints at pos a and pos b (which could just be the same as above)
 - pick interior point of a line and then clockwise go around it and based on the current angle add faction of endpoint offset
+- pixlane media
 - pick start point and while traversing shape arcwise offset with distance to a geometry
     - a) easily computable distance (point, line)
     - b) use a flowfield and for each point move along that flow field
@@ -206,11 +220,16 @@ Chainging where shape endpoints are
 Img to grid
 plot grid as svg
 Write tests (extensive tests) for AI based algorithms with public interface
+Resampling based on detail for embroidery (like keep corners but resample more liberally on straight parts)
 
 ## Maybe eventually implement / Impl unclear
 
 Percolation
-Point clustering
+Method to make something "more Cinfinity" like smoothing that keeps a circle at a circle
+Point clustering (k-means)
+Path alining
+- smooth out
+- then superempose the path and a local zig zag pattern tailored to vector field
 Self avoiding walks
 Local extreme for closest points
 Finite subdivision
@@ -340,3 +359,5 @@ http://n-e-r-v-o-u-s.com/kinematicsCloth/
 > 
 > It uses a weighted Nearest Neighbor search to build a single continuous path through high-density pixel areas. It then applies a Gaussian convolution and Catmull-Rom splines to smooth.
 > 2
+
+Connecting many short lines and then connecting them

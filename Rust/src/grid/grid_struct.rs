@@ -29,8 +29,8 @@ impl<T> Grid<T> {
             "grid height must be non-negative"
         );
 
-        debug_assert!(w > 0, "grid width must be > 0");
-        debug_assert!(h > 0, "grid height must be > 0");
+        debug_assert!(w > 1, "grid lattice width must be > 1");
+        debug_assert!(h > 1, "grid lattice height must be > 1");
 
         debug_assert!(
             values.len() == w * h,
@@ -220,6 +220,10 @@ impl<T> Grid<T> {
         }
     }
 
+    pub fn into_transposed(self) -> Grid<T> {
+        todo!();
+    }
+
     pub fn same_dimensions<S>(&self, other: &Grid<S>) -> bool {
         self.lattice_dimensions[0] == other.lattice_dimensions[0]
             && self.lattice_dimensions[1] == other.lattice_dimensions[1]
@@ -266,6 +270,10 @@ where
             lattice_dimensions: [w, h],
             values,
         }
+    }
+
+    pub fn transpose(&self) -> Grid<T> {
+        todo!();
     }
 }
 

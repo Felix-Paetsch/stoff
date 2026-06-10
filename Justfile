@@ -1,5 +1,5 @@
 mod standalone 'Dev/StandAlone/Justfile'
-mod test 'Dev/Test/Justfile'
+mod ts_test 'Dev/Test/Justfile'
 mod tools 'Tools/Justfile'
 
 typecheck:
@@ -13,6 +13,9 @@ check_circular_dependencies:
 
 build:
     cd Rust && wasm-pack build --target nodejs --release
+
+test:
+    cd Rust && cargo test
 
 dev_build:
     cd Rust && cargo clippy -- -D warnings && wasm-pack build --target nodejs --dev

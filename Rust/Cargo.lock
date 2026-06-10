@@ -1190,6 +1190,7 @@ dependencies = [
  "geo",
  "getrandom 0.2.17",
  "image",
+ "itertools 0.14.0",
  "kdtree",
  "petgraph",
  "rustc-hash",
