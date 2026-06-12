@@ -1,10 +1,7 @@
 # Todo
 
-1. Test grid chunk/window mapping offset is ok.
-- rust
-- ts
-.....config.test for rust?
-2. Figure out testing in rust
+Laplacian of gaussian kernel
+
 3. Convolution in rust
 4. Add wasm support
 
@@ -26,10 +23,6 @@ Merge lines:
 - move most of it into numerics and have spline2d in geometry
 - Removing (pairs of) long lines in the embroidery file
 - better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
-
-Convole with kernel in rust
-- special method for blur/seperable kernel
-- "convolve_seperable"
 
 0. Image stuff type stuff
 
@@ -225,6 +218,8 @@ Resampling based on detail for embroidery (like keep corners but resample more l
 ## Maybe eventually implement / Impl unclear
 
 Percolation
+Different Convolution / windowing mechanisms
+- wrap / extend / ...
 Method to make something "more Cinfinity" like smoothing that keeps a circle at a circle
 Point clustering (k-means)
 Path alining

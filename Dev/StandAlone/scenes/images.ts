@@ -59,10 +59,7 @@ export default async function () {
 
     let convoluted = convolve_median(clahe_gray, 5);
     Out.put(convoluted, "#2_conv");
-    convoluted = Convolution.convolve_u8(
-        clahe_gray,
-        Convolution.gaussian_blur(5),
-    );
+    convoluted = Convolution.convolve(clahe_gray, Convolution.gaussian_blur(5));
     Out.put(convoluted, "#2_conv1");
 
     let height_lines_grid = convoluted;

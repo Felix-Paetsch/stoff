@@ -46,6 +46,9 @@ impl<T> Grid<T> {
 
     #[inline]
     pub fn grid_position_to_index(&self, p: GridPosition) -> usize {
+        debug_assert!(p[1] < self.lattice_dimensions[1]);
+        debug_assert!(p[0] < self.lattice_dimensions[0]);
+
         p[1] * self.lattice_dimensions[0] + p[0]
     }
 

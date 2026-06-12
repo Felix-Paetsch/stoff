@@ -27,8 +27,8 @@ impl<T> Grid<T> {
             window_width > 0 && window_height > 0 && window_width <= w && window_height <= h
         );
 
-        let prod_it = (0..w - window_width + 1).cartesian_product(0..h - window_height + 1);
-        prod_it.map(move |(i, j)| GridWindow {
+        let prod_it = (0..h - window_height + 1).cartesian_product(0..w - window_width + 1);
+        prod_it.map(move |(j, i)| GridWindow {
             grid: self,
             anchor: [i, j],
             width: window_width,
@@ -52,11 +52,11 @@ impl<T> Grid<T> {
         let skipped_up = (h % window_height) / 2;
         let skipped_down = (h - skipped_up) % window_height;
 
-        let prod_it = (skipped_left..w - skipped_right)
-            .step_by(window_width)
-            .cartesian_product((skipped_up..h - skipped_down).step_by(window_height));
+        let prod_it = (skipped_up..h - skipped_down)
+            .step_by(window_height)
+            .cartesian_product((skipped_up..w - skipped_right).step_by(window_width));
 
-        prod_it.map(move |(i, j)| GridWindow {
+        prod_it.map(move |(j, i)| GridWindow {
             grid: self,
             anchor: [i, j],
             width: window_width,

@@ -1,10 +1,11 @@
-import { Interval } from "Core/geometry/index";
-import {
-    GridWindow,
-    GridWindowFunction,
-    map_windows,
-} from "Core/grid/grids/index";
+import { GridWindow, GridWindowFunction } from "Core/grid/grids/index";
+import { Grid } from "Core/grid/index";
 import { NumberGrid, UInt8Grid } from "Core/grid/types";
+import {
+    wasm_grid_convolve_f64,
+    WASMCompatability,
+    WASMTransmittableConvolutionKernel,
+} from "Rust/exports";
 
 export type ConvolutionKernel = number[][];
 export type RModuleStructure<T> = {
@@ -28,36 +29,28 @@ export function general_kernel_convolution_function<T>(
     };
 }
 
-export function convolve_f64(s: NumberGrid, k: ConvolutionKernel): NumberGrid {
-    return map_windows(
-        "f64",
-        s,
-        [k[0]!.length, k.length],
-        (w: GridWindow<number>) => {
-            let res = 0;
-            for (let y = 0; y < k.length; y++) {
-                for (let x = 0; x < k[0]!.length; x++) {
-                    res = res + w([x, y]) * k[y]![x]!;
-                }
-            }
-            return res;
-        },
-    );
-}
+export function convolve(s: NumberGrid, k: ConvolutionKernel): NumberGrid;
+export function convolve(s: UInt8Grid, k: ConvolutionKernel): UInt8Grid;
+export function convolve(
+    s: UInt8Grid | NumberGrid,
+    k: ConvolutionKernel,
+): UInt8Grid | NumberGrid;
+export function convolve(
+    s: UInt8Grid | NumberGrid,
+    k: ConvolutionKernel,
+): UInt8Grid | NumberGrid {
+    if (s.type == "f64") {
+        const grid_ser = WASMCompatability.Grid.serialize_number_grid(s);
+        const ker = WASMTransmittableConvolutionKernel.new(
+            k[0]!.length,
+            k.length,
+            new Float64Array(k.flat()),
+        );
+        const res = wasm_grid_convolve_f64(grid_ser, ker);
+        return WASMCompatability.Grid.deserialize_number_grid(res);
+    }
 
-export function convolve_u8(s: UInt8Grid, k: ConvolutionKernel): UInt8Grid {
-    return map_windows(
-        "u8",
-        s,
-        [k[0]!.length, k.length],
-        (w: GridWindow<number>) => {
-            let res = 0;
-            for (let y = 0; y < k.length; y++) {
-                for (let x = 0; x < k[0]!.length; x++) {
-                    res = Interval.clamp([0, 255], res + w([x, y]) * k[y]![x]!);
-                }
-            }
-            return res;
-        },
-    );
+    const f64Grid = Grid.map("f64", s, (x) => x);
+    const convolved = convolve(f64Grid, k);
+    return Grid.map("u8", convolved, (x) => x);
 }

@@ -16,6 +16,7 @@ impl WASMTransmittableNumberGrid {
         lattice_dimensions: Vec<u32>,
         values: Vec<f64>,
     ) -> WASMTransmittableNumberGrid {
+        debug_assert!(values.len() as u32 == lattice_dimensions[0] * lattice_dimensions[1]);
         WASMTransmittableNumberGrid {
             domain_dimensions,
             lattice_dimensions,
