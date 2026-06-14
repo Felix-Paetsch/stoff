@@ -7,13 +7,19 @@ fn discretize(value: f64) -> i128 {
     (value * 1_000_000.0).round() as i128
 }
 
+#[allow(unused)]
 pub fn max_weight_matching_f64<T>(g: &Graph<T, f64, Undirected>) -> Vec<(usize, usize)> {
     let new_g = g.map(|_, __| (), |_, e| discretize(*e));
     max_weight_matching(&new_g, true).into_iter().collect()
 }
 
+pub fn min_weight_matching_f64<T>(g: &Graph<T, f64, Undirected>) -> Vec<(usize, usize)> {
+    let new_g = g.map(|_, __| (), |_, e| -discretize(*e));
+    max_weight_matching(&new_g, true).into_iter().collect()
+}
+
 #[wasm_bindgen]
-pub fn wasm_graph_max_weight_matching_f64(edge_node_ids: &[u32], edge_weights: &[f64]) -> Vec<u32> {
+pub fn wasm_graph_min_weight_matching_f64(edge_node_ids: &[u32], edge_weights: &[f64]) -> Vec<u32> {
     // Edge data is: [edge1_node1_id, edge1_node2_id, edge2_node1_id, ...]; [edge1_weight,
     // edge2_weight]
     // Return type is: edge1_id, edge2_id, ...
@@ -39,7 +45,7 @@ pub fn wasm_graph_max_weight_matching_f64(edge_node_ids: &[u32], edge_weights: &
         edge_map.push(edge_idx);
     }
 
-    let matching = max_weight_matching_f64(&g);
+    let matching = min_weight_matching_f64(&g);
 
     let mut result = Vec::new();
     for (u, v) in &matching {

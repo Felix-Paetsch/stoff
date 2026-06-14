@@ -1,13 +1,9 @@
-use crate::geometry::{Polygon, Polyline, ShapeT, Vector};
-use kdtree::distance::squared_euclidean;
-use kdtree::KdTree;
-use petgraph::unionfind::UnionFind;
+use crate::debug::*;
 
-struct Edge {
-    a: usize,
-    b: usize,
-    dist2: f64,
-}
+use crate::geometry::utils::distance_graph::distance_graph;
+use crate::geometry::{Polygon, Polyline, ShapeT, Vector};
+use crate::graph::algorithms::minimum_weight_perfect_matching::min_weight_matching_f64;
+use petgraph::unionfind::UnionFind;
 
 struct MergePair {
     a_poly: usize,
@@ -122,94 +118,22 @@ fn merge_shape_vectors(
 }
 
 pub fn pair_all_but_two(points: &[Vector]) -> (Vec<(usize, usize)>, (usize, usize)) {
-    let n = points.len();
-    let target_pair_count = n / 2 - 1;
+    let distance_graph = distance_graph(points);
 
-    let mut tree = KdTree::new(2);
-    for (i, p) in points.iter().copied().enumerate() {
-        tree.add(p.into_array(), i).unwrap();
-    }
+    let mut matching = min_weight_matching_f64(&distance_graph);
+    debug_log_1(&matching);
 
-    let mut edges = Vec::<Edge>::new();
+    let mut curr_max_distance = points[matching[0].0].distance(points[matching[0].1]);
+    let mut curr_max_index = 0;
 
-    // For each point, collect a few nearest-neighbor candidate edges.
-    // Increase this number if pair quality is poor.
-    let k = 8usize.min(n.saturating_sub(1));
-
-    for (i, p) in points.iter().copied().enumerate() {
-        let neighbors = tree
-            .nearest(&p.into_array(), k + 1, &squared_euclidean)
-            .unwrap();
-
-        for (dist2, &j) in neighbors {
-            if i == j {
-                continue;
-            }
-
-            let (a, b) = if i < j { (i, j) } else { (j, i) };
-            edges.push(Edge { a, b, dist2 });
+    for i in 1..matching.len() {
+        let d = points[matching[i].0].distance(points[matching[i].1]);
+        if d > curr_max_distance {
+            curr_max_distance = d;
+            curr_max_index = i;
         }
     }
 
-    edges.sort_by(|e1, e2| e1.dist2.total_cmp(&e2.dist2));
-    edges.dedup_by(|e1, e2| e1.a == e2.a && e1.b == e2.b);
-
-    let mut used = vec![false; n];
-    let mut pairs = Vec::with_capacity(target_pair_count);
-
-    for edge in edges {
-        if pairs.len() == target_pair_count {
-            break;
-        }
-
-        if used[edge.a] || used[edge.b] {
-            continue;
-        }
-
-        used[edge.a] = true;
-        used[edge.b] = true;
-        pairs.push((edge.a, edge.b));
-    }
-
-    // Fallback: if candidate edges were insufficient, complete greedily by brute force.
-    // Can be optimized!!
-    while pairs.len() < target_pair_count {
-        let mut best: Option<(usize, usize, f64)> = None;
-
-        for i in 0..n {
-            if used[i] {
-                continue;
-            }
-
-            for j in (i + 1)..n {
-                if used[j] {
-                    continue;
-                }
-
-                let dist2 = points[i].distance_squared(points[j]);
-                match best {
-                    None => best = Some((i, j, dist2)),
-                    Some((_, _, best_dist2)) if dist2 < best_dist2 => {
-                        best = Some((i, j, dist2));
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        let (i, j, _) = best.expect("not enough remaining points to complete pairing");
-        used[i] = true;
-        used[j] = true;
-        pairs.push((i, j));
-    }
-
-    let leftovers: Vec<_> = used
-        .iter()
-        .enumerate()
-        .filter_map(|(i, &is_used)| if !is_used { Some(i) } else { None })
-        .collect();
-
-    assert!(leftovers.len() == 2);
-
-    (pairs, (leftovers[0], leftovers[1]))
+    let left_over = matching.remove(curr_max_index);
+    (matching, left_over)
 }

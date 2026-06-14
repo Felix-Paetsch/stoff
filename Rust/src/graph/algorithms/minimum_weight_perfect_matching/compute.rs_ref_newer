@@ -30,6 +30,8 @@ use petgraph::visit::EdgeRef;
 use petgraph::Graph;
 use petgraph::Undirected;
 
+use crate::debug::*;
+
 /// Return 2 * slack of edge k (does not work inside blossoms).
 fn slack(edge_index: usize, dual_var: &[i128], edges: &[(usize, usize, i128)]) -> i128 {
     let (source_index, target_index, weight) = edges[edge_index];
@@ -282,7 +284,7 @@ fn add_blossom(
                 let blossom_j = in_blossoms[j];
                 if blossom_j != blossom
                     && labels[blossom_j] == Some(1)
-                    && (!best_edge_to.contains_key(&blossom_j)
+                    && (best_edge_to.contains_key(&blossom_j)
                         || slack(edge_index, dual_var, edges)
                             < slack(best_edge_to[&blossom_j], dual_var, edges))
                 {
@@ -962,7 +964,7 @@ pub fn max_weight_matching(
         queue.clear();
         // Label single blossom/vertices with S and put them in queue.
         for v in 0..num_nodes {
-            if !mate.contains_key(&v) && labels[in_blossoms[v]] == Some(0) {
+            if mate.contains_key(&v) && labels[in_blossoms[v]] == Some(0) {
                 assign_label(
                     v,
                     1,

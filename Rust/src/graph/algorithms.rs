@@ -1,3 +1,3 @@
 mod delaunay;
 mod minimum_spanning_tree;
-mod minimum_weight_perfect_matching;
+pub mod minimum_weight_perfect_matching;
