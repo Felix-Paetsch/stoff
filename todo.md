@@ -1,6 +1,25 @@
+1. Implement unionfind
+4. Merge lines efficiently
+
+5. Improve polygon merging
+
 # Todo
 
-Laplacian of gaussian kernel
+When merging polygons, try to directly write to the correct position in one array without creating many more.
+Vec.clear
+
+For mergin many short lines on a graph: minimum spanning tree, involving delaunay with predefined vertices
+
+Histogram & Histogram equalization
+Gauss derivative kernel
+dx, dy kernel
+combine dx,dy and so on to get a rather good grad estiamtion
+Bilatiral filtering
+Unsharp masking
+Fourier
+Lowpass/Highpass filter
+Frie Chen operator
+...
 
 3. Convolution in rust
 4. Add wasm support
@@ -18,10 +37,6 @@ Merge lines:
 
 
 
-1. Splines
-- remap from partition of unity ("From partition of unity" - with optional range parameter)
-- move most of it into numerics and have spline2d in geometry
-- Removing (pairs of) long lines in the embroidery file
 - better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
 
 0. Image stuff type stuff
@@ -44,10 +59,7 @@ img resample
 Avg brightness
 Median brightness
 "importance map for colors"
-
-There are many interesing speed map functions
-Like trying to get rid of the average color
-
+Histograms
 
 ## Steps
 
@@ -78,6 +90,10 @@ Like trying to get rid of the average color
     - more readable..
     - dont allow to large embroidery/... files
     - for an out/put file also a meta data file, even if it is an image, etc (ofc optional is the dir is corruped somehow or smth)
+- Video Update
+    - Social media
+    - (group with embroidery lines)
+    - Finding the correct parameter for a proc method
 - Config update
 - Type (restriction) update
     - unsafe accessorts, maybe with unsafe prefix
@@ -89,6 +105,12 @@ Like trying to get rid of the average color
 - Leonie refactoring update
 - Algorithms refactoring update
 - NVIM "Update"
+- TraditionalEmbroidery update
+    - Different fills (export also for leonie)
+    - Some pathing
+    - Fonts
+    - Satin
+    - different embr path types
 - Expect update
     - more expect.lazy
     - more expect utilities
@@ -223,6 +245,11 @@ Different Convolution / windowing mechanisms
 Method to make something "more Cinfinity" like smoothing that keeps a circle at a circle
 Point clustering (k-means)
 Path alining
+Reaction diffusion to get fill line (https://www.reddit.com/r/PlotterArt/comments/1u245af/comment/oqvafa5/?context=3)
+Get more out of fast marching
+Differential growth (to fill shape)
+Center line trace
+Linieninterferrenz
 - smooth out
 - then superempose the path and a local zig zag pattern tailored to vector field
 Self avoiding walks
@@ -355,4 +382,36 @@ http://n-e-r-v-o-u-s.com/kinematicsCloth/
 > It uses a weighted Nearest Neighbor search to build a single continuous path through high-density pixel areas. It then applies a Gaussian convolution and Catmull-Rom splines to smooth.
 > 2
 
+Iterate over all possible lines (e.g. squares, diagonal lines) and test whether to incldue them
+More tilings, fill_inside_polygon/shape with tiling
+
+
 Connecting many short lines and then connecting them
+- potentially after edge detection algorihtm
+- potentially with thresholding, fast marching
+
+https://staff.fnwi.uva.nl/r.vandenboomgaard/IPCV20172018/LectureNotes/index.html
+
+
+Idea for reducing amt of long segments / TSP improvements:
+
+Alternating circle such that max_len(on line) - max_len(off line) >> 0 (or so, roughtly)
+- also interesting for TSP
+- but slightly different objective than TSP
+
+Minimum weight perfect matching
+https://www.math.uwaterloo.ca/~bico/papers/match_ijoc.pdf
+
+==== Match polylines to polygon:
+
+Heuristics:
+- nearest neightbor
+- nearest fragment
+- bitonic tour
+- match twice and stitch
+- multifragment
+- min weight part matching
+- mst
+- k opt method
+- v opt method
+

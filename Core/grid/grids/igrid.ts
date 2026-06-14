@@ -11,8 +11,9 @@ export interface IGrid<T, S extends string> {
     dimensions(): GridDimensions;
 
     values(): T[];
-    into_values(): T[];
     values_2d(): T[][];
+    values_ref(): T[];
+    into_values(): T[];
 
     copy(): IGrid<T, S>;
 

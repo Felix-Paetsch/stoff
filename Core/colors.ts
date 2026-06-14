@@ -339,8 +339,11 @@ export namespace Color {
         return `#${bytesToHex([...rgba.slice(0, 3), 255 * rgba[3]])}`;
     }
 
-    export function toHsl(col: Color): [number, number, number, number] {
-        const [r, g, b, a] = toRgb(col);
+    export function rgb_to_hsl(
+        rgb: [number, number, number] | [number, number, number, number],
+    ): [number, number, number, number] {
+        let [r, g, b, a] = rgb;
+        a = a || 1;
 
         const rNorm = r / 255;
         const gNorm = g / 255;
@@ -374,6 +377,10 @@ export namespace Color {
         }
 
         return [Math.round(h), Math.round(s * 100), Math.round(l * 100), a];
+    }
+
+    export function toHsl(col: Color): [number, number, number, number] {
+        return rgb_to_hsl(toRgb(col));
     }
 
     export function fromHsl(

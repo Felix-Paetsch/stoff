@@ -74,6 +74,10 @@ class GroupGrid<A> implements IGrid<A[], "group"> {
         return this.values();
     }
 
+    values_ref(): A[][] {
+        return this.values();
+    }
+
     map_in_place(f: (value: A[], v: Vector) => A[]): void {
         const [w, h] = this.dimensions_ref.lattice_dimensions;
         for (let y = 0; y < h; y++) {

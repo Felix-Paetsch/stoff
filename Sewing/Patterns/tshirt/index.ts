@@ -1,10 +1,8 @@
 import { DST } from "@/Core/files";
 import { PlaneLine } from "@/Core/geometry";
 import { Out } from "@/Dev";
-import { writeFileSync } from "fs";
 import { people_measurements } from "Sewing/Data/measurements";
 import { add_seam_allowance } from "Sewing/Lib/add_seam_allowance";
-import { to_A4_printable } from "Sewing/Lib/rendering/A4_printable";
 import { definePattern } from "../types";
 import { construct_base_tshirt_parts } from "./construct_base_parts";
 import { BoundShirtSideMeasurements } from "./measurement_utils";
@@ -45,10 +43,10 @@ export const TShirtPattern = definePattern(
         const r = construct_base_tshirt_parts(mea);
         add_seam_allowance(r, 0.7);
 
-        let printable = to_A4_printable(r);
-        for (let i = 0; i < printable.length; i++) {
-            writeFileSync(`./out/A4_${i}.svg`, printable[i]!.svg());
-        }
+        // let printable = to_A4_printable(r);
+        // for (let i = 0; i < printable.length; i++) {
+        //     writeFileSync(`./out/A4_${i}.svg`, printable[i]!.svg());
+        // }
 
         const dst = new DST();
         for (const l of r.lines()) {

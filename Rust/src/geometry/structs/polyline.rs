@@ -19,6 +19,14 @@ impl Polyline {
     pub fn empty() -> Polyline {
         Polyline(vec![])
     }
+
+    pub fn first(&self) -> Option<Vector> {
+        self.0.first().copied()
+    }
+
+    pub fn last(&self) -> Option<Vector> {
+        self.0.last().copied()
+    }
 }
 
 impl ShapeT for Polyline {

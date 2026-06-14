@@ -7,7 +7,7 @@ import { complete_partial_subgrid_dimensions } from "../methods/dimensions";
 export class LerpGrid<T, S extends string> implements IGrid<T, S> {
     constructor(
         public dimensions_ref: GridDimensions,
-        public values_ref: T[],
+        private _values_ref: T[],
         public lerp: (a: T, b: T, t: number) => T,
         public type: S,
     ) {
@@ -30,14 +30,18 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
             Expect.that(w > 0, "grid width must be > 0");
             Expect.that(h > 0, "grid height must be > 0");
             Expect.that(
-                values_ref.length === w * h,
+                _values_ref.length === w * h,
                 "values length must equal width * height",
             );
         });
     }
 
     into_values(): T[] {
-        return this.values_ref;
+        return this._values_ref;
+    }
+
+    values_ref(): T[] {
+        return this._values_ref;
     }
 
     interpolate(
@@ -61,8 +65,8 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 let i = y * w + x;
-                this.values_ref[i] = f(
-                    this.values_ref[y * w + x]!,
+                this._values_ref[i] = f(
+                    this._values_ref[y * w + x]!,
                     this.vector_at_lattice_point([x, y]),
                 );
             }
@@ -75,11 +79,11 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
     }
 
     set_value_at_lattice_point(p: LatticePoint, value: T): void {
-        this.values_ref[this.lattice_point_index_in_values(p)] = value;
+        this._values_ref[this.lattice_point_index_in_values(p)] = value;
     }
 
     value_at_lattice_point(p: LatticePoint): T {
-        return this.values_ref[this.lattice_point_index_in_values(p)]!;
+        return this._values_ref[this.lattice_point_index_in_values(p)]!;
     }
 
     domain_dimensions(): [number, number, number, number] {
@@ -98,7 +102,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
     }
 
     values(): T[] {
-        return [...this.values_ref];
+        return [...this._values_ref];
     }
 
     values_2d(): T[][] {
@@ -108,7 +112,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
         for (let y = 0; y < h; y++) {
             const row: T[] = [];
             for (let x = 0; x < w; x++) {
-                row.push(this.values_ref[y * w + x]!);
+                row.push(this._values_ref[y * w + x]!);
             }
             result.push(row);
         }

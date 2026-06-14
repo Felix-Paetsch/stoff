@@ -119,3 +119,33 @@ export function emboss(
             ];
     }
 }
+
+export function laplacian_of_gaussian(
+    sigma: number = 1.0,
+    kernelSize: number = 0,
+): ConvolutionKernel {
+    const size =
+        kernelSize > 0 ? kernelSize : Math.max(3, Math.ceil(6 * sigma) | 1);
+
+    const half = Math.floor(size / 2);
+    const kernel: ConvolutionKernel = [];
+    const sigma2 = sigma * sigma;
+    const sigma4 = sigma2 * sigma2;
+
+    for (let y = -half; y <= half; y++) {
+        const row: number[] = [];
+        for (let x = -half; x <= half; x++) {
+            const r2 = x * x + y * y;
+            const value =
+                ((r2 - 2 * sigma2) / sigma4) * Math.exp(-r2 / (2 * sigma2));
+            row.push(value);
+        }
+        kernel.push(row);
+    }
+
+    // Normalize to zero-sum so flat regions stay near zero
+    const sum = kernel.flat().reduce((a, b) => a + b, 0);
+    const mean = sum / (size * size);
+
+    return kernel.map((row) => row.map((v) => v - mean));
+}

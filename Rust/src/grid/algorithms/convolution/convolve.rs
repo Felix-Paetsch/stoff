@@ -26,6 +26,6 @@ where
             res = res.add(&w.get([i, j]).scale(k.get([i, j])));
         }
 
-        res.scale(1.0 / (k.width * k.height) as f64)
+        res
     })
 }

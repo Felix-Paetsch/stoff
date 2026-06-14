@@ -23,6 +23,6 @@ export function add_seam_allowance(s: Sketch, amt: number) {
             }
         }
 
-        s.add_line(shape.buffer(amt, ["miter", 1.5], "square")[0]!);
+        s.add_line(shape.buffer(amt, ["miter", 1.5], "round")[0]!);
     });
 }
