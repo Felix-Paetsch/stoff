@@ -1,4 +1,4 @@
 mod index;
-mod merge_polylines;
-mod merge_shapes_wasm;
-mod min_distance;
+mod lazy_closest_shape_positions;
+mod merge_shape_positions_provider;
+mod types;

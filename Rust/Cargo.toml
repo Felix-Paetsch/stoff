@@ -18,6 +18,7 @@ spade = "2"
 geo = "0.32"
 getrandom = { version = "0.2", features = ["js"] }
 kdtree = {version = "0.7.0", default-features = false}
+union-find = "0.4.4"
 
 petgraph = "0.8"
 rustc-hash = "2.1.2"

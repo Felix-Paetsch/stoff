@@ -1297,6 +1297,7 @@ dependencies = [
  "petgraph",
  "rustc-hash",
  "spade",
+ "union-find",
  "wasm-bindgen",
  "web-sys",
 ]
@@ -1377,6 +1378,12 @@ name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+
+[[package]]
+name = "union-find"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "617b646852504df7924cff3b0ca6c8f07a3c91099b48076fab58d4298faf47ca"
 
 [[package]]
 name = "v_frame"

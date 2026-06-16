@@ -1,3 +1,6 @@
+Improve speed of closest by having less allocations (e.g. the result option)
+Do merge optimization on run without intersections
+
 1. Implement unionfind
 4. Merge lines efficiently
 
@@ -415,3 +418,11 @@ Heuristics:
 - k opt method
 - v opt method
 
+
+Utility to see how ofter a path moves over a certain area
+"TSP optimization" method for paths where we run the optimization loop to get rid of long edges, poentially somewhere resampling before
+Look at auto digitizing (inkl ember)
+
+Spirographs
+
+https://ezstitchdigitizing.com/free-online-jef-file-viewer/

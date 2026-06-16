@@ -31,6 +31,13 @@ impl ShapeT for Shape {
         }
     }
 
+    fn vertices_from_to(&self, from: usize, to: usize) -> Box<dyn Iterator<Item = Vector> + '_> {
+        match self {
+            Shape::Polyline(l) => Box::new((from..to).map(|v| l.vertex_at(v))),
+            Shape::Polygon(g) => Box::new((from..to).map(|v| g.vertex_at(v))),
+        }
+    }
+
     fn into_vertices(self) -> Vec<Vector> {
         match self {
             Shape::Polyline(l) => l.into_vertices(),

@@ -17,6 +17,7 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone)]
 pub struct ClosestShapePositionsResult {
     pub positions: [ShapePosition; 2],
     pub distance: f64,

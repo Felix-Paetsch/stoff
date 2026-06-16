@@ -45,6 +45,10 @@ pub trait ShapeT: Sized {
         }
     }
 
+    fn vertices_from_to(&self, from: usize, to: usize) -> Box<dyn Iterator<Item = Vector> + '_> {
+        Box::new((from..to).map(|v| self.vertex_at(v)))
+    }
+
     #[allow(unused)]
     fn vertices_looping(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
         if self.is_empty() {
