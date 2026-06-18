@@ -27,4 +27,4 @@ clahe = "0.1.2"
 image = "0.25.10"
 
 [profile.dev]
-debug = true  # Ensure this is set to true (or 1 / 2)
+debug = true

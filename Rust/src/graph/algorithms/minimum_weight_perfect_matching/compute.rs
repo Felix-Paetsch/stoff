@@ -729,6 +729,7 @@ fn augment_matching(
 /// Swap matched/unmatched edges over an alternating path between two
 /// single vertices. The augmenting path runs through the edge, which
 /// connects a pair of S vertices.
+#[cfg(debug_assertions)]
 fn verify_optimum(
     max_cardinality: bool,
     num_nodes: usize,
