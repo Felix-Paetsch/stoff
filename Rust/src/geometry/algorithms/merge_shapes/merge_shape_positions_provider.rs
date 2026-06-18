@@ -259,11 +259,19 @@ impl<'a> MergeShapePositionsProvider<'a> {
         self.polygon_count
     }
 
-    // We need this as pop unions
-    pub fn pop(&mut self) -> Option<MergePosition> {
+    pub fn pop_if_below_distance(&mut self, mut dist: f64) -> Option<MergePosition> {
         debug_assert!(self.polygon_count() <= self.shape_count());
-        if let Some(next_merge) = self.next_merge.take() {
-            return Some(self.merge_gon_rc(next_merge));
+        if dist.is_nan() {
+            dist = -1.0;
+        }
+
+        if let Some(next_merge) = self.next_merge.as_ref() {
+            if next_merge.2.distance <= dist {
+                return self
+                    .next_merge
+                    .take()
+                    .map(|next_merge| self.merge_gon_rc(next_merge));
+            }
         }
 
         // We check the following:
@@ -279,14 +287,20 @@ impl<'a> MergeShapePositionsProvider<'a> {
             let next_suggested_shape_merge = self.lazy_closest_shape_positions.peek();
 
             if next_suggested_shape_merge.is_none() {
-                return self
-                    .possible_endpoint_merges
-                    .pop()
-                    .map(|v| self.merge_line(v));
+                if let Some(endpoint_merge) = self.possible_endpoint_merges.last() {
+                    return if endpoint_merge.2 <= dist {
+                        self.possible_endpoint_merges
+                            .pop()
+                            .map(|v| self.merge_line(v))
+                    } else {
+                        None
+                    };
+                }
             }
 
             if self.possible_endpoint_merges.is_empty() {
-                if self.polygon_count == 0 {
+                if self.polygon_count == 0 || next_suggested_shape_merge.unwrap().2.distance > dist
+                {
                     return None;
                 }
 
@@ -304,6 +318,12 @@ impl<'a> MergeShapePositionsProvider<'a> {
 
             let next_suggested_matching_merge_distance =
                 self.possible_endpoint_merges.last().unwrap().2;
+
+            if next_suggested_shape_merge_distance.min(next_suggested_matching_merge_distance)
+                > dist
+            {
+                return None;
+            }
 
             if next_suggested_matching_merge_distance <= next_suggested_shape_merge_distance {
                 return self

@@ -24,7 +24,7 @@ impl ShapeEndpoint {
 }
 
 #[derive(Debug)]
-pub struct MergePosition(Either<ShapeEndpointPairDatum, ShapeDistanceDatum>);
+pub struct MergePosition(pub Either<ShapeEndpointPairDatum, ShapeDistanceDatum>);
 
 impl MergePosition {
     pub fn lineline(d: ShapeEndpointPairDatum) -> MergePosition {
@@ -33,10 +33,6 @@ impl MergePosition {
 
     pub fn gon(d: ShapeDistanceDatum) -> MergePosition {
         MergePosition(Either::Right(d))
-    }
-
-    pub fn distance(&self) -> f64 {
-        self.0.as_ref().either(|a| a.2, |b| b.2.distance)
     }
 
     pub fn into_one_sided_positions(self) -> [OneSidedMergePosition; 2] {

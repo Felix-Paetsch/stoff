@@ -2,7 +2,7 @@ import { Numerics } from "@/Core";
 import { ImageIO } from "@/Core/files";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { Out } from "@/Dev";
-import { merge_shapes } from "Core/geometry/algorithms/merge_shapes";
+import { merge_shapes_advanced } from "Core/geometry/algorithms/merge_shapes";
 import { partition_unity_gauss } from "Core/numerics/index";
 import { SamplePoint } from "Core/numerics/spline";
 import { Embroidery } from "Embroidery/Lib/embroidery";
@@ -75,15 +75,22 @@ export default async function () {
     const s = new Embroidery();
     const height_lines = GridAlgorithms.maching_squares(eikonal)
         .filter((l) => l.length() > 0)
-        .map((l) => l.as_polygon());
+        .map((l) => l.as_polyline());
     height_lines.forEach((l) => s.run(l));
 
     Out.put(s);
 
     const t = new Embroidery();
     height_lines.forEach((l) => console.log(l.vertex_count()));
-    const merged = merge_shapes(height_lines);
-    t.run(merged);
+
+    const merged = merge_shapes_advanced(height_lines, {
+        max_merge_distance: 2,
+        // line_amount: 3,
+        // fixed_endpoints: [[5, false]],
+    });
+    merged.forEach((m) => {
+        t.run(m.resample(0.3));
+    });
 
     Out.put(t);
 

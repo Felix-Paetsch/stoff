@@ -96,11 +96,12 @@ export default async function () {
     const t = new Embroidery();
     const merged = merge_shapes_advanced(height_lines, {
         max_merge_distance: 0.5,
-        line_amount: 3,
-        fixed_endpoints: [[5, false]],
+        // line_amount: 3,
+        // fixed_endpoints: [[5, false]],
     });
     merged.forEach((m) => {
-        t.run(m.resample(0.3));
+        console.log(m.is_polygon());
+        t.run(m);
     });
 
     Out.put(t);
