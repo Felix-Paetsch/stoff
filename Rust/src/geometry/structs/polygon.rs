@@ -39,6 +39,14 @@ impl ShapeT for Polygon {
         Box::new(self.0.iter().copied())
     }
 
+    fn vertices_rev(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
+        if self.is_empty() {
+            Box::new(std::iter::empty())
+        } else {
+            Box::new(std::iter::once(self.0[0]).chain(self.0.iter().skip(1).rev().copied()))
+        }
+    }
+
     fn is_polyline(&self) -> bool {
         false
     }
@@ -51,6 +59,7 @@ impl ShapeT for Polygon {
         self.0.len()
     }
 
+    #[inline]
     fn vertex_at(&self, at: usize) -> Vector {
         self.0[at % self.vertex_count()]
     }

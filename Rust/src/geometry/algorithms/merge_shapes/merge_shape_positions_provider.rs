@@ -25,12 +25,15 @@ pub struct ShapeMergingUFData {
 
 impl Union for ShapeMergingUFData {
     fn union(lval: Self, rval: Self) -> union_find::UnionResult<Self> {
-        // We make sure there are no inter-shape connections
-        // We merge the shapes together
-
         // If we merged lines into a polygon this will be set later
         let is_polygon = lval.is_polygon && rval.is_polygon;
-        let merged_vertex_bound = lval.merged_vertex_bound + rval.merged_vertex_bound + 4;
+        let merged_vertex_bound = if !lval.is_polygon && !rval.is_polygon {
+            lval.merged_vertex_bound + rval.merged_vertex_bound
+        } else {
+            lval.merged_vertex_bound + rval.merged_vertex_bound + 4
+        };
+
+        // We make sure there are no inter-shape connections
         let merge_into_polyline: VecDeque<Rc<ShapeDistanceDatum>> = {
             let mut a = lval.merge_into_polyline;
             let mut b = rval.merge_into_polyline;
@@ -48,7 +51,7 @@ impl Union for ShapeMergingUFData {
 
                     // If there is a connection between the two shape collections it is in both vecs with the
                     // same distance. We call those things duplicates
-                    if front_a == front_b {
+                    if front_a.2.distance == front_b.2.distance {
                         // most common case if there aren't intersections
                         if Rc::ptr_eq(front_a, front_b) {
                             a.pop_front();
@@ -59,7 +62,7 @@ impl Union for ShapeMergingUFData {
                             let occurrence_in_b = b
                                 .iter()
                                 .skip(1)
-                                .take_while(|item_b| *item_b == front_a)
+                                .take_while(|item_b| item_b.2.distance == front_a.2.distance)
                                 .position(|item_b| Rc::ptr_eq(item_b, front_a))
                                 .map(|p| p + 1);
                             if let Some(b_index) = occurrence_in_b {
@@ -69,7 +72,7 @@ impl Union for ShapeMergingUFData {
                                 merged.push_back(a.pop_front().unwrap());
                             }
                         }
-                    } else if a.front() < b.front() {
+                    } else if front_a.2.distance < front_b.2.distance {
                         let front = a.pop_front().unwrap();
                         merged.push_back(front);
                     } else {
@@ -78,7 +81,6 @@ impl Union for ShapeMergingUFData {
                     }
                 }
 
-                // There can't be any more duplicates as a or b are empty
                 merged.extend(a);
                 merged.extend(b);
                 merged
@@ -87,7 +89,7 @@ impl Union for ShapeMergingUFData {
 
         debug_assert!(merge_into_polyline
             .iter()
-            .is_sorted_by(|a, b| a.2.distance <= b.2.distance));
+            .is_sorted_by_key(|a| a.2.distance));
 
         union_find::UnionResult::Left(ShapeMergingUFData {
             merge_into_polyline,
@@ -113,7 +115,8 @@ pub struct MergeShapePositionsProvider<'a> {
     possible_endpoint_merges: Vec<ShapeEndpointPairDatum>,
     // Count of remaining polygons such that when it reaches 0 and we merged all lines we can early
     // return
-    remaining_polygons: usize,
+    shape_count: usize,
+    polygon_count: usize,
 }
 
 impl<'a> MergeShapePositionsProvider<'a> {
@@ -130,24 +133,39 @@ impl<'a> MergeShapePositionsProvider<'a> {
         debug_assert!(shapes.iter().all(|s| !s.is_empty()));
 
         fixed_endpoints.sort_by(|a, b| b.0.cmp(&a.0));
+        fixed_endpoints.dedup_by_key(|a| a.0);
         let mut mergable_endpoints: Vec<ShapeEndpoint> = Vec::with_capacity(shapes.len() * 2);
         // Treat a shape as polygon if it is a polygon and the endpoints aren't fixed
-        let mut treat_shape_as_polygon: Vec<bool> = vec![true; shapes.len()];
-        for i in 0..shapes.len() {
-            if shapes[i].is_polygon() {
+        let mut treat_shape_as_polygon: Vec<bool> = shapes.iter().map(|s| s.is_polygon()).collect();
+        for i in 0..shapes.len() * 2 {
+            if shapes[i / 2].is_polygon() {
                 if let Some(last) = fixed_endpoints.last() {
-                    if i == last.shape_index() {
-                        fixed_endpoints.pop();
-                        treat_shape_as_polygon[i] = false;
-                        if let Some(last) = fixed_endpoints.last() {
-                            if i == last.shape_index() {
+                    debug_assert!(i >= last.0);
+
+                    // p1 comes first
+                    // If this p1 and other p2 => push p1 as available and remove p2
+                    // If this p1 and other p1 =>
+                    //      If next is also the same shape, do nothing
+                    //      Else push p2
+                    if i / 2 == last.shape_index() {
+                        treat_shape_as_polygon[i / 2] = false;
+                        // If this p2 then nothing can happen as we already dealt with it
+                        assert!(i.is_multiple_of(2));
+                        if !last.is_p1() {
+                            fixed_endpoints.pop();
+                            mergable_endpoints.push(ShapeEndpoint(i));
+                        } else if let Some(last) = fixed_endpoints.last() {
+                            if last.shape_index() == i / 2 {
                                 fixed_endpoints.pop();
+                            } else {
+                                mergable_endpoints.push(ShapeEndpoint(i + 1))
                             }
+                        } else {
+                            mergable_endpoints.push(ShapeEndpoint(i + 1))
                         }
                     }
                 }
             } else {
-                treat_shape_as_polygon[i] = false;
                 if let Some(last) = fixed_endpoints.last() {
                     if i == last.0 {
                         fixed_endpoints.pop();
@@ -174,7 +192,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
 
         let distance_graph = distance_graph(&vecs);
         let matching = min_weight_matching_f64(&distance_graph);
-        let matchable_endpoints: Vec<ShapeEndpointPairDatum> = matching
+        let mut matchable_endpoints: Vec<ShapeEndpointPairDatum> = matching
             .into_iter()
             .map(|(a, b)| {
                 ShapeEndpointPairDatum(
@@ -184,12 +202,13 @@ impl<'a> MergeShapePositionsProvider<'a> {
                 )
             })
             .collect();
+        matchable_endpoints.sort_by(|a, b| b.2.total_cmp(&a.2));
 
         // Validate the conditions on matchable endpoints
         // - sortedness (least as last)
         // - both ends are lines
         // - ends appear only once
-        debug_assert!(matchable_endpoints.is_sorted_by(|a, b| a.2 > b.2));
+        debug_assert!(matchable_endpoints.is_sorted_by(|a, b| a.2 >= b.2));
         debug_assert!(matchable_endpoints
             .iter()
             .all(|p| !treat_shape_as_polygon[p.0.shape_index()]
@@ -206,8 +225,13 @@ impl<'a> MergeShapePositionsProvider<'a> {
         });
 
         MergeShapePositionsProvider {
+            shape_count: shapes.len(),
+            polygon_count: treat_shape_as_polygon
+                .iter()
+                .cloned()
+                .filter(|v| *v)
+                .count(),
             next_merge: None,
-            remaining_polygons: treat_shape_as_polygon.iter().map(|b| *b as usize).sum(),
             merged_shapes_uf: QuickFindUf::from_iter(
                 shapes
                     .iter()
@@ -215,7 +239,11 @@ impl<'a> MergeShapePositionsProvider<'a> {
                     .map(|(s, b)| ShapeMergingUFData {
                         merge_into_polyline: VecDeque::new(),
                         is_polygon: b,
-                        merged_vertex_bound: s.vertex_count(),
+                        merged_vertex_bound: if b {
+                            s.vertex_count()
+                        } else {
+                            s.looping_vertex_count()
+                        },
                     }),
             ),
             possible_endpoint_merges: matchable_endpoints,
@@ -223,7 +251,17 @@ impl<'a> MergeShapePositionsProvider<'a> {
         }
     }
 
+    pub fn shape_count(&mut self) -> usize {
+        self.shape_count
+    }
+
+    pub fn polygon_count(&mut self) -> usize {
+        self.polygon_count
+    }
+
+    // We need this as pop unions
     pub fn pop(&mut self) -> Option<MergePosition> {
+        debug_assert!(self.polygon_count() <= self.shape_count());
         if let Some(next_merge) = self.next_merge.take() {
             return Some(self.merge_gon_rc(next_merge));
         }
@@ -237,7 +275,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
         //    - can we successfully merge?
         loop {
             self.lazy_closest_shape_positions
-                .retain_lazy(|a, b| self.merged_shapes_uf.find(a) == self.merged_shapes_uf.find(b));
+                .retain_lazy(|a, b| self.merged_shapes_uf.find(a) != self.merged_shapes_uf.find(b));
             let next_suggested_shape_merge = self.lazy_closest_shape_positions.peek();
 
             if next_suggested_shape_merge.is_none() {
@@ -248,7 +286,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
             }
 
             if self.possible_endpoint_merges.is_empty() {
-                if self.remaining_polygons == 0 {
+                if self.polygon_count == 0 {
                     return None;
                 }
 
@@ -284,6 +322,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
     }
 
     fn merge_gon_rc(&mut self, pos: Rc<ShapeDistanceDatum>) -> MergePosition {
+        debug_assert!(pos.0 != pos.1);
         // Exactly one is a polygon and they are disjoint
         debug_assert!(self.merged_shapes_uf.find(pos.0) != self.merged_shapes_uf.find(pos.1));
         debug_assert!(
@@ -295,13 +334,28 @@ impl<'a> MergeShapePositionsProvider<'a> {
                 || !self.merged_shapes_uf.get(pos.1).is_polygon
         );
 
+        self.shape_count -= 1;
+        self.polygon_count -= 1;
         self.merged_shapes_uf.union(pos.0, pos.1);
-        self.remaining_polygons -= 1;
+        debug_assert!({
+            // Check after the merging there are no intershape connections
+            let merge_into_polyline: Vec<_> = self
+                .merged_shapes_uf
+                .get(pos.0)
+                .merge_into_polyline
+                .iter()
+                .cloned()
+                .collect();
+            merge_into_polyline
+                .iter()
+                .all(|m| self.merged_shapes_uf.find(m.0) != self.merged_shapes_uf.find(m.1))
+        });
 
-        MergePosition::Gon(Rc::try_unwrap(pos).unwrap())
+        MergePosition::gon(Rc::try_unwrap(pos).unwrap())
     }
 
     fn merge_gon(&mut self, pos: ShapeDistanceDatum) -> Option<MergePosition> {
+        debug_assert!(pos.0 != pos.1);
         debug_assert!(self.merged_shapes_uf.find(pos.0) != self.merged_shapes_uf.find(pos.1));
 
         let p0 = pos.0;
@@ -309,10 +363,24 @@ impl<'a> MergeShapePositionsProvider<'a> {
 
         // We can only merge if at least one of the two positions is a polygon
         if self.merged_shapes_uf.get(p0).is_polygon || self.merged_shapes_uf.get(p1).is_polygon {
+            self.shape_count -= 1;
+            self.polygon_count -= 1;
             self.merged_shapes_uf.union(p0, p1);
-            self.remaining_polygons -= 1;
+            debug_assert!({
+                // Check after the merging there are no intershape connections
+                let merge_into_polyline: Vec<_> = self
+                    .merged_shapes_uf
+                    .get(pos.0)
+                    .merge_into_polyline
+                    .iter()
+                    .cloned()
+                    .collect();
+                merge_into_polyline
+                    .iter()
+                    .all(|m| self.merged_shapes_uf.find(m.0) != self.merged_shapes_uf.find(m.1))
+            });
 
-            return Some(MergePosition::Gon(pos));
+            return Some(MergePosition::gon(pos));
         }
 
         // Else remember for later that we want to merge
@@ -323,7 +391,6 @@ impl<'a> MergeShapePositionsProvider<'a> {
             .get_mut(p0)
             .merge_into_polyline
             .push_back(wrapped.clone());
-
         self.merged_shapes_uf
             .get_mut(p1)
             .merge_into_polyline
@@ -333,6 +400,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
     }
 
     fn merge_line(&mut self, pos: ShapeEndpointPairDatum) -> MergePosition {
+        debug_assert!(pos.0 .0 != pos.1 .0);
         debug_assert!(
             !self.merged_shapes_uf.get(pos.0.shape_index()).is_polygon
                 && !self.merged_shapes_uf.get(pos.1.shape_index()).is_polygon
@@ -342,18 +410,33 @@ impl<'a> MergeShapePositionsProvider<'a> {
         let close_line_to_polygon = self.merged_shapes_uf.find(pos.0.shape_index())
             == self.merged_shapes_uf.find(pos.1.shape_index());
 
-        self.merged_shapes_uf
-            .union(pos.0.shape_index(), pos.1.shape_index());
-
         if !close_line_to_polygon {
-            return MergePosition::LineLine(pos);
+            self.shape_count -= 1;
+            self.merged_shapes_uf
+                .union(pos.0.shape_index(), pos.1.shape_index());
+
+            debug_assert!({
+                // Check after the merging there are no intershape connections
+                let merge_into_polylines: Vec<_> = self
+                    .merged_shapes_uf
+                    .get(pos.0.shape_index())
+                    .merge_into_polyline
+                    .iter()
+                    .cloned()
+                    .collect();
+                merge_into_polylines
+                    .iter()
+                    .all(|m| self.merged_shapes_uf.find(m.0) != self.merged_shapes_uf.find(m.1))
+            });
+
+            return MergePosition::lineline(pos);
         }
 
-        let union = self.merged_shapes_uf.get_mut(pos.0.shape_index());
-        union.is_polygon = true;
-        self.next_merge = union.merge_into_polyline.pop_front();
-        self.remaining_polygons += 1;
+        let merged_shape_data = self.merged_shapes_uf.get_mut(pos.0.shape_index());
+        merged_shape_data.is_polygon = true;
+        self.polygon_count += 1;
+        self.next_merge = merged_shape_data.merge_into_polyline.front().cloned();
 
-        MergePosition::LineLine(pos)
+        MergePosition::lineline(pos)
     }
 }

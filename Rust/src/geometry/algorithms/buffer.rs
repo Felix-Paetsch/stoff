@@ -32,7 +32,7 @@ pub fn wasm_geometry_buffer_geometries(geometries: &[f64], distance: f64) -> Vec
         .map(Geometry::from)
         .collect();
 
-    Geometry::geometry_vec_to_vecf64(&buffered)
+    Geometry::geometry_vec_to_vecf64(buffered)
 }
 
 pub enum LineJoin {
@@ -115,5 +115,5 @@ pub fn wasm_geometry_buffer_geometries_with_style(
             .map(Geometry::from)
             .collect();
 
-    Geometry::geometry_vec_to_vecf64(&buffered)
+    Geometry::geometry_vec_to_vecf64(buffered)
 }

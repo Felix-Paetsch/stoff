@@ -1,3 +1,12 @@
+Todo: Debug log should only log in debug mode.
+Todo: The panick hook should also give me a stack trace (behaviour only active in debug)
+mark verify optimum as debug only code
+Remove log statements
+Todo: Get it to work with advanced config
+
+Build merge with double run
+
+
 Improve speed of closest by having less allocations (e.g. the result option)
 Do merge optimization on run without intersections
 
@@ -81,6 +90,9 @@ Histograms
     - cache grid/shape/putable/... between program runs Cache.cache(name, id, computation);
     - Cache.sequential_cache()
     - ...
+    - w/ timeout
+    - seq/id
+    - and then
 - Stoff update
     - instructions, etc
 - Social media update
@@ -213,6 +225,7 @@ Following flow fields
 - Angular binary search with a score fn?
 Svg to image
 Chaikin
+FLood Fill
 https://ko-fi.com/s/bab05e779e
 Confine run within shape, i.e. to a (kind of?) shape interesection
 Different noises (blue/... for dot spacing or as a texture)
@@ -239,9 +252,15 @@ Img to grid
 plot grid as svg
 Write tests (extensive tests) for AI based algorithms with public interface
 Resampling based on detail for embroidery (like keep corners but resample more liberally on straight parts)
+Boolean grid from poly
+Mask shape[] using grid
+Shape to sdf
+repatch inside mask
 
 ## Maybe eventually implement / Impl unclear
 
+Algo to make certain long travellines to be below others (or shorter with tsp opt)
+Functionality for on top/below
 Percolation
 Different Convolution / windowing mechanisms
 - wrap / extend / ...
@@ -255,6 +274,7 @@ Center line trace
 Linieninterferrenz
 - smooth out
 - then superempose the path and a local zig zag pattern tailored to vector field
+Stable API versioning
 Self avoiding walks
 Local extreme for closest points
 Finite subdivision

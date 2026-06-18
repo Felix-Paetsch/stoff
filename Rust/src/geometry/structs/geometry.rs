@@ -7,10 +7,13 @@ pub enum Geometry {
 }
 
 impl Geometry {
-    pub fn geometry_vec_to_vecf64(g: &[Geometry]) -> Vec<f64> {
-        let mut out = Vec::new();
+    pub fn geometry_vec_to_vecf64<I>(g: I) -> Vec<f64>
+    where
+        I: IntoIterator<Item = Geometry>,
+    {
+        let mut out: Vec<f64> = Vec::new();
 
-        for (i, geometry) in g.iter().enumerate() {
+        for (i, geometry) in g.into_iter().enumerate() {
             if i > 0 {
                 out.push(f64::NAN);
             }
@@ -108,6 +111,30 @@ impl From<&[f64]> for Geometry {
                 Geometry::Polygon(Polygon::new(vertices))
             }
             _ => unreachable!(),
+        }
+    }
+}
+
+impl From<Geometry> for Vec<f64> {
+    fn from(geometry: Geometry) -> Self {
+        match geometry {
+            Geometry::Point(vertex) => vec![0.0, vertex.x(), vertex.y()],
+            Geometry::Polyline(polyline) => std::iter::once(1.0)
+                .chain(
+                    polyline
+                        .into_vertices()
+                        .into_iter()
+                        .flat_map(|v| [v.x(), v.y()]),
+                )
+                .collect(),
+            Geometry::Polygon(polygon) => std::iter::once(2.0)
+                .chain(
+                    polygon
+                        .into_vertices()
+                        .into_iter()
+                        .flat_map(|v| [v.x(), v.y()]),
+                )
+                .collect(),
         }
     }
 }

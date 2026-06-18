@@ -1,11 +1,8 @@
 import { Numerics } from "@/Core";
 import { ImageIO } from "@/Core/files";
 import { Grid, GridAlgorithms } from "@/Core/grid";
-import { clahe } from "@/Core/images";
 import { Out } from "@/Dev";
-import { merge_shapes_advanced } from "Core/geometry/algorithms/merge_shapes";
-import { Convolution } from "Core/grid/algorithms/index";
-import { UInt8Grid } from "Core/grid/types";
+import { merge_shapes } from "Core/geometry/algorithms/merge_shapes";
 import { partition_unity_gauss } from "Core/numerics/index";
 import { SamplePoint } from "Core/numerics/spline";
 import { Embroidery } from "Embroidery/Lib/embroidery";
@@ -52,20 +49,8 @@ export default async function () {
     // Image processing
 
     const gray = img.gray_scale().pixel_grid;
-    Out.put(gray, "#0_gray");
-
-    const clahe_gray = clahe(gray, 8, 8, 3);
-    Out.put(clahe_gray, "#1_clahe");
-
-    let convoluted = convolve_median(clahe_gray, 5);
-    Out.put(convoluted, "#2_conv");
-    convoluted = Convolution.convolve(clahe_gray, Convolution.gaussian_blur(5));
-    Out.put(convoluted, "#2_conv1");
-
-    let height_lines_grid = convoluted;
-
-    height_lines_grid.remap_domain_in_place([0, 0, 10, 10]);
-    height_lines_grid = Grid.resample(height_lines_grid, [500, 500]);
+    gray.remap_domain_in_place([0, 0, 10, 10]);
+    const height_lines_grid = Grid.resample(gray, [200, 200]);
 
     // Eikonal
 
@@ -76,7 +61,7 @@ export default async function () {
 
     const src_map = Grid.from_function(
         "f64",
-        convoluted.dimensions(),
+        speed_map.dimensions(),
         () => Infinity,
     );
     src_map.set_value_at_lattice_point([0, 0], 0);
@@ -86,41 +71,21 @@ export default async function () {
 
     // Height lines
 
-    eikonal.map_in_place((v) => 5000 * v);
+    eikonal.map_in_place((v) => 500 * v);
     const s = new Embroidery();
-    const height_lines = GridAlgorithms.maching_squares(eikonal);
+    const height_lines = GridAlgorithms.maching_squares(eikonal)
+        .filter((l) => l.length() > 0)
+        .map((l) => l.as_polygon());
     height_lines.forEach((l) => s.run(l));
 
     Out.put(s);
 
     const t = new Embroidery();
-    const merged = merge_shapes_advanced(height_lines, {
-        max_merge_distance: 0.5,
-        line_amount: 3,
-        fixed_endpoints: [[5, false]],
-    });
-    merged.forEach((m) => {
-        t.run(m.resample(0.3));
-    });
+    height_lines.forEach((l) => console.log(l.vertex_count()));
+    const merged = merge_shapes(height_lines);
+    t.run(merged);
 
     Out.put(t);
 
     return [];
-}
-
-function convolve_median(g: UInt8Grid, x: number, y?: number): UInt8Grid {
-    if (!y) {
-        y = x;
-    }
-
-    return Grid.map_windows("u8", g, [x, y], (w) => {
-        let all_values: number[] = [];
-        for (let i = 0; i < x; i++) {
-            for (let j = 0; j < y; j++) {
-                all_values.push(w([i, j]));
-            }
-        }
-        all_values.sort();
-        return all_values[Math.floor(all_values.length / 2)]!;
-    });
 }

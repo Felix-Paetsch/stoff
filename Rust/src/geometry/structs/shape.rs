@@ -33,8 +33,26 @@ impl ShapeT for Shape {
 
     fn vertices_from_to(&self, from: usize, to: usize) -> Box<dyn Iterator<Item = Vector> + '_> {
         match self {
-            Shape::Polyline(l) => Box::new((from..to).map(|v| l.vertex_at(v))),
-            Shape::Polygon(g) => Box::new((from..to).map(|v| g.vertex_at(v))),
+            Shape::Polyline(l) => Box::new(l.vertices_from_to(from, to)),
+            Shape::Polygon(g) => Box::new(g.vertices_from_to(from, to)),
+        }
+    }
+
+    fn vertices_rev(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
+        match self {
+            Shape::Polyline(l) => l.vertices_rev(),
+            Self::Polygon(g) => g.vertices_rev(),
+        }
+    }
+
+    fn vertices_rev_from_to(
+        &self,
+        from: usize,
+        to: usize,
+    ) -> Box<dyn Iterator<Item = Vector> + '_> {
+        match self {
+            Shape::Polyline(l) => l.vertices_rev_from_to(from, to),
+            Shape::Polygon(g) => g.vertices_rev_from_to(from, to),
         }
     }
 

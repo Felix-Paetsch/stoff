@@ -26,5 +26,5 @@ pub fn wasm_grid_marching_squares(
     let res = marching_squares(&f64_grid, contour_arg);
     let geoms: Vec<Geometry> = res.into_iter().map(|s| s.into_geometry()).collect();
 
-    Geometry::geometry_vec_to_vecf64(&geoms)
+    Geometry::geometry_vec_to_vecf64(geoms)
 }

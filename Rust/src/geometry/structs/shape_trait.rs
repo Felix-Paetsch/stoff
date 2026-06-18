@@ -3,6 +3,8 @@ use crate::geometry::{Geometry, LineSegment, Polygon, Polyline, Shape, Vector};
 pub trait ShapeT: Sized {
     fn lines(&self) -> Box<dyn Iterator<Item = LineSegment> + '_>;
     fn vertices(&self) -> Box<dyn Iterator<Item = Vector> + '_>;
+    #[allow(unused)]
+    fn vertices_rev(&self) -> Box<dyn Iterator<Item = Vector> + '_>;
     fn vertex_count(&self) -> usize;
     fn vertex_at(&self, at: usize) -> Vector;
     fn is_polyline(&self) -> bool;
@@ -47,6 +49,15 @@ pub trait ShapeT: Sized {
 
     fn vertices_from_to(&self, from: usize, to: usize) -> Box<dyn Iterator<Item = Vector> + '_> {
         Box::new((from..to).map(|v| self.vertex_at(v)))
+    }
+
+    fn vertices_rev_from_to(
+        &self,
+        from: usize,
+        to: usize,
+    ) -> Box<dyn Iterator<Item = Vector> + '_> {
+        let len = self.looping_vertex_count();
+        Box::new((from..to).map(move |v| self.vertex_at(len - v - 1)))
     }
 
     #[allow(unused)]

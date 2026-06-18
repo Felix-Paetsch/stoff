@@ -162,27 +162,11 @@ impl<'a> LazyClosestShapePositions<'a> {
             }
             self.bb_distances.pop();
         }
+
+        if let Some(currently_peaked) = self.peaked.as_ref() {
+            if !retain_test(currently_peaked.0, currently_peaked.1) {
+                self.peaked = None
+            }
+        }
     }
 }
-
-// struct LazyClosestShapePositionsWithFilter<'a, G>
-// where
-//     // Note that f64 is a minimum guaranteed distance between the shapes
-//     G: Fn((usize, usize, f64)) -> bool,
-// {
-//     lazy_closest_shape_positions: LazyClosestShapePositions<'a>,
-//     retain_test: G,
-// }
-//
-// impl<'a, G> Iterator for LazyClosestShapePositionsWithFilter<'a, G>
-// where
-//     G: Fn((usize, usize, f64)) -> bool,
-// {
-//     type Item = ShapeDistanceDatum;
-//
-//     fn next(&mut self) -> Option<Self::Item> {
-//         self.lazy_closest_shape_positions
-//             .retain_lazy(&self.retain_test);
-//         self.lazy_closest_shape_positions.pop()
-//     }
-// }

@@ -42,6 +42,10 @@ impl ShapeT for Polyline {
         Box::new(self.0.iter().copied())
     }
 
+    fn vertices_rev(&self) -> Box<dyn Iterator<Item = Vector> + '_> {
+        Box::new(self.0.iter().rev().copied())
+    }
+
     fn is_polyline(&self) -> bool {
         true
     }
@@ -54,6 +58,7 @@ impl ShapeT for Polyline {
         self.0.len()
     }
 
+    #[inline]
     fn vertex_at(&self, at: usize) -> Vector {
         self.0[at]
     }

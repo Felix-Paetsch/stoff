@@ -3,6 +3,10 @@ use petgraph::{Graph, Undirected};
 use crate::geometry::Vector;
 
 pub fn distance_graph(verts: &[Vector]) -> Graph<(), f64, Undirected> {
+    if verts.is_empty() {
+        return Graph::<(), f64, Undirected>::default();
+    }
+
     let n = verts.len();
     let mut graph = Graph::<(), f64, Undirected>::with_capacity(n, (n * (n - 1)) / 2);
 

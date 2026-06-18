@@ -1,33 +1,40 @@
-use itertools::Itertools;
+use itertools::Either;
 use union_find::UnionFind;
 
 use crate::{
+    debug::*,
     geometry::{
         algorithms::merge_shapes::{
             merge_shape_positions_provider::MergeShapePositionsProvider,
-            types::{MergePosition, OneSidedMergePosition, ShapeEndpoint},
+            types::{OneSidedMergePosition, ShapeEndpoint},
         },
-        utils::distance_graph::distance_graph,
-        Polyline, Shape, ShapeT, Vector,
+        Polygon, Polyline, Shape, ShapeT, Vector,
     },
-    graph::algorithms::minimum_weight_perfect_matching::min_weight_matching_f64,
 };
 
+#[allow(unused)]
 pub fn merge_shapes(shapes: &[Shape]) -> Shape {
-    merge_shapes_advanced(shapes, ShapeMergingConfig::default())
-        .pop()
-        .unwrap()
+    if shapes.is_empty() {
+        return Shape::Polyline(Polyline::empty());
+    }
+    let mut res = merge_shapes_advanced(shapes, ShapeMergingConfig::default());
+    debug_assert!(res.len() == 1);
+    debug_assert!(
+        res.first().unwrap().vertex_count() >= shapes.iter().map(|s| s.vertex_count()).sum()
+    );
+    res.pop().unwrap()
 }
 
 pub struct ShapeMergingConfig {
     // We will not merge things further appart than this
-    max_merge_distance: f64,
+    pub max_merge_distance: f64,
     // When there are only so many lines left we return
-    min_line_amount: usize,
+    pub min_line_amount: usize,
     // Fixed endpoints
-    fixed_endpoints: Vec<ShapeEndpoint>,
+    pub fixed_endpoints: Vec<ShapeEndpoint>,
 }
 
+#[allow(unused)]
 impl ShapeMergingConfig {
     pub fn new(
         max_merge_distance: Option<f64>,
@@ -53,26 +60,31 @@ impl Default for ShapeMergingConfig {
     }
 }
 
-pub fn merge_shapes_advanced<'a>(shapes: &'a [Shape], cfg: ShapeMergingConfig) -> Vec<Shape> {
-    debug_assert!(shapes.iter().all(|s| !s.is_empty()));
+pub fn merge_shapes_advanced(shapes: &[Shape], cfg: ShapeMergingConfig) -> Vec<Shape> {
+    assert!(shapes.iter().all(|s| !s.is_empty()));
 
     if shapes.is_empty() {
-        return vec![Shape::Polyline(Polyline::empty())];
+        return vec![];
     }
 
     if shapes.len() <= cfg.min_line_amount {
         return shapes.iter().map(|m| m.clone_to_shape()).collect();
     }
 
+    assert!(cfg
+        .fixed_endpoints
+        .iter()
+        .all(|ep| ep.shape_index() < shapes.len()));
+
     let mut merge_position_provider = MergeShapePositionsProvider::initialize_with_fixed_endpoints(
         shapes,
-        cfg.fixed_endpoints.iter().copied().collect(),
+        cfg.fixed_endpoints.to_vec(),
     );
 
     let mut merge_positions: Vec<OneSidedMergePosition> =
         Vec::with_capacity(2 * (shapes.len() - cfg.min_line_amount));
 
-    for _ in 0..(shapes.len() - cfg.min_line_amount) {
+    while merge_position_provider.shape_count() > cfg.min_line_amount {
         if let Some(next_merge_position) = merge_position_provider.pop() {
             if next_merge_position.distance() > cfg.max_merge_distance {
                 break;
@@ -82,19 +94,20 @@ pub fn merge_shapes_advanced<'a>(shapes: &'a [Shape], cfg: ShapeMergingConfig) -
             merge_positions.push(b);
         } else {
             break;
-        };
+        }
     }
 
+    let output_shape_count = merge_position_provider.shape_count();
+
     // First by this and then by position
-    merge_positions.sort_by(|a, b| a.cmp(&b));
+    merge_positions.sort();
     let mut merge_position_for_shape_starts: Vec<usize> = Vec::with_capacity(shapes.len());
 
-    let mut current_shape_index = 0;
-    for (i, p) in merge_positions.iter().enumerate() {
-        let p_shape1_idx = p.this;
-        while p_shape1_idx >= current_shape_index {
-            merge_position_for_shape_starts.push(i);
-            current_shape_index += 1;
+    let mut cursor = 0;
+    for shape_idx in 0..shapes.len() {
+        merge_position_for_shape_starts.push(cursor);
+        while cursor < merge_positions.len() && merge_positions[cursor].this == shape_idx {
+            cursor += 1;
         }
     }
 
@@ -104,23 +117,24 @@ pub fn merge_shapes_advanced<'a>(shapes: &'a [Shape], cfg: ShapeMergingConfig) -
     let possible_line_start_points = cfg
         .fixed_endpoints
         .into_iter()
-        .chain(unmerged_endpoints.iter().flat_map(|ep| [ep.0, ep.1]));
+        .chain(unmerged_endpoints.iter().map(|ep| ep.0));
 
     let mut consumed_shapes = vec![false; shapes.len()];
 
-    let mut res: Vec<Shape> = Vec::with_capacity(shapes.len() - (merge_positions.len() / 2));
+    let mut res: Vec<Shape> = Vec::with_capacity(output_shape_count);
 
     let polyline_iter = possible_line_start_points.filter_map(|sp| {
         let idx = sp.shape_index();
         if consumed_shapes[idx] {
             None
         } else {
-            Some(collect_polyline(
+            Some(collect_shape(
                 shapes,
                 &mut consumed_shapes,
                 &merge_positions,
                 &merge_position_for_shape_starts,
                 idx,
+                true,
                 shape_merge_uf.get(idx).merged_vertex_bound,
             ))
         }
@@ -131,37 +145,35 @@ pub fn merge_shapes_advanced<'a>(shapes: &'a [Shape], cfg: ShapeMergingConfig) -
         if consumed_shapes[shape_index] {
             None
         } else {
-            Some(collect_polygon(
+            Some(collect_shape(
                 shapes,
                 &mut consumed_shapes,
                 &merge_positions,
                 &merge_position_for_shape_starts,
                 shape_index,
+                false,
                 shape_merge_uf.get(shape_index).merged_vertex_bound,
             ))
         }
     });
     res.extend(polygon_iter);
 
+    debug_assert!(res.len() == output_shape_count);
     debug_assert!(consumed_shapes.iter().all(|b| *b));
 
     res
 }
 
-fn collect_polyline(
+fn collect_shape(
     shapes: &[Shape],
-    // Todo: make this unmutable?
-    mut consumed_shapes_tracker: &mut [bool],
+    consumed_shapes_tracker: &mut [bool],
     merge_positions: &[OneSidedMergePosition],
     first_merge_position_shape_index: &[usize],
     shape_index: usize,
+    as_polyline: bool,
     size_hint: usize,
 ) -> Shape {
-    assert!(!consumed_shapes_tracker[shape_index]);
-
-    consumed_shapes_tracker[shape_index] = true;
-
-    let mut res_vec: Vec<Vector> = Vec::with_capacity(size_hint);
+    debug_assert!(!consumed_shapes_tracker[shape_index]);
 
     let first_merge_shape_index = first_merge_position_shape_index[shape_index];
     let last_merge_shape_index_plus_1 = first_merge_position_shape_index
@@ -170,83 +182,42 @@ fn collect_polyline(
         .unwrap_or(merge_positions.len());
 
     if first_merge_shape_index == last_merge_shape_index_plus_1 {
-        return shapes[shape_index].clone_to_shape();
+        consumed_shapes_tracker[shape_index] = true;
+        if as_polyline {
+            return Shape::Polyline(shapes[shape_index].clone_to_shape().into_polyline());
+        } else {
+            return Shape::Polygon(shapes[shape_index].clone_to_shape().into_polygon());
+        }
     }
 
-    let current_shape = &shapes[shape_index];
-    let mut already_taken_vertices = 0;
+    let mut vec: Vec<Vector> = Vec::with_capacity(size_hint);
+    if as_polyline {
+        fill_vector_from_shape_left_to_right(
+            &mut vec,
+            shapes,
+            consumed_shapes_tracker,
+            merge_positions,
+            first_merge_position_shape_index,
+            shape_index,
+            None,
+        );
 
-    for idx in first_merge_shape_index..last_merge_shape_index_plus_1 {
-        // The last index should never be appended here as it comes after all possible shape
-        // positions
-        assert!(already_taken_vertices < shapes[shape_index].vertex_count());
+        debug_assert_eq!(vec.len(), size_hint);
+        Shape::Polyline(Polyline::new(vec))
+    } else {
+        fill_vector_from_shape_left_to_right(
+            &mut vec,
+            shapes,
+            consumed_shapes_tracker,
+            merge_positions,
+            first_merge_position_shape_index,
+            shape_index,
+            None,
+        );
 
-        let current_merge_position = merge_positions[idx].position.as_ref();
-
-        current_merge_position.either_with(
-            (
-                &mut consumed_shapes_tracker,
-                &mut res_vec,
-                &mut already_taken_vertices,
-            ),
-            |(consumed_shapes_tracker, mut res_vec, already_taken_vertices), b| {
-                assert!(!*b);
-                assert_eq!(idx + 1, last_merge_shape_index_plus_1);
-
-                res_vec.extend(
-                    current_shape
-                        .vertices_from_to(*already_taken_vertices, current_shape.vertex_count()),
-                );
-                // To avoid the extra point creation after the loop
-                *already_taken_vertices = current_shape.vertex_count();
-
-                recursive_fill_vector(
-                    &mut res_vec,
-                    shapes,
-                    consumed_shapes_tracker,
-                    merge_positions,
-                    first_merge_position_shape_index,
-                    merge_positions[idx].that,
-                    shape_index,
-                );
-            },
-            |(consumed_shapes_tracker, mut res_vec, already_taken_vertices), pos| {
-                let vertex_index = pos.index();
-                res_vec.extend(
-                    current_shape.vertices_from_to(*already_taken_vertices, vertex_index + 1),
-                );
-                *already_taken_vertices = vertex_index + 1;
-
-                recursive_fill_vector(
-                    &mut res_vec,
-                    shapes,
-                    consumed_shapes_tracker,
-                    merge_positions,
-                    first_merge_position_shape_index,
-                    merge_positions[idx].that,
-                    shape_index,
-                );
-            },
-        )
+        debug_assert_eq!(vec.len(), size_hint);
+        Shape::Polygon(Polygon::new(vec))
     }
-
-    res_vec.extend(
-        current_shape.vertices_from_to(already_taken_vertices, current_shape.vertex_count()),
-    );
-
-    assert!(res_vec.len() <= size_hint);
-    Shape::Polyline(Polyline::new(res_vec))
-}
-
-fn collect_polygon(
-    shapes: &[Shape],
-    consumed_shapes_tracker: &mut [bool],
-    merge_positions: &[OneSidedMergePosition],
-    first_merge_position_shape_index: &[usize],
-    shape_index: usize,
-    size_hint: usize,
-) -> Shape {
-    todo!();
 }
 
 fn recursive_fill_vector(
@@ -256,6 +227,388 @@ fn recursive_fill_vector(
     merge_positions: &[OneSidedMergePosition],
     first_merge_position_shape_index: &[usize],
     shape_index: usize,
-    comming_from_shape_index: usize,
+    coming_from_shape: Either<(usize, bool), usize>, // if merging at line ends, return the
+                                                     // line end
 ) {
+    let coming_from_merge_pos_index = match coming_from_shape {
+        Either::Left((coming_from_shape_index, came_from_shape_p1)) => {
+            (first_merge_position_shape_index[shape_index]..merge_positions.len())
+                .find(|i| {
+                    if merge_positions[*i].that != coming_from_shape_index {
+                        return false;
+                    }
+
+                    if let Some((_, old_shape_is_p1)) = merge_positions[*i].position.left() {
+                        return came_from_shape_p1 == old_shape_is_p1;
+                    }
+
+                    unreachable!();
+                })
+                .unwrap()
+        }
+        Either::Right(coming_from_shape_index) => {
+            let index = (first_merge_position_shape_index[shape_index]..merge_positions.len())
+                .find(|i| merge_positions[*i].that == coming_from_shape_index)
+                .unwrap();
+
+            debug_assert!({
+                let coming_from_merge_pos = &merge_positions[index];
+                coming_from_merge_pos.this == shape_index
+                    && coming_from_merge_pos.that == coming_from_shape_index
+                    && coming_from_merge_pos.position.is_right()
+            });
+
+            index
+        }
+    };
+
+    match merge_positions[coming_from_merge_pos_index].position {
+        Either::Left((true, _)) => {
+            fill_vector_from_shape_left_to_right(
+                vec,
+                shapes,
+                consumed_shapes_tracker,
+                merge_positions,
+                first_merge_position_shape_index,
+                shape_index,
+                Some(coming_from_merge_pos_index),
+            );
+        }
+        Either::Left((false, _)) => {
+            fill_vector_from_line_right_to_left(
+                vec,
+                shapes,
+                consumed_shapes_tracker,
+                merge_positions,
+                first_merge_position_shape_index,
+                shape_index,
+            );
+        }
+        Either::Right(_) => {
+            fill_vector_from_shape_left_to_right(
+                vec,
+                shapes,
+                consumed_shapes_tracker,
+                merge_positions,
+                first_merge_position_shape_index,
+                shape_index,
+                Some(coming_from_merge_pos_index),
+            );
+        }
+    }
+}
+
+fn fill_vector_from_shape_left_to_right(
+    vec: &mut Vec<Vector>,
+    shapes: &[Shape],
+    consumed_shapes_tracker: &mut [bool],
+    merge_positions: &[OneSidedMergePosition],
+    first_merge_position_shape_index: &[usize],
+    shape_index: usize,
+    root_merge_pos_index: Option<usize>,
+) {
+    if consumed_shapes_tracker[shape_index] {
+        return;
+    }
+    consumed_shapes_tracker[shape_index] = true;
+
+    let first_merge_shape_index = first_merge_position_shape_index[shape_index];
+    let last_merge_shape_index_plus_1 = first_merge_position_shape_index
+        .get(shape_index + 1)
+        .copied()
+        .unwrap_or(merge_positions.len());
+
+    debug_assert!(first_merge_shape_index < last_merge_shape_index_plus_1);
+    debug_assert!(root_merge_pos_index
+        .map(|v| first_merge_shape_index <= v)
+        .unwrap_or(true));
+    debug_assert!(root_merge_pos_index
+        .map(|v| last_merge_shape_index_plus_1 > v)
+        .unwrap_or(true));
+
+    let current_shape = &shapes[shape_index];
+
+    let is_base_shape = root_merge_pos_index.is_none();
+    let treat_as_polygon = merge_positions[first_merge_shape_index].position.is_right()
+        && merge_positions[last_merge_shape_index_plus_1 - 1]
+            .position
+            .is_right();
+
+    let effective_vertex_count = if treat_as_polygon {
+        current_shape.vertex_count()
+    } else {
+        current_shape.looping_vertex_count()
+    };
+    #[cfg(debug_assertions)]
+    let mut vertex_budget = effective_vertex_count;
+
+    let root_merge_position =
+        root_merge_pos_index.and_then(|v| merge_positions[v].position.as_ref().right());
+
+    // Track if we need to include the loop till the start position again
+    // Only relevant if we don't start at line start; checked in the let Some and for loop
+    let mut looped_once = !treat_as_polygon;
+    let mut next_push_from_index = if let Some(pos) = root_merge_position {
+        vec.push(pos.vec());
+        pos.index() + 1
+    } else {
+        0
+    };
+
+    let start_traversing_from_merge_position = root_merge_pos_index
+        .map(|p| p + 1)
+        .unwrap_or(first_merge_shape_index);
+
+    let shape_position_amount = last_merge_shape_index_plus_1 - first_merge_shape_index;
+
+    debug_log_3(">>> Front", root_merge_position, shape_position_amount);
+
+    for idx in (0..shape_position_amount - !is_base_shape as usize).map(|idx| {
+        first_merge_shape_index
+            + (start_traversing_from_merge_position - first_merge_shape_index + idx)
+                % shape_position_amount
+    }) {
+        let current_merge_position = merge_positions[idx].position.as_ref();
+        debug_log_1(current_merge_position);
+
+        match current_merge_position {
+            Either::Left((true, _)) => {
+                debug_assert!(!treat_as_polygon);
+                debug_assert_eq!(idx, first_merge_shape_index);
+                debug_assert!(
+                    next_push_from_index == 0 || next_push_from_index == effective_vertex_count
+                );
+
+                next_push_from_index = 0;
+                assert!(consumed_shapes_tracker[merge_positions[idx].that] || is_base_shape);
+            }
+            Either::Left((false, _)) => {
+                debug_assert!(!treat_as_polygon);
+                debug_assert_eq!(idx + 1, last_merge_shape_index_plus_1);
+
+                vec.extend(
+                    current_shape.vertices_from_to(next_push_from_index, effective_vertex_count),
+                );
+
+                #[cfg(debug_assertions)]
+                {
+                    vertex_budget -= effective_vertex_count - next_push_from_index;
+                }
+
+                next_push_from_index = effective_vertex_count;
+
+                recursive_fill_vector(
+                    vec,
+                    shapes,
+                    consumed_shapes_tracker,
+                    merge_positions,
+                    first_merge_position_shape_index,
+                    merge_positions[idx].that,
+                    Either::Left((shape_index, false)),
+                );
+
+                debug_assert!(!treat_as_polygon || !looped_once);
+                looped_once = true;
+            }
+            Either::Right(pos) => {
+                let vertex_index = pos.index();
+
+                if vertex_index + 1 >= next_push_from_index {
+                    vec.extend(
+                        current_shape.vertices_from_to(next_push_from_index, vertex_index + 1),
+                    );
+                    #[cfg(debug_assertions)]
+                    {
+                        vertex_budget -= vertex_index + 1 - next_push_from_index;
+                    }
+                    next_push_from_index = vertex_index + 1;
+                } else {
+                    // Otherwise there would be a p2 end instead
+                    assert!(current_shape.is_polygon());
+                    vec.extend(
+                        current_shape
+                            .vertices_from_to(next_push_from_index, effective_vertex_count),
+                    );
+                    #[cfg(debug_assertions)]
+                    {
+                        vertex_budget -= effective_vertex_count - next_push_from_index;
+                    }
+                    vec.extend(current_shape.vertices_from_to(0, vertex_index + 1));
+                    #[cfg(debug_assertions)]
+                    {
+                        vertex_budget -= vertex_index + 1
+                    }
+                    next_push_from_index = vertex_index + 1;
+
+                    debug_assert!(!looped_once);
+                    looped_once = true;
+                }
+
+                // Is false iff we are at the end of a loop
+                if !consumed_shapes_tracker[merge_positions[idx].that] {
+                    vec.push(pos.vec());
+                    recursive_fill_vector(
+                        vec,
+                        shapes,
+                        consumed_shapes_tracker,
+                        merge_positions,
+                        first_merge_position_shape_index,
+                        merge_positions[idx].that,
+                        Either::Right(shape_index),
+                    );
+                    vec.push(pos.vec());
+                }
+            }
+        }
+    }
+
+    if let Some(root_mp) = root_merge_position {
+        if (root_mp.index() + 1 >= next_push_from_index) && looped_once {
+            vec.extend(current_shape.vertices_from_to(next_push_from_index, root_mp.index() + 1));
+            #[cfg(debug_assertions)]
+            {
+                vertex_budget -= root_mp.index() + 1 - next_push_from_index
+            }
+        } else {
+            vec.extend(
+                current_shape.vertices_from_to(next_push_from_index, effective_vertex_count),
+            );
+            #[cfg(debug_assertions)]
+            {
+                vertex_budget -= effective_vertex_count - next_push_from_index;
+            }
+            vec.extend(current_shape.vertices_from_to(0, root_mp.index() + 1));
+            #[cfg(debug_assertions)]
+            {
+                vertex_budget -= root_mp.index() + 1
+            }
+        }
+
+        vec.push(root_mp.vec());
+    } else {
+        vec.extend(current_shape.vertices_from_to(next_push_from_index, effective_vertex_count));
+        #[cfg(debug_assertions)]
+        {
+            vertex_budget -= effective_vertex_count - next_push_from_index;
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    debug_assert_eq!(vertex_budget, 0);
+
+    debug_log_1("<<< Front");
+}
+
+fn fill_vector_from_line_right_to_left(
+    vec: &mut Vec<Vector>,
+    shapes: &[Shape],
+    consumed_shapes_tracker: &mut [bool],
+    merge_positions: &[OneSidedMergePosition],
+    first_merge_position_shape_index: &[usize],
+    shape_index: usize,
+) {
+    if consumed_shapes_tracker[shape_index] {
+        return;
+    }
+    consumed_shapes_tracker[shape_index] = true;
+
+    debug_log_4(
+        "RIGHT",
+        vec.len(),
+        shapes[shape_index].looping_vertex_count(),
+        shape_index,
+    );
+
+    let first_merge_shape_index = first_merge_position_shape_index[shape_index];
+    let last_merge_shape_index_plus_1 = first_merge_position_shape_index
+        .get(shape_index + 1)
+        .copied()
+        .unwrap_or(merge_positions.len());
+
+    debug_assert!(first_merge_shape_index < last_merge_shape_index_plus_1);
+    debug_assert!(merge_positions[last_merge_shape_index_plus_1 - 1]
+        .position
+        .is_left());
+
+    let current_shape = &shapes[shape_index];
+
+    #[cfg(debug_assertions)]
+    let mut vertex_budget = current_shape.looping_vertex_count();
+
+    let mut already_taken_vertices = 0;
+    for idx in (first_merge_shape_index..last_merge_shape_index_plus_1).rev() {
+        debug_assert!(already_taken_vertices < current_shape.looping_vertex_count());
+        let current_merge_position = merge_positions[idx].position.as_ref();
+
+        match current_merge_position {
+            Either::Left((true, _)) => {
+                debug_assert_eq!(idx, first_merge_shape_index);
+
+                vec.extend(current_shape.vertices_rev_from_to(
+                    already_taken_vertices,
+                    current_shape.looping_vertex_count(),
+                ));
+
+                #[cfg(debug_assertions)]
+                {
+                    vertex_budget -= current_shape.looping_vertex_count() - already_taken_vertices;
+                    debug_assert_eq!(vertex_budget, 0);
+                }
+
+                recursive_fill_vector(
+                    vec,
+                    shapes,
+                    consumed_shapes_tracker,
+                    merge_positions,
+                    first_merge_position_shape_index,
+                    merge_positions[idx].that,
+                    Either::Left((shape_index, true)),
+                );
+
+                return;
+            }
+            Either::Left((false, _)) => {
+                debug_assert!(
+                    already_taken_vertices == 0 && idx + 1 == last_merge_shape_index_plus_1
+                )
+            }
+            Either::Right(pos) => {
+                let vertex_index = pos.index();
+                let extend_up_to_rev = current_shape.looping_vertex_count() - vertex_index - 1;
+
+                vec.extend(
+                    current_shape.vertices_rev_from_to(already_taken_vertices, extend_up_to_rev),
+                );
+                #[cfg(debug_assertions)]
+                {
+                    vertex_budget -= extend_up_to_rev - already_taken_vertices;
+                }
+
+                already_taken_vertices = extend_up_to_rev;
+
+                vec.push(pos.vec());
+                recursive_fill_vector(
+                    vec,
+                    shapes,
+                    consumed_shapes_tracker,
+                    merge_positions,
+                    first_merge_position_shape_index,
+                    merge_positions[idx].that,
+                    Either::Right(shape_index),
+                );
+                vec.push(pos.vec());
+            }
+        }
+    }
+
+    debug_assert!(already_taken_vertices < current_shape.vertex_count());
+    vec.extend(
+        current_shape.vertices_rev_from_to(already_taken_vertices, current_shape.vertex_count()),
+    );
+
+    #[cfg(debug_assertions)]
+    {
+        vertex_budget -= current_shape.vertex_count() - already_taken_vertices;
+        debug_assert_eq!(vertex_budget, 0)
+    }
 }
