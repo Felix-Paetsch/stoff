@@ -1,6 +1,3 @@
-Todo: Debug log should only log in debug mode.
-Todo: The panick hook should also give me a stack trace (behaviour only active in debug)
-mark verify optimum as debug only code
 Todo: Get it to work with advanced config
 
 Build merge with double run

@@ -85,8 +85,8 @@ export default async function () {
 
     const merged = merge_shapes_advanced(height_lines, {
         max_merge_distance: 2,
-        // line_amount: 3,
-        // fixed_endpoints: [[5, false]],
+        line_amount: 3,
+        fixed_endpoints: [[5, false]],
     });
     merged.forEach((m) => {
         t.run(m.resample(0.3));
