@@ -2,10 +2,12 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
 use crate::geometry::algorithms::closest::{self, ClosestShapePositionsResult};
-use crate::geometry::algorithms::merge_shapes::types::ShapeDistanceDatum;
 use crate::geometry::bounding_box::BoundingBox;
 use crate::geometry::length_map::LengthMap;
 use crate::geometry::{Shape, ShapeT};
+
+#[derive(Debug, Clone)]
+pub struct ShapeDistanceDatum(pub usize, pub usize, pub ClosestShapePositionsResult);
 
 impl PartialEq for ShapeDistanceDatum {
     fn eq(&self, other: &Self) -> bool {
@@ -163,10 +165,10 @@ impl<'a> LazyClosestShapePositions<'a> {
             self.bb_distances.pop();
         }
 
-        if let Some(currently_peaked) = self.peaked.as_ref() {
-            if !retain_test(currently_peaked.0, currently_peaked.1) {
-                self.peaked = None
-            }
+        if let Some(currently_peaked) = self.peaked.as_ref()
+            && !retain_test(currently_peaked.0, currently_peaked.1)
+        {
+            self.peaked = None
         }
     }
 }

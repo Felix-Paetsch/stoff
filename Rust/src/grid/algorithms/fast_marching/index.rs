@@ -9,7 +9,7 @@ use crate::{
                 base_second_order::base_second_order_arrival_time_update_fn,
                 directional::directional_arrival_time_update_fn,
             },
-            initialize::{initialize, FastMarchingState},
+            initialize::{FastMarchingState, initialize},
         },
         grid_struct::{Grid, GridPosition},
     },
@@ -26,18 +26,16 @@ pub fn solve_general_fast_marching(
             break;
         }
         fast_marching_data.status_grid.make_known(min_pos.0);
-        fast_marching_data
-            .times_grid
-            .adjacent_positions8(min_pos.0)
-            .for_each(|p| {
-                fast_marching_data.status_grid.consider(p);
-                let curr_time = *fast_marching_data.times_grid.value_at(p);
-                let new_time = arrival_update_fn(&fast_marching_data, p);
-                if new_time < curr_time {
-                    fast_marching_data.times_grid.set_value_at(p, new_time);
-                    fast_marching_data.heap.insert_or_decrease_key(p, new_time);
-                }
-            });
+
+        for p in fast_marching_data.times_grid.adjacent_positions8(min_pos.0) {
+            fast_marching_data.status_grid.consider(p);
+            let curr_time = *fast_marching_data.times_grid.value_at(p);
+            let new_time = arrival_update_fn(&fast_marching_data, p);
+            if new_time < curr_time {
+                fast_marching_data.times_grid.set_value_at(p, new_time);
+                fast_marching_data.heap.insert_or_decrease_key(p, new_time);
+            }
+        }
     }
 }
 

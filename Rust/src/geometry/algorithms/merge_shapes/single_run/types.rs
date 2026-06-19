@@ -2,10 +2,10 @@ use std::cmp::Ordering;
 
 use itertools::Either;
 
-use crate::geometry::{algorithms::closest::ClosestShapePositionsResult, ShapePosition};
-
-#[derive(Debug, Clone)]
-pub struct ShapeDistanceDatum(pub usize, pub usize, pub ClosestShapePositionsResult);
+use crate::geometry::{
+    algorithms::merge_shapes::shared::lazy_closest_shape_positions::ShapeDistanceDatum,
+    ShapePosition,
+};
 
 #[derive(Clone, Debug)]
 pub struct ShapeEndpointPairDatum(pub ShapeEndpoint, pub ShapeEndpoint, pub f64);

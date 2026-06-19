@@ -4,12 +4,12 @@ use union_find::{QuickFindUf, Union, UnionFind};
 
 use crate::{
     geometry::{
+        Shape, ShapeT, Vector,
         algorithms::merge_shapes::{
-            lazy_closest_shape_positions::LazyClosestShapePositions,
-            types::{MergePosition, ShapeDistanceDatum, ShapeEndpoint, ShapeEndpointPairDatum},
+            shared::lazy_closest_shape_positions::{LazyClosestShapePositions, ShapeDistanceDatum},
+            single_run::types::{MergePosition, ShapeEndpoint, ShapeEndpointPairDatum},
         },
         utils::distance_graph::distance_graph,
-        Shape, ShapeT, Vector,
     },
     graph::algorithms::minimum_weight_perfect_matching::min_weight_matching_f64,
 };
@@ -87,9 +87,11 @@ impl Union for ShapeMergingUFData {
             }
         };
 
-        debug_assert!(merge_into_polyline
-            .iter()
-            .is_sorted_by_key(|a| a.2.distance));
+        debug_assert!(
+            merge_into_polyline
+                .iter()
+                .is_sorted_by_key(|a| a.2.distance)
+        );
 
         union_find::UnionResult::Left(ShapeMergingUFData {
             merge_into_polyline,
@@ -209,10 +211,12 @@ impl<'a> MergeShapePositionsProvider<'a> {
         // - both ends are lines
         // - ends appear only once
         debug_assert!(matchable_endpoints.is_sorted_by(|a, b| a.2 >= b.2));
-        debug_assert!(matchable_endpoints
-            .iter()
-            .all(|p| !treat_shape_as_polygon[p.0.shape_index()]
-                && !treat_shape_as_polygon[p.1.shape_index()]));
+        debug_assert!(
+            matchable_endpoints
+                .iter()
+                .all(|p| !treat_shape_as_polygon[p.0.shape_index()]
+                    && !treat_shape_as_polygon[p.1.shape_index()])
+        );
         debug_assert!({
             let points: Vec<ShapeEndpoint> = matchable_endpoints
                 .iter()
@@ -265,13 +269,13 @@ impl<'a> MergeShapePositionsProvider<'a> {
             dist = -1.0;
         }
 
-        if let Some(next_merge) = self.next_merge.as_ref() {
-            if next_merge.2.distance <= dist {
-                return self
-                    .next_merge
-                    .take()
-                    .map(|next_merge| self.merge_gon_rc(next_merge));
-            }
+        if let Some(next_merge) = self.next_merge.as_ref()
+            && next_merge.2.distance <= dist
+        {
+            return self
+                .next_merge
+                .take()
+                .map(|next_merge| self.merge_gon_rc(next_merge));
         }
 
         // We check the following:
@@ -286,16 +290,16 @@ impl<'a> MergeShapePositionsProvider<'a> {
                 .retain_lazy(|a, b| self.merged_shapes_uf.find(a) != self.merged_shapes_uf.find(b));
             let next_suggested_shape_merge = self.lazy_closest_shape_positions.peek();
 
-            if next_suggested_shape_merge.is_none() {
-                if let Some(endpoint_merge) = self.possible_endpoint_merges.last() {
-                    return if endpoint_merge.2 <= dist {
-                        self.possible_endpoint_merges
-                            .pop()
-                            .map(|v| self.merge_line(v))
-                    } else {
-                        None
-                    };
-                }
+            if next_suggested_shape_merge.is_none()
+                && let Some(endpoint_merge) = self.possible_endpoint_merges.last()
+            {
+                return if endpoint_merge.2 <= dist {
+                    self.possible_endpoint_merges
+                        .pop()
+                        .map(|v| self.merge_line(v))
+                } else {
+                    None
+                };
             }
 
             if self.possible_endpoint_merges.is_empty() {
@@ -420,7 +424,7 @@ impl<'a> MergeShapePositionsProvider<'a> {
     }
 
     fn merge_line(&mut self, pos: ShapeEndpointPairDatum) -> MergePosition {
-        debug_assert!(pos.0 .0 != pos.1 .0);
+        debug_assert!(pos.0.0 != pos.1.0);
         debug_assert!(
             !self.merged_shapes_uf.get(pos.0.shape_index()).is_polygon
                 && !self.merged_shapes_uf.get(pos.1.shape_index()).is_polygon

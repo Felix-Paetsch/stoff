@@ -1,6 +1,8 @@
-Todo: Get it to work with advanced config
+Next: Tensor eikonal
+Then dog experiments
 
-Build merge with double run
+Maybe maybe faster eikonal
+Then maybe height map from image
 
 
 Improve speed of closest by having less allocations (e.g. the result option)
@@ -258,6 +260,7 @@ repatch inside mask
 Algo to make certain long travellines to be below others (or shorter with tsp opt)
 Functionality for on top/below
 Percolation
+Height Map from image
 Different Convolution / windowing mechanisms
 - wrap / extend / ...
 Method to make something "more Cinfinity" like smoothing that keeps a circle at a circle
@@ -442,3 +445,10 @@ Look at auto digitizing (inkl ember)
 Spirographs
 
 https://ezstitchdigitizing.com/free-online-jef-file-viewer/
+
+Standalone toolbox for leoie
+- merge shapes could just be "merge all consecutive line w/o color change in between"
+
+We can create videos from images with ffmpeg from cmd..
+
+A collection which holgs data (lines/...) at different heights and deals with occlusion

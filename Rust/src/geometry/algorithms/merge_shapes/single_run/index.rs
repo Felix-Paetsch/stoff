@@ -2,11 +2,11 @@ use itertools::Either;
 use union_find::UnionFind;
 
 use crate::geometry::{
-    algorithms::merge_shapes::{
+    Polygon, Polyline, Shape, ShapeT, Vector,
+    algorithms::merge_shapes::single_run::{
         merge_shape_positions_provider::MergeShapePositionsProvider,
         types::{OneSidedMergePosition, ShapeEndpoint},
     },
-    Polygon, Polyline, Shape, ShapeT, Vector,
 };
 
 #[allow(unused)]
@@ -31,7 +31,6 @@ pub struct ShapeMergingConfig {
     pub fixed_endpoints: Vec<ShapeEndpoint>,
 }
 
-#[allow(unused)]
 impl ShapeMergingConfig {
     pub fn new(
         max_merge_distance: Option<f64>,
@@ -68,18 +67,20 @@ pub fn merge_shapes_advanced(shapes: &[Shape], cfg: ShapeMergingConfig) -> Vec<S
         return shapes.iter().map(|m| m.clone_to_shape()).collect();
     }
 
-    assert!(cfg
-        .fixed_endpoints
-        .iter()
-        .all(|ep| ep.shape_index() < shapes.len()));
+    assert!(
+        cfg.fixed_endpoints
+            .iter()
+            .all(|ep| ep.shape_index() < shapes.len())
+    );
 
     let mut merge_position_provider = MergeShapePositionsProvider::initialize_with_fixed_endpoints(
         shapes,
         cfg.fixed_endpoints.to_vec(),
     );
 
-    let mut merge_positions: Vec<OneSidedMergePosition> =
-        Vec::with_capacity(2 * (shapes.len() - cfg.min_line_amount));
+    // Approx approx when there are line ends these are extra merge positions..
+    // For out usecases there is not to much harm in allocating to much I think
+    let mut merge_positions: Vec<OneSidedMergePosition> = Vec::with_capacity(4 * shapes.len());
 
     while merge_position_provider.shape_count() > cfg.min_line_amount {
         if let Some(next_merge_position) =
@@ -156,10 +157,12 @@ pub fn merge_shapes_advanced(shapes: &[Shape], cfg: ShapeMergingConfig) -> Vec<S
         });
 
         debug_assert!(shape_counts.iter().map(|a| *a as i32).sum::<i32>() == shapes.len() as i32);
-        debug_assert!(vertex_bounds
-            .into_iter()
-            .zip(shape_counts)
-            .all(|(vb, sc)| vb <= 5 * sc));
+        debug_assert!(
+            vertex_bounds
+                .into_iter()
+                .zip(shape_counts)
+                .all(|(vb, sc)| vb <= 5 * sc)
+        );
     }
 
     let mut consumed_shapes = vec![false; shapes.len()];
@@ -171,7 +174,7 @@ pub fn merge_shapes_advanced(shapes: &[Shape], cfg: ShapeMergingConfig) -> Vec<S
         .into_iter()
         .chain(unmerged_endpoints.iter().flat_map(|ep| [ep.0, ep.1]));
 
-    let polyline_iter = possible_line_start_points.filter_map(|sp| {
+    let polyline_iter = possible_line_start_points.filter_map(|sp: ShapeEndpoint| {
         let idx = sp.shape_index();
         if consumed_shapes[idx] {
             None
@@ -374,6 +377,10 @@ fn fill_vector_from_shape_left_to_right(
     shape_index: usize,
     root_merge_pos_index: Option<usize>,
 ) {
+    //
+    // !! If we clean this up eventually, just store the last merge position for comparisons and so on. Compare double run
+    //
+
     if consumed_shapes_tracker[shape_index] {
         return;
     }
@@ -386,12 +393,16 @@ fn fill_vector_from_shape_left_to_right(
         .unwrap_or(merge_positions.len());
 
     debug_assert!(first_merge_shape_index < last_merge_shape_index_plus_1);
-    debug_assert!(root_merge_pos_index
-        .map(|v| first_merge_shape_index <= v)
-        .unwrap_or(true));
-    debug_assert!(root_merge_pos_index
-        .map(|v| last_merge_shape_index_plus_1 > v)
-        .unwrap_or(true));
+    debug_assert!(
+        root_merge_pos_index
+            .map(|v| first_merge_shape_index <= v)
+            .unwrap_or(true)
+    );
+    debug_assert!(
+        root_merge_pos_index
+            .map(|v| last_merge_shape_index_plus_1 > v)
+            .unwrap_or(true)
+    );
 
     let current_shape = &shapes[shape_index];
 
@@ -493,7 +504,22 @@ fn fill_vector_from_shape_left_to_right(
             Either::Right(pos) => {
                 let vertex_index = pos.index();
 
-                if vertex_index + 1 >= next_push_from_index {
+                if vertex_index + 1 >= next_push_from_index
+                    && !(
+                        // See comment at methd start
+                        // Handles the following edgecase when all merge positions are on a single edge
+                        //  Single Edge: >--- x -- y -- entry ----<
+                        //  Can only appear if we are on the same edge as
+                        //  the root, smaller than it and there is no other
+                        //  thing beforehand that also was smaller having
+                        //  lead us to loop
+                        vertex_index + 1 == next_push_from_index
+                            && root_merge_position
+                                .map(|root_pos| root_pos >= pos)
+                                .unwrap_or(false)
+                            && !looped_once
+                    )
+                {
                     vec.extend(
                         current_shape.vertices_from_to(next_push_from_index, vertex_index + 1),
                     );
@@ -639,8 +665,10 @@ fn fill_vector_from_line_right_to_left(
                     Either::Left((shape_index, true)),
                 );
 
-                debug_assert!((first_merge_shape_index..last_merge_shape_index_plus_1)
-                    .all(|idx| { consumed_shapes_tracker[merge_positions[idx].that] }));
+                debug_assert!(
+                    (first_merge_shape_index..last_merge_shape_index_plus_1)
+                        .all(|idx| { consumed_shapes_tracker[merge_positions[idx].that] })
+                );
 
                 return;
             }
@@ -689,6 +717,8 @@ fn fill_vector_from_line_right_to_left(
         debug_assert_eq!(vertex_budget, 0)
     }
 
-    debug_assert!((first_merge_shape_index..last_merge_shape_index_plus_1)
-        .all(|idx| { consumed_shapes_tracker[merge_positions[idx].that] }));
+    debug_assert!(
+        (first_merge_shape_index..last_merge_shape_index_plus_1)
+            .all(|idx| { consumed_shapes_tracker[merge_positions[idx].that] })
+    );
 }

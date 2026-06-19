@@ -2,7 +2,7 @@ import { Numerics } from "@/Core";
 import { ImageIO } from "@/Core/files";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { Out } from "@/Dev";
-import { merge_shapes_advanced } from "Core/geometry/algorithms/merge_shapes";
+import { double_run_merge_shapes_advanced } from "Core/geometry/algorithms/double_run_merge_shapes";
 import { partition_unity_gauss } from "Core/numerics/index";
 import { SamplePoint } from "Core/numerics/spline";
 import { Embroidery } from "Embroidery/Lib/embroidery";
@@ -83,11 +83,7 @@ export default async function () {
     const t = new Embroidery();
     height_lines.forEach((l) => console.log(l.vertex_count()));
 
-    const merged = merge_shapes_advanced(height_lines, {
-        max_merge_distance: 2,
-        line_amount: 3,
-        fixed_endpoints: [[5, false]],
-    });
+    const merged = double_run_merge_shapes_advanced(height_lines);
     merged.forEach((m) => {
         t.run(m.resample(0.3));
     });

@@ -3,7 +3,7 @@ import { ImageIO } from "@/Core/files";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { clahe } from "@/Core/images";
 import { Out } from "@/Dev";
-import { merge_shapes_advanced } from "Core/geometry/algorithms/merge_shapes";
+import { double_run_merge_shapes } from "Core/geometry/algorithms/index";
 import { Convolution } from "Core/grid/algorithms/index";
 import { UInt8Grid } from "Core/grid/types";
 import { partition_unity_gauss } from "Core/numerics/index";
@@ -88,21 +88,16 @@ export default async function () {
 
     eikonal.map_in_place((v) => 5000 * v);
     const s = new Embroidery();
-    const height_lines = GridAlgorithms.maching_squares(eikonal);
+    const height_lines = GridAlgorithms.maching_squares(eikonal)
+        .map((l) => l.resample(0.3))
+        .filter((l) => l.length() > 1);
     height_lines.forEach((l) => s.run(l));
 
     Out.put(s);
 
     const t = new Embroidery();
-    const merged = merge_shapes_advanced(height_lines, {
-        max_merge_distance: 0.5,
-        // line_amount: 3,
-        // fixed_endpoints: [[5, false]],
-    });
-    merged.forEach((m) => {
-        console.log(m.is_polygon());
-        t.run(m);
-    });
+    const merged = double_run_merge_shapes(height_lines);
+    t.run(merged);
 
     Out.put(t);
 

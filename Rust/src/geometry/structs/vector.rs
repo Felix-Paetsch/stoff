@@ -59,7 +59,7 @@ impl Vector {
     }
 
     pub fn length(self) -> f64 {
-        (self.x * self.x + self.y * self.y).sqrt()
+        self.x.hypot(self.y)
     }
 
     pub fn distance(self, to: Vector) -> f64 {
@@ -102,11 +102,7 @@ impl Vector {
         let cosine_theta = (dot / lengths_product).clamp(-1.0, 1.0);
         let angle = cosine_theta.acos();
 
-        if angle.is_nan() {
-            0.0
-        } else {
-            angle
-        }
+        if angle.is_nan() { 0.0 } else { angle }
     }
 
     pub fn angle_clockwise(a: Vector, b: Vector) -> f64 {
