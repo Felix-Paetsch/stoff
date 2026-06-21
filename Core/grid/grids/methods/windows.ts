@@ -68,3 +68,21 @@ export function map_windows<T, R extends string>(
         res,
     );
 }
+
+export function iter_windows<T>(
+    src: IGrid<T, any>,
+    ker_size: [number, number],
+    fn: GridWindowFunction<T, void>,
+): void {
+    const [w, h] = src.dimensions_ref.lattice_dimensions;
+    for (let y0 = 0; y0 <= h - ker_size[1]; y0++) {
+        for (let x0 = 0; x0 <= w - ker_size[0]; x0++) {
+            const p: LatticePoint = [x0, y0];
+
+            fn(
+                (q) => src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
+                p,
+            );
+        }
+    }
+}

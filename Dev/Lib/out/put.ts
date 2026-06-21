@@ -1,6 +1,5 @@
 import { DST, ImageIO, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
-import { Grid } from "Core/grid/index";
 import { render_internal_grid } from "Core/grid/rendering/internal_grid";
 import { InternalGrid } from "Core/grid/types";
 import { Image, is_image } from "Core/image/types";
@@ -22,7 +21,7 @@ export type Putable =
     | Error
     | Embroidery
     | Image
-    | Grid.InternalGrid
+    | InternalGrid
     | DST;
 
 export type PutMetaData = {

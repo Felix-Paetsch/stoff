@@ -1,8 +1,27 @@
+And then do the line testing pixelwise bla..
+
+- Replace marching squares with preexist rust verions
+- Try out image vectorization
+- Tensor Eikonal
+
 Next: Tensor eikonal
 Then dog experiments
 
 Maybe maybe faster eikonal
 Then maybe height map from image
+
+Image Frequency analysis: min, ...
+Clean Up grids somehow..
+
+Notes: We can interop with python if we want to (; e.g. for height maps
+
+
+
+
+#  Rndm
+
+- python depth anything / ...
+
 
 
 Improve speed of closest by having less allocations (e.g. the result option)

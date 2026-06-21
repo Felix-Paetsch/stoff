@@ -11,8 +11,6 @@ import { createIGridConstructor } from "../iGridConstructors/create_constructur"
 import { IGridConstructor } from "../iGridConstructors/types";
 import { vector_at_lattice_point } from "./dimensions";
 
-export * from "../../types";
-
 export function map<T, N extends GridTypeName>(
     to: N,
     src: IGrid<T, any>,

@@ -78,3 +78,27 @@ export function map_chunks<T, R extends string>(
         res,
     );
 }
+
+export function iter_chunk<T>(
+    src: IGrid<T, any>,
+    ker_size: [number, number],
+    fn: GridWindowFunction<T, void>,
+): void {
+    const [w, h] = src.dimensions_ref.lattice_dimensions;
+
+    const [ker_w, ker_h] = ker_size;
+
+    const skipped_left = Math.floor((w % ker_w) / 2);
+    const skipped_up = Math.floor((h % ker_h) / 2);
+
+    for (let y0 = skipped_up; y0 <= h - ker_h; y0 += ker_h) {
+        for (let x0 = skipped_left; x0 <= w - ker_w; x0 += ker_w) {
+            const p: LatticePoint = [x0, y0];
+
+            fn(
+                (q) => src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
+                p,
+            );
+        }
+    }
+}

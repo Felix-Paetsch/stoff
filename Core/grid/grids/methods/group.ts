@@ -1,11 +1,11 @@
 import { Vector } from "Core/geometry/vector";
+import { GridDimensions, LatticePoint } from "Core/grid/types";
 import { IGrid } from "../igrid";
 import {
     complete_partial_subgrid_dimensions,
     lazy_with_new_dimensions,
     vector_at_lattice_point,
 } from "./dimensions";
-import { GridDimensions, LatticePoint } from "./map";
 
 export function group<S>(
     dimensions: GridDimensions,
