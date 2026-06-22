@@ -1,5 +1,5 @@
-import { Interval } from "@/Core/geometry";
 import { Expect } from "Core/expect";
+import { Interval } from "../index";
 import { PartitionFunction } from "./index";
 import { sort_numbers_partition_wrapper } from "./wrapper";
 

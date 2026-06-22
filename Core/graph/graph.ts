@@ -1,5 +1,5 @@
+import { Expect } from "@/Core/expect";
 import { AsRestParameter, BaseAndIfThenAlso, Extends } from "@/Core/utils";
-import { Expect } from "Core/expect";
 
 export namespace Graph {
     export type Edge<EdgeData = undefined> = {

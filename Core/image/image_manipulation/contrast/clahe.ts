@@ -1,12 +1,12 @@
-import { UInt8Grid } from "Core/grid/types";
+import { GrayImage } from "Core/image/image_types/grayscale";
 import { wasm_image_clahe, WASMCompatability } from "Rust/exports";
 
 export function clahe(
-    g: UInt8Grid,
+    i: GrayImage,
     tiles_across: number = 8,
     tiles_down: number = 8,
     clip_limit: number = 0.2,
-): UInt8Grid {
+): GrayImage {
     const serialized = WASMCompatability.Grid.serialize_u8_grid(g);
     const res = wasm_image_clahe(
         serialized,

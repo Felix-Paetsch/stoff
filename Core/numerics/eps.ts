@@ -1,5 +1,7 @@
+import { CONF } from "@/Core/config";
+
 export const EPS = {
-    tiny: 0.0000001,
+    tiny: CONF.core_approximately_zero,
     equals: (a: number, b: number): boolean => {
         return Math.abs(a - b) < EPS.tiny;
     },

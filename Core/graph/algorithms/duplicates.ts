@@ -1,7 +1,8 @@
-import { UnionFind } from "Core/utils/unionfind";
+import { UnionFind } from "@/Core/utils";
+
 import { Graph } from "../graph";
 
-export function remove_dublicate_edges<E extends Graph<any, any>>(
+export function identify_edges<E extends Graph<any, any>>(
     g: E,
     cb: (
         x: Graph.ExtractEdgeType<E>,

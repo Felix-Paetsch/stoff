@@ -1,5 +1,6 @@
+import { CONF } from "@/Core/config";
+
 import { Vector } from "Core/geometry/vector";
-import { EPS } from "Core/numerics/eps";
 import { Polygon } from "../polygon";
 import { Polyline } from "../polyline";
 import { Shape } from "../shape";
@@ -7,7 +8,7 @@ import { Shape } from "../shape";
 export function curvature(
     shape: Shape.Shape,
     at: Shape.ShapePositionDescriptor,
-    scale: number = EPS.tiny,
+    scale: number = CONF.core_approximately_zero,
 ): number | null {
     const at_descr = shape.shape_point_descriptor_to_shape_position(at);
     if (!at_descr) return null;
@@ -73,7 +74,7 @@ export function curvature(
 export function signed_curvature(
     shape: Shape.Shape,
     at: Shape.ShapePositionDescriptor,
-    scale: number = EPS.tiny,
+    scale: number = CONF.core_approximately_zero,
 ): number | null {
     const at_descr = shape.shape_point_descriptor_to_shape_position(at);
     if (!at_descr) return null;

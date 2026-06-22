@@ -26,17 +26,21 @@
         "rootDir": "./",
         "baseUrl": "./",
         "paths": {
-            "@/Core": ["Core/api/index"],
-            "@/Core/files": ["Core/api/files"],
-            "@/Core/images": ["Core/api/images"],
-            "@/Core/geometry": ["Core/api/geometry"],
-            "@/Core/sketch": ["Core/api/sketch"],
-            "@/Core/grid": ["Core/api/grid"],
-            "@/Core/graph": ["Core/api/graph"],
-            "@/Core/colors": ["Core/api/colors"],
-            "@/Core/utils": ["Core/api/utils"],
-            "@/Core/expect": ["Core/api/expect"],
-            "@/Core/numerics": ["Core/api/numerics"],
+            "@/Core/config": ["Core/config"],
+
+            "@/Core/geometry": ["Core/geometry"],
+            "@/Core/numerics": ["Core/numerics"],
+            "@/Core/colors": ["Core/colors"],
+            "@/Core/expect": ["Core/expect"],
+            "@/Core/utils": ["Core/utils"],
+            "@/Core/random": ["Core/random"],
+
+            "@/Core/graph": ["Core/graph"],
+            "@/Core/sketch": ["Core/sketch"],
+            "@/Core/grid": ["Core/grid"],
+            "@/Core/svg": ["Core/svg"],
+            "@/Core/embroidery": ["Core/embroidery"],
+            "@/Core/image": ["Core/image"],
 
             "@/Dev": ["Dev/Lib"]
         }

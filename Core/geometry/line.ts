@@ -1,4 +1,6 @@
-import { EPS } from "../numerics";
+import { CONF } from "@/Core/config";
+
+import { EPS } from "@/Core/numerics";
 import { Ray } from "./ray";
 import { LineSegment } from "./types";
 import { Vector } from "./vector";
@@ -24,7 +26,7 @@ export class Line {
     }
 
     contains(vec: Vector) {
-        return EPS.is_zero(vec.distance(this.project(vec)));
+        return vec.distance(this.project(vec)) < CONF.core_approximately_zero;
     }
 
     project(vec: Vector) {

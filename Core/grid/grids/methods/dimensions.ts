@@ -1,7 +1,7 @@
-import { Expect } from "Core/expect";
-import { Interval } from "Core/geometry/index";
-import { Vector } from "Core/geometry/vector";
-import { EPS } from "Core/numerics/eps";
+import { Expect } from "@/Core/expect";
+import { Vector } from "@/Core/geometry";
+
+import { EPS, Interval } from "@/Core/numerics";
 import {
     GridDimensions,
     LatticePoint,

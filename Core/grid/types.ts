@@ -1,5 +1,8 @@
-import { Vector } from "Core/geometry/vector";
+import { Vector } from "@/Core/geometry";
+
 import { IGrid } from "./grids/igrid";
+import { grid_from_array } from "./grids/index";
+import { map_grid } from "./grids/methods/map";
 
 export type LatticePoint = [number, number];
 
@@ -15,42 +18,57 @@ export type PartialGridDimensions =
     | [number, number, number, number];
 
 export type Vec3 = [number, number, number];
-export type Vec3U8 = [number, number, number];
+
 export type u8 = number;
 
-export type GridTypeName =
-    | "u8"
-    | "f64"
-    | "boolean"
-    | "vec3"
-    | "vec3u8"
-    | "vector";
+export type GridTypeName = "number" | "boolean" | "vec3" | "vector";
 
-export type GridValueType<N extends GridTypeName> = N extends "u8"
+export type GridValueType<N extends GridTypeName> = N extends "number"
     ? number
-    : N extends "f64"
-      ? number
-      : N extends "boolean"
-        ? boolean
-        : N extends "vec3"
-          ? Vec3
-          : N extends "vec3u8"
-            ? Vec3U8
-            : N extends "vector"
-              ? Vector
-              : never;
+    : N extends "boolean"
+      ? boolean
+      : N extends "vec3"
+        ? Vec3
+        : N extends "vector"
+          ? Vector
+          : never;
 
-export type NumberGrid = IGrid<number, "f64">;
-export type UInt8Grid = IGrid<u8, "u8">;
+export type NumberGrid = IGrid<number, "number">;
+
 export type Vec3Grid = IGrid<Vec3, "vec3">;
-export type Vec3UInt8Grid = IGrid<Vec3U8, "vec3u8">;
+
 export type VectorGrid = IGrid<Vector, "vector">;
 export type BooleanGrid = IGrid<boolean, "boolean">;
 
-export type InternalGrid =
-    | NumberGrid
-    | UInt8Grid
-    | Vec3Grid
-    | Vec3UInt8Grid
-    | VectorGrid
-    | BooleanGrid;
+export type InternalGrid = NumberGrid | Vec3Grid | VectorGrid | BooleanGrid;
+
+export function split_vec3_grid(
+    g: Vec3Grid,
+): [NumberGrid, NumberGrid, NumberGrid] {
+    return [
+        map_grid("number", g, (a) => a[0]),
+        map_grid("number", g, (a) => a[1]),
+        map_grid("number", g, (a) => a[2]),
+    ] as [NumberGrid, NumberGrid, NumberGrid];
+}
+
+export function join_number_grids(
+    a: NumberGrid,
+    b: NumberGrid,
+    c: NumberGrid,
+): Vec3Grid {
+    const dims = a.dimensions();
+    const res: Vec3[] = [];
+
+    for (let w = 0; w < dims.lattice_dimensions[0]; w++) {
+        for (let h = 0; h < dims.lattice_dimensions[1]; h++) {
+            res.push([
+                a.value_at_lattice_point([w, h]),
+                b.value_at_lattice_point([w, h]),
+                c.value_at_lattice_point([w, h]),
+            ]);
+        }
+    }
+
+    return grid_from_array("vec3", a.dimensions(), res);
+}

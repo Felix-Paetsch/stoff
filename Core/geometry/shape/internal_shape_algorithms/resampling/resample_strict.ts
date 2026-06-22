@@ -1,6 +1,7 @@
-import { CONF } from "Core/config";
-import { Vector } from "Core/geometry/vector";
-import { EPS } from "Core/numerics/eps";
+import { CONF } from "@/Core/config";
+import { EPS } from "@/Core/numerics";
+
+import { Vector } from "../../../vector";
 import { Polygon } from "../../polygon";
 import { Polyline } from "../../polyline";
 

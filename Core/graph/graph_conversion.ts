@@ -1,6 +1,5 @@
-import { Polyline, Vector } from "Core/geometry/index";
-import { CollectionMethods, Line, Point, Sketch } from "Core/sketch/index";
-import { SketchElementCollection } from "Core/sketch/types";
+import { Polyline, Vector } from "@/Core/geometry";
+
 import { Graph } from "./graph";
 import {
     internal_is_shape_graph,
@@ -77,47 +76,4 @@ export function copy<N, E>(g: Graph<N, E>): Graph<N, E> {
             data: E;
         }[] as any,
     );
-}
-
-export function sketch_element_collection_to_shape_graph(
-    c: SketchElementCollection,
-    endpoint_line_policy:
-        | "endpoint_hull"
-        | "endpoint_interior" = "endpoint_hull",
-): ShapeGraph {
-    const modified_sec_method =
-        endpoint_line_policy == "endpoint_hull"
-            ? CollectionMethods.endpoint_hull
-            : CollectionMethods.endpoint_interior;
-
-    const modified_sec = modified_sec_method(c);
-    const pts = modified_sec.filter((e) => e instanceof Point);
-    const lns = modified_sec.filter((e) => e instanceof Line);
-
-    return new Graph(
-        pts.map((p) => p.vec),
-        lns.map(
-            (l) =>
-                ({
-                    end_indices: [
-                        pts.findIndex((p) => p == l.p1)!,
-                        pts.findIndex((p) => p == l.p2)!,
-                    ],
-                    data: l.shape,
-                }) as any,
-        ),
-    );
-}
-
-export function to_sketch(g: ShapeGraph | VertexGraph) {
-    if (!internal_is_shape_graph(g)) {
-        g = into_shape_graph(g);
-    }
-
-    const sketch = new Sketch();
-    const pts = g.nodes.map((n) => sketch.add_point(n.data));
-    g.edges.map((e) =>
-        sketch.add_line(e.data, pts[e.end_indices[0]]!, pts[e.end_indices[1]]!),
-    );
-    return sketch;
 }

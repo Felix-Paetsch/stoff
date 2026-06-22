@@ -1,6 +1,7 @@
-import { Fraction, LengthMap, Polyline, Shape, Vector } from "@/Core/geometry";
-import { CONF } from "Core/config";
-import { Expect } from "Core/expect";
+import { CONF } from "@/Core/config";
+import { Expect } from "@/Core/expect";
+import { LengthMap, Polyline, Shape, Vector } from "@/Core/geometry";
+import { Fraction } from "@/Core/numerics";
 
 export type NumberFunction = (t: Fraction) => Fraction;
 export type InterpolationFunctions = {

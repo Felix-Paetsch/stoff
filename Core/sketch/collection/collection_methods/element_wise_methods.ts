@@ -1,4 +1,5 @@
-import { mirror_type, MirrorData } from "Core/geometry/linear_transformations";
+import { LinearTransform, Vector } from "Core/geometry";
+
 import {
     endpoint_hull,
     endpoint_interior,
@@ -7,7 +8,6 @@ import {
 import { Point } from "../../point";
 import { SketchElement, SketchElementCollection } from "../../types";
 
-import { LinearTransform, Vector } from "Core/geometry";
 import { Line } from "../../line";
 
 export function delete_sketch_elements(ec: SketchElementCollection): void {
@@ -18,7 +18,7 @@ export function delete_sketch_elements(ec: SketchElementCollection): void {
 export function mirror<
     T extends SketchElement,
     S extends SketchElementCollection<T>,
->(ec: S, mirror_args: MirrorData): S {
+>(ec: S, mirror_args: LinearTransform.MirrorData): S {
     const nec = sketch_element_collection_as_array(ec);
     const trafo = LinearTransform.mirror(mirror_args);
 
@@ -28,7 +28,7 @@ export function mirror<
             continue;
         }
 
-        if (mirror_type(mirror_args) === "Line") {
+        if (LinearTransform.mirror_type(mirror_args) === "Line") {
             el.update_shape(el.shape.map(trafo));
         }
     }

@@ -1,5 +1,3 @@
-import { Interval } from "./geometry/index";
-
 export namespace Color {
     const namedColors = {
         aliceblue: [240, 248, 255],
@@ -379,6 +377,29 @@ export namespace Color {
         return [Math.round(h), Math.round(s * 100), Math.round(l * 100), a];
     }
 
+    export function hsl_to_rgb(
+        hsl: [number, number, number] | [number, number, number, number],
+    ): [number, number, number, number] {
+        let [h, s, l, a] = hsl;
+        a = a || 1;
+
+        s /= 100;
+        l /= 100;
+
+        const k = (n: number) => (n + h / 30) % 12;
+        const f = (n: number) =>
+            s *
+            Math.min(l, 1 - l) *
+            Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+        return [
+            Math.round(255 * (l - f(0))),
+            Math.round(255 * (l - f(8))),
+            Math.round(255 * (l - f(4))),
+            a,
+        ];
+    }
+
     export function toHsl(col: Color): [number, number, number, number] {
         return rgb_to_hsl(toRgb(col));
     }
@@ -414,16 +435,13 @@ export namespace Color {
         return toHex(color);
     }
 
-    export function setOpacity(
-        color: Color,
-        opacity: Interval.Fraction,
-    ): Color {
+    export function setOpacity(color: Color, opacity_fraction: number): Color {
         const rgba = toRgb(color);
         return fromRgb([
             rgba[0],
             rgba[1],
             rgba[2],
-            Interval.clamp([0, 1], opacity),
+            Math.min(1, Math.max(0, opacity_fraction)),
         ]);
     }
 
@@ -432,26 +450,21 @@ export namespace Color {
         return fromHsl([
             hsla[0],
             hsla[1],
-            Interval.clamp([0, 100], luminocity),
+            Math.min(100, Math.max(0, luminocity)),
             hsla[3],
         ]);
     }
 
     export function setHue(color: Color, hue: number): Color {
         const hsla = toHsl(color);
-        return fromHsl([
-            Interval.clamp([0, 359], hue),
-            hsla[1],
-            hsla[2],
-            hsla[3],
-        ]);
+        return fromHsl([hue % 360, hsla[1], hsla[2], hsla[3]]);
     }
 
     export function setSaturation(color: Color, sat: number): Color {
         const hsla = toHsl(color);
         return fromHsl([
             hsla[0],
-            Interval.clamp([0, 100], sat),
+            Math.min(100, Math.max(0, sat)),
             hsla[2],
             hsla[3],
         ]);

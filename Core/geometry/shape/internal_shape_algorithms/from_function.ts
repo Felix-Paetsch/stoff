@@ -1,7 +1,7 @@
+import { CONF } from "@/Core/config";
+import { Bounds, Fraction } from "@/Core/numerics";
+
 import { Shape, Vector } from "../..";
-import { CONF } from "../../../config";
-import { Bounds } from "../../../numerics/index";
-import { Fraction } from "../../../numerics/interval";
 
 type FunctionSample = {
     at: Fraction;

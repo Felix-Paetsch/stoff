@@ -1,5 +1,5 @@
-import { CONF } from "Core/config";
-import { EPS } from "Core/numerics/eps";
+import { CONF } from "@/Core/config";
+
 import { WASMCompatability } from "Rust/exports";
 import { Radians } from "../types";
 import { Vector } from "../vector";
@@ -111,7 +111,7 @@ export class Polyline extends Shape {
             const vec = vertices[i + 1]!.subtract(vertices[i]!);
             const cross = vec.cross(endpoint_vec);
 
-            if (!EPS.is_zero(cross)) return false;
+            if (Math.abs(cross) >= CONF.core_approximately_zero) return false;
         }
 
         return true;

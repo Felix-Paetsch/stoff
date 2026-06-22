@@ -1,7 +1,7 @@
-import { CONF } from "Core/config";
+import { CONF } from "@/Core/config";
+
 import { Radians, Spline2d } from "Core/geometry/index";
 import { Vector } from "Core/geometry/vector";
-import { EPS } from "Core/numerics/eps";
 import { Shape } from "../../shape";
 
 function find_previous_distinct_point(
@@ -11,7 +11,7 @@ function find_previous_distinct_point(
 ): Vector | null {
     for (let i = fromIndex; i >= 0; i -= 1) {
         const candidate = line[i]!;
-        if (candidate.distance(anchor) > EPS.tiny) {
+        if (candidate.distance(anchor) > CONF.core_approximately_zero) {
             return candidate;
         }
     }
@@ -25,7 +25,7 @@ function find_next_distinct_point(
 ): Vector | null {
     for (let i = fromIndex; i < line.length; i += 1) {
         const candidate = line[i]!;
-        if (candidate.distance(anchor) > EPS.tiny) {
+        if (candidate.distance(anchor) > CONF.core_approximately_zero) {
             return candidate;
         }
     }
@@ -40,7 +40,7 @@ function normalize_polygon_points(line: Vector[]): Vector[] {
     const first = line[0]!;
     const last = line[line.length - 1]!;
 
-    if (first.distance(last) <= EPS.tiny) {
+    if (first.distance(last) <= CONF.core_approximately_zero) {
         return line.slice(0, -1);
     }
 
@@ -57,7 +57,7 @@ function find_previous_distinct_point_wrapped(
     for (let step = 1; step < n; step += 1) {
         const i = (anchorIndex - step + n) % n;
         const candidate = line[i]!;
-        if (candidate.distance(anchor) > EPS.tiny) {
+        if (candidate.distance(anchor) > CONF.core_approximately_zero) {
             return candidate;
         }
     }
@@ -75,7 +75,7 @@ function find_next_distinct_point_wrapped(
     for (let step = 1; step < n; step += 1) {
         const i = (anchorIndex + step) % n;
         const candidate = line[i]!;
-        if (candidate.distance(anchor) > EPS.tiny) {
+        if (candidate.distance(anchor) > CONF.core_approximately_zero) {
             return candidate;
         }
     }
@@ -91,7 +91,7 @@ function spline_for_line_segment(
     const p1 = line[leftIndex]!;
     const p2 = line[leftIndex + 1]!;
 
-    if (p1.distance(p2) < EPS.tiny) {
+    if (p1.distance(p2) < CONF.core_approximately_zero) {
         return (t) => Vector.lerp(p1, p2, t);
     }
 
@@ -134,7 +134,7 @@ function spline_for_polygon_segment(
     const p1 = line[leftIndex]!;
     const p2 = line[(leftIndex + 1) % n]!;
 
-    if (p1.distance(p2) < EPS.tiny) {
+    if (p1.distance(p2) < CONF.core_approximately_zero) {
         return (t) => Vector.lerp(p1, p2, t);
     }
 
@@ -185,7 +185,7 @@ export function resample_line_points_smooth(
         sample_spacing = CONF.DEFAULT_LINE_SEGMENT_LENGTH;
     }
 
-    if (sample_spacing <= EPS.tiny) {
+    if (sample_spacing <= CONF.core_approximately_zero) {
         return [...line];
     }
 
@@ -197,7 +197,7 @@ export function resample_line_points_smooth(
     let current_spline: Shape.PolylineFunction | null = null;
 
     while (true) {
-        if (distance_to_next_sample_pt <= EPS.tiny) {
+        if (distance_to_next_sample_pt <= CONF.core_approximately_zero) {
             current_left_index += 1;
             if (current_left_index >= line.length - 1) {
                 break;
@@ -223,8 +223,8 @@ export function resample_line_points_smooth(
             const next = line[current_left_index + 1]!;
 
             if (
-                curr.distance(prev) > EPS.tiny &&
-                curr.distance(next) > EPS.tiny &&
+                curr.distance(prev) > CONF.core_approximately_zero &&
+                curr.distance(next) > CONF.core_approximately_zero &&
                 Vector.angle(prev, next, curr) < smoothness_angle
             ) {
                 res.push(curr);
@@ -261,7 +261,7 @@ export function resample_line_points_smooth(
     }
 
     const last = line[line.length - 1]!;
-    if (res[res.length - 1]!.distance(last) > EPS.tiny) {
+    if (res[res.length - 1]!.distance(last) > CONF.core_approximately_zero) {
         res.push(last);
     }
 
@@ -287,7 +287,7 @@ export function resample_polygon_points_smooth(
         sample_spacing = CONF.DEFAULT_LINE_SEGMENT_LENGTH;
     }
 
-    if (sample_spacing <= EPS.tiny) {
+    if (sample_spacing <= CONF.core_approximately_zero) {
         return [...polygon];
     }
 
@@ -301,7 +301,7 @@ export function resample_polygon_points_smooth(
     let traversedSegments = 0;
 
     while (traversedSegments < n) {
-        if (distance_to_next_sample_pt <= EPS.tiny) {
+        if (distance_to_next_sample_pt <= CONF.core_approximately_zero) {
             current_left_index = (current_left_index + 1) % n;
             traversedSegments += 1;
 
@@ -331,11 +331,14 @@ export function resample_polygon_points_smooth(
             const next = polygon[(current_left_index + 1) % n]!;
 
             if (
-                curr.distance(prev) > EPS.tiny &&
-                curr.distance(next) > EPS.tiny &&
+                curr.distance(prev) > CONF.core_approximately_zero &&
+                curr.distance(next) > CONF.core_approximately_zero &&
                 Vector.angle(prev, next, curr) < smoothness_angle
             ) {
-                if (res[res.length - 1]!.distance(curr) > EPS.tiny) {
+                if (
+                    res[res.length - 1]!.distance(curr) >
+                    CONF.core_approximately_zero
+                ) {
                     res.push(curr);
                 }
             }
@@ -370,7 +373,10 @@ export function resample_polygon_points_smooth(
         distance_to_next_res_pt = sample_spacing;
     }
 
-    if (res.length > 1 && res[res.length - 1]!.distance(res[0]!) <= EPS.tiny) {
+    if (
+        res.length > 1 &&
+        res[res.length - 1]!.distance(res[0]!) <= CONF.core_approximately_zero
+    ) {
         res.pop();
     }
 

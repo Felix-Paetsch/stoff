@@ -1,5 +1,6 @@
-import { Expect } from "Core/expect";
-import { EPS } from "../numerics";
+import { Expect } from "@/Core/expect";
+import { EPS } from "@/Core/numerics";
+
 import { Radians } from "./types";
 
 export namespace Triangle {
@@ -248,7 +249,7 @@ export namespace Triangle {
             "Triangle could not be fully resolved",
         );
 
-        if (EPS.equals(Alpha! + Beta! + Gamma!, Math.PI)) {
+        if (!EPS.equals(Alpha! + Beta! + Gamma!, Math.PI)) {
             throw new Error("Invalid triangle");
         }
 

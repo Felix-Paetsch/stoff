@@ -1,5 +1,6 @@
-import { Expect } from "Core/expect";
-import { Interval, Vector } from "Core/geometry/index";
+import { Expect } from "@/Core/expect";
+import { Vector } from "@/Core/geometry";
+import { Interval } from "@/Core/numerics";
 import { GridDimensions, LatticePoint } from "../../types";
 import { IGrid } from "../igrid";
 import { complete_partial_subgrid_dimensions } from "../methods/dimensions";

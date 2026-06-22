@@ -1,7 +1,8 @@
-import { Polygon, Polyline, Vector } from "../..";
-import { EPS } from "../../../numerics/index";
+import { CONF } from "@/Core/config";
 
-const dub_distance = EPS.tiny;
+import { Polygon, Polyline, Vector } from "../..";
+
+const dub_distance = CONF.core_approximately_zero;
 const dub_distance_squared = dub_distance * dub_distance;
 
 export function remove_dub<T extends Polygon | Polyline>(s: T): T {

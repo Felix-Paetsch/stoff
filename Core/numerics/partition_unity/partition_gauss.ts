@@ -1,4 +1,5 @@
-import { Expect } from "Core/expect";
+import { Expect } from "@/Core/expect";
+
 import { PartitionFunction } from "./index";
 import { sort_in_place } from "./permutation";
 

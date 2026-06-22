@@ -1,4 +1,4 @@
-import { Interval } from "Core/geometry/index";
+import { Interval } from "../index";
 
 const TotalMaxIterations = 10001;
 

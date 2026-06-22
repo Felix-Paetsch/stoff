@@ -2,8 +2,9 @@
 // segment which has sufficient length. If there is a very small turn here
 // however there can still be problems, or if the line is too short.
 
+import { CONF } from "@/Core/config";
+
 import { Shape, Vector } from "../..";
-import { EPS } from "../../../numerics";
 import { LineSegment } from "../../types";
 import { Polygon } from "../polygon";
 import { Polyline } from "../polyline";
@@ -58,11 +59,11 @@ export function get_appreciable_line_segment(
 
     const res_left = center.approx_equals(vert_left)
         ? vert_left
-        : Vector.lerp_abs(center, vert_left, EPS.tiny);
+        : Vector.lerp_abs(center, vert_left, CONF.core_approximately_zero);
 
     const res_right = center.approx_equals(vert_right)
         ? vert_right
-        : Vector.lerp_abs(center, vert_right, EPS.tiny);
+        : Vector.lerp_abs(center, vert_right, CONF.core_approximately_zero);
 
     return [res_left, res_right];
 }
@@ -121,11 +122,11 @@ export function get_appreciable_corner(
 
     const res_left = center.approx_equals(vert_left)
         ? vert_left
-        : Vector.lerp_abs(center, vert_left, EPS.tiny);
+        : Vector.lerp_abs(center, vert_left, CONF.core_approximately_zero);
 
     const res_right = center.approx_equals(vert_right)
         ? vert_right
-        : Vector.lerp_abs(center, vert_right, EPS.tiny);
+        : Vector.lerp_abs(center, vert_right, CONF.core_approximately_zero);
 
     return [
         [res_left, center],

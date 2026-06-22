@@ -1,12 +1,12 @@
 import { wasm_grid_fast_marching, WASMCompatability } from "Rust/exports";
-import { Grid } from "../index";
+import { dimensions_agree } from "../grids/index";
 import { NumberGrid } from "../types";
 
 export function fast_marching(
     times: NumberGrid,
     speeds: NumberGrid,
 ): NumberGrid {
-    if (!Grid.dimensions_agree(speeds, times)) {
+    if (!dimensions_agree(speeds, times)) {
         speeds = speeds.with_new_dimensions(times.dimensions());
     }
 

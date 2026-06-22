@@ -2,9 +2,9 @@ import { Numerics } from "@/Core";
 import { ImageIO } from "@/Core/files";
 import { Grid, GridAlgorithms } from "@/Core/grid";
 import { Out } from "@/Dev";
-import { double_run_merge_shapes_advanced } from "Core/geometry/algorithms/double_run_merge_shapes";
 import { partition_unity_gauss } from "Core/numerics/index";
 import { SamplePoint } from "Core/numerics/spline";
+import { double_run_merge_shapes_advanced } from "Core/unstructured/double_run_merge_shapes";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 
 function map_brightness(v: number): number {

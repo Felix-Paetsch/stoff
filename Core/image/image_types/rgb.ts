@@ -1,53 +1,53 @@
 import { Color } from "Core/colors";
-import { Grid } from "Core/grid/index";
-import { NumberGrid, UInt8Grid, Vec3UInt8Grid } from "Core/grid/types";
 import { GrayImage } from "./grayscale";
 
 export class RGBImage {
-    constructor(public pixel_grid: Vec3UInt8Grid) {}
+    constructor(
+        public pixel_grid: Uint8Array,
+        public dimensions: [number, number],
+    ) {}
 
-    gray_scale(): GrayImage {
-        return new GrayImage(
-            Grid.map("u8", this.pixel_grid, (c) =>
-                Color.toGrayScale(Color.fromRgb(c)),
-            ),
-        );
+    as_gray_scale(): GrayImage {
+        const res = new Uint8Array(this.pixel_grid.length / 3);
+        for (let i = 0; i < res.length; i += 3) {
+            const px = this.pixel_grid.slice(i, i + 3);
+            res[i] = Color.toGrayScale(Color.fromRgb([px[0]!, px[1]!, px[2]!]));
+        }
+        return new GrayImage(res, this.dimensions);
     }
 
     as_rgb(): RGBImage {
-        return new RGBImage(this.pixel_grid.copy());
+        return new RGBImage(new Uint8Array(this.pixel_grid), [
+            ...this.dimensions,
+        ] as [number, number]);
     }
 
-    rgb_channels(): [UInt8Grid, UInt8Grid, UInt8Grid] {
-        return [
-            Grid.map("u8", this.pixel_grid, (x) => x[0]),
-            Grid.map("u8", this.pixel_grid, (x) => x[1]),
-            Grid.map("u8", this.pixel_grid, (x) => x[2]),
-        ];
+    rgb_channels(): [Uint8Array, Uint8Array, Uint8Array] {
+        const res_r = new Uint8Array(this.pixel_grid.length / 3);
+        const res_g = new Uint8Array(this.pixel_grid.length / 3);
+        const res_b = new Uint8Array(this.pixel_grid.length / 3);
+        for (let i = 0; i < this.pixel_grid.length / 3; i += 1) {
+            res_r[i] = this.pixel_grid[3 * i]!;
+            res_g[i] = this.pixel_grid[3 * i + 1]!;
+            res_b[i] = this.pixel_grid[3 * i + 2]!;
+        }
+        return [res_r, res_g, res_b];
     }
 
-    hsl_channels(): [NumberGrid, NumberGrid, NumberGrid] {
-        const hsl_vals = this.pixel_grid
-            .values_ref()
-            .map((v) => Color.rgb_to_hsl(v));
-        const dims = this.pixel_grid.dimensions();
-
-        return [
-            Grid.from_array(
-                "f64",
-                dims,
-                hsl_vals.map((v) => v[0]),
-            ),
-            Grid.from_array(
-                "f64",
-                dims,
-                hsl_vals.map((v) => v[1]),
-            ),
-            Grid.from_array(
-                "f64",
-                dims,
-                hsl_vals.map((v) => v[2]),
-            ),
-        ];
+    hsl_channels(): [Uint8Array, Uint8Array, Uint8Array] {
+        const res_h = new Uint8Array(this.pixel_grid.length / 3);
+        const res_s = new Uint8Array(this.pixel_grid.length / 3);
+        const res_l = new Uint8Array(this.pixel_grid.length / 3);
+        for (let i = 0; i < this.pixel_grid.length / 3; i += 1) {
+            const hsl = Color.rgb_to_hsl([
+                this.pixel_grid[3 * i]!,
+                this.pixel_grid[3 * i + 1]!,
+                this.pixel_grid[3 * i + 2]!,
+            ]);
+            res_h[i] = hsl[0];
+            res_s[i] = hsl[1];
+            res_l[i] = hsl[2];
+        }
+        return [res_h, res_s, res_l];
     }
 }

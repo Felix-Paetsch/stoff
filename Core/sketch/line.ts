@@ -1,8 +1,16 @@
-import { Expect } from "Core/expect";
+import { Validate } from "@/Dev";
+
+import { Expect } from "@/Core/expect";
+import {
+    LinearTransform,
+    Polygon,
+    Polyline,
+    Shape,
+    Vector,
+} from "@/Core/geometry";
+import { EPS } from "@/Core/numerics";
+
 import { CollectionMethods } from ".";
-import { Validate } from "../../Dev/lib";
-import { LinearTransform, Polygon, Polyline, Shape, Vector } from "../geometry";
-import { EPS } from "../numerics";
 import * as SketchElementCollectionMethods from "./collection/index";
 import { Point } from "./point";
 import { SketchElement, StoffObjectData } from "./types";

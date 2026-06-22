@@ -1,12 +1,13 @@
-import { Validate } from "@/Dev";
-import { Expect } from "Core/expect";
+import { Expect } from "@/Core/expect";
 import {
     LinearTransform,
     Polygon,
     Polyline,
     Shape,
     Vector,
-} from "Core/geometry/index";
+} from "@/Core/geometry";
+import { Validate } from "@/Dev";
+
 import { CollectionMethods, Copy } from "./index";
 import { Line } from "./line";
 import { Point } from "./point";

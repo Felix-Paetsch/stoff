@@ -1,4 +1,5 @@
-import { Vector } from "Core/geometry/index";
+import { Vector } from "@/Core/geometry";
+
 import {
     wasm_graph_minimum_spanning_tree,
     wasm_graph_minimum_spanning_tree_of_vertices,

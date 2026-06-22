@@ -1,5 +1,6 @@
+import { EPS } from "@/Core/numerics";
+
 import { WASMCompatability } from "Rust/exports";
-import { EPS } from "../numerics";
 import { Line } from "./line";
 import * as LinearTransform from "./linear_transformations";
 import { MirrorData } from "./linear_transformations";

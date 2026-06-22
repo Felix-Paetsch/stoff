@@ -1,4 +1,4 @@
-import { EPS } from "Core/numerics/eps";
+import { CONF } from "@/Core/config";
 import { Radians } from "../../types";
 import { Vector } from "../../vector";
 import { Shape } from "../shape";
@@ -34,7 +34,10 @@ export function shape_corners(
             break;
         }
 
-        if (all_corners[0]!.vec.distance(all_corners[1]!.vec) > EPS.tiny) {
+        if (
+            all_corners[0]!.vec.distance(all_corners[1]!.vec) >
+            CONF.core_approximately_zero
+        ) {
             res_corners.push(all_corners.shift()!);
             continue;
         }
@@ -44,7 +47,7 @@ export function shape_corners(
             all_corners.length > 0 &&
             all_corners[0]!.vec.distance(
                 current_eps_corners[current_eps_corners.length - 1]!.vec,
-            ) < EPS.tiny
+            ) < CONF.core_approximately_zero
         ) {
             current_eps_corners.push(all_corners.shift()!);
         }

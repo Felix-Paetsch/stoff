@@ -1,5 +1,5 @@
-import { Shape } from "Core/geometry/index";
-import { Vector } from "Core/geometry/vector";
+import { Shape, Vector } from "@/Core/geometry";
+
 import { Graph } from "./graph";
 
 export type VertexGraph = Graph<Vector>;

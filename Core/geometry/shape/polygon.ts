@@ -1,5 +1,5 @@
-import { CONF } from "Core/config";
-import { Bounds } from "Core/numerics";
+import { CONF } from "@/Core/config";
+
 import {
     wasm_geometry_centroid,
     wasm_geometry_coordiante_position,
@@ -220,14 +220,14 @@ export class Polygon extends Shape {
 
         let res: Vector[] = [sp1.vec];
 
-        const guard = Bounds.guard_inf_loop(this.vertex_count() + 2);
+        let guard = this.vertex_count() + 2;
 
         for (
             let i = sp1.index + 1;
             i != sp2.index + 1;
             i = (i + 1) % this.vertex_count()
         ) {
-            guard();
+            if (guard-- > 0) throw new Error();
             res.push(this.vertices[i]!);
         }
 

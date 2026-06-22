@@ -1,5 +1,5 @@
-import { Interval } from "Core/geometry";
 import { EPS } from "./eps";
+import { Interval } from "./index";
 import { PartitionFunction } from "./partition_unity/index";
 
 export type SamplePoint = [number, number];

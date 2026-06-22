@@ -1,3 +1,33 @@
+Plan:
+
+1. Sep Rust interop by:
+    - image
+    - grid
+    - geometry
+    - graph
+2. Clean up embroidery folder and put the unstructured code in there
+3. Clean up lib / standalone / ...
+
+
+# Restructuring
+
+- fix embroidery folder
+- write adapters
+- improve general API?
+- fix type errors
+- config: prefix with which folder / module a variable belongs to
+
+Put matching into geometry and graph
+Put graph into an interface (full graph ect.)
+Featurize WASM
+
+Histogram
+- min/max/percentile(P)/buckets(bucket_size)/Bucket_counts/Buckets_by_size(size of each bkt)
+Bucket a new class
+
+
+
+
 And then do the line testing pixelwise bla..
 
 - Replace marching squares with preexist rust verions
@@ -471,3 +501,5 @@ Standalone toolbox for leoie
 We can create videos from images with ffmpeg from cmd..
 
 A collection which holgs data (lines/...) at different heights and deals with occlusion
+
+Better utils for grids based on buffers

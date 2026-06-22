@@ -1,10 +1,5 @@
-import {
-    BoundingBox,
-    Interval,
-    PlaneLine,
-    Shape,
-    Vector,
-} from "@/Core/geometry";
+import { BoundingBox, PlaneLine, Shape, Vector } from "@/Core/geometry";
+import { Bounds, EPS, Interval } from "@/Core/numerics";
 import {
     CollectionMethods,
     Line,
@@ -12,8 +7,6 @@ import {
     SketchElement,
     SketchElementCollection,
 } from "@/Core/sketch";
-import { Bounds } from "Core/numerics/bounds";
-import { EPS } from "Core/numerics/eps";
 
 export type Attachment = {
     at: Point;

@@ -1,24 +1,25 @@
-import { Grid } from "Core/grid/index";
-import { UInt8Grid } from "Core/grid/types";
 import { RGBImage } from "./rgb";
 
 export class GrayImage {
-    constructor(public pixel_grid: UInt8Grid) {
-        pixel_grid.remap_domain_in_place([
-            0,
-            0,
-            pixel_grid.dimensions_ref.lattice_dimensions[0] - 1,
-            pixel_grid.dimensions_ref.lattice_dimensions[1] - 1,
-        ]);
-    }
+    constructor(
+        public pixel_grid: Uint8Array,
+        public dimensions: [number, number],
+    ) {}
 
-    gray_scale(): GrayImage {
-        return new GrayImage(this.pixel_grid.copy());
+    as_gray_scale(): GrayImage {
+        return new GrayImage(new Uint8Array(this.pixel_grid), [
+            ...this.dimensions,
+        ] as [number, number]);
     }
 
     as_rgb(): RGBImage {
-        return new RGBImage(
-            Grid.map("vec3u8", this.pixel_grid, (v) => [v, v, v]),
-        );
+        const res = new Uint8Array(this.pixel_grid.length * 3);
+        for (let i = 0; i < res.length; i += 1) {
+            const px = this.pixel_grid[i]!;
+            res[i] = px;
+            res[++i] = px;
+            res[++i] = px;
+        }
+        return new RGBImage(res, this.dimensions);
     }
 }

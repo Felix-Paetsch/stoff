@@ -1,5 +1,3 @@
-import { Interval } from "./geometry/index";
-
 function sfc32(uint128Hex: string) {
     let a = parseInt(uint128Hex.substring(0, 8), 16);
     let b = parseInt(uint128Hex.substring(8, 16), 16);
@@ -137,7 +135,7 @@ function weighted_choice(
         }
     }
 
-    let rand = Interval.remap([0, 1], [0, tLen])(this.random());
+    let rand = this.random() * tLen;
 
     for (let i = 0; i < where.length; i++) {
         const wi = where[i]!;

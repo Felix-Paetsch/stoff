@@ -1,4 +1,6 @@
-import { EPS } from "Core/numerics/index";
+import { CONF } from "@/Core/config";
+
+import { Fraction } from "@/Core/numerics";
 import {
     wasm_geometry_closest_shape_positions,
     wasm_geometry_geometries_intersect,
@@ -7,14 +9,13 @@ import {
     wasm_geometry_shape_self_intersects,
     WASMCompatability,
 } from "Rust/exports";
-import { Fraction } from "../../numerics/interval";
 import { BoundingBox } from "../bounding_box";
 import {
     buffer,
     BufferLineCapStyle,
     BufferLineJoinStyle,
 } from "../finite_geometry";
-import { Geometry, Interval } from "../index";
+import { Geometry } from "../index";
 import { Line } from "../line";
 import { Ray } from "../ray";
 import { Radians } from "../types";
@@ -179,7 +180,7 @@ export abstract class Shape {
             const v2 = p2.subtract(p1);
             const cross = v1.cross(v2);
 
-            if (EPS.less_than(Math.abs(cross), 0)) continue;
+            if (Math.abs(cross) <= CONF.core_approximately_zero) continue;
 
             if (sign === 0) {
                 sign = Math.sign(cross);
@@ -281,7 +282,7 @@ export abstract class Shape {
             targetDistance = totalLength + targetDistance;
         }
 
-        targetDistance = Interval.clamp([0, totalLength], targetDistance);
+        targetDistance = Math.min(Math.max(0, targetDistance), totalLength);
 
         const pos = LengthMap.position_at_length(
             this.length_map_ref(),
@@ -343,7 +344,7 @@ export abstract class Shape {
 
     curvature(
         at: Shape.ShapePositionDescriptor,
-        scale: number = EPS.tiny,
+        scale: number = CONF.core_approximately_zero,
     ): number | null {
         return curvature(this.typesafe(), at, scale);
     }

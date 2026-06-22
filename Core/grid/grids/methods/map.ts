@@ -11,17 +11,17 @@ import { createIGridConstructor } from "../iGridConstructors/create_constructur"
 import { IGridConstructor } from "../iGridConstructors/types";
 import { vector_at_lattice_point } from "./dimensions";
 
-export function map<T, N extends GridTypeName>(
+export function map_grid<T, N extends GridTypeName>(
     to: N,
     src: IGrid<T, any>,
     fn: (v: T, vec: Vector) => GridValueType<N>,
 ): InternalGrid & { type: N };
-export function map<T, S, R extends string>(
+export function map_grid<T, S, R extends string>(
     to: IGridConstructor<S, R>,
     src: IGrid<T, any>,
     fn: (v: T, vec: Vector) => S,
 ): IGrid<S, R>;
-export function map<T, R extends string>(
+export function map_grid<T, R extends string>(
     to: any,
     src: IGrid<any, any>,
     fn: (v: any, vec: Vector) => T,

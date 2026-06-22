@@ -1,4 +1,5 @@
-import { EPS } from "../../numerics";
+import { EPS } from "@/Core/numerics";
+
 import { LineSegment } from "../types";
 import { Vector } from "../vector";
 

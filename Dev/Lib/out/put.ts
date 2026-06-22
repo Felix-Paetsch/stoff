@@ -1,8 +1,8 @@
 import { DST, ImageIO, SVG_Builder } from "@/Core/files";
 import { Sketch, SketchRendering } from "@/Core/sketch";
-import { render_internal_grid } from "Core/grid/rendering/internal_grid";
 import { InternalGrid } from "Core/grid/types";
 import { Image, is_image } from "Core/image/types";
+import { render_internal_grid } from "Core/rendering/rendering_grid/internal_grid";
 import * as Utils from "Core/utils/index";
 import { Embroidery } from "Embroidery/Lib/embroidery";
 import { writeFileSync } from "fs";

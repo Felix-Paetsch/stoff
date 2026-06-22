@@ -1,4 +1,5 @@
-import { Interval, Vector } from "@/Core/geometry";
+import { Vector } from "@/Core/geometry";
+import { Interval } from "@/Core/numerics";
 import { GridDimensions, GridTypeName, Vec3 } from "../../types";
 import { LerpGrid } from "./lerp_grid";
 import { IGridConstructor } from "./types";
@@ -9,13 +10,8 @@ export function createIGridConstructor(
     if (typeof create_for == "function") return create_for;
 
     const lerp_map: [GridTypeName, (a: any, b: any, t: number) => any][] = [
-        ["f64", Interval.lerp],
+        ["number", Interval.lerp],
         ["vector", Vector.lerp],
-        [
-            "u8",
-            (a: number, b: number, t: number) =>
-                Math.round(Interval.lerp(a, b, t)),
-        ],
         ["boolean", (a: boolean, b: boolean, t: number) => (t <= 0.5 ? a : b)],
         [
             "vec3",
@@ -23,14 +19,6 @@ export function createIGridConstructor(
                 Interval.lerp(a[0], b[0], t),
                 Interval.lerp(a[1], b[1], t),
                 Interval.lerp(a[2], b[2], t),
-            ],
-        ],
-        [
-            "vec3u8",
-            (a: Vec3, b: Vec3, t: number) => [
-                Math.round(Interval.lerp(a[0], b[0], t)),
-                Math.round(Interval.lerp(a[1], b[1], t)),
-                Math.round(Interval.lerp(a[2], b[2], t)),
             ],
         ],
     ];

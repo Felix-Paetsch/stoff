@@ -20,7 +20,7 @@
  * nodes and their corresponding weights.
  */
 
-import { Interval } from "Core/geometry/index";
+import { Interval } from "../index";
 
 type GaussLegendreTable = {
     nodes: readonly number[];

@@ -1,6 +1,5 @@
 export * from "./types";
 
-export * as Interval from "../numerics/interval";
 export * as LinearTransform from "./linear_transformations";
 export * from "./triangle_data";
 
@@ -13,11 +12,11 @@ export { BoundingBox } from "./bounding_box";
 
 export * as FiniteGeometry from "./finite_geometry";
 export * as Geometry from "./geometry";
-export * as Spline2d from "./spline";
+export * as Spline2d from "./spline2d";
 
 export * from "./shape/length_map";
 export { Polygon } from "./shape/polygon";
 export { Polyline } from "./shape/polyline";
 export { Shape } from "./shape/shape";
 
-export * as GeometryAlgorithms from "./algorithms";
+export * from "./algorithms";

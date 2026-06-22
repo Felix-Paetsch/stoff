@@ -1,4 +1,4 @@
-import { Interval } from "../../geometry";
+import { Interval } from "../index";
 import { gauss_legendre } from "../quadrature/gauss-legendre";
 
 export function arc_length_intergrand(f: (x: number) => number) {

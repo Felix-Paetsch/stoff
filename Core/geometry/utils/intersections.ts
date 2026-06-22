@@ -1,5 +1,6 @@
+import { CONF } from "@/Core/config";
+
 import { Vector } from "..";
-import { EPS } from "../../numerics";
 import { closest_vectors, Geometry } from "../geometry";
 import { Shape } from "../shape/shape";
 
@@ -13,7 +14,7 @@ export function intersections(g1: Geometry, g2: Geometry): Vector[] {
     }
 
     const closest = closest_vectors(g1, g2)!;
-    if (closest[0].distance(closest[1]) < EPS.tiny ** 2) {
+    if (closest[0].distance(closest[1]) < CONF.core_approximately_zero ** 2) {
         return [closest[0]];
     }
 

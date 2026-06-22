@@ -1,4 +1,5 @@
-import { BoundingBox, FiniteGeometry, Polygon, Vector } from "Core/geometry";
+import { BoundingBox, FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
+
 import { Copy } from "Core/sketch/copy";
 import { Line } from "Core/sketch/line";
 import { Point } from "Core/sketch/point";
