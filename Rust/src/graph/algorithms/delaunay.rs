@@ -1,8 +1,7 @@
 use petgraph::{Graph, Undirected};
 use spade::{DelaunayTriangulation, HasPosition, Point2, Triangulation};
-use wasm_bindgen::prelude::*;
 
-use crate::geometry::{wasm_compatability::vecf64_to_vertex_vec, Vector};
+use crate::geometry::Vector;
 
 #[derive(Clone, Copy, Debug)]
 struct SpadeVector {
@@ -56,16 +55,4 @@ pub fn delaunay_triangulation(vertices: &[Vector]) -> Graph<Vector, (), Undirect
     }
 
     graph
-}
-
-#[wasm_bindgen]
-pub fn wasm_graph_delaunay(vertex_data: &[f64]) -> Vec<u32> {
-    let vertices = vecf64_to_vertex_vec(vertex_data);
-    let delaunay = delaunay_triangulation(&vertices);
-    let (_, edges) = delaunay.into_nodes_edges();
-
-    edges
-        .into_iter()
-        .flat_map(|e| [e.source().index() as u32, e.target().index() as u32])
-        .collect()
 }

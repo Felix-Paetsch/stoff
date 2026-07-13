@@ -75,9 +75,12 @@ export abstract class Shape {
     get vertices(): Vector[] {
         if (this._vertices) return this._vertices;
 
-        this._vertices = WASMCompatability.Geometry.vecf64_to_vertex_vec(
-            this.positions,
-        );
+        this._vertices = [];
+        for (let i = 0; i < this.positions.length; i += 2) {
+            this.vertices.push(
+                new Vector(this.positions[i]!, this.positions[i + 1]!),
+            );
+        }
         return this._vertices;
     }
 
@@ -353,12 +356,9 @@ export abstract class Shape {
         sh1: Shape,
         sh2: Shape,
     ): [Shape.ShapePosition, Shape.ShapePosition] | null {
-        const p1 = sh1.as_polygon();
-        const p2 = sh2.as_polygon();
-
         const closest = wasm_geometry_closest_shape_positions(
-            p1.to_wasm_vecf64(),
-            p2.to_wasm_vecf64(),
+            WASMCompatability.Geometry.wasm_shape(sh1 as Shape.Shape),
+            WASMCompatability.Geometry.wasm_shape(sh2 as Shape.Shape),
         );
 
         if (!closest) return null;
@@ -540,15 +540,5 @@ export abstract class Shape {
 
     static _get_appreciable_corner(shape: Polygon | Polyline, at: number) {
         return get_appreciable_corner(shape.typesafe(), at);
-    }
-
-    to_wasm_vecf64(): Float64Array {
-        return WASMCompatability.Geometry.geometry_to_vecf64(this.typesafe());
-    }
-
-    static from_wasm_vecf64(from: Float64Array): Shape.Shape {
-        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
-        if (obj instanceof Vector) return new Polygon([obj]);
-        return obj as Shape.Shape;
     }
 }

@@ -1,3 +1,5 @@
 export * from "./geometries";
-export * from "./verticies";
+export * from "./shape_position";
+export * from "./shapes";
+export * from "./vectors";
 

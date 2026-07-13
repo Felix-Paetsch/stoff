@@ -1,11 +1,11 @@
 use crate::grid::{
-    algorithms::fast_marching::{heap::FastMarchingHeap, status::Status},
+    algorithms::fast_marching::{heap::FastMarchingHeap, status::FastMarchingStatus},
     grid_struct::Grid,
 };
 
 pub struct FastMarchingState<'a> {
-    pub heap: FastMarchingHeap,
-    pub status_grid: Grid<Status>,
+    pub(super) heap: FastMarchingHeap,
+    pub status_grid: Grid<FastMarchingStatus>,
     pub times_grid: &'a mut Grid<f64>,
 }
 
@@ -15,10 +15,10 @@ pub fn initialize<'a>(times: &'a mut Grid<f64>) -> FastMarchingState<'a> {
     let status_grid = times.map(|p, v| {
         if v.is_finite() {
             heap.insert_or_decrease_key(p, *v);
-            Status::Considered
+            FastMarchingStatus::Considered
         } else {
             debug_assert!(*v > 0.0);
-            Status::Far
+            FastMarchingStatus::Far
         }
     });
 

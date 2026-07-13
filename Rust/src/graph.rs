@@ -1,2 +1,2 @@
 pub mod algorithms;
-pub mod wasm_compatibility;
+pub mod distance_graph;

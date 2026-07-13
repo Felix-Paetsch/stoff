@@ -4,7 +4,9 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    geometry::{LineSegment, Polygon, Polyline, Shape, Vector},
+    geometry::{
+        LineSegment, Polygon, Polyline, Shape, Vector, algorithms::simplify::into_simplified_shape,
+    },
     grid::grid_struct::Grid,
 };
 
@@ -413,7 +415,7 @@ fn build_contours(mut segments: SegmentsMap, quantizer: Quantizer) -> Vec<Shape>
         }
     }
 
-    shapes.into_iter().map(|s| s.into_simplified()).collect()
+    shapes.into_iter().map(into_simplified_shape).collect()
 }
 
 fn lower_bound(values: &[f64], target: f64) -> usize {

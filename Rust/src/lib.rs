@@ -1,10 +1,6 @@
-use wasm_bindgen::prelude::*;
+mod wasm;
 
-#[wasm_bindgen(start)]
-pub fn main() {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-}
-
+mod advanced;
 mod geometry;
 mod graph;
 mod grid;

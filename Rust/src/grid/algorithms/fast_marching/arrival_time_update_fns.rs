@@ -1,5 +1,6 @@
-pub mod base;
-pub mod base_second_order;
-pub mod base_second_order_fast;
-pub mod directional;
-
+pub mod anisotropic_naive_first_order;
+pub mod anisotropic_naive_second_order;
+pub mod anisotropic_second_order_single_stencil;
+pub mod isotropic_first_order_single_stencil;
+pub mod isotropic_naive_second_order;
+pub mod isotropic_second_order_single_stencil;

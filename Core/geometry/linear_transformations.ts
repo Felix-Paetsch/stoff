@@ -16,7 +16,7 @@ export function linear(
     return out_matrix.mult(inp_matrix.invert()).transform();
 }
 
-export function orthogonal(f_in: Vector, f_out: Vector): LinearTransformation {
+export function align(f_in: Vector, f_out: Vector): LinearTransformation {
     const f_in_orth = f_in.orthogonal();
     const f_out_orth = f_out.orthogonal();
 
@@ -52,7 +52,7 @@ export function affine_linear(
     };
 }
 
-export function affine_orthogonal(
+export function affine_align(
     f_in: [Vector, Vector],
     f_out: [Vector, Vector],
 ): LinearTransformation {
@@ -66,7 +66,7 @@ export function affine_orthogonal(
     const new_f_in = centralize_src(f_in[0]);
     const new_f_out = f_out[0].subtract(f_out[1]);
 
-    const lin = orthogonal(new_f_in, new_f_out);
+    const lin = align(new_f_in, new_f_out);
 
     return (x: Vector) => {
         return decentralize_trg(lin(centralize_src(x)));
@@ -90,7 +90,11 @@ export function rotate(
         new Vector(-1 * Math.sin(angle), Math.cos(angle)),
     );
 
-    return rotMatrix.transform();
+    return compose(
+        (v) => v.add(around),
+        rotMatrix.transform(),
+        (v) => v.subtract(around),
+    );
 }
 
 export type MirrorData = Line | Ray | Vector | LineSegment | null;
@@ -116,6 +120,16 @@ export function mirror(md: MirrorData): LinearTransformation {
 }
 
 export function compose(...lt: LinearTransformation[]): LinearTransformation {
+    return (v: Vector) => {
+        for (let i = lt.length - 1; i >= 0; i--) {
+            v = lt[i]!(v);
+        }
+
+        return v;
+    };
+}
+
+export function flow(...lt: LinearTransformation[]): LinearTransformation {
     return (v: Vector) => {
         for (let i = 0; i < lt.length; i++) {
             v = lt[i]!(v);

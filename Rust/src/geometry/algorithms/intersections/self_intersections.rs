@@ -1,10 +1,9 @@
-use wasm_bindgen::prelude::*;
-
 use crate::geometry::{
+    ShapeT,
     algorithms::{
         intersections::{
             shape_intersections::find_shape_intersections_recursion,
-            utils::{deduped_self_intersections, flatten_intersections, Intersection},
+            utils::{Intersection, deduped_self_intersections},
         },
         length_recursion::{
             index::{half_shape, initial_recursion_data},
@@ -12,10 +11,9 @@ use crate::geometry::{
         },
     },
     length_map::LengthMap,
-    Geometry, Shape, ShapeT,
 };
 
-pub fn find_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
+pub fn find_shape_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
     let length_map = LengthMap::new(shape.lines());
 
     let mut result: Vec<Intersection> = vec![];
@@ -51,14 +49,4 @@ pub fn find_self_intersections_recursion(
     // Note that we autiomatically include the point just between the two halves.
     // Probably not perf. critical
     find_shape_intersections_recursion(shape, left_half, shape, right_half, result);
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_shape_self_intersections(geo: &[f64]) -> Vec<f64> {
-    let geom = Geometry::deserialize(geo);
-
-    let shape = Shape::from_geometry(geom).unwrap();
-
-    let intersections = find_self_intersections(&shape);
-    flatten_intersections(&intersections)
 }

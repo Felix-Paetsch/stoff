@@ -125,11 +125,9 @@ export class Polygon extends Shape {
         if (this.is_empty()) return false;
         let other = as_polyline(what);
 
-        return (
-            wasm_geometry_polygon_contains_geometry(
-                this.to_wasm_vecf64(),
-                other.to_wasm_vecf64(),
-            ) || false
+        return wasm_geometry_polygon_contains_geometry(
+            WASMCompatability.Geometry.wasm_polygon(this),
+            WASMCompatability.Geometry.wasm_geometry(other),
         );
     }
 
@@ -137,11 +135,9 @@ export class Polygon extends Shape {
         if (this.is_empty()) return false;
         let other = as_polyline(what);
 
-        return (
-            wasm_geometry_polygon_contains_geometry_properly(
-                this.to_wasm_vecf64(),
-                other.to_wasm_vecf64(),
-            ) || false
+        return wasm_geometry_polygon_contains_geometry_properly(
+            WASMCompatability.Geometry.wasm_polygon(this),
+            WASMCompatability.Geometry.wasm_geometry(other),
         );
     }
 
@@ -149,34 +145,42 @@ export class Polygon extends Shape {
         if (this.vertex_count() < 3) {
             return 0;
         }
-        return wasm_geometry_polygon_area(this.to_wasm_vecf64()) || 0;
+        return wasm_geometry_polygon_area(
+            WASMCompatability.Geometry.wasm_polygon(this),
+        );
     }
 
     signed_area(): number {
         if (this.vertex_count() < 3) {
             return 0;
         }
-        return wasm_geometry_polygon_signed_area(this.to_wasm_vecf64()) || 0;
+        return wasm_geometry_polygon_signed_area(
+            WASMCompatability.Geometry.wasm_polygon(this),
+        );
     }
 
     interior_point(): Vector | null {
-        const ip = wasm_geometry_interior_point(this.to_wasm_vecf64());
+        const ip = wasm_geometry_interior_point(
+            WASMCompatability.Geometry.wasm_polygon(this),
+        );
         if (!ip) return null;
 
-        return Vector.from_wasm_vecf64(ip);
+        return WASMCompatability.Geometry.vector_from_wasm(ip);
     }
 
     centroid(): Vector | null {
-        const c = wasm_geometry_centroid(this.to_wasm_vecf64());
+        const c = wasm_geometry_centroid(
+            WASMCompatability.Geometry.wasm_polygon(this),
+        );
         if (!c) return null;
 
-        return Vector.from_wasm_vecf64(c);
+        return WASMCompatability.Geometry.vector_from_wasm(c);
     }
 
     coordinate_position(v: Vector): "outside" | "inside" | "on_boundary" {
         if (this.is_empty()) return "outside";
         const pos = wasm_geometry_coordiante_position(
-            this.to_wasm_vecf64(),
+            WASMCompatability.Geometry.wasm_polygon(this),
             v.x,
             v.y,
         );
@@ -187,7 +191,9 @@ export class Polygon extends Shape {
     }
 
     orientation(): "cw" | "ccw" | "none" {
-        const res = wasm_geometry_winding_order(this.to_wasm_vecf64());
+        const res = wasm_geometry_winding_order(
+            WASMCompatability.Geometry.wasm_polygon(this),
+        );
         if (res == 0) return "none";
         if (res == 1) return "cw";
         return "ccw";
@@ -246,12 +252,5 @@ export class Polygon extends Shape {
 
     as_polygon(): Polygon {
         return this;
-    }
-
-    static override from_wasm_vecf64(from: Float64Array): Polygon {
-        let obj = WASMCompatability.Geometry.vecf64_to_geometry(from);
-        if (obj instanceof Polygon) return obj;
-        if (obj instanceof Vector) return new Polygon([obj]);
-        return obj.as_polygon();
     }
 }

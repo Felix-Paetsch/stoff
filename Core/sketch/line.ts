@@ -76,7 +76,7 @@ export class Line {
         return this._shape;
     }
 
-    update_shape(shape: Shape.Shape) {
+    update_shape(shape: Shape.Shape = this._shape) {
         Expect.that(!shape.is_empty());
         if (
             shape instanceof Polygon ||
@@ -120,6 +120,8 @@ export class Line {
         if (p1 !== p2) {
             p2.__register_line(this);
         }
+
+        this.update_shape();
 
         return this;
     }

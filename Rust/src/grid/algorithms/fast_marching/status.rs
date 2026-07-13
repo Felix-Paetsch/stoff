@@ -1,26 +1,26 @@
 use crate::grid::grid_struct::{Grid, GridPosition};
 
 #[derive(PartialEq, Debug)]
-pub enum Status {
+pub enum FastMarchingStatus {
     Known,
     Considered,
     Far,
 }
 
-impl Grid<Status> {
+impl Grid<FastMarchingStatus> {
     pub fn make_known(&mut self, p: GridPosition) {
-        debug_assert_eq!(*self.value_at(p), Status::Considered);
-        self.set_value_at(p, Status::Known);
+        debug_assert_eq!(*self.value_at(p), FastMarchingStatus::Considered);
+        self.set_value_at(p, FastMarchingStatus::Known);
     }
 
     pub fn consider(&mut self, p: GridPosition) {
-        if *self.value_at(p) == Status::Far {
-            self.set_value_at(p, Status::Considered);
+        if *self.value_at(p) == FastMarchingStatus::Far {
+            self.set_value_at(p, FastMarchingStatus::Considered);
         }
     }
 
     #[allow(unused)]
     pub fn is_known(&self, p: GridPosition) -> bool {
-        matches!(self.value_at(p), Status::Known)
+        matches!(self.value_at(p), FastMarchingStatus::Known)
     }
 }

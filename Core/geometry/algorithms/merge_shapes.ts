@@ -1,9 +1,6 @@
 import { Polyline } from "@/Core/geometry";
 import { Expect } from "Core/expect";
-import {
-    wasm_geometry_merge_shapes_advanced,
-    WASMCompatability,
-} from "Rust/exports";
+import { wasm_advanced_merge_shapes, WASMCompatability } from "Rust/exports";
 import { Shape } from "../shape/shape";
 
 export type MergeShapesConfig = {
@@ -16,20 +13,7 @@ export type MergeShapesConfig = {
 };
 
 export function merge_shapes(shapes: Shape[]): Shape.Shape {
-    const serialized = WASMCompatability.Geometry.geometry_vec_to_vecf64(
-        shapes.filter((s) => !s.is_empty()) as Shape.Shape[],
-    );
-
-    const merged = wasm_geometry_merge_shapes_advanced(
-        serialized,
-        undefined,
-        undefined,
-        new Uint32Array(),
-    );
-
-    const res = WASMCompatability.Geometry.vecf64_to_geometry_vec(
-        merged,
-    ) as Shape.Shape[];
+    const res = merge_shapes_advanced(shapes);
 
     if (res.length == 0) {
         return Polyline.empty();
@@ -61,12 +45,10 @@ export function merge_shapes_advanced(
 
     if (non_empty_shapes.length == 0) return [];
 
-    let serialized = WASMCompatability.Geometry.geometry_vec_to_vecf64(
-        non_empty_shapes as Shape.Shape[],
-    );
-
-    let merged = wasm_geometry_merge_shapes_advanced(
-        serialized,
+    let merged = wasm_advanced_merge_shapes(
+        WASMCompatability.Geometry.wasm_shape_collection(
+            non_empty_shapes as Shape.Shape[],
+        ),
         cfg.max_merge_distance,
         cfg.line_amount,
         Uint32Array.from(
@@ -76,7 +58,6 @@ export function merge_shapes_advanced(
             ]),
         ),
     );
-    return WASMCompatability.Geometry.vecf64_to_geometry_vec(
-        merged,
-    ) as Shape.Shape[];
+
+    return WASMCompatability.Geometry.shape_collection_from_wasm(merged);
 }

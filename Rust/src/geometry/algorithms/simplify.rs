@@ -1,52 +1,67 @@
 // Credit: https://github.com/danieledapo/marching_squares/tree/master
 // This section is thus under MIT License
+//
+
+/* MIT License
+
+Copyright (c) 2020 Daniele D'Orazio
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 use crate::{
     geometry::{Polygon, Polyline, Shape, ShapeT, Vector},
     numerics::eps::EPS_ABS,
 };
 
-impl Polygon {
-    pub fn simplify(&self) -> Polygon {
-        self.clone().into_simplified()
-    }
-
-    pub fn into_simplified(self) -> Polygon {
-        self.into_polyline().into_simplified().into_polygon()
-    }
+#[allow(unused)]
+pub fn simplify_shape(shape: &impl ShapeT) -> Shape {
+    simplify_shape_with_eps(shape, EPS_ABS)
 }
 
-impl Polyline {
-    pub fn simplify(&self) -> Polyline {
-        self.clone().into_simplified()
-    }
-
-    pub fn into_simplified(self) -> Polyline {
-        let coords: Vec<(f64, f64)> = self
-            .into_vertices()
-            .into_iter()
-            .map(|v| v.into_tuple())
-            .collect();
-
-        let simplified = simplify_with_eps(&coords, EPS_ABS);
-
-        Polyline::new(simplified.into_iter().map(Vector::from_tuple).collect())
-    }
+pub fn into_simplified_shape(shape: Shape) -> Shape {
+    into_simplified_shape_with_eps(shape, EPS_ABS)
 }
 
-impl Shape {
-    pub fn simplify(&self) -> Shape {
-        match self {
-            Self::Polyline(l) => Self::Polyline(l.simplify()),
-            Self::Polygon(g) => Self::Polygon(g.simplify()),
-        }
-    }
+pub fn simplify_shape_with_eps(shape: &impl ShapeT, eps: f64) -> Shape {
+    into_simplified_shape_with_eps(shape.clone_to_shape(), eps)
+}
 
-    pub fn into_simplified(self) -> Shape {
-        match self {
-            Self::Polyline(l) => Self::Polyline(l.into_simplified()),
-            Self::Polygon(g) => Self::Polygon(g.into_simplified()),
-        }
+pub fn into_simplified_shape_with_eps(shape: Shape, eps: f64) -> Shape {
+    let is_polygon = shape.is_polygon();
+    let coords: Vec<(f64, f64)> = shape
+        .into_polyline()
+        .into_vertices()
+        .into_iter()
+        .map(|v| v.into_tuple())
+        .collect();
+
+    let simplified = simplify_with_eps(&coords, eps);
+
+    if is_polygon {
+        Shape::Polygon(Polygon::new(
+            simplified.into_iter().map(Vector::from_tuple).collect(),
+        ))
+    } else {
+        Shape::Polyline(Polyline::new(
+            simplified.into_iter().map(Vector::from_tuple).collect(),
+        ))
     }
 }
 

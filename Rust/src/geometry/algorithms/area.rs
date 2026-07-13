@@ -1,5 +1,4 @@
 use geo::Area;
-use wasm_bindgen::prelude::*;
 
 use crate::geometry::*;
 
@@ -13,26 +12,4 @@ impl Polygon {
         let polygon: geo::Polygon = Polygon::into(self.clone());
         -polygon.signed_area()
     }
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_polygon_area(coords: &[f64]) -> Option<f64> {
-    let geom = Geometry::from(coords);
-    let res = match geom {
-        Geometry::Point(_) => 0.0,
-        Geometry::Polygon(gon) => gon.area(),
-        Geometry::Polyline(ln) => ln.into_polygon().area(),
-    };
-    Some(res)
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_polygon_signed_area(coords: &[f64]) -> Option<f64> {
-    let geom = Geometry::from(coords);
-    let res = match geom {
-        Geometry::Point(_) => 0.0,
-        Geometry::Polygon(gon) => gon.area(),
-        Geometry::Polyline(ln) => ln.into_polygon().signed_area(),
-    };
-    Some(res)
 }

@@ -1,15 +1,12 @@
-mod area;
-mod buffer;
+pub mod area;
+pub mod buffer;
 pub mod closest;
-mod concave_hull;
-mod contains;
-mod convex_hull;
-mod intersections;
-mod length_recursion;
-mod merge_shapes;
-mod polygons_and_points;
-mod simplify;
-mod winding;
+pub mod concave_hull;
+pub mod convex_hull;
+pub mod intersections;
+pub mod polygon_contains;
+pub mod polygons_and_points;
+pub mod simplify;
+pub mod winding;
 
-#[allow(unused)]
-pub use buffer::buffer_geometries as buffer;
+mod length_recursion;

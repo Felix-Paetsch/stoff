@@ -11,6 +11,8 @@ wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1.7"
 web-sys = { version = "0.3", features = ["console"] }
 
+wasm_wrapper_derive = { path = "./derive_macros/wasm_wrapper" }
+
 itertools = "0.14.0"
 
 nalgebra = "0.35.0"

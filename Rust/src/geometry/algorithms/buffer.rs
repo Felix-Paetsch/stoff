@@ -1,8 +1,8 @@
-use geo::{buffer::BufferStyle, Buffer, GeometryCollection};
-use wasm_bindgen::prelude::*;
+use geo::{Buffer, GeometryCollection, buffer::BufferStyle};
 
 use crate::geometry::{Geometry, Polygon, Polyline, ShapeT};
 
+#[allow(unused)]
 pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon> {
     let geoms: Vec<geo::Geometry> = geometries
         .iter()
@@ -22,17 +22,6 @@ pub fn buffer_geometries(geometries: &[Geometry], distance: f64) -> Vec<Polygon>
             Polyline::from(exterior).into_polygon()
         })
         .collect()
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_buffer_geometries(geometries: &[f64], distance: f64) -> Vec<f64> {
-    let shapes = Geometry::vecf64_to_geometry_vec(geometries);
-    let buffered: Vec<Geometry> = buffer_geometries(&shapes, distance)
-        .into_iter()
-        .map(Geometry::from)
-        .collect();
-
-    Geometry::geometry_vec_to_vecf64(buffered)
 }
 
 pub enum LineJoin {
@@ -83,37 +72,4 @@ pub fn buffer_geometries_with_style(
             Polyline::from(exterior).into_polygon()
         })
         .collect()
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_buffer_geometries_with_style(
-    geometries: &[f64],
-    distance: f64,
-    join_style: u8,
-    join_value: f64,
-    cap_style: u8,
-    cap_value: f64,
-) -> Vec<f64> {
-    let shapes = Geometry::vecf64_to_geometry_vec(geometries);
-    let join_style = match join_style {
-        0 => LineJoin::Round(join_value),
-        1 => LineJoin::Bevel,
-        2 => LineJoin::Miter(join_value),
-        _ => unreachable!(),
-    };
-
-    let cap_style = match cap_style {
-        0 => LineCap::Round(cap_value),
-        1 => LineCap::Butt,
-        2 => LineCap::Square,
-        _ => unreachable!(),
-    };
-
-    let buffered: Vec<Geometry> =
-        buffer_geometries_with_style(&shapes, distance, join_style, cap_style)
-            .into_iter()
-            .map(Geometry::from)
-            .collect();
-
-    Geometry::geometry_vec_to_vecf64(buffered)
 }

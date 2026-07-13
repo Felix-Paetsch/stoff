@@ -1,4 +1,3 @@
-mod convolve;
-mod convolve_separable;
-mod test_separability;
-mod wasm;
+pub mod convolve;
+pub mod convolve_separable;
+pub mod test_kernel_separability;

@@ -1,11 +1,9 @@
-use wasm_bindgen::prelude::*;
-
 use crate::geometry::{
+    LineSegment, ShapePosition, ShapeT,
     algorithms::{
         closest::{closest_point_on_linesegment, closest_point_on_shape_with_length_map},
         intersections::utils::{
-            deduped_intersections, flatten_intersections, is_shape_end,
-            shapes_are_parallel_at_position, Intersection,
+            Intersection, deduped_intersections, is_shape_end, shapes_are_parallel_at_position,
         },
         length_recursion::{
             index::{half_shape, initial_recursion_data, quater_shapes, shape_cant_get_within_x},
@@ -13,7 +11,6 @@ use crate::geometry::{
         },
     },
     length_map::LengthMap,
-    Geometry, LineSegment, Shape, ShapePosition, ShapeT,
 };
 
 pub fn find_shape_intersections(shape1: &impl ShapeT, shape2: &impl ShapeT) -> Vec<Intersection> {
@@ -265,16 +262,4 @@ fn linesegment_linesegment_intersections(
     } else {
         None
     }
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_shape_intersections(geo1: &[f64], geo2: &[f64]) -> Vec<f64> {
-    let geom1 = Geometry::deserialize(geo1);
-    let geom2 = Geometry::deserialize(geo2);
-
-    let shape1 = Shape::from_geometry(geom1).unwrap();
-    let shape2 = Shape::from_geometry(geom2).unwrap();
-
-    let intersections = find_shape_intersections(&shape1, &shape2);
-    flatten_intersections(&intersections)
 }

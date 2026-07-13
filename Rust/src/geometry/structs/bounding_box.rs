@@ -3,6 +3,7 @@ use crate::geometry::Vector;
 #[derive(Clone, Copy)]
 pub struct BoundingBox([f64; 4]);
 
+#[allow(unused)]
 impl BoundingBox {
     pub fn new(x: f64, y: f64, w: f64, h: f64) -> Self {
         debug_assert!(x.is_finite() && y.is_finite() && w.is_finite() && h.is_finite());

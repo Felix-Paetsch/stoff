@@ -1,6 +1,6 @@
 use image::GrayImage;
 
-use crate::grid::{grid_struct::Grid, wasm_compatibility::u8_grid::WASMTransmittableU8Grid};
+use crate::grid::grid_struct::Grid;
 
 impl From<GrayImage> for Grid<u8> {
     fn from(value: GrayImage) -> Self {
@@ -20,19 +20,5 @@ impl From<Grid<u8>> for GrayImage {
 
         GrayImage::from_raw(width as u32, height as u32, data)
             .expect("Failed to create GrayImage from grid data")
-    }
-}
-
-impl From<GrayImage> for WASMTransmittableU8Grid {
-    fn from(value: GrayImage) -> Self {
-        let temp: Grid<u8> = value.into();
-        temp.into()
-    }
-}
-
-impl From<WASMTransmittableU8Grid> for GrayImage {
-    fn from(value: WASMTransmittableU8Grid) -> Self {
-        let temp: Grid<u8> = value.into();
-        temp.into()
     }
 }

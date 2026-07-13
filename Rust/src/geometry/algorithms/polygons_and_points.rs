@@ -1,19 +1,18 @@
 use geo::{
-    coordinate_position::{CoordPos, CoordinatePosition},
     Centroid, InteriorPoint,
+    coordinate_position::{CoordPos, CoordinatePosition},
 };
-use wasm_bindgen::prelude::*;
 
-use crate::geometry::{Geometry, Polygon, Vector};
+use crate::geometry::{Polygon, Vector, geo_compatibility::copy_shape_into_geo_polygon};
 
-pub fn interior_point(polygon: Polygon) -> Option<Vector> {
-    let geogon = geo::Polygon::from(polygon);
+pub fn interior_point(polygon: &Polygon) -> Option<Vector> {
+    let geogon = copy_shape_into_geo_polygon(polygon);
     let interior = geogon.interior_point();
     interior.map(Vector::from)
 }
 
-pub fn centroid(polygon: Polygon) -> Option<Vector> {
-    let geogon = geo::Polygon::from(polygon);
+pub fn centroid(polygon: &Polygon) -> Option<Vector> {
+    let geogon = copy_shape_into_geo_polygon(polygon);
     let centr = geogon.centroid();
     centr.map(Vector::from)
 }
@@ -24,8 +23,8 @@ pub enum PointPosition {
     Inside,
 }
 
-pub fn coordinate_position(polygon: Polygon, vertex: Vector) -> PointPosition {
-    let geogon = geo::Polygon::from(polygon);
+pub fn coordinate_position(polygon: &Polygon, vertex: Vector) -> PointPosition {
+    let geogon = copy_shape_into_geo_polygon(polygon);
     let geocoord = geo::Coord::from(vertex);
 
     let pos = geogon.coordinate_position(&geocoord);
@@ -33,38 +32,5 @@ pub fn coordinate_position(polygon: Polygon, vertex: Vector) -> PointPosition {
         CoordPos::Inside => PointPosition::Inside,
         CoordPos::OnBoundary => PointPosition::OnBoundry,
         CoordPos::Outside => PointPosition::Outside,
-    }
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_interior_point(gon: &[f64]) -> Option<Vec<f64>> {
-    let geom = Geometry::from(gon);
-    match geom {
-        Geometry::Polygon(gon) => interior_point(gon).map(|p| Geometry::from(p).serialize()),
-        _ => None,
-    }
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_centroid(gon: &[f64]) -> Option<Vec<f64>> {
-    let geom = Geometry::from(gon);
-    match geom {
-        Geometry::Polygon(gon) => centroid(gon).map(|p| Geometry::from(p).serialize()),
-        _ => None,
-    }
-}
-
-#[wasm_bindgen]
-pub fn wasm_geometry_coordiante_position(gon: &[f64], x: f64, y: f64) -> Option<i8> {
-    let geom = Geometry::from(gon);
-    let vert = Vector::new(x, y);
-
-    match geom {
-        Geometry::Polygon(gon) => match coordinate_position(gon, vert) {
-            PointPosition::Outside => Some(-1),
-            PointPosition::OnBoundry => Some(0),
-            PointPosition::Inside => Some(1),
-        },
-        _ => None,
     }
 }

@@ -2,12 +2,12 @@
 // Rough reference: Dieuwertje Alblas, Implementing and Analysing the Fast Marching Method (Bachelors Thesis)
 
 use crate::{
-    geometry::Vector,
+    geometry::Matrix,
     grid::{
         algorithms::fast_marching::{
             arrival_time_update_fns::{
-                base_second_order::base_second_order_arrival_time_update_fn,
-                directional::directional_arrival_time_update_fn,
+                anisotropic_second_order_single_stencil::anisotropic_second_order_single_stencil_arrival_time_update_fn,
+                isotropic_second_order_single_stencil::isotropic_second_order_single_stencil_arrival_time_update_fn,
             },
             initialize::{FastMarchingState, initialize},
         },
@@ -40,13 +40,11 @@ pub fn solve_general_fast_marching(
 }
 
 pub fn solve_fast_marching(times: &mut Grid<f64>, speed_map: &Grid<f64>) {
-    let update_fn = base_second_order_arrival_time_update_fn(speed_map);
-    // let update_fn = multi_stencil_second_order_arrival_time_update_fn(speed_map);
+    let update_fn = isotropic_second_order_single_stencil_arrival_time_update_fn(speed_map);
     solve_general_fast_marching(times, &update_fn);
 }
 
-#[allow(unused)]
-pub fn solve_directional_fast_marching(times: &mut Grid<f64>, tensor_map: &Grid<Vector>) {
-    let update_fn = directional_arrival_time_update_fn(tensor_map);
+pub fn solve_tensor_fast_marching(times: &mut Grid<f64>, tensor_map: &Grid<Matrix>) {
+    let update_fn = anisotropic_second_order_single_stencil_arrival_time_update_fn(tensor_map);
     solve_general_fast_marching(times, &update_fn);
 }

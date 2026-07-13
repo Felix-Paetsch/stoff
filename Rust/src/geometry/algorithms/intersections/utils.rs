@@ -1,7 +1,7 @@
 use petgraph::unionfind::UnionFind;
 
 use crate::{
-    geometry::{appreciable, ShapePosition, ShapeT, Vector},
+    geometry::{ShapePosition, ShapeT, Vector, appreciable},
     numerics::eps::EPS_ABS,
 };
 
@@ -127,19 +127,4 @@ fn positions_eps_agree(
     ((total_len_p - total_len_q).abs() < EPS_ABS)
         || (shape.is_polygon()
             && (length_map[length_map.len() - 1] - (total_len_p - total_len_q).abs()) < EPS_ABS)
-}
-
-pub fn flatten_intersections(intersections: &[Intersection]) -> Vec<f64> {
-    let mut out = Vec::with_capacity(intersections.len() * 6);
-
-    for [a, b] in intersections {
-        out.push(a.x());
-        out.push(a.y());
-        out.push(a.index() as f64);
-        out.push(a.frac());
-        out.push(b.index() as f64);
-        out.push(b.frac());
-    }
-
-    out
 }

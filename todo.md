@@ -1,10 +1,30 @@
+Todo: Grid conversions / UnitUnit
+
+Linear Transform / Rotate is a bit strange with first argument option
+maybe allow object with "from", "to"
+
+
+Rust...
+
+1. Make WASMGrid all the enum values into concrete WASM Types (potentially together with an enum wrapper)
+    - maybe write a macro for that, e.g. exposing only the name and not the impl and then extracting the impl for singletons..
+2. Same for WASM Graph
+3. Images
+4. Error fixes
+    - including tensor marching
+5. TS
+
+
 Plan:
 
-1. Sep Rust interop by:
+Move rust modify polyline intersections out
+
+1. Clean Up Rust and put things into WASM
     - image
     - grid
     - geometry
     - graph
+    - sneak in a marching squares change for my happiness (;
 2. Clean up embroidery folder and put the unstructured code in there
 3. Clean up lib / standalone / ...
 
@@ -503,3 +523,10 @@ We can create videos from images with ffmpeg from cmd..
 A collection which holgs data (lines/...) at different heights and deals with occlusion
 
 Better utils for grids based on buffers
+
+Upscale image smart (sample fill, figure out what is satin, ...)
+Allow just drag n drop .dst files into the watcher and looking at them
+
+https://www.synendo.com/gdstudio/
+
+To do pespective things: Just render from slightly different angles
