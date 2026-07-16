@@ -3,46 +3,46 @@ import { GrayImage } from "./grayscale";
 
 export class RGBImage {
     constructor(
-        public pixel_grid: Uint8Array,
+        public pixels: Uint8Array,
         public dimensions: [number, number],
     ) {}
 
-    as_gray_scale(): GrayImage {
-        const res = new Uint8Array(this.pixel_grid.length / 3);
+    gray_scale(): GrayImage {
+        const res = new Uint8Array(this.pixels.length / 3);
         for (let i = 0; i < res.length; i += 3) {
-            const px = this.pixel_grid.slice(i, i + 3);
+            const px = this.pixels.slice(i, i + 3);
             res[i] = Color.toGrayScale(Color.fromRgb([px[0]!, px[1]!, px[2]!]));
         }
         return new GrayImage(res, this.dimensions);
     }
 
-    as_rgb(): RGBImage {
-        return new RGBImage(new Uint8Array(this.pixel_grid), [
+    rgb(): RGBImage {
+        return new RGBImage(new Uint8Array(this.pixels), [
             ...this.dimensions,
         ] as [number, number]);
     }
 
     rgb_channels(): [Uint8Array, Uint8Array, Uint8Array] {
-        const res_r = new Uint8Array(this.pixel_grid.length / 3);
-        const res_g = new Uint8Array(this.pixel_grid.length / 3);
-        const res_b = new Uint8Array(this.pixel_grid.length / 3);
-        for (let i = 0; i < this.pixel_grid.length / 3; i += 1) {
-            res_r[i] = this.pixel_grid[3 * i]!;
-            res_g[i] = this.pixel_grid[3 * i + 1]!;
-            res_b[i] = this.pixel_grid[3 * i + 2]!;
+        const res_r = new Uint8Array(this.pixels.length / 3);
+        const res_g = new Uint8Array(this.pixels.length / 3);
+        const res_b = new Uint8Array(this.pixels.length / 3);
+        for (let i = 0; i < this.pixels.length / 3; i += 1) {
+            res_r[i] = this.pixels[3 * i]!;
+            res_g[i] = this.pixels[3 * i + 1]!;
+            res_b[i] = this.pixels[3 * i + 2]!;
         }
         return [res_r, res_g, res_b];
     }
 
     hsl_channels(): [Uint8Array, Uint8Array, Uint8Array] {
-        const res_h = new Uint8Array(this.pixel_grid.length / 3);
-        const res_s = new Uint8Array(this.pixel_grid.length / 3);
-        const res_l = new Uint8Array(this.pixel_grid.length / 3);
-        for (let i = 0; i < this.pixel_grid.length / 3; i += 1) {
+        const res_h = new Uint8Array(this.pixels.length / 3);
+        const res_s = new Uint8Array(this.pixels.length / 3);
+        const res_l = new Uint8Array(this.pixels.length / 3);
+        for (let i = 0; i < this.pixels.length / 3; i += 1) {
             const hsl = Color.rgb_to_hsl([
-                this.pixel_grid[3 * i]!,
-                this.pixel_grid[3 * i + 1]!,
-                this.pixel_grid[3 * i + 2]!,
+                this.pixels[3 * i]!,
+                this.pixels[3 * i + 1]!,
+                this.pixels[3 * i + 2]!,
             ]);
             res_h[i] = hsl[0];
             res_s[i] = hsl[1];

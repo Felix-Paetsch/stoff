@@ -1,5 +1,6 @@
 import { FiniteGeometry, Vector } from "@/Core/geometry";
-import { Sketch, SketchRendering } from "@/Core/sketch";
+import { SketchRendering } from "@/Core/rendering";
+import { Sketch } from "Core/sketch/sketch";
 
 export default function () {
     const circle = FiniteGeometry.circle(Vector.ZERO, 10);
@@ -16,10 +17,9 @@ export default function () {
         "yellow",
     ]);
 
-    return SketchRendering.render(s, {
+    return SketchRendering.render_dev(s, {
         width: 500,
         height: 500,
         padding: 30,
-        debug: true,
     });
 }

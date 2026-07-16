@@ -1,19 +1,16 @@
-import { Geometry } from "@/Core";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { Embroidery } from "@/Core/embroidery";
+import { LinearTransform, Polyline, Vector } from "@/Core/geometry";
 import { defineEmbroidery } from "Embroidery/types";
 
 export const ReplacementFractal = defineEmbroidery(
     "ReplacementFractal" as const,
     (_cfg: {}) => {
         const shape = replacement_fractal(
-            new Geometry.Polyline([
-                new Geometry.Vector(0, 0),
-                new Geometry.Vector(0, 4),
-            ]),
-            new Geometry.Polyline([
-                new Geometry.Vector(0, 0),
-                new Geometry.Vector(1, 0),
-                new Geometry.Vector(1, 1),
+            new Polyline([new Vector(0, 0), new Vector(0, 4)]),
+            new Polyline([
+                new Vector(0, 0),
+                new Vector(1, 0),
+                new Vector(1, 1),
             ]),
             12,
         );
@@ -29,32 +26,29 @@ export const ReplacementFractal = defineEmbroidery(
 );
 
 export function replacement_fractal(
-    l: Geometry.Polyline,
-    replace_with: Geometry.Polyline,
+    l: Polyline,
+    replace_with: Polyline,
     iterations: number = 1,
-): Geometry.Polyline {
+): Polyline {
     if (iterations == 1) {
         const vertices = l.vertices;
 
-        const vert: Geometry.Vector[] = [vertices[0]!];
+        const vert: Vector[] = [vertices[0]!];
         for (let i = 1; i < vertices.length; i++) {
-            let trafo = Geometry.LinearTransform.affine_orthogonal(
+            let trafo = LinearTransform.affine_orthogonal(
                 [replace_with.first()!, replace_with.last()!],
                 [vertices[i - 1]!, vertices[i]!],
             );
 
             if (i % 2 == 0) {
-                trafo = Geometry.LinearTransform.compose(
+                trafo = LinearTransform.compose(
                     trafo,
-                    Geometry.LinearTransform.mirror([
-                        vertices[i - 1]!,
-                        vertices[i]!,
-                    ]),
+                    LinearTransform.mirror([vertices[i - 1]!, vertices[i]!]),
                 );
             }
             vert.push(...replace_with.map(trafo).vertices.slice(1));
         }
-        return new Geometry.Polyline(vert);
+        return new Polyline(vert);
     }
 
     for (let i = 0; i < iterations; i++) {

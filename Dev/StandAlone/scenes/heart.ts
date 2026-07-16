@@ -1,6 +1,7 @@
 import { Color } from "@/Core/colors";
 import { Vector } from "@/Core/geometry";
-import { Line, Sketch, SketchAlgorithms, SketchRendering } from "@/Core/sketch";
+import { SketchRendering } from "@/Core/rendering";
+import { Line, Sketch, SketchAlgorithms } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 
 export default function () {

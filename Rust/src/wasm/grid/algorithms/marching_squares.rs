@@ -1,13 +1,12 @@
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    geometry::{Geometry, ShapeT},
     grid::{
         algorithms::marching_squares::{ContourLinePositions, marching_squares},
         grid_struct::Grid,
     },
     wasm::{
-        WASMWrapper, geometry::types::WASMGeometryCollection,
+        WASMWrapper, geometry::types::WASMShapeCollection,
         grid::types::wasm_float64_grid::WASMFloat64Grid,
     },
 };
@@ -16,7 +15,7 @@ use crate::{
 pub fn wasm_grid_marching_squares(
     grid: WASMFloat64Grid,
     contour_argument: &[f64],
-) -> WASMGeometryCollection {
+) -> WASMShapeCollection {
     let f64_grid: &Grid<f64> = grid.inner();
 
     let contour_arg = match contour_argument[0] {
@@ -27,7 +26,5 @@ pub fn wasm_grid_marching_squares(
     };
 
     let res = marching_squares(f64_grid, contour_arg);
-    let geoms: Vec<Geometry> = res.into_iter().map(|s| s.into_geometry()).collect();
-
-    WASMGeometryCollection::promote(geoms)
+    WASMShapeCollection::promote(res)
 }

@@ -1,14 +1,19 @@
-import { Numerics } from "@/Core";
-import { ImageIO } from "@/Core/files";
-import { Grid, GridAlgorithms } from "@/Core/grid";
-import { clahe } from "@/Core/images";
+import { Embroidery } from "@/Core/embroidery";
+import {
+    Convolution,
+    fast_marching,
+    grid_from_function,
+    maching_squares,
+    map_grid,
+    map_windows,
+    NumberGrid,
+    resample_grid,
+} from "@/Core/grid";
+import { clahe, ImageIO } from "@/Core/image";
+import { partition_unity_gauss, Spline } from "@/Core/numerics";
 import { Out } from "@/Dev";
-import { double_run_merge_shapes } from "Core/geometry/algorithms/index";
-import { Convolution } from "Core/grid/algorithms/index";
-import { UInt8Grid } from "Core/grid/types";
-import { partition_unity_gauss } from "Core/numerics/index";
-import { SamplePoint } from "Core/numerics/spline";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { image_to_grayscale_grid } from "Core/adapters/image_grid";
+import { double_run_merge_shapes } from "Core/unstructured/double_run_merge_shapes";
 
 function map_brightness(v: number): number {
     v = (v / 255) * 100;
@@ -33,7 +38,7 @@ function map_brightness(v: number): number {
 }
 
 function map_brightness_to_speed(v: number): number {
-    const samples: SamplePoint[] = [
+    const samples: Spline.SamplePoint[] = [
         [0, 200],
         [8, 500],
         [30, 1000],
@@ -41,7 +46,7 @@ function map_brightness_to_speed(v: number): number {
         [100, 10000],
     ];
 
-    const remap_method = Numerics.Spline.akima(samples);
+    const remap_method = Spline.akima(samples);
 
     return remap_method((v / 255) * 100);
 }
@@ -51,44 +56,46 @@ export default async function () {
 
     // Image processing
 
-    const gray = img.gray_scale().pixel_grid;
+    const gray = img.gray_scale();
     Out.put(gray, "#0_gray");
 
     const clahe_gray = clahe(gray, 8, 8, 3);
     Out.put(clahe_gray, "#1_clahe");
 
-    let convoluted = convolve_median(clahe_gray, 5);
+    const clahe_grid = image_to_grayscale_grid(clahe_gray);
+
+    let convoluted = convolve_median(clahe_grid, 5);
     Out.put(convoluted, "#2_conv");
-    convoluted = Convolution.convolve(clahe_gray, Convolution.gaussian_blur(5));
+    convoluted = Convolution.convolve(clahe_grid, Convolution.gaussian_blur(5));
     Out.put(convoluted, "#2_conv1");
 
     let height_lines_grid = convoluted;
 
     height_lines_grid.remap_domain_in_place([0, 0, 10, 10]);
-    height_lines_grid = Grid.resample(height_lines_grid, [500, 500]);
+    height_lines_grid = resample_grid(height_lines_grid, [500, 500]);
 
     // Eikonal
 
-    const feature_map = Grid.map("f64", height_lines_grid, map_brightness);
+    const feature_map = map_grid("number", height_lines_grid, map_brightness);
     Out.put(feature_map, "#2.5_features");
-    const speed_map = Grid.map("f64", feature_map, map_brightness_to_speed);
+    const speed_map = map_grid("number", feature_map, map_brightness_to_speed);
     Out.put(speed_map, "#3_speed");
 
-    const src_map = Grid.from_function(
-        "f64",
+    const src_map = grid_from_function(
+        "number",
         convoluted.dimensions(),
         () => Infinity,
     );
     src_map.set_value_at_lattice_point([0, 0], 0);
 
-    let eikonal = GridAlgorithms.fast_marching(src_map, speed_map);
+    let eikonal = fast_marching(src_map, speed_map);
     Out.put(eikonal, "#4_eikonal");
 
     // Height lines
 
     eikonal.map_in_place((v) => 5000 * v);
     const s = new Embroidery();
-    const height_lines = GridAlgorithms.maching_squares(eikonal)
+    const height_lines = maching_squares(eikonal)
         .map((l) => l.resample(0.3))
         .filter((l) => l.length() > 1);
     height_lines.forEach((l) => s.run(l));
@@ -104,12 +111,12 @@ export default async function () {
     return [];
 }
 
-function convolve_median(g: UInt8Grid, x: number, y?: number): UInt8Grid {
+function convolve_median(g: NumberGrid, x: number, y?: number): NumberGrid {
     if (!y) {
         y = x;
     }
 
-    return Grid.map_windows("u8", g, [x, y], (w) => {
+    return map_windows("number", g, [x, y], (w) => {
         let all_values: number[] = [];
         for (let i = 0; i < x; i++) {
             for (let j = 0; j < y; j++) {

@@ -1,6 +1,5 @@
 import { FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
-import { vector_at_lattice_point } from "../grids/index";
-import { BooleanGrid } from "../types";
+import { BooleanGrid, vector_at_lattice_point } from "@/Core/grid";
 
 const offsets: [number, number][] = [
     [-1, -1],

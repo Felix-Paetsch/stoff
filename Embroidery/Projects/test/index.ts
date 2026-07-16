@@ -1,5 +1,6 @@
-import { Geometry, Sketch } from "@/Core";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { Embroidery } from "@/Core/embroidery";
+import { Shape, Vector } from "@/Core/geometry";
+import { Line, Sketch } from "@/Core/sketch";
 import { defineEmbroidery } from "Embroidery/types";
 
 export type TestConfig = {};
@@ -7,21 +8,21 @@ export type TestConfig = {};
 export const TestEmbr = defineEmbroidery(
     "Test" as const,
     (_cfg: TestConfig) => {
-        const sT = new Sketch.Sketch();
+        const sT = new Sketch();
 
         const p1 = sT.add_point(0, 0);
-        const p2 = sT.add_point(5 * Embroidery.CmToStitch, 0);
+        const p2 = sT.add_point(5 * Embroidery.cm_to_stitch, 0);
 
         for (let i = 0; i < 4; i++) {
             for (let j = 1; j < 4; j++) {
-                const shape = Geometry.Shape.from_function(
+                const shape = Shape.from_function(
                     (t) =>
-                        new Geometry.Vector(
+                        new Vector(
                             t * ((j % 2) * 2 - 1),
                             Math.log(j) * Math.sin(Math.PI * t * i),
                         ),
                 );
-                const l = new Sketch.Line([p1, p2], shape);
+                const l = new Line([p1, p2], shape);
                 l.update_shape(l.shape.resample_smooth(0, 4));
             }
         }

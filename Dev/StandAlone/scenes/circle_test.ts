@@ -1,4 +1,13 @@
-import { FiniteGeometry, Polygon, Polyline, Shape } from "@/Core/geometry";
+import { Embroidery } from "@/Core/embroidery";
+import {
+    FiniteGeometry,
+    merge_shapes,
+    Polygon,
+    Polyline,
+    Shape,
+    walk_with_self_intersections,
+} from "@/Core/geometry";
+import { SketchRendering } from "@/Core/rendering";
 import { Sketch } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
@@ -20,8 +29,7 @@ export default function () {
         let merged: Shape.Shape = Polyline.empty();
 
         Performance.time(() => {
-            merged =
-                GeometryAlgorithms.merge_shapes(circles).remove_dubplicates();
+            merged = merge_shapes(circles).remove_dubplicates();
         }, "Merge circles");
 
         let se = Performance.time(() => {
@@ -41,7 +49,7 @@ export default function () {
         });
 
         Performance.time(() => {
-            merged = GeometryAlgorithms.walk_with_self_intersections(merged);
+            merged = walk_with_self_intersections(merged);
         }, "Walk without self ints");
 
         merged = merged.as_polyline().resample_strict(0.3, Math.PI / 4);

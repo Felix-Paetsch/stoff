@@ -1,15 +1,11 @@
-import { DST, SVG_Builder } from "@/Core/files";
-import {
-    FiniteGeometry,
-    GeometryAlgorithms,
-    Polygon,
-    Vector,
-} from "@/Core/geometry";
+import { DST, Embroidery } from "@/Core/embroidery";
+import { FiniteGeometry, Polygon, smooth_out, Vector } from "@/Core/geometry";
+import { SVG_Builder } from "@/Core/svg";
 import { Out } from "@/Dev";
-import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
+
 import { writeFileSync } from "fs";
-import path from "path/win32";
+import path from "path";
 
 export const BufferDST = defineEmbroidery(
     "Buffer" as const,
@@ -32,7 +28,7 @@ export const BufferDST = defineEmbroidery(
         })!;
 
         if (cfg.smooth_hull) {
-            hull = GeometryAlgorithms.smooth_out(hull, cfg.smooth_hull);
+            hull = smooth_out(hull, cfg.smooth_hull);
         }
 
         if (cfg.buffer instanceof Array) {
@@ -40,10 +36,7 @@ export const BufferDST = defineEmbroidery(
                 let buff_line = select_correct_buffer(hull.buffer(b));
 
                 if (cfg.smooth_buffer) {
-                    buff_line = GeometryAlgorithms.smooth_out(
-                        buff_line,
-                        cfg.smooth_buffer,
-                    );
+                    buff_line = smooth_out(buff_line, cfg.smooth_buffer);
                 }
                 buff_line = buff_line.resample(0.05);
                 res.run(buff_line.to_polyline());
@@ -52,10 +45,7 @@ export const BufferDST = defineEmbroidery(
             let buff_line = select_correct_buffer(hull.buffer(cfg.buffer));
 
             if (cfg.smooth_buffer) {
-                buff_line = GeometryAlgorithms.smooth_out(
-                    buff_line,
-                    cfg.smooth_buffer,
-                );
+                buff_line = smooth_out(buff_line, cfg.smooth_buffer);
             }
             buff_line = buff_line.resample(0.05);
             res.run(buff_line.to_polyline());
@@ -65,18 +55,18 @@ export const BufferDST = defineEmbroidery(
 
         const bb = res.bounding_box();
         const svg = new SVG_Builder(
-            bb.width * Embroidery.CmToStitch,
-            bb.height * Embroidery.CmToStitch,
+            bb.width * Embroidery.cm_to_stitch,
+            bb.height * Embroidery.cm_to_stitch,
             [
-                bb.top_left.scale(Embroidery.CmToStitch),
-                bb.bottom_right.scale(Embroidery.CmToStitch),
+                bb.top_left.scale(Embroidery.cm_to_stitch),
+                bb.bottom_right.scale(Embroidery.cm_to_stitch),
             ],
             0,
         );
 
         res.runs.forEach((r) => {
             const mapped_line = r.map((v: Vector) =>
-                v.scale(Embroidery.CmToStitch),
+                v.scale(Embroidery.cm_to_stitch),
             );
             svg.render_polygon(mapped_line.as_polygon());
         });

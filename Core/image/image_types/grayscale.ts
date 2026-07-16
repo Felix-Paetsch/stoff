@@ -2,20 +2,20 @@ import { RGBImage } from "./rgb";
 
 export class GrayImage {
     constructor(
-        public pixel_grid: Uint8Array,
+        public pixels: Uint8Array,
         public dimensions: [number, number],
     ) {}
 
-    as_gray_scale(): GrayImage {
-        return new GrayImage(new Uint8Array(this.pixel_grid), [
+    gray_scale(): GrayImage {
+        return new GrayImage(new Uint8Array(this.pixels), [
             ...this.dimensions,
         ] as [number, number]);
     }
 
-    as_rgb(): RGBImage {
-        const res = new Uint8Array(this.pixel_grid.length * 3);
+    rgb(): RGBImage {
+        const res = new Uint8Array(this.pixels.length * 3);
         for (let i = 0; i < res.length; i += 1) {
-            const px = this.pixel_grid[i]!;
+            const px = this.pixels[i]!;
             res[i] = px;
             res[++i] = px;
             res[++i] = px;

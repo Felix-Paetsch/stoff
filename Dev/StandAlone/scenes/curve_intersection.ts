@@ -1,4 +1,10 @@
-import { GeometryAlgorithms, Polygon, Shape, Vector } from "@/Core/geometry";
+import {
+    Polygon,
+    Shape,
+    smooth_out,
+    Vector,
+    walk_without_self_intersections,
+} from "@/Core/geometry";
 import { Sketch } from "@/Core/sketch";
 
 export default function () {
@@ -29,8 +35,8 @@ export default function () {
         );
 
     let shape = Polygon.from_function(shapeFn);
-    shape = GeometryAlgorithms.walk_without_self_intersections(shape);
-    shape = GeometryAlgorithms.smooth_out(shape, 0.4);
+    shape = walk_without_self_intersections(shape);
+    shape = smooth_out(shape, 0.4);
 
     r.add_line(shape);
     return r;

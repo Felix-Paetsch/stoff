@@ -1,9 +1,8 @@
-import { DST } from "@/Core/files";
-import { GeometryAlgorithms, Polygon } from "@/Core/geometry";
+import { DST, Embroidery } from "@/Core/embroidery";
+import { Polygon, smooth_out } from "@/Core/geometry";
 import { Out } from "@/Dev";
-import { Embroidery } from "Embroidery/Lib/embroidery";
 import { defineEmbroidery } from "Embroidery/types";
-import path from "path/win32";
+import path from "path";
 
 export const BufferOutlineDST = defineEmbroidery(
     "BufferOutline" as const,
@@ -23,10 +22,7 @@ export const BufferOutlineDST = defineEmbroidery(
                 let buff_line = select_correct_buffer(buffer_res);
 
                 if (cfg.smooth_buffer) {
-                    buff_line = GeometryAlgorithms.smooth_out(
-                        buff_line,
-                        cfg.smooth_buffer,
-                    );
+                    buff_line = smooth_out(buff_line, cfg.smooth_buffer);
                 }
                 buff_line = buff_line.resample(0.05);
                 res.run(buff_line.to_polyline());
@@ -35,10 +31,7 @@ export const BufferOutlineDST = defineEmbroidery(
             let buff_line = select_correct_buffer(outline.buffer(cfg.buffer));
 
             if (cfg.smooth_buffer) {
-                buff_line = GeometryAlgorithms.smooth_out(
-                    buff_line,
-                    cfg.smooth_buffer,
-                );
+                buff_line = smooth_out(buff_line, cfg.smooth_buffer);
             }
             buff_line = buff_line.resample(0.05);
             res.run(buff_line.to_polyline());

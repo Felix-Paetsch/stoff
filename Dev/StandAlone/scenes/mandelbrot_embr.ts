@@ -1,13 +1,14 @@
-import { GeometryAlgorithms, Polygon } from "@/Core/geometry";
-import { Grid, GridAlgorithms } from "@/Core/grid";
+import { Embroidery } from "@/Core/embroidery";
+import { merge_shapes, Polygon } from "@/Core/geometry";
+import { grid_from_function, map_grid } from "@/Core/grid";
 import { Sketch } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { concave_outline } from "Core/unstructured/concave_outline";
 
 export default function () {
-    const num_grid = Grid.from_function(
-        "f64",
+    const num_grid = grid_from_function(
+        "number",
         {
             domain_dimensions: [-2, -2, 4, 4],
             lattice_dimensions: [500, 500],
@@ -30,9 +31,9 @@ export default function () {
     const outlines: Polygon[] = [];
     const s = new Sketch();
     [1, 2, 3, 4, 5, 7, 9, 50, 1000].forEach((x) => {
-        const bool_grid = Grid.map("boolean", num_grid, (v) => v >= x);
+        const bool_grid = map_grid("boolean", num_grid, (v) => v >= x);
 
-        const outline = GridAlgorithms.concave_outline(bool_grid, {
+        const outline = concave_outline(bool_grid, {
             concavity: 1.2,
         }).resample(0.3);
 
@@ -40,10 +41,7 @@ export default function () {
         outlines.push(outline);
     });
 
-    let res = Performance.time(
-        () => GeometryAlgorithms.merge_shapes(outlines),
-        "Merge",
-    );
+    let res = Performance.time(() => merge_shapes(outlines), "Merge");
 
     const e = new Embroidery();
     res = res.as_polygon().move_root([0.15, "relative"]);

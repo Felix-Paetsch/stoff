@@ -20,14 +20,11 @@ export type RenderSketchArgs = {
     padding?: number;
 };
 
-export function render_sketch(
-    s: Sketch,
-    args: RenderSketchArgs = {},
-): SVG_Builder {
+export function render(s: Sketch, args: RenderSketchArgs = {}): SVG_Builder {
     return render_sketch_maybe_debug(s, args, false);
 }
 
-export function render_sketch_dev(
+export function render_dev(
     s: Sketch,
     args: RenderSketchArgs = {},
 ): SVG_Builder {

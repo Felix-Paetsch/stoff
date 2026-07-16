@@ -7,12 +7,11 @@ export function clahe(
     tiles_down: number = 8,
     clip_limit: number = 0.2,
 ): GrayImage {
-    const serialized = WASMCompatability.Grid.serialize_u8_grid(g);
-    const res = wasm_image_clahe(
-        serialized,
-        tiles_across,
-        tiles_down,
-        clip_limit,
+    const wasm = WASMCompatability.Image.wasm_gray_image(i);
+    const res = WASMCompatability.Allocations.free_after_use(wasm, (w) =>
+        WASMCompatability.Allocations.allocate(
+            wasm_image_clahe(w, tiles_across, tiles_down, clip_limit),
+        ),
     );
-    return WASMCompatability.Grid.deserialize_u8_grid(res);
+    return WASMCompatability.Image.gray_image_from_wasm(res);
 }

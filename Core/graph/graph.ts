@@ -18,7 +18,7 @@ export namespace Graph {
 
     export type ExtractNodeType<G> = G extends Graph<infer N, any> ? N : never;
     export type ExtractEdgeType<G> =
-        G extends Graph<any, infer Edges> ? Edges : never;
+        G extends Graph<any, infer EdgeType> ? EdgeType : never;
 }
 
 // Note a graph may have many edges between nodes

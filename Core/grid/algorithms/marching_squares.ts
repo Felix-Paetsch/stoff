@@ -7,7 +7,7 @@ export function maching_squares(
     g: NumberGrid,
     contour_argument: MarchingSquaresContourArgument = "integers",
 ) {
-    const wasm_grid = WASMCompatability.Grid.serialize_number_grid(g);
+    const wasm_grid = WASMCompatability.Grid.wasm_number_grid(g);
 
     let contour_args: Float64Array;
     if (contour_argument == "integers") {
@@ -20,6 +20,6 @@ export function maching_squares(
 
     const squares_res = wasm_grid_marching_squares(wasm_grid, contour_args);
     const squares_geometries =
-        WASMCompatability.Geometry.vecf64_to_geometry_vec(squares_res);
+        WASMCompatability.Geometry.shape_collection_from_wasm(squares_res);
     return squares_geometries as Shape.Shape[];
 }

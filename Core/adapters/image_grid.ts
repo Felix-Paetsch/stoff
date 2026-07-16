@@ -11,7 +11,7 @@ export function image_to_rgb_grids(
     i: Image,
 ): [NumberGrid, NumberGrid, NumberGrid] {
     return i
-        .as_rgb()
+        .rgb()
         .rgb_channels()
         .map((c) =>
             grid_from_array(
@@ -38,7 +38,7 @@ export function image_to_hsl_grids(
     i: Image,
 ): [NumberGrid, NumberGrid, NumberGrid] {
     return i
-        .as_rgb()
+        .rgb()
         .hsl_channels()
         .map((c) =>
             grid_from_array(
@@ -68,7 +68,7 @@ export function image_to_grayscale_grid(i: Image): NumberGrid {
             lattice_dimensions: i.dimensions,
             domain_dimensions: [0, 0, i.dimensions[0] - 1, i.dimensions[1] - 1],
         },
-        i.as_gray_scale().pixel_grid,
+        i.gray_scale().pixels,
     );
 }
 

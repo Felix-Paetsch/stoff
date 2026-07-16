@@ -17,5 +17,10 @@ export function render_internal_grid(
     if (g.type == "vector") {
         return render_vec3_grid(map_grid("vec3", g, (v) => [v.x, v.y, 0]));
     }
+    if (g.type == "matrix") {
+        return render_vec3_grid(
+            map_grid("vec3", g, (m) => [m.det(), m.min(), m.max()]),
+        );
+    }
     return render_boolean_grid(g);
 }

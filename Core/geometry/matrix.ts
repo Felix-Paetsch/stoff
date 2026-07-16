@@ -10,7 +10,7 @@ export class Matrix {
         vec2: Vector,
         primary_direction: "row" | "column" = "column",
     ) {
-        if (primary_direction == "column") {
+        if (primary_direction == "row") {
             this.entries = [vec1.x, vec1.y, vec2.x, vec2.y];
         } else {
             this.entries = [vec1.x, vec2.x, vec1.y, vec2.y];
@@ -19,15 +19,15 @@ export class Matrix {
 
     static from_entries(...entries: [number, number, number, number]) {
         return new Matrix(
-            new Vector(entries[0], entries[1]),
-            new Vector(entries[2], entries[3]),
+            new Vector(entries[0], entries[2]),
+            new Vector(entries[1], entries[3]),
         );
     }
 
     static from_row_entries(...entries: [number, number, number, number]) {
         return new Matrix(
-            new Vector(entries[0], entries[1]),
-            new Vector(entries[2], entries[3]),
+            new Vector(entries[0], entries[2]),
+            new Vector(entries[1], entries[3]),
             "row",
         );
     }
@@ -49,19 +49,19 @@ export class Matrix {
     }
 
     get col1() {
-        return new Vector(this.entries[0], this.entries[1]);
-    }
-
-    get col2() {
-        return new Vector(this.entries[2], this.entries[3]);
-    }
-
-    get row1() {
         return new Vector(this.entries[0], this.entries[2]);
     }
 
-    get row2() {
+    get col2() {
         return new Vector(this.entries[1], this.entries[3]);
+    }
+
+    get row1() {
+        return new Vector(this.entries[0], this.entries[1]);
+    }
+
+    get row2() {
+        return new Vector(this.entries[2], this.entries[3]);
     }
 
     transpose() {
@@ -100,6 +100,23 @@ export class Matrix {
         return (
             this.entries[0] * this.entries[3] -
             this.entries[1] * this.entries[2]
+        );
+    }
+
+    max() {
+        return Math.max(...this.entries);
+    }
+
+    min() {
+        return Math.min(...this.entries);
+    }
+
+    abs() {
+        return Matrix.from_entries(
+            Math.abs(this.entries[0]),
+            Math.abs(this.entries[1]),
+            Math.abs(this.entries[2]),
+            Math.abs(this.entries[3]),
         );
     }
 

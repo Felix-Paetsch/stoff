@@ -43,7 +43,7 @@ export namespace ImageIO {
             dimensions = img.dimensions as any;
         }
 
-        return img_sharp(img.pixel_grid, {
+        return img_sharp(img.pixels, {
             raw: {
                 width: dimensions![0],
                 height: dimensions![1],

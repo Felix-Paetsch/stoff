@@ -1,5 +1,6 @@
-import { DST, SVG_Builder } from "@/Core/files";
+import { DST } from "@/Core/embroidery";
 import { Sketch } from "@/Core/sketch";
+import { SVG_Builder } from "@/Core/svg";
 import { Json } from "@/Core/utils";
 import { Embroidery } from "../Core/embroidery/embroidery";
 

@@ -1,7 +1,12 @@
-import { Geometry, Graph } from "@/Core";
-import { GeometryAlgorithms } from "@/Core/geometry";
-import { GraphAlgorithms } from "@/Core/graph";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { Embroidery } from "@/Core/embroidery";
+import { deg_to_rad, Radians, smooth_out, Vector } from "@/Core/geometry";
+import {
+    double_run_graph,
+    Graph,
+    identify_edges,
+    identify_nodes_by_value,
+    VertexGraph,
+} from "@/Core/graph";
 import { string_LSystem } from "Embroidery/Lib/LSystem/string/index";
 import { defineEmbroidery } from "Embroidery/types";
 
@@ -19,13 +24,13 @@ export const LSystemProject = defineEmbroidery(
             evaluated,
             {
                 angle: 0,
-                graph: new Graph.Graph([Geometry.Vector.ZERO]),
+                graph: new Graph([Vector.ZERO]),
                 position: 0,
                 stack: [],
             },
             [
-                rotate_on("+", Geometry.deg_to_rad(20)),
-                rotate_on("-", Geometry.deg_to_rad(-20)),
+                rotate_on("+", deg_to_rad(20)),
+                rotate_on("-", deg_to_rad(-20)),
                 push_stack("[", ["angle", "position"]),
                 pop_stack("]"),
                 draw_with_angle(".", 0.4),
@@ -33,11 +38,11 @@ export const LSystemProject = defineEmbroidery(
         );
 
         const graph = interpreted.graph;
-        GraphAlgorithms.identify_nodes(graph, (a, b) => a.approx_equals(b));
-        GraphAlgorithms.remove_dublicate_edges(graph);
+        identify_nodes_by_value(graph, (a, b) => a.approx_equals(b));
+        identify_edges(graph);
 
-        let shape_tree = GraphAlgorithms.double_run_graph(graph);
-        shape_tree = GeometryAlgorithms.smooth_out(shape_tree, 0.3, 0.4);
+        let shape_tree = double_run_graph(graph);
+        shape_tree = smooth_out(shape_tree, 0.3, 0.4);
 
         for (let i = 0; i < 10; i++) {
             console.log(
@@ -58,10 +63,7 @@ export const LSystemProject = defineEmbroidery(
 
 type Interpretation<State> = [string, (state: State) => void];
 
-function rotate_on(
-    on: string,
-    by: Geometry.Radians,
-): Interpretation<{ angle: number }> {
+function rotate_on(on: string, by: Radians): Interpretation<{ angle: number }> {
     return [
         on,
         (s) => {
@@ -75,7 +77,7 @@ function draw_with_angle(
     len: number = 1,
 ): Interpretation<{
     angle: number;
-    graph: Graph.VertexGraph;
+    graph: VertexGraph;
     position: number;
 }> {
     return [
@@ -83,10 +85,7 @@ function draw_with_angle(
         (s) => {
             const start = s.graph.node_data(s.position)!;
             s.graph.add_node(
-                Geometry.Vector.add(
-                    start,
-                    Geometry.Vector.UP.rotate(s.angle).scale(len),
-                ),
+                Vector.add(start, Vector.UP.rotate(s.angle).scale(len)),
             );
             s.graph.add_edge(s.position, s.graph.nodes.length - 1);
             s.position = s.graph.nodes.length - 1;

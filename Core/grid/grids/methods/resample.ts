@@ -1,6 +1,6 @@
 import { IGrid } from "../igrid";
 
-export function resample<S, N extends string>(
+export function resample_grid<S, N extends string>(
     g: IGrid<S, N>,
     samples: [number, number],
 ): IGrid<S, N> {
