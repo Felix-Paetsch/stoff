@@ -1,8 +1,10 @@
 // Run all tests
 
-import { SVG_Builder } from "@/Core/files";
-import { Sketch, SketchRendering } from "@/Core/sketch";
+import { render_sketch_dev } from "@/Core/rendering";
+import { Sketch } from "@/Core/sketch";
+import { SVG_Builder } from "@/Core/svg";
 import { Json } from "@/Core/utils";
+
 import fs, { writeFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";
@@ -75,11 +77,10 @@ for (const result of test_results) {
 // To is the file name without ending
 async function to_file(what: TestReturnResultPrimitive, to: string) {
     if (what instanceof Sketch) {
-        what = SketchRendering.render(what, {
+        what = render_sketch_dev(what, {
             width: 500,
             height: 500,
             padding: 30,
-            debug: true,
         });
     }
 

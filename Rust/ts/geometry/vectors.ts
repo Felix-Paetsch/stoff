@@ -19,3 +19,14 @@ export function wasm_vector_vec(v: Vector[]): WASMVectorVec {
 export function vector_from_wasm(v: WASMVector): Vector {
     return Allocations.free_after_use(v, (v) => new Vector(v.x(), v.y()));
 }
+
+export function vector_vec_from_wasm(v: WASMVectorVec): Vector[] {
+    return Allocations.consume(v, (v) => {
+        const arr = v.into_float64_vec();
+        const res: Vector[] = [];
+        for (let i = 0; i < arr.length; i += 2) {
+            res.push(new Vector(arr[2 * i]!, arr[2 * i + 1]!));
+        }
+        return res;
+    });
+}

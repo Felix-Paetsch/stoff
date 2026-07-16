@@ -5,10 +5,10 @@ use crate::{grid::grid_struct::Grid, wasm::WASMWrapper};
 
 #[wasm_bindgen]
 #[derive(WASMWrapper)]
-pub struct WASMFloat64Grid(Grid<f64>);
+pub struct WASMBooleanGrid(Grid<bool>);
 
 #[wasm_bindgen]
-impl WASMFloat64Grid {
+impl WASMBooleanGrid {
     pub fn domain_dimensions(&self) -> Vec<f64> {
         self.0.domain_dimensions().into()
     }
@@ -17,22 +17,22 @@ impl WASMFloat64Grid {
         self.0.lattice_dimensions().into()
     }
 
-    pub fn new(
-        values: Vec<f64>,
-        domain_dims: Vec<f64>,
-        lattice_dims: Vec<usize>,
-    ) -> WASMFloat64Grid {
+    pub fn new(values: &[u8], domain_dims: Vec<f64>, lattice_dims: Vec<usize>) -> WASMBooleanGrid {
         debug_assert_eq!(domain_dims.len(), 4);
         debug_assert_eq!(lattice_dims.len(), 2);
 
-        WASMFloat64Grid::promote(Grid::new(
+        WASMBooleanGrid::promote(Grid::new(
             domain_dims.try_into().unwrap(),
             lattice_dims.try_into().unwrap(),
-            values,
+            values.iter().map(|v| *v != 0).collect(),
         ))
     }
 
-    pub fn into_values(self) -> Vec<f64> {
-        self.into_inner().into_values()
+    pub fn into_values(self) -> Vec<u8> {
+        self.into_inner()
+            .into_values()
+            .into_iter()
+            .map(|b| if b { 1 } else { 0 })
+            .collect()
     }
 }

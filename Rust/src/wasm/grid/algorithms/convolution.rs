@@ -8,21 +8,17 @@ use crate::{
 };
 
 #[wasm_bindgen]
-pub struct WASMTransmittableConvolutionKernel {
+pub struct WASMConvolutionKernel {
     width: usize,
     height: usize,
     weights: Vec<f64>,
 }
 
 #[wasm_bindgen]
-impl WASMTransmittableConvolutionKernel {
-    pub fn new(
-        width: usize,
-        height: usize,
-        values: Vec<f64>,
-    ) -> WASMTransmittableConvolutionKernel {
+impl WASMConvolutionKernel {
+    pub fn new(width: usize, height: usize, values: Vec<f64>) -> WASMConvolutionKernel {
         debug_assert_eq!(width * height, values.len());
-        WASMTransmittableConvolutionKernel {
+        WASMConvolutionKernel {
             width,
             height,
             weights: values,
@@ -30,8 +26,8 @@ impl WASMTransmittableConvolutionKernel {
     }
 }
 
-impl From<WASMTransmittableConvolutionKernel> for ConvolutionKernel {
-    fn from(value: WASMTransmittableConvolutionKernel) -> Self {
+impl From<WASMConvolutionKernel> for ConvolutionKernel {
+    fn from(value: WASMConvolutionKernel) -> Self {
         ConvolutionKernel {
             width: value.width,
             height: value.height,
@@ -41,7 +37,7 @@ impl From<WASMTransmittableConvolutionKernel> for ConvolutionKernel {
 }
 
 #[wasm_bindgen]
-pub fn wasm_grid_convolve(g: &WASMGrid, k: WASMTransmittableConvolutionKernel) -> WASMGrid {
+pub fn wasm_grid_convolve(g: &WASMGrid, k: WASMConvolutionKernel) -> WASMGrid {
     match g.inner() {
         WASMGridEnum::Float64(g) => WASMGrid::promote_f64(convolve_maybe_seperable(g, &k.into())),
         WASMGridEnum::Vec3Float64(g) => {
@@ -57,5 +53,11 @@ pub fn wasm_grid_convolve(g: &WASMGrid, k: WASMTransmittableConvolutionKernel) -
         )),
         WASMGridEnum::Vector(g) => WASMGrid::promote_vector(convolve_maybe_seperable(g, &k.into())),
         WASMGridEnum::Matrix(g) => WASMGrid::promote_matrix(convolve_maybe_seperable(g, &k.into())),
+        WASMGridEnum::Boolean(g) => {
+            let float_grid = g.map(|_, a| if *a { 1.0 } else { 0.0 });
+            let convolved = convolve_maybe_seperable(&float_grid, &k.into());
+            let res = convolved.map(|_, a| a.abs() < 0.5);
+            WASMGrid::promote_bool(res)
+        }
     }
 }

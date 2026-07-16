@@ -1,4 +1,4 @@
-import { Random } from "@/Core";
+import { Random } from "@/Core/random";
 import { run_string_LSystem } from "./algorithm";
 import {
     StringLSystem,

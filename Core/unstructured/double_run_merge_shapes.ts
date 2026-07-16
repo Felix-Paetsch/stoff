@@ -1,6 +1,6 @@
 import { Polyline, Shape } from "@/Core/geometry";
 import {
-    wasm_geometry_double_run_merge_shapes_advanced,
+    wasm_advanced_double_run_merge_shapes,
     WASMCompatability,
 } from "Rust/exports";
 
@@ -26,16 +26,21 @@ export function double_run_merge_shapes_advanced(
     const non_empty_shapes = shapes.filter((s) => !s.is_empty());
     if (non_empty_shapes.length == 0) return [];
 
-    let serialized = WASMCompatability.Geometry.geometry_vec_to_vecf64(
+    let wasm_shapes = WASMCompatability.Geometry.wasm_shape_collection(
         non_empty_shapes as Shape.Shape[],
     );
 
-    let merged = wasm_geometry_double_run_merge_shapes_advanced(
-        serialized,
-        cfg.max_merge_distance,
-        cfg.line_amount,
+    let merged = WASMCompatability.Allocations.free_after_use(
+        wasm_shapes,
+        (wasm_shapes) =>
+            WASMCompatability.Allocations.allocate(
+                wasm_advanced_double_run_merge_shapes(
+                    wasm_shapes,
+                    cfg.max_merge_distance,
+                    cfg.line_amount,
+                ),
+            ),
     );
-    return WASMCompatability.Geometry.vecf64_to_geometry_vec(
-        merged,
-    ) as Shape.Shape[];
+
+    return WASMCompatability.Geometry.shape_collection_from_wasm(merged);
 }

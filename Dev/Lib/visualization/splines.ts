@@ -1,4 +1,4 @@
-import { Expect } from "@/Core";
+import { Expect } from "@/Core/expect";
 import { Vector } from "@/Core/geometry";
 import { Line, Point, Sketch } from "@/Core/sketch";
 

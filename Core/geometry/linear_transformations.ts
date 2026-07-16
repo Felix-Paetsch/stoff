@@ -52,7 +52,7 @@ export function affine_linear(
     };
 }
 
-export function affine_align(
+export function affine_orthogonal(
     f_in: [Vector, Vector],
     f_out: [Vector, Vector],
 ): LinearTransformation {

@@ -6,9 +6,10 @@ use crate::{
     wasm::{
         WASMWrapper,
         grid::types::{
-            wasm_float64_grid::WASMFloat64Grid, wasm_matrix_grid::WASMMatrixGrid,
-            wasm_u8_grid::WASMU8Grid, wasm_vec3float64_grid::WASMVec3Float64Grid,
-            wasm_vec3u8_grid::WASMVec3u8Grid, wasm_vector_grid::WASMVectorGrid,
+            wasm_boolean_grid::WASMBooleanGrid, wasm_float64_grid::WASMFloat64Grid,
+            wasm_matrix_grid::WASMMatrixGrid, wasm_u8_grid::WASMU8Grid,
+            wasm_vec3float64_grid::WASMVec3Float64Grid, wasm_vec3u8_grid::WASMVec3u8Grid,
+            wasm_vector_grid::WASMVectorGrid,
         },
     },
 };
@@ -20,6 +21,7 @@ pub enum WASMGridEnum {
     U8(Grid<u8>),
     Vector(Grid<Vector>),
     Matrix(Grid<Matrix>),
+    Boolean(Grid<bool>),
 }
 
 #[wasm_bindgen]
@@ -33,6 +35,7 @@ pub enum WASMGridType {
     U8,
     Vector,
     Matrix,
+    Boolean,
 }
 
 #[wasm_bindgen]
@@ -45,6 +48,7 @@ impl WASMGrid {
             WASMGridEnum::Vec3U8(_) => WASMGridType::Vec3U8,
             WASMGridEnum::Vector(_) => WASMGridType::Vector,
             WASMGridEnum::Matrix(_) => WASMGridType::Matrix,
+            WASMGridEnum::Boolean(_) => WASMGridType::Boolean,
         }
     }
 
@@ -56,6 +60,7 @@ impl WASMGrid {
             WASMGridEnum::Vec3U8(g) => g.domain_dimensions().into(),
             WASMGridEnum::Vector(g) => g.domain_dimensions().into(),
             WASMGridEnum::Matrix(g) => g.domain_dimensions().into(),
+            WASMGridEnum::Boolean(g) => g.domain_dimensions().into(),
         }
     }
 
@@ -67,6 +72,7 @@ impl WASMGrid {
             WASMGridEnum::Vec3U8(g) => g.lattice_dimensions().into(),
             WASMGridEnum::Vector(g) => g.lattice_dimensions().into(),
             WASMGridEnum::Matrix(g) => g.lattice_dimensions().into(),
+            WASMGridEnum::Boolean(g) => g.lattice_dimensions().into(),
         }
     }
 
@@ -93,6 +99,38 @@ impl WASMGrid {
 
     pub fn try_into_wasm_matrix_grid(self) -> Option<WASMMatrixGrid> {
         self.try_into_matrix_grid().map(WASMMatrixGrid::promote)
+    }
+
+    pub fn try_into_wasm_bool_grid(self) -> Option<WASMBooleanGrid> {
+        self.try_into_bool_grid().map(WASMBooleanGrid::promote)
+    }
+
+    pub fn from_f64_grid(g: WASMFloat64Grid) -> WASMGrid {
+        WASMGrid::promote_f64(g.into_inner())
+    }
+
+    pub fn from_vec3f64_grid(g: WASMVec3Float64Grid) -> WASMGrid {
+        WASMGrid::promote_vec3f64(g.into_inner())
+    }
+
+    pub fn from_u8_grid(g: WASMU8Grid) -> WASMGrid {
+        WASMGrid::promote_u8(g.into_inner())
+    }
+
+    pub fn from_vec3u8_grid(g: WASMVec3u8Grid) -> WASMGrid {
+        WASMGrid::promote_vec3u8(g.into_inner())
+    }
+
+    pub fn from_vector_grid(g: WASMVectorGrid) -> WASMGrid {
+        WASMGrid::promote_vector(g.into_inner())
+    }
+
+    pub fn from_matrix_grid(g: WASMMatrixGrid) -> WASMGrid {
+        WASMGrid::promote_matrix(g.into_inner())
+    }
+
+    pub fn from_bool_grid(g: WASMBooleanGrid) -> WASMGrid {
+        WASMGrid::promote_bool(g.into_inner())
     }
 }
 
@@ -231,6 +269,27 @@ impl WASMGrid {
         }
     }
 
+    pub fn try_as_bool_grid(&self) -> Option<&Grid<bool>> {
+        match &self.0 {
+            WASMGridEnum::Boolean(g) => Some(g),
+            _ => None,
+        }
+    }
+
+    pub fn try_as_bool_grid_mut(&mut self) -> Option<&mut Grid<bool>> {
+        match &mut self.0 {
+            WASMGridEnum::Boolean(g) => Some(g),
+            _ => None,
+        }
+    }
+
+    pub fn try_into_bool_grid(self) -> Option<Grid<bool>> {
+        match self.0 {
+            WASMGridEnum::Boolean(g) => Some(g),
+            _ => None,
+        }
+    }
+
     pub fn promote_f64(g: Grid<f64>) -> WASMGrid {
         WASMGrid(WASMGridEnum::Float64(g))
     }
@@ -253,5 +312,9 @@ impl WASMGrid {
 
     pub fn promote_matrix(g: Grid<Matrix>) -> WASMGrid {
         WASMGrid(WASMGridEnum::Matrix(g))
+    }
+
+    pub fn promote_bool(g: Grid<bool>) -> WASMGrid {
+        WASMGrid(WASMGridEnum::Boolean(g))
     }
 }

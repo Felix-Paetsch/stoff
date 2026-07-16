@@ -28,11 +28,13 @@ export function bounding_box(geometries: FiniteGeometry[]) {
 }
 
 export function convex_hull(geometries: FiniteGeometry[]): Polygon {
-    const positions = WASMCompatability.Geometry.wasm_vector_vec(
-        geometries.map((g) => as_polyline(g)).flatMap((g) => g.vertices),
+    const gon = WASMCompatability.Allocations.free_after_use(
+        WASMCompatability.Geometry.wasm_vector_vec(
+            geometries.map((g) => as_polyline(g)).flatMap((g) => g.vertices),
+        ),
+        (positions) => wasm_geometry_convex_hull(positions)!,
     );
 
-    const gon = wasm_geometry_convex_hull(positions)!;
     return polygon_from_wasm(gon);
 }
 
@@ -55,14 +57,15 @@ export function concave_hull(
     }
 
     if (geometries.every((g) => g instanceof Vector)) {
-        const input = WASMCompatability.Geometry.wasm_vector_vec(
-            geometries as Vector[],
+        const hull = WASMCompatability.Allocations.free_after_use(
+            WASMCompatability.Geometry.wasm_vector_vec(geometries as Vector[]),
+            (input) =>
+                wasm_geometry_concave_hull_vertices(
+                    input,
+                    concavity,
+                    length_threshold,
+                )!,
         );
-        const hull = wasm_geometry_concave_hull_vertices(
-            input,
-            concavity,
-            length_threshold,
-        )!;
         return WASMCompatability.Geometry.polygon_from_wasm(hull);
     }
 
@@ -82,14 +85,18 @@ export function concave_hull(
         return WASMCompatability.Geometry.polygon_from_wasm(hull);
     }
 
-    const input = WASMCompatability.Geometry.wasm_shape_collection(
-        geometries.map(as_polyline),
+    const hull = WASMCompatability.Allocations.free_after_use(
+        WASMCompatability.Geometry.wasm_geometry_collection(
+            geometries.map(as_polyline),
+        ),
+        (input) =>
+            wasm_geometry_concave_hull_geometries(
+                input,
+                concavity,
+                length_threshold,
+            ),
     );
-    const hull = wasm_geometry_concave_hull_geometries(
-        input,
-        concavity,
-        length_threshold,
-    )!;
+
     return WASMCompatability.Geometry.polygon_from_wasm(hull);
 }
 

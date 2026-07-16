@@ -1,5 +1,5 @@
-import { Utils } from "@/Core";
 import { Copy, Sketch } from "@/Core/sketch";
+import { stack_trace } from "@/Core/utils";
 import { EvaluationResult, Toggle } from "../utils/prototype_modification";
 import { wrap_sketch_methods } from "../utils/wrap_sketch_methods";
 import { Snapshot } from "./types";
@@ -20,7 +20,7 @@ export class Recording {
 
         const copy = Copy.sketch(s).sketch;
 
-        const stackTrace = Utils.stack_trace(stack_trace_slice);
+        const stackTrace = stack_trace(stack_trace_slice);
 
         this.snapshots.push({
             sketch: copy,

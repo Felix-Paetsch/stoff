@@ -44,6 +44,32 @@ pub fn wasm_graph_minimum_spanning_tree(graph: &WASMUnitFloat64Graph) -> WASMUsi
 }
 
 #[wasm_bindgen]
+pub fn wasm_graph_minimum_spanning_tree_edge_list(graph: &WASMUnitFloat64Graph) -> Vec<usize> {
+    let graph = graph.inner();
+    let mst = min_spanning_tree(graph);
+
+    let mut out: Vec<usize> = Vec::with_capacity(mst.size_hint().0);
+
+    for e in mst.skip(graph.node_count()) {
+        if let Element::Edge {
+            source,
+            target,
+            weight: _,
+        } = e
+        {
+            let start = NodeIndex::new(source);
+            let end = NodeIndex::new(target);
+
+            out.push(graph.find_edge(start, end).unwrap().index());
+        } else {
+            unreachable!()
+        }
+    }
+
+    out
+}
+
+#[wasm_bindgen]
 pub fn wasm_graph_minimum_spanning_tree_of_vertices(
     vertex_data: &WASMVectorVec,
 ) -> WASMVectorUnitGraph {

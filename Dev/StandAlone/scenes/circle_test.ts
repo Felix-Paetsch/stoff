@@ -1,14 +1,7 @@
-import {
-    FiniteGeometry,
-    GeometryAlgorithms,
-    Polygon,
-    Polyline,
-    Shape,
-} from "@/Core/geometry";
-import { Sketch, SketchRendering } from "@/Core/sketch";
+import { FiniteGeometry, Polygon, Polyline, Shape } from "@/Core/geometry";
+import { Sketch } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
-import { Embroidery } from "Embroidery/Lib/embroidery";
 
 export default function () {
     return Performance.time(() => {

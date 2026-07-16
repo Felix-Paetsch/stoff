@@ -1,4 +1,4 @@
-import { Random } from "Core/random";
+import { Random } from "@/Core/random";
 import { ParametricProductionRule } from "./types";
 
 export function run_parametric_LSystem<Module>(

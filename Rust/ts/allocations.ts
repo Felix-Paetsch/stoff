@@ -30,9 +30,11 @@ export function allocate<T extends Freeable>(r: T): T {
     return r;
 }
 
-export function free<T extends Freeable>(r: T) {
-    remove_allocation(r);
-    r.free();
+export function free(...r: Freeable[]) {
+    r.forEach((rf) => {
+        remove_allocation(rf);
+        rf.free();
+    });
 }
 
 export function free_after_use<T extends Freeable, W>(r: T, f: (r: T) => W): W {

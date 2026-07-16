@@ -42,6 +42,9 @@
             "@/Core/embroidery": ["Core/embroidery"],
             "@/Core/image": ["Core/image"],
 
+            "@/Core/rendering": ["Core/rendering"],
+            "@/Core/adapters": ["Core/adapters"],
+
             "@/Dev": ["Dev/Lib"]
         }
     },

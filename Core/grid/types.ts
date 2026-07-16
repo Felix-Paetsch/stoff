@@ -1,4 +1,4 @@
-import { Vector } from "@/Core/geometry";
+import { Matrix, Vector } from "@/Core/geometry";
 
 import { IGrid } from "./grids/igrid";
 import { grid_from_array } from "./grids/index";
@@ -21,7 +21,7 @@ export type Vec3 = [number, number, number];
 
 export type u8 = number;
 
-export type GridTypeName = "number" | "boolean" | "vec3" | "vector";
+export type GridTypeName = "number" | "boolean" | "vec3" | "vector" | "matrix";
 
 export type GridValueType<N extends GridTypeName> = N extends "number"
     ? number
@@ -31,16 +31,24 @@ export type GridValueType<N extends GridTypeName> = N extends "number"
         ? Vec3
         : N extends "vector"
           ? Vector
-          : never;
+          : N extends "matrix"
+            ? Matrix
+            : never;
 
 export type NumberGrid = IGrid<number, "number">;
 
 export type Vec3Grid = IGrid<Vec3, "vec3">;
 
 export type VectorGrid = IGrid<Vector, "vector">;
+export type MatrixGrid = IGrid<Matrix, "matrix">;
 export type BooleanGrid = IGrid<boolean, "boolean">;
 
-export type InternalGrid = NumberGrid | Vec3Grid | VectorGrid | BooleanGrid;
+export type InternalGrid =
+    | NumberGrid
+    | Vec3Grid
+    | VectorGrid
+    | BooleanGrid
+    | MatrixGrid;
 
 export function split_vec3_grid(
     g: Vec3Grid,

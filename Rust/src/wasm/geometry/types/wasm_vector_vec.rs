@@ -11,7 +11,9 @@ pub struct WASMVectorVec(Vec<Vector>);
 impl WASMVectorVec {
     pub fn new(verts_xy: Vec<f64>) -> WASMVectorVec {
         let verts = verts_xy
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|c| Vector::new(c[0], c[1]))
             .collect();
         WASMVectorVec(verts)

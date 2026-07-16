@@ -356,24 +356,18 @@ export abstract class Shape {
         sh1: Shape,
         sh2: Shape,
     ): [Shape.ShapePosition, Shape.ShapePosition] | null {
-        const closest = wasm_geometry_closest_shape_positions(
-            WASMCompatability.Geometry.wasm_shape(sh1 as Shape.Shape),
-            WASMCompatability.Geometry.wasm_shape(sh2 as Shape.Shape),
-        );
+        const wsh1 = WASMCompatability.Geometry.wasm_shape(sh1 as Shape.Shape);
+        const wsh2 = WASMCompatability.Geometry.wasm_shape(sh2 as Shape.Shape);
+        const closest = wasm_geometry_closest_shape_positions(wsh1, wsh2);
+
+        WASMCompatability.Allocations.free(wsh1, wsh2);
 
         if (!closest) return null;
+        closest.forEach((c) => WASMCompatability.Allocations.allocate(c));
 
         return [
-            {
-                vec: new Vector(closest[0]!, closest[1]!),
-                index: Math.round(closest[2]!),
-                frac: closest[3]!,
-            },
-            {
-                vec: new Vector(closest[4]!, closest[5]!),
-                index: Math.round(closest[6]!),
-                frac: closest[7]!,
-            },
+            WASMCompatability.Geometry.shape_position_from_wasm(closest[0]!),
+            WASMCompatability.Geometry.shape_position_from_wasm(closest[1]!),
         ];
     }
 
@@ -400,7 +394,12 @@ export abstract class Shape {
         Shape.ShapePosition,
     ][] {
         if (this.vertex_count() < 3) return [];
-        let r = wasm_geometry_shape_self_intersections(this.to_wasm_vecf64());
+        let r = WASMCompatability.Allocations.free_after_use(
+            WASMCompatability.Geometry.wasm_shape(
+                this as unknown as Shape.Shape,
+            ),
+            (s) => wasm_geometry_shape_self_intersections(s),
+        );
         return decode_intersection_positions(r!);
     }
 
@@ -419,17 +418,22 @@ export abstract class Shape {
             gShape = new Polyline([g]);
         }
 
-        return (
-            wasm_geometry_geometries_intersect(
-                this.to_wasm_vecf64(),
-                gShape.to_wasm_vecf64(),
-            ) || false
-        );
+        const wsh1 = WASMCompatability.Geometry.wasm_geometry(this);
+        const wsh2 = WASMCompatability.Geometry.wasm_geometry(gShape);
+
+        const res = wasm_geometry_geometries_intersect(wsh1, wsh2) || false;
+
+        WASMCompatability.Allocations.free(wsh1, wsh2);
+        return res;
     }
 
     self_intersects(): boolean {
         if (this.vertex_count() < 3) return false;
-        let r = wasm_geometry_shape_self_intersects(this.to_wasm_vecf64());
+        let r = WASMCompatability.Allocations.free_after_use(
+            WASMCompatability.Geometry.wasm_shape(this.typesafe()),
+            (s) => wasm_geometry_shape_self_intersects(s),
+        );
+
         return r || false;
     }
 
@@ -445,13 +449,12 @@ export abstract class Shape {
         sh1: Shape,
         sh2: Shape,
     ): [Shape.ShapePosition, Shape.ShapePosition][] {
-        const shl1 = sh1.as_polyline();
-        const shl2 = sh2.as_polyline();
+        const shl1 = WASMCompatability.Geometry.wasm_shape(sh1.as_polyline());
+        const shl2 = WASMCompatability.Geometry.wasm_shape(sh2.as_polyline());
 
-        const ip_arr = wasm_geometry_shape_intersections(
-            shl1.to_wasm_vecf64(),
-            shl2.to_wasm_vecf64(),
-        );
+        const ip_arr = wasm_geometry_shape_intersections(shl1, shl2);
+        WASMCompatability.Allocations.free(shl1, shl2);
+
         if (!ip_arr) return [];
 
         return decode_intersection_positions(ip_arr!);

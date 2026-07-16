@@ -1,10 +1,13 @@
 import { GridWindow, GridWindowFunction } from "Core/grid/grids/index";
-import { NumberGrid } from "Core/grid/types";
 import {
-    wasm_grid_convolve_f64,
-    WASMCompatability,
-    WASMTransmittableConvolutionKernel,
-} from "Rust/exports";
+    BooleanGrid,
+    InternalGrid,
+    MatrixGrid,
+    NumberGrid,
+    Vec3Grid,
+    VectorGrid,
+} from "Core/grid/types";
+import { wasm_grid_convolve, WASMCompatability } from "Rust/exports";
 import { ConvolutionKernel } from "./convolution_kernel";
 
 export type RModuleStructure<T> = {
@@ -30,13 +33,18 @@ export function general_kernel_convolution_function<T>(
     };
 }
 
-export function convolve(s: NumberGrid, k: ConvolutionKernel): NumberGrid {
-    const grid_ser = WASMCompatability.Grid.serialize_number_grid(s);
-    const ker = WASMTransmittableConvolutionKernel.new(
-        k.columns,
-        k.rows,
-        new Float64Array(k.matrix_ref().flat()),
+export function convolve(s: NumberGrid, k: ConvolutionKernel): NumberGrid;
+export function convolve(s: Vec3Grid, k: ConvolutionKernel): Vec3Grid;
+export function convolve(s: VectorGrid, k: ConvolutionKernel): VectorGrid;
+export function convolve(s: MatrixGrid, k: ConvolutionKernel): MatrixGrid;
+export function convolve(s: BooleanGrid, k: ConvolutionKernel): BooleanGrid;
+export function convolve(s: InternalGrid, k: ConvolutionKernel): InternalGrid {
+    const grid_ser = WASMCompatability.Grid.wasm_grid(s);
+    const ker = WASMCompatability.Grid.wasm_convolution_kernel(k);
+    const res = WASMCompatability.Allocations.allocate(
+        WASMCompatability.Allocations.consume(ker, (ker) =>
+            wasm_grid_convolve(grid_ser, ker),
+        ),
     );
-    const res = wasm_grid_convolve_f64(grid_ser, ker);
-    return WASMCompatability.Grid.deserialize_number_grid(res);
+    return WASMCompatability.Grid.grid_from_wasm(res);
 }

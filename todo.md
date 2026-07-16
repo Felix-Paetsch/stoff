@@ -28,6 +28,12 @@ Move rust modify polyline intersections out
 2. Clean up embroidery folder and put the unstructured code in there
 3. Clean up lib / standalone / ...
 
+Mask: Enum Multigon/Grid
+
+# Plans
+
+Locally sample gauss gradient grid and if >> 0 have a line
+
 
 # Restructuring
 
@@ -283,6 +289,7 @@ resample_strict should also have an angle argument.
 Shape packing (for putting onto fabric)
 Add vertex to shape in the easiest way (the base shape if it had to go through this vertex)
 Boolean grid clusters
+Get line components inside mask
 Boolean grid
 - and /or
 More keys for lerp: Nearest neighbor
@@ -530,3 +537,13 @@ Allow just drag n drop .dst files into the watcher and looking at them
 https://www.synendo.com/gdstudio/
 
 To do pespective things: Just render from slightly different angles
+
+
+We can do a height map/estimated color by looking at layered stitches and their directions (angular density map)
+Iteratively add  shapes to canvas in inverse order until comp image suff close to other.
+Alo simultanious tension map. Only problem: How to construct from this info instead of just analyzing... AI?
+Repath a given path given the pull of a previous stitch
+Detect shapes, edges, their flow, whidch fill is best
+For each 2 (3) consecutive patches test if they actually want to be shading
+
+Do a sketch based on long straight lines to carve an image

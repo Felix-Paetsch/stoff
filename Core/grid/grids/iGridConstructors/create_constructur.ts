@@ -1,4 +1,4 @@
-import { Vector } from "@/Core/geometry";
+import { Matrix, Vector } from "@/Core/geometry";
 import { Interval } from "@/Core/numerics";
 import { GridDimensions, GridTypeName, Vec3 } from "../../types";
 import { LerpGrid } from "./lerp_grid";
@@ -20,6 +20,12 @@ export function createIGridConstructor(
                 Interval.lerp(a[1], b[1], t),
                 Interval.lerp(a[2], b[2], t),
             ],
+        ],
+        [
+            "matrix",
+            (a: Matrix, b: Matrix, t: number) => {
+                return a.scale(1 - t).add(b.scale(t));
+            },
         ],
     ];
 

@@ -1,13 +1,21 @@
 import { LinearTransform, Polyline, Shape } from "@/Core/geometry";
+import {
+    internal_is_vertex_graph,
+    ShapeGraph,
+    VertexGraph,
+} from "@/Core/graph";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
-import { internal_is_vertex_graph, ShapeGraph, VertexGraph } from "../types";
 
 export function double_run_graph<G extends VertexGraph | ShapeGraph>(
     graph: G,
     starting_at_node: number = 0,
 ): Polyline {
-    if (graph.is_empty() || starting_at_node >= graph.nodes.length) {
+    if (
+        graph.is_empty() ||
+        starting_at_node < 0 ||
+        starting_at_node >= graph.nodes.length
+    ) {
         return Polyline.empty();
     }
 
@@ -15,6 +23,7 @@ export function double_run_graph<G extends VertexGraph | ShapeGraph>(
     const visited_edges = new Set<number>();
 
     path.push(graph.nodes[starting_at_node]!.data);
+
     if (internal_is_vertex_graph(graph)) {
         traverse_vertex_graph(graph, starting_at_node, visited_edges, path);
     } else {
@@ -57,45 +66,61 @@ function traverse_shape_graph(
         }
 
         visited_edges.add(edge.index);
+
         const next = graph.other_node(edge as any, at);
+        const from = graph.nodes[at]!.data;
+        const to = next.data;
 
-        const adjusted_shape = get_adjusted_shape(
-            edge.data,
-            graph.nodes[at]!.data,
-            next.data,
-        );
+        const adjusted_shape = get_adjusted_shape(edge.data, from, to);
 
-        path.push(...adjusted_shape);
-        path.push(next.data);
+        // The shape includes both endpoints. Skip the first endpoint because
+        // it is already the current last point in the path.
+        path.push(...adjusted_shape.slice(1));
+
         traverse_shape_graph(graph, next.index, visited_edges, path);
-        path.push(...adjusted_shape.reverse());
-        path.push(next.data);
+
+        // Traverse the shape in reverse to return from `to` to `from`.
+        // Skip the first reversed point because it is already the current
+        // last point in the path.
+        path.push(...[...adjusted_shape].reverse().slice(1));
     }
 }
 
 function get_adjusted_shape(
-    s: Shape.Shape,
+    shape: Shape.Shape,
     from: Vector,
     to: Vector,
 ): Vector[] {
-    if (s.is_empty()) return [];
-    const as_pl = s.as_polyline();
-    const verts = [...as_pl.vertices];
-
-    if (as_pl.first()!.approx_equals(from) && as_pl.last()!.approx_equals(to)) {
-        return verts;
+    if (shape.is_empty()) {
+        return [from, to];
     }
 
-    if (as_pl.first()!.distance_squared(as_pl.last()!) < EPS.tiny) {
-        if (from.approx_equals(to))
+    const polyline = shape.as_polyline();
+    const vertices = [...polyline.vertices];
+
+    const first = polyline.first()!;
+    const last = polyline.last()!;
+
+    if (first.approx_equals(from) && last.approx_equals(to)) {
+        return vertices;
+    }
+
+    if (first.approx_equals(to) && last.approx_equals(from)) {
+        return vertices.reverse();
+    }
+
+    if (first.distance_squared(last) < EPS.tiny) {
+        if (!from.approx_equals(to)) {
             throw new Error("Shape is closed while points are distant.");
-        return verts;
+        }
+
+        return vertices;
     }
 
-    const trafo = LinearTransform.affine_orthogonal(
-        [as_pl.first()!, as_pl.last()!],
+    const transform = LinearTransform.affine_orthogonal(
+        [first, last],
         [from, to],
     );
 
-    return verts.map((v) => trafo(v));
+    return vertices.map((vertex) => transform(vertex));
 }

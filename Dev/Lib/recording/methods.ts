@@ -1,4 +1,4 @@
-import { Expect } from "@/Core";
+import { Expect } from "@/Core/expect";
 import { Sketch } from "Core/sketch/sketch";
 import {
     EvaluationResult,

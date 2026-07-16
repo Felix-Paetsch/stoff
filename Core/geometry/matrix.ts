@@ -32,6 +32,22 @@ export class Matrix {
         );
     }
 
+    get a() {
+        return this.entries[0];
+    }
+
+    get b() {
+        return this.entries[1];
+    }
+
+    get c() {
+        return this.entries[2];
+    }
+
+    get d() {
+        return this.entries[3];
+    }
+
     get col1() {
         return new Vector(this.entries[0], this.entries[1]);
     }

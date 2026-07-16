@@ -1,20 +1,20 @@
-import { DST, ImageIO, SVG_Builder } from "@/Core/files";
-import { Sketch, SketchRendering } from "@/Core/sketch";
-import { InternalGrid } from "Core/grid/types";
-import { Image, is_image } from "Core/image/types";
-import { render_internal_grid } from "Core/rendering/rendering_grid/internal_grid";
-import * as Utils from "Core/utils/index";
-import { Embroidery } from "Embroidery/Lib/embroidery";
+import { Sketch } from "@/Core/sketch";
+
+import { DST, Embroidery } from "@/Core/embroidery";
+import { InternalGrid } from "@/Core/grid";
+import { Image, ImageIO, is_image } from "@/Core/image";
+import { render_internal_grid, render_sketch_dev } from "@/Core/rendering";
+import { SVG_Builder } from "@/Core/svg";
+import { Json, stack_trace, unique_int_gen, unique_string } from "@/Core/utils";
 import { writeFileSync } from "fs";
 import * as path from "path";
 import { CJson } from "../../Server/src/types";
 import { Recording } from "../recording/index";
 import { dir } from "./dir";
-import { file as put_as_file } from "./file";
 
 export type Putable =
     | Sketch
-    | Utils.Json
+    | Json
     | Recording
     | string
     | SVG_Builder
@@ -44,7 +44,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
         meta = {};
     }
     if (!meta.stack) {
-        meta.stack = Utils.stack_trace(1);
+        meta.stack = stack_trace(1);
     }
 
     if (what instanceof Recording && what.is_hot) {
@@ -69,7 +69,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
     };
 
     const as_string = JSON.stringify(cjson);
-    writeFileSync(path.join(d, Utils.unique_string() + ".cjson"), as_string);
+    writeFileSync(path.join(d, unique_string() + ".cjson"), as_string);
 }
 
 function put_image(im: Image, meta: PutMetaData) {
@@ -77,7 +77,7 @@ function put_image(im: Image, meta: PutMetaData) {
     if (!title.endsWith(".png")) {
         title = title + ".png";
     }
-    put_as_file(ImageIO.render(im), title);
+    ImageIO.write(title, im);
 }
 
 export function put_live_recordings() {
@@ -88,7 +88,7 @@ export function put_live_recordings() {
     live_recordings.length = 0;
 }
 
-const gen_int = Utils.unique_int_gen();
+const gen_int = unique_int_gen();
 export function prefix(s: string): string {
     return "" + gen_int() + "_" + s;
 }
@@ -114,11 +114,10 @@ function serialize_put(what: Exclude<Putable, Image | InternalGrid>) {
 
     if (what instanceof Sketch) {
         return serialize_put(
-            SketchRendering.render(what, {
+            render_sketch_dev(what, {
                 width: 500,
                 height: 500,
                 padding: 30,
-                debug: true,
             }),
         );
     }
@@ -135,11 +134,10 @@ function serialize_put(what: Exclude<Putable, Image | InternalGrid>) {
             type: "recording" as const,
             value: what.snapshots.map((s) => {
                 return {
-                    svg: SketchRendering.render(s.sketch, {
+                    svg: render_sketch_dev(s.sketch, {
                         width: 500,
                         height: 500,
                         padding: 30,
-                        debug: true,
                     }).svg(),
                     stack: s.stackTrace,
                 };

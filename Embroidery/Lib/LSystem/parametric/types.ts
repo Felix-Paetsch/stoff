@@ -1,4 +1,4 @@
-import { Random } from "Core/random";
+import { Random } from "@/Core/random";
 
 export interface ParametricProductionRule<Module> {
     applicability(
