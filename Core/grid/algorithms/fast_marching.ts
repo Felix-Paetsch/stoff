@@ -34,8 +34,6 @@ export function fast_marching_tensor(
 
     // Modifies wasm_grid_times
     wasm_grid_fast_marching(wasm_grid_times, wasm_grid_speeds);
-
     WASMCompatability.Allocations.free(wasm_grid_speeds);
-
     return WASMCompatability.Grid.number_grid_from_wasm(wasm_grid_times);
 }

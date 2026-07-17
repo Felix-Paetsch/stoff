@@ -25,18 +25,18 @@ export function wasm_geometry(s: FiniteGeometry.FiniteGeometry): WASMGeometry {
     }
 
     if (s instanceof Polygon) {
-        return Allocations.consume(wasm_polygon(s), (g) =>
+        return Allocations.convert(wasm_polygon(s), (g) =>
             WASMGeometry.from_polygon(g),
         );
     }
 
     if (s instanceof Polyline) {
-        return Allocations.consume(wasm_polyline(s), (l) =>
+        return Allocations.convert(wasm_polyline(s), (l) =>
             WASMGeometry.from_polyline(l),
         );
     }
 
-    return Allocations.consume(
+    return Allocations.convert(
         wasm_polyline(new Polyline(s as LineSegment)),
         (l) => WASMGeometry.from_polyline(l),
     );

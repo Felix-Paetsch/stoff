@@ -13,7 +13,7 @@ use crate::{
 
 #[wasm_bindgen]
 pub fn wasm_grid_marching_squares(
-    grid: WASMFloat64Grid,
+    grid: &WASMFloat64Grid,
     contour_argument: &[f64],
 ) -> WASMShapeCollection {
     let f64_grid: &Grid<f64> = grid.inner();

@@ -31,15 +31,20 @@ export function buffer(
     const [line_cap_number, line_cap_value] =
         bufferLineCapStyle_to_number(capstyle);
 
-    const buffer_res = wasm_geometry_buffer_geometries_with_style(
-        WASMCompatability.Geometry.wasm_geometry_collection(shapes),
-        distance,
-        line_join_number,
-        line_join_value,
-        line_cap_number,
-        line_cap_value,
-    )!;
+    const col = WASMCompatability.Geometry.wasm_geometry_collection(shapes);
 
+    const buffer_res = WASMCompatability.Allocations.allocate(
+        wasm_geometry_buffer_geometries_with_style(
+            col,
+            distance,
+            line_join_number,
+            line_join_value,
+            line_cap_number,
+            line_cap_value,
+        )!,
+    );
+
+    WASMCompatability.Allocations.free(col);
     const res =
         WASMCompatability.Geometry.shape_collection_from_wasm(buffer_res);
     return res as Polygon[];

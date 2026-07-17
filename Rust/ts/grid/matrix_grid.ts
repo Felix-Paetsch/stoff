@@ -1,12 +1,12 @@
 import { grid_from_array } from "Core/grid/";
 import { MatrixGrid } from "Core/grid/types";
-import { WASMMatrixGrid, WASMVectorGrid } from "Rust/exports";
+import { WASMMatrixGrid } from "Rust/exports";
 import { matrix_vec_from_wasm, wasm_matrix_vec } from "../geometry/matrix";
 import { Allocations } from "../index";
 
 export function wasm_matrix_grid(g: MatrixGrid): WASMMatrixGrid {
-    return Allocations.consume(wasm_matrix_vec(g.values()), (v) => {
-        return WASMVectorGrid.new(
+    return Allocations.convert(wasm_matrix_vec(g.values()), (v) => {
+        return WASMMatrixGrid.new(
             v,
             Float64Array.from(g.dimensions_ref.domain_dimensions),
             Uint32Array.from(g.dimensions_ref.lattice_dimensions),

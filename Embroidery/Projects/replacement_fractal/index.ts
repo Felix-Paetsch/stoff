@@ -16,8 +16,11 @@ export const ReplacementFractal = defineEmbroidery(
         );
 
         const embr = new Embroidery();
+
         embr.color_change("blue");
         embr.run(shape);
+
+        console.log(embr.dimensions());
 
         embr.to_dst().to_file("./out/out.dst");
 
@@ -26,34 +29,59 @@ export const ReplacementFractal = defineEmbroidery(
 );
 
 export function replacement_fractal(
-    l: Polyline,
-    replace_with: Polyline,
-    iterations: number = 1,
+    initial: Polyline,
+    replacement: Polyline,
+    iterations = 1,
 ): Polyline {
-    if (iterations == 1) {
-        const vertices = l.vertices;
+    if (iterations < 0) {
+        throw new Error("iterations must be non-negative");
+    }
 
-        const vert: Vector[] = [vertices[0]!];
-        for (let i = 1; i < vertices.length; i++) {
-            let trafo = LinearTransform.affine_orthogonal(
-                [replace_with.first()!, replace_with.last()!],
-                [vertices[i - 1]!, vertices[i]!],
+    if (replacement.vertices.length < 2) {
+        throw new Error(
+            "replacement polyline must contain at least two vertices",
+        );
+    }
+
+    let result = initial;
+
+    for (let iteration = 0; iteration < iterations; iteration++) {
+        result = replace_segments(result, replacement);
+    }
+
+    return result;
+}
+
+function replace_segments(line: Polyline, replacement: Polyline): Polyline {
+    const vertices = line.vertices;
+
+    if (vertices.length < 2) {
+        return line;
+    }
+
+    const output: Vector[] = [vertices[0]!];
+
+    for (let i = 1; i < vertices.length; i++) {
+        const start = vertices[i - 1]!;
+        const end = vertices[i]!;
+
+        const map_replacement = LinearTransform.affine_orthogonal(
+            [replacement.first()!, replacement.last()!],
+            [start, end],
+        );
+
+        let transform = map_replacement;
+
+        // Mirror every second replacement in target/world coordinates.
+        if (i % 2 === 0) {
+            transform = LinearTransform.compose(
+                LinearTransform.mirror([start, end]),
+                map_replacement,
             );
-
-            if (i % 2 == 0) {
-                trafo = LinearTransform.compose(
-                    trafo,
-                    LinearTransform.mirror([vertices[i - 1]!, vertices[i]!]),
-                );
-            }
-            vert.push(...replace_with.map(trafo).vertices.slice(1));
         }
-        return new Polyline(vert);
+
+        output.push(...replacement.map(transform).vertices.slice(1));
     }
 
-    for (let i = 0; i < iterations; i++) {
-        l = replacement_fractal(l, replace_with, 1);
-    }
-
-    return l;
+    return new Polyline(output);
 }

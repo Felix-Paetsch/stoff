@@ -3,6 +3,7 @@ import { SVG_Builder } from "@/Core/svg";
 import { Json } from "@/Core/utils";
 import fs from "fs";
 import path from "path";
+import { WASMCompatability } from "Rust/exports";
 import { fileURLToPath } from "url";
 import { Sketch } from "../../Core/sketch/sketch";
 import { Out } from "../lib";
@@ -61,3 +62,7 @@ if (Array.isArray(res)) {
         Out.put(res[i]!, "~out" + i);
     }
 }
+
+setTimeout(() => {
+    WASMCompatability.Allocations.assert_zero_allocations();
+}, 1000);

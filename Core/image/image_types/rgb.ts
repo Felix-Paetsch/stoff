@@ -7,11 +7,19 @@ export class RGBImage {
         public dimensions: [number, number],
     ) {}
 
+    public type = "rgb";
+
     gray_scale(): GrayImage {
         const res = new Uint8Array(this.pixels.length / 3);
-        for (let i = 0; i < res.length; i += 3) {
-            const px = this.pixels.slice(i, i + 3);
-            res[i] = Color.toGrayScale(Color.fromRgb([px[0]!, px[1]!, px[2]!]));
+        const pixels = this.pixels;
+        for (let i = 0; i < res.length; i += 1) {
+            res[i] = Color.toGrayScale(
+                Color.fromRgb([
+                    pixels[3 * i]!,
+                    pixels[3 * i + 1]!,
+                    pixels[3 * i + 2]!,
+                ]),
+            );
         }
         return new GrayImage(res, this.dimensions);
     }

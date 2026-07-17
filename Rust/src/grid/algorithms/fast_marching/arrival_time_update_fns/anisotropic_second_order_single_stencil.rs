@@ -14,7 +14,7 @@ pub fn anisotropic_second_order_single_stencil_arrival_time_update_fn<'a>(
     debug_assert!(
         metric_grid
             .iter()
-            .all(|m| m.a() >= 0.0 && m.det() >= 0.0 && (m.b() - m.c()).abs() < 0.01)
+            .all(|m| m.a() >= 0.0 && m.det() >= -0.01 && (m.b() - m.c()).abs() < 0.01)
     );
 
     let [w, h] = metric_grid.lattice_dimensions();

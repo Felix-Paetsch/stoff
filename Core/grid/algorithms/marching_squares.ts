@@ -18,8 +18,15 @@ export function maching_squares(
         contour_args = new Float64Array([2.0].concat(contour_argument));
     }
 
-    const squares_res = wasm_grid_marching_squares(wasm_grid, contour_args);
+    const squares_res = WASMCompatability.Allocations.free_after_use(
+        wasm_grid,
+        (wasm_grid) =>
+            WASMCompatability.Allocations.allocate(
+                wasm_grid_marching_squares(wasm_grid, contour_args),
+            ),
+    );
     const squares_geometries =
         WASMCompatability.Geometry.shape_collection_from_wasm(squares_res);
+
     return squares_geometries as Shape.Shape[];
 }

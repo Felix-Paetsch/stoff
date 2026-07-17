@@ -1,3 +1,8 @@
+Todo: In the algorithms/gradient section for grids, allow non-square grids
+Make a method to "squarify" a grid.
+Fast marching(tensor) less dimensions issues
+Fix fast marching tensor givfing only infinity
+
 Todo: Grid conversions / UnitUnit
 
 Linear Transform / Rotate is a bit strange with first argument option
@@ -547,3 +552,8 @@ Detect shapes, edges, their flow, whidch fill is best
 For each 2 (3) consecutive patches test if they actually want to be shading
 
 Do a sketch based on long straight lines to carve an image
+
+# Bugs
+
+Intersect shapes doesnt find alll intersections (see circle)
+Marching squares has a problem with the bear (images/edges)

@@ -7,12 +7,12 @@ export function assert_zero_allocations() {
     let exists_faulty_alloc = false;
     Object.keys(allocations_counter).forEach((key) => {
         if (allocations_counter[key]! > 0) {
+            if (!exists_faulty_alloc) {
+                console.log("========= Remaining Allocs =========");
+            }
+
             exists_faulty_alloc = true;
-            console.log(
-                "Remaining allocations:",
-                key,
-                allocations_counter[key],
-            );
+            console.log(key, allocations_counter[key]);
         }
     });
 

@@ -46,5 +46,6 @@ export function convolve(s: InternalGrid, k: ConvolutionKernel): InternalGrid {
             wasm_grid_convolve(grid_ser, ker),
         ),
     );
+    WASMCompatability.Allocations.free(grid_ser);
     return WASMCompatability.Grid.grid_from_wasm(res);
 }

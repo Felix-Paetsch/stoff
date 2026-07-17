@@ -22,10 +22,14 @@ export function wasm_polyline(l: Polyline): WASMPolyline {
 
 export function wasm_shape(s: Shape.Shape): WASMShape {
     if (s instanceof Polyline) {
-        return WASMShape.from_polyline(wasm_polyline(s));
+        return Allocations.convert(wasm_polyline(s), (l) =>
+            WASMShape.from_polyline(l),
+        );
     }
 
-    return WASMShape.from_polygon(wasm_polygon(s));
+    return Allocations.convert(wasm_polygon(s), (g) =>
+        WASMShape.from_polygon(g),
+    );
 }
 
 export function wasm_shape_collection(
@@ -57,10 +61,12 @@ export function polyline_from_wasm(sh: WASMPolyline): Polyline {
 
 export function shape_from_wasm(sh: WASMShape): Shape.Shape {
     if (sh.is_polyline()) {
-        return polyline_from_wasm(sh.into_polyline()!);
+        const as_line = Allocations.convert(sh, (sh) => sh.into_polyline()!);
+        return polyline_from_wasm(as_line);
     }
 
-    return polygon_from_wasm(sh.into_polygon()!);
+    const as_gon = Allocations.convert(sh, (sh) => sh.into_polygon()!);
+    return polygon_from_wasm(as_gon);
 }
 
 export function shape_collection_from_wasm(
@@ -69,7 +75,8 @@ export function shape_collection_from_wasm(
     const res: Shape.Shape[] = [];
 
     while (col.len() > 0) {
-        res.push(shape_from_wasm(col.pop()!));
+        const poped = Allocations.allocate(col.pop()!);
+        res.push(shape_from_wasm(poped));
     }
 
     Allocations.free(col);

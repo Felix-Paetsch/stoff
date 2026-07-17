@@ -45,19 +45,25 @@ export function merge_shapes_advanced(
 
     if (non_empty_shapes.length == 0) return [];
 
-    let merged = wasm_advanced_merge_shapes(
+    const wasm_non_empty_shapes =
         WASMCompatability.Geometry.wasm_shape_collection(
             non_empty_shapes as Shape.Shape[],
-        ),
-        cfg.max_merge_distance,
-        cfg.line_amount,
-        Uint32Array.from(
-            (cfg.fixed_endpoints || []).flatMap((e) => [
-                e[0],
-                e[1] === "p1" || e[1] === true ? 0 : 1,
-            ]),
+        );
+
+    let merged = WASMCompatability.Allocations.allocate(
+        wasm_advanced_merge_shapes(
+            wasm_non_empty_shapes,
+            cfg.max_merge_distance,
+            cfg.line_amount,
+            Uint32Array.from(
+                (cfg.fixed_endpoints || []).flatMap((e) => [
+                    e[0],
+                    e[1] === "p1" || e[1] === true ? 0 : 1,
+                ]),
+            ),
         ),
     );
 
+    WASMCompatability.Allocations.free(wasm_non_empty_shapes);
     return WASMCompatability.Geometry.shape_collection_from_wasm(merged);
 }

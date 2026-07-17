@@ -77,7 +77,7 @@ function put_image(im: Image, meta: PutMetaData) {
     if (!title.endsWith(".png")) {
         title = title + ".png";
     }
-    ImageIO.write(title, im);
+    ImageIO.write(path.join(dir(), title), im);
 }
 
 export function put_live_recordings() {

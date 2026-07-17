@@ -6,6 +6,8 @@ export class GrayImage {
         public dimensions: [number, number],
     ) {}
 
+    public type = "b-w";
+
     gray_scale(): GrayImage {
         return new GrayImage(new Uint8Array(this.pixels), [
             ...this.dimensions,

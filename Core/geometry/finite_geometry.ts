@@ -60,11 +60,13 @@ export function concave_hull(
         const hull = WASMCompatability.Allocations.free_after_use(
             WASMCompatability.Geometry.wasm_vector_vec(geometries as Vector[]),
             (input) =>
-                wasm_geometry_concave_hull_vertices(
-                    input,
-                    concavity,
-                    length_threshold,
-                )!,
+                WASMCompatability.Allocations.allocate(
+                    wasm_geometry_concave_hull_vertices(
+                        input,
+                        concavity,
+                        length_threshold,
+                    )!,
+                ),
         );
         return WASMCompatability.Geometry.polygon_from_wasm(hull);
     }
@@ -121,6 +123,6 @@ export function circle(center: Vector, radius: number): Polygon {
 
 export {
     buffer,
-    BufferLineCapStyle,
-    BufferLineJoinStyle,
+    type BufferLineCapStyle,
+    type BufferLineJoinStyle,
 } from "./algorithms/buffer";

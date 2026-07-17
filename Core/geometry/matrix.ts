@@ -24,11 +24,10 @@ export class Matrix {
         );
     }
 
-    static from_row_entries(...entries: [number, number, number, number]) {
+    static from_column_entries(...entries: [number, number, number, number]) {
         return new Matrix(
-            new Vector(entries[0], entries[2]),
-            new Vector(entries[1], entries[3]),
-            "row",
+            new Vector(entries[0], entries[1]),
+            new Vector(entries[2], entries[3]),
         );
     }
 
@@ -163,5 +162,9 @@ export class Matrix {
         return (x: Vector) => {
             return this.mult(x);
         };
+    }
+
+    static Identity(): Matrix {
+        return Matrix.from_entries(1, 0, 0, 1);
     }
 }

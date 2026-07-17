@@ -1,9 +1,9 @@
 import { Image, RGBImage } from "Core/image/index";
-import img_sharp from "sharp";
+import sharp from "sharp";
 
 export namespace ImageIO {
-    export async function load(path: string): Promise<RGBImage> {
-        return from_sharp(img_sharp(path));
+    export function load(path: string): Promise<RGBImage> {
+        return from_sharp(sharp(path));
     }
 
     export function write(
@@ -11,44 +11,60 @@ export namespace ImageIO {
         img: Image,
         dimensions: [number, number] | null = null,
     ) {
-        return sharp(img, dimensions).toFile(path);
+        return to_sharp(img, dimensions).toFile(path);
     }
 
-    export async function from_sharp(img: img_sharp.Sharp): Promise<RGBImage> {
+    export async function from_sharp(img: sharp.Sharp): Promise<RGBImage> {
         const { data, info } = await img
-            .toColorspace("rgb")
+            .toColourspace("srgb")
+            .removeAlpha()
             .raw()
             .toBuffer({ resolveWithObject: true });
 
-        const res = new Uint8Array(info.width * info.height * 3);
+        const pixels = new Uint8Array(info.width * info.height * 3);
 
-        for (let y = 0; y < info.height; y++) {
-            for (let x = 0; x < info.width; x++) {
-                const px = y * info.width + x;
-                const idx = px * info.channels;
-                res[3 * px] = data[idx]!;
-                res[3 * px + 1] = data[idx + 1]!;
-                res[3 * px + 2] = data[idx + 2]!;
+        for (let px = 0; px < info.width * info.height; px++) {
+            const src = px * info.channels;
+            const dst = px * 3;
+
+            if (info.channels === 1) {
+                const value = data[src]!;
+                pixels[dst] = value;
+                pixels[dst + 1] = value;
+                pixels[dst + 2] = value;
+            } else {
+                pixels[dst] = data[src]!;
+                pixels[dst + 1] = data[src + 1]!;
+                pixels[dst + 2] = data[src + 2]!;
             }
         }
 
-        return new RGBImage(res, [info.width, info.height]);
+        return new RGBImage(pixels, [info.width, info.height]);
     }
 
-    export function sharp(
+    export function to_sharp(
         img: Image,
         dimensions: [number, number] | null = null,
     ) {
-        if (!dimensions) {
-            dimensions = img.dimensions as any;
-        }
+        const [width, height] = img.dimensions;
+        const channels = img.type === "b-w" ? 1 : 3;
 
-        return img_sharp(img.pixels, {
+        let image = sharp(img.pixels, {
             raw: {
-                width: dimensions![0],
-                height: dimensions![1],
-                channels: 3, // RGB = 3 channels (RGBA would be 4)
+                width,
+                height,
+                channels,
             },
         });
+
+        if (dimensions !== null) {
+            image = image.resize({
+                width: dimensions[0],
+                height: dimensions[1],
+                fit: "fill",
+            });
+        }
+
+        return image;
     }
 }

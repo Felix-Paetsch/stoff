@@ -18,7 +18,7 @@ export const LSystemProject = defineEmbroidery(
             ["F", "FF"],
             // ["F", "F[+F]F[-F][F]"],
         ] as const);
-        const evaluated = s("-X", 4);
+        const evaluated = s("-X", 3);
 
         const interpreted = interpret_string(
             evaluated,

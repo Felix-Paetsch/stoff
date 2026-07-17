@@ -11,7 +11,7 @@ export const TestEmbr = defineEmbroidery(
         const sT = new Sketch();
 
         const p1 = sT.add_point(0, 0);
-        const p2 = sT.add_point(5 * Embroidery.cm_to_stitch, 0);
+        const p2 = sT.add_point(5, 0);
 
         for (let i = 0; i < 4; i++) {
             for (let j = 1; j < 4; j++) {
