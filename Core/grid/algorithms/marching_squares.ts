@@ -3,7 +3,7 @@ import { wasm_grid_marching_squares, WASMCompatability } from "Rust/exports";
 import { NumberGrid } from "../types";
 
 export type MarchingSquaresContourArgument = "integers" | number | number[];
-export function maching_squares(
+export function marching_squares(
     g: NumberGrid,
     contour_argument: MarchingSquaresContourArgument = "integers",
 ) {

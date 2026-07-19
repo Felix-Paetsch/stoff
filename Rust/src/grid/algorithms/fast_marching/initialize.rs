@@ -13,6 +13,9 @@ pub fn initialize<'a>(times: &'a mut Grid<f64>) -> FastMarchingState<'a> {
     let mut heap = FastMarchingHeap::new();
 
     let status_grid = times.map(|p, v| {
+        debug_assert!(v.is_finite() || *v == f64::INFINITY);
+        debug_assert!(*v >= 0.0);
+
         if v.is_finite() {
             heap.insert_or_decrease_key(p, *v);
             FastMarchingStatus::Considered

@@ -1,10 +1,23 @@
-import { VectorGrid } from "@/Core/grid";
+import { VectorGrid, map_grid } from "@/Core/grid";
+import { Image } from "@/Core/image";
 import { Fraction, Interval } from "@/Core/numerics";
 import { SVG_Builder } from "@/Core/svg";
 import { Color } from "Core/colors";
 import { Vector } from "Core/geometry/vector";
 import { EPS } from "Core/numerics/eps";
 import { unique_string } from "Core/utils/unique";
+import { render_vec3_grid } from "./vec3_grid";
+import { GridRenderDimensionsArgs } from "./with_callback";
+
+export function render_vector_grid(
+    g: VectorGrid,
+    img_dimensions: GridRenderDimensionsArgs = null,
+): Image {
+    return render_vec3_grid(
+        map_grid("vec3", g, (v) => [v.x, v.y, 0]),
+        img_dimensions,
+    );
+}
 
 export type VectorGridConfig = {
     out_dimensions: [number, number];
@@ -12,7 +25,7 @@ export type VectorGridConfig = {
     out_viewbox_dimensions: [number, number];
 };
 
-export function render_vector_grid(
+export function render_vector_grid_svg(
     g: VectorGrid,
     config: Partial<VectorGridConfig> = {},
 ): SVG_Builder {

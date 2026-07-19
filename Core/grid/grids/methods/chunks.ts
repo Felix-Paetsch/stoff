@@ -79,7 +79,7 @@ export function map_chunks<T, R extends string>(
     );
 }
 
-export function iter_chunk<T>(
+export function iter_chunks<T>(
     src: IGrid<T, any>,
     ker_size: [number, number],
     fn: GridWindowFunction<T, void>,

@@ -14,13 +14,14 @@ impl Grid<FastMarchingStatus> {
     }
 
     pub fn consider(&mut self, p: GridPosition) {
-        if *self.value_at(p) == FastMarchingStatus::Far {
-            self.set_value_at(p, FastMarchingStatus::Considered);
-        }
+        self.set_value_at(p, FastMarchingStatus::Considered);
     }
 
-    #[allow(unused)]
     pub fn is_known(&self, p: GridPosition) -> bool {
         matches!(self.value_at(p), FastMarchingStatus::Known)
+    }
+
+    pub fn is_considered(&self, p: GridPosition) -> bool {
+        matches!(self.value_at(p), FastMarchingStatus::Considered)
     }
 }

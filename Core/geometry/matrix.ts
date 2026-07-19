@@ -138,6 +138,15 @@ export class Matrix {
         );
     }
 
+    subtract(m: Matrix) {
+        return Matrix.from_entries(
+            this.entries[0] - m.entries[0],
+            this.entries[1] - m.entries[1],
+            this.entries[2] - m.entries[2],
+            this.entries[3] - m.entries[3],
+        );
+    }
+
     mult(el: Vector): Vector;
     mult(el: number | Matrix): Matrix;
     mult(el: number | Vector | Matrix) {
@@ -164,7 +173,79 @@ export class Matrix {
         };
     }
 
+    eigenpairs():
+        | {
+              vectors: [Vector, Vector];
+              values: [number, number];
+          }
+        | { vectors: []; values: [] } {
+        const a = this.a;
+        const b = this.b;
+        const c = this.c;
+        const d = this.d;
+
+        const trace = a + d;
+        const discriminant = (a - d) ** 2 + 4 * b * c;
+
+        if (discriminant < 0) {
+            return { vectors: [], values: [] };
+        }
+
+        const sqrt_discriminant = Math.sqrt(discriminant);
+        const lambda1 = (trace + sqrt_discriminant) / 2;
+        const lambda2 = (trace - sqrt_discriminant) / 2;
+        const vector_for = (lambda: number): Vector => {
+            const candidate1 = new Vector(-b, a - lambda);
+            const candidate2 = new Vector(d - lambda, -c);
+
+            const norm1 =
+                candidate1.x * candidate1.x + candidate1.y * candidate1.y;
+
+            const norm2 =
+                candidate2.x * candidate2.x + candidate2.y * candidate2.y;
+
+            const vector = norm1 >= norm2 ? candidate1 : candidate2;
+            if (vector.x === 0 && vector.y === 0) {
+                return new Vector(1, 0);
+            }
+
+            return vector.normalize();
+        };
+
+        const vector1 = vector_for(lambda1);
+        const vector2 = vector_for(lambda2);
+
+        return {
+            vectors: [vector1, vector2],
+            values: [lambda1, lambda2],
+        };
+    }
+
+    eigenvalues(): [number, number] | [] {
+        return this.eigenpairs().values;
+    }
+
+    eigenvectors(): [Vector, Vector] | [] {
+        return this.eigenpairs().vectors;
+    }
+
     static Identity(): Matrix {
         return Matrix.from_entries(1, 0, 0, 1);
+    }
+
+    static Scalar(a: number): Matrix {
+        return Matrix.from_entries(a, 0, 0, a);
+    }
+
+    static add(m1: Matrix, m2: Matrix) {
+        return m1.add(m2);
+    }
+
+    static subtract(m1: Matrix, m2: Matrix) {
+        return m1.subtract(m2);
+    }
+
+    static mult(m1: Matrix, m2: Matrix) {
+        return m1.mult(m2);
     }
 }

@@ -1,32 +1,24 @@
 import { Expect } from "@/Core/expect";
-import { Vector } from "@/Core/geometry";
 
-import { EPS, Interval } from "@/Core/numerics";
+import { EPS } from "@/Core/numerics";
 import {
     GridDimensions,
-    LatticePoint,
+    IntoGridDimensions,
     PartialGridDimensions,
 } from "../../types";
 import { IGrid } from "../igrid";
 
-export function dimensions_agree(
-    l:
-        | GridDimensions
-        | {
-              dimensions_ref: GridDimensions;
-          },
-    o:
-        | GridDimensions
-        | {
-              dimensions_ref: GridDimensions;
-          },
-) {
-    if ("dimensions_ref" in l) {
-        l = l.dimensions_ref;
+export function into_grid_dimensions(a: IntoGridDimensions) {
+    if ("dimensions_ref" in a) {
+        return a.dimensions_ref;
     }
-    if ("dimensions_ref" in o) {
-        o = o.dimensions_ref;
-    }
+
+    return a;
+}
+
+export function dimensions_agree(l: IntoGridDimensions, o: IntoGridDimensions) {
+    l = into_grid_dimensions(l);
+    o = into_grid_dimensions(o);
 
     let ld = l.lattice_dimensions;
     let ldo = o.lattice_dimensions;
@@ -69,8 +61,8 @@ export function complete_partial_subgrid_dimensions(
     const dd = dims.domain_dimensions!;
     const tdd = g.dimensions_ref.domain_dimensions!;
     Expect.that(
-        EPS.less_than_or_eq(dd[0], tdd[0]) &&
-            EPS.less_than_or_eq(dd[1], tdd[1]) &&
+        EPS.less_than_or_eq(tdd[0], dd[0]) &&
+            EPS.less_than_or_eq(tdd[1], dd[1]) &&
             EPS.less_than_or_eq(dd[0] + dd[2], tdd[0] + tdd[2]) &&
             EPS.less_than_or_eq(dd[1] + dd[3], tdd[1] + tdd[3]),
         "New dimensions must be a subspace of old dimensions",
@@ -115,37 +107,34 @@ export function lazy_with_new_dimensions<T, S extends string>(
     return g.with_new_dimensions(new_dimensions);
 }
 
-export function lattice_point_at_vector(
-    dims: GridDimensions,
-    v: Vector,
-): [number, number] {
-    const [grid_x, grid_y, grid_w, grid_h] = dims.domain_dimensions;
-    const [w, h] = dims.lattice_dimensions;
+export function grid_aspect_ratio(d: IntoGridDimensions): number {
+    d = into_grid_dimensions(d);
+    return d.domain_dimensions[2] / d.domain_dimensions[3];
+}
 
-    const w_remap = Interval.remap([grid_x, grid_x + grid_w], [0, w - 1]);
-    const h_remap = Interval.remap([grid_y, grid_y + grid_h], [0, h - 1]);
-
-    const sx = w_remap(v.x);
-    const sy = h_remap(v.y);
-
+export function grid_cell_dimensions(d: IntoGridDimensions): [number, number] {
+    d = into_grid_dimensions(d);
     return [
-        Interval.clamp([0, w - 1], Math.round(sx)),
-        Interval.clamp([0, h - 1], Math.round(sy)),
+        d.domain_dimensions[2] / (d.lattice_dimensions[0] - 1),
+        d.domain_dimensions[3] / (d.lattice_dimensions[1] - 1),
     ];
 }
 
-export function vector_at_lattice_point(
-    dims: GridDimensions,
-    p: LatticePoint,
-): Vector {
-    const [grid_x, grid_y, grid_w, grid_h] = dims.domain_dimensions;
-    const [w, h] = dims.lattice_dimensions;
+export function with_unit_grid_dimensions<T extends IGrid<any, any>>(
+    g: T,
+    lattice_dimensions?: [number, number],
+): T {
+    const cells = grid_cell_dimensions(g);
+    lattice_dimensions =
+        lattice_dimensions || g.dimensions().lattice_dimensions;
 
-    const w_remap = Interval.remap([0, w - 1], [grid_x, grid_x + grid_w]);
-    const h_remap = Interval.remap([0, h - 1], [grid_y, grid_y + grid_h]);
-
-    const sx = w_remap(Interval.clamp([0, w - 1], Math.round(p[0])));
-    const sy = h_remap(Interval.clamp([0, h - 1], Math.round(p[1])));
-
-    return new Vector(sx, sy);
+    return g.with_new_dimensions({
+        lattice_dimensions,
+        domain_dimensions: [
+            0,
+            0,
+            cells[0] * (lattice_dimensions[0] - 1),
+            cells[1] * (lattice_dimensions[1] - 1),
+        ],
+    }) as T;
 }

@@ -2,11 +2,14 @@ import { Color } from "@/Core/colors";
 import { NumberGrid } from "@/Core/grid";
 import { Interval } from "@/Core/numerics";
 
-import { render_grid_with_callback } from "./with_callback";
+import {
+    GridRenderDimensionsArgs,
+    render_grid_with_callback,
+} from "./with_callback";
 
 export function render_number_grid(
     g: NumberGrid,
-    img_dimensions: [number, number] = [500, 500],
+    img_dimensions: GridRenderDimensionsArgs = null,
 ) {
     let remap = Interval.remap(
         Interval.cover(g.values().filter((v) => Math.abs(v) < Infinity)),

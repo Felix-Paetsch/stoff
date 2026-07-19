@@ -170,8 +170,8 @@ function spline_for_polygon_segment(
 
 export function resample_line_points_smooth(
     line: Vector[],
-    smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
     sample_spacing: number | null = null,
+    smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
 ): Vector[] {
     if (line.length === 0) {
         return [];
@@ -270,8 +270,8 @@ export function resample_line_points_smooth(
 
 export function resample_polygon_points_smooth(
     line: Vector[],
-    smoothness_angle: Radians = Math.PI * 1.2,
     sample_spacing: number | null = null,
+    smoothness_angle: Radians = Math.PI * 1.2,
 ): Vector[] {
     const polygon = normalize_polygon_points(line);
 

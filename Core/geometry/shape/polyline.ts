@@ -125,14 +125,14 @@ export class Polyline extends Shape {
     }
 
     resample_smooth(
-        smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
         sample_spacing: number | null = null,
+        smoothness_angle: Radians = Math.PI * 1.2, // Low angle leads to smoothing even around sharper corners
     ): Polyline {
         return new Polyline(
             resample_line_points_smooth(
                 this.vertices,
-                smoothness_angle,
                 sample_spacing,
+                smoothness_angle,
             ),
         );
     }

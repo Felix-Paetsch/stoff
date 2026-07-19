@@ -127,8 +127,10 @@ impl<T> Grid<T> {
     }
 
     #[inline]
-    #[allow(unused)]
-    pub fn adjacent_positions(&self, p: GridPosition) -> impl Iterator<Item = GridPosition> {
+    pub fn adjacent_positions4(
+        &self,
+        p: GridPosition,
+    ) -> impl Iterator<Item = GridPosition> + use<T> {
         let [w, h] = self.lattice_dimensions;
 
         [

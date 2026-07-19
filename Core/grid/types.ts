@@ -10,7 +10,11 @@ export type GridDimensions = {
     lattice_dimensions: [number, number];
     domain_dimensions: [number, number, number, number];
 };
-
+export type IntoGridDimensions =
+    | GridDimensions
+    | {
+          dimensions_ref: GridDimensions;
+      };
 export type PartialGridDimensions =
     | null
     | Partial<GridDimensions>

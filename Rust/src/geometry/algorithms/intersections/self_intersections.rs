@@ -24,6 +24,7 @@ pub fn find_shape_self_intersections(shape: &impl ShapeT) -> Vec<Intersection> {
         &mut result,
     );
 
+    debug_assert!(result.iter().all(|int| int[0] <= int[1]));
     deduped_self_intersections(result, length_map.lengths(), shape)
 }
 

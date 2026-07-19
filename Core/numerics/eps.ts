@@ -15,9 +15,9 @@ export const EPS = {
         return a - b > -EPS.tiny;
     },
     less_than_or_eq: (a: number, b: number): boolean => {
-        return a - b < EPS.tiny;
+        return a - b <= EPS.tiny;
     },
     greater_than_or_eq: (a: number, b: number): boolean => {
-        return a - b > -EPS.tiny;
+        return a - b >= -EPS.tiny;
     },
 };

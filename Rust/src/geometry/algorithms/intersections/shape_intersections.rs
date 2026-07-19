@@ -222,9 +222,9 @@ fn linesegment_shape_intersections_flipped(
         closest_point_on_linesegment(ls.segment, v).distance
     });
 
-    halfed
-        .into_iter()
-        .for_each(|rec_data| linesegment_shape_intersections(ls_sh, ls, sh, rec_data, result))
+    halfed.into_iter().for_each(|rec_data| {
+        linesegment_shape_intersections_flipped(ls_sh, ls, sh, rec_data, result)
+    })
 }
 
 fn linesegment_linesegment_intersections(

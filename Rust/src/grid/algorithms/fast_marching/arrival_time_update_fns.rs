@@ -1,6 +1,4 @@
-pub mod anisotropic_naive_first_order;
-pub mod anisotropic_naive_second_order;
-pub mod anisotropic_second_order_single_stencil;
+pub mod anisotropic_triangle;
 pub mod isotropic_first_order_single_stencil;
 pub mod isotropic_naive_second_order;
 pub mod isotropic_second_order_single_stencil;

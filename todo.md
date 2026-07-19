@@ -1,166 +1,53 @@
-Todo: In the algorithms/gradient section for grids, allow non-square grids
-Make a method to "squarify" a grid.
-Fast marching(tensor) less dimensions issues
-Fix fast marching tensor givfing only infinity
-
-Todo: Grid conversions / UnitUnit
-
-Linear Transform / Rotate is a bit strange with first argument option
-maybe allow object with "from", "to"
+# Bucket list
 
 
-Rust...
+## Watcher Update
 
-1. Make WASMGrid all the enum values into concrete WASM Types (potentially together with an enum wrapper)
-    - maybe write a macro for that, e.g. exposing only the name and not the impl and then extracting the impl for singletons..
-2. Same for WASM Graph
-3. Images
-4. Error fixes
-    - including tensor marching
-5. TS
+- Tell which file/config currently is running
+- Display grids -> See grid values on hover
 
+## Histograms
 
-Plan:
-
-Move rust modify polyline intersections out
-
-1. Clean Up Rust and put things into WASM
-    - image
-    - grid
-    - geometry
-    - graph
-    - sneak in a marching squares change for my happiness (;
-2. Clean up embroidery folder and put the unstructured code in there
-3. Clean up lib / standalone / ...
-
-Mask: Enum Multigon/Grid
-
-# Plans
-
-Locally sample gauss gradient grid and if >> 0 have a line
-
-
-# Restructuring
-
-- fix embroidery folder
-- write adapters
-- improve general API?
-- fix type errors
-- config: prefix with which folder / module a variable belongs to
-
-Put matching into geometry and graph
-Put graph into an interface (full graph ect.)
-Featurize WASM
-
-Histogram
+- variance
+- normalize_distribution (fn, inv_fn)
 - min/max/percentile(P)/buckets(bucket_size)/Bucket_counts/Buckets_by_size(size of each bkt)
-Bucket a new class
+- Bucket a new class
+- Image Frequency analysis: min, ...
+- Histogram & Histogram equalization
+
+## Masks
+
+Enum: Multigon/Grid
+
+## Maintanence
+
+Put matching into geometry and graph (?)
+Put graph into an interface (full graph ect.)
+Double run graph in wasm
+Render .dst as embroidery with different colors (if not already happening)
+
+### Core requests
 
 
+resample_strict should also have an angle argument.
+Svg to image
+Resampling based on detail for embroidery (like keep corners but resample more liberally on straight parts, including fourier analysis)
+spline fitting
+Tuck down and end stitch
+Fix 1D embroidery line not rendering
+
+## Noise
+
+Different noises (blue/... for dot spacing or as a texture)
+
+## Fourier
 
 
-And then do the line testing pixelwise bla..
+## Test out external tools
 
-- Replace marching squares with preexist rust verions
 - Try out image vectorization
-- Tensor Eikonal
+- height map from image
 
-Next: Tensor eikonal
-Then dog experiments
-
-Maybe maybe faster eikonal
-Then maybe height map from image
-
-Image Frequency analysis: min, ...
-Clean Up grids somehow..
-
-Notes: We can interop with python if we want to (; e.g. for height maps
-
-
-
-
-#  Rndm
-
-- python depth anything / ...
-
-
-
-Improve speed of closest by having less allocations (e.g. the result option)
-Do merge optimization on run without intersections
-
-1. Implement unionfind
-4. Merge lines efficiently
-
-5. Improve polygon merging
-
-# Todo
-
-When merging polygons, try to directly write to the correct position in one array without creating many more.
-Vec.clear
-
-For mergin many short lines on a graph: minimum spanning tree, involving delaunay with predefined vertices
-
-Histogram & Histogram equalization
-Gauss derivative kernel
-dx, dy kernel
-combine dx,dy and so on to get a rather good grad estiamtion
-Bilatiral filtering
-Unsharp masking
-Fourier
-Lowpass/Highpass filter
-Frie Chen operator
-...
-
-3. Convolution in rust
-4. Add wasm support
-
-
-Why is this one offset soo bad in the sewing thing??
-Hovering both SVG and PNG: Cursor/Pixel position
-
-Scenes should only have imports from barrel files inside of Core..
-Bound size on polylines
-
-Use Einstein image as resplacement mask
-Merge lines:
-- minimizing maximal connecting line
-
-
-
-- better lines match up. The objective is rather: Minimise the longest line segment length (kinda like tsp)
-
-0. Image stuff type stuff
-
-1. Test if everythings works now
-2. Implement that image things 
-    - imcluding wasm things on both sides
-3. Improve / Test grid API, especially in @ exports
-4. Directional/Tensor Eikonal
-5. Improve API... probably get rid of main barrel export
-6. Find if clahe needs fixing
-
-SketchRendering with better/different allowed default attributes
-
-ImgAlgorithms
-Image -> Image writer
-Core/image
-img resample
-
-Avg brightness
-Median brightness
-"importance map for colors"
-Histograms
-
-## Steps
-
-1. Generate a rough outline estimate by points
-2. Do a concave hull
-
-
-5. Generate Embroidery
-    - several interpolation methods
-6. There should be a config whether expect methods are run
-8. TS Wasm grid methods
 
 # Updates
 
@@ -215,6 +102,13 @@ Histograms
 - time_after/optionally on a conditional
     or: queries for time
    
+Improve speed of closest by having less allocations (e.g. the result option)
+Do merge optimization on run without intersections
+
+- Implement unionfind
+- Merge lines efficiently
+- Improve polygon merging
+
 
 # Organize
 
@@ -266,23 +160,7 @@ In place vs into?
 - i guess in place what it has the same data type?
 How to do views into rust memory / work with arrays mostly there?
 
-Grid.Algorithms
-
-## Answers
-
-Do we want .lines or .lines()?
-=> The latter! We don't care about a bit of verbosity when we can get safety and/or readability and clarity of intent
-... readonly?
-
-# Rust
-
-- tests
-- import structure
-- less copy/clone
-- learn more abt rust design patterns
-https://www.youtube.com/watch?v=A-lbCqNT5Ew
 # Algorithms
-
 
 ## To Implement
 
@@ -298,18 +176,15 @@ Get line components inside mask
 Boolean grid
 - and /or
 More keys for lerp: Nearest neighbor
-- Tensor & directional eikonal (for tensor matrices)
 Radial distance functions
 Following flow fields
 - Angular binary search with a score fn?
-Svg to image
 Chaikin
 FLood Fill
 https://ko-fi.com/s/bab05e779e
 Confine run within shape, i.e. to a (kind of?) shape interesection
 Different noises (blue/... for dot spacing or as a texture)
 resample strict use sharp corners
-grid max, min / optimize
 follow flow
 - gradient flow
 - isoline flow cw/ccw
@@ -327,12 +202,6 @@ Chainging where shape endpoints are
     - a) easily computable distance (point, line)
     - b) use a flowfield and for each point move along that flow field
     - c) so a flow field interface or smth
-Img to grid
-plot grid as svg
-Write tests (extensive tests) for AI based algorithms with public interface
-Resampling based on detail for embroidery (like keep corners but resample more liberally on straight parts)
-Boolean grid from poly
-Mask shape[] using grid
 Shape to sdf
 repatch inside mask
 
@@ -374,10 +243,6 @@ Mandalas (constructions mod symmetry)
 Flocking
 Street maps
 Stippling algorithms
-Autopath sketch as dst with different colors
-conrec
-dual conturing
-spline fitting
 
 # Embroidery
 
@@ -388,17 +253,11 @@ automatically create satin between two lines
 different fill and run types
 stitch density/line density analyzation
 pull compensation
-Tuck down and end stitch
 Contour fill
 Maze fill
 Stem stitch
 ZMK-like embroidery analysis
 Thread grading (direction) for digitizing..
-
-## Todo
-
-Fix 1D embroidery line not rendering
-Colors between sketch <-> embroidery conversions
 
 # Sewing
 
@@ -406,7 +265,6 @@ Clean up/review Leonies code (from time to time)
 Annotation System?
 Validity checks
 3D anything
-
 
 # Generative Random Input
 
@@ -553,7 +411,28 @@ For each 2 (3) consecutive patches test if they actually want to be shading
 
 Do a sketch based on long straight lines to carve an image
 
-# Bugs
+What do I want of Dev/Standalone and of Dev/Embroidery?
+Why do I like embroidery folder less currently?
 
-Intersect shapes doesnt find alll intersections (see circle)
-Marching squares has a problem with the bear (images/edges)
+Less resizing issues.. => histograms to always readjust size?
+A grid workflow where we can do .and_thens
+
+Use wasm for double run graph
+
+What to do with the "unstructured" code parts?
+
+2. Clean up embroidery folder and put the unstructured code in there
+3. Clean up lib / standalone / ...
+
+# Random
+
+Bilatiral filtering
+Frie Chen operator
+Unsharp masking
+Fourier
+Lowpass/Highpass filter
+dual conturing
+
+# Heisenbugs
+
+- Merge Shapes has a bug with the bear (merge edges)

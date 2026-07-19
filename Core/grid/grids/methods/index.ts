@@ -6,4 +6,6 @@ export * from "./group";
 export * from "./map";
 export * from "./resample";
 export * from "./types";
+export * from "./vector_lattice_point_conversion";
 export * from "./windows";
+

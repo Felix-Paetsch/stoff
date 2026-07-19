@@ -1,4 +1,4 @@
-import { grid_from_function, maching_squares, map_grid } from "@/Core/grid";
+import { grid_from_function, map_grid, marching_squares } from "@/Core/grid";
 import { render_number_grid } from "@/Core/rendering";
 import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
@@ -21,7 +21,7 @@ export default function () {
     Out.put(im, "mandelbrot.png");
 
     const s = new Sketch();
-    const height_lines = maching_squares(mapped_grid);
+    const height_lines = marching_squares(mapped_grid);
 
     height_lines.forEach((l) => s.add_line(l));
 

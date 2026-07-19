@@ -85,8 +85,8 @@ export class Polygon extends Shape {
         return new Polygon(
             resample_polygon_points_smooth(
                 this.vertices,
-                smoothness_angle,
                 sample_spacing,
+                smoothness_angle,
             ),
         );
     }

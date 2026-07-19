@@ -9,7 +9,7 @@ import {
 import { IGrid } from "../igrid";
 import { createIGridConstructor } from "../iGridConstructors/create_constructur";
 import { IGridConstructor } from "../iGridConstructors/types";
-import { vector_at_lattice_point } from "./dimensions";
+import { vector_at_lattice_point } from "./vector_lattice_point_conversion";
 
 export function map_grid<T, N extends GridTypeName>(
     to: N,

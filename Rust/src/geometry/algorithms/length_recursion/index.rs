@@ -1,9 +1,9 @@
 use crate::geometry::{
+    ShapeT, Vector,
     algorithms::{
         closest,
         length_recursion::types::{LengthRecursionData, RecursiveLineBoundary},
     },
-    ShapeT, Vector,
 };
 
 pub fn shape_cant_get_within_x(rec_data: &LengthRecursionData, amt: f64) -> bool {
@@ -11,7 +11,7 @@ pub fn shape_cant_get_within_x(rec_data: &LengthRecursionData, amt: f64) -> bool
         - rec_data.lengths[rec_data.left.vertex_index];
     let min_dists = rec_data.left.guaranteed_distance + rec_data.right.guaranteed_distance;
 
-    min_dists - shape_len > 2.0 * amt
+    min_dists - shape_len > 2.0 * amt + 0.00001
 }
 
 pub fn initial_recursion_data<'a, F>(

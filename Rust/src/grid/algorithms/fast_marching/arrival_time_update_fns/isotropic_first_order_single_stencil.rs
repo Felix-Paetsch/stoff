@@ -13,68 +13,113 @@ pub fn isotropic_first_order_arrival_time_update_fn<'a>(
     debug_assert!(speed_grid.iter().all(|x| *x >= 0.0));
 
     let [w, h] = speed_grid.lattice_dimensions();
-    debug_assert!(w > 2 && h > 2);
+    debug_assert!(w > 0 && h > 0);
 
-    let [_, _, domw, domh] = speed_grid.domain_dimensions();
-    let dx = domw / (w as f64 - 1.0);
-    let dy = domh / (h as f64 - 1.0);
+    let [_, _, domain_width, domain_height] = speed_grid.domain_dimensions();
+
+    let dx = domain_width / (w as f64 - 1.0);
+    let dy = domain_height / (h as f64 - 1.0);
 
     move |data: &FastMarchingState, p: GridPosition| {
-        let old_t = *data.times_grid.value_at(p);
-        let f = *speed_grid.value_at(p);
+        let old_time = *data.times_grid.value_at(p);
+        let speed = *speed_grid.value_at(p);
 
-        if f <= 0.0 {
-            return old_t;
+        if speed <= 0.0 || !speed.is_finite() {
+            return old_time;
         }
 
-        let txm = if p[0] == 0 {
+        let tx_minus = if p[0] == 0 {
             f64::INFINITY
         } else {
-            *data.times_grid.value_at([p[0] - 1, p[1]])
-        };
-        let txp = if p[0] + 1 >= w {
-            f64::INFINITY
-        } else {
-            *data.times_grid.value_at([p[0] + 1, p[1]])
-        };
-        let a = txm.min(txp);
+            let pos = [p[0] - 1, p[1]];
 
-        let tym = if p[1] == 0 {
+            if data.status_grid.is_known(pos) {
+                *data.times_grid.value_at(pos)
+            } else {
+                f64::INFINITY
+            }
+        };
+
+        let tx_plus = if p[0] + 1 >= w {
             f64::INFINITY
         } else {
-            *data.times_grid.value_at([p[0], p[1] - 1])
+            let pos = [p[0] + 1, p[1]];
+
+            if data.status_grid.is_known(pos) {
+                *data.times_grid.value_at(pos)
+            } else {
+                f64::INFINITY
+            }
         };
-        let typ = if p[1] + 1 >= h {
+
+        let ty_minus = if p[1] == 0 {
             f64::INFINITY
         } else {
-            *data.times_grid.value_at([p[0], p[1] + 1])
+            let pos = [p[0], p[1] - 1];
+
+            if data.status_grid.is_known(pos) {
+                *data.times_grid.value_at(pos)
+            } else {
+                f64::INFINITY
+            }
         };
-        let b = tym.min(typ);
+
+        let ty_plus = if p[1] + 1 >= h {
+            f64::INFINITY
+        } else {
+            let pos = [p[0], p[1] + 1];
+
+            if data.status_grid.is_known(pos) {
+                *data.times_grid.value_at(pos)
+            } else {
+                f64::INFINITY
+            }
+        };
+
+        let a = tx_minus.min(tx_plus);
+        let b = ty_minus.min(ty_plus);
 
         let candidate = match (a.is_finite(), b.is_finite()) {
             (false, false) => f64::INFINITY,
-            (true, false) => a + dx / f,
-            (false, true) => b + dy / f,
+
+            (true, false) => {
+                if dx.is_finite() {
+                    a + dx / speed
+                } else {
+                    f64::INFINITY
+                }
+            }
+
+            (false, true) => {
+                if dy.is_finite() {
+                    b + dy / speed
+                } else {
+                    f64::INFINITY
+                }
+            }
+
             (true, true) => {
                 let dx2 = dx * dx;
                 let dy2 = dy * dy;
+                let rhs = 1.0 / (speed * speed);
 
-                let discr = dx2 * dy2 * ((dx2 + dy2) / (f * f) - (a - b) * (a - b));
+                let difference = a - b;
+                let discriminant = dx2 * dy2 * ((dx2 + dy2) * rhs - difference * difference);
 
-                if discr >= 0.0 {
-                    let t_quad = (a * dy2 + b * dx2 + discr.sqrt()) / (dx2 + dy2);
+                if discriminant >= 0.0 {
+                    let t = (a * dy2 + b * dx2 + discriminant.sqrt()) / (dx2 + dy2);
 
-                    if t_quad >= a && t_quad >= b {
-                        t_quad
+                    if t >= a && t >= b {
+                        t
                     } else {
-                        (a + dx / f).min(b + dy / f)
+                        (a + dx / speed).min(b + dy / speed)
                     }
                 } else {
-                    (a + dx / f).min(b + dy / f)
+                    (a + dx / speed).min(b + dy / speed)
                 }
             }
         };
 
-        old_t.min(candidate)
+        old_time.min(candidate)
     }
 }

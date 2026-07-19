@@ -2,11 +2,9 @@ import { Embroidery } from "@/Core/embroidery";
 import {
     Convolution,
     fast_marching_tensor,
+    grid_aspect_ratio,
     grid_from_function,
-    maching_squares,
-    map_windows,
-    NumberGrid,
-    resample_grid,
+    marching_squares,
 } from "@/Core/grid";
 import { clahe, ImageIO } from "@/Core/image";
 import { Out } from "@/Dev";
@@ -21,46 +19,61 @@ export default async function () {
     // Image processing
 
     const gray = img.gray_scale();
-    Out.put(gray, "#0_gray");
-
+    Out.put(gray, "#0_original_grayscale[img]");
     const clahe_gray = clahe(gray, 8, 8, 3);
-    Out.put(clahe_gray, "#1_clahe");
+    Out.put(clahe_gray, "#1_clahe[img]");
 
     const clahe_grid = image_to_grayscale_grid(clahe_gray);
+    clahe_grid.remap_domain_in_place({
+        width: 10,
+    });
+    const convoluted = Convolution.convolve(
+        clahe_grid,
+        Convolution.gaussian_blur(5),
+    );
+    Out.put(convoluted, "#2_convoluted[img]");
 
-    let convoluted = convolve_median(clahe_grid, 5);
-    Out.put(convoluted, "#2_conv");
-    convoluted = Convolution.convolve(clahe_grid, Convolution.gaussian_blur(5));
-    Out.put(convoluted, "#2_conv1");
-
-    let height_lines_grid = convoluted;
-    height_lines_grid.remap_domain_in_place([0, 0, 10, 10]);
-    height_lines_grid = resample_grid(height_lines_grid, [500, 500]);
+    console.log(grid_aspect_ratio(convoluted));
+    let height_lines_grid = convoluted.with_new_dimensions({
+        lattice_dimensions: [
+            Math.round(500 * grid_aspect_ratio(convoluted)),
+            500,
+        ],
+    });
     let speed_map = slope_tensor(height_lines_grid);
+    Out.put(speed_map, "#3_slopes");
+
     speed_map.map_in_place((m) => {
-        return Matrix.Identity().scale(3); //.add(m.scale(5));
+        console.log(m.eigenvalues());
+        return m.scale(0.001).add(Matrix.Scalar(3)).invert();
     });
 
-    Out.put(speed_map, "#3speed");
+    Out.put(speed_map, "#4_slopes");
 
     const src_map = grid_from_function(
         "number",
         speed_map.dimensions(),
         () => Infinity,
     );
-    src_map.set_value_at_lattice_point([100, 100], 0);
+    src_map.set_value_at_lattice_point([0, 0], 0);
+
+    // const speed_map_1d = map_grid("number", speed_map, (m) => {
+    //     const [e, f] = m.eigenvalues();
+    //     return Math.max(255 - (100 * (e! + f!)) / 2, 1);
+    // });
+    // Out.put(speed_map_1d, "#4_speeds_1d");
 
     let eikonal = fast_marching_tensor(src_map, speed_map);
-    console.log(eikonal);
-    Out.put(eikonal, "#4_eikonal");
+    // let eikonal = fast_marching(src_map, speed_map_1d);
+    Out.put(eikonal, "#5_eikonal_1d");
 
-    // Height lines
-
-    eikonal.map_in_place((v) => 5000 * v);
+    eikonal.map_in_place((v) => v);
     const s = new Embroidery();
-    const height_lines = maching_squares(eikonal)
+    const height_lines = marching_squares(eikonal)
         .map((l) => l.resample(0.3))
         .filter((l) => l.length() > 1);
+
+    console.log(height_lines.length);
     height_lines.forEach((l) => s.run(l));
 
     Out.put(s);
@@ -72,21 +85,4 @@ export default async function () {
     Out.put(t);
 
     return [];
-}
-
-function convolve_median(g: NumberGrid, x: number, y?: number): NumberGrid {
-    if (!y) {
-        y = x;
-    }
-
-    return map_windows("number", g, [x, y], (w) => {
-        let all_values: number[] = [];
-        for (let i = 0; i < x; i++) {
-            for (let j = 0; j < y; j++) {
-                all_values.push(w([i, j]));
-            }
-        }
-        all_values.sort();
-        return all_values[Math.floor(all_values.length / 2)]!;
-    });
 }

@@ -75,12 +75,12 @@ export function affine_orthogonal(
 
 // Here the vector argument says rotate v1 to v2
 export function rotate(
-    angle: Radians | [Vector, Vector],
+    angle: Radians | { from: Vector; to: Vector },
     around: Vector = Vector.ZERO,
 ): LinearTransformation {
-    if (Array.isArray(angle)) {
+    if (!(typeof angle == "number")) {
         return rotate(
-            Vector.angle_clockwise(angle[0], angle[1], around),
+            Vector.angle_clockwise(angle.from, angle.to, around),
             around,
         );
     }

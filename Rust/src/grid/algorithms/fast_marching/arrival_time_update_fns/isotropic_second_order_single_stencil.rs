@@ -83,7 +83,8 @@ pub fn isotropic_second_order_single_stencil_arrival_time_update_fn<'a>(
             }
         }
 
-        // If no two-axis stencil worked, fall back to single-axis updates.
+        // Also consider valid one-axis updates. These are needed at boundaries
+        // and when no valid two-axis causal update exists.
         for sx in [-1_i32, 1_i32] {
             if let Some(candidate) =
                 second_order_single_axis_candidate(data, p, [sx, 0], w, h, hx, speed)

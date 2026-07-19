@@ -3,9 +3,9 @@ import {
     Convolution,
     fast_marching,
     grid_from_function,
-    maching_squares,
     map_grid,
     map_windows,
+    marching_squares,
     NumberGrid,
     resample_grid,
 } from "@/Core/grid";
@@ -95,7 +95,7 @@ export default async function () {
 
     eikonal.map_in_place((v) => 5000 * v);
     const s = new Embroidery();
-    const height_lines = maching_squares(eikonal)
+    const height_lines = marching_squares(eikonal)
         .map((l) => l.resample(0.3))
         .filter((l) => l.length() > 1);
     height_lines.forEach((l) => s.run(l));

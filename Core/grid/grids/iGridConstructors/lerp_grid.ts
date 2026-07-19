@@ -121,9 +121,44 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
         return result;
     }
 
-    remap_domain_in_place(new_domain: [number, number, number, number]) {
-        this.dimensions_ref.domain_dimensions = new_domain;
-        return this;
+    remap_domain_in_place(
+        new_domain:
+            | [number, number, number, number]
+            | Partial<{
+                  x: number;
+                  y: number;
+                  width: number;
+                  height: number;
+              }>,
+    ) {
+        if (Array.isArray(new_domain)) {
+            this.dimensions_ref.domain_dimensions = [...new_domain];
+            return;
+        }
+
+        const [_, __, old_width, old_height] =
+            this.dimensions_ref.domain_dimensions;
+
+        const x = new_domain.x ?? 0;
+        const y = new_domain.y ?? 0;
+
+        let width = new_domain.width;
+        let height = new_domain.height;
+
+        if (width === undefined && height === undefined) {
+            width = old_width;
+            height = old_height;
+        } else if (width === undefined) {
+            width =
+                old_height === 0
+                    ? old_width
+                    : (height! * old_width) / old_height;
+        } else if (height === undefined) {
+            height =
+                old_width === 0 ? old_height : (width * old_height) / old_width;
+        }
+
+        this.dimensions_ref.domain_dimensions = [x, y, width!, height!];
     }
 
     lattice_point_at_vector(v: Vector): [number, number] {

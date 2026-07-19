@@ -57,7 +57,7 @@ export function put(what: Putable, meta?: PutMetaData | string) {
     const d = dir();
 
     if (is_internal_grid(what)) {
-        what = render_internal_grid(what);
+        what = render_internal_grid(what, "lattice_dimensions");
     }
     if (is_image(what)) {
         return put_image(what, meta);

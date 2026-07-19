@@ -2,8 +2,8 @@ import { Embroidery } from "@/Core/embroidery";
 import {
     fast_marching,
     grid_from_function,
-    maching_squares,
     map_grid,
+    marching_squares,
     resample_grid,
 } from "@/Core/grid";
 import { ImageIO } from "@/Core/image";
@@ -78,7 +78,7 @@ export default async function () {
 
     eikonal.map_in_place((v) => 500 * v);
     const s = new Embroidery();
-    const height_lines = maching_squares(eikonal)
+    const height_lines = marching_squares(eikonal)
         .filter((l) => l.length() > 0)
         .map((l) => l.as_polyline());
     height_lines.forEach((l) => s.run(l));

@@ -3,7 +3,16 @@ import { GridDimensions, LatticePoint } from "../types";
 
 export interface IGrid<T, S extends string> {
     map_in_place(f: (value: T, v: Vector) => T): void;
-    remap_domain_in_place(new_domain: [number, number, number, number]): void;
+    remap_domain_in_place(
+        new_domain:
+            | [number, number, number, number]
+            | Partial<{
+                  x: number;
+                  y: number;
+                  width: number;
+                  height: number;
+              }>,
+    ): void;
 
     type: S;
 
