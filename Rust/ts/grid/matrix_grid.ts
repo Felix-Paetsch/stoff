@@ -1,5 +1,5 @@
-import { grid_from_array } from "Core/grid/";
-import { MatrixGrid } from "Core/grid/types";
+import { grid_from_array } from "ProcedualArt/grid";
+import { MatrixGrid } from "ProcedualArt/grid/types";
 import { WASMMatrixGrid } from "Rust/exports";
 import { matrix_vec_from_wasm, wasm_matrix_vec } from "../geometry/matrix";
 import { Allocations } from "../index";

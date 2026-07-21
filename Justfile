@@ -1,4 +1,4 @@
-mod standalone 'Dev/StandAlone/Justfile'
+mod standalone 'StandAlone/Justfile'
 mod ts_test 'Dev/Test/Justfile'
 mod tools 'Tools/Justfile'
 

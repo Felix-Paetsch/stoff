@@ -1,9 +1,9 @@
 // Run all tests
 
-import { render_sketch_dev } from "@/Core/rendering";
 import { Sketch } from "@/Core/sketch";
 import { SVG_Builder } from "@/Core/svg";
 import { Json } from "@/Core/utils";
+import { render_sketch_dev } from "ProcedualArt/rendering";
 
 import fs, { writeFileSync } from "fs";
 import path from "path";

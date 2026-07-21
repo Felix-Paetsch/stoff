@@ -1,1 +1,1 @@
-export * from "../../../Core/rendering/sketch/index";
+export * from "../../../Core/sketch/rendering/index";

@@ -1,13 +1,16 @@
 import { Sketch } from "@/Core/sketch";
 
-import { DST, Embroidery } from "@/Core/embroidery";
-import { InternalGrid } from "@/Core/grid";
-import { Image, ImageIO, is_image } from "@/Core/image";
-import { render_internal_grid, render_sketch_dev } from "@/Core/rendering";
 import { SVG_Builder } from "@/Core/svg";
 import { Json, stack_trace, unique_int_gen, unique_string } from "@/Core/utils";
 import { writeFileSync } from "fs";
 import * as path from "path";
+import { DST, Embroidery } from "ProcedualArt/embroidery";
+import { InternalGrid } from "ProcedualArt/grid";
+import { Image, ImageIO, is_image } from "ProcedualArt/image";
+import {
+    render_internal_grid,
+    render_sketch_dev,
+} from "ProcedualArt/rendering";
 import { CJson } from "../../Server/src/types";
 import { Recording } from "../recording/index";
 import { dir } from "./dir";

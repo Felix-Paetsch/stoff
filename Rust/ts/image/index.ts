@@ -1,4 +1,4 @@
-import { GrayImage } from "@/Core/image";
+import { GrayImage } from "ProcedualArt/image";
 import { WASMGrayImage } from "Rust/exports";
 import { Allocations } from "../index";
 

@@ -1,4 +1,4 @@
-import { InternalGrid } from "Core/grid/types";
+import { InternalGrid } from "ProcedualArt/grid/types";
 import { WASMGrid, WASMGridType } from "Rust/exports";
 import { Allocations } from "../index";
 import { boolean_grid_from_wasm, wasm_boolean_grid } from "./boolean_grid";

@@ -1,5 +1,5 @@
 import { Out } from "@/Dev";
-import { BufferDST } from "Embroidery/Projects/buffer/index";
+import { BufferDST } from "ProcedualArt/unstructured/Embroidery/Projects/buffer/index";
 
 type BufferDSTOptions = {
     file: string;

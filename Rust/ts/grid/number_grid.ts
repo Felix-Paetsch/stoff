@@ -1,5 +1,5 @@
-import { grid_from_array } from "Core/grid/";
-import { NumberGrid } from "Core/grid/types";
+import { grid_from_array } from "ProcedualArt/grid";
+import { NumberGrid } from "ProcedualArt/grid/types";
 import { WASMFloat64Grid, WASMU8Grid } from "Rust/exports";
 import { Allocations } from "../index";
 

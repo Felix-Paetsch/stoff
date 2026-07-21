@@ -1,3 +1,32 @@
+# Todo
+
+
+## Base
+
+- get things to compile (again)
+- get things to typecheck (again)
+- better justfiles
+- standalone...subfolders?
+
+## Watcher
+
+- dooooo watcher update
+    - should really really be able to reuse the code I have.. maybe need to start a new project or so
+
+## Neovim
+
+- python support
+    - ruff
+    - pyright
+    - mypy?
+- fix ts stuff
+- see below
+
+## Python API
+
+- http(?)
+
+
 # Bucket list
 
 Where to put fitting?
@@ -433,6 +462,31 @@ Unsharp masking
 Fourier
 Lowpass/Highpass filter
 dual conturing
+
+For dst colors: dont just use consecutive numbers, but have a spacing in between
+- take floor root(n)
+    coprime? just jump by that
+- not coprime? jump by that till we get a repeat color. then jump one extra, repeat
+
+https://www.reddit.com/r/Machine_Embroidery/comments/1l3ppc3/embroidery_vs_photo/
+PidiNet
+Controlnet
+Anime2Sketch
+Holistically-Nested Edge Detection
+Total variation denoising
+Image Smoothing via L0 Gradient minimization
+SKImage
+Suziki Abe
+Top hat transform
+K-means segmentation
+Gaussian-mixture segmentation
+Adaptive Gaussian/mena threshholding
+Otsu method
+Canny edge detection
+3d bilateral filtering
+Kornia?
+Color reduction by clustering in 3d space
+4 types of stitches..
 
 # Heisenbugs
 

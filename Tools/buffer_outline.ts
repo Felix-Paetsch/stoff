@@ -1,5 +1,5 @@
 import { Out } from "@/Dev";
-import { BufferOutlineDST } from "Embroidery/Projects/buffer_outline/index";
+import { BufferOutlineDST } from "ProcedualArt/unstructured/Embroidery/Projects/buffer_outline/index";
 
 type BufferOutlineDSTOptions = {
     file: string;
