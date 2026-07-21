@@ -2,8 +2,14 @@ import { Image, RGBImage } from "Core/image/index";
 import sharp from "sharp";
 
 export namespace ImageIO {
-    export function load(path: string): Promise<RGBImage> {
-        return from_sharp(sharp(path));
+    export async function load(pathOrUrl: string): Promise<RGBImage> {
+        const input = is_url(pathOrUrl)
+            ? await fetch_image(pathOrUrl)
+            : is_svg_string(pathOrUrl)
+              ? Buffer.from(pathOrUrl)
+              : pathOrUrl;
+
+        return from_sharp(sharp(input));
     }
 
     export function write(
@@ -67,4 +73,29 @@ export namespace ImageIO {
 
         return image;
     }
+}
+
+function is_url(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+        return false;
+    }
+}
+
+function is_svg_string(value: string): boolean {
+    return /^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i.test(value);
+}
+
+async function fetch_image(url: string): Promise<Buffer> {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(
+            `Failed to fetch image: ${response.status} ${response.statusText}`,
+        );
+    }
+
+    return Buffer.from(await response.arrayBuffer());
 }

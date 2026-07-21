@@ -13,7 +13,6 @@ import { image_to_grayscale_grid } from "Core/adapters/image_grid";
 import { Embroidery } from "Core/embroidery/embroidery";
 
 export default async function () {
-    // let img = await ImageIO.load("out/einstein.png");
     let img = await ImageIO.load("/home/Felix/stoff/bilder/cdee/dsfsd.webp");
 
     // Image processing

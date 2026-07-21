@@ -97,6 +97,13 @@ export class Embroidery {
     }
 
     static from_dst(dst: DST, colors: Color.Color[] = []) {
+        if (colors.length == 0) {
+            const thread_count = dst.threads.length;
+            colors = Array.from({ length: thread_count }, (_, i) => {
+                return Color.fromHsl([(360 * i) / thread_count, 100, 50]);
+            });
+        }
+
         const embr = new Embroidery();
         for (let i = 0; i < dst.threads.length; i++) {
             const color = colors[i] ?? "black";

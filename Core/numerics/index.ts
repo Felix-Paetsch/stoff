@@ -5,8 +5,10 @@ export * as Search from "./search/index";
 export { Bounds } from "./bounds";
 export { EPS } from "./eps";
 export * as Interval from "./interval";
-export * from "./partition_unity/index";
 export * as Spline from "./spline";
+
+export * from "./histogram/index";
+export * from "./partition_unity/index";
 
 export type Fraction = number;
 

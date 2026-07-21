@@ -1,5 +1,6 @@
-export * from "../../unstructured/double_run_graph";
+export * from "./connected_components";
 export * from "./duplicates";
 export * from "./euler_tour";
+export * from "./matching";
 export * from "./minimum_spanning_tree";
 

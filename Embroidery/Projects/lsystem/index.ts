@@ -1,12 +1,12 @@
 import { Embroidery } from "@/Core/embroidery";
 import { deg_to_rad, Radians, smooth_out, Vector } from "@/Core/geometry";
 import {
-    double_run_graph,
     Graph,
     identify_edges,
     identify_nodes_by_value,
     VertexGraph,
 } from "@/Core/graph";
+import { double_run_graph } from "Core/unstructured/double_run_graph";
 import { string_LSystem } from "Embroidery/Lib/LSystem/string/index";
 import { defineEmbroidery } from "Embroidery/types";
 

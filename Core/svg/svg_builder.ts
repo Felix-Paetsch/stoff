@@ -129,7 +129,10 @@ export class SVG_Builder {
             let sections: number;
 
             if (Array.isArray(full_attributes.stroke[0])) {
-                gradient = new SVGGradient(full_attributes.stroke[0], this);
+                gradient = new SVGGradient(
+                    full_attributes.stroke[0] as Color.Gradient,
+                    this,
+                );
                 sections = full_attributes.stroke[1] as number;
             } else {
                 gradient = new SVGGradient(

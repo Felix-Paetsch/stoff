@@ -148,18 +148,290 @@ export namespace Color {
         whitesmoke: [245, 245, 245],
         yellow: [255, 255, 0],
         yellowgreen: [154, 205, 50],
-        // Add more named colors as needed
     } as const;
 
     export type Color =
         | keyof typeof namedColors
-        | `rgb(${number},${number},${number})`
-        | `rgba(${number},${number},${number},${number})`
+        | "transparent"
+        | `rgb(${string})`
+        | `rgba(${string})`
         | `#${string}`
-        | `hsl(${number},${number},${number})`
-        | `hsla(${number},${number},${number},${number})`;
+        | `hsl(${string})`
+        | `hsla(${string})`;
 
-    export type Gradient = [Color, Color];
+    export type Gradient = readonly [Color, Color];
+
+    type Rgba = [number, number, number, number];
+
+    function clamp(value: number, min: number, max: number): number {
+        return Math.min(max, Math.max(min, value));
+    }
+
+    function normalizeHue(hue: number): number {
+        return ((hue % 360) + 360) % 360;
+    }
+
+    function roundByte(value: number): number {
+        return Math.round(clamp(value, 0, 255));
+    }
+
+    function formatNumber(value: number): string {
+        return String(Number(value.toFixed(6)));
+    }
+
+    function parseNumber(value: string): number | null {
+        const parsed = Number(value.trim());
+
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function parseAlpha(value: string): number | null {
+        const text = value.trim();
+
+        if (text.endsWith("%")) {
+            const percentage = parseNumber(text.slice(0, -1));
+
+            return percentage === null ? null : percentage / 100;
+        }
+
+        return parseNumber(text);
+    }
+
+    function parseRgbChannel(value: string): number | null {
+        const text = value.trim();
+
+        if (text.endsWith("%")) {
+            const percentage = parseNumber(text.slice(0, -1));
+
+            return percentage === null ? null : (percentage / 100) * 255;
+        }
+
+        return parseNumber(text);
+    }
+
+    function parseHue(value: string): number | null {
+        const text = value.trim().toLowerCase();
+
+        if (text.endsWith("turn")) {
+            const valueInTurns = parseNumber(text.slice(0, -4));
+
+            return valueInTurns === null ? null : valueInTurns * 360;
+        }
+
+        if (text.endsWith("grad")) {
+            const valueInGrads = parseNumber(text.slice(0, -4));
+
+            return valueInGrads === null ? null : valueInGrads * 0.9;
+        }
+
+        if (text.endsWith("rad")) {
+            const valueInRadians = parseNumber(text.slice(0, -3));
+
+            return valueInRadians === null
+                ? null
+                : valueInRadians * (180 / Math.PI);
+        }
+
+        if (text.endsWith("deg")) {
+            return parseNumber(text.slice(0, -3));
+        }
+
+        return parseNumber(text);
+    }
+
+    function splitArguments(value: string): string[] | null {
+        const text = value.trim();
+
+        if (text.length === 0) {
+            return null;
+        }
+
+        if (text.includes(",")) {
+            const parts = text.split(",").map((part) => part.trim());
+
+            if (parts.some((part) => part.length === 0)) {
+                return null;
+            }
+
+            return parts;
+        }
+
+        const slashParts = text.split("/").map((part) => part.trim());
+
+        if (
+            slashParts.length > 2 ||
+            slashParts.some((part) => part.length === 0)
+        ) {
+            return null;
+        }
+
+        const channels = slashParts[0]!.split(/\s+/);
+
+        if (slashParts.length === 2) {
+            channels.push(slashParts[1]!);
+        }
+
+        return channels;
+    }
+
+    function parseHex(color: string): Rgba | null {
+        const hex = color.slice(1);
+
+        if (!/^[0-9a-f]+$/i.test(hex)) {
+            return null;
+        }
+
+        if (hex.length === 3 || hex.length === 4) {
+            const red = Number.parseInt(hex[0]! + hex[0]!, 16);
+            const green = Number.parseInt(hex[1]! + hex[1]!, 16);
+            const blue = Number.parseInt(hex[2]! + hex[2]!, 16);
+            const alpha =
+                hex.length === 4
+                    ? Number.parseInt(hex[3]! + hex[3]!, 16) / 255
+                    : 1;
+
+            return [red, green, blue, alpha];
+        }
+
+        if (hex.length === 6 || hex.length === 8) {
+            const red = Number.parseInt(hex.slice(0, 2), 16);
+            const green = Number.parseInt(hex.slice(2, 4), 16);
+            const blue = Number.parseInt(hex.slice(4, 6), 16);
+            const alpha =
+                hex.length === 8
+                    ? Number.parseInt(hex.slice(6, 8), 16) / 255
+                    : 1;
+
+            return [red, green, blue, alpha];
+        }
+
+        return null;
+    }
+
+    function parseRgb(color: string): Rgba | null {
+        const match = /^rgba?\((.*)\)$/i.exec(color.trim());
+
+        if (!match) {
+            return null;
+        }
+
+        const functionName = color
+            .trim()
+            .slice(0, color.indexOf("("))
+            .toLowerCase();
+
+        const parts = splitArguments(match[1]!);
+
+        if (!parts || (parts.length !== 3 && parts.length !== 4)) {
+            return null;
+        }
+
+        if (functionName === "rgb" && parts.length !== 3) {
+            return null;
+        }
+
+        if (functionName === "rgba" && parts.length !== 4) {
+            return null;
+        }
+
+        const red = parseRgbChannel(parts[0]!);
+        const green = parseRgbChannel(parts[1]!);
+        const blue = parseRgbChannel(parts[2]!);
+        const alpha = parts.length === 4 ? parseAlpha(parts[3]!) : 1;
+
+        if (red === null || green === null || blue === null || alpha === null) {
+            return null;
+        }
+
+        return [
+            roundByte(red),
+            roundByte(green),
+            roundByte(blue),
+            clamp(alpha, 0, 1),
+        ];
+    }
+
+    function parseHsl(color: string): Rgba | null {
+        const match = /^hsla?\((.*)\)$/i.exec(color.trim());
+
+        if (!match) {
+            return null;
+        }
+
+        const functionName = color
+            .trim()
+            .slice(0, color.indexOf("("))
+            .toLowerCase();
+
+        const parts = splitArguments(match[1]!);
+
+        if (!parts || (parts.length !== 3 && parts.length !== 4)) {
+            return null;
+        }
+
+        if (functionName === "hsl" && parts.length !== 3) {
+            return null;
+        }
+
+        if (functionName === "hsla" && parts.length !== 4) {
+            return null;
+        }
+
+        const hue = parseHue(parts[0]!);
+        const saturation = parseNumber(parts[1]!.replace("%", ""));
+        const lightness = parseNumber(parts[2]!.replace("%", ""));
+        const alpha = parts.length === 4 ? parseAlpha(parts[3]!) : 1;
+
+        if (
+            hue === null ||
+            saturation === null ||
+            lightness === null ||
+            alpha === null
+        ) {
+            return null;
+        }
+
+        return hsl_to_rgb([
+            hue,
+            clamp(saturation, 0, 100),
+            clamp(lightness, 0, 100),
+            clamp(alpha, 0, 1),
+        ]);
+    }
+
+    export function is_gradient(c: Color | Gradient): c is Gradient {
+        return Array.isArray(c);
+    }
+
+    export function toRgb(col: Color): [number, number, number, number] {
+        const value = col.trim().toLowerCase();
+
+        if (value === "transparent") {
+            return [0, 0, 0, 0];
+        }
+
+        if (value in namedColors) {
+            const rgb = namedColors[value as keyof typeof namedColors];
+
+            return [rgb[0], rgb[1], rgb[2], 1];
+        }
+
+        let result: Rgba | null = null;
+
+        if (value.startsWith("#")) {
+            result = parseHex(value);
+        } else if (value.startsWith("rgb")) {
+            result = parseRgb(value);
+        } else if (value.startsWith("hsl")) {
+            result = parseHsl(value);
+        }
+
+        if (!result) {
+            throw new TypeError(`Invalid color: ${col}`);
+        }
+
+        return result;
+    }
 
     export function lerp(color1: Color, color2: Color, ratio?: number): Color;
     export function lerp(
@@ -180,223 +452,142 @@ export namespace Color {
     export function lerp(
         color1: Color | Gradient,
         color2: Color | Gradient,
-        ratio?: number,
-    ): Gradient | Color;
-    export function lerp(
-        color1: Color | Gradient,
-        color2: Color | Gradient,
-        ratio: number = 0.5,
+        ratio = 0.5,
     ): Color | Gradient {
+        const amount = clamp(ratio, 0, 1);
+
         if (!is_gradient(color1) && !is_gradient(color2)) {
-            const rgb1 = toRgb(color1);
-            const rgb2 = toRgb(color2);
+            const rgba1 = toRgb(color1);
+            const rgba2 = toRgb(color2);
 
-            const r = Math.round(rgb1[0] * (1 - ratio) + rgb2[0] * ratio);
-            const g = Math.round(rgb1[1] * (1 - ratio) + rgb2[1] * ratio);
-            const b = Math.round(rgb1[2] * (1 - ratio) + rgb2[2] * ratio);
-            if (typeof rgb1[3] === "number" || typeof rgb2[3] === "number") {
-                const a = Math.round(
-                    (rgb1[3] || 1) * (1 - ratio) + (rgb2[3] || 1) * ratio,
-                );
-                return `rgba(${r},${g},${b},${a})`;
-            }
-
-            return `rgb(${r},${g},${b})`;
+            return fromRgb([
+                rgba1[0]! + (rgba2[0]! - rgba1[0]!) * amount,
+                rgba1[1]! + (rgba2[1]! - rgba1[1]!) * amount,
+                rgba1[2]! + (rgba2[2]! - rgba1[2]!) * amount,
+                rgba1[3]! + (rgba2[3]! - rgba1[3]!) * amount,
+            ]);
         }
 
-        if (!is_gradient(color1)) {
-            return (lerp as any)(color2, color1, 1 - ratio);
-        }
-
-        if (is_gradient(color2)) {
+        if (is_gradient(color1) && is_gradient(color2)) {
             return [
-                lerp(color1[0], color2[0], ratio),
-                lerp(color1[1], color2[1], ratio),
+                lerp(color1[0]!, color2[0]!, amount),
+                lerp(color1[1]!, color2[1]!, amount),
             ];
         }
 
-        return [lerp(color1[0], color2, ratio), lerp(color1[1], color2, ratio)];
-    }
-
-    export function is_gradient(c: Color | Gradient): c is Gradient {
-        return c instanceof Array;
-    }
-
-    function hslToRgb(
-        h: number,
-        s: number,
-        l: number,
-    ): [number, number, number] {
-        s /= 100;
-        l /= 100;
-
-        const k = (n: number) => (n + h / 30) % 12;
-        const a = s * Math.min(l, 1 - l);
-        const f = (n: number) =>
-            l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        if (is_gradient(color1)) {
+            return [
+                lerp(color1[0]!, color2 as Color, amount),
+                lerp(color1[1]!, color2 as Color, amount),
+            ];
+        }
 
         return [
-            Math.round(255 * f(0)),
-            Math.round(255 * f(8)),
-            Math.round(255 * f(4)),
+            lerp(color1 as Color, color2[0] as Color, amount),
+            lerp(color1 as Color, color2[1] as Color, amount),
         ];
-    }
-
-    export function toRgb(col: Color): [number, number, number, number] {
-        if (col in namedColors) {
-            return [...namedColors[col as keyof typeof namedColors], 1];
-        } else if (col.charAt(0) === "#") {
-            const hex = col.replace("#", "");
-            if (hex.length == 6) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                return [r, g, b, 1];
-            }
-            if (hex.length == 8) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                const a = parseInt(hex.substring(6, 8), 16);
-                return [r, g, b, a / 255];
-            }
-            if (hex.length == 3) {
-                const r1 = hex.substring(0, 1);
-                const r = parseInt(r1 + r1, 16);
-                const g1 = hex.substring(1, 2);
-                const g = parseInt(g1 + g1, 16);
-                const b1 = hex.substring(2, 3);
-                const b = parseInt(b1 + b1, 16);
-                return [r, g, b, 1];
-            }
-            if (hex.length == 4) {
-                const r1 = hex.substring(0, 1);
-                const r = parseInt(r1 + r1, 16);
-                const b1 = hex.substring(1, 2);
-                const b = parseInt(b1 + b1, 16);
-                const g1 = hex.substring(2, 3);
-                const g = parseInt(g1 + g1, 16);
-                const a1 = hex.substring(3, 4);
-                const a = parseInt(a1 + a1, 16);
-                return [r, g, b, a / 255];
-            }
-        } else if (col.startsWith("rgba")) {
-            // Extract RGB values
-            return col.match(/\d+\.?\d*/g)?.map(Number) as [
-                number,
-                number,
-                number,
-                number,
-            ];
-        } else if (col.startsWith("rgb")) {
-            return [
-                ...(col.match(/\d+\.?\d*/g)?.map(Number) as [
-                    number,
-                    number,
-                    number,
-                ]),
-                1,
-            ];
-        } else if (col.startsWith("hsla")) {
-            const [h, s, l, a] = col.match(/\d+\.?\d*/g)?.map(Number) || [
-                0, 0, 0, 1,
-            ];
-            return [...hslToRgb(h!, s!, l!), a!];
-        } else if (col.startsWith("hsl")) {
-            const [h, s, l] = col.match(/\d+\.?\d*/g)?.map(Number) || [0, 0, 0];
-            return [...hslToRgb(h!, s!, l!), 1];
-        }
-
-        return [0, 0, 0, 1];
     }
 
     export function fromRgb(
         color: [number, number, number, number] | [number, number, number],
     ): Color {
-        if (color.length == 3 || color[3] == 1) {
-            return `rgb(${Math.round(color[0])},${Math.round(color[1])},${Math.round(color[2])})`;
-        }
-        return `rgba(${Math.round(color[0])},${Math.round(color[1])},${color[2]},${color[3]})`;
-    }
+        const red = roundByte(color[0]!);
+        const green = roundByte(color[1]!);
+        const blue = roundByte(color[2]!);
+        const alpha = clamp(color[3] ?? 1, 0, 1);
 
-    function bytesToHex(bytes: number[]) {
-        return bytes
-            .map((n) => {
-                const v = Math.min(255, Math.max(0, Math.round(n)));
-                return v.toString(16).padStart(2, "0");
-            })
-            .join("");
+        if (alpha === 1) {
+            return `rgb(${red},${green},${blue})`;
+        }
+
+        return `rgba(${red},${green},${blue},${formatNumber(alpha)})`;
     }
 
     export function toHex(col: Color): `#${string}` {
         const rgba = toRgb(col);
-        if (rgba[3] == 1) {
-            return `#${bytesToHex(rgba.slice(0, 3))}`;
+
+        const bytes = [
+            roundByte(rgba[0]!),
+            roundByte(rgba[1]!),
+            roundByte(rgba[2]!),
+        ];
+
+        const hex = bytes
+            .map((value) => value.toString(16).padStart(2, "0"))
+            .join("");
+
+        if (rgba[3] === 1) {
+            return `#${hex}`;
         }
 
-        return `#${bytesToHex([...rgba.slice(0, 3), 255 * rgba[3]])}`;
+        const alpha = roundByte(rgba[3]! * 255)
+            .toString(16)
+            .padStart(2, "0");
+
+        return `#${hex}${alpha}`;
+    }
+
+    export function toHexString(color: Color): `#${string}` {
+        return toHex(color);
     }
 
     export function rgb_to_hsl(
         rgb: [number, number, number] | [number, number, number, number],
     ): [number, number, number, number] {
-        let [r, g, b, a] = rgb;
-        a = a || 1;
+        const red = clamp(rgb[0]!, 0, 255) / 255;
+        const green = clamp(rgb[1]!, 0, 255) / 255;
+        const blue = clamp(rgb[2]!, 0, 255) / 255;
+        const alpha = clamp(rgb[3] ?? 1, 0, 1);
 
-        const rNorm = r / 255;
-        const gNorm = g / 255;
-        const bNorm = b / 255;
-
-        const max = Math.max(rNorm, gNorm, bNorm);
-        const min = Math.min(rNorm, gNorm, bNorm);
+        const max = Math.max(red, green, blue);
+        const min = Math.min(red, green, blue);
         const delta = max - min;
 
-        let h = 0;
-        let s = 0;
-        const l = (max + min) / 2;
+        const lightness = (max + min) / 2;
+
+        let hue = 0;
+        let saturation = 0;
 
         if (delta !== 0) {
-            s = delta / (1 - Math.abs(2 * l - 1));
+            saturation = delta / (1 - Math.abs(2 * lightness - 1));
 
-            switch (max) {
-                case rNorm:
-                    h = ((gNorm - bNorm) / delta) % 6;
-                    break;
-                case gNorm:
-                    h = (bNorm - rNorm) / delta + 2;
-                    break;
-                case bNorm:
-                    h = (rNorm - gNorm) / delta + 4;
-                    break;
+            if (max === red) {
+                hue = 60 * (((green - blue) / delta) % 6);
+            } else if (max === green) {
+                hue = 60 * ((blue - red) / delta + 2);
+            } else {
+                hue = 60 * ((red - green) / delta + 4);
             }
-
-            h *= 60;
-            if (h < 0) h += 360;
         }
 
-        return [Math.round(h), Math.round(s * 100), Math.round(l * 100), a];
+        return [
+            Math.round(normalizeHue(hue)),
+            Math.round(saturation * 100),
+            Math.round(lightness * 100),
+            alpha,
+        ];
     }
 
     export function hsl_to_rgb(
         hsl: [number, number, number] | [number, number, number, number],
     ): [number, number, number, number] {
-        let [h, s, l, a] = hsl;
-        a = a || 1;
+        const hue = normalizeHue(hsl[0]!);
+        const saturation = clamp(hsl[1]!, 0, 100) / 100;
+        const lightness = clamp(hsl[2]!, 0, 100) / 100;
+        const alpha = clamp(hsl[3] ?? 1, 0, 1);
 
-        s /= 100;
-        l /= 100;
+        const k = (n: number) => (n + hue / 30) % 12;
+        const chroma = saturation * Math.min(lightness, 1 - lightness);
 
-        const k = (n: number) => (n + h / 30) % 12;
-        const f = (n: number) =>
-            s *
-            Math.min(l, 1 - l) *
-            Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        const channel = (n: number): number =>
+            lightness -
+            chroma * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
 
         return [
-            Math.round(255 * (l - f(0))),
-            Math.round(255 * (l - f(8))),
-            Math.round(255 * (l - f(4))),
-            a,
+            Math.round(channel(0) * 255),
+            Math.round(channel(8) * 255),
+            Math.round(channel(4) * 255),
+            alpha,
         ];
     }
 
@@ -407,66 +598,71 @@ export namespace Color {
     export function fromHsl(
         color: [number, number, number, number] | [number, number, number],
     ): Color {
-        if (color.length == 3 || color[3] == 1) {
-            return `hsl(${Math.round(color[0])},${Math.round(color[1])},${Math.round(color[2])})`;
+        const hue = normalizeHue(color[0]!);
+        const saturation = clamp(color[1]!, 0, 100);
+        const lightness = clamp(color[2]!, 0, 100);
+        const alpha = clamp(color[3] ?? 1, 0, 1);
+
+        if (alpha === 1) {
+            return `hsl(${Math.round(hue)},${Math.round(
+                saturation,
+            )}%,${Math.round(lightness)}%)`;
         }
-        return `hsla(${Math.round(color[0])},${Math.round(color[1])},${color[2]},${color[3]})`;
+
+        return `hsla(${Math.round(hue)},${Math.round(
+            saturation,
+        )}%,${Math.round(lightness)}%,${formatNumber(alpha)})`;
     }
 
     export function toGrayScale(color: Color): number {
         const [r, g, b] = toRgb(color);
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+        return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
     }
 
-    export function toHexString(color: Color) {
-        return toHex(color);
-    }
-
-    export function toHslString(color: Color) {
+    export function toHslString(color: Color): Color {
         return fromHsl(toHsl(color));
     }
 
-    export function toRgbString(color: Color) {
+    export function toRgbString(color: Color): Color {
         return fromRgb(toRgb(color));
     }
 
     export function toString(color: Color): string & Color {
-        if (typeof color === "string") return color;
-        return toHex(color);
+        return color;
     }
 
     export function setOpacity(color: Color, opacity_fraction: number): Color {
         const rgba = toRgb(color);
+
         return fromRgb([
-            rgba[0],
-            rgba[1],
-            rgba[2],
-            Math.min(1, Math.max(0, opacity_fraction)),
+            rgba[0]!,
+            rgba[1]!,
+            rgba[2]!,
+            clamp(opacity_fraction, 0, 1),
         ]);
     }
 
     export function setLuminocity(color: Color, luminocity: number): Color {
         const hsla = toHsl(color);
+
         return fromHsl([
-            hsla[0],
-            hsla[1],
-            Math.min(100, Math.max(0, luminocity)),
-            hsla[3],
+            hsla[0]!,
+            hsla[1]!,
+            clamp(luminocity, 0, 100),
+            hsla[3]!,
         ]);
     }
 
     export function setHue(color: Color, hue: number): Color {
         const hsla = toHsl(color);
-        return fromHsl([hue % 360, hsla[1], hsla[2], hsla[3]]);
+
+        return fromHsl([normalizeHue(hue), hsla[1]!, hsla[2]!, hsla[3]!]);
     }
 
     export function setSaturation(color: Color, sat: number): Color {
         const hsla = toHsl(color);
-        return fromHsl([
-            hsla[0],
-            Math.min(100, Math.max(0, sat)),
-            hsla[2],
-            hsla[3],
-        ]);
+
+        return fromHsl([hsla[0]!, clamp(sat, 0, 100), hsla[2]!, hsla[3]!]);
     }
 }

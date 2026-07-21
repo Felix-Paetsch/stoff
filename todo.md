@@ -1,39 +1,32 @@
 # Bucket list
 
+Where to put fitting?
+
+What to fit?
+- a spline to data
+    - what spline?
+    - linear splines are interesting
+    - w/without allowing abitrary sample points
+
+- related: fourier
+- region classifier on polyline
+
 
 ## Watcher Update
 
 - Tell which file/config currently is running
 - Display grids -> See grid values on hover
-
-## Histograms
-
-- variance
-- normalize_distribution (fn, inv_fn)
-- min/max/percentile(P)/buckets(bucket_size)/Bucket_counts/Buckets_by_size(size of each bkt)
-- Bucket a new class
-- Image Frequency analysis: min, ...
-- Histogram & Histogram equalization
+- Display Histogram(bucket collections)
+- better embroidery viz tools?
 
 ## Masks
 
 Enum: Multigon/Grid
 
-## Maintanence
-
-Put matching into geometry and graph (?)
-Put graph into an interface (full graph ect.)
-Double run graph in wasm
-Render .dst as embroidery with different colors (if not already happening)
-
 ### Core requests
 
-
-resample_strict should also have an angle argument.
-Svg to image
 Resampling based on detail for embroidery (like keep corners but resample more liberally on straight parts, including fourier analysis)
 spline fitting
-Tuck down and end stitch
 Fix 1D embroidery line not rendering
 
 ## Noise
@@ -47,6 +40,9 @@ Different noises (blue/... for dot spacing or as a texture)
 
 - Try out image vectorization
 - height map from image
+
+
+
 
 
 # Updates
@@ -423,6 +419,11 @@ What to do with the "unstructured" code parts?
 
 2. Clean up embroidery folder and put the unstructured code in there
 3. Clean up lib / standalone / ...
+
+# Potentially, eventually
+
+Put graph into an interface (full graph ect.)
+
 
 # Random
 

@@ -1,2 +1,2 @@
 mod algorithms;
-mod types;
+pub mod types;
