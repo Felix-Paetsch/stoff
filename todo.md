@@ -1,12 +1,17 @@
 # Todo
 
-
 ## Base
 
-- get things to compile (again)
 - get things to typecheck (again)
 - better justfiles
+- better watch_file
+    - name
+    - default file endings (default: all)
+    - exclude
+    - include flag (default: current dir)
 - standalone...subfolders?
+
+Test out logging(!)
 
 ## Watcher
 

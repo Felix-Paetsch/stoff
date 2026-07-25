@@ -1,0 +1,23 @@
+[package]
+name = "stoff-geometry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+itertools.workspace = true
+petgraph.workspace = true
+union-find.workspace = true
+
+minimum_weight_perfect_matching = {
+package = "stoff-minimum_weight_perfect_matching",
+path = "../minimum_weight_perfect_matching"
+}
+
+geo = "0.32"
+kdtree = {version = "0.7.0", default-features = false}
+getrandom = { version = "0.2", features = ["js"] }
+# rustc-hash = "2.1.2"

@@ -1,0 +1,28 @@
+[package]
+name = "stoff-procedual_art"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+itertools.workspace = true
+union-find.workspace = true
+petgraph.workspace = true
+image.workspace = true
+
+minimum_weight_perfect_matching = {
+package = "stoff-minimum_weight_perfect_matching",
+path = "../minimum_weight_perfect_matching"
+}
+geometry = {
+    package = "stoff-geometry",
+    path = "../geometry"
+}
+
+nalgebra = "0.35.0"
+spade = "2"
+rustc-hash = "2.1.2"
+
+clahe = "0.1.2"

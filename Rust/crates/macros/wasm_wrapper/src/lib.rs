@@ -39,7 +39,7 @@ pub fn derive_wasm_wrapper(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl crate::wasm::WASMWrapper<#inner_ty> for #name {
+        impl crate::WASMWrapper<#inner_ty> for #name {
             fn promote(value: #inner_ty) -> Self {
                 #name(value)
             }

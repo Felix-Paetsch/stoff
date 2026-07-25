@@ -1,0 +1,29 @@
+[package]
+name = "stoff-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+log.workspace = true
+image.workspace = true
+petgraph.workspace = true
+
+console_error_panic_hook = "0.1.7"
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = ["console"] }
+console_log = { version = "1", features = ["color"] }
+
+wasm_wrapper_derive = { path = "../macros/wasm_wrapper" }
+
+geometry = {
+    package = "stoff-geometry",
+    path = "../geometry"
+}
+procedual_art = {
+    package = "stoff-procedual_art",
+    path = "../procedual_art/"
+}

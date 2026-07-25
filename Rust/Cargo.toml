@@ -1,32 +1,21 @@
-[package]
-name = "stoff_rust"
+[workspace]
+members = [
+    "crates/minimum_weight_perfect_matching",
+    "crates/geometry",
+    "crates/procedual_art",
+    "crates/wasm",
+]
+resolver = "3"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+repository = "https://github.com/Felix-Paetsch/stoff"
+license = "Apache License 2.0"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
-[dependencies]
-wasm-bindgen = "0.2"
-console_error_panic_hook = "0.1.7"
-web-sys = { version = "0.3", features = ["console"] }
-
-wasm_wrapper_derive = { path = "./derive_macros/wasm_wrapper" }
-
+[workspace.dependencies]
 itertools = "0.14.0"
-
-nalgebra = "0.35.0"
-spade = "2"
-geo = "0.32"
-getrandom = { version = "0.2", features = ["js"] }
-kdtree = {version = "0.7.0", default-features = false}
-union-find = "0.4.4"
-
 petgraph = "0.8"
-rustc-hash = "2.1.2"
-
-clahe = "0.1.2"
+union-find = "0.4.4"
+log = "0.4"
 image = "0.25.10"
-
-[profile.dev]
-debug = true

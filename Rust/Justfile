@@ -1,0 +1,14 @@
+build:
+    wasm-pack build crates/wasm --target nodejs --release
+
+dev_build:
+    cargo clippy -- -D warnings && wasm-pack build crates/wasm --target nodejs --dev
+
+clippy:
+    cargo clippy -- -D warnings
+
+clippy_hot:
+    ../watch.sh --fileEndings rs --cooldown 10 "just clippy"
+
+dev_build_hot:
+    ../watch.sh --fileEndings rs --cooldown 30 "just dev_build"
