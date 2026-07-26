@@ -1,7 +1,7 @@
 import { partition_unity_gauss, Spline } from "@/Core/numerics";
 import { Out } from "@/Dev";
-import { image_to_grayscale_grid } from "ProcedualArt/adapters/image_grid";
-import { Embroidery } from "ProcedualArt/embroidery";
+import { image_to_grayscale_grid } from "ProcedualArt/primitives/adapters";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
 import {
     Convolution,
     fast_marching,
@@ -11,9 +11,9 @@ import {
     marching_squares,
     NumberGrid,
     resample_grid,
-} from "ProcedualArt/grid";
-import { clahe, ImageIO } from "ProcedualArt/image";
-import { double_run_merge_shapes } from "ProcedualArt/unstructured/double_run_merge_shapes";
+} from "ProcedualArt/primitives/grid";
+import { clahe, ImageIO } from "ProcedualArt/primitives/image";
+import { double_run_merge_shapes } from "ProcedualArt/primitives/pathing";
 
 function map_brightness(v: number): number {
     v = (v / 255) * 100;

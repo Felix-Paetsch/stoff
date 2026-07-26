@@ -2,8 +2,11 @@ import { Vector } from "@/Core/geometry";
 import { Interval } from "@/Core/numerics";
 import { Sketch } from "@/Core/sketch";
 import { Out } from "@/Dev";
-import { grid_from_function, map_grid } from "ProcedualArt/grid";
-import { render_number_grid, render_vector_grid } from "ProcedualArt/rendering";
+import { grid_from_function, map_grid } from "ProcedualArt/primitives/grid";
+import {
+    render_number_grid,
+    render_vector_grid,
+} from "ProcedualArt/primitives/rendering";
 import { concave_outline } from "ProcedualArt/unstructured/concave_outline";
 
 export default function () {

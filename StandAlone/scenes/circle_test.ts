@@ -4,13 +4,12 @@ import {
     Polygon,
     Polyline,
     Shape,
-    walk_with_self_intersections,
 } from "@/Core/geometry";
-import { Sketch } from "@/Core/sketch";
+import { Sketch, SketchRendering } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
-import { Embroidery } from "ProcedualArt/embroidery";
-import { SketchRendering } from "ProcedualArt/rendering";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
+import { walk_with_self_intersections } from "ProcedualArt/primitives/pathing";
 
 export default function () {
     return Performance.time(() => {

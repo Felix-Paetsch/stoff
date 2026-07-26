@@ -1,8 +1,12 @@
 import { Color } from "@/Core/colors";
 import { Vector } from "@/Core/geometry";
-import { Line, Sketch, SketchAlgorithms } from "@/Core/sketch";
+import {
+    interpolate_lines,
+    Line,
+    Sketch,
+    SketchRendering,
+} from "@/Core/sketch";
 import { Performance } from "@/Dev";
-import { SketchRendering } from "ProcedualArt/rendering";
 
 export default function () {
     const s = new Sketch();
@@ -102,7 +106,7 @@ export default function () {
                 const l1 = lines[j]!;
                 const l2 = lines[(j + 1) % lines.length]!;
 
-                const newLine = SketchAlgorithms.interpolate_lines(l1, l2);
+                const newLine = interpolate_lines(l1, l2);
                 new_lines.push(newLine);
 
                 SketchRendering.set_stroke(

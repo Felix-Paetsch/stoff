@@ -1,17 +1,17 @@
 import { Out } from "@/Dev";
 import { Matrix } from "Core/geometry/matrix";
-import { image_to_grayscale_grid } from "ProcedualArt/adapters/image_grid";
-import { Embroidery } from "ProcedualArt/embroidery";
+import { image_to_grayscale_grid } from "ProcedualArt/primitives/adapters";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
 import {
     Convolution,
     fast_marching_tensor,
     grid_aspect_ratio,
     grid_from_function,
     marching_squares,
-} from "ProcedualArt/grid";
-import { slope_tensor } from "ProcedualArt/grid/algorithms/gradient";
-import { clahe, ImageIO } from "ProcedualArt/image";
-import { double_run_merge_shapes } from "ProcedualArt/unstructured/double_run_merge_shapes";
+} from "ProcedualArt/primitives/grid";
+import { slope_tensor } from "ProcedualArt/primitives/grid/algorithms/gradient";
+import { clahe, ImageIO } from "ProcedualArt/primitives/image";
+import { double_run_merge_shapes } from "ProcedualArt/primitives/pathing";
 
 export default async function () {
     let img = await ImageIO.load("out/einstein.png");

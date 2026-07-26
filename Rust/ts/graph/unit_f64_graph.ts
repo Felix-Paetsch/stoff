@@ -1,4 +1,4 @@
-import { LengthGraph } from "ProcedualArt/graph/types";
+import { LengthGraph } from "ProcedualArt/primitives/graph/types";
 import { WASMUnitFloat64Graph } from "Rust/exports";
 import { Allocations } from "../index";
 

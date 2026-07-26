@@ -15,7 +15,7 @@ use crate::procedual_art::graph::types::WASMUsizeUsizeGraph;
 use crate::procedual_art::graph::types::WASMVectorUnitGraph;
 
 #[wasm_bindgen]
-pub fn wasm_graph_minimum_spanning_tree(graph: &WASMUnitFloat64Graph) -> WASMUsizeUsizeGraph {
+pub fn wasm_graph_min_spanning_tree(graph: &WASMUnitFloat64Graph) -> WASMUsizeUsizeGraph {
     let graph = graph.inner();
     let mst = min_spanning_tree(graph);
 
@@ -44,7 +44,7 @@ pub fn wasm_graph_minimum_spanning_tree(graph: &WASMUnitFloat64Graph) -> WASMUsi
 }
 
 #[wasm_bindgen]
-pub fn wasm_graph_minimum_spanning_tree_edge_list(graph: &WASMUnitFloat64Graph) -> Vec<usize> {
+pub fn wasm_graph_min_spanning_tree_edge_list(graph: &WASMUnitFloat64Graph) -> Vec<usize> {
     let graph = graph.inner();
     let mst = min_spanning_tree(graph);
 
@@ -70,7 +70,7 @@ pub fn wasm_graph_minimum_spanning_tree_edge_list(graph: &WASMUnitFloat64Graph) 
 }
 
 #[wasm_bindgen]
-pub fn wasm_graph_minimum_spanning_tree_of_vertices(
+pub fn wasm_graph_min_spanning_tree_of_vertices(
     vertex_data: &WASMVectorVec,
 ) -> WASMVectorUnitGraph {
     let verticies = vertex_data.inner();
@@ -78,7 +78,7 @@ pub fn wasm_graph_minimum_spanning_tree_of_vertices(
 }
 
 #[wasm_bindgen]
-pub fn wasm_graph_minimum_spanning_tree_of_vertices_edge_list(
+pub fn wasm_graph_min_spanning_tree_of_vertices_edge_list(
     vertex_data: &WASMVectorVec,
 ) -> Vec<usize> {
     let verticies = vertex_data.inner();

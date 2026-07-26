@@ -1,7 +1,7 @@
 import { merge_shapes } from "@/Core/geometry";
 import { Out } from "@/Dev";
-import { image_to_grayscale_grid } from "ProcedualArt/adapters/image_grid";
-import { Embroidery } from "ProcedualArt/embroidery/embroidery";
+import { image_to_grayscale_grid } from "ProcedualArt/primitives/adapters";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
 import {
     Convolution,
     grid_aspect_ratio,
@@ -9,8 +9,8 @@ import {
     map_grid,
     map_windows,
     marching_squares,
-} from "ProcedualArt/grid";
-import { ImageIO } from "ProcedualArt/image";
+} from "ProcedualArt/primitives/grid";
+import { ImageIO } from "ProcedualArt/primitives/image";
 
 export default async function () {
     let img = await ImageIO.load("/home/Felix/stoff/bilder/cdee/dsfsd.webp");

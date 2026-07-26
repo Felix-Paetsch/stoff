@@ -34,21 +34,24 @@
             "@/Core/expect": ["Core/expect"],
             "@/Core/utils": ["Core/utils"],
             "@/Core/random": ["Core/random"],
-
-            "@/Core/graph": ["ProcedualArt/graphrt/graph"],
             "@/Core/sketch": ["Core/sketch"],
-            "@/Core/grid": ["ProcedualArt/gridArt/grid"],
             "@/Core/svg": ["Core/svg"],
-            "@/Core/embroidery": ["ProcedualArt/embroiderybroidery"],
-            "@/Core/image": ["ProcedualArt/imagert/image"],
 
-            "@/Core/rendering": ["ProcedualArt/renderingendering"],
-            "@/Core/adapters": ["ProcedualArt/adaptersadapters"],
+            "@/ProcArt/graph": ["ProcedualArt/primitives/graph"],
+            "@/ProcArt/grid": ["ProcedualArt/primitives/grid"],
+            "@/ProcArt/embroidery": ["ProcedualArt/primitives/embroidery"],
+            "@/ProcArt/image": ["ProcedualArt/primitives/image"],
+            "@/ProcArt/pathing": ["ProcedualArt/primitives/pathing"],
+
+            "@/ProcArt/rendering": ["ProcedualArt/primitives/rendering"],
+            "@/ProcArt/adapters": ["ProcedualArt/primitives/adapters"],
+
+            "@/ProcArt/design_approaches": ["ProcedualArt/design_approaches"],
 
             "@/Dev": ["Dev/Lib"]
         }
     },
-    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Core/geometry/algorithms/self_intersection_free.ts.broken", "Core/geometry/algorithms/modify_self_intersections.ts", "Core/geometry/algorithms/merge_shapes.ts", "Rust/src/procedual_art/grid/algorithms/eikonal/index.rskonal/index.rs"],
+    "include": ["**/*.ts", "**/*.js", "**/*.d.ts", "Algorithms/dubplicate_edges.ts.broken", "Core/geometry/algorithms/self_intersection_free.ts.broken", "ProcedualArt/core/pathing/modify_self_intersections.tsns.ts", "Core/geometry/algorithms/merge_shapes.ts", "Rust/src/procedual_art/grid/algorithms/eikonal/index.rskonal/index.rs"],
     "exclude": [
         "node_modules",
         "dist",

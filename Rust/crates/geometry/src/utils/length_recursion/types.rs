@@ -20,7 +20,7 @@ impl<'a> LengthRecursionData<'a> {
         v: impl Fn(Vector) -> f64,
     ) -> LengthRecursionData<'a> {
         debug_assert!(!shape.is_empty());
-        debug_assert_eq!(shape.looping_vertex_count(), lengths.len() + 1);
+        debug_assert_eq!(shape.linesegment_count() + 1, lengths.len());
 
         LengthRecursionData {
             lengths,
@@ -29,8 +29,8 @@ impl<'a> LengthRecursionData<'a> {
                 guaranteed_distance: v(shape.vertex_at(0)),
             },
             right: RecursiveLineBoundary {
-                vertex_index: shape.looping_vertex_count(),
-                guaranteed_distance: v(shape.vertex_at(shape.looping_vertex_count())),
+                vertex_index: shape.looping_vertex_count() - 1,
+                guaranteed_distance: v(shape.vertex_at(shape.looping_vertex_count() - 1)),
             },
         }
     }

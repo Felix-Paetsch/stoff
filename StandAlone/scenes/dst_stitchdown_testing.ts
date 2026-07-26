@@ -1,4 +1,8 @@
-import { DST, Embroidery, undo_tie_on_off } from "ProcedualArt/embroidery";
+import {
+    DST,
+    Embroidery,
+    undo_tie_on_off,
+} from "ProcedualArt/primitives/embroidery";
 
 export default function () {
     const embr = Embroidery.from_dst(DST.from_file("./out/lion.dst"));

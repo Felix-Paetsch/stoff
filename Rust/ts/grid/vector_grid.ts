@@ -1,5 +1,5 @@
-import { grid_from_array } from "ProcedualArt/grid";
-import { VectorGrid } from "ProcedualArt/grid/types";
+import { grid_from_array } from "ProcedualArt/primitives/grid";
+import { VectorGrid } from "ProcedualArt/primitives/grid/types";
 import { WASMVectorGrid } from "Rust/exports";
 import { vector_vec_from_wasm, wasm_vector_vec } from "../geometry/vectors";
 import { Allocations } from "../index";

@@ -1,5 +1,5 @@
-import { grid_from_array } from "ProcedualArt/grid";
-import { Vec3, Vec3Grid } from "ProcedualArt/grid/types";
+import { grid_from_array } from "ProcedualArt/primitives/grid";
+import { Vec3, Vec3Grid } from "ProcedualArt/primitives/grid/types";
 import { WASMVec3Float64Grid, WASMVec3u8Grid } from "Rust/exports";
 import { Allocations } from "../index";
 

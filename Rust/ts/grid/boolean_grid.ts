@@ -1,5 +1,4 @@
-import { grid_from_array } from "ProcedualArt/grid";
-import { BooleanGrid } from "ProcedualArt/grid/types";
+import { BooleanGrid, grid_from_array } from "@/ProcArt/grid";
 import { WASMBooleanGrid } from "Rust/exports";
 import { Allocations } from "../index";
 

@@ -1,6 +1,6 @@
 import { Polyline } from "@/Core/geometry";
 import { Expect } from "Core/expect";
-import { wasm_advanced_merge_shapes, WASMCompatability } from "Rust/exports";
+import { wasm_geometry_merge_shapes, WASMCompatability } from "Rust/exports";
 import { Shape } from "../shape/shape";
 
 export type MergeShapesConfig = {
@@ -51,7 +51,7 @@ export function merge_shapes_advanced(
         );
 
     let merged = WASMCompatability.Allocations.allocate(
-        wasm_advanced_merge_shapes(
+        wasm_geometry_merge_shapes(
             wasm_non_empty_shapes,
             cfg.max_merge_distance,
             cfg.line_amount,

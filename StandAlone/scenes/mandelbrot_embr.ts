@@ -2,8 +2,8 @@ import { merge_shapes, Polygon } from "@/Core/geometry";
 import { Sketch } from "@/Core/sketch";
 import { Performance } from "@/Dev";
 import { Vector } from "Core/geometry/vector";
-import { Embroidery } from "ProcedualArt/embroidery";
-import { grid_from_function, map_grid } from "ProcedualArt/grid";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
+import { grid_from_function, map_grid } from "ProcedualArt/primitives/grid";
 import { concave_outline } from "ProcedualArt/unstructured/concave_outline";
 
 export default function () {

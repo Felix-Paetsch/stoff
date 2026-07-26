@@ -1,6 +1,6 @@
 import { FiniteGeometry, Vector } from "@/Core/geometry";
+import { SketchRendering } from "@/Core/sketch";
 import { Sketch } from "Core/sketch/sketch";
-import { SketchRendering } from "ProcedualArt/rendering";
 
 export default function () {
     const circle = FiniteGeometry.circle(Vector.ZERO, 10);

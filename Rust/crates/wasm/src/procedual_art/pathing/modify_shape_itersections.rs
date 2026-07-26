@@ -4,11 +4,11 @@ use wasm_bindgen::prelude::*;
 use crate::{WASMWrapper, geometry::WASMShape};
 
 #[wasm_bindgen]
-pub fn wasm_advanced_walk_shape_without_self_intersection(shape: &WASMShape) -> WASMShape {
+pub fn wasm_pathing_walk_shape_without_self_intersection(shape: &WASMShape) -> WASMShape {
     WASMShape::promote(walk_shape_without_intersections(shape.inner()))
 }
 
 #[wasm_bindgen]
-pub fn wasm_advanced_walk_shape_with_self_intersection(shape: &WASMShape) -> WASMShape {
+pub fn wasm_pathing_walk_shape_with_self_intersection(shape: &WASMShape) -> WASMShape {
     WASMShape::promote(walk_shape_with_intersections(shape.inner()))
 }

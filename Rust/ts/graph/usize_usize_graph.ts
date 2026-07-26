@@ -1,4 +1,4 @@
-import { Graph } from "ProcedualArt/graph";
+import { Graph } from "ProcedualArt/primitives/graph/graph";
 import { WASMUsizeUsizeGraph } from "Rust/exports";
 
 export function usize_usize_graph_from_wasm(

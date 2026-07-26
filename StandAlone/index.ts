@@ -2,7 +2,7 @@ import { SVG_Builder } from "@/Core/svg";
 import { Json } from "@/Core/utils";
 import fs from "fs";
 import path from "path";
-import { Embroidery } from "ProcedualArt/embroidery";
+import { Embroidery } from "ProcedualArt/primitives/embroidery";
 import { WASMCompatability } from "Rust/exports";
 import { fileURLToPath } from "url";
 import { Sketch } from "../Core/sketch/sketch";
@@ -16,6 +16,7 @@ export type SceneResult =
     | SVG_Builder
     | Error
     | Embroidery;
+
 export type Scene = () =>
     | SceneResult
     | SceneResult[]
@@ -23,26 +24,72 @@ export type Scene = () =>
     | Promise<SceneResult[]>;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const arg = process.argv[2] || "index";
 const scenesDir = path.join(__dirname, "scenes");
-const filePath = path.join(scenesDir, `${arg}.ts`);
 
-if (!fs.existsSync(filePath)) {
-    console.log(
-        `File \x1b[1m${arg}.ts\x1b[0m doesn't exist. All available scenes are:`,
-    );
+const input = process.argv[2] || "index";
 
-    const files = fs.readdirSync(scenesDir);
-    const tsFiles = files.filter(
-        (file) =>
-            file.endsWith(".ts") &&
-            fs.statSync(path.join(scenesDir, file)).isFile(),
-    );
+function formatEntryName(entry: fs.Dirent): string {
+    return entry.isDirectory() ? `${entry.name}/` : entry.name;
+}
 
-    tsFiles.forEach((file) => {
-        console.log(`- ${file}`);
-    });
+function listDirectory(directory: string): void {
+    const entries = fs
+        .readdirSync(directory, { withFileTypes: true })
+        .sort((a, b) => {
+            if (a.isDirectory() !== b.isDirectory()) {
+                return a.isDirectory() ? -1 : 1;
+            }
+
+            return a.name.localeCompare(b.name);
+        });
+
+    for (const entry of entries) {
+        console.log(`- ${formatEntryName(entry)}`);
+    }
+}
+
+function resolveScenePath(inputPath: string): string | undefined {
+    const hasTsExtension = inputPath.endsWith(".ts");
+    const relativePath = hasTsExtension ? inputPath : `${inputPath}.ts`;
+    const candidate = path.resolve(scenesDir, relativePath);
+
+    // Prevent paths such as "../outside.ts" from escaping the scenes directory.
+    const relativeToScenes = path.relative(scenesDir, candidate);
+    if (
+        relativeToScenes.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(relativeToScenes)
+    ) {
+        return undefined;
+    }
+
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        return candidate;
+    }
+
+    return undefined;
+}
+
+const filePath = resolveScenePath(input);
+
+if (!filePath) {
+    const inputPath = path.resolve(scenesDir, input);
+    const inputExists = fs.existsSync(inputPath);
+    const inputIsDirectory =
+        inputExists && fs.statSync(inputPath).isDirectory();
+
+    if (inputIsDirectory) {
+        console.log(
+            `Scene file not found in directory \x1b[1m${input}\x1b[0m. ` +
+                "Available items are:",
+        );
+        listDirectory(inputPath);
+    } else {
+        console.log(
+            `Scene path \x1b[1m${input}\x1b[0m doesn't exist. ` +
+                "Available items are:",
+        );
+        listDirectory(scenesDir);
+    }
 
     process.exit(1);
 }

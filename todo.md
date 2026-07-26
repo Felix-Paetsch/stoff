@@ -1,24 +1,13 @@
 # Todo
 
-## Base
-
-- get things to typecheck (again)
-- better justfiles
-- better watch_file
-    - name
-    - default file endings (default: all)
-    - exclude
-    - include flag (default: current dir)
-- standalone...subfolders?
-
-Test out logging(!)
 
 ## Watcher
 
-- dooooo watcher update
-    - should really really be able to reuse the code I have.. maybe need to start a new project or so
-
 ## Neovim
+
+Currently two seperate reformatter on ts causing chaos
+[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
+[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)
 
 - python support
     - ruff
@@ -32,26 +21,29 @@ Test out logging(!)
 - http(?)
 
 
+# Merging with Leonie
+
+- A4 printable
+    - allow for variable printer offsets, have a testing page for that
+    - make directly to pdfs
+    - cluster parts more together, potentially with labeling
+    - potentially make into svg builders
+
+
+# Watcher
+
+- vibecodeing
+- plan first what technology
+- provide AI with css
+
+
+# Core Update
+
+
+
+
 # Bucket list
 
-Where to put fitting?
-
-What to fit?
-- a spline to data
-    - what spline?
-    - linear splines are interesting
-    - w/without allowing abitrary sample points
-
-- related: fourier
-- region classifier on polyline
-
-
-## Watcher Update
-
-- Tell which file/config currently is running
-- Display grids -> See grid values on hover
-- Display Histogram(bucket collections)
-- better embroidery viz tools?
 
 ## Masks
 
@@ -112,9 +104,7 @@ Different noises (blue/... for dot spacing or as a texture)
 - SVG Update
     + Filled shapes
     + read in data from svg
-- Leonie refactoring update
 - Algorithms refactoring update
-- NVIM "Update"
 - TraditionalEmbroidery update
     - Different fills (export also for leonie)
     - Some pathing
@@ -173,7 +163,6 @@ Rendering circles should be padding invariant
 Introduce readonly in return results/inputs
 - Introduce Type utils
 SVG parsing, getting lines from an svg
-Rename Eikonal into FastMarching?
 Resampling strict keeping sharp corners
 ## Dev
 
@@ -181,14 +170,6 @@ Render Output as video
 More Validations?
 Speed / debug utilties
 - debug dev run with optional arguments for tracking
-
-## Questions
-
-What to do with algorithms?
-It seems a bit abitrary that concave hull and so on are in Core and note algorithms
-In place vs into?
-- i guess in place what it has the same data type?
-How to do views into rust memory / work with arrays mostly there?
 
 # Algorithms
 
@@ -318,11 +299,6 @@ How to best do git (i.e. learn it)
 
 https://pixlane.media/dev-tools/
 
-# Neovim
-
-Currently two seperate reformatter on ts causing chaos
-[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
-[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)
 
 # Research
 
@@ -488,10 +464,25 @@ Gaussian-mixture segmentation
 Adaptive Gaussian/mena threshholding
 Otsu method
 Canny edge detection
+procedual art... "core -> primitives"
 3d bilateral filtering
 Kornia?
 Color reduction by clustering in 3d space
 4 types of stitches..
+
+redowrk 3d meshes
+
+
+Where to put fitting?
+
+What to fit?
+- a spline to data
+    - what spline?
+    - linear splines are interesting
+    - w/without allowing abitrary sample points
+
+- related: fourier
+- region classifier on polyline
 
 # Heisenbugs
 

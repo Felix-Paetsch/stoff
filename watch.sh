@@ -7,8 +7,8 @@ Usage:
   ./watch.sh [options] "<command>"
 
 Description:
-  Watches the directory the script was called from and reruns the command when
-  matching files change.
+  Watches included files and directories and reruns the command when matching
+  files change.
 
 Arguments:
   <command>
@@ -27,8 +27,17 @@ Options:
       Example: --fileEndings ts,js,json
       Default: js,json,ts
 
+  --include <pattern>
+      Include a file or directory pattern. Can be provided multiple times.
+      Defaults to the current directory.
+      Supports shell-style patterns such as:
+        --include src
+        --include "*.ts"
+        --include "packages/*"
+
   --exclude <pattern>
       Exclude a file or directory pattern. Can be provided multiple times.
+      Excludes take precedence over includes.
       Supports shell-style patterns such as:
         --exclude dist
         --exclude "*.js"
@@ -39,11 +48,16 @@ Behavior:
     from.
   - The command is always executed from that same original directory.
   - Hidden files/directories and node_modules are always excluded.
+  - By default, the complete current directory is included.
+  - If --include is provided, only matching files and directories are watched.
+  - Exclude patterns always take precedence over include patterns.
 
 Examples:
   ./watch.sh "npm run build"
   ./watch.sh --cooldown 2 "npm run lint"
   ./watch.sh --fileEndings ts,tsx --exclude dist --exclude "*.js" "npm test"
+  ./watch.sh --include src --include "packages/*" "npm test"
+  ./watch.sh --include src --exclude "src/generated/*" "npm run build"
 EOF
 }
 
@@ -53,9 +67,11 @@ escape_regex() {
 
 glob_to_regex() {
   local pattern="$1"
+
   pattern="$(escape_regex "$pattern")"
   pattern="${pattern//\*/.*}"
   pattern="${pattern//\?/.}"
+
   printf '%s' "$pattern"
 }
 
@@ -64,6 +80,7 @@ WATCH_DIR="$CALL_DIR"
 COOLDOWN=5
 FILE_ENDINGS_CSV="js,json,ts"
 CMD=""
+INCLUDES=()
 EXCLUDES=()
 
 while [[ $# -gt 0 ]]; do
@@ -77,6 +94,7 @@ while [[ $# -gt 0 ]]; do
         echo "Error: --cooldown requires a value."
         exit 1
       fi
+
       COOLDOWN="$2"
       shift 2
       ;;
@@ -85,7 +103,17 @@ while [[ $# -gt 0 ]]; do
         echo "Error: --fileEndings requires a value."
         exit 1
       fi
+
       FILE_ENDINGS_CSV="$2"
+      shift 2
+      ;;
+    --include)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: --include requires a value."
+        exit 1
+      fi
+
+      INCLUDES+=("$2")
       shift 2
       ;;
     --exclude)
@@ -93,6 +121,7 @@ while [[ $# -gt 0 ]]; do
         echo "Error: --exclude requires a value."
         exit 1
       fi
+
       EXCLUDES+=("$2")
       shift 2
       ;;
@@ -107,6 +136,7 @@ while [[ $# -gt 0 ]]; do
         echo "Use --help for usage."
         exit 1
       fi
+
       CMD="$1"
       shift
       ;;
@@ -143,7 +173,9 @@ matches_watched_file() {
 
   for ending in "${FILE_ENDINGS[@]}"; do
     ending="${ending//[[:space:]]/}"
+
     [[ -z "$ending" ]] && continue
+
     if [[ "$file" == *."$ending" ]]; then
       return 0
     fi
@@ -152,26 +184,65 @@ matches_watched_file() {
   return 1
 }
 
+matches_pattern() {
+  local rel="$1"
+  local pattern="$2"
+  local basename
+
+  basename="$(basename "$rel")"
+
+  if [[ "$rel" == $pattern ]] || [[ "$basename" == $pattern ]]; then
+    return 0
+  fi
+
+  if [[ "$rel" == "$pattern"/* ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 matches_exclude() {
   local path="$1"
-  local rel pattern
+  local rel
+  local pattern
 
   rel="${path#$WATCH_DIR/}"
 
   case "$rel" in
-    .*|*/.*)
+    .* | */.*)
       return 0
       ;;
   esac
 
   case "$rel" in
-    node_modules|node_modules/*|*/node_modules|*/node_modules/*)
+    node_modules | node_modules/* | */node_modules | */node_modules/*)
       return 0
       ;;
   esac
 
   for pattern in "${EXCLUDES[@]}"; do
-    if [[ "$rel" == $pattern ]] || [[ "$(basename "$rel")" == $pattern ]]; then
+    if matches_pattern "$rel" "$pattern"; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+matches_include() {
+  local path="$1"
+  local rel
+  local pattern
+
+  if [[ ${#INCLUDES[@]} -eq 0 ]]; then
+    return 0
+  fi
+
+  rel="${path#$WATCH_DIR/}"
+
+  for pattern in "${INCLUDES[@]}"; do
+    if matches_pattern "$rel" "$pattern"; then
       return 0
     fi
   done
@@ -183,26 +254,22 @@ build_inotify_exclude_regex() {
   local parts=()
   local pattern
   local regex
+  local joined=""
+  local part
 
   parts+=('(^|/)\..*')
   parts+=('(^|/)node_modules(/|$)')
 
   for pattern in "${EXCLUDES[@]}"; do
     regex="$(glob_to_regex "$pattern")"
-
-    if [[ "$pattern" == */* ]]; then
-      parts+=("(^|/)$regex($|/)")
-    else
-      parts+=("(^|/)$regex($|/)")
-    fi
+    parts+=("(^|/)$regex($|/)")
   done
 
-  local joined=""
-  local part
   for part in "${parts[@]}"; do
     if [[ -n "$joined" ]]; then
       joined+="|"
     fi
+
     joined+="$part"
   done
 
@@ -212,11 +279,13 @@ build_inotify_exclude_regex() {
 last_run=0
 
 run_build() {
-  local now elapsed
+  local now
+  local elapsed
+
   now=$(date +%s)
   elapsed=$((now - last_run))
 
-  if (( elapsed < COOLDOWN )); then
+  if ((elapsed < COOLDOWN)); then
     echo -n "F"
     return
   fi
@@ -241,6 +310,16 @@ echo "▶ Running command: \"$CMD\""
 echo "📄 File endings: $FILE_ENDINGS_CSV"
 echo "🚫 Internal exclude regex: $INOTIFY_EXCLUDE_REGEX"
 
+if [[ ${#INCLUDES[@]} -eq 0 ]]; then
+  echo "✅ Includes: . (current directory)"
+else
+  printf "✅ Includes:"
+  for pattern in "${INCLUDES[@]}"; do
+    printf " %s" "$pattern"
+  done
+  printf "\n"
+fi
+
 if [[ ${#EXCLUDES[@]} -gt 0 ]]; then
   printf "🚫 Excludes:"
   for pattern in "${EXCLUDES[@]}"; do
@@ -258,6 +337,10 @@ inotifywait -q -m -r \
   --format '%w%f' |
 while read -r changed_file; do
   if matches_exclude "$changed_file"; then
+    continue
+  fi
+
+  if ! matches_include "$changed_file"; then
     continue
   fi
 

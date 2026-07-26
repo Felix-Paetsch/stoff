@@ -2,7 +2,7 @@ import { Line, Point } from "@/Core/sketch";
 import {
     GraphAlgorithms,
     sketch_element_collection_to_shape_graph,
-} from "ProcedualArt/graph";
+} from "ProcedualArt/primitives/graph/graph";
 
 export function order_lines(...lines: Line[]): {
     lines: Line[];

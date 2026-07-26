@@ -7,4 +7,5 @@ export * from "./types";
 
 export * from "./copy";
 
-export * as SketchAlgorithms from "./algorithms";
+export * from "./algorithms";
+export * from "./rendering";

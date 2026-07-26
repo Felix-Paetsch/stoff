@@ -1,11 +1,6 @@
-import {
-    Polygon,
-    Shape,
-    smooth_out,
-    Vector,
-    walk_without_self_intersections,
-} from "@/Core/geometry";
+import { Polygon, Shape, smooth_out, Vector } from "@/Core/geometry";
 import { Sketch } from "@/Core/sketch";
+import { walk_without_self_intersections } from "ProcedualArt/primitives/pathing";
 
 export default function () {
     const r = new Sketch();

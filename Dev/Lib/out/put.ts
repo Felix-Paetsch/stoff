@@ -2,15 +2,13 @@ import { Sketch } from "@/Core/sketch";
 
 import { SVG_Builder } from "@/Core/svg";
 import { Json, stack_trace, unique_int_gen, unique_string } from "@/Core/utils";
+import { SketchRendering } from "Core/sketch/rendering/index";
 import { writeFileSync } from "fs";
 import * as path from "path";
-import { DST, Embroidery } from "ProcedualArt/embroidery";
-import { InternalGrid } from "ProcedualArt/grid";
-import { Image, ImageIO, is_image } from "ProcedualArt/image";
-import {
-    render_internal_grid,
-    render_sketch_dev,
-} from "ProcedualArt/rendering";
+import { DST, Embroidery } from "ProcedualArt/primitives/embroidery";
+import { InternalGrid } from "ProcedualArt/primitives/grid";
+import { Image, ImageIO, is_image } from "ProcedualArt/primitives/image";
+import { render_internal_grid } from "ProcedualArt/primitives/rendering";
 import { CJson } from "../../Server/src/types";
 import { Recording } from "../recording/index";
 import { dir } from "./dir";
@@ -117,7 +115,7 @@ function serialize_put(what: Exclude<Putable, Image | InternalGrid>) {
 
     if (what instanceof Sketch) {
         return serialize_put(
-            render_sketch_dev(what, {
+            SketchRendering.render_dev(what, {
                 width: 500,
                 height: 500,
                 padding: 30,
@@ -137,7 +135,7 @@ function serialize_put(what: Exclude<Putable, Image | InternalGrid>) {
             type: "recording" as const,
             value: what.snapshots.map((s) => {
                 return {
-                    svg: render_sketch_dev(s.sketch, {
+                    svg: SketchRendering.render_dev(s.sketch, {
                         width: 500,
                         height: 500,
                         padding: 30,

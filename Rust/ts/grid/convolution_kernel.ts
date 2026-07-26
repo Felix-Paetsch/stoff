@@ -1,4 +1,4 @@
-import { ConvolutionKernel } from "ProcedualArt/grid/algorithms/convolution/convolution_kernel";
+import { ConvolutionKernel } from "ProcedualArt/primitives/grid/algorithms/convolution/convolution_kernel";
 import { WASMConvolutionKernel } from "Rust/exports";
 import { Allocations } from "../index";
 

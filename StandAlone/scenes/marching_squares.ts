@@ -5,8 +5,8 @@ import {
     grid_from_function,
     map_grid,
     marching_squares,
-} from "ProcedualArt/grid";
-import { render_number_grid } from "ProcedualArt/rendering";
+} from "ProcedualArt/primitives/grid";
+import { render_number_grid } from "ProcedualArt/primitives/rendering";
 
 export default function () {
     const grid = grid_from_function(

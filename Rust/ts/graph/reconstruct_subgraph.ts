@@ -1,5 +1,5 @@
 import { Expect } from "@/Core/expect";
-import { Graph } from "ProcedualArt/graph";
+import { Graph } from "ProcedualArt/primitives/graph/graph";
 
 export function reconstruct_subgraph<T extends Graph<any, any>>(
     on: T,

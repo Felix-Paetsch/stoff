@@ -1,5 +1,7 @@
+// Todo:: Mask
+
 import { FiniteGeometry, Polygon, Vector } from "@/Core/geometry";
-import { BooleanGrid, vector_at_lattice_point } from "@/Core/grid";
+import { BooleanGrid, vector_at_lattice_point } from "@/ProcArt/grid";
 
 const offsets: [number, number][] = [
     [-1, -1],
