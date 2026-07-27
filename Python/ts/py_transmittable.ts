@@ -8,7 +8,7 @@ import {
     VectorGrid
 } from "@/ProcArt/grid";
 import { GrayImage, RGBImage } from "@/ProcArt/image";
-import { SocketFailure } from "./socket/types";
+import { FailureResponse, SocketFailure } from "./socket/types";
 
 export type PyTransmittablePrimitives = {
     string: string;
@@ -55,16 +55,14 @@ export type PyRequest = {
 
 export type PyFailureReason =
     | SocketFailure["reason"]
-    | "unknown_method"
-    | "internal_error"
-    | "invalid_arguments"
+    | FailureResponse["reason"]
     | "serialization_error"
     | "deserialization_error";
 
 export type PyResponse =
     | {
           ok: true;
-          result: PyTransmittable;
+          data: PyTransmittable;
       }
     | {
           ok: false;

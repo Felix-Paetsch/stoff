@@ -37,8 +37,8 @@ function socket_failure(
 ): SocketFailure {
     return {
         id,
-        type: "socket_failure",
-        reason
+        reason,
+        ok: false
     };
 }
 
@@ -133,7 +133,7 @@ function onMessage(data: WebSocket.RawData): void {
 
 export async function make_request(
     message: string,
-    config: MakeRequestConfig = {}
+    config: Partial<MakeRequestConfig> = {}
 ): Promise<RequestResult> {
     const id = make_id();
     const connectedSocket = await connect();

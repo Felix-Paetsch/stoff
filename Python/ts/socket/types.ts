@@ -1,23 +1,24 @@
 export type SuccessResponse = {
     id: string;
-    type: "success";
+    ok: true;
     data: string;
 };
 
 export type FailureResponse = {
     id: string;
-    type: "py_failure";
-    reason?: string;
+    ok: false;
+    reason: "unknown_method" | "internal_error";
+    data?: string;
 };
 
 export type SocketFailure = {
     id: string;
-    type: "socket_failure";
+    ok: false;
     reason: "timeout" | "socket_closed" | "no_connection";
 };
 
 export type RequestResult = SuccessResponse | FailureResponse | SocketFailure;
 
 export type MakeRequestConfig = {
-    timeout?: number; // Max time in ms. Defaults to one minute
+    timeout: number; // Max time in ms. Defaults to one minute
 };
