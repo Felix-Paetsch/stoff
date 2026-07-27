@@ -1,5 +1,6 @@
 # Todo
 
+Move grid away from interface to type as we will not do anything else than LerpGrids for a long time as perf not worth it (if it were we would hold it in rust memory anyway).
 
 ## Watcher
 

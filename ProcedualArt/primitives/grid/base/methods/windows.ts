@@ -1,34 +1,32 @@
 import { Expect } from "Core/expect";
-import { IGrid } from "ProcedualArt/primitives/grid/grids/igrid";
-import { createIGridConstructor } from "ProcedualArt/primitives/grid/grids/iGridConstructors/create_constructur";
-import { IGridConstructor } from "ProcedualArt/primitives/grid/grids/iGridConstructors/types";
 import {
     GridTypeName,
     GridValueType,
     InternalGrid,
-    LatticePoint,
+    LatticePoint
 } from "ProcedualArt/primitives/grid/types";
+import { create_grid_constructor, Grid, GridConstructor } from "../index";
 import { GridWindowFunction } from "./types";
 
 export function map_windows<T, N extends GridTypeName>(
     to: N,
-    src: IGrid<T, any>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, GridValueType<N>>,
+    fn: GridWindowFunction<T, GridValueType<N>>
 ): InternalGrid & { type: N };
 export function map_windows<T, S, R extends string>(
-    to: IGridConstructor<S, R>,
-    src: IGrid<T, any>,
+    to: GridConstructor<S, R>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, S>,
-): IGrid<S, R>;
+    fn: GridWindowFunction<T, S>
+): Grid<S, R>;
 export function map_windows<T, R extends string>(
     to: any,
-    src: IGrid<any, any>,
+    src: Grid<any, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<any, T>,
-): IGrid<T, R> {
-    const constr: IGridConstructor<T, R> = createIGridConstructor(to);
+    fn: GridWindowFunction<any, T>
+): Grid<T, R> {
+    const constr: GridConstructor<T, R> = create_grid_constructor(to);
     Expect.that(ker_size[0] > 0 && ker_size[1] > 0);
 
     const [w, h] = src.dimensions_ref.lattice_dimensions;
@@ -42,8 +40,8 @@ export function map_windows<T, R extends string>(
                 fn(
                     (q) =>
                         src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
-                    p,
-                ),
+                    p
+                )
             );
         }
     }
@@ -62,17 +60,17 @@ export function map_windows<T, R extends string>(
                 x0 + padding_x,
                 y0 + padding_y,
                 dx - 2 * padding_x,
-                dy - 2 * padding_y,
-            ],
+                dy - 2 * padding_y
+            ]
         },
-        res,
+        res
     );
 }
 
 export function iter_windows<T>(
-    src: IGrid<T, any>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, void>,
+    fn: GridWindowFunction<T, void>
 ): void {
     const [w, h] = src.dimensions_ref.lattice_dimensions;
     for (let y0 = 0; y0 <= h - ker_size[1]; y0++) {
@@ -81,7 +79,7 @@ export function iter_windows<T>(
 
             fn(
                 (q) => src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
-                p,
+                p
             );
         }
     }

@@ -1,19 +1,19 @@
-import { IGrid } from "../igrid";
+import { Grid } from "../index";
 
 export function resample_grid<S, N extends string>(
-    g: IGrid<S, N>,
-    samples: [number, number],
-): IGrid<S, N> {
+    g: Grid<S, N>,
+    samples: [number, number]
+): Grid<S, N> {
     return g.with_new_dimensions({
         domain_dimensions: g.dimensions().domain_dimensions,
-        lattice_dimensions: samples,
+        lattice_dimensions: samples
     });
 }
 
 export function resample_grid_square<S, N extends string>(
-    g: IGrid<S, N>,
-    samples: number | null = null,
-): IGrid<S, N> {
+    g: Grid<S, N>,
+    samples: number | null = null
+): Grid<S, N> {
     const { lattice_dimensions: oldLattice, domain_dimensions: oldDomain } =
         g.dimensions();
 
@@ -45,15 +45,15 @@ export function resample_grid_square<S, N extends string>(
             minX + offsetX,
             minY + offsetY,
             usedWidth,
-            usedHeight,
+            usedHeight
         ],
-        lattice_dimensions: [latticeWidth, latticeHeight],
+        lattice_dimensions: [latticeWidth, latticeHeight]
     });
 }
 
 export function shared_subgrids<
-    S extends IGrid<any, any>,
-    T extends IGrid<any, any>,
+    S extends Grid<any, any>,
+    T extends Grid<any, any>
 >(grid1: S, grid2: T, samples?: [number, number]): [S, T] {
     const [minX1, minY1, width1, height1] =
         grid1.dimensions().domain_dimensions;
@@ -89,15 +89,15 @@ export function shared_subgrids<
         Math.floor(
             Math.max(
                 intersectionWidth / cellWidth1,
-                intersectionWidth / cellWidth2,
-            ),
+                intersectionWidth / cellWidth2
+            )
         ) + 1,
         Math.floor(
             Math.max(
                 intersectionHeight / cellHeight1,
-                intersectionHeight / cellHeight2,
-            ),
-        ) + 1,
+                intersectionHeight / cellHeight2
+            )
+        ) + 1
     ];
 
     const latticeDimensions = samples ?? intersectionLatticeDimensions;
@@ -107,16 +107,16 @@ export function shared_subgrids<
             minX,
             minY,
             intersectionWidth,
-            intersectionHeight,
+            intersectionHeight
         ] as [number, number, number, number],
         lattice_dimensions: [
             Math.floor(latticeDimensions[0]),
-            Math.floor(latticeDimensions[1]),
-        ] as [number, number],
+            Math.floor(latticeDimensions[1])
+        ] as [number, number]
     };
 
     return [
         grid1.with_new_dimensions(sharedDimensions) as S,
-        grid2.with_new_dimensions(sharedDimensions) as T,
+        grid2.with_new_dimensions(sharedDimensions) as T
     ];
 }

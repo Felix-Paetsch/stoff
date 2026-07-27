@@ -6,6 +6,9 @@ sync:
 run:
     uv run python index.py
 
+watch:
+    ../watch.sh --fileEndings py "uv run python index.py"
+
 python *args:
     uv run python {{args}}
 
@@ -30,5 +33,11 @@ update:
 format:
     uv run ruff format .
 
+lint_hot:
+    ../watch.sh --fileEndings py "uv run ruff check ."
+
 lint:
     uv run ruff check .
+
+lint-fix:
+    uv run ruff check . --fix

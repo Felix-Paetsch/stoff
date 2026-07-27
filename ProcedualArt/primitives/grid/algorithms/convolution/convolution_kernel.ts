@@ -1,6 +1,6 @@
 import { Expect } from "Core/expect";
 import { EPS } from "Core/numerics/eps";
-import { GridWindow } from "ProcedualArt/primitives/grid/grids/index";
+import { GridWindow } from "ProcedualArt/primitives/grid/base/index";
 import { CompassRotationAmount, CompassRotationAmounts } from "./types";
 
 export type ConvolutionMatrix = number[][];
@@ -14,13 +14,13 @@ export class ConvolutionKernel {
         Expect.that(
             () =>
                 matrix.every((r) => r.length == this.columns) &&
-                this.columns > 0,
+                this.columns > 0
         );
     }
 
     static zeros(rows: number, cols: number) {
         return new ConvolutionKernel(
-            Array.from({ length: rows }, () => Array(cols).fill(0)),
+            Array.from({ length: rows }, () => Array(cols).fill(0))
         );
     }
 
@@ -145,7 +145,7 @@ export class ConvolutionKernel {
         }
 
         throw new Error(
-            "Can rotate things other than 1x1, 3x3, 5x5 only by mult of 90 deg.",
+            "Can rotate things other than 1x1, 3x3, 5x5 only by mult of 90 deg."
         );
     }
 
@@ -210,7 +210,7 @@ export class ConvolutionKernel {
 
 function rotate_3x3_kernel(
     k: number[][],
-    by: CompassRotationAmount,
+    by: CompassRotationAmount
 ): number[][] {
     // [row, col]
     const matrix = Array.from({ length: 3 }, () => Array(3).fill(0));
@@ -222,7 +222,7 @@ function rotate_3x3_kernel(
         [1, 2],
         [2, 0],
         [2, 1],
-        [2, 2],
+        [2, 2]
     ] as const;
 
     matrix[1]![1] = k[1]![1]!;
@@ -241,7 +241,7 @@ function rotate_3x3_kernel(
 
 function rotate_5x5_kernel(
     k: number[][],
-    by: CompassRotationAmount,
+    by: CompassRotationAmount
 ): number[][] {
     // [row, col]
     const matrix = Array.from({ length: 5 }, () => Array(5).fill(0));
@@ -256,13 +256,13 @@ function rotate_5x5_kernel(
         [1, 2],
         [2, 0],
         [2, 1],
-        [2, 2],
+        [2, 2]
     ] as const;
     const matrix5x5corner_orbit = matrix3x3orbit.map(
-        ([a, b]) => [a + 1, b + 1] as const,
+        ([a, b]) => [a + 1, b + 1] as const
     );
     const matrix5x5center_orbit = matrix3x3orbit.map(
-        ([a, b]) => [a * 2, b * 2] as const,
+        ([a, b]) => [a * 2, b * 2] as const
     );
     const matrix5x5edge_orbit = [
         [0, 1],
@@ -272,13 +272,13 @@ function rotate_5x5_kernel(
         [4, 3],
         [4, 1],
         [3, 0],
-        [1, 0],
+        [1, 0]
     ] as const;
 
     for (let orbit of [
         matrix5x5corner_orbit,
         matrix5x5center_orbit,
-        matrix5x5edge_orbit,
+        matrix5x5edge_orbit
     ]) {
         for (let i = 0; i < 8; i++) {
             let src_idx = orbit[i]!;

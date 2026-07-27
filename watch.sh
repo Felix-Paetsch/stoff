@@ -19,7 +19,7 @@ Options:
       Show this help message and exit.
 
   --cooldown <seconds>
-      Minimum number of seconds between command runs.
+      Minimum number of seconds between command restarts.
       Default: 5
 
   --fileEndings <list>
@@ -51,6 +51,8 @@ Behavior:
   - By default, the complete current directory is included.
   - If --include is provided, only matching files and directories are watched.
   - Exclude patterns always take precedence over include patterns.
+  - A running command is stopped and restarted when a new matching change is
+    detected.
 
 Examples:
   ./watch.sh "npm run build"
@@ -58,6 +60,7 @@ Examples:
   ./watch.sh --fileEndings ts,tsx --exclude dist --exclude "*.js" "npm test"
   ./watch.sh --include src --include "packages/*" "npm test"
   ./watch.sh --include src --exclude "src/generated/*" "npm run build"
+  ./watch.sh --fileEndings ts "npm run dev"
 EOF
 }
 
@@ -157,6 +160,12 @@ fi
 if ! command -v inotifywait >/dev/null 2>&1; then
   echo "Error: inotifywait is not installed."
   echo "Install it with: sudo pacman -S inotify-tools"
+  exit 1
+fi
+
+if ! command -v setsid >/dev/null 2>&1; then
+  echo "Error: setsid is not installed."
+  echo "It is usually provided by util-linux."
   exit 1
 fi
 
@@ -277,6 +286,53 @@ build_inotify_exclude_regex() {
 }
 
 last_run=0
+current_pid=""
+current_pgid=""
+
+print_separator() {
+  echo "============================================================"
+}
+
+stop_running_command() {
+  local attempts=0
+
+  if [[ -z "$current_pid" ]]; then
+    return
+  fi
+
+  if ! kill -0 "$current_pid" 2>/dev/null; then
+    wait "$current_pid" 2>/dev/null || true
+    current_pid=""
+    current_pgid=""
+    return
+  fi
+
+  echo ""
+  print_separator
+  echo " 🛑 Stopping previous command (PID: $current_pid)..."
+  print_separator
+
+  # The command is launched through setsid, so its PID is also its process
+  # group ID. This stops the command and its child processes together.
+  kill -TERM -- "-$current_pgid" 2>/dev/null || true
+
+  # Give the command up to one second to shut down cleanly.
+  while kill -0 "$current_pid" 2>/dev/null && ((attempts < 10)); do
+    sleep 0.1
+    ((attempts++))
+  done
+
+  # Force-stop the process group if it did not exit cleanly.
+  if kill -0 "$current_pid" 2>/dev/null; then
+    echo " ⚠️  Previous command did not stop cleanly; sending SIGKILL."
+    kill -KILL -- "-$current_pgid" 2>/dev/null || true
+  fi
+
+  wait "$current_pid" 2>/dev/null || true
+
+  current_pid=""
+  current_pgid=""
+}
 
 run_build() {
   local now
@@ -290,18 +346,45 @@ run_build() {
     return
   fi
 
-  (
-    printf "\n 🔁 Change detected → running: %s" "$CMD"
-    cd "$CALL_DIR" || exit 1
-    echo ""
-    echo ""
-    eval "$CMD"
-    echo ""
-    echo -n "==== DONE ==== "
-  )
+  stop_running_command
 
+  echo ""
+  print_separator
+  printf " 🔁 Change detected → running: %s\n" "$CMD"
+  print_separator
+  echo ""
+
+  # setsid creates a separate process group for the command and all children.
+  setsid bash -c '
+    cd "$1" || exit 1
+
+    eval "$2"
+    exit_code=$?
+
+    echo ""
+    echo "============================================================"
+    printf " ==== DONE ==== Exit code: %s\n" "$exit_code"
+    echo "============================================================"
+
+    exit "$exit_code"
+  ' _ "$CALL_DIR" "$CMD" &
+
+  current_pid=$!
+  current_pgid=$current_pid
   last_run=$(date +%s)
 }
+
+cleanup() {
+  trap - EXIT INT TERM
+
+  echo ""
+  echo "👋 Stopping watcher..."
+  stop_running_command
+
+  exit 0
+}
+
+trap cleanup EXIT INT TERM
 
 INOTIFY_EXCLUDE_REGEX="$(build_inotify_exclude_regex)"
 
@@ -330,12 +413,7 @@ fi
 
 run_build
 
-inotifywait -q -m -r \
-  -e close_write \
-  --exclude "$INOTIFY_EXCLUDE_REGEX" \
-  "$WATCH_DIR" \
-  --format '%w%f' |
-while read -r changed_file; do
+while IFS= read -r changed_file; do
   if matches_exclude "$changed_file"; then
     continue
   fi
@@ -347,4 +425,10 @@ while read -r changed_file; do
   if matches_watched_file "$changed_file"; then
     run_build
   fi
-done
+done < <(
+  inotifywait -q -m -r \
+    -e close_write \
+    --exclude "$INOTIFY_EXCLUDE_REGEX" \
+    "$WATCH_DIR" \
+    --format '%w%f'
+)

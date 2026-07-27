@@ -4,7 +4,7 @@ export namespace Expect {
 
     export const that = (
         bool: ValidationResult | ValidationFunction,
-        error: string = "Assert Failed",
+        error: string = "Assert Failed"
     ): boolean => {
         if (typeof bool == "string") {
             return that(false, bool);
@@ -22,7 +22,7 @@ export namespace Expect {
 
     export function defined<T>(
         value: T,
-        error: string = "Value is not defined",
+        error: string = "Value is not defined"
     ): Exclude<T, undefined> {
         if (value === undefined) throw new Error(error);
         return value as Exclude<T, undefined>;
@@ -31,7 +31,7 @@ export namespace Expect {
     type Falsy = false | 0 | 0n | "" | null | undefined;
     export function truthy<T>(
         value: T,
-        error: string = "Value is not truthy",
+        error: string = "Value is not truthy"
     ): Exclude<T, Falsy> {
         if (!Boolean(value)) throw new Error(error);
         return value as Exclude<T, Falsy>;
@@ -47,7 +47,7 @@ export namespace Expect {
 
     export function all(
         fns: (ValidationFunction | ValidationResult)[],
-        failure_text: string | null = null,
+        failure_text: string | null = null
     ): ValidationResult {
         for (let f of fns) {
             let res: ValidationResult;

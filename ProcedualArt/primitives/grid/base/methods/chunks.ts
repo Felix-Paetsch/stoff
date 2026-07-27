@@ -1,34 +1,32 @@
 import { Expect } from "Core/expect";
-import { IGrid } from "ProcedualArt/primitives/grid/grids/igrid";
-import { createIGridConstructor } from "ProcedualArt/primitives/grid/grids/iGridConstructors/create_constructur";
-import { IGridConstructor } from "ProcedualArt/primitives/grid/grids/iGridConstructors/types";
 import {
     GridTypeName,
     GridValueType,
     InternalGrid,
-    LatticePoint,
+    LatticePoint
 } from "ProcedualArt/primitives/grid/types";
+import { create_grid_constructor, Grid, GridConstructor } from "../index";
 import { GridWindowFunction } from "./types";
 
 export function map_chunks<T, N extends GridTypeName>(
     to: N,
-    src: IGrid<T, any>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, GridValueType<N>>,
+    fn: GridWindowFunction<T, GridValueType<N>>
 ): InternalGrid & { type: N };
 export function map_chunks<T, S, R extends string>(
-    to: IGridConstructor<S, R>,
-    src: IGrid<T, any>,
+    to: GridConstructor<S, R>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, S>,
-): IGrid<S, R>;
+    fn: GridWindowFunction<T, S>
+): Grid<S, R>;
 export function map_chunks<T, R extends string>(
     to: any,
-    src: IGrid<any, any>,
+    src: Grid<any, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<any, T>,
-): IGrid<T, R> {
-    const constr: IGridConstructor<T, R> = createIGridConstructor(to);
+    fn: GridWindowFunction<any, T>
+): Grid<T, R> {
+    const constr: GridConstructor<T, R> = create_grid_constructor(to);
     Expect.that(ker_size[0] > 0 && ker_size[1] > 0);
 
     const [w, h] = src.dimensions_ref.lattice_dimensions;
@@ -47,15 +45,15 @@ export function map_chunks<T, R extends string>(
                 fn(
                     (q) =>
                         src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
-                    p,
-                ),
+                    p
+                )
             );
         }
     }
 
     const lattice_dimensions: [number, number] = [
         Math.trunc(w / ker_w),
-        Math.trunc(h / ker_h),
+        Math.trunc(h / ker_h)
     ];
 
     const [x0, y0, dx, dy] = src.dimensions_ref.domain_dimensions;
@@ -72,17 +70,17 @@ export function map_chunks<T, R extends string>(
                 x0 + skipped_left * w_per_unit,
                 y0 + skipped_up * h_per_unit,
                 (lattice_dimensions[0] - 1) * new_w_per_unit,
-                (lattice_dimensions[1] - 1) * new_h_per_unit,
-            ],
+                (lattice_dimensions[1] - 1) * new_h_per_unit
+            ]
         },
-        res,
+        res
     );
 }
 
 export function iter_chunks<T>(
-    src: IGrid<T, any>,
+    src: Grid<T, any>,
     ker_size: [number, number],
-    fn: GridWindowFunction<T, void>,
+    fn: GridWindowFunction<T, void>
 ): void {
     const [w, h] = src.dimensions_ref.lattice_dimensions;
 
@@ -97,7 +95,7 @@ export function iter_chunks<T>(
 
             fn(
                 (q) => src.value_at_lattice_point([p[0] + q[0], p[1] + q[1]]),
-                p,
+                p
             );
         }
     }

@@ -1,5 +1,5 @@
 import { Image, RGBImage } from "ProcedualArt/primitives/image/index";
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 
 export namespace ImageIO {
     export async function load(pathOrUrl: string): Promise<RGBImage> {
@@ -15,12 +15,12 @@ export namespace ImageIO {
     export function write(
         path: string,
         img: Image,
-        dimensions: [number, number] | null = null,
+        dimensions: [number, number] | null = null
     ) {
         return to_sharp(img, dimensions).toFile(path);
     }
 
-    export async function from_sharp(img: sharp.Sharp): Promise<RGBImage> {
+    export async function from_sharp(img: Sharp): Promise<RGBImage> {
         const { data, info } = await img
             .toColourspace("srgb")
             .removeAlpha()
@@ -50,7 +50,7 @@ export namespace ImageIO {
 
     export function to_sharp(
         img: Image,
-        dimensions: [number, number] | null = null,
+        dimensions: [number, number] | null = null
     ) {
         const [width, height] = img.dimensions;
         const channels = img.type === "b-w" ? 1 : 3;
@@ -59,15 +59,15 @@ export namespace ImageIO {
             raw: {
                 width,
                 height,
-                channels,
-            },
+                channels
+            }
         });
 
         if (dimensions !== null) {
             image = image.resize({
                 width: dimensions[0],
                 height: dimensions[1],
-                fit: "fill",
+                fit: "fill"
             });
         }
 
@@ -93,7 +93,7 @@ async function fetch_image(url: string): Promise<Buffer> {
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch image: ${response.status} ${response.statusText}`,
+            `Failed to fetch image: ${response.status} ${response.statusText}`
         );
     }
 

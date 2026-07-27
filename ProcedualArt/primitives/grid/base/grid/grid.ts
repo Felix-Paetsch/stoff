@@ -2,15 +2,14 @@ import { Expect } from "@/Core/expect";
 import { Vector } from "@/Core/geometry";
 import { Interval } from "@/Core/numerics";
 import { GridDimensions, LatticePoint } from "../../types";
-import { IGrid } from "../igrid";
 import { complete_partial_subgrid_dimensions } from "../methods/dimensions";
 
-export class LerpGrid<T, S extends string> implements IGrid<T, S> {
+export class Grid<T, S extends string> {
     constructor(
         public dimensions_ref: GridDimensions,
         private _values_ref: T[],
         public lerp: (a: T, b: T, t: number) => T,
-        public type: S,
+        public type: S
     ) {
         const [w, h] = dimensions_ref.lattice_dimensions;
 
@@ -18,21 +17,21 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
             Expect.that(
                 Number.isFinite(dimensions_ref.domain_dimensions[2]) &&
                     Number.isFinite(dimensions_ref.domain_dimensions[3]),
-                "grid width/height must be finite",
+                "grid width/height must be finite"
             );
             Expect.that(
                 dimensions_ref.domain_dimensions[2] >= 0,
-                "grid width must be non-negative",
+                "grid width must be non-negative"
             );
             Expect.that(
                 dimensions_ref.domain_dimensions[3] >= 0,
-                "grid height must be non-negative",
+                "grid height must be non-negative"
             );
             Expect.that(w > 0, "grid width must be > 0");
             Expect.that(h > 0, "grid height must be > 0");
             Expect.that(
                 _values_ref.length === w * h,
-                "values length must equal width * height",
+                "values length must equal width * height"
             );
         });
     }
@@ -52,12 +51,12 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
             bl: T;
             br: T;
         },
-        progress: [number, number],
+        progress: [number, number]
     ): T {
         return this.lerp(
             this.lerp(values.tl, values.tr, progress[0]),
             this.lerp(values.bl, values.br, progress[0]),
-            progress[1],
+            progress[1]
         );
     }
 
@@ -68,7 +67,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
                 let i = y * w + x;
                 this._values_ref[i] = f(
                     this._values_ref[y * w + x]!,
-                    this.vector_at_lattice_point([x, y]),
+                    this.vector_at_lattice_point([x, y])
                 );
             }
         }
@@ -98,7 +97,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
     dimensions(): GridDimensions {
         return {
             domain_dimensions: this.domain_dimensions(),
-            lattice_dimensions: this.lattice_dimensions(),
+            lattice_dimensions: this.lattice_dimensions()
         };
     }
 
@@ -129,7 +128,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
                   y: number;
                   width: number;
                   height: number;
-              }>,
+              }>
     ) {
         if (Array.isArray(new_domain)) {
             this.dimensions_ref.domain_dimensions = [...new_domain];
@@ -174,7 +173,7 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
 
         return [
             Interval.clamp([0, w - 1], Math.round(sx)),
-            Interval.clamp([0, h - 1], Math.round(sy)),
+            Interval.clamp([0, h - 1], Math.round(sy))
         ];
     }
 
@@ -201,19 +200,19 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
         Expect.lazy(() => {
             Expect.that(
                 grid_w >= 0,
-                "grid width in world space must be non-negative",
+                "grid width in world space must be non-negative"
             );
             Expect.that(
                 grid_h >= 0,
-                "grid height in world space must be non-negative",
+                "grid height in world space must be non-negative"
             );
             Expect.that(
                 x >= grid_x && x <= grid_x + grid_w,
-                "x is outside grid bounds",
+                "x is outside grid bounds"
             );
             Expect.that(
                 y >= grid_y && y <= grid_y + grid_h,
-                "y is outside grid bounds",
+                "y is outside grid bounds"
             );
         });
 
@@ -241,27 +240,22 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
                 tl: v00,
                 tr: v10,
                 bl: v01,
-                br: v11,
+                br: v11
             },
-            [tx, ty],
+            [tx, ty]
         );
     }
 
-    copy(): LerpGrid<T, S> {
-        return new LerpGrid(
-            this.dimensions(),
-            this.values(),
-            this.lerp,
-            this.type,
-        );
+    copy(): Grid<T, S> {
+        return new Grid(this.dimensions(), this.values(), this.lerp, this.type);
     }
 
     with_new_dimensions(
-        new_dimensions_: Partial<GridDimensions> = {},
-    ): LerpGrid<T, S> {
+        new_dimensions_: Partial<GridDimensions> = {}
+    ): Grid<T, S> {
         const new_dimensions = complete_partial_subgrid_dimensions(
             new_dimensions_,
-            this,
+            this
         );
         const [new_w, new_h] = new_dimensions.lattice_dimensions;
         const [x, y, w, h] = new_dimensions.domain_dimensions;
@@ -278,6 +272,6 @@ export class LerpGrid<T, S extends string> implements IGrid<T, S> {
             }
         }
 
-        return new LerpGrid(new_dimensions, new_values, this.lerp, this.type);
+        return new Grid(new_dimensions, new_values, this.lerp, this.type);
     }
 }

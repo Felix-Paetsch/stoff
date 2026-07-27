@@ -1,3 +1,2 @@
-export * from "./igrid";
+export * from "./grid";
 export * from "./methods";
-

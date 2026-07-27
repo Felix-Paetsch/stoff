@@ -1,6 +1,6 @@
 import { Matrix } from "Core/geometry/matrix";
 import { Vector } from "Core/geometry/vector";
-import { grid_cell_dimensions, map_windows } from "../grids/index";
+import { grid_cell_dimensions, map_windows } from "../base/index";
 import { MatrixGrid, NumberGrid, VectorGrid } from "../types";
 
 export function gradient(g: NumberGrid): VectorGrid {
@@ -13,8 +13,8 @@ export function gradient(g: NumberGrid): VectorGrid {
         (w) =>
             new Vector(
                 (w([2, 1]) - w([0, 1])) / (2 * a[0]),
-                (w([1, 2]) - w([1, 0])) / (2 * a[1]),
-            ),
+                (w([1, 2]) - w([1, 0])) / (2 * a[1])
+            )
     );
 }
 

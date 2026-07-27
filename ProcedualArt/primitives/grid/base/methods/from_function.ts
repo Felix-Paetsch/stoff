@@ -4,29 +4,27 @@ import {
     GridTypeName,
     GridValueType,
     InternalGrid,
-    LatticePoint,
+    LatticePoint
 } from "../../types";
-import { IGrid } from "../igrid";
-import { createIGridConstructor } from "../iGridConstructors/create_constructur";
-import { IGridConstructor } from "../iGridConstructors/types";
+import { create_grid_constructor, Grid, GridConstructor } from "../index";
 import { vector_at_lattice_point } from "./vector_lattice_point_conversion";
 
 export function grid_from_function<N extends GridTypeName>(
     to: N,
     dims: GridDimensions,
-    fn: (vec: Vector) => GridValueType<N>,
+    fn: (vec: Vector) => GridValueType<N>
 ): InternalGrid & { type: N };
 export function grid_from_function<S, T extends string>(
-    to: IGridConstructor<S, T>,
+    to: GridConstructor<S, T>,
     dims: GridDimensions,
-    fn: (vec: Vector) => S,
-): IGrid<S, T>;
+    fn: (vec: Vector) => S
+): Grid<S, T>;
 export function grid_from_function<T, S extends string>(
     to: any,
     dims: GridDimensions,
-    fn: (vec: Vector) => T,
-): IGrid<T, S> {
-    const constr: IGridConstructor<T, S> = createIGridConstructor(to);
+    fn: (vec: Vector) => T
+): Grid<T, S> {
+    const constr: GridConstructor<T, S> = create_grid_constructor(to);
 
     const [w, h] = dims.lattice_dimensions;
     const res: T[] = [];

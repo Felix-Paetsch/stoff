@@ -1,9 +1,9 @@
 import { Color } from "@/Core/colors";
 import {
-    IGrid,
+    Grid,
     map_grid,
     resample_grid,
-    resample_grid_square,
+    resample_grid_square
 } from "ProcedualArt/primitives/grid";
 import { Image, RGBImage } from "ProcedualArt/primitives/image";
 
@@ -20,29 +20,28 @@ export type GridRenderDimensionsArgs =
     | null;
 
 export function render_grid_with_callback<T, N extends string>(
-    g: IGrid<T, N>,
+    g: Grid<T, N>,
     color_map: (v: T) => Color.Color,
-    default_dimensions: GridRenderDimensionsArgs = null,
+    default_dimensions: GridRenderDimensionsArgs = null
 ): Image {
     const renderedGrid = grid_for_render_dimensions(g, default_dimensions);
 
     const pixelGrid = map_grid(
         "vec3",
         renderedGrid,
-        (v) =>
-            Color.toRgb(color_map(v)).slice(0, 3) as [number, number, number],
+        (v) => Color.toRgb(color_map(v)).slice(0, 3) as [number, number, number]
     );
 
     return new RGBImage(
         new Uint8Array(pixelGrid.values_ref().flat()),
-        pixelGrid.dimensions().lattice_dimensions,
+        pixelGrid.dimensions().lattice_dimensions
     );
 }
 
 function grid_for_render_dimensions<T, N extends string>(
-    g: IGrid<T, N>,
-    dimensions: GridRenderDimensionsArgs,
-): IGrid<T, N> {
+    g: Grid<T, N>,
+    dimensions: GridRenderDimensionsArgs
+): Grid<T, N> {
     // Default: one domain unit corresponds to one pixel.
     if (dimensions === null || dimensions === "domain_dimensions") {
         const [, , width, height] = g.dimensions().domain_dimensions;
@@ -64,7 +63,7 @@ function grid_for_render_dimensions<T, N extends string>(
 
         return resample_grid(g, [
             Math.max(1, Math.floor(width)),
-            Math.max(1, Math.floor(height)),
+            Math.max(1, Math.floor(height))
         ]);
     }
 
@@ -75,7 +74,7 @@ function grid_for_render_dimensions<T, N extends string>(
     if (width !== undefined && height !== undefined) {
         return resample_grid(g, [
             Math.max(1, Math.floor(width)),
-            Math.max(1, Math.floor(height)),
+            Math.max(1, Math.floor(height))
         ]);
     }
 
@@ -89,7 +88,7 @@ function grid_for_render_dimensions<T, N extends string>(
         const cellSize = domainWidth / Math.max(1, Math.floor(width));
         const smallerAxisSamples = Math.max(
             1,
-            Math.floor(smallerDomainAxis / cellSize),
+            Math.floor(smallerDomainAxis / cellSize)
         );
 
         return resample_grid_square(g, smallerAxisSamples);
@@ -99,7 +98,7 @@ function grid_for_render_dimensions<T, N extends string>(
         const cellSize = domainHeight / Math.max(1, Math.floor(height));
         const smallerAxisSamples = Math.max(
             1,
-            Math.floor(smallerDomainAxis / cellSize),
+            Math.floor(smallerDomainAxis / cellSize)
         );
 
         return resample_grid_square(g, smallerAxisSamples);

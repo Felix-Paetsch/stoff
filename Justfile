@@ -1,4 +1,6 @@
 mod rust 'Rust/Justfile'
+mod python 'Python/Justfile'
+
 mod standalone 'StandAlone/Justfile'
 
 mod test 'Dev/Test/Justfile'

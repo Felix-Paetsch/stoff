@@ -2,4 +2,32 @@
 name = "py-stoff"
 version = "0.1.0"
 requires-python = ">=3.14,<3.15"
-dependencies = []
+dependencies = [
+    "websockets>=16.1.1",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "F",    # Pyflakes
+  # "I",    # import sorting
+  "B",    # flake8-bugbear
+  "UP",   # pyupgrade
+  "SIM",  # simplify
+  "ANN",  # missing annotations
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.ty.environment]
+python-version = "3.14"
+root = ["."]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.0",
+]
+

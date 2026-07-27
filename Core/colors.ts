@@ -147,7 +147,7 @@ export namespace Color {
         white: [255, 255, 255],
         whitesmoke: [245, 245, 245],
         yellow: [255, 255, 0],
-        yellowgreen: [154, 205, 50],
+        yellowgreen: [154, 205, 50]
     } as const;
 
     export type Color =
@@ -347,7 +347,7 @@ export namespace Color {
             roundByte(red),
             roundByte(green),
             roundByte(blue),
-            clamp(alpha, 0, 1),
+            clamp(alpha, 0, 1)
         ];
     }
 
@@ -395,7 +395,7 @@ export namespace Color {
             hue,
             clamp(saturation, 0, 100),
             clamp(lightness, 0, 100),
-            clamp(alpha, 0, 1),
+            clamp(alpha, 0, 1)
         ]);
     }
 
@@ -437,22 +437,22 @@ export namespace Color {
     export function lerp(
         color1: Gradient,
         color2: Color,
-        ratio?: number,
+        ratio?: number
     ): Gradient;
     export function lerp(
         color1: Color,
         color2: Gradient,
-        ratio?: number,
+        ratio?: number
     ): Gradient;
     export function lerp(
         color1: Gradient,
         color2: Gradient,
-        ratio?: number,
+        ratio?: number
     ): Gradient;
     export function lerp(
         color1: Color | Gradient,
         color2: Color | Gradient,
-        ratio = 0.5,
+        ratio = 0.5
     ): Color | Gradient {
         const amount = clamp(ratio, 0, 1);
 
@@ -464,32 +464,32 @@ export namespace Color {
                 rgba1[0]! + (rgba2[0]! - rgba1[0]!) * amount,
                 rgba1[1]! + (rgba2[1]! - rgba1[1]!) * amount,
                 rgba1[2]! + (rgba2[2]! - rgba1[2]!) * amount,
-                rgba1[3]! + (rgba2[3]! - rgba1[3]!) * amount,
+                rgba1[3]! + (rgba2[3]! - rgba1[3]!) * amount
             ]);
         }
 
         if (is_gradient(color1) && is_gradient(color2)) {
             return [
                 lerp(color1[0]!, color2[0]!, amount),
-                lerp(color1[1]!, color2[1]!, amount),
+                lerp(color1[1]!, color2[1]!, amount)
             ];
         }
 
         if (is_gradient(color1)) {
             return [
                 lerp(color1[0]!, color2 as Color, amount),
-                lerp(color1[1]!, color2 as Color, amount),
+                lerp(color1[1]!, color2 as Color, amount)
             ];
         }
 
         return [
             lerp(color1 as Color, color2[0] as Color, amount),
-            lerp(color1 as Color, color2[1] as Color, amount),
+            lerp(color1 as Color, color2[1] as Color, amount)
         ];
     }
 
     export function fromRgb(
-        color: [number, number, number, number] | [number, number, number],
+        color: [number, number, number, number] | [number, number, number]
     ): Color {
         const red = roundByte(color[0]!);
         const green = roundByte(color[1]!);
@@ -509,7 +509,7 @@ export namespace Color {
         const bytes = [
             roundByte(rgba[0]!),
             roundByte(rgba[1]!),
-            roundByte(rgba[2]!),
+            roundByte(rgba[2]!)
         ];
 
         const hex = bytes
@@ -532,7 +532,7 @@ export namespace Color {
     }
 
     export function rgb_to_hsl(
-        rgb: [number, number, number] | [number, number, number, number],
+        rgb: [number, number, number] | [number, number, number, number]
     ): [number, number, number, number] {
         const red = clamp(rgb[0]!, 0, 255) / 255;
         const green = clamp(rgb[1]!, 0, 255) / 255;
@@ -564,12 +564,12 @@ export namespace Color {
             Math.round(normalizeHue(hue)),
             Math.round(saturation * 100),
             Math.round(lightness * 100),
-            alpha,
+            alpha
         ];
     }
 
     export function hsl_to_rgb(
-        hsl: [number, number, number] | [number, number, number, number],
+        hsl: [number, number, number] | [number, number, number, number]
     ): [number, number, number, number] {
         const hue = normalizeHue(hsl[0]!);
         const saturation = clamp(hsl[1]!, 0, 100) / 100;
@@ -587,7 +587,7 @@ export namespace Color {
             Math.round(channel(0) * 255),
             Math.round(channel(8) * 255),
             Math.round(channel(4) * 255),
-            alpha,
+            alpha
         ];
     }
 
@@ -596,7 +596,7 @@ export namespace Color {
     }
 
     export function fromHsl(
-        color: [number, number, number, number] | [number, number, number],
+        color: [number, number, number, number] | [number, number, number]
     ): Color {
         const hue = normalizeHue(color[0]!);
         const saturation = clamp(color[1]!, 0, 100);
@@ -605,12 +605,12 @@ export namespace Color {
 
         if (alpha === 1) {
             return `hsl(${Math.round(hue)},${Math.round(
-                saturation,
+                saturation
             )}%,${Math.round(lightness)}%)`;
         }
 
         return `hsla(${Math.round(hue)},${Math.round(
-            saturation,
+            saturation
         )}%,${Math.round(lightness)}%,${formatNumber(alpha)})`;
     }
 
@@ -639,7 +639,7 @@ export namespace Color {
             rgba[0]!,
             rgba[1]!,
             rgba[2]!,
-            clamp(opacity_fraction, 0, 1),
+            clamp(opacity_fraction, 0, 1)
         ]);
     }
 
@@ -650,7 +650,7 @@ export namespace Color {
             hsla[0]!,
             hsla[1]!,
             clamp(luminocity, 0, 100),
-            hsla[3]!,
+            hsla[3]!
         ]);
     }
 

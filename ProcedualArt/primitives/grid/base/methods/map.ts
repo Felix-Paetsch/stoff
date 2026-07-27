@@ -3,30 +3,28 @@ import {
     GridTypeName,
     GridValueType,
     InternalGrid,
-    LatticePoint,
+    LatticePoint
 } from "../../types";
 
-import { IGrid } from "../igrid";
-import { createIGridConstructor } from "../iGridConstructors/create_constructur";
-import { IGridConstructor } from "../iGridConstructors/types";
+import { create_grid_constructor, Grid, GridConstructor } from "../index";
 import { vector_at_lattice_point } from "./vector_lattice_point_conversion";
 
 export function map_grid<T, N extends GridTypeName>(
     to: N,
-    src: IGrid<T, any>,
-    fn: (v: T, vec: Vector) => GridValueType<N>,
+    src: Grid<T, any>,
+    fn: (v: T, vec: Vector) => GridValueType<N>
 ): InternalGrid & { type: N };
 export function map_grid<T, S, R extends string>(
-    to: IGridConstructor<S, R>,
-    src: IGrid<T, any>,
-    fn: (v: T, vec: Vector) => S,
-): IGrid<S, R>;
+    to: GridConstructor<S, R>,
+    src: Grid<T, any>,
+    fn: (v: T, vec: Vector) => S
+): Grid<S, R>;
 export function map_grid<T, R extends string>(
     to: any,
-    src: IGrid<any, any>,
-    fn: (v: any, vec: Vector) => T,
-): IGrid<T, R> {
-    const constr: IGridConstructor<T, R> = createIGridConstructor(to);
+    src: Grid<any, any>,
+    fn: (v: any, vec: Vector) => T
+): Grid<T, R> {
+    const constr: GridConstructor<T, R> = create_grid_constructor(to);
 
     const [w, h] = src.dimensions_ref.lattice_dimensions;
     const res: T[] = [];
@@ -38,8 +36,8 @@ export function map_grid<T, R extends string>(
             res.push(
                 fn(
                     src.value_at_lattice_point(p),
-                    vector_at_lattice_point(src.dimensions_ref, p),
-                ),
+                    vector_at_lattice_point(src.dimensions_ref, p)
+                )
             );
         }
     }

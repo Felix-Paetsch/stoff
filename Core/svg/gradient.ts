@@ -1,14 +1,14 @@
-import { Color } from "@/Core/colors";
 import { BoundingBox, Radians, Vector } from "@/Core/geometry";
 import { Interval } from "@/Core/numerics";
 import * as Utils from "@/Core/utils";
 
+import { Color } from "../colors";
 import { SVG_Builder } from "./svg_builder";
 
 export class SVGGradient {
     constructor(
         readonly gradient: Color.Gradient,
-        private svgBuilder: SVG_Builder,
+        private svgBuilder: SVG_Builder
     ) {}
 
     gradient_segment(
@@ -22,11 +22,11 @@ export class SVGGradient {
             | {
                   from: Vector;
                   to: Vector;
-              },
+              }
     ): string {
         const g = [
             Color.lerp(this.gradient[0], this.gradient[1], from),
-            Color.lerp(this.gradient[0], this.gradient[1], to),
+            Color.lerp(this.gradient[0], this.gradient[1], to)
         ];
 
         let x1: string | number,

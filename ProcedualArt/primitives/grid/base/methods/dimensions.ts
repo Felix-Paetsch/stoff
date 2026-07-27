@@ -4,9 +4,9 @@ import { EPS } from "@/Core/numerics";
 import {
     GridDimensions,
     IntoGridDimensions,
-    PartialGridDimensions,
+    PartialGridDimensions
 } from "../../types";
-import { IGrid } from "../igrid";
+import { Grid } from "../index";
 
 export function into_grid_dimensions(a: IntoGridDimensions) {
     if ("dimensions_ref" in a) {
@@ -38,18 +38,18 @@ export function dimensions_agree(l: IntoGridDimensions, o: IntoGridDimensions) {
 
 export function complete_partial_subgrid_dimensions(
     dims: PartialGridDimensions,
-    g: IGrid<any, any>,
+    g: Grid<any, any>
 ): GridDimensions {
     if (!dims) {
         dims = {};
     } else if (Array.isArray(dims)) {
         if (dims.length == 2) {
             dims = {
-                lattice_dimensions: dims,
+                lattice_dimensions: dims
             };
         } else {
             dims = {
-                domain_dimensions: dims,
+                domain_dimensions: dims
             };
         }
     }
@@ -65,11 +65,11 @@ export function complete_partial_subgrid_dimensions(
             EPS.less_than_or_eq(tdd[1], dd[1]) &&
             EPS.less_than_or_eq(dd[0] + dd[2], tdd[0] + tdd[2]) &&
             EPS.less_than_or_eq(dd[1] + dd[3], tdd[1] + tdd[3]),
-        "New dimensions must be a subspace of old dimensions",
+        "New dimensions must be a subspace of old dimensions"
     );
     Expect.that(
         dd[2] > 0 && dd[3] > 0,
-        "New dimensions must have width, height > 0",
+        "New dimensions must have width, height > 0"
     );
 
     if (!dims.lattice_dimensions) {
@@ -79,12 +79,12 @@ export function complete_partial_subgrid_dimensions(
         dims.lattice_dimensions = [
             Math.max(
                 Math.ceil(w_frac * g.dimensions_ref.lattice_dimensions[0]),
-                2,
+                2
             ),
             Math.max(
                 Math.ceil(h_frac * g.dimensions_ref.lattice_dimensions[1]),
-                2,
-            ),
+                2
+            )
         ];
     }
 
@@ -93,11 +93,11 @@ export function complete_partial_subgrid_dimensions(
 
 export function lazy_with_new_dimensions<T, S extends string>(
     new_dimensions_: PartialGridDimensions,
-    g: IGrid<T, S>,
-): IGrid<T, S> {
+    g: Grid<T, S>
+): Grid<T, S> {
     const new_dimensions = complete_partial_subgrid_dimensions(
         new_dimensions_,
-        g,
+        g
     );
 
     if (dimensions_agree(new_dimensions, g.dimensions_ref)) {
@@ -116,13 +116,13 @@ export function grid_cell_dimensions(d: IntoGridDimensions): [number, number] {
     d = into_grid_dimensions(d);
     return [
         d.domain_dimensions[2] / (d.lattice_dimensions[0] - 1),
-        d.domain_dimensions[3] / (d.lattice_dimensions[1] - 1),
+        d.domain_dimensions[3] / (d.lattice_dimensions[1] - 1)
     ];
 }
 
-export function with_unit_grid_dimensions<T extends IGrid<any, any>>(
+export function with_unit_grid_dimensions<T extends Grid<any, any>>(
     g: T,
-    lattice_dimensions?: [number, number],
+    lattice_dimensions?: [number, number]
 ): T {
     const cells = grid_cell_dimensions(g);
     lattice_dimensions =
@@ -134,7 +134,7 @@ export function with_unit_grid_dimensions<T extends IGrid<any, any>>(
             0,
             0,
             cells[0] * (lattice_dimensions[0] - 1),
-            cells[1] * (lattice_dimensions[1] - 1),
-        ],
+            cells[1] * (lattice_dimensions[1] - 1)
+        ]
     }) as T;
 }

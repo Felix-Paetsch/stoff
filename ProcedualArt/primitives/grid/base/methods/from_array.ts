@@ -2,27 +2,25 @@ import {
     GridDimensions,
     GridTypeName,
     GridValueType,
-    InternalGrid,
+    InternalGrid
 } from "../../types";
-import { IGrid } from "../igrid";
-import { createIGridConstructor } from "../iGridConstructors/create_constructur";
-import { IGridConstructor } from "../iGridConstructors/types";
+import { create_grid_constructor, Grid, GridConstructor } from "../index";
 
 export function grid_from_array<N extends GridTypeName>(
     to: N,
     dims: GridDimensions,
-    vals: ArrayLike<GridValueType<N>>,
+    vals: ArrayLike<GridValueType<N>>
 ): InternalGrid & { type: N };
 export function grid_from_array<S, T extends string>(
-    to: IGridConstructor<S, T>,
+    to: GridConstructor<S, T>,
     dims: GridDimensions,
-    vals: ArrayLike<S>,
-): IGrid<S, T>;
+    vals: ArrayLike<S>
+): Grid<S, T>;
 export function grid_from_array<T, S extends string>(
     to: any,
     dims: GridDimensions,
-    vals: ArrayLike<T>,
-): IGrid<T, S> {
-    const constr: IGridConstructor<T, S> = createIGridConstructor(to);
+    vals: ArrayLike<T>
+): Grid<T, S> {
+    const constr: GridConstructor<T, S> = create_grid_constructor(to);
     return constr(dims, Array.from(vals));
 }

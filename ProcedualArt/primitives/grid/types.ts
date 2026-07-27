@@ -1,8 +1,7 @@
 import { Matrix, Vector } from "@/Core/geometry";
 
-import { IGrid } from "./grids/igrid";
-import { grid_from_array } from "./grids/index";
-import { map_grid } from "./grids/methods/map";
+import { Grid, grid_from_array } from "./base/index";
+import { map_grid } from "./base/methods/map";
 
 export type LatticePoint = [number, number];
 
@@ -39,35 +38,31 @@ export type GridValueType<N extends GridTypeName> = N extends "number"
             ? Matrix
             : never;
 
-export type NumberGrid = IGrid<number, "number">;
+export type NumberGrid = Grid<number, "number">;
 
-export type Vec3Grid = IGrid<Vec3, "vec3">;
+export type Vec3Grid = Grid<Vec3, "vec3">;
 
-export type VectorGrid = IGrid<Vector, "vector">;
-export type MatrixGrid = IGrid<Matrix, "matrix">;
-export type BooleanGrid = IGrid<boolean, "boolean">;
+export type VectorGrid = Grid<Vector, "vector">;
+export type MatrixGrid = Grid<Matrix, "matrix">;
+export type BooleanGrid = Grid<boolean, "boolean">;
 
 export type InternalGrid =
-    | NumberGrid
-    | Vec3Grid
-    | VectorGrid
-    | BooleanGrid
-    | MatrixGrid;
+    NumberGrid | Vec3Grid | VectorGrid | BooleanGrid | MatrixGrid;
 
 export function split_vec3_grid(
-    g: Vec3Grid,
+    g: Vec3Grid
 ): [NumberGrid, NumberGrid, NumberGrid] {
     return [
         map_grid("number", g, (a) => a[0]),
         map_grid("number", g, (a) => a[1]),
-        map_grid("number", g, (a) => a[2]),
+        map_grid("number", g, (a) => a[2])
     ] as [NumberGrid, NumberGrid, NumberGrid];
 }
 
 export function join_number_grids(
     a: NumberGrid,
     b: NumberGrid,
-    c: NumberGrid,
+    c: NumberGrid
 ): Vec3Grid {
     const dims = a.dimensions();
     const res: Vec3[] = [];
@@ -77,7 +72,7 @@ export function join_number_grids(
             res.push([
                 a.value_at_lattice_point([w, h]),
                 b.value_at_lattice_point([w, h]),
-                c.value_at_lattice_point([w, h]),
+                c.value_at_lattice_point([w, h])
             ]);
         }
     }

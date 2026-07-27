@@ -1,14 +1,14 @@
 import {
     GridWindow,
-    GridWindowFunction,
-} from "ProcedualArt/primitives/grid/grids/index";
+    GridWindowFunction
+} from "ProcedualArt/primitives/grid/base/index";
 import {
     BooleanGrid,
     InternalGrid,
     MatrixGrid,
     NumberGrid,
     Vec3Grid,
-    VectorGrid,
+    VectorGrid
 } from "ProcedualArt/primitives/grid/types";
 import { wasm_grid_convolve, WASMCompatability } from "Rust/exports";
 import { ConvolutionKernel } from "./convolution_kernel";
@@ -21,7 +21,7 @@ export type RModuleStructure<T> = {
 
 export function general_kernel_convolution_function<T>(
     s: RModuleStructure<T>,
-    k: ConvolutionKernel,
+    k: ConvolutionKernel
 ): GridWindowFunction<T, T> {
     return (w: GridWindow<T>) => {
         let res: T = s.zero;
@@ -46,8 +46,8 @@ export function convolve(s: InternalGrid, k: ConvolutionKernel): InternalGrid {
     const ker = WASMCompatability.Grid.wasm_convolution_kernel(k);
     const res = WASMCompatability.Allocations.allocate(
         WASMCompatability.Allocations.consume(ker, (ker) =>
-            wasm_grid_convolve(grid_ser, ker),
-        ),
+            wasm_grid_convolve(grid_ser, ker)
+        )
     );
     WASMCompatability.Allocations.free(grid_ser);
     return WASMCompatability.Grid.grid_from_wasm(res);
