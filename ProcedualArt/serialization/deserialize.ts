@@ -1,5 +1,4 @@
 import { Vector } from "Core/geometry/vector";
-import { PyTransmittable, PyTransmittableTag } from "../py_transmittable";
 import {
     deserialize_polygon,
     deserialize_polyline,
@@ -19,11 +18,17 @@ import {
 } from "./grid";
 import { deserialize_gray_image, deserialize_rgb_image } from "./image";
 import { destringify_f64_array, destringify_u8_array } from "./number_array";
+import { deserialize_sketch } from "./sketch";
+import { StoffSerializable, StoffSerializableTag } from "./types";
 
-export function deserialize_py_transmittable(r: {
-    type: PyTransmittableTag;
+export function deseriailze(s: string): StoffSerializable {
+    return deserialize_from_json(JSON.parse(s));
+}
+
+export function deserialize_from_json(r: {
+    type: StoffSerializableTag;
     data: any;
-}): PyTransmittable {
+}): StoffSerializable {
     const { type, data } = r;
 
     if (type == "float64_array") {
@@ -90,6 +95,15 @@ export function deserialize_py_transmittable(r: {
         return deserialize_vector(
             r as {
                 type: "vector";
+                data: any;
+            }
+        );
+    }
+
+    if (type == "sketch") {
+        return deserialize_sketch(
+            r as {
+                type: "sketch";
                 data: any;
             }
         );

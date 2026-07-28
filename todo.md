@@ -1,25 +1,79 @@
 # Todo
 
-Move grid away from interface to type as we will not do anything else than LerpGrids for a long time as perf not worth it (if it were we would hold it in rust memory anyway).
+2. Generate paths from images
+3. Modify images to better have paths
+4. SVG support
 
-## Watcher
 
-## Neovim
+- python 
+    - what do we translate the types into?
+    - what methods do we actually want for starters?
 
-Currently two seperate reformatter on ts causing chaos
-[] tab should only do tab things when in insert mode; also select multiple lines at once and pressing tab
-[] sometimes when saving with ts it autoformats and it messed up big time (mostly) imports, sometimes fn defn (?)
+svgpathtools
+https://github.com/visioncortex/vtracer
+cv2 (contouring)
+skiimage
+segment anything
+portrace
+CLIP + segmentation 
+Anime2Sketch
+U-2-Net
+approxPolyDP
 
-- python support
-    - ruff
-    - pyright
-    - mypy?
-- fix ts stuff
-- see below
+stable diffusion/etc api or local
+quick and dirty anime filter
 
-## Python API
+question... we probably dont want to actively have python running all the time, but each project seperately? hmm
 
-- http(?)
+jupyter notebooks for testing
+
+for what exactly do I need the live-wire py bridge?
+- canny
+- cv2 stuff
+- ...
+- basically anything non-cude/gpu
+- so: python / standalone applications
+
+
+also/instead: 
+just have a shared string/image interface in a folder
+
+1. Move the "to/from python" things into a general serialize/deserialize folder
+
+2. test around with some python stuff
+3. integrate
+
+A cross-run working time sequential uuid
+
+
+pip install opencv-contrib-python
+cv2.ximgproc.thinning()
+cv2.morphologyEx()
+cv2.kmeans(
+cv2.threshold() / cv2.adaptiveThreshold()
+cv2.approxPolyDP()
+canny
+find contours
+skimage.morphology.skeletonize / watershed, etc
+
+todo: svg parsing in ts as much output will be that format
+
+svg path tools
+python lib for interacting iwth e.g. watcher
+
+pidi net
+rembg
+BiRefNet
+ZoeDepth
+https://github.com/SystemErrorWang/White-box-Cartoonization
+CartoonGAN
+Color-thief
+skan python
+image denoising
+GFPGAN
+
+
+masks
 
 
 # Merging with Leonie
@@ -143,6 +197,7 @@ More Namespaces
 
 So many collection_methods.get() things.. (Why still "get_"?)
 Length map better names
+Line inflection points, extrema (?)
 Integrate algorithms into Core. Check out curvature..
 - two types of algorithms, those used internally and put onto thing as method and those exported
 Put sketch and so on behind a "."?
@@ -484,6 +539,8 @@ What to fit?
 
 - related: fourier
 - region classifier on polyline
+
+svg to path
 
 # Heisenbugs
 

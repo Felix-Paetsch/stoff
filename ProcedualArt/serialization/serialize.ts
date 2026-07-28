@@ -7,7 +7,7 @@ import {
 } from "@/ProcArt/graph";
 import { Grid, InternalGrid } from "@/ProcArt/grid";
 import { GrayImage, RGBImage } from "@/ProcArt/image";
-import { PyTransmittable, PyTransmittableTag } from "../py_transmittable";
+import { Sketch } from "Core/sketch/sketch";
 import {
     serialize_polygon,
     serialize_polyline,
@@ -27,12 +27,18 @@ import {
 } from "./grid";
 import { serialize_gray_image, serialize_rgb_image } from "./image";
 import { stringify_f64_array, stringify_u8_array } from "./number_array";
+import { serialize_sketch } from "./sketch";
+import { StoffSerializable, StoffSerializableTag } from "./types";
 
-export function serialize_py_transmittable(
-    r: PyTransmittable,
+export function serialize(r: StoffSerializable, max_depth = 5): string {
+    return JSON.stringify(serialize_to_json(r, max_depth));
+}
+
+export function serialize_to_json(
+    r: StoffSerializable,
     max_depth = 5
 ): {
-    type: PyTransmittableTag;
+    type: StoffSerializableTag;
     data: Json;
 } {
     if (max_depth == 0) {
@@ -101,6 +107,10 @@ export function serialize_py_transmittable(
         return serialize_vector(r);
     }
 
+    if (r instanceof Sketch) {
+        return serialize_sketch(r);
+    }
+
     if (r instanceof Grid) {
         const s = r as typeof r & InternalGrid;
         if (s.type == "number") {
@@ -153,7 +163,7 @@ export function serialize_py_transmittable(
 
         return {
             type: "array",
-            data: r.map((a) => serialize_py_transmittable(a, max_depth - 1))
+            data: r.map((a) => serialize_to_json(a, max_depth - 1))
         };
     }
 
@@ -162,7 +172,7 @@ export function serialize_py_transmittable(
         data: Object.fromEntries(
             Object.entries(r).map(([key, value]) => [
                 key,
-                serialize_py_transmittable(value, max_depth - 1)
+                serialize_to_json(value, max_depth - 1)
             ])
         )
     };
