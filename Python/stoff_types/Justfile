@@ -1,0 +1,22 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+sync:
+    uv sync --locked
+
+run:
+    uv run python -m stoff_types
+
+watch:
+    ../../watch.sh --fileEndings py "uv run python -m stoff_types"
+
+
+
+
+lint_hot:
+    ../../watch.sh --fileEndings py "uv run ruff check ."
+
+lint:
+    uv run ruff check .
+
+lint-fix:
+    uv run ruff check . --fix

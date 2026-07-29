@@ -1,4 +1,4 @@
-import { Polygon, Polyline, Vector } from "@/Core/geometry";
+import { Matrix, Polygon, Polyline, Vector } from "@/Core/geometry";
 import { Json } from "@/Core/utils";
 import {
     Graph,
@@ -9,6 +9,7 @@ import { Grid, InternalGrid } from "@/ProcArt/grid";
 import { GrayImage, RGBImage } from "@/ProcArt/image";
 import { Sketch } from "Core/sketch/sketch";
 import {
+    serialize_matrix,
     serialize_polygon,
     serialize_polyline,
     serialize_vector
@@ -105,6 +106,10 @@ export function serialize_to_json(
 
     if (r instanceof Vector) {
         return serialize_vector(r);
+    }
+
+    if (r instanceof Matrix) {
+        return serialize_matrix(r);
     }
 
     if (r instanceof Sketch) {

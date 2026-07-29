@@ -8,20 +8,10 @@ import { Ray } from "./ray";
 import { Radians } from "./types";
 
 export class Vector {
-    readonly x!: number;
-    readonly y!: number;
-
-    constructor(from: Vector);
-    constructor(x: number, y: number);
-    constructor(x: number | Vector, y: number = 0) {
-        if (x instanceof Vector) {
-            y = x.y;
-            x = x.x;
-        }
-
-        this.x = x;
-        this.y = y;
-    }
+    constructor(
+        readonly x: number,
+        readonly y: number
+    ) {}
 
     is_finite() {
         return Number.isFinite(this.x) && Number.isFinite(this.y);
@@ -46,7 +36,7 @@ export class Vector {
     distance(el: Line | Ray | Vector) {
         if (el instanceof Line || el instanceof Ray) return el.distance(this);
         return Math.sqrt(
-            Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2),
+            Math.pow(this.x - el.x, 2) + Math.pow(this.y - el.y, 2)
         );
     }
 
@@ -76,7 +66,7 @@ export class Vector {
     cplx_mult(el: Vector): Vector {
         return new Vector(
             this.x * el.x - this.y * el.y,
-            this.x * el.y + this.y * el.x,
+            this.x * el.y + this.y * el.x
         );
     }
 
@@ -124,17 +114,17 @@ export class Vector {
     static component_wise(vecs: [Vector], fn: (a: [number]) => number): Vector;
     static component_wise(
         vecs: [Vector, Vector],
-        fn: (a: [number, number]) => number,
+        fn: (a: [number, number]) => number
     ): Vector;
     static component_wise(
         vecs: [Vector, Vector, Vector],
-        fn: (a: [number, number, number]) => number,
+        fn: (a: [number, number, number]) => number
     ): Vector;
     static component_wise(vecs: Vector[], fn: (x: number[]) => number): Vector;
     static component_wise(...args: any[]): Vector {
         return new Vector(
             args[1](args[0].map((v: Vector) => v.x)),
-            args[1](args[0].map((v: Vector) => v.y)),
+            args[1](args[0].map((v: Vector) => v.y))
         );
     }
 
@@ -203,7 +193,7 @@ export class Vector {
 
         const cosineTheta = Math.max(
             -1,
-            Math.min(1, dotProduct / lengthsProduct),
+            Math.min(1, dotProduct / lengthsProduct)
         );
         const angle = Math.acos(cosineTheta);
 
@@ -214,24 +204,24 @@ export class Vector {
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
-        reference: Vector,
+        reference: Vector
     ): Radians;
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
-        range: "0To2Pi" | "minusPiToPi",
+        range: "0To2Pi" | "minusPiToPi"
     ): Radians;
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
         reference: Vector,
-        range: "0To2Pi" | "minusPiToPi",
+        range: "0To2Pi" | "minusPiToPi"
     ): Radians;
     static angle_clockwise(
         vec1: Vector,
         vec2: Vector,
         reference: Vector | "0To2Pi" | "minusPiToPi" = Vector.ZERO,
-        range: "0To2Pi" | "minusPiToPi" = "0To2Pi",
+        range: "0To2Pi" | "minusPiToPi" = "0To2Pi"
     ) {
         if (typeof reference == "string") {
             range = reference;
@@ -244,7 +234,7 @@ export class Vector {
         const dot = vec1.dot(vec2);
         const cross = vec1.x * vec2.y - vec1.y * vec2.x; // 2D cross product
         let angle = Math.acos(
-            Math.min(Math.max(dot / (vec1.length() * vec2.length()), -1), 1),
+            Math.min(Math.max(dot / (vec1.length() * vec2.length()), -1), 1)
         );
 
         if (isNaN(angle)) {

@@ -20,6 +20,9 @@ Anime2Sketch
 U-2-Net
 approxPolyDP
 
+centerline trace
+    - with a thickness / style info
+
 stable diffusion/etc api or local
 quick and dirty anime filter
 
@@ -34,6 +37,10 @@ for what exactly do I need the live-wire py bridge?
 - basically anything non-cude/gpu
 - so: python / standalone applications
 
+sharpening, normalization, ...
+img2svg rust
+
+https://github.com/HellOwhatAs/larnt
 
 also/instead: 
 just have a shared string/image interface in a folder
@@ -541,6 +548,8 @@ What to fit?
 - region classifier on polyline
 
 svg to path
+trace a path with a kernel/method attatched through an image
+upscale grid/image
 
 # Heisenbugs
 

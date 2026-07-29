@@ -1,2 +1,4 @@
 .venv
 __*
+!__main__.py
+!__init__.py

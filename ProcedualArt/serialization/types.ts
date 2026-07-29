@@ -1,4 +1,4 @@
-import { Polygon, Polyline, Vector } from "@/Core/geometry";
+import { Matrix, Polygon, Polyline, Vector } from "@/Core/geometry";
 import { Sketch } from "@/Core/sketch";
 import { LengthGraph, ShapeGraph, VertexGraph } from "@/ProcArt/graph";
 import {
@@ -19,6 +19,7 @@ export type StoffSerializablePrimitive = {
     polygon: Polygon;
     polyline: Polyline;
     vector: Vector;
+    matrix: Matrix;
 
     sketch: Sketch;
 

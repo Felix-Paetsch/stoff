@@ -1,4 +1,4 @@
-import { Polygon, Polyline, Vector } from "@/Core/geometry";
+import { Matrix, Polygon, Polyline, Vector } from "@/Core/geometry";
 import { Json } from "@/Core/utils";
 import { destringify_f64_array, stringify_f64_array } from "./number_array";
 
@@ -32,6 +32,16 @@ export function serialize_vector(v: Vector): {
     };
 }
 
+export function serialize_matrix(v: Matrix): {
+    type: "matrix";
+    data: Json;
+} {
+    return {
+        type: "matrix",
+        data: [v.a, v.b, v.c, v.d]
+    };
+}
+
 export function deserialize_polyline(value: {
     type: "polyline";
     data: any;
@@ -52,4 +62,12 @@ export function deserialize_vector(value: {
 }): Vector {
     const [x, y] = value.data as [number, number];
     return new Vector(x, y);
+}
+
+export function deserialize_matrix(value: {
+    type: "matrix";
+    data: any;
+}): Matrix {
+    const [a, b, c, d] = value.data as [number, number, number, number];
+    return Matrix.from_entries(a, b, c, d);
 }

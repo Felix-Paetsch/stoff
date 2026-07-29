@@ -1,5 +1,6 @@
 import { Vector } from "Core/geometry/vector";
 import {
+    deserialize_matrix,
     deserialize_polygon,
     deserialize_polyline,
     deserialize_vector
@@ -95,6 +96,15 @@ export function deserialize_from_json(r: {
         return deserialize_vector(
             r as {
                 type: "vector";
+                data: any;
+            }
+        );
+    }
+
+    if (type == "matrix") {
+        return deserialize_matrix(
+            r as {
+                type: "matrix";
                 data: any;
             }
         );
@@ -197,14 +207,14 @@ export function deserialize_from_json(r: {
     }
 
     if (type == "array") {
-        return (data as any[]).map((a) => deserialize_py_transmittable(a));
+        return (data as any[]).map((a) => deserialize_from_json(a));
     }
 
     if (type == "object") {
         return Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 key,
-                deserialize_py_transmittable(value as any)
+                deserialize_from_json(value as any)
             ])
         );
     }

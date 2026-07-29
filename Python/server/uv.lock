@@ -7,6 +7,7 @@ name = "py-stoff"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "stoff-types" },
     { name = "websockets" },
 ]
 
@@ -16,7 +17,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "websockets", specifier = ">=16.1.1" }]
+requires-dist = [
+    { name = "stoff-types", editable = "../stoff_types" },
+    { name = "websockets", specifier = ">=16.1.1" },
+]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff", specifier = ">=0.16.0" }]
@@ -45,6 +49,16 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/a3/d5e4ef7a56be3f928ffb90b94c25ba7d3cb9c7fe0736aeaaedf361770712/ruff-0.16.0-py3-none-win_amd64.whl", hash = "sha256:429c117f022bf481fabd9d551e7a3952b24c65e6ef44337ea09d90bebef14472", size = 11923141, upload-time = "2026-07-23T19:11:26.409Z" },
     { url = "https://files.pythonhosted.org/packages/cb/9a/8415f2657cbe200f41a4531ccededf135505a92d4a012229121f885b26f9/ruff-0.16.0-py3-none-win_arm64.whl", hash = "sha256:14296fedcd2705c77ab8235439278bbb38f285cf7da5528b00b3e330c3d4872d", size = 11273407, upload-time = "2026-07-23T19:11:28.705Z" },
 ]
+
+[[package]]
+name = "stoff-types"
+version = "0.1.0"
+source = { editable = "../stoff_types" }
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.16.0" }]
 
 [[package]]
 name = "websockets"
