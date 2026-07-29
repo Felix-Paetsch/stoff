@@ -16,8 +16,9 @@
 !/Sewing/Data/PreviewPictures/**/*.svg
 **/*.pdf
 
-Rust/pkg
-Rust/target
+Rust/**/target
+Rust/**/pkg
+
 out
 !Dev/Lib/out
 Notes/Paper
@@ -25,3 +26,4 @@ Notes/Paper
 **fontawesome**
 
 Tools/_outdated
+Experiments
