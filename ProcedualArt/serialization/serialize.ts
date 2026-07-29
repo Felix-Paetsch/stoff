@@ -55,7 +55,7 @@ export function serialize_to_json(
 
     if (r instanceof Uint8Array) {
         return {
-            type: "number_array",
+            type: "uint8_array",
             data: stringify_u8_array(r)
         };
     }

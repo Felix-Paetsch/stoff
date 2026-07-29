@@ -22,7 +22,7 @@ import { destringify_f64_array, destringify_u8_array } from "./number_array";
 import { deserialize_sketch } from "./sketch";
 import { StoffSerializable, StoffSerializableTag } from "./types";
 
-export function deseriailze(s: string): StoffSerializable {
+export function deserialize(s: string): StoffSerializable {
     return deserialize_from_json(JSON.parse(s));
 }
 
@@ -31,10 +31,6 @@ export function deserialize_from_json(r: {
     data: any;
 }): StoffSerializable {
     const { type, data } = r;
-
-    if (type == "float64_array") {
-        return destringify_f64_array(data);
-    }
 
     if (type == "uint8_array") {
         return destringify_u8_array(data);

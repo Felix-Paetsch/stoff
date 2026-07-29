@@ -36,9 +36,7 @@ export type StoffSerializablePrimitive = {
     length_graph: LengthGraph;
     shape_graph: ShapeGraph;
 
-    float64_array: Float64Array;
     uint8_array: Uint8Array;
-
     number_array: number[];
     vector_array: Vector[];
 };
