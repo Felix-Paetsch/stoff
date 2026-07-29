@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generic, Literal, TypeAlias, TypeVar
 
-from geometry.matrix import Matrix
-from geometry.vector import Vector
+from .geometry.matrix import Matrix
+from .geometry.vector import Vector
 
 T = TypeVar("T")
 GridType = TypeVar("GridType", bound=str)

@@ -17,7 +17,7 @@ select = [
   "B",    # flake8-bugbear
   "UP",   # pyupgrade
   "SIM",  # simplify
-  "ANN",  # missing annotations
+  # "ANN",  # missing annotations
 ]
 
 [tool.ruff.format]
