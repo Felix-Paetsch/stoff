@@ -22,11 +22,11 @@ import { destringify_f64_array, destringify_u8_array } from "./number_array";
 import { deserialize_sketch } from "./sketch";
 import { StoffSerializable, StoffSerializableTag } from "./types";
 
-export function deserialize(s: string): StoffSerializable {
-    return deserialize_from_json(JSON.parse(s));
+export function stoff_deserialize(s: string): StoffSerializable {
+    return stoff_deserialize_from_json(JSON.parse(s));
 }
 
-export function deserialize_from_json(r: {
+export function stoff_deserialize_from_json(r: {
     type: StoffSerializableTag;
     data: any;
 }): StoffSerializable {
@@ -203,14 +203,14 @@ export function deserialize_from_json(r: {
     }
 
     if (type == "array") {
-        return (data as any[]).map((a) => deserialize_from_json(a));
+        return (data as any[]).map((a) => stoff_deserialize_from_json(a));
     }
 
     if (type == "object") {
         return Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 key,
-                deserialize_from_json(value as any)
+                stoff_deserialize_from_json(value as any)
             ])
         );
     }

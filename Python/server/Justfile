@@ -1,0 +1,13 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+sync:
+    uv sync --locked
+
+run:
+    uv run python index.py
+
+watch:
+    ../../watch.sh --fileEndings py "uv run python index.py"
+
+lint:
+    ../../watch.sh --fileEndings py "uv run ruff check ."

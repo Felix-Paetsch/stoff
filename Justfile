@@ -1,5 +1,5 @@
 mod rust 'Rust/Justfile'
-mod python 'Python/Justfile'
+mod python 'Python/server/Justfile'
 
 mod standalone 'StandAlone/Justfile'
 

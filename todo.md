@@ -1,5 +1,9 @@
 # Todo
 
+
+Display the python error in ts
+maybe validate requests are ok?
+
 2. Generate paths from images
 3. Modify images to better have paths
 4. SVG support

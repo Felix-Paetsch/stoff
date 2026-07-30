@@ -1,59 +1,146 @@
 import asyncio
+import inspect
 import json
+import traceback
 from typing import Any
 
+from stoff_types import deserialize_from_json, serialize
 from websockets.asyncio.server import ServerConnection, serve
+from websockets.exceptions import ConnectionClosed
+
+from methods import method_dict
 
 
 async def handle_request(request: dict[str, Any]) -> dict[str, Any]:
-    action = request.get("action")
+    request_id = request.get("id")
+    message = request.get("message")
 
-    if action == "add":
-        a = request.get("a")
-        b = request.get("b")
-
-        if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-            raise ValueError("a and b must be numbers")
-
+    if not isinstance(message, str):
         return {
-            "result": a + b,
+            "id": request_id,
+            "ok": False,
+            "reason": "invalid_message",
         }
 
-    if action == "greet":
-        name = request.get("name", "world")
-
+    try:
+        message_deserialized = json.loads(message)
+    except json.JSONDecodeError:
         return {
-            "message": f"Hello, {name}!",
+            "id": request_id,
+            "ok": False,
+            "reason": "invalid_message",
         }
 
-    raise ValueError(f"Unknown action: {action}")
+    if not isinstance(message_deserialized, dict):
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "invalid_message",
+        }
+
+    method_name = message_deserialized.get("method")
+    serialized_arguments = message_deserialized.get("data")
+
+    if not isinstance(method_name, str):
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "unknown_method",
+        }
+
+    method = method_dict.get(method_name)
+
+    if method is None:
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "unknown_method",
+        }
+
+    try:
+        arguments = deserialize_from_json(serialized_arguments)
+    except Exception:
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "invalid_arguments",
+        }
+
+    if not isinstance(arguments, (list, tuple)):
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "invalid_message",
+        }
+
+    try:
+        result = method(*arguments)
+
+        if inspect.isawaitable(result):
+            result = await result
+
+        return {
+            "id": request_id,
+            "ok": True,
+            "data": serialize(result),
+        }
+
+    except Exception:
+        print("====== Exception =======")
+        traceback.print_exc()
+        print("=========================")
+
+        return {
+            "id": request_id,
+            "ok": False,
+            "reason": "internal_error",
+        }
 
 
 async def connection_handler(websocket: ServerConnection) -> None:
-    async for message in websocket:
-        try:
-            request = json.loads(message)
-            request_id = request.get("id")
+    try:
+        async for message in websocket:
+            request: dict[str, Any] | None = None
 
-            result = await handle_request(request)
+            try:
+                if not isinstance(message, str):
+                    raise ValueError("Request must be a text message")
 
-            response = {
-                "id": request_id,
-                "ok": True,
-                "data": result,
-            }
-        except Exception as error:
-            response = {
-                "id": request.get("id") if "request" in locals() else None,
-                "ok": False,
-                "error": str(error),
-            }
+                request = json.loads(message)
 
-        await websocket.send(json.dumps(response))
+                if not isinstance(request, dict):
+                    raise ValueError("Request must be a JSON object")
+
+                response = await handle_request(request)
+
+            except json.JSONDecodeError:
+                response = {
+                    "id": None,
+                    "ok": False,
+                    "reason": "invalid_request",
+                    "error": "Invalid JSON",
+                }
+
+            except Exception as error:
+                response = {
+                    "id": request.get("id") if request else None,
+                    "ok": False,
+                    "reason": "invalid_request",
+                    "error": str(error),
+                }
+
+            try:
+                await websocket.send(json.dumps(response))
+            except ConnectionClosed:
+                break
+
+    except ConnectionClosed:
+        pass
 
 
 async def main() -> None:
     port = 3001
+
     async with serve(connection_handler, "localhost", port):
         print(f"WebSocket server listening on ws://localhost:{port}")
         await asyncio.Future()

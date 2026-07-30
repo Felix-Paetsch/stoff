@@ -31,11 +31,11 @@ import { stringify_f64_array, stringify_u8_array } from "./number_array";
 import { serialize_sketch } from "./sketch";
 import { StoffSerializable, StoffSerializableTag } from "./types";
 
-export function serialize(r: StoffSerializable, max_depth = 5): string {
-    return JSON.stringify(serialize_to_json(r, max_depth));
+export function stoff_serialize(r: StoffSerializable, max_depth = 5): string {
+    return JSON.stringify(stoff_serialize_to_json(r, max_depth));
 }
 
-export function serialize_to_json(
+export function stoff_serialize_to_json(
     r: StoffSerializable,
     max_depth = 5
 ): {
@@ -168,7 +168,7 @@ export function serialize_to_json(
 
         return {
             type: "array",
-            data: r.map((a) => serialize_to_json(a, max_depth - 1))
+            data: r.map((a) => stoff_serialize_to_json(a, max_depth - 1))
         };
     }
 
@@ -177,7 +177,7 @@ export function serialize_to_json(
         data: Object.fromEntries(
             Object.entries(r).map(([key, value]) => [
                 key,
-                serialize_to_json(value, max_depth - 1)
+                stoff_serialize_to_json(value, max_depth - 1)
             ])
         )
     };

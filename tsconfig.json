@@ -48,7 +48,10 @@
 
             "@/ProcArt/design_approaches": ["ProcedualArt/design_approaches"],
 
-            "@/Dev": ["Dev/Lib"]
+            "@/Dev": ["Dev/Lib"],
+
+            "@/Python": ["Python/ts_server/index"],
+            "@/Rust": ["Rust/exports"]
         }
     },
     "include": ["**/*.ts", "**/*.js", "**/*.d.ts"],

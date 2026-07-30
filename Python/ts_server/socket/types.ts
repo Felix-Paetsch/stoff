@@ -7,7 +7,7 @@ export type SuccessResponse = {
 export type FailureResponse = {
     id: string;
     ok: false;
-    reason: "unknown_method" | "internal_error";
+    reason: "unknown_method" | "internal_error" | "invalid_message";
     data?: string;
 };
 
